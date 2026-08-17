@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "generated_utc": "",
+  "generator": "verification-panel (step 9) -- backfilled 2026-07-08 (Task 3.3), transcribed from VERIFICATION-LADDER.md (retrofit 2026-07-07, roadmap C7) + RESULT.md 'Honest assessment' + DEVIATIONS.md; not a literal fresh-context Tier-B re-run",
+  "rundir": "trial-runs/sleptonscan_fig3_SCAN",
+  "tier_a": {
+    "verify_pack_exit": 0,
+    "number_tracing": "pass",
+    "ladder_present": true,
+    "verdict": "pass"
+  },
+  "tier_b": {
+    "verdict": "CONCERNS",
+    "fresh_context": false,
+    "attack_lists_used": [],
+    "findings": [
+      "[B/CONCERNS] Headline median |(mapyde-ATLAS)/ATLAS| remains 24.9% observed / 24.1% expected (50 ref-matched cells, post-CR-001) -- NOT a publication-grade numerical match. Disposition: stated plainly in RESULT.md 'Honest assessment' (not hidden); VERIFICATION-LADDER.md 'Gap attribution' brackets the residual to R4/R5 (acceptance/fast-sim/generator-statistics), ruling out selection (R3 exact), sigma basis (R1 identity-checked), and statistical machinery (R5 exact); CR-004 (higher-stats + ptj1min rescan) is the deferred lever, not yet run.",
+      "[B/CONCERNS] Cell-by-cell validation against RRR's own decoded published pixels (19 comparable cells, expected variant): only 2/19 same-bin, 6/19 within one bin -- the 'within one bin' target explicitly NOT met. Disposition: RESULT.md 'RRR Fig-3 construction deltas' attributes this to RRR's mu quantization (10-point linspace(0.1,2) scan, up to +-0.1 ~= 1-2 bins/cell), the ptj1min tag-definition difference (T6), and states the rebased inclusive-model basis is the more physically correct construction -- pixel parity with RRR's own (unpublished-code, mu-capped) map is argued not to be the right acceptance bar; the declared-basis comparison against ATLAS itself (median 24-26%) is.",
+      "[B/CONCERNS] Native ISR-tag threshold (ptj1min=0 GeV, template default) differs from the container/RRR convention (ptj1min=50 GeV) -- a measured x2.14 tagged-sigma effect at m=200 GeV (RESULT.md 'sigma_ref provenance finding'; CR-002; trap T6). Disposition: documented tag-definition deviation, does not change the quoted model-basis mu_SUSY (the rebase removes the tag from the quoted UL entirely, since each sample normalizes to its own sigma) -- flagged in RESULT.md caveats + DEVIATIONS.md, not silently absorbed."
+    ]
+  },
+  "overall_verdict": "CONCERNS",
+  "delivered": true
+}

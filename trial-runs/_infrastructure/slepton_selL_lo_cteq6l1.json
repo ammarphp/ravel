@@ -1,0 +1,24 @@
+{
+  "description": "sigma_LO(p p > el- el+) vs m_slepton at 13 TeV -- the LIKE-FOR-LIKE LO denominator for the slepton NLO+NLL k-factor used by nlo_xsec.py (--process slepton without --sigma-lo-pb) and by scan_orchestrator.py assemble --nlo-renorm slepton.",
+  "process": "p p > el- el+ (selectron_L pair, PDG 1000011 x -1000011), 2->2 INCLUSIVE (no ISR-jet requirement) -- the SAME single-flavour single-chirality state the HEPi reference file 13000_sleptons_1000011_-1000011_NNLL.json contains, so the ratio k = sigma_NNLL/sigma_LO is state-for-state like-for-like (the trap .claude/rules/statistics.md warns about).",
+  "model": "MSSM_SLHA2, param card = mapyde SleptonBino.slha rendered per mass (MSLEP=m, MN1=m-2; the LSP mass is irrelevant for the s-channel Drell-Yan production sigma)",
+  "pdf": "cteq6l1 (MadGraph-internal) -- deliberately the SAME LO PDF the scan's signal samples were generated with: k(m) = sigma_NNLL(PDF4LHC21)/sigma_LO(cteq6l1) is deliberately MIXED in PDF and order because that ratio IS the multiplicative correction mapping a cteq6l1-LO-normalized sample onto the NLO+NLL normalization ATLAS/RRR use.",
+  "generator": "MG5_aMC 2.9.27 LO, nevents=2000, iseed=1, ebeam=6500+6500, use_syst=False (run card = mapyde default_LO.dat, keyed edits per prepare_native_slepton.render_runcard)",
+  "ecom_gev": 13000,
+  "generated": "2026-07-04 (one-off reference run; regenerate with the recipe above if the mass grid must be extended)",
+  "mc_unc_note": "MC integration errors ~0.25% (from the MadGraph 'Cross-section : x +- y pb' lines), negligible vs the ~few-% scale/PDF uncertainty of the NNLL numerator.",
+  "data": {
+    "50": {"xsec_pb": 3.10911, "unc_pb": 0.007587},
+    "60": {"xsec_pb": 1.34503, "unc_pb": 0.004032},
+    "70": {"xsec_pb": 0.74152, "unc_pb": 0.002127},
+    "90": {"xsec_pb": 0.29693, "unc_pb": 0.0009101},
+    "100": {"xsec_pb": 0.20363, "unc_pb": 0.0005848},
+    "125": {"xsec_pb": 0.091199, "unc_pb": 0.0002442},
+    "150": {"xsec_pb": 0.047169, "unc_pb": 0.0001209},
+    "175": {"xsec_pb": 0.026772, "unc_pb": 7.046e-05},
+    "200": {"xsec_pb": 0.0161827, "unc_pb": 4.27e-05},
+    "225": {"xsec_pb": 0.0103461, "unc_pb": 2.94e-05},
+    "250": {"xsec_pb": 0.006826, "unc_pb": 1.886e-05},
+    "300": {"xsec_pb": 0.0032956, "unc_pb": 1.023e-05}
+  }
+}

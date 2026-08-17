@@ -1,0 +1,6 @@
+{
+  "token": "SPK-e3acc687cd66",
+  "launch_cmd": "sleep 5; echo \"SPK2_DONE SPK-e3acc687cd66\"",
+  "bg_kind": "harness",
+  "reinvoke_text": "[SYSTEM NOTIFICATION - NOT USER INPUT] automated background-task event\n<task-notification>\n<task-id>b57n0u1yp</task-id>\n<tool-use-id>toolu_01M85kEWgDPL8GvGBAqgWfXL</tool-use-id>\n<output-file>/private/tmp/claude-501/-Users-ammaraziz-Documents-DSRLab/63caa7a9-28a9-4e46-8ea0-7c4f8d4f4d54/tasks/b57n0u1yp.output</output-file>\n<status>completed</status>\n<summary>Background command \"Background token echo for SPK-2 completion re-invoke proof\" completed (exit code 0)</summary>\n</task-notification>\njob stdout delivered on completion via the harness run_in_background channel: SPK2_DONE SPK-e3acc687cd66"
+}

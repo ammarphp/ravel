@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+title: "hep-agentic-pipeline: an agentic LLM workflow for LHC new-physics reinterpretation"
+message: "If you use this software, please cite it and the foundational tools listed under references."
+type: software
+authors:
+  - given-names: Ammar
+    family-names: Aziz
+    email: ammarabdullahaziz@gmail.com
+abstract: >-
+  An agentic workflow that reinterprets a published ATLAS/CMS analysis against a user-specified
+  new-physics model, running MadGraph -> Pythia8 -> Rivet/SimpleAnalysis -> pyhf to produce the
+  signal-over-data overlay and a 95% CL exclusion limit. Validated against published acceptance x
+  efficiency and exclusion limits with a tiered certification gate.
+keywords:
+  - high-energy physics
+  - LHC reinterpretation
+  - recasting
+  - supersymmetry
+  - agentic workflow
+license: Apache-2.0
+repository-code: "https://github.com/ammarphp/ravel"
+version: 0.1.0
+date-released: "2026-07-30"
+references:
+  - type: article
+    title: "Reduce, Reuse, Reinterpret: an end-to-end pipeline for recycling particle physics results"
+    authors:
+      - family-names: Stark
+        given-names: Giordon
+      - family-names: Aristimuno Ots
+        given-names: Camila
+      - family-names: Hance
+        given-names: Mike
+    notes: "the mapyde package; arXiv:2306.11055; SciPost Phys. Codebases 27 (2024)"
+  - type: software
+    title: "Rivet"
+    notes: "particle-level analysis framework"
+  - type: software
+    title: "pyhf"
+    notes: "pure-Python HistFactory; public ATLAS likelihoods"
+  - type: software
+    title: "SModelS"
+  - type: software
+    title: "MadAnalysis 5"

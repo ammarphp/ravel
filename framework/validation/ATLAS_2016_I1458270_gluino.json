@@ -1,0 +1,88 @@
+{
+  "routine": "ATLAS_2016_I1458270",
+  "label": "gluino(1000,100)",
+  "verdict": "WARN",
+  "driving_tol": 0.15,
+  "mu95_bound": 0.1,
+  "worst_driving_mu95_impact": 0.13242766830704022,
+  "rows": [
+    {
+      "sr": "2jl",
+      "role": "contributing",
+      "mine": 0.15432587064676614,
+      "pub": 0.1547,
+      "ratio": 0.9975815814270598,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "2jm",
+      "role": "contributing",
+      "mine": 0.14872856032338308,
+      "pub": 0.1561,
+      "ratio": 0.9527774524239788,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "2jt",
+      "role": "contributing",
+      "mine": 0.022089396766169153,
+      "pub": 0.02678,
+      "ratio": 0.8248467799166972,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "4jt",
+      "role": "driving",
+      "mine": 0.03648247823383084,
+      "pub": 0.03833,
+      "ratio": 0.9517995886728631,
+      "ok": true,
+      "mu95_impact": 0.04820041132713693,
+      "attribution": null
+    },
+    {
+      "sr": "5j",
+      "role": "driving",
+      "mine": 0.08345991915422886,
+      "pub": 0.0737,
+      "ratio": 1.1324276683070402,
+      "ok": true,
+      "mu95_impact": 0.13242766830704022,
+      "attribution": null
+    },
+    {
+      "sr": "6jm",
+      "role": "driving",
+      "mine": 0.04777705223880597,
+      "pub": 0.03811,
+      "ratio": 1.253661827310574,
+      "ok": false,
+      "mu95_impact": 0.25366182731057396,
+      "attribution": {
+        "sr": "6jm",
+        "ratio": 1.254,
+        "role": "driving",
+        "residual_pct": 25,
+        "cause_class": "fast-sim-floor",
+        "mu95_impact_pct": 25,
+        "note": "[Opus to confirm physical cause]"
+      }
+    },
+    {
+      "sr": "6jt",
+      "role": "driving",
+      "mine": 0.03408362873134328,
+      "pub": 0.0311,
+      "ratio": 1.0959366151557326,
+      "ok": true,
+      "mu95_impact": 0.0959366151557326,
+      "attribution": null
+    }
+  ]
+}

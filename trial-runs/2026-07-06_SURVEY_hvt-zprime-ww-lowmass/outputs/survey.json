@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "survey_target": "ATLAS+CMS searches sensitive to HVT Z'->WW, m(Z') < 500 GeV",
+  "survey_method": "targeted web search (arXiv/Inspire abstracts) + direct WebFetch verification of title/abstract/mass-range + fetch_figures.py extraction of the candidate limit figure + visual mass-axis confirmation",
+  "candidates": [
+    {
+      "id": "ATLAS_2004.14636",
+      "experiment": "ATLAS",
+      "title": "Search for heavy diboson resonances in semileptonic final states in pp collisions at sqrt(s)=13 TeV with the ATLAS detector",
+      "arxiv": "2004.14636",
+      "journal": "Eur.Phys.J.C 80 (2020) 1165",
+      "doi": "10.1140/epjc/s10052-020-08554-y",
+      "luminosity_fb": 139,
+      "final_state": "l-nu-qq (one W leptonic, other W/Z hadronic; resolved + merged topologies)",
+      "mass_range_gev": [300, 5000],
+      "hvt_models": ["Model A (g_V=1)", "Model B (g_V=3)"],
+      "target_figure": "Figure 14(a)",
+      "target_figure_caption": "Observed/expected 95% CL upper limits on the DY production cross-section of an HVT Z' boson in the WW decay mode as a function of its mass",
+      "verified_below_500gev": true,
+      "verification_note": "Rasterized fig_14a.pdf directly: curve starts at 0.3 TeV with sigma~1 pb, HVT Model A and B reference lines overlaid across the full axis including <0.5 TeV. STRONGEST candidate for the <500 GeV window; WW-channel-specific (not a combined-Z' curve).",
+      "local_path": "outputs/published/atlas_2004.14636/figures/fig_14a.pdf",
+      "provenance": "digitized",
+      "disposition": {
+        "state": "plotted",
+        "reason": "primary l-nu-qq (semileptonic) curve for the <500 GeV window; full Run-2 139 fb^-1, supersedes ATLAS_1710.07235",
+        "reviewer": "agent:task-4.2"
+      }
+    },
+    {
+      "id": "ATLAS_1710.01123",
+      "experiment": "ATLAS",
+      "title": "Search for heavy resonances decaying into WW in the e-nu-mu-nu final state in pp collisions at sqrt(s)=13 TeV with the ATLAS detector",
+      "arxiv": "1710.01123",
+      "journal": "Eur.Phys.J.C 78 (2018) 24",
+      "doi": "10.1140/epjc/s10052-017-5491-4",
+      "luminosity_fb": 36.1,
+      "final_state": "fully leptonic WW -> e-nu-mu-nu (no jets)",
+      "mass_range_gev": [200, 5000],
+      "hvt_models": ["HVT g_V=1 (qqA production)"],
+      "target_figure": "Limit_HVT.pdf (unnumbered in extraction; single HVT limit panel)",
+      "target_figure_caption": "sigma_X x B(X->WW) 95% CL upper limit vs m_X, X->WW->e-nu-mu-nu, qqbar-annihilation HVT assumption, HVT g_V=1 reference line overlaid",
+      "verified_below_500gev": true,
+      "verification_note": "Rasterized directly: curve starts at 0.2 TeV (200 GeV), full coverage of the <500 GeV window; earliest low-mass reach of any candidate found. Complementary final state (fully leptonic) to the semileptonic 2004.14636 -- different systematics/backgrounds, same underlying physics coverage.",
+      "local_path": "outputs/published/atlas_1710.01123/figures/Limit_HVT.pdf",
+      "provenance": "digitized",
+      "disposition": {
+        "state": "plotted",
+        "reason": "F1 fix (2026-07-08): previously dropped for a mechanical HEPData-keyword reason (R-SA3-caught, not a physics judgement). In-window (200-5000 GeV, reaches lowest of any candidate) and correct-channel (fully-leptonic WW, complementary to the l-nu-qq channel) -- the only gate-passing disposition is plotted. No aux data file in outputs/published/atlas_1710.01123/1710.01123.tar.gz (arXiv source tarball has figures/ PDFs only, no HEPData yaml/dat); digitized from figures/Limit_HVT.pdf (400dpi raster, pixel-calibrated axis, 24 observed points + partial expected/theory) -- see basis_manifest.json curve + VERIFICATION-LADDER.md for the digitization record.",
+        "reviewer": "agent:task-4.2"
+      }
+    },
+    {
+      "id": "ATLAS_1710.07235",
+      "experiment": "ATLAS",
+      "title": "Search for WW/WZ resonance production in l-nu-qq final states in pp collisions at sqrt(s)=13 TeV with the ATLAS detector",
+      "arxiv": "1710.07235",
+      "journal": "JHEP 03 (2018) 042",
+      "luminosity_fb": 36.1,
+      "final_state": "l-nu-qq",
+      "mass_range_gev": [300, 5000],
+      "hvt_models": ["Model A", "Model B"],
+      "status": "SUPERSEDED by ATLAS_2004.14636 (same channel, full Run-2 139 fb^-1 vs this paper's 36.1 fb^-1) -- kept as historical/cross-check only, NOT a separate gallery entry",
+      "verified_below_500gev": true,
+      "local_path": "outputs/published/atlas_1710.07235/figures/HVTWW_LPHP_ggF.pdf",
+      "provenance": "digitized",
+      "disposition": {
+        "state": "superseded",
+        "reason": "superseded by ATLAS_2004.14636: identical l-nu-qq (semileptonic) channel, same experiment, this paper's 36.1 fb^-1 subset of the 139 fb^-1 full Run-2 dataset used by 2004.14636. Drawn as a faint crosscheck (draw=crosscheck), not co-equal with its successor.",
+        "reason_class": "physics",
+        "reviewer": "agent:task-4.2",
+        "superseded_by": "ATLAS_2004.14636"
+      }
+    },
+    {
+      "id": "CMS_1612.09159",
+      "experiment": "CMS",
+      "title": "Search for massive resonances decaying into WW, WZ or ZZ bosons in proton-proton collisions at sqrt(s)=13 TeV",
+      "arxiv": "1612.09159",
+      "analysis_code": "CMS-B2G-16-004",
+      "journal": "JHEP 03 (2017) 162",
+      "luminosity_fb": [2.3, 2.7],
+      "final_state": "l-nu-qqbar + qqbar-qqbar (lvqq + qqqq)",
+      "mass_range_gev": [600, 4000],
+      "hvt_models": ["couplings-plane exclusion at 1.5/2.0/3.5 TeV only -- NOT a mass-dependent HVT sigma x BR curve at low mass"],
+      "target_figure": "Figure 6",
+      "target_figure_caption": "sigma x B(Z'->WW) 95% CL upper limit vs M(Z'), lvqq+qqqq channels, HVT_A and HVT_B reference lines overlaid",
+      "verified_below_500gev": false,
+      "verification_note": "Rasterized directly: mass axis starts ~0.6-0.7 TeV. Does NOT reach the <500 GeV window -- included in the gallery to show the CMS-side lower edge and motivate the coverage-gap flag.",
+      "local_path": "outputs/published/cms_1612.09159/figures/Figure_006-a.pdf",
+      "disposition": {
+        "state": "excluded",
+        "reason": "mass axis starts ~600-700 GeV in the target Figure 6 (verified by direct rasterization) -- entirely above the survey's [150,1000] GeV window; not a keyword-drop, a verified physical mass-reach gap.",
+        "reason_class": "out-of-range",
+        "reviewer": "agent:task-4.2"
+      }
+    },
+    {
+      "id": "CMS_2601.12583",
+      "experiment": "CMS",
+      "title": "Combination of searches for heavy vector boson resonances in proton-proton collisions at sqrt(s)=13 TeV",
+      "arxiv": "2601.12583",
+      "analysis_code": "CMS-B2G-25-003 / CERN-EP-2025-270",
+      "luminosity_fb": 138,
+      "final_state": "combination across WW/WZ/ZZ/WH/ZH + qqbar/bbbar/ttbar/tbbar + ll/lnu channels",
+      "mass_range_gev": [1000, 6000],
+      "hvt_models": ["Model A", "Model B", "Model C", "general couplings plane"],
+      "target_figure": "Figure 4(b) [Model B, V'->bosons/leptons/quarks combined] and Figure 10(a) [Z'-only combination, Model A]",
+      "verified_below_500gev": false,
+      "verification_note": "Rasterized both directly: mass axis starts at 1000 GeV in every panel checked. This is CMS's newest and most complete HVT combination (Jan 2026) but its lower reach is far above our window -- boosted-jet-dominated combination. Reinforces the coverage-gap flag: no CMS combination-level HVT WW result reaches <500 GeV found in this survey.",
+      "local_path": "outputs/published/cms_2601.12583/figures/Figure_010-a.pdf",
+      "disposition": {
+        "state": "excluded",
+        "reason": "mass axis starts at 1000 GeV in every panel checked (verified by direct rasterization, both Fig 4b and Fig 10a) -- entirely above the survey's [150,1000] GeV window; not a keyword-drop, a verified physical mass-reach gap.",
+        "reason_class": "out-of-range",
+        "reviewer": "agent:task-4.2"
+      }
+    }
+  ],
+  "excluded_from_gallery": [
+    {
+      "id": "arXiv:1905.04242 (ins1734263)",
+      "reason": "ATLAS SM WW production cross-section MEASUREMENT (STDM-2017-24), not a Z'/HVT resonance search. Fetched by a prior stray session before this survey; not physics-relevant to the Z'->WW summary target. Left on disk under outputs/published/ins1734263/ for audit trail, not used."
+    },
+    {
+      "id": "arXiv:2302.07276",
+      "reason": "Theory recast paper (scalar H->WW, 90-200 GeV), not an HVT/Z' interpretation and not a primary ATLAS/CMS search -- out of scope for this survey's model (HVT) and mass window framing."
+    },
+    {
+      "id": "dijet / Trigger-Level-Analysis low-mass searches (ATLAS TLA, CMS data-scouting)",
+      "reason": "Generic qqbar resonance searches reaching down to ~375-450 GeV, but NOT diboson/WW-tagged -- they constrain a leptophobic Z'->qq incidentally, not Z'->WW directly. Noted as a caveat, not included as a WW-sensitivity gallery entry."
+    }
+  ],
+  "coverage_finding": "For m(Z')<500 GeV specifically: ATLAS has THREE candidate results reaching into or below this window (2004.14636 lvqq from 300 GeV, 1710.01123 fully-leptonic from 200 GeV, and the superseded 1710.07235). NO CMS analysis found in this survey -- including the brand-new Jan-2026 full-Run-2 HVT combination (2601.12583) -- reaches below approximately 600 GeV-1 TeV in a Z'->WW-labeled curve. This is a genuine, surveyed asymmetry, not a search gap on our part: CMS's diboson/HVT programme leans on boosted-jet substructure techniques that require a boosted W (favoring higher resonance mass), while ATLAS retained resolved low-mass categories in both its semileptonic and fully-leptonic WW searches.",
+  "caveat_note": "One WebSearch snippet (not a direct fetch) mis-attributed arXiv:2004.14636 to an unrelated ATLAS stop-quark search; this was checked against THREE independent direct WebFetch calls (abstract page x2, PDF, Springer DOI cross-check) which consistently confirmed the diboson semileptonic paper. Flagging for transparency per the number-integrity rule -- the survey trusted direct primary-source fetches over search-index snippets throughout."
+}

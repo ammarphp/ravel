@@ -1,0 +1,11 @@
+{
+  "name": "slepton-bino-m150-line-native",
+  "model": "slepton-bino",
+  "analysis_id": "ins1767649",
+  "template_toml": "trial-runs/_infrastructure/templates/slepton_scan_template.toml",
+  "subst": {"MSLEP": "m_parent", "MN1": "m_lsp"},
+  "plane": "dm",
+  "run_root": "trial-runs",
+  "run_prefix": "2026-06-16_sleptonscan_m150",
+  "line": {"m_parent": 150, "dm": [5, 10, 15, 20, 25, 30]}
+}

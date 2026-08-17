@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "targets": [
+    {
+      "primary": true,
+      "role": "summary",
+      "paper": {
+        "arxiv": "2306.11055",
+        "inspire": null,
+        "code": null
+      },
+      "figure_id": "Figure 3",
+      "caption_snippet": "RRR (arXiv:2306.11055) Fig 3 form: sparse blocky per-cell (mapyde-ATLAS)/ATLAS relative-difference map on the m_parent x dm mass-plane lattice (log-dm axis), behind ATLAS's published observed exclusion contour (blue dots) and mapyde's mu95=1 contour (blue line); Limits on mu_SUSY colorbar.",
+      "source": "paper-inspection",
+      "hepdata_tables": [],
+      "axes": {
+        "x": "linear",
+        "y": "log",
+        "source": "read-from-published"
+      },
+      "style": null,
+      "extracted_image": {
+        "path": "$DSRLAB_ROOT/2306.11055v2.pdf",
+        "route": "pdf-page",
+        "pdf_page": 6
+      },
+      "generated_counterpart": {
+        "path": "$DSRLAB_ROOT/hep-agentic-pipeline/trial-runs/sleptonscan_fig3_SCAN/plots/sleptonbino_fig3_vsATLAS__fig3.png",
+        "step": "08-scan"
+      },
+      "side_by_side": null,
+      "critique": null,
+      "declared_at_checkin": true,
+      "verified_by_physicist": null
+    },
+    {
+      "primary": false,
+      "role": "overlay",
+      "paper": {
+        "arxiv": "1911.12606",
+        "inspire": "1767649",
+        "code": "ATLAS-SUSY-2018-16"
+      },
+      "figure_id": "Figure 16a",
+      "caption_snippet": "ATLAS-SUSY-2018-16 (arXiv:1911.12606) published observed 95% CL exclusion contour for the slepton-bino model, m_parent vs dm plane -- consumed as tabulated HEPData yaml (slepton_exclusion_contour_obs.yaml), not an extracted image; overlaid as blue dots in our Figure 3 counterpart.",
+      "source": "hepdata-table-name",
+      "hepdata_tables": [
+        "Figure 16a Observed"
+      ],
+      "axes": null,
+      "style": null,
+      "extracted_image": {
+        "path": null,
+        "route": "none",
+        "pdf_page": null
+      },
+      "generated_counterpart": null,
+      "side_by_side": null,
+      "critique": null,
+      "declared_at_checkin": true,
+      "verified_by_physicist": null
+    }
+  ]
+}

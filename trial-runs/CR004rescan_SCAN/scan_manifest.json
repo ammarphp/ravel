@@ -1,0 +1,431 @@
+{
+  "schema_version": 1,
+  "name": "cr004-rescan-nn23nlo",
+  "model": "slepton-bino",
+  "analysis_id": "ins1767649",
+  "plane": "dm",
+  "subst": {
+    "MSLEP": "m_parent",
+    "MN1": "m_lsp"
+  },
+  "template_toml": "trial-runs/_infrastructure/templates/slepton_scan_template.toml",
+  "n_points": 52,
+  "points": [
+    {
+      "tag": "m50_dm2",
+      "m_parent": 50.0,
+      "m_lsp": 48.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m50_dm2",
+      "config": "config/slepton-bino_m50_dm2.toml"
+    },
+    {
+      "tag": "m50_dm5",
+      "m_parent": 50.0,
+      "m_lsp": 45.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m50_dm5",
+      "config": "config/slepton-bino_m50_dm5.toml"
+    },
+    {
+      "tag": "m60_dm2",
+      "m_parent": 60.0,
+      "m_lsp": 58.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m60_dm2",
+      "config": "config/slepton-bino_m60_dm2.toml"
+    },
+    {
+      "tag": "m60_dm5",
+      "m_parent": 60.0,
+      "m_lsp": 55.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m60_dm5",
+      "config": "config/slepton-bino_m60_dm5.toml"
+    },
+    {
+      "tag": "m70_dm2",
+      "m_parent": 70.0,
+      "m_lsp": 68.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m70_dm2",
+      "config": "config/slepton-bino_m70_dm2.toml"
+    },
+    {
+      "tag": "m70_dm5",
+      "m_parent": 70.0,
+      "m_lsp": 65.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m70_dm5",
+      "config": "config/slepton-bino_m70_dm5.toml"
+    },
+    {
+      "tag": "m90_dm20",
+      "m_parent": 90.0,
+      "m_lsp": 70.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m90_dm20",
+      "config": "config/slepton-bino_m90_dm20.toml"
+    },
+    {
+      "tag": "m90_dm40",
+      "m_parent": 90.0,
+      "m_lsp": 50.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m90_dm40",
+      "config": "config/slepton-bino_m90_dm40.toml"
+    },
+    {
+      "tag": "m100_dm2",
+      "m_parent": 100.0,
+      "m_lsp": 98.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm2",
+      "config": "config/slepton-bino_m100_dm2.toml"
+    },
+    {
+      "tag": "m100_dm5",
+      "m_parent": 100.0,
+      "m_lsp": 95.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm5",
+      "config": "config/slepton-bino_m100_dm5.toml"
+    },
+    {
+      "tag": "m100_dm10",
+      "m_parent": 100.0,
+      "m_lsp": 90.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm10",
+      "config": "config/slepton-bino_m100_dm10.toml"
+    },
+    {
+      "tag": "m100_dm20",
+      "m_parent": 100.0,
+      "m_lsp": 80.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm20",
+      "config": "config/slepton-bino_m100_dm20.toml"
+    },
+    {
+      "tag": "m100_dm30",
+      "m_parent": 100.0,
+      "m_lsp": 70.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm30",
+      "config": "config/slepton-bino_m100_dm30.toml"
+    },
+    {
+      "tag": "m100_dm40",
+      "m_parent": 100.0,
+      "m_lsp": 60.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m100_dm40",
+      "config": "config/slepton-bino_m100_dm40.toml"
+    },
+    {
+      "tag": "m125_dm2",
+      "m_parent": 125.0,
+      "m_lsp": 123.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm2",
+      "config": "config/slepton-bino_m125_dm2.toml"
+    },
+    {
+      "tag": "m125_dm5",
+      "m_parent": 125.0,
+      "m_lsp": 120.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm5",
+      "config": "config/slepton-bino_m125_dm5.toml"
+    },
+    {
+      "tag": "m125_dm10",
+      "m_parent": 125.0,
+      "m_lsp": 115.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm10",
+      "config": "config/slepton-bino_m125_dm10.toml"
+    },
+    {
+      "tag": "m125_dm20",
+      "m_parent": 125.0,
+      "m_lsp": 105.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm20",
+      "config": "config/slepton-bino_m125_dm20.toml"
+    },
+    {
+      "tag": "m125_dm30",
+      "m_parent": 125.0,
+      "m_lsp": 95.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm30",
+      "config": "config/slepton-bino_m125_dm30.toml"
+    },
+    {
+      "tag": "m125_dm40",
+      "m_parent": 125.0,
+      "m_lsp": 85.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m125_dm40",
+      "config": "config/slepton-bino_m125_dm40.toml"
+    },
+    {
+      "tag": "m150_dm2",
+      "m_parent": 150.0,
+      "m_lsp": 148.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm2",
+      "config": "config/slepton-bino_m150_dm2.toml"
+    },
+    {
+      "tag": "m150_dm5",
+      "m_parent": 150.0,
+      "m_lsp": 145.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm5",
+      "config": "config/slepton-bino_m150_dm5.toml"
+    },
+    {
+      "tag": "m150_dm10",
+      "m_parent": 150.0,
+      "m_lsp": 140.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm10",
+      "config": "config/slepton-bino_m150_dm10.toml"
+    },
+    {
+      "tag": "m150_dm20",
+      "m_parent": 150.0,
+      "m_lsp": 130.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm20",
+      "config": "config/slepton-bino_m150_dm20.toml"
+    },
+    {
+      "tag": "m150_dm25p7",
+      "m_parent": 150.0,
+      "m_lsp": 124.3,
+      "dm": 25.700000000000003,
+      "run_dir": "trial-runs/CR004rescan_m150_dm25p7",
+      "config": "config/slepton-bino_m150_dm25p7.toml"
+    },
+    {
+      "tag": "m150_dm30",
+      "m_parent": 150.0,
+      "m_lsp": 120.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm30",
+      "config": "config/slepton-bino_m150_dm30.toml"
+    },
+    {
+      "tag": "m150_dm40",
+      "m_parent": 150.0,
+      "m_lsp": 110.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m150_dm40",
+      "config": "config/slepton-bino_m150_dm40.toml"
+    },
+    {
+      "tag": "m175_dm2",
+      "m_parent": 175.0,
+      "m_lsp": 173.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm2",
+      "config": "config/slepton-bino_m175_dm2.toml"
+    },
+    {
+      "tag": "m175_dm5",
+      "m_parent": 175.0,
+      "m_lsp": 170.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm5",
+      "config": "config/slepton-bino_m175_dm5.toml"
+    },
+    {
+      "tag": "m175_dm10",
+      "m_parent": 175.0,
+      "m_lsp": 165.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm10",
+      "config": "config/slepton-bino_m175_dm10.toml"
+    },
+    {
+      "tag": "m175_dm20",
+      "m_parent": 175.0,
+      "m_lsp": 155.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm20",
+      "config": "config/slepton-bino_m175_dm20.toml"
+    },
+    {
+      "tag": "m175_dm30",
+      "m_parent": 175.0,
+      "m_lsp": 145.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm30",
+      "config": "config/slepton-bino_m175_dm30.toml"
+    },
+    {
+      "tag": "m175_dm40",
+      "m_parent": 175.0,
+      "m_lsp": 135.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m175_dm40",
+      "config": "config/slepton-bino_m175_dm40.toml"
+    },
+    {
+      "tag": "m200_dm2",
+      "m_parent": 200.0,
+      "m_lsp": 198.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm2",
+      "config": "config/slepton-bino_m200_dm2.toml"
+    },
+    {
+      "tag": "m200_dm5",
+      "m_parent": 200.0,
+      "m_lsp": 195.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm5",
+      "config": "config/slepton-bino_m200_dm5.toml"
+    },
+    {
+      "tag": "m200_dm10",
+      "m_parent": 200.0,
+      "m_lsp": 190.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm10",
+      "config": "config/slepton-bino_m200_dm10.toml"
+    },
+    {
+      "tag": "m200_dm20",
+      "m_parent": 200.0,
+      "m_lsp": 180.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm20",
+      "config": "config/slepton-bino_m200_dm20.toml"
+    },
+    {
+      "tag": "m200_dm30",
+      "m_parent": 200.0,
+      "m_lsp": 170.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm30",
+      "config": "config/slepton-bino_m200_dm30.toml"
+    },
+    {
+      "tag": "m200_dm40",
+      "m_parent": 200.0,
+      "m_lsp": 160.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m200_dm40",
+      "config": "config/slepton-bino_m200_dm40.toml"
+    },
+    {
+      "tag": "m225_dm2",
+      "m_parent": 225.0,
+      "m_lsp": 223.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm2",
+      "config": "config/slepton-bino_m225_dm2.toml"
+    },
+    {
+      "tag": "m225_dm5",
+      "m_parent": 225.0,
+      "m_lsp": 220.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm5",
+      "config": "config/slepton-bino_m225_dm5.toml"
+    },
+    {
+      "tag": "m225_dm10",
+      "m_parent": 225.0,
+      "m_lsp": 215.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm10",
+      "config": "config/slepton-bino_m225_dm10.toml"
+    },
+    {
+      "tag": "m225_dm20",
+      "m_parent": 225.0,
+      "m_lsp": 205.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm20",
+      "config": "config/slepton-bino_m225_dm20.toml"
+    },
+    {
+      "tag": "m225_dm30",
+      "m_parent": 225.0,
+      "m_lsp": 195.0,
+      "dm": 30.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm30",
+      "config": "config/slepton-bino_m225_dm30.toml"
+    },
+    {
+      "tag": "m225_dm40",
+      "m_parent": 225.0,
+      "m_lsp": 185.0,
+      "dm": 40.0,
+      "run_dir": "trial-runs/CR004rescan_m225_dm40",
+      "config": "config/slepton-bino_m225_dm40.toml"
+    },
+    {
+      "tag": "m250_dm2",
+      "m_parent": 250.0,
+      "m_lsp": 248.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m250_dm2",
+      "config": "config/slepton-bino_m250_dm2.toml"
+    },
+    {
+      "tag": "m250_dm5",
+      "m_parent": 250.0,
+      "m_lsp": 245.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m250_dm5",
+      "config": "config/slepton-bino_m250_dm5.toml"
+    },
+    {
+      "tag": "m250_dm10",
+      "m_parent": 250.0,
+      "m_lsp": 240.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m250_dm10",
+      "config": "config/slepton-bino_m250_dm10.toml"
+    },
+    {
+      "tag": "m250_dm20",
+      "m_parent": 250.0,
+      "m_lsp": 230.0,
+      "dm": 20.0,
+      "run_dir": "trial-runs/CR004rescan_m250_dm20",
+      "config": "config/slepton-bino_m250_dm20.toml"
+    },
+    {
+      "tag": "m300_dm2",
+      "m_parent": 300.0,
+      "m_lsp": 298.0,
+      "dm": 2.0,
+      "run_dir": "trial-runs/CR004rescan_m300_dm2",
+      "config": "config/slepton-bino_m300_dm2.toml"
+    },
+    {
+      "tag": "m300_dm5",
+      "m_parent": 300.0,
+      "m_lsp": 295.0,
+      "dm": 5.0,
+      "run_dir": "trial-runs/CR004rescan_m300_dm5",
+      "config": "config/slepton-bino_m300_dm5.toml"
+    },
+    {
+      "tag": "m300_dm10",
+      "m_parent": 300.0,
+      "m_lsp": 290.0,
+      "dm": 10.0,
+      "run_dir": "trial-runs/CR004rescan_m300_dm10",
+      "config": "config/slepton-bino_m300_dm10.toml"
+    }
+  ]
+}

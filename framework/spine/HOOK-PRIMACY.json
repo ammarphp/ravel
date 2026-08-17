@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-09T07:31:59Z",
+  "generator": "spike_probe.py",
+  "generated_by": "spike_probe.py",
+  "input_fingerprint": "e1468c1439aace423b147eb2563801db39ca452bf76875b8e5da6c484fa1ec0b",
+  "spikes": {
+    "SPK-1": {
+      "verdict": "unproven",
+      "decision": "fallback-primary"
+    },
+    "SPK-2": {
+      "verdict": "PASS",
+      "decision": "harness-reinvoke-primary"
+    },
+    "SPK-3": {
+      "verdict": "PASS",
+      "decision": "wake-primitive-primary"
+    }
+  },
+  "branches": {
+    "drive_completion_reinvoke": {
+      "governed_by": "SPK-2",
+      "primary": "harness-reinvoke",
+      "fallback": "agent polls the logfile for the done_condition before turn-end"
+    },
+    "posttooluse_edit_deviations": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "step docs require a DEVIATIONS row before a baselined-file edit lands"
+    },
+    "posttooluse_observer": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "step docs instruct the agent to run workflow_state.py record"
+    },
+    "posttooluse_pregenerate_guard": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "steps/03-generate.md pre-generate recipe-fetch gate the agent must pass"
+    },
+    "pretooluse_skill_precedence": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "INITIATE.md mandates physicist-intake first; validate_run_state routed-check"
+    },
+    "progress_reporter_30min": {
+      "governed_by": "SPK-3",
+      "primary": "wake-primitive",
+      "fallback": "run_in_background sleep+echo re-invoke (SPK-2 path) as a timed wake"
+    },
+    "scheduled_wake": {
+      "governed_by": "SPK-3",
+      "primary": "wake-primitive",
+      "fallback": "run_in_background sleep+echo re-invoke (SPK-2 path)"
+    },
+    "stop_catch_d6": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "step docs require open *.failure.json to be resolved before turn-end"
+    },
+    "stop_detach_n6": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "run_state schema requires logfile+done_condition+next_action for a detached job"
+    },
+    "stop_drive_d4": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "workflow_state.py next + step-doc rule: no turn-end with next_required pending"
+    },
+    "stop_integrity_d5d9": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "figure-contract skill + inv_figure_contract_fulfilled at check-in"
+    },
+    "stop_primary_d18": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "check-in docs require validate_run_state --rundir exit 0 before a deck/RESULT.md"
+    },
+    "stop_skill_coverage": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "step docs require the step's mandated skill in run_state.skills_invoked"
+    },
+    "userpromptsubmit_route": {
+      "governed_by": "SPK-1",
+      "primary": "fallback",
+      "fallback": "agent runs route_prompt.py + a run_state 'routed' precondition"
+    }
+  }
+}

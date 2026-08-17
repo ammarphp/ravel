@@ -1,0 +1,55 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  claims-check:
+    name: claims match evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: README numbers vs results/manifest.json
+        run: python3 scripts/claims_check.py
+      - name: evidence manifest sha-pins
+        run: python3 framework/check_evidence.py --check
+
+  replay:
+    name: replay-mode demo (benchmark gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: install statistics layer
+        run: pip install -r requirements-replay.txt
+      - name: re-validate cached benchmarks through pyhf
+        run: python3 framework/benchmark/run_benchmark.py --fast
+
+  tests:
+    name: test suite (344)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: install
+        run: pip install -r requirements-replay.txt
+      - name: pytest
+        working-directory: framework
+        run: python -m pytest tests -q
+
+  spine:
+    name: adversarial gate board (30 cases)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: install git hooks (G20 asserts the pre-commit gate is INSTALLED, not just present)
+        run: bash trial-runs/_infrastructure/install_git_hooks.sh
+      - name: spine_sim --require-all
+        run: python3 framework/spine_sim/run_spine_sim.py --require-all

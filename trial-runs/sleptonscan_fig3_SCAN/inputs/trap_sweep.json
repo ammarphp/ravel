@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "generated_utc": "",
+  "generator": "judgment-protocols P3 (trap-sweep) -- backfilled 2026-07-08 (Task 3.3), transcribed from RESULT.md + DEVIATIONS.md + VERIFICATION-LADDER.md (the sweep itself predates the standalone trap_sweep.json convention)",
+  "analysis_id": "ATLAS-SUSY-2018-16",
+  "model": "slepton-bino",
+  "traps_checked": ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"],
+  "verdicts": [
+    {
+      "id": "T1",
+      "status": "clear",
+      "evidence": "Slepton pair EW production (t-channel chargino/neutralino, bino LSP); EwkCompressed2018's SR selection is a soft-lepton+MET counting search, not a mass-peak bump hunt -- no shared-amplitude interference topology named anywhere in RESULT.md/DEVIATIONS.md.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T2",
+      "status": "clear",
+      "evidence": "All BSM states (sleptons, bino LSP) decay promptly in this simplified model; no long-lived/displaced intermediate state recorded. Standard prompt-object Delphes/native-SA reconstruction used throughout the scan.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T3",
+      "status": "clear",
+      "evidence": "Pure fourfold-mass-degenerate slepton-bino simplified model (e~L,R + mu~L,R, bino LSP) held at every one of the 52 grid points per spec slepton_bino_fig3_FULL.json; no mixing/purity-breaking parameter is swept across the plane.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T4",
+      "status": "clear",
+      "evidence": "EwkCompressed2018 is ATLAS's own compressed-spectrum search, designed for this exact dm>=2 GeV soft-lepton regime; the scanned grid is ATLAS's own published lattice (Fig 44ab), not an extrapolation below the analysis's trigger/reconstruction floor.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T5",
+      "status": "clear",
+      "evidence": "stat_mode=published-likelihood: per-SR counting against the published HistFactory bkg-only workspace via pyhf (EwkCompressed2018 publishes per-SR yields, HEPData ins1767649), not a shape/template fit.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T6",
+      "status": "hit",
+      "evidence": "dm as low as 2 GeV against masses up to 300 GeV -- the ISR-driven compressed regime T6 describes; EwkCompressed2018 SRs cut on R_ISR/soft-lepton kinematics (native RestFrames RJR port). The run-card ISR-tag threshold was a declared-but-initially-wrong choice: native prep used ptj1min=0 GeV (raw mapyde default_LO.dat template default) vs the container/RRR ptj1min=50 GeV -- measured factor x2.14 in tagged sigma at m=200 GeV (RESULT.md 'sigma_ref provenance finding'; CHANGES-REGISTRY CR-002).",
+      "consequence": "documented native-prep tag-definition deviation from RRR (softer 20 GeV ISR tag vs their 50 GeV) -- a tag-definition difference, not a yield inconsistency, because each sample is normalized to its own sigma and the basis rebase removes the tag from the quoted UL entirely; flagged in RESULT.md caveats + DEVIATIONS.md, not silently absorbed.",
+      "flag_number": "F1"
+    },
+    {
+      "id": "T7",
+      "status": "clear",
+      "evidence": "Not a dark-sector/hidden-valley model; no Pythia HV shower parameters (Lambda_d, N_c/N_f, dark-hadron spectrum) are involved.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T8",
+      "status": "clear",
+      "evidence": "Not a resonance search; the slepton-bino simplified model carries no width parameter comparable to a Gamma/m>=5% resonance.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T9",
+      "status": "hit",
+      "evidence": "The native chain's ISR-tagged 6-state sample sigma (e~L,R + mu~L,R + tau~1,2, explicit ISR jet) is a DIFFERENT sigma basis from ATLAS's published UL, which is quoted on the inclusive fourfold-mass-degenerate model sigma (arXiv:1911.12606 Fig 16 caption) -- a spurious, mass-dependent 0...-44% tilt, largest in the low-mass corner (RESULT.md 'Comparison basis').",
+      "consequence": "resolved 2026-07-04 by scan_orchestrator rebase --process slepton (post-hoc, no regeneration): UL(sigma_incl4) = mu95 x sigma_incl4^LO(cteq6l1) x k(m), then mu_SUSY = UL/sigma_model with sigma_model = 2 x sigma_LR^WG (Resummino NLO+NLL, PDF4LHC15); verified via the on-contour identity UL/(2 sigma_LR^WG) = 1.10 median (n=151). Median |rel diff| moved 32.8% -> 26.2% (later 24.9%/24.1% after CR-001). Recorded in scan.json:model_basis.",
+      "flag_number": "F2"
+    },
+    {
+      "id": "T10",
+      "status": "clear",
+      "evidence": "EwkCompressed2018's R_ISR / soft-lepton objects are reconstructed via a native RestFrames RJR port verified BIT-FOR-BIT against the reference SimpleAnalysis container (VERIFICATION-LADDER.md R3: 141/141 SRs exact) -- not an approximated or guessed proxy.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T11",
+      "status": "clear",
+      "evidence": "No MSSM_SLHA2 MSOFT/HMIX mass-override or width-only DECAY-table incident is recorded for this model's cards in RESULT.md/DEVIATIONS.md; the standard lhe_check.py pre-shower guard applies as for every generation run and no incident is logged for this scan.",
+      "consequence": "no route change",
+      "flag_number": null
+    },
+    {
+      "id": "T12",
+      "status": "clear",
+      "evidence": "EW slepton pair production (chargino/neutralino t-channel), not a b-initiated or photon-initiated process; no 4F/5F scheme choice or b/gamma-PDF sensitivity is at stake.",
+      "consequence": "no route change",
+      "flag_number": null
+    }
+  ],
+  "traps_hit": ["T6", "T9"],
+  "escalations": [],
+  "notes": "Backfilled transcription (Task 3.3), not a live re-run of the P3 sweep. A third known issue in this run's records -- the pyhf mu95 upstream bracket-FLOOR artifact on m60_dm5/m70_dm5 (obs_limit=1.0 exactly, a statistics-tooling defect fixed by CHANGES-REGISTRY CR-001, re-assembled/re-rendered 2026-07-06 per DEVIATIONS.md) -- is NOT recorded as a T1..T12 hit here: it is a pyhf_exclude.py limit-finder defect, not one of the domain physics traps this checklist enumerates. It is named in task_contract.json:escalate[] and DEVIATIONS.md for completeness."
+}

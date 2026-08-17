@@ -1,0 +1,87 @@
+Input status: 1
+Decomposition output status: 1 #decomposition was successful
+# Input File: framework/crosscheck/gluino_slha.dat
+# checkinput = True
+# combinesrs = False
+# computestatistics = True
+# docompress = True
+# doinvisible = True
+# maxcond = 0.2
+# minmassgap = 5
+# minmassgapisr = 1
+# model = share.models.mssm
+# ncpus = 1
+# promptwidth = 1e-11
+# sigmacut = 0.005
+# stablewidth = 1e-25
+# testcoverage = True
+# SModelS version: 3.1.1
+# Database version: 3.1.1
+================================================================================
+#Analysis  Sqrts  Cond_Violation  Theory_Value(fb)  Exp_limit(fb)  r  r_expected
+
+     CMS-SUS-16-033  1.30E+01    0.0  2.010E+02  4.756E+00  4.226E+01  2.461E+01
+ Signal Region:  (UL)
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+--------------------------------------------------------------------------------
+     CMS-SUS-16-036  1.30E+01    0.0  2.010E+02  5.844E+00  3.439E+01  2.125E+01
+ Signal Region:  (UL)
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+--------------------------------------------------------------------------------
+     CMS-SUS-19-006  1.30E+01    0.0  2.010E+02  7.359E+00  2.731E+01  3.528E+01
+ Signal Region:  (UL)
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+--------------------------------------------------------------------------------
+ CMS-SUS-19-006-agg  1.30E+01    0.0  5.794E+00  3.143E-01  1.844E+01  2.872E+01
+ Signal Region:  AR17
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+ Likelihoods: nll, nll_min, nll_SM =  5.098E+02,  6.433E+00,  7.190E+00
+--------------------------------------------------------------------------------
+ ATLAS-SUSY-2016-07  1.30E+01    0.0  2.251E+01  1.270E+00  1.773E+01  2.104E+01
+ Signal Region:  5j_Meff_1600
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+ Likelihoods: nll, nll_min, nll_SM =  4.810E+02,  6.930E+00,  7.005E+00
+--------------------------------------------------------------------------------
+ ATLAS-SUSY-2016-07  1.30E+01    0.0  2.010E+02  1.574E+01  1.277E+01 N/A
+ Signal Region:  (UL)
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+--------------------------------------------------------------------------------
+ ATLAS-SUSY-2015-06  1.30E+01    0.0  1.444E+01  1.790E+00  8.067E+00  4.734E+00
+ Signal Region:  SR5j
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+ Likelihoods: nll, nll_min, nll_SM =  3.918E+01,  4.932E+00,  4.932E+00
+--------------------------------------------------------------------------------
+     CMS-SUS-16-033  1.30E+01    0.0  2.863E+01  4.100E+00  6.983E+00  7.697E+00
+ Signal Region:  SR3_Njet5_Nb0_HT500_MHT_500
+ Txnames:  T1
+ Final States: PV > (jet,jet,MET),(jet,jet,MET)
+ Likelihoods: nll, nll_min, nll_SM =  1.311E+02,  9.235E+00,  9.256E+00
+
+ 
+================================================================================
+The highest r value is = 42.26036 from CMS-SUS-16-033 (r_expected=24.60775)
+CMS analysis with highest available r_expected: CMS-SUS-19-006, r_expected=35.27919, r_obs=27.31290
+ATLAS analysis with highest available r_expected: ATLAS-SUSY-2016-07, r_expected=21.03963, r_obs=17.72630
+
+Total cross-section for missing topologies (fb):  0.000E+00
+Total cross-section for missing topologies with displaced decays (fb):  0.000E+00
+Total cross-section for missing topologies with prompt decays (fb):  0.000E+00
+Total cross-section for topologies outside the grid (fb):  0.000E+00
+
+#Full information on unconstrained cross sections
+================================================================================
+No missing topologies found
+================================================================================
+No missing topologies with displaced decays found
+================================================================================
+No missing topologies with prompt decays found
+================================================================================
+No topologies outside the grid found
+================================================================================

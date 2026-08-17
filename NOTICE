@@ -1,0 +1,8 @@
+hep-agentic-pipeline
+Copyright 2026 Ammar Aziz
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product orchestrates independent upstream physics tools (MadGraph5_aMC@NLO, Pythia8,
+Delphes, Rivet, ATLAS SimpleAnalysis, RestFrames, pyhf, SModelS, MadAnalysis 5, LHAPDF),
+each the work of its own authors under its own license — see THIRD_PARTY.md.

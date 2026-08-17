@@ -1,0 +1,123 @@
+{
+  "routine": "ATLAS_2018_I1676551",
+  "label": "wino C1N2(300,100)->WZ",
+  "verdict": "PASS",
+  "driving_sr": "SR3L_Low",
+  "driving_tol": 0.15,
+  "mu95_bound": 0.1,
+  "worst_driving_mu95_impact": 0.06445400708950833,
+  "rows": [
+    {
+      "sr": "SR2L_High",
+      "role": "tail",
+      "node": [
+        100.0,
+        300.0
+      ],
+      "mine": 0.00015000000000000001,
+      "pub": 0.000233306900187,
+      "ratio": 0.6429299771235746,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "SR2L_Int",
+      "role": "contributing",
+      "node": [
+        100.0,
+        300.0
+      ],
+      "mine": 0.0002,
+      "pub": 0.000438855349192,
+      "ratio": 0.4557310292975366,
+      "ok": false,
+      "mu95_impact": null,
+      "attribution": {
+        "sr": "SR2L_Int",
+        "ratio": 0.456,
+        "role": "contributing",
+        "residual_pct": 54,
+        "cause_class": "fast-sim-floor",
+        "mu95_impact_pct": null,
+        "node": [
+          100.0,
+          300.0
+        ],
+        "note": "[Opus to confirm]"
+      }
+    },
+    {
+      "sr": "SR2L_Low",
+      "role": "tail",
+      "node": [
+        100.0,
+        300.0
+      ],
+      "mine": 5e-05,
+      "pub": 0.000149376336294,
+      "ratio": 0.3347250390556563,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "SR2L_ISR",
+      "role": "tail",
+      "node": [
+        100.0,
+        300.0
+      ],
+      "mine": 0.0,
+      "pub": 2.21875338358e-05,
+      "ratio": 0.0,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "SR3L_High",
+      "role": "tail",
+      "node": "interp@LSP=100: NLSP 250->350",
+      "mine": 0.00015000000000000001,
+      "pub": 0.0002292661580318,
+      "ratio": 0.6542614107887414,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "SR3L_Int",
+      "role": "contributing",
+      "node": "interp@LSP=100: NLSP 250->350",
+      "mine": 0.0005,
+      "pub": 0.0004955346131215,
+      "ratio": 1.0090112512027594,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "SR3L_Low",
+      "role": "driving",
+      "node": "interp@LSP=100: NLSP 250->350",
+      "mine": 0.0006000000000000001,
+      "pub": 0.00056366925767,
+      "ratio": 1.0644540070895083,
+      "ok": true,
+      "mu95_impact": 0.06445400708950833,
+      "attribution": null
+    },
+    {
+      "sr": "SR3L_ISR",
+      "role": "tail",
+      "node": "interp@LSP=100: NLSP 250->350",
+      "mine": 0.0001,
+      "pub": 5.496857486065e-05,
+      "ratio": 1.8192212596653359,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    }
+  ]
+}

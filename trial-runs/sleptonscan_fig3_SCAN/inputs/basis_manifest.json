@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "generated_utc": "",
+  "generator": "backfilled 2026-07-08 (Task 3.3), transcribed from scan.json:model_basis + scan.json:nlo_renorm + RESULT.md (trap T9 hit -- basis-manifest-before-comparison invariant)",
+  "target_basis": {
+    "quantity": "sigma x BR [fb] on the inclusive fourfold-mass-degenerate slepton-bino model (e~_L,R + mu~_L,R production; ATLAS-SUSY-2018-16 / arXiv:1911.12606 Fig 16 caption convention: 'Slepton refers to the scalar partners of left- and right-handed electrons and muons ... fourfold mass degenerate')",
+    "model": "slepton-bino",
+    "sqrt_s": "13 TeV",
+    "notes": "Two independent basis corrections were applied post-hoc to the native chain's raw mu95 (no regeneration): (1) LO->NLO+NLL sigma renormalization (k(m)), (2) the sample-sigma -> published-model-sigma REBASE (this is the T9 trap disposition). scan_lo.json keeps the pre-renorm assembly; scan.json is the fully-corrected artifact this basis_manifest describes."
+  },
+  "curves": [
+    {
+      "source": "mapyde native scan (this run) -- raw event-count mu95, LO cteq6l1 flat k=1.18 assumption",
+      "kind": "derived-lo",
+      "native_basis": "mu95_lo on sigma_ref_fb_lo := sigma_tag6_LO(cteq6l1) x flat_k(1.18) -- the ISR-tagged 6-state sample sigma (chsleptons chsleptons j), flat normalization",
+      "transformation": "mu95_nlo = mu95_lo x flat_k_replaced(1.18) / k_nlo(m); k_nlo(m) = sigma_NNLOapprox+NNLL,e~L-pair(PDF4LHC21_40, Resummino) / sigma_LO,e~L-pair(cteq6l1, MG5_aMC 2.9.27) -- like-for-like single-state ratio, k_nlo(m) in [1.381,1.407] over the 12-mass grid (scan.json:nlo_renorm)",
+      "identity_check": "state-for-state (e~_L NNLL / e~_L LO) construction dodges the k<1 unlike-quantities trap (.claude/rules/statistics.md); no on-contour identity applies at this intermediate step (the target-basis identity is checked at the rebase step below)"
+    },
+    {
+      "source": "mapyde native scan (this run) -- NLO+NLL-renormalized mu95, still on the ISR-tagged 6-state sample sigma",
+      "kind": "derived-tagged",
+      "native_basis": "mu95_tagged6 on sigma_ref_fb_tagged6 := sigma_tag6_LO(cteq6l1) x k_nlo(m) -- the SAMPLE's own sigma (6-state, ISR-jet-tagged), NOT the published model sigma",
+      "transformation": "UL(sigma_incl4) = mu95_tagged6 x sigma_incl4_assumed(m) / sigma_model(m); sigma_incl4_assumed(m) = sigma_incl4_LO(cteq6l1) x k_nlo(m) (the eL-pair k applied to the whole 4-state LO sigma -- a normalization assumption of the SAMPLE, kept for consistency with its own yields); sigma_model(m) = 2 x sigma_LR^WG(m) (Resummino NLO+NLL, PDF4LHC15, ATLAS's own normalization) -- run via scan_orchestrator rebase --process slepton, 2026-07-04, post-hoc, no regeneration (scan.json:model_basis.mu_formula)",
+      "identity_check": "UL/(2 x sigma_LR^WG) = 1.10 median (n=151) evaluated ON the published observed exclusion contour -- confirms the ATLAS Fig 44ab UL grid IS quoted on this inclusive-4-state basis (2x eL-NNLL alone gives 1.47, 4x eL-NNLL alone gives 0.74 -- both wrong bases, per scan.json:model_basis.verification). This is the mu_SUSY row reported as the headline in RESULT.md."
+    },
+    {
+      "source": "ATLAS Fig 44ab sigma-UL grid (HEPData ins1767649, arXiv:1911.12606)",
+      "kind": "published-observed",
+      "native_basis": "sigma_UL already quoted on the inclusive fourfold-mass-degenerate model sigma (ATLAS's own convention, per the paper's Fig 16 caption)",
+      "transformation": "identity -- this IS the target basis; used as-is for the mu_SUSY comparison",
+      "identity_check": "not applicable (definitional target basis); cross-checked instead by the tagged-sample identity_check above landing at UL/(2 sigma_LR^WG)=1.10 on ATLAS's own published contour"
+    }
+  ]
+}

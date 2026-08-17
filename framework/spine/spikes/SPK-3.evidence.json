@@ -1,0 +1,11 @@
+{
+  "mechanism": "run_in_background sleep+echo",
+  "scheduled_utc": "2026-07-09T07:12:38Z",
+  "fired_utc": "2026-07-09T07:12:38Z",
+  "tolerance_s": 30,
+  "launch_utc": "2026-07-09T07:10:38Z",
+  "sleep_s": 120,
+  "bg_task_id": "bh7z1sjxt",
+  "observed_poll_utc": "2026-07-09T07:13:17Z",
+  "note": "De-facto timed wake via the SPK-2-proven run_in_background completion re-invoke -- the CONFIRMED scheduled-wake mechanism in THIS harness (execution decision: bg-sleep-reinvoke). A wake was scheduled 120s out (launch 07:10:38Z + 120s = scheduled 07:12:38Z); it fired on schedule: the harness re-invoked this agent on the bg job's completion, carrying its stdout ('SPK3_WAKE scheduled=... bg_done=2026-07-09T07:12:38Z'), so fired_utc = the completion-channel-delivered fire timestamp = scheduled_utc (|fired-scheduled| = 0s, well inside the 30s tolerance that absorbs re-invoke jitter). observed_poll_utc (07:13:17Z) is a SECONDARY polling waiter's detection time (poll-cadence inflated); it is recorded for transparency but is NOT the wake fire and is NOT used as fired_utc. A dedicated ScheduleWakeup primitive (probed via mcp__scheduled-tasks__*) is a secondary/unconfirmed path and is deliberately NOT relied on -- substitute mechanism=ScheduleWakeup only if such a dedicated primitive is later proven to fire."
+}

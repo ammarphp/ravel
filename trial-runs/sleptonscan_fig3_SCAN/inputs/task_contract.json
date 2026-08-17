@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "prompt": "Reproduce EwkCompressed2018 (ATLAS-SUSY-2018-16 / HEPData ins1767649) vs the slepton-bino model across the full published 2-D mass plane -- the faithful RRR Fig 3 reproduction, natively, no VM (framework/PLAN-OF-RECORD.md).",
+  "task_mode": "scan",
+  "targets": {
+    "model": "slepton-bino",
+    "process": "chsleptons chsleptons (+j) pair production, ISR-tagged 6-state sample (e~_L,R + mu~_L,R + tau~_1,2)",
+    "analysis": [
+      "EwkCompressed2018"
+    ],
+    "arxiv": [
+      "1911.12606"
+    ],
+    "inspire": [
+      "1767649"
+    ],
+    "figures": [
+      "RRR Fig 3 (arXiv:2306.11055 p.6, the mapyde reference paper's own difference-map figure)",
+      "ATLAS Fig 16a (published observed exclusion contour, HEPData ins1767649)",
+      "ATLAS Fig 44ab (published sigma-UL grid, HEPData ins1767649)"
+    ],
+    "masses_gev": [50, 60, 70, 90, 100, 125, 150, 175, 200, 225, 250, 300],
+    "lumi_fb": 139
+  },
+  "detector_mode": "simpleanalysis-delphes-native",
+  "stat_mode": "published-likelihood",
+  "required_user_inputs": [],
+  "assumptions": [
+    "Grid = ATLAS's own published lattice (Fig 44ab sigma-UL grid): 12 slepton masses 50-300 GeV x dm>=2 GeV = 52 on-grid points (dm<2 dropped -- no soft-lepton sensitivity, native gen degenerate); spec trial-runs/_infrastructure/specs/slepton_bino_fig3_FULL.json.",
+    "Signal sigma normalization = NLO+NLL per-mass k(m) (HEPi e~_L-pair NNLL, PDF4LHC21_40, like-for-like single-state ratio vs the MG5 e~_L-pair LO cteq6l1 sample), k(m) in [1.381, 1.407] over the grid -- replaces an earlier flat LO x 1.18 assumption (post-hoc re-normalization, no regeneration; RESULT.md).",
+    "Comparison basis = the PUBLISHED model sigma (ATLAS Fig 44ab quotes the UL on the inclusive fourfold-mass-degenerate e~_L,R+mu~_L,R model sigma, not our ISR-tagged 6-state sample sigma); the rebase maps the basis-free event-count UL onto sigma_model = 2 x sigma_LR^WG (Resummino NLO+NLL, PDF4LHC15, ATLAS's own normalization) -- verified via the on-contour identity UL/(2 sigma_LR^WG) = 1.10 median (RESULT.md).",
+    "The native sample tags the ISR jet at ptj1min=0 GeV (template default), not the container/RRR ptj1min=50 GeV -- a documented native-prep deviation (tag-definition difference, not a yield inconsistency; each sample is normalized to its own sigma) -- CR-002.",
+    "20k events/point, cteq6l1 LO generation; the fast-sim (Delphes) acceptance floor is RRR's own ~10-20% and is the leading residual (RESULT.md Honest assessment).",
+    "HEPi slepton grid is SINGLE-state (e~_L pair only); k built state-for-state (e~_L NNLL / e~_L LO), avoiding the k<1 unlike-quantities trap; slepton k-factors assumed flavour/chirality-universal to good approximation."
+  ],
+  "compute_plan": "scan",
+  "cost_estimate": {
+    "mode": "scan",
+    "points": 52,
+    "walltime_h": [26.0, 43.3],
+    "note": "native SimpleAnalysis-Delphes chain, ~30-50 min/point x 52 points sequential envelope; actually driven <=4 points in PARALLEL via scan_orchestrator + auto_driver.sh, per-point disk cleanup (RESUME.md); completed in ~hours wall-clock on one laptop, no VM."
+  },
+  "approval_required": true,
+  "blocking": [],
+  "escalate": [
+    "T9 sigma x BR / coupling-convention mismatch (physics-traps.md): the ISR-tagged 6-state sample sigma is a DIFFERENT basis from ATLAS's published inclusive 4-state model sigma (0...-44% mass-dependent spurious tilt) -- resolved 2026-07-04 by the model-basis rebase (scan_orchestrator rebase --process slepton); see RESULT.md 'Comparison basis' + scan.json:model_basis.",
+    "T6 ISR-driven compressed-spectrum acceptance (physics-traps.md): EwkCompressed2018 SRs cut on R_ISR/soft-lepton kinematics down to dm=2 GeV; the ptj1min ISR-tag threshold (0 GeV native vs 50 GeV container/RRR) is a declared run-card choice audited against the anchor sigma -- the worked precedent physics-traps.md T6 cites (RESULT.md 'sigma_ref provenance finding').",
+    "mu95 upstream floor artifact (CHANGES-REGISTRY CR-001, not a T1-T12 domain trap): m60_dm5/m70_dm5 exclusion.json carried obs_limit=1.0 exactly (a bracket-floor, not a measurement) -- fixed 2026-07-06, re-assembled/re-rendered (no regeneration), the two points now render as gray bound markers; see DEVIATIONS.md 2026-07-06 entry."
+  ]
+}

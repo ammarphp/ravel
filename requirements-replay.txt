@@ -1,0 +1,9 @@
+# Minimal dependency set for REPLAY MODE (the quickstart): re-validating the cached benchmark
+# artifacts through the real statistics + provenance layers. The full simulation chain
+# (MadGraph/Pythia/Delphes/Rivet) is NOT needed for this — see README "Full pipeline".
+pyhf[minuit]>=0.7
+numpy
+scipy
+matplotlib
+# for the test suite + spine board (optional for the demo itself)
+pytest

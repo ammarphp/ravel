@@ -1,0 +1,96 @@
+{
+  "routine": "ATLAS_2016_I1458270",
+  "label": "squark(800,100)",
+  "verdict": "PASS",
+  "driving_tol": 0.15,
+  "mu95_bound": 0.1,
+  "worst_driving_mu95_impact": 0.024482367092402257,
+  "rows": [
+    {
+      "sr": "2jl",
+      "role": "driving",
+      "mine": 0.23861161300919842,
+      "pub": 0.2446,
+      "ratio": 0.9755176329075977,
+      "ok": true,
+      "mu95_impact": 0.024482367092402257,
+      "attribution": null
+    },
+    {
+      "sr": "2jm",
+      "role": "driving",
+      "mine": 0.150407358738502,
+      "pub": 0.153,
+      "ratio": 0.9830546322777909,
+      "ok": true,
+      "mu95_impact": 0.016945367722209115,
+      "attribution": null
+    },
+    {
+      "sr": "2jt",
+      "role": "contributing",
+      "mine": 0.01870090752299606,
+      "pub": 0.02296,
+      "ratio": 0.8144994565764834,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "4jt",
+      "role": "contributing",
+      "mine": 0.005300257679040736,
+      "pub": 0.007638,
+      "ratio": 0.6939326628751946,
+      "ok": false,
+      "mu95_impact": null,
+      "attribution": {
+        "sr": "4jt",
+        "ratio": 0.694,
+        "role": "contributing",
+        "residual_pct": 31,
+        "cause_class": "merging",
+        "mu95_impact_pct": null,
+        "note": "[Opus to confirm physical cause]"
+      }
+    },
+    {
+      "sr": "5j",
+      "role": "contributing",
+      "mine": 0.010600515358081472,
+      "pub": 0.01427,
+      "ratio": 0.7428532136006638,
+      "ok": false,
+      "mu95_impact": null,
+      "attribution": {
+        "sr": "5j",
+        "ratio": 0.743,
+        "role": "contributing",
+        "residual_pct": 26,
+        "cause_class": "merging",
+        "mu95_impact_pct": null,
+        "note": "[Opus to confirm physical cause]"
+      }
+    },
+    {
+      "sr": "6jm",
+      "role": "tail",
+      "mine": 0.0036001755502628125,
+      "pub": 0.005527,
+      "ratio": 0.6513796906572847,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    },
+    {
+      "sr": "6jt",
+      "role": "tail",
+      "mine": 0.002100102660972405,
+      "pub": 0.003271,
+      "ratio": 0.642036888099176,
+      "ok": true,
+      "mu95_impact": null,
+      "attribution": null
+    }
+  ]
+}

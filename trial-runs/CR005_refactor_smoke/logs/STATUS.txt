@@ -1,0 +1,18 @@
+pipeline start 2026-08-16 17:10:23  config=config/refactor_smoke.toml  (NATIVE)
+===== STAGE madgraph START 17:11:00 =====
+PASS  madgraph  (145s)
+===== STAGE lhe_check START 17:13:25 =====
+PASS  lhe_check  (5s)
+===== STAGE pythia START 17:13:30 =====
+PASS  pythia  (131s)
+===== STAGE delphes START 17:15:41 =====
+PASS  delphes  (135s)
+===== STAGE analysis START 17:17:57 =====
+PASS  analysis  (10s)
+===== STAGE simpleanalysis START 17:18:07 =====
+PASS  simpleanalysis  (10s)
+===== STAGE sa2json START 17:18:17 =====
+PASS  sa2json  (5s)
+===== STAGE pyhf START 17:18:22 =====
+PASS  pyhf  (701s)
+ALL_STAGES_COMPLETE 2026-08-16 17:30:03
