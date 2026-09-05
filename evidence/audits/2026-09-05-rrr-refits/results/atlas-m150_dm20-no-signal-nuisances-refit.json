@@ -1,0 +1,2679 @@
+{
+  "schema_version": 1,
+  "scope": "fixed-template statistical diagnosis; no physics certification",
+  "inputs": {
+    "background": {
+      "name": "background.json",
+      "sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7"
+    },
+    "patch": {
+      "name": "atlas-m150_dm20-no-signal-nuisances-patch.json",
+      "sha256": "71b8100b69cdd37c9e757129d3031e0490423c4ddbb0388469622e79f67550cf"
+    }
+  },
+  "python": "3.14.5",
+  "backend": "jax",
+  "optimizer": "Ravel robust_optimizer",
+  "fit_tolerance": 1e-07,
+  "dependencies": {
+    "pyhf": "0.7.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jax": "0.10.1",
+    "jaxlib": "0.10.1",
+    "jsonpatch": "1.33"
+  },
+  "engine": {
+    "src/ravel/physics/pyhf_exclude.py": "4bfdbdbf6455eca8a3a996bdd32a1bdc837ab10f8adeab4ba0af646a06864158",
+    "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+    "evidence/audits/2026-09-05-rrr-refits/refit.py": "7277cf114f1be2767f99a187f35a74aaf6862a1793494ab4877e655a300f957b"
+  },
+  "result": {
+    "obs_limit": 0.6965319201254819,
+    "exp_limits": [
+      0.41003863878256114,
+      0.5515765215621338,
+      0.7681459307966281,
+      1.0740622113199112,
+      1.4489205633957307
+    ],
+    "scan_mu": [
+      0.001,
+      0.125,
+      0.25,
+      0.3535533905932738,
+      0.40757979927061555,
+      0.410018136800622,
+      0.41003863878256114,
+      0.41023718939502446,
+      0.4303502742122039,
+      0.5,
+      0.5515489440649305,
+      0.5515765215621338,
+      0.554063713000875,
+      0.5680686480608743,
+      0.6509216839343444,
+      0.6733771906888469,
+      0.6851727241514618,
+      0.6965319201254819,
+      0.6965667467714882,
+      0.6971523585393119,
+      0.7069647304540367,
+      0.7650994156035645,
+      0.7681075234500883,
+      0.7681459307966281,
+      0.7683576847903273,
+      0.79548625026892,
+      0.8467543813776939,
+      0.8969802357775127,
+      1.0,
+      1.0005,
+      1.0739024437129971,
+      1.0740085081593451,
+      1.0740622113199112,
+      1.08090087386712,
+      1.1186764772949624,
+      1.3149451387770457,
+      1.4189695852007116,
+      1.4489205633957307,
+      1.4489930094739005,
+      1.4510137920472912,
+      1.4825991798798104,
+      1.8374391704014235,
+      2.0
+    ],
+    "scan_cls_obs": [
+      0.9973650162229063,
+      0.6956894583224105,
+      0.44959375217299347,
+      0.2955162329224128,
+      0.2324138768741519,
+      0.22982813808561842,
+      0.2298064894866152,
+      0.2295969212000255,
+      0.20911212624917072,
+      0.14891743675498373,
+      0.11400429650463516,
+      0.11398759033911852,
+      0.11248909149983022,
+      0.10435011908614186,
+      0.06555676488527053,
+      0.05744808635005515,
+      0.05354334833611164,
+      0.05000044293286104,
+      0.04998989839023704,
+      0.04981288001713738,
+      0.046926061940786794,
+      0.03261446440534411,
+      0.03199116095496397,
+      0.03198327050987339,
+      0.03193979855700642,
+      0.026781240452973924,
+      0.019001439277713094,
+      0.013325893368971829,
+      0.0062841463521722376,
+      0.006260423837499181,
+      0.0035427381930630184,
+      0.0035397529020677445,
+      0.0035382422258698493,
+      0.003350634250327601,
+      0.002468980996120571,
+      0.000448020371806119,
+      0.00016709839778981752,
+      0.00012448378676466985,
+      0.00012439447100373436,
+      0.00012192739484441105,
+      8.890523788402703e-05,
+      1.6120457485532295e-06,
+      2.225403389905642e-07
+    ],
+    "scan_cls_exp": [
+      [
+        0.993848630233606,
+        0.996041715909068,
+        0.9979265057124325,
+        0.9992516305485012,
+        0.9998560514246422
+      ],
+      [
+        0.4450326298775535,
+        0.5870215710784146,
+        0.7476800783121362,
+        0.8928673961504611,
+        0.975549621518777
+      ],
+      [
+        0.18083869874028097,
+        0.3166430685099319,
+        0.5205101791121844,
+        0.7602342473957279,
+        0.9339263555512233
+      ],
+      [
+        0.08005673796559747,
+        0.17789542698439015,
+        0.3641106503039313,
+        0.6380567635497668,
+        0.8827630659825518
+      ],
+      [
+        0.05105394740907291,
+        0.1285995088415421,
+        0.29579375223566984,
+        0.572721173659338,
+        0.8494098741806285
+      ],
+      [
+        0.05000789438493057,
+        0.12668117079163876,
+        0.2929298479867417,
+        0.5697753257029543,
+        0.8477949898164698
+      ],
+      [
+        0.04999918295159139,
+        0.12666514473651413,
+        0.2929058472729619,
+        0.5697505606783002,
+        0.8477813712548873
+      ],
+      [
+        0.04991489403738679,
+        0.12651003867129576,
+        0.2926734946271623,
+        0.5695107416968382,
+        0.8476494552886669
+      ],
+      [
+        0.04202295009798568,
+        0.11161491623245234,
+        0.26978275581114575,
+        0.5452676614453885,
+        0.8339630673692049
+      ],
+      [
+        0.0227405142145185,
+        0.07107649515558047,
+        0.200222583456372,
+        0.46281476553230533,
+        0.7817395797487152
+      ],
+      [
+        0.014176994219985955,
+        0.050009424345369285,
+        0.15797184567473666,
+        0.40434905035506724,
+        0.7385611595091851
+      ],
+      [
+        0.014173352720475476,
+        0.049999820212112064,
+        0.15795122529733163,
+        0.4043185466829873,
+        0.7385371111469516
+      ],
+      [
+        0.013848495310635957,
+        0.049140305951026225,
+        0.15609993147910892,
+        0.40157118308453593,
+        0.7363642286613095
+      ],
+      [
+        0.01214538586872777,
+        0.04454023910748567,
+        0.14598432414722298,
+        0.3862432852026386,
+        0.7239849071754273
+      ],
+      [
+        0.0054604172628315555,
+        0.024345728041335,
+        0.09614201904412435,
+        0.3011756320864243,
+        0.6463243508741029
+      ],
+      [
+        0.0043669685071338355,
+        0.02053212354621507,
+        0.08531148070002684,
+        0.27997746710682114,
+        0.6242065902936498
+      ],
+      [
+        0.003878828838302286,
+        0.018753174375609534,
+        0.08003340430704552,
+        0.26918707873507397,
+        0.6124492647732597
+      ],
+      [
+        0.0034577882621608298,
+        0.017173157854125785,
+        0.07520626712727897,
+        0.2590254209395169,
+        0.6010481533240926
+      ],
+      [
+        0.0034565663725006765,
+        0.017168504984193173,
+        0.07519184363766582,
+        0.25899461482954655,
+        0.6010130877265196
+      ],
+      [
+        0.0034360818792796978,
+        0.017090440344332904,
+        0.07494966039653703,
+        0.25847694724140796,
+        0.6004233813718615
+      ],
+      [
+        0.0031094487150531676,
+        0.015829421725214343,
+        0.07098628260667167,
+        0.24989375640901962,
+        0.5905166091389166
+      ],
+      [
+        0.001701260434672056,
+        0.009940721283778806,
+        0.050904131565640914,
+        0.20262289297990882,
+        0.5311103146734498
+      ],
+      [
+        0.001648126550492191,
+        0.009699258650457017,
+        0.05001084481396765,
+        0.20034595596988478,
+        0.5280172351304472
+      ],
+      [
+        0.001647458431026168,
+        0.009696210702210356,
+        0.04999952546203287,
+        0.2003169923646889,
+        0.5279777383639305
+      ],
+      [
+        0.0016437794566596439,
+        0.009679421999408279,
+        0.04993715656817013,
+        0.20015735445450347,
+        0.5277599764607015
+      ],
+      [
+        0.0012317954832543692,
+        0.007736117294721472,
+        0.04247214058328892,
+        0.18039190890634949,
+        0.4998583573486201
+      ],
+      [
+        0.0007059473612596504,
+        0.005008291142163992,
+        0.03093678893987769,
+        0.14673595403652,
+        0.44745340877181045
+      ],
+      [
+        0.0004033162080383631,
+        0.003224652683694133,
+        0.022367759341974488,
+        0.11833407228618208,
+        0.3972173454442749
+      ],
+      [
+        0.00012235583678326398,
+        0.0012505609155762287,
+        0.011015955622430977,
+        0.07311323804055787,
+        0.300683621184103
+      ],
+      [
+        0.0001216318711982033,
+        0.0012446450199112757,
+        0.010976602095762055,
+        0.07293286818921303,
+        0.3002430438396669
+      ],
+      [
+        5.0130375101540475e-05,
+        0.0006111750157867309,
+        0.006395330980159239,
+        0.050041911496560856,
+        0.23911657976512118
+      ],
+      [
+        5.006512350444287e-05,
+        0.0006105340268150738,
+        0.006390205075992088,
+        0.05001366871343164,
+        0.23903364772104607
+      ],
+      [
+        5.003211374477874e-05,
+        0.0006102096959147347,
+        0.006387610927663874,
+        0.04999937258756015,
+        0.23899166024297042
+      ],
+      [
+        4.599574804566296e-05,
+        0.0005702129178700674,
+        0.00606496176070855,
+        0.04820602819705184,
+        0.23367932778428763
+      ],
+      [
+        2.876689018443476e-05,
+        0.0003902796865833691,
+        0.004534066661181647,
+        0.03922520499453217,
+        0.20558071006583573
+      ],
+      [
+        2.212734701650234e-06,
+        4.796299540665105e-05,
+        0.0008826255604005819,
+        0.011912865855633776,
+        0.09465743943911858
+      ],
+      [
+        5.219032781919598e-07,
+        1.4498887263241867e-05,
+        0.0003406863509088067,
+        0.00583392898727427,
+        0.05812192987536576
+      ],
+      [
+        3.406280730608875e-07,
+        1.0163242008950876e-05,
+        0.00025623139389400996,
+        0.004699937939432044,
+        0.05000356995713352
+      ],
+      [
+        3.402747358519511e-07,
+        1.0154452631338743e-05,
+        0.0002560534072623476,
+        0.004697454613476864,
+        0.04998510459030385
+      ],
+      [
+        3.305609580390853e-07,
+        9.912198860916723e-06,
+        0.00025113511502672804,
+        0.004628656569499122,
+        0.0494722235870857
+      ],
+      [
+        2.0961506109020615e-07,
+        6.776829698357839e-06,
+        0.0001849342781293988,
+        0.0036651101343675896,
+        0.041994362466508235
+      ],
+      [
+        8.763203735763757e-10,
+        6.580222205336148e-08,
+        4.133597746226201e-06,
+        0.0001858304230181565,
+        0.004706838311219416
+      ],
+      [
+        5.74425171395222e-11,
+        6.3315160880629504e-09,
+        5.820701332741641e-07,
+        3.81119075119387e-05,
+        0.0013946553746100052
+      ]
+    ],
+    "n_fits": 43,
+    "at_poi_cap": false,
+    "median_at_cap": false,
+    "at_mu_floor": false,
+    "band_degenerate": false,
+    "cls_monotonic": true,
+    "limit_status": {
+      "observed": "resolved",
+      "expected": [
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved"
+      ]
+    },
+    "limit_brackets": {
+      "observed": [
+        0.5,
+        1.0
+      ],
+      "expected": [
+        [
+          0.3535533905932738,
+          0.5
+        ],
+        [
+          0.5,
+          1.0
+        ],
+        [
+          0.5,
+          1.0
+        ],
+        [
+          1.0005,
+          2.0
+        ],
+        [
+          1.0005,
+          2.0
+        ]
+      ]
+    },
+    "fit_diagnostics": {
+      "available": true,
+      "source": "pyhf AsymptoticCalculator free_fit_to_data",
+      "reference_mu": 1.4489930094739005,
+      "twice_nll": 408.66188122029234,
+      "parameters": [
+        {
+          "name": "MET_SoftTrk_ResoPara",
+          "value": 0.0035432622015279104,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_1",
+          "value": 0.06794659038861452,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_Modelling",
+          "value": 0.20108817958041136,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Flavor_Composition",
+          "value": 0.08625432629176916,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Flavor_Response",
+          "value": -0.09732012857155807,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_DataVsMC",
+          "value": 0.20195302553331246,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_10",
+          "value": -0.583109286421517,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_11",
+          "value": -0.37520966237262804,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_2",
+          "value": -0.14402763233907837,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_3",
+          "value": -0.4978925849931265,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_4",
+          "value": 0.5511342005957616,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_5",
+          "value": 0.4619931172343595,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_9",
+          "value": -0.5383778797606674,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_OffsetNPV",
+          "value": 0.07620687883748038,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_RhoTopology",
+          "value": 0.48996727831711295,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MET_SoftTrk_ResoPerp",
+          "value": 0.7549159300228733,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "ETmissTrigSF_para",
+          "value": -0.009213664662238755,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_BJES_Response",
+          "value": -0.35026065573427934,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_2",
+          "value": -0.06737404097066038,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_3",
+          "value": 0.038310112252626705,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_4",
+          "value": -0.015573976178257882,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_5",
+          "value": 0.022802476852695965,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_6",
+          "value": -0.007645497548285581,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_7",
+          "value": -0.009448163651496887,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_8restTerm",
+          "value": -0.013687098437977118,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_highE",
+          "value": -0.09164603946345258,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_negEta",
+          "value": -0.002656877964467226,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_posEta",
+          "value": -0.01987623074465332,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_TotalStat",
+          "value": 0.046638233487902234,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_1",
+          "value": 0.6162678915337862,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_12restTerm",
+          "value": -0.11066543174497305,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_6",
+          "value": -0.007401524645691369,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_7",
+          "value": 0.13145231956699469,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_8",
+          "value": -0.2819689941479057,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_OffsetMu",
+          "value": 0.042398800003738024,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_PtTerm",
+          "value": 0.17059453956839576,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_PunchThrough_MC16",
+          "value": -0.06405321092664508,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_SingleParticle_HighPt",
+          "value": 0.07992018189204683,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MET_SoftTrk_Scale",
+          "value": -0.3836607071322709,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "pileup",
+          "value": -0.06795958409848378,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_SCALE_ALL",
+          "value": -0.22271761457544004,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_ID",
+          "value": -0.012473873106079267,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_MS",
+          "value": -0.07286280308498312,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_SCALE",
+          "value": 0.009570451096175924,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Eff",
+          "value": 0.14668988679244382,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2a_hghmet",
+          "value": -0.04131829645506488,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2a_lowmet_V2",
+          "value": 0.13693414712118906,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Reco",
+          "value": -0.003908139044982075,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2b_hghmet",
+          "value": -0.030679019469811893,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_RESOLUTION_ALL",
+          "value": -0.12280136588943584,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_BT",
+          "value": -0.3961047244071516,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Iso",
+          "value": 0.00040355328591040843,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2f_hghmet",
+          "value": 0.008260590650122248,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2f_lowmet_V2",
+          "value": 0.007924545828568878,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2g_hghmet",
+          "value": 0.03156891891989653,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2g_hghmet",
+          "value": 0.024094408160998393,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2g_lowmet_V2",
+          "value": 0.05828865624145416,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2h_hghmet",
+          "value": -0.02200879201912054,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2h_hghmet",
+          "value": -0.017962972497958838,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2h_lowmet_V2",
+          "value": -0.06507951677605096,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2a_hghmet",
+          "value": -0.01671163321237079,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2g_hghmet",
+          "value": -0.023512995448954722,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2g_lowmet_V2",
+          "value": 0.042222442846811585,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2h_hghmet",
+          "value": 0.005745690088608735,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2h_lowmet_V2",
+          "value": 5.0313030715698706e-05,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRmm_eMT2h_lowmet_V2",
+          "value": 1.9492770654611086e-05,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "lumi",
+          "value": 1.0,
+          "fixed": true,
+          "bounds": [
+            0.915,
+            1.085
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_SIG",
+          "value": 4.211017249067591e-17,
+          "fixed": false,
+          "bounds": [
+            0.0,
+            2.173489514210851
+          ],
+          "near_lower_bound": true,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_Ztt_hghmet",
+          "value": 0.837404660437645,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_VV_hghmet",
+          "value": 0.716353496654919,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_top_hghmet",
+          "value": 1.040719180790573,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_Ztt_lowmet",
+          "value": 1.05311266586912,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_VV_lowmet",
+          "value": 0.6806803538021575,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_top_lowmet",
+          "value": 1.1050887945690324,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_scale_hghmet",
+          "value": -0.011232821261634654,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "VV_scale_hghmet",
+          "value": 0.01481044758349263,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRVV",
+          "value": -0.018905121871479295,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRVV",
+          "value": 0.2178073378267942,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRVV",
+          "value": 0.04722962122708378,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRVV",
+          "value": 0.06198030868196402,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRVV",
+          "value": 0.03774691937096376,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Norm_other",
+          "value": -0.028006007157814584,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "top_scale_hghmet",
+          "value": 0.07301417329790469,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_scale_lowmet",
+          "value": 0.17409420124107983,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "VV_scale_lowmet",
+          "value": 0.019564001978344972,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "top_scale_lowmet",
+          "value": -0.09582758805580392,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRtau",
+          "value": 0.02154594841010824,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRtau",
+          "value": -0.031205461958342433,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRtau",
+          "value": -0.0017607801125384503,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRtau",
+          "value": -0.006155164614767143,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRtau",
+          "value": -0.0017228830152165348,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin6",
+          "value": 0.007890857177334423,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin5",
+          "value": -0.004166138890718223,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "ZttLowHT_flatSyst",
+          "value": -0.0052919725029929145,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_LightT",
+          "value": -0.002321376643616708,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRtop",
+          "value": 0.04535601738705515,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRtop",
+          "value": -0.015742360681141817,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRtop",
+          "value": -0.011465787857869074,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRtop",
+          "value": -0.060351009288117624,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRtop",
+          "value": -0.024348443067019634,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_pdf_lowmet",
+          "value": 0.054894735027687915,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_CT",
+          "value": -0.0007416381789401913,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el1bjetBin5",
+          "value": -0.026478320280139342,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el",
+          "value": 0.13660695593187772,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin1",
+          "value": -0.063729704470989,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin3",
+          "value": -0.022238439235566506,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el",
+          "value": 0.32965978639271426,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin4",
+          "value": 0.05776650208190028,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin2",
+          "value": -0.022404551539711756,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JVT",
+          "value": 0.004581352914972186,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_alpha_S_lowmet",
+          "value": -0.017362525806603097,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_pdf_hghmet",
+          "value": -0.002899153249892491,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub",
+          "value": -0.0724498251751265,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu",
+          "value": -0.3063616522945,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu",
+          "value": 0.06552198727374044,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin5",
+          "value": 0.021882866100648175,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_Eff_sys_lowpt",
+          "value": 0.002997126741697267,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin4",
+          "value": 0.03240348593690376,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin6",
+          "value": 0.016966337458893012,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRVV_MT2_hghmet_obs_cuts[0]",
+          "value": 1.012852568212604,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRVV_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9831465576300545,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtau_MT2_hghmet_obs_cuts[0]",
+          "value": 0.9941802660031053,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtau_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9987224957352764,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtop_MT2_hghmet_obs_cuts[0]",
+          "value": 0.9999205792086646,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtop_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9986707867470852,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2a_hghmet_obs_cuts[0]",
+          "value": 0.8920775447584396,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2a_lowmet_V2_obs_cuts[0]",
+          "value": 1.1852926330274758,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2b_hghmet_obs_cuts[0]",
+          "value": 0.9250101180674778,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2b_lowmet_V2_obs_cuts[0]",
+          "value": 0.9706066620082628,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2c_hghmet_obs_cuts[0]",
+          "value": 1.0672633594101095,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2c_lowmet_V2_obs_cuts[0]",
+          "value": 1.1682718662567322,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2d_hghmet_obs_cuts[0]",
+          "value": 0.9915719211861811,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2d_lowmet_V2_obs_cuts[0]",
+          "value": 0.9203158612115793,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2e_hghmet_obs_cuts[0]",
+          "value": 1.1140792151238315,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2e_lowmet_V2_obs_cuts[0]",
+          "value": 0.9688209669247901,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2f_lowmet_V2_obs_cuts[0]",
+          "value": 1.0510779677204785,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2g_lowmet_V2_obs_cuts[0]",
+          "value": 1.20069082115432,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2h_lowmet_V2_obs_cuts[0]",
+          "value": 0.7427291058849669,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2a_hghmet_obs_cuts[0]",
+          "value": 0.9440139506398554,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2a_lowmet_V2_obs_cuts[0]",
+          "value": 0.8919466029173964,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2b_hghmet_obs_cuts[0]",
+          "value": 0.7754251822626312,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2b_lowmet_V2_obs_cuts[0]",
+          "value": 1.2875321204515784,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2c_hghmet_obs_cuts[0]",
+          "value": 1.1129468462169911,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2c_lowmet_V2_obs_cuts[0]",
+          "value": 1.05494801238096,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2d_hghmet_obs_cuts[0]",
+          "value": 0.922249564189849,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2d_lowmet_V2_obs_cuts[0]",
+          "value": 0.9672441575408147,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2e_hghmet_obs_cuts[0]",
+          "value": 0.9330813487077432,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2e_lowmet_V2_obs_cuts[0]",
+          "value": 0.9813334221059378,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2f_hghmet_obs_cuts[0]",
+          "value": 0.981287306394799,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2f_lowmet_V2_obs_cuts[0]",
+          "value": 1.1460937171028467,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2g_hghmet_obs_cuts[0]",
+          "value": 0.9124116558300479,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2g_lowmet_V2_obs_cuts[0]",
+          "value": 1.1199183335497946,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2h_hghmet_obs_cuts[0]",
+          "value": 1.0363180625964155,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRVV_MT2_hghmet_cuts[0]",
+          "value": 1.001739603916706,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRVV_MT2_lowmet_cuts[0]",
+          "value": 0.9975981886539815,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtau_MT2_hghmet_cuts[0]",
+          "value": 0.9996197907674204,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtau_MT2_lowmet_cuts[0]",
+          "value": 0.9998841759378304,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtop_MT2_hghmet_cuts[0]",
+          "value": 0.9999860485518591,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtop_MT2_lowmet_cuts[0]",
+          "value": 0.9997829733827025,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2a_hghmet_cuts[0]",
+          "value": 0.97610944371039,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2a_lowmet_V2_cuts[0]",
+          "value": 1.0692483113337432,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2b_hghmet_cuts[0]",
+          "value": 0.9850274558458477,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2b_lowmet_V2_cuts[0]",
+          "value": 0.9913373113407822,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2c_hghmet_cuts[0]",
+          "value": 1.0059901425109092,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2c_lowmet_V2_cuts[0]",
+          "value": 1.044740245498591,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2d_hghmet_cuts[0]",
+          "value": 0.9984133587115851,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2d_lowmet_V2_cuts[0]",
+          "value": 0.9698775956992635,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2e_hghmet_cuts[0]",
+          "value": 1.004516382392528,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2e_lowmet_V2_cuts[0]",
+          "value": 0.9919678267512559,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2f_hghmet_cuts[0]",
+          "value": 1.0031392117033655,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2f_lowmet_V2_cuts[0]",
+          "value": 1.004383389592395,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2g_hghmet_cuts[0]",
+          "value": 1.0136611137926324,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2g_lowmet_V2_cuts[0]",
+          "value": 1.0198149785236725,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2h_hghmet_cuts[0]",
+          "value": 0.9882953983909029,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2h_lowmet_V2_cuts[0]",
+          "value": 0.970657373486937,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2a_hghmet_cuts[0]",
+          "value": 0.9905867991456734,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2a_lowmet_V2_cuts[0]",
+          "value": 0.9690648227502612,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2b_hghmet_cuts[0]",
+          "value": 0.9424054372486689,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2b_lowmet_V2_cuts[0]",
+          "value": 1.027522812128757,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2c_hghmet_cuts[0]",
+          "value": 1.0312142120309822,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2c_lowmet_V2_cuts[0]",
+          "value": 1.0175600763258876,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2d_hghmet_cuts[0]",
+          "value": 0.9859672274477007,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2d_lowmet_V2_cuts[0]",
+          "value": 0.9882827200470033,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2e_hghmet_cuts[0]",
+          "value": 0.9932848315538514,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2e_lowmet_V2_cuts[0]",
+          "value": 0.995383399426335,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2f_hghmet_cuts[0]",
+          "value": 0.9986122664271915,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2f_lowmet_V2_cuts[0]",
+          "value": 1.0202287315697212,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2g_hghmet_cuts[0]",
+          "value": 0.9880798959427746,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2g_lowmet_V2_cuts[0]",
+          "value": 1.0164276555827843,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2h_hghmet_cuts[0]",
+          "value": 1.0020435322641446,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2h_lowmet_V2_cuts[0]",
+          "value": 1.0000210994621022,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        }
+      ],
+      "covariance": null,
+      "nuisance_pull_uncertainties": null,
+      "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+      "signal_strength_units": "supplied-model units"
+    },
+    "inference": {
+      "method": "asymptotic CLs",
+      "test_stat": "qtilde",
+      "level": 0.05,
+      "root_solver": "scipy.brentq",
+      "root_rtol": 0.0001,
+      "root_atol": 1e-10,
+      "omitted_low_mu_nonfinite": [],
+      "coverage_validated": false,
+      "scope": "statistical inversion of the supplied model; no acceptance certification"
+    },
+    "optimizer": {
+      "primary": "scipy.SLSQP",
+      "fallback": "iminuit.MIGRAD nan-guarded",
+      "escalated": false,
+      "n_minimizations": 0,
+      "n_fallback": 0,
+      "n_nan_flagged": 0,
+      "n_escalated": 0
+    },
+    "limits": {
+      "schema_version": 1,
+      "quantity": "signal_strength",
+      "observed": {
+        "value": 0.6965319201254819,
+        "status": "resolved",
+        "bracket": [
+          0.5,
+          1.0
+        ]
+      },
+      "expected": [
+        {
+          "value": 0.41003863878256114,
+          "status": "resolved",
+          "bracket": [
+            0.3535533905932738,
+            0.5
+          ]
+        },
+        {
+          "value": 0.5515765215621338,
+          "status": "resolved",
+          "bracket": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "value": 0.7681459307966281,
+          "status": "resolved",
+          "bracket": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "value": 1.0740622113199112,
+          "status": "resolved",
+          "bracket": [
+            1.0005,
+            2.0
+          ]
+        },
+        {
+          "value": 1.4489205633957307,
+          "status": "resolved",
+          "bracket": [
+            1.0005,
+            2.0
+          ]
+        }
+      ],
+      "origin": "declared",
+      "notes": []
+    },
+    "limit_eligibility": {
+      "observed_root": true,
+      "expected_roots": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "historical_only": false
+    }
+  },
+  "wall_seconds": 90.44391699999687
+}

@@ -1,0 +1,1491 @@
+{
+  "schema_version": 1,
+  "created_on": "2026-09-05",
+  "ravel_baseline_commit": "ce2338575f66b17b6ec63f1042412d39279f3cb8",
+  "scope": "Purposive public LHC reuse survey: 26 curated candidate routes plus 45 separately preserved ATLAS probability-model index entries. Counts overlap; neither is an exhaustive HEP census or a readiness score.",
+  "claim_boundary": "All curated entries are candidates. No candidate was executed or newly scientifically validated by this survey. Execution tier identifies the nearest plausible route and remaining work, not permission to execute.",
+  "execution_tiers": {
+    "E0": "Discovery metadata only; no payload admission.",
+    "E1": "Existing Ravel statistical component is a plausible target after exact artifact/format/benchmark admission; end-to-end analysis readiness is not established.",
+    "E2": "Documented public artifact or external executable route, but a versioned adapter and scientific closure are required in Ravel.",
+    "E3": "New method/data-analysis work or major scientific contract development required; research planning only."
+  },
+  "artifact_availability_levels": {
+    "index_confirmed": "Official/maintainer index lists the resource, payload uninspected.",
+    "paper_confirmed": "Primary paper/page describes the artifact or result; payload uninspected.",
+    "repository_pinned": "Public repository identity pinned; does not establish data/environment completeness.",
+    "metadata_confirmed": "Record metadata inspected, referenced payloads uninspected.",
+    "file_manifest_confirmed": "Named files/checksums present in inspected public metadata; bytes not fetched.",
+    "release_confirmed": "Experiment announces public research release; per-analysis manifest absent."
+  },
+  "curated_candidates": [
+    {
+      "id": "P01",
+      "title": "ATLAS SUSY-2018-16: Compressed electroweakinos and sleptons / soft leptons",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf",
+        "rrr"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Soft-lepton thresholds, ISR and eRJR/selection implementation require closure; preserve mass gaps and mixing."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": "SUSY-2018-16",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-16",
+      "data_record_url": "https://www.hepdata.net/record/ins1767649"
+    },
+    {
+      "id": "P02",
+      "title": "ATLAS SUSY-2018-30: Gluinos in multi-b final states",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Heavy-flavour tagging and any neural-network selection require matched detector objects and classifier inputs."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": "SUSY-2018-30",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-30",
+      "data_record_url": "https://www.hepdata.net/record/ins2182381"
+    },
+    {
+      "id": "P03",
+      "title": "ATLAS SUSY-2019-08: Chargino-neutralino production with 1 lepton and h to bb",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Preserve W/h branching fractions and signal contamination in control regions."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": "SUSY-2019-08",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-08",
+      "data_record_url": "https://www.hepdata.net/record/ins1755298"
+    },
+    {
+      "id": "P04",
+      "title": "ATLAS SUSY-2018-32: Chargino and slepton production with 2 leptons",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Slepton chirality, mass gap, lepton efficiency and flavour assumptions affect acceptance."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": "SUSY-2018-32",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-32",
+      "data_record_url": "https://www.hepdata.net/record/ins1750597"
+    },
+    {
+      "id": "P05",
+      "title": "ATLAS SUSY-2018-41: All-hadronic electroweakino production",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Boson tagging, substructure and boosted acceptance cannot be inferred from a counting table."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "SUSY-2018-41",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-41",
+      "data_record_url": "https://www.hepdata.net/record/ins1906174"
+    },
+    {
+      "id": "P06",
+      "title": "ATLAS SUSY-2018-04: Stau pair production with tau final states",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Tau polarisation, hadronic tau response and branching assumptions must be model-consistent."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "SUSY-2018-04",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-04",
+      "data_record_url": "https://www.hepdata.net/record/ins1765529"
+    },
+    {
+      "id": "P07",
+      "title": "ATLAS SUSY-2019-04: RPV gluinos, stops and electroweakinos with lepton plus many jets",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Specify RPV operator, decay chain, width and jet multiplicity; a shared final-state label is insufficient."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "SUSY-2019-04",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-04",
+      "data_record_url": "https://www.hepdata.net/record/ins1869040?version=1"
+    },
+    {
+      "id": "P08",
+      "title": "ATLAS TOPQ-2021-08: Four-top production in multilepton final states",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "New operators change shapes; SM signal-strength reweighting need not represent EFT or other BSM signals."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "TOPQ-2021-08",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2021-08",
+      "data_record_url": "https://www.hepdata.net/record/ins2648095"
+    },
+    {
+      "id": "P09",
+      "title": "ATLAS TOPQ-2020-23: Top-Higgs FCNC multilepton search",
+      "route_family": "published_likelihood",
+      "execution_tier": "E1",
+      "source_ids": [
+        "index",
+        "pyhf"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        },
+        {
+          "kind": "experiment_publication_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact versioned workspace and signal-patch manifests; HistFactory compatibility has not been checked here.",
+        "Workspace channel order, POI, nuisance bounds, auxiliary observations and benchmark signal yields."
+      ],
+      "model_limitations": [
+        "Specify flavour and operator basis; isolate accepted signal templates and correlated control regions."
+      ],
+      "detector_limitations": [
+        "A released statistical model does not validate generated signal efficiencies."
+      ],
+      "statistical_limitations": [
+        "Preserve full nuisance and control-region structure; observations cannot be replaced with projections."
+      ],
+      "admission_evidence_required": [
+        "Download and hash the exact release; validate JSON and patch semantics.",
+        "Replay an experiment benchmark with declared asymptotic/toy settings before admitting new signal templates.",
+        "For event recasting, independently close cutflow, yields and multi-point limits; P01/P02 retain existing local benchmark blockers."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "mapyde",
+        "CheckMATE",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "TOPQ-2020-23",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2020-23",
+      "data_record_url": "https://www.hepdata.net/record/ins2773613"
+    },
+    {
+      "id": "M01",
+      "title": "ATLAS 1905.04242: fiducial WW differential cross sections",
+      "route_family": "measurement_eft",
+      "execution_tier": "E2",
+      "source_ids": [
+        "ww",
+        "contur",
+        "rivet"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_fiducial_measurement",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "ww"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact tables, bin correlations/covariances and compatible Rivet routine/version were not fetched."
+      ],
+      "model_limitations": [
+        "Specify SMEFT basis, Wilson-coefficient units, perturbative order and truncation."
+      ],
+      "detector_limitations": [
+        "Match particle-level dressing, jet veto and fiducial boundaries; unfolding assumes a response model."
+      ],
+      "statistical_limitations": [
+        "Correlated Gaussian/likelihood fit; normalised distributions can have singular covariance. Avoid multiplying overlapping distributions."
+      ],
+      "admission_evidence_required": [
+        "Recover SM reference distributions and covariance rank.",
+        "Validate signed interference plus quadratic terms and the accepted EFT validity region."
+      ],
+      "suggested_tools": [
+        "Rivet",
+        "Contur"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/1905.04242v2",
+      "data_record_url": null
+    },
+    {
+      "id": "M02",
+      "title": "CMS SMP-20-005 / 2111.13948: Wgamma differential EFT fit",
+      "route_family": "measurement_eft",
+      "execution_tier": "E2",
+      "source_ids": [
+        "wgamma"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_two_dimensional_measurement",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "wgamma"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact measured vector, covariance, theory templates and bin conventions."
+      ],
+      "model_limitations": [
+        "O3W interference is a signed coefficient contribution; retain coefficient signs and linear/quadratic order."
+      ],
+      "detector_limitations": [
+        "Reproduce photon isolation, lepton frame/angle definition and unfolding scope."
+      ],
+      "statistical_limitations": [
+        "A positive signal-strength upper-limit solver cannot stand in for a coefficient fit with non-monotone dependence."
+      ],
+      "admission_evidence_required": [
+        "Reproduce at least positive/negative coefficient reference predictions and confidence intervals.",
+        "Check total predictions are physical within the specified domain without clipping the interference term."
+      ],
+      "suggested_tools": [
+        "Rivet"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2111.13948v2",
+      "data_record_url": null
+    },
+    {
+      "id": "M03",
+      "title": "ATLAS 2405.20041: unbinned Z+jets OmniFold measurement",
+      "route_family": "unbinned_unfolded",
+      "execution_tier": "E3",
+      "source_ids": [
+        "omnifold",
+        "omnifold-code"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "unbinned_particle_level_representation",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "omnifold"
+          ]
+        },
+        {
+          "kind": "public_reuse_repository",
+          "availability": "repository_pinned",
+          "source_ids": [
+            "omnifold-code"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Weighted-event payload, uncertainty replicas and usage restrictions remain to be inspected."
+      ],
+      "model_limitations": [
+        "New observables must be functions of the measured representation, within the measured phase space."
+      ],
+      "detector_limitations": [
+        "These unfolded events are not detector-level raw events; response-model dependence remains."
+      ],
+      "statistical_limitations": [
+        "Preserve event weights and correlated uncertainty replicas; arbitrary histogram independence is invalid."
+      ],
+      "admission_evidence_required": [
+        "Reproduce published observables from the released events.",
+        "Validate new observable closure and uncertainty propagation before an EFT or BSM fit."
+      ],
+      "suggested_tools": [
+        "Rivet"
+      ],
+      "priority": "research_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2405.20041",
+      "data_record_url": null
+    },
+    {
+      "id": "M04",
+      "title": "ATLAS TOPQ-2019-03: ttbar plus heavy-flavour differential measurement",
+      "route_family": "measurement_eft",
+      "execution_tier": "E2",
+      "source_ids": [
+        "index"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_and_publication_pointers",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Workspace parameterization and particle/parton-level covariance must be inspected."
+      ],
+      "model_limitations": [
+        "Heavy-flavour scheme, shower and additional-jet definitions matter to EFT templates."
+      ],
+      "detector_limitations": [
+        "Do not mix particle-level emu results with uncorrected detector yields."
+      ],
+      "statistical_limitations": [
+        "Distinguish a measurement POI from a BSM signal-strength POI; respect bin correlations."
+      ],
+      "admission_evidence_required": [
+        "Recover reference differential measurement and likelihood parameter semantics."
+      ],
+      "suggested_tools": [
+        "pyhf",
+        "Rivet"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "TOPQ-2019-03",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-03",
+      "data_record_url": "https://www.hepdata.net/record/ins2809112"
+    },
+    {
+      "id": "L01",
+      "title": "ATLAS-SUSY-2016-06 disappearing tracks",
+      "route_family": "lifetime_efficiency_maps",
+      "execution_tier": "E2",
+      "source_ids": [
+        "atlas-dt",
+        "smodels-list"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_analysis",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "atlas-dt"
+          ]
+        },
+        {
+          "kind": "efficiency_map_listing",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "smodels-list"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Actual map arrays, axes, interpolation prescription and validation plots were not downloaded."
+      ],
+      "model_limitations": [
+        "Keep topology, charge, lifetime, decay modes and boost distribution within map assumptions."
+      ],
+      "detector_limitations": [
+        "Factor event acceptance and track reconstruction only where map authors prescribe it; include decay position and detector geometry."
+      ],
+      "statistical_limitations": [
+        "Do not treat a map as a likelihood or correlate search regions without evidence."
+      ],
+      "admission_evidence_required": [
+        "Reproduce mass-lifetime benchmark grid including edges and long/short lifetime failure cases.",
+        "Require truth-level decay positions and reject extrapolation beyond map support."
+      ],
+      "suggested_tools": [
+        "SModelS"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-06/",
+      "data_record_url": null
+    },
+    {
+      "id": "L02",
+      "title": "CMS-EXO-19-010 / 2004.05153 disappearing tracks",
+      "route_family": "lifetime_efficiency_maps",
+      "execution_tier": "E2",
+      "source_ids": [
+        "cms-dt",
+        "smodels-list"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_analysis",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "cms-dt"
+          ]
+        },
+        {
+          "kind": "efficiency_map_listing",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "smodels-list"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Actual map arrays, axes, interpolation prescription and validation plots were not downloaded."
+      ],
+      "model_limitations": [
+        "Keep topology, charge, lifetime, decay modes and boost distribution within map assumptions."
+      ],
+      "detector_limitations": [
+        "Factor event acceptance and track reconstruction only where map authors prescribe it; include decay position and detector geometry."
+      ],
+      "statistical_limitations": [
+        "Do not treat a map as a likelihood or correlate search regions without evidence."
+      ],
+      "admission_evidence_required": [
+        "Reproduce mass-lifetime benchmark grid including edges and long/short lifetime failure cases.",
+        "Require truth-level decay positions and reject extrapolation beyond map support."
+      ],
+      "suggested_tools": [
+        "SModelS"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2004.05153",
+      "data_record_url": null
+    },
+    {
+      "id": "L03",
+      "title": "ATLAS SUSY-2018-14: displaced leptons",
+      "route_family": "lifetime_efficiency_maps",
+      "execution_tier": "E2",
+      "source_ids": [
+        "index"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Displacement-dependent lepton response, trigger efficiencies and exact workspace."
+      ],
+      "model_limitations": [
+        "Lifetime, flavour and boost dependence; prompt efficiencies cannot stand in for displaced efficiencies."
+      ],
+      "detector_limitations": [
+        "Validate d0 and displaced tracking/identification support."
+      ],
+      "statistical_limitations": [
+        "Use the released likelihood only with correctly displaced signal templates."
+      ],
+      "admission_evidence_required": [
+        "Close reference lifetimes and displacement spectra before changing masses or decay flavour."
+      ],
+      "suggested_tools": [
+        "pyhf"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "SUSY-2018-14",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-14",
+      "data_record_url": "https://www.hepdata.net/record/ins1831504?version=1"
+    },
+    {
+      "id": "L04",
+      "title": "ATLAS EXOT-2022-04: hadronic-calorimeter LLP decays with leptons or jets",
+      "route_family": "lifetime_efficiency_maps",
+      "execution_tier": "E2",
+      "source_ids": [
+        "index"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "probability_model_record_pointer",
+          "availability": "index_confirmed",
+          "source_ids": [
+            "index"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Calorimeter-decay classifier/response and trigger/selection maps; exact released statistical model."
+      ],
+      "model_limitations": [
+        "LLP decay mode, production association and boost distribution fix the efficiency domain."
+      ],
+      "detector_limitations": [
+        "Prompt Delphes jet response does not certify displaced hadronic showers."
+      ],
+      "statistical_limitations": [
+        "A released likelihood supplies no calorimeter decay efficiency."
+      ],
+      "admission_evidence_required": [
+        "Reproduce benchmark decay-location and yield distributions at multiple lifetimes."
+      ],
+      "suggested_tools": [
+        "pyhf"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": "EXOT-2022-04",
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2022-04",
+      "data_record_url": "https://www.hepdata.net/record/ins2807458"
+    },
+    {
+      "id": "R01",
+      "title": "ATLAS 2408.00049: boosted low-mass resonance plus photon",
+      "route_family": "resonance_shapes",
+      "execution_tier": "E2",
+      "source_ids": [
+        "narrow"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "paper_and_auxiliary_figure_links",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "narrow"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact spectra, nuisance/background-fit prescription and tagging/trigger response."
+      ],
+      "model_limitations": [
+        "Published narrow spin-1 interpretation does not establish validity for broad widths or other spins."
+      ],
+      "detector_limitations": [
+        "Photon trigger and two-prong large-radius jet selection require matched implementation."
+      ],
+      "statistical_limitations": [
+        "Changing width changes shape, acceptance and possible interference; cross-section-only rescaling is insufficient."
+      ],
+      "admission_evidence_required": [
+        "Recover narrow benchmark efficiencies and shape.",
+        "Admit broad widths only after valid shape and background-fit/coverage tests."
+      ],
+      "suggested_tools": [
+        "MadAnalysis5",
+        "CheckMATE"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2408.00049v2",
+      "data_record_url": null
+    },
+    {
+      "id": "R02",
+      "title": "ATLAS 1910.08447: inclusive and b-tagged dijet resonances",
+      "route_family": "resonance_shapes",
+      "execution_tier": "E2",
+      "source_ids": [
+        "dijet"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "gaussian_shape_limits_and_benchmark_results",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "dijet"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact Gaussian-width tables, detector response and shape-fit configuration."
+      ],
+      "model_limitations": [
+        "Finite-width resonances, PDF tails and interference need not be Gaussian."
+      ],
+      "detector_limitations": [
+        "Match mass resolution, high-pT flavour tagging and fiducial acceptance."
+      ],
+      "statistical_limitations": [
+        "Gaussian-limit interpolation is allowed only inside the stated shape family; a smooth background fit is not independent Poisson bins."
+      ],
+      "admission_evidence_required": [
+        "Validate reconstructed shape membership before applying a Gaussian limit.",
+        "For a new fit, recover background-fit choices and spurious-signal/coverage tests."
+      ],
+      "suggested_tools": [
+        "SModelS",
+        "MadAnalysis5"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/1910.08447v2",
+      "data_record_url": null
+    },
+    {
+      "id": "S01",
+      "title": "ATLAS EXOT-2022-37 / 2305.18037: non-resonant semi-visible jets",
+      "route_family": "dark_shower_recast",
+      "execution_tier": "E2",
+      "source_ids": [
+        "svj-atlas"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_t_channel_benchmark",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "svj-atlas"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "HEPData record 144506 returned HTTP 403; no likelihood or covariance payload inspected.",
+        "Hidden-sector shower tune, invisible fraction convention, event selections and background correlations."
+      ],
+      "model_limitations": [
+        "Invisible fraction, dark-hadron masses and mediator width/production change distributions."
+      ],
+      "detector_limitations": [
+        "Jets aligned with missing momentum make standard cleaning and MET assumptions consequential."
+      ],
+      "statistical_limitations": [
+        "Post-fit yields, if retrieved, do not alone define independent likelihood inputs."
+      ],
+      "admission_evidence_required": [
+        "Close published benchmark cutflows and all relevant selection bins.",
+        "Stress normalization and generator-process agreement before any parameter scan."
+      ],
+      "suggested_tools": [
+        "MadAnalysis5",
+        "CheckMATE"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2305.18037",
+      "data_record_url": null
+    },
+    {
+      "id": "S02",
+      "title": "CMS EXO-19-020 / 2112.11125: resonant semi-visible jets",
+      "route_family": "dark_shower_recast",
+      "execution_tier": "E2",
+      "source_ids": [
+        "svj-cms"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "inclusive_and_bdt_results",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "svj-cms"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Transverse-mass spectra, likelihood, classifier weights/features and preprocessing."
+      ],
+      "model_limitations": [
+        "Dark shower, mediator couplings, masses and invisible fraction must be fixed explicitly."
+      ],
+      "detector_limitations": [
+        "Inclusive selection and BDT-enhanced selection require separate validation."
+      ],
+      "statistical_limitations": [
+        "An inclusive efficiency cannot be used to quote a BDT-category limit."
+      ],
+      "admission_evidence_required": [
+        "Recover inclusive benchmarks first.",
+        "Admit BDT outputs only after classifier response and mass-sculpting closure."
+      ],
+      "suggested_tools": [
+        "MadAnalysis5",
+        "CheckMATE"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2112.11125v3",
+      "data_record_url": null
+    },
+    {
+      "id": "S03",
+      "title": "2502.11237: semi-visible jets constrained by collider measurements",
+      "route_family": "dark_shower_measurements",
+      "execution_tier": "E2",
+      "source_ids": [
+        "svj-contur",
+        "contur-docs"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_contur_case_study",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "svj-contur"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Exact model cards, selected measurements, YODA inputs and statistical configuration."
+      ],
+      "model_limitations": [
+        "Measured SM-like final states can constrain dark sectors but shower dependence remains."
+      ],
+      "detector_limitations": [
+        "Measurement fiducial definitions and unfolding applicability must be respected."
+      ],
+      "statistical_limitations": [
+        "Pin measurement pools/correlations and whether SM prediction or data is the background."
+      ],
+      "admission_evidence_required": [
+        "Reproduce selected measurements and the published benchmark configuration before expanding the scan."
+      ],
+      "suggested_tools": [
+        "Rivet",
+        "Contur"
+      ],
+      "priority": "second_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2502.11237",
+      "data_record_url": null
+    },
+    {
+      "id": "A01",
+      "title": "CMS EXO-22-026 / 2412.03747: model-agnostic dijet anomaly search",
+      "route_family": "anomaly_method_study",
+      "execution_tier": "E3",
+      "source_ids": [
+        "ad-cms"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_methods_and_benchmark_exclusions",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "ad-cms"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Training/evaluation data, released networks/preprocessing and exact calibration artifacts not verified."
+      ],
+      "model_limitations": [
+        "Sensitivity remains benchmark- and training-procedure-dependent."
+      ],
+      "detector_limitations": [
+        "Feature definitions and detector-era response are part of the model."
+      ],
+      "statistical_limitations": [
+        "Training/test separation, mass sculpting, selection of hyperparameters and global trials need a declared calibration protocol."
+      ],
+      "admission_evidence_required": [
+        "Replay published benchmark efficiencies with immutable data splits.",
+        "Validate null and injected-signal trials before claiming a new method improves sensitivity."
+      ],
+      "suggested_tools": [],
+      "priority": "research_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2412.03747v2",
+      "data_record_url": null
+    },
+    {
+      "id": "A02",
+      "title": "ATLAS 2307.01612: autoencoder selection and two-body mass spectra",
+      "route_family": "anomaly_method_study",
+      "execution_tier": "E3",
+      "source_ids": [
+        "ad-atlas"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "published_autoencoder_method_and_results",
+          "availability": "paper_confirmed",
+          "source_ids": [
+            "ad-atlas"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Network/preprocessing, training sample, sideband protocol and null calibration artifacts."
+      ],
+      "model_limitations": [
+        "An anomaly score does not identify a physical model."
+      ],
+      "detector_limitations": [
+        "Lepton-triggered events and all feature definitions delimit the eligible sample."
+      ],
+      "statistical_limitations": [
+        "Correlated spectra, selected regions and model tuning require global null treatment."
+      ],
+      "admission_evidence_required": [
+        "Match source selection, trained model and reference sensitivity.",
+        "Treat any retrained method as a new calibrated study."
+      ],
+      "suggested_tools": [],
+      "priority": "research_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://arxiv.org/abs/2307.01612v2",
+      "data_record_url": null
+    },
+    {
+      "id": "O01",
+      "title": "CERN Open Data 12360: CMS 2012 H to four leptons with ROOT RDataFrame",
+      "route_family": "open_data_workflow",
+      "execution_tier": "E2",
+      "source_ids": [
+        "open-cms"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "software_manifest_with_checksums",
+          "availability": "file_manifest_confirmed",
+          "source_ids": [
+            "open-cms"
+          ]
+        },
+        {
+          "kind": "linked_reduced_data_and_simulation_records",
+          "availability": "metadata_confirmed",
+          "source_ids": [
+            "open-cms"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "File payloads and datasets not downloaded or executed.",
+        "Record suggests branch 2012, absent in current remote refs; resolve versioned archive versus current master."
+      ],
+      "model_limitations": [
+        "Educational analysis omits smaller backgrounds; not a full official Higgs reproduction."
+      ],
+      "detector_limitations": [
+        "Reduced data and partial dataset overlap limit comparison to the official publication."
+      ],
+      "statistical_limitations": [
+        "Any new inference needs full background/systematics treatment beyond the teaching plot."
+      ],
+      "admission_evidence_required": [
+        "Resolve immutable software/data versions and reproduce the teaching example honestly.",
+        "For research, validate triggers, luminosity, backgrounds and uncertainties for the chosen data."
+      ],
+      "suggested_tools": [
+        "REANA"
+      ],
+      "priority": "first_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://opendata.cern.ch/record/12360",
+      "data_record_url": null
+    },
+    {
+      "id": "O02",
+      "title": "ATLAS 2015/2016 research Open Data release",
+      "route_family": "open_data_workflow",
+      "execution_tier": "E3",
+      "source_ids": [
+        "open-atlas"
+      ],
+      "available_artifacts": [
+        {
+          "kind": "public_research_data_and_simulation_release",
+          "availability": "release_confirmed",
+          "source_ids": [
+            "open-atlas"
+          ]
+        }
+      ],
+      "missing_or_unverified_artifacts": [
+        "Choose concrete dataset records and analysis workflow; release-wide access is not an analysis manifest."
+      ],
+      "model_limitations": [
+        "Specify a bounded physical observable/model before choosing files."
+      ],
+      "detector_limitations": [
+        "Official object calibrations, trigger matching and data-quality selections are required."
+      ],
+      "statistical_limitations": [
+        "Novel open-data measurements or anomaly studies require independent calibration and statistical validation."
+      ],
+      "admission_evidence_required": [
+        "Pin dataset/file manifests, data-quality and luminosity records.",
+        "Reproduce one documented research analysis before admitting a new observable or model."
+      ],
+      "suggested_tools": [
+        "REANA"
+      ],
+      "priority": "research_wave",
+      "index_analysis_id": null,
+      "validation": {
+        "status": "candidate",
+        "validated_by_this_survey": false,
+        "numerical": "not_assessed",
+        "central_value": "not_assessed",
+        "detector_and_model": "not_assessed",
+        "coverage": "not_assessed"
+      },
+      "ravel_ready_to_execute": false,
+      "publication_url": "https://atlas.cern/Updates/News/Open-Data-Research",
+      "data_record_url": null
+    }
+  ],
+  "index_metadata": {
+    "file": "public-models-metadata.json",
+    "count": 45,
+    "counts_by_physics_group": {
+      "TOPQ": 24,
+      "HIGG": 1,
+      "EXOT": 2,
+      "SUSY": 17,
+      "HDBS": 1
+    },
+    "execution_tier": "E0",
+    "validation_status": "candidate",
+    "source_id": "index"
+  },
+  "acceptance_policy": "Admission requirements are reviewer proposals; current executable product contracts and run-specific approvals remain authoritative."
+}

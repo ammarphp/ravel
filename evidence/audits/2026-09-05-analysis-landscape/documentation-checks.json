@@ -1,0 +1,116 @@
+[
+  {
+    "name": "mapyde",
+    "url": "https://raw.githubusercontent.com/scipp-atlas/mapyde/7cc0afbb52283ea2a8f4375e4063227e8e2f9b8f/README.md",
+    "status": "pinned_document_read",
+    "sha256": "f9b804b40d767c1fa613636a1ea87a8ed593b0cbbddf63a9bcfacd28f74e1dfd",
+    "bytes": 5649,
+    "stored_contents": false
+  },
+  {
+    "name": "MadAgents",
+    "url": "https://raw.githubusercontent.com/MadGraphTeam/MadAgents/df241214d1e4a66b1f9964aa33dd2342b7084b9a/README.md",
+    "status": "pinned_document_read",
+    "sha256": "19d177a15bb26b09a8c64220fd5f8457b7b09d0e8f387fd99ddd784cba0801b6",
+    "bytes": 25674,
+    "stored_contents": false
+  },
+  {
+    "name": "ColliderAgent",
+    "url": "https://raw.githubusercontent.com/HET-AGI/ColliderAgent/1140f39e8730889422a64a141fbd3ca10529e13b/README.md",
+    "status": "pinned_document_read",
+    "sha256": "cbd1bb08d93ffbab9a49239074cd4d14ecd93a1ceb2f3dee347d623473d09eda",
+    "bytes": 15147,
+    "stored_contents": false
+  },
+  {
+    "name": "RECAST",
+    "url": "https://raw.githubusercontent.com/recast-hep/recast-atlas/731d4e2807f3b6c416bb4e5db91876e19b6a3b81/README.md",
+    "status": "pinned_document_read",
+    "sha256": "13e974f3a20a887dec8f5fc1026e4e02d240992afb44e3c56904588d335332ce",
+    "bytes": 4977,
+    "stored_contents": false
+  },
+  {
+    "name": "REANA",
+    "url": "https://raw.githubusercontent.com/reanahub/reana/6e700b4a299e7052ced6852938b374d8a193f80b/README.md",
+    "status": "pinned_document_read",
+    "sha256": "9bb460aa0508299b3ee162f32b15e6e6fa71a4d7e2957a163eebcd0120ce793c",
+    "bytes": 2583,
+    "stored_contents": false
+  },
+  {
+    "name": "pyhf",
+    "url": "https://raw.githubusercontent.com/scikit-hep/pyhf/f19891b2255b9d8327ad0a2fc1d3b49664afbd9d/README.md",
+    "status": "not_fetched",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "public-probability-models",
+    "url": "https://raw.githubusercontent.com/pyhf/public-probability-models/b2f2db8f4f4aa00fc88d0928e9b61cc047f0e6d5/README.md",
+    "status": "not_fetched",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "SModelS",
+    "url": "https://raw.githubusercontent.com/SModelS/smodels/53a19a64c4c7d0bf3e9129d647091bba49c5e405/README.md",
+    "status": "pinned_document_read",
+    "sha256": "974ccf2baffb0e7fc910ff63f38369e0f686a03cbe8f41ebe5cecc2598098649",
+    "bytes": 17,
+    "stored_contents": false
+  },
+  {
+    "name": "MadAnalysis5",
+    "url": "https://raw.githubusercontent.com/MadAnalysis/madanalysis5/20f2114b447c52b787ce32916ce9e44f990dd783/README.md",
+    "status": "pinned_document_read",
+    "sha256": "bea31a10cc3c80aa0ab142ed1e63e5cf643d8bc94e9d4a4e49d601a0cd32a98a",
+    "bytes": 14947,
+    "stored_contents": false
+  },
+  {
+    "name": "CheckMATE",
+    "url": "https://raw.githubusercontent.com/CheckMATE2/checkmate2/b812999b2aebfb37b65e36ea0b408661940a0515/README.md",
+    "status": "pinned_document_read",
+    "sha256": "f6790842766d2e6ce71cc95d2f0e2712eed77c8674e8ad59c7098ffa12786794",
+    "bytes": 7114,
+    "stored_contents": false
+  },
+  {
+    "name": "Contur",
+    "status": "repository_pinned_docs_reviewed_live",
+    "note": "No pinned README fetched; compare documented product scope only."
+  },
+  {
+    "name": "Rivet",
+    "status": "repository_pinned_docs_reviewed_live",
+    "note": "No pinned README fetched; compare documented product scope only."
+  },
+  {
+    "name": "HEPData",
+    "url": "https://raw.githubusercontent.com/HEPData/hepdata/8fa68fbd1fce31bace340aa0cb0e167ba94ec0cc/README.md",
+    "status": "not_fetched",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "CERNOpenData",
+    "url": "https://raw.githubusercontent.com/cernopendata/opendata.cern.ch/1114a7e38d2cc16f344df895c4fa338435d6f45d/README.md",
+    "status": "not_fetched",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "SModelS",
+    "url": "https://raw.githubusercontent.com/SModelS/smodels/53a19a64c4c7d0bf3e9129d647091bba49c5e405/smodels/README.md",
+    "status": "pinned_document_read",
+    "sha256": "526c39f5edc98cd6c06e4d70d759bd22e7fac05413e3faf2e3755c5e93051eec",
+    "bytes": 2604,
+    "stored_contents": false
+  },
+  {
+    "name": "pyhf",
+    "url": "https://raw.githubusercontent.com/scikit-hep/pyhf/f19891b2255b9d8327ad0a2fc1d3b49664afbd9d/README.rst",
+    "status": "pinned_document_read",
+    "sha256": "46b2ccbbc50c71cdfa19c7428415fd30d9181bc9163dafc5c7d13785300d3414",
+    "bytes": 14590,
+    "stored_contents": false
+  }
+]

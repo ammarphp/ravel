@@ -1,0 +1,18 @@
+import sys,time,json
+from pathlib import Path
+import pyhf,jsonpatch
+root=Path(__file__).resolve().parents[2]
+pyhf.set_backend('jax',pyhf.optimize.scipy_optimizer(maxiter=10000,tolerance=1e-7),precision='64b')
+bkg=root/'stages/01-event-generation/build/tools/miniforge3/envs/pipeline/share/mapyde/likelihoods/Slepton_bkgonly.json'
+tag=sys.argv[1]
+patch=root/f'trial-runs/sleptonscan_fig3_{tag}/output/EwkCompressed2018_patch.json'
+w=pyhf.Workspace(jsonpatch.apply_patch(json.loads(bkg.read_text()),json.loads(patch.read_text())))
+m=w.model(modifier_settings={'normsys': {'interpcode':'code4'},'histosys':{'interpcode':'code4p'}})
+data=w.data(m)
+old=json.loads((patch.parent/'exclusion.json').read_text())
+mu=old['obs_limit']; bounds=m.config.suggested_bounds();bounds[m.config.poi_index]=[0.,2.]
+t=time.monotonic()
+o,e=pyhf.infer.hypotest(mu,data,m,test_stat='qtilde',return_expected_set=True,par_bounds=bounds)
+result={'tag':tag,'mu':mu,'cls_at_legacy_limit':float(o),'expected_cls':list(map(float,e)),'wall_seconds':time.monotonic()-t,'backend':'jax64/scipy SLSQP','pyhf_version':pyhf.__version__}
+print(json.dumps(result),flush=True)
+(root/f'local-runs/rrr-diagnosis/{tag}-jax.json').write_text(json.dumps(result,indent=2)+'\n')

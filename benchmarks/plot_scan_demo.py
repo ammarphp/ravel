@@ -23,8 +23,10 @@ def main():
     scan = resolve(ROOT, 'evidence/scans/slepton-bino-figure-3/scan.json')
     reference = ROOT / 'evidence/audits/2026-09-05-scan-fidelity/atlas-limit-grid.yaml'
     contour = reference.with_name('atlas-observed-contour.yaml')
+    expected_contour = reference.with_name('atlas-expected-contour.yaml')
     cmd = module_command('ravel.plotting.scan_contour', '--scan', str(scan),
                          '--atlas-limit', str(reference), '--atlas-contour', 'observed=' + str(contour),
+                         '--atlas-contour', 'expected=' + str(expected_contour),
                          '--lumi', '139', '--logy', '--out', str(output / 'scan'))
     result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     # Logs use logical relative inputs so the demonstration does not expose operator paths.
@@ -34,7 +36,7 @@ def main():
     if result.returncode:
         return result.returncode
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
-    files = [scan, reference, contour, ROOT / 'src/ravel/plotting/scan_contour.py',
+    files = [scan, reference, contour, expected_contour, ROOT / 'src/ravel/plotting/scan_contour.py',
              ROOT / 'src/ravel/plotting/mplhep_style.py', ROOT / 'src/ravel/limits.py', Path(__file__)]
     record = {'scope': 'fresh plotting of cached historical scan; no event generation or new likelihood fits',
               'python': platform.python_version(),

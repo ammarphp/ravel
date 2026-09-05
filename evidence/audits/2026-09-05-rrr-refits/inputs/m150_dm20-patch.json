@@ -1,0 +1,546 @@
+[
+    {
+        "op": "add",
+        "path": "/channels/6/samples/4",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/7/samples/5",
+        "value": {
+            "data": [
+                0.9472155015828321
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/8/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/9/samples/5",
+        "value": {
+            "data": [
+                1.8944310031656642
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/10/samples/5",
+        "value": {
+            "data": [
+                1.8944310031656642
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/11/samples/5",
+        "value": {
+            "data": [
+                3.7888620063313283
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/12/samples/5",
+        "value": {
+            "data": [
+                1.8944310031656642
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/13/samples/5",
+        "value": {
+            "data": [
+                3.7888620063313283
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/14/samples/5",
+        "value": {
+            "data": [
+                5.6832930094969925
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/15/samples/5",
+        "value": {
+            "data": [
+                2.8416465047484962
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/16/samples/5",
+        "value": {
+            "data": [
+                3.7888620063313283
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/17/samples/5",
+        "value": {
+            "data": [
+                0.9472155015828321
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/18/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/19/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/20/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/21/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/22/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/23/samples/5",
+        "value": {
+            "data": [
+                1.8944310031656642
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/24/samples/5",
+        "value": {
+            "data": [
+                0.9472155015828321
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/25/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/26/samples/5",
+        "value": {
+            "data": [
+                5.6832930094969925
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/27/samples/5",
+        "value": {
+            "data": [
+                4.73607750791416
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/28/samples/5",
+        "value": {
+            "data": [
+                7.577724012662657
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/29/samples/5",
+        "value": {
+            "data": [
+                3.7888620063313283
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/30/samples/5",
+        "value": {
+            "data": [
+                3.7888620063313283
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/31/samples/6",
+        "value": {
+            "data": [
+                10.419370517411153
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/32/samples/5",
+        "value": {
+            "data": [
+                1.8944310031656642
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/33/samples/5",
+        "value": {
+            "data": [
+                2.8416465047484962
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/34/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/35/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/36/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/37/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "output"
+        }
+    }
+]

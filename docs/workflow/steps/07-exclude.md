@@ -9,6 +9,11 @@ statistical tool. Never hand-roll the statistical model. Pick the mode by what s
 
 Carry the versioned `limits` object through every pack, scan and plot. Follow `docs/reference/scientific-results.md`: a scan endpoint remains a bound, missing expected slots remain missing, and shape R5 or acceptance comparison authority requires the current artifact-bound certificate. Keep numerical convergence separate from model validation and statistical coverage.
 
+When reproducing a published analysis, follow the [reproduction diagnosis
+checklist](../checklists/reproduction-closure.md) before attributing disagreement
+to detector simulation. Begin with fixed-workspace numerical and published-signal
+closure, then isolate normalization, sampling, truth selection and detector effects.
+
 ## Mode A — serialized likelihood (preferred when published)
 A `stat_mode=published-likelihood` run pairs the chain's signal patch against the published
 background-only workspace BEFORE the limit: run the likelihood↔selection pairing gate (structural
@@ -64,8 +69,9 @@ state the k-factor range used — never silently leave the limit on LO.
 The limit must be the true 95% CL crossing — where CLs falls to 0.05. A fixed µ scan (e.g. mapyde's
 default 0.1–2.0) can stop before the crossing: if CLs at the top of the grid is still ≫ 0.05, the
 model is simply weakly constrained and the limit lies beyond the grid. `pyhf_exclude.py` removes that
-truncation — it brackets µ (doubling until CLs < 0.05) and interpolates the crossing, so the reported
-limit is real even when it is large. (For a full-likelihood fit each point is a many-parameter fit;
+truncation — it brackets µ in both directions and refines each observed/expected crossing with
+Brent's root solver. A coarse plotting grid alone is insufficient, even when it brackets the
+crossing. Unresolved curves retain explicit bound statuses. (For a full-likelihood fit each point is a many-parameter fit;
 expect minutes, not seconds.)
 
 ## Optimizer robustness (CR-005/CR-132 — silent-failure guard, automatic)

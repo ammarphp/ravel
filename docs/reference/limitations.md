@@ -11,14 +11,11 @@ Honest registry of what the pipeline does not yet do (or does approximately). Ea
 limitation, its impact, and the plan. The audit (`audit.py`) reads this; closing an item should flip
 the corresponding dimension.
 
-> **TRIAGE (binding since 2026-07-07):** every entry carries a dated investigation record in
-> **`docs/development/limitations-triage.md`** — `investigated-to` grade (evidence-cited), the
-> falsification test, reopen cost, and confidence. Current census: 19 entries = 12 thorough /
-> 6 brief / **1 none** (likelihood↔selection pairing — the only entry with no investigation record
-> at all). Re-investigation happens ONLY off that file's ranked queue (top of queue: the Mode-A
-> likelihood resume; the CR-018 lhe_check weight-sign adjudication; the pairing structural diff).
-> An entry may not be added here without its triage block — the HEPData-download episode (below,
-> Resolved) is the standing cautionary precedent for skipping it.
+Dated investigations are recorded in
+[`limitations-triage.md`](../development/limitations-triage.md). Its July census
+is historical; the September addendum reopens compressed-slepton attribution,
+signal uncertainties and control-region signal modeling with measured evidence.
+See the [RRR diagnosis and research program](../research/2026-09-05-rrr-diagnosis-and-research-program.md).
 
 ## Physics fidelity
 - **Cutflow fidelity is tiered, not perfect (R1).** Acceptance×efficiency is now certified against
@@ -26,7 +23,9 @@ the corresponding dimension.
   driving-SR residuals range from a few % (squark) to ~13% (gluino — attribution CORRECTED
   Session-2/S5: the high-multiplicity excess is TUNE-dominated, A14-vs-Monash moves 13.2%→4.4%,
   not merging; see the shower-tune entry below). Compressed /
-  soft-lepton points remain the hardest — the intrinsic fast-sim+LO floor (~10–20%), not a measurement gap.
+  soft-lepton points remain unresolved. The September RRR audit identifies numerical,
+  exposure and likelihood-model failures, so the remaining discrepancy cannot yet
+  be assigned to an intrinsic fast-simulation or LO floor.
 - **Higher-order σ is a flat k-factor, not a recomputation.** (Updated Session 2 — the old "LO
   cross-sections" gap is closed for the benchmark cases: all four carry a verified like-for-like
   WG NLO+NLL/NNLL k in `benchmarks/cases.json`, the ONLY k authority; per-run RESULT.md
@@ -34,18 +33,20 @@ the corresponding dimension.
   and k<1 happens for the squark cases (LO-PDF overshoot) — i.e. a bare-LO limit is NOT always
   conservative. Degeneracy/charge conventions of the WG grids are the standing trap
   (`.claude/rules/statistics.md`); the slepton run keeps its documented flat k=1.18.
-- **PDF and scale uncertainty bands are NOT propagated to acc×eff or limits.** Every sample is
-  generated with a single LO PDF (nn23lo1, lhaid 230000) and the dynamic default scale
-  (`dynamical_scale_choice = -1`), with `use_syst = False` (single nominal weight — the pipeline
-  norm, Session 2/S6): no PDF-member or µR/µF variation weights exist anywhere downstream, so A×ε,
-  the overlays, and µ₉₅ carry no generator-level uncertainty band. The σ-**normalization**
-  uncertainty is partially covered — the NLO+NNLL central value (the registry k) replaces the LO
-  normalization — but the WG envelope on that central value is not propagated either. Full band
+- **PDF and scale uncertainty bands are NOT propagated to acc×eff or limits.**
+  Historical benchmark recipes used a single nominal nn23lo1 PDF and default
+  dynamic scale with `use_syst = False`. The compressed-slepton campaigns instead
+  include cteq6l1 and nn23nlo configurations; requested options and effective cards
+  must be distinguished. These retained single-weight results do not propagate
+  PDF-member or renormalization/factorization-scale acceptance variations into
+  their limits. The central normalization is corrected with the registry k;
+  the WG uncertainty envelope on that central value is not propagated. Full band
   propagation needs `use_syst=True` multiweight LHEs **plus** a multiweight-aware analysis path,
   which conflicts with the current single-weight Rivet invocation and with `lhe_check.py`, which
   deliberately flags multiweight LHEs as a leak risk; the honest resolution (per-weight Rivet runs
   or post-hoc LHE reweighting, then re-locking the gate) is a Phase-2/Session-3 build. Until then,
-  quoted limits carry the fast-sim floor + statistics systematics only.
+  retained limits include only the nuisance model actually supplied to each fit;
+  there is no calibrated detector/PDF uncertainty band implied by a residual floor.
 - **Shower tune: certified runs use Pythia 8.312's default Monash 2013, not ATLAS's A14.** The
   published acc×eff grids we certify against were produced with A14+NNPDF2.3LO (`Tune:pp = 21` in
   this Pythia; default-when-absent = Monash, `Tune:pp = 14`). Measured A/B on the gluino benchmark
@@ -69,8 +70,10 @@ the corresponding dimension.
 - **Fast detector model (no Geant4).** The **Rivet path** uses **Rivet's smearing functions**; the
   **SimpleAnalysis path** uses the **Delphes** card — two different fast approximations to full
   simulation (the Rivet path is a deliberate divergence from the reference paper's Delphes chain).
-  Neither tunes the low-pT efficiencies (esp. soft leptons) the experiments do. This is the dominant
-  intrinsic limitation; the per-analysis cutflow certifications bound it.
+  The RRR-derived Delphes path does include soft-lepton tuning, but its predictive
+  accuracy still needs held-out, exclusive-bin validation. Current evidence does
+  not establish detector modeling as the dominant cause of the compressed-plane
+  residual. Per-analysis cutflow checks have only their recorded point/domain scope.
 
 - **R6 visual fidelity is TWO-TIER since 2026-07-07 (CR-016): layout hygiene is now
   MACHINE-GATED** (`mplhep_style.lint_figure` inside every house renderer — legend/annotation
@@ -88,12 +91,15 @@ the corresponding dimension.
   scoring of the overlay itself (`docs/validation/benchmark-guide.md` hooks).
 
 ## Statistical / data
-- **Signal-MC statistical uncertainty is not in the counting model.** The per-SR signal `s` enters
-  pyhf as exact (no `staterror`/`shapesys` on the signal template). Rationale for deferring: the
-  affected regime is the **tail** SRs (< ~5 signal events, where the relative MC error is largest) —
-  those are report-only in the cert tiers and contribute O(1%) to combined sensitivity; the driving
-  SRs carry hundreds of raw MC events. Proper fix is a Phase-2 model upgrade (per-SR `s ± ds` from
-  the YODA sumW2). Until then, very-low-`s` SR limits are mildly over-confident.
+- **Signal uncertainties are absent from the retained compressed native patches.**
+  All 156 audited patches contain only the signal-strength normfactor. A previous
+  estimate that this was confined to harmless tail bins is unsupported for these
+  campaigns: some CR004 patches have only three selected events. Per-bin `sumw`
+  and `sumw2`, and a justified correlated signal nuisance model, remain required.
+  At one ATLAS 150/130 GeV benchmark, removing all published signal nuisance
+  modifiers strengthens the observed limit by about 5.4%; this does not isolate
+  MC uncertainty from the other signal uncertainties. See the
+  [controlled refits](../../evidence/audits/2026-09-05-rrr-refits/README.md).
 - **Published-grid certification off-node is 1-D, span-limited.** `validate_cutflow.py` interpolates
   the published acc×eff grid linearly along ONE axis only (fixed-LSP preferred), and only across
   brackets ≤ `--interp-max-span` (default 200 GeV); sparser regions fall back to a **flagged**
@@ -108,29 +114,39 @@ the corresponding dimension.
   --fitted-bkg`, rank 2.5 in `docs/workflow/checklists/data-acquisition.md`) over the REF integral with
   its uncertainty floor — that input difference alone was the squark cases' 1.49×→1.01 per-SR s95
   recovery.
-- **Likelihood↔selection pairing — VERIFIED 2026-07-07** (was the triage's only `none`-graded
-  entry): `pairing_check.py` structurally diffs the chain's signal patch against the published
-  bkg-only workspace — channel-name existence, per-channel bin counts, the µ normfactor on every
-  signal sample, every SR channel patched, untouched channels CR/VR-class only. Slepton chain:
-  PASS (38 channels; 32 SRs patched; exactly the 6 CRs untouched). Standing rule: re-run per
-  analysis+chain pairing and whenever the patch generator or workspace version changes (step 7).
+- **Likelihood↔selection pairing checks structure, not negligible control-region signal.**
+  The retained compressed chain patches the signal regions and leaves six control
+  regions without signal contributions. At the published ATLAS 150/130 GeV anchor,
+  removing control-region signal from the already nuisance-stripped signal model
+  strengthens the observed limit by a further approximately 8.7%. Combined signal
+  nuisance and control-region omissions strengthen it by about 13.7%. This is one
+  controlled benchmark, not a global correction. The current native selection
+  needs validated control-region definitions and signal nuisance responses before
+  a claim of full signal-model reproduction. A successful structural pairing check
+  cannot close this limitation.
 
 - **Result-quality fixes land via the CHANGES-REGISTRY** (`docs/development/change-registry.md`):
   the pyhf µ-floor on hyper-excluded points (CR-001) and the native prep dropping
   `[madgraph.run.options]` (CR-002) were both FIXED 2026-07-06; every native sample generated
-  before that date is on the pre-fix ptj1min=0 basis until the CR-004 rescan. Floored/capped
+  before that date used ineffective requested generator options; the audited original
+  scan retained the generator's effective `ptj=20` setting. CR004 also changed the
+  effective cut, so its PDF comparison is confounded. Floored/capped
   µ₉₅ values are tagged `quality=floored|capped` and rendered as bounds, never limits.
 
 ## Coverage / complexity
 - **Complex routines: demonstrated, not yet broad.** The recursive-jigsaw EWK search
-  `ATLAS_2018_I1676551` ran end-to-end (single-weight, cutflow-only) and certified PASS on its driving
-  SR; `docs/workflow/checklists/complex-analysis.md` documents the per-region / cutflow-only handling.
+  `ATLAS_2018_I1676551` has a historical end-to-end, cutflow-only PASS record.
+  The September corrected selection still fails acceptance, so that older record
+  does not certify its current fidelity. `docs/workflow/checklists/complex-analysis.md`
+  documents the per-region / cutflow-only handling.
   Breadth across more multi-bin / control-region analyses is the remaining work (Session 3).
 - **Native SimpleAnalysis backend covers a PORTED SET, not all routines (CR-005 generalized
   2026-08-16).** The VM-free native SA — the step-8 DEFAULT — now has a shared core
   (`sa_native_core.py`, primitives + SA header-verbatim ID bits + pinned helper semantics), three
-  oracle-validated routines (EwkCompressed2018 141/141 · ZeroLeptonDiscovery2018 10/10 ·
-  EwkThreeLeptonERJR2018 9/9, each bit-for-bit vs the container on a shared input), a declarative
+  historically oracle-compared routines (EwkCompressed2018 141/141 ·
+  ZeroLeptonDiscovery2018 10/10 · EwkThreeLeptonERJR2018 9/9 on shared inputs).
+  The old eRJR parity record predates the corrected boost and does not describe
+  the current selection. The backend also has a declarative
   spec engine for plain cut-based routines (`native_sa_generic.py`), and a proven ~half-session
   porting recipe with a mechanical acceptance gate (`cr005_validate.py`; recipe in
   `docs/workflow/reference/native-pipeline.md`). Remaining honest gaps: unported routines still take
@@ -168,8 +184,10 @@ the corresponding dimension.
   This is a packaging/version-pinning task, not a code defect — the engine itself is built. **Cross-check coverage (R7) does not depend on this:** SModelS (working:
   r_obs=8.07 vs our 1/µ₉₅≈10 on ATLAS-SUSY-2015-06) **+** MadAnalysis5 are two independent engines;
   CheckMATE is the third, redundant one.
-- **Recursive-jigsaw EWK search — done.** The C1N2→WZ (300,100) run on `ATLAS_2018_I1676551`
-  (single-weight, cutflow-only) completed and certified PASS on its driving SR; it surfaced + fixed a
+- **Recursive-jigsaw EWK search — historical implementation milestone, fidelity reopened.**
+  The corrected September retained-event selection still fails the acceptance threshold,
+  as described at the top of this page. The earlier C1N2→WZ (300,100) run on
+  `ATLAS_2018_I1676551` recorded a historical cutflow-only PASS; it surfaced and fixed a
   real EWKino NLO charge-state issue (`nlo_xsec.py` now guards k<1) and the MASS/MSOFT/MODSEL card trap
   (`docs/workflow/checklists/model-cards.md`).
 - **Container path (the legacy SA fallback only) is slow.** When no native port exists, the

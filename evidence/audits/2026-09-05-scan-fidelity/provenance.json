@@ -6,21 +6,22 @@
     "trial-runs/sleptonscan_fig3_SCAN/scan.json": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
     "evidence/audits/2026-09-05-scan-fidelity/atlas-limit-grid.yaml": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
     "evidence/audits/2026-09-05-scan-fidelity/atlas-observed-contour.yaml": "221b61e2aa3d7846847a5139363a3f2bcf1c4ded6d35b7780ecc1dc047813755",
-    "src/ravel/plotting/scan_contour.py": "1d96e23fc9cc59cefd3dcf93454f3d3f970bfd3b012f8f6fe237ee8178c414f3",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-expected-contour.yaml": "71cb1d3923157c9ed2fdbde86ec9aa561615d27a521c0f412988313a5c345dbc",
+    "src/ravel/plotting/scan_contour.py": "9396bd9771a825eef1e8b7b2b916eae5030e12717be1a4c4ee7a349dfd8bf4d3",
     "src/ravel/plotting/mplhep_style.py": "2e36211ea90aad6bfcf8a957f872db5410b9fe30c2e9c1a4f6c972dc87e49ab7",
     "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
-    "benchmarks/plot_scan_demo.py": "faecbecade1fdae5b4bfd3ba795299cf996973fe1c8f0748dbf7dc1131604cd5"
+    "benchmarks/plot_scan_demo.py": "1a7b9aeaecafa88761f6419e3b44008184083f3f78ab52fa51396c6355b844fa"
   },
   "outputs": {
-    "render.log": "0679911a399aeb2013ed1e3b4932536824507c18e6ee6e1f93db78f9ceab7ce3",
-    "scan.pdf": "e84830359fad51b5d68b13ed952dad38563108029105fd796067e5d4d9ea75ee",
-    "scan.png": "8a31493ae50ff271dd7a0a2f98ab63d075f9c11cae17edde9fc92d26b33c2b0e",
-    "scan__fig3.pdf": "ff26da6e690c09a9762c1e4781867ef4dcc6aa6a7b1199fd7c76ffcf2682b140",
+    "render.log": "c6602c51b153a8211ff842b3211c851396860fb2dbc7e9280cd94a678c215dd9",
+    "scan.pdf": "82fadbf0eac14fd747e053b38022e6306231f3f63cd3aad233ee2c1cf1f71860",
+    "scan.png": "4d842f431c24dbd31b0ddd1507a84d64dc69b7862dd423cc674aaef610e18e88",
+    "scan__fig3.pdf": "af8915f68f0968d467d66819168e7cab84b437bd9daf0bf5fbc854d99985134f",
     "scan__fig3.png": "2a65fdd441444402a030d7ee1797cb73f0e7e285857cd764d3390b4a302264d8",
-    "scan__fig3_expected.pdf": "5312714ed7e32d4564939b7aa3e99b59de20a211c899fc5bb0b12d619518de4c",
-    "scan__fig3_expected.png": "319b25b3373552996224040767d2dbab6fb9e89b2c45d29454c9a18fdcb9aae7",
+    "scan__fig3_expected.pdf": "23d829f69e091b50c5ed5291917cd9b2045084f692bfb3dd3507d181f46a239f",
+    "scan__fig3_expected.png": "b6e3b644b68c88949f54d0b6e3db64b8f0145dc66ebc2fca487928468ca52185",
     "scan__reldiff.json": "c2ba06f394a4d6e94a7285e7622c63e4dc245aba2b5eb2b51128a1c93780cb6b",
-    "scan__reldiff.pdf": "08afa9a8afca508828e728d48315c86727856f18904171f68026cf4da751dc17",
+    "scan__reldiff.pdf": "3341235972ce326159bf6a82b3de108a30a1a427f079d9b59d054892c54b5595",
     "scan__reldiff.png": "4ca825958646f08f213aca149569c2307e0839c9e462d7bdb4587ce2259cce4e"
   }
 }

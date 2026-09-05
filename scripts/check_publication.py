@@ -16,6 +16,9 @@ def main():
     for script, args in [('scripts/check_repository.py', []),
                          ('scripts/claims_check.py', []),
                          ('scripts/check_fidelity_audits.py', []),
+                         ('scripts/check_rrr_audits.py', []),
+                         ('evidence/audits/2026-09-05-rrr-refits/summarize.py', ['--check']),
+                         ('evidence/audits/2026-09-05-analysis-landscape/validate_catalog.py', []),
                          ('scripts/gen_validation_pages.py', ['--check']),
                          ('scripts/gen_status.py', ['--check'])]:
         result = subprocess.run([sys.executable, str(ROOT / script), *args], cwd=ROOT)

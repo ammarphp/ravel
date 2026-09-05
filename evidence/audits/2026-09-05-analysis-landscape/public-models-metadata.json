@@ -1,0 +1,407 @@
+[
+  {
+    "comEnergyTeV": "13",
+    "date": "2026-03-17",
+    "hepdata": "https://www.hepdata.net/record/ins3130442?",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-14",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Vcb measurement using ttbar events"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2025-06-05",
+    "hepdata": "https://www.hepdata.net/record/ins2930296?",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2023-03",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Observation of tt + gamma gamma"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2025-03-25",
+    "hepdata": "https://www.hepdata.net/record/ins2905253",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/HIGG-2023-09",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "HIGG",
+    "title": "VH, H(125)\u2192WW STXS Run 2"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2025-02-25",
+    "hepdata": "https://www.hepdata.net/record/ins2894561",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2022-24",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Top quark mass in boosted l+jets channel"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-09-23",
+    "hepdata": "https://www.hepdata.net/record/ins2832100",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2021-14",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Search for same-charge top-quark pair production"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-09-17",
+    "hepdata": "https://www.hepdata.net/record/ins2829504",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2021-26",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Inclusive cross-sections of ttbar + charm jets in 1-lepton/2-lepton final states"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-08-09",
+    "hepdata": "https://www.hepdata.net/record/ins2816994",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-31",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Search for heavy right-handed Majorana neutrinos in ttbar decays"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-07-18",
+    "hepdata": "https://www.hepdata.net/record/ins2809112",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-03",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Differential cross-sections of ttbar + heavy flavour jets in emu channel"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-07-12",
+    "hepdata": "https://www.hepdata.net/record/ins2807458",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2022-04",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "EXOT",
+    "title": "Search for long-lived particles in the ATLAS hadronic calorimeter in association with leptons or jets using 13 TeV collision data"
+  },
+  {
+    "comEnergyTeV": "8.16/NN",
+    "date": "2024-05-08",
+    "hepdata": "https://www.hepdata.net/record/ins2784411",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2023-32",
+    "luminosity": "165 nb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Observation of top pair production in proton-lead collisions"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-04-02",
+    "hepdata": "https://www.hepdata.net/record/ins2773613",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2020-23",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Search for FCNC with tHq coupling in the multi lepton channel"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-03-14",
+    "hepdata": "https://www.hepdata.net/record/ins2768921",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2018-24",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "tt+gamma inclusive and differential cross-section measurements"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2024-03-04",
+    "hepdata": "https://www.hepdata.net/record/ins2764820",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-02",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Single top t-channel total cross-section"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2023-12-07",
+    "hepdata": "https://www.hepdata.net/record/ins2744513?",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2020-20",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Measurement of ttZ total and differential cross sections"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2023-12-06",
+    "hepdata": "https://www.hepdata.net/record/ins2732688",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-22",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Jet substructure in boosted tt events"
+  },
+  {
+    "comEnergyTeV": "13.6",
+    "date": "2023-08-18",
+    "hepdata": "https://www.hepdata.net/record/ins2689657",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2023-21",
+    "luminosity": "29 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Measurement of tt cross-section and tt/Z cross-section ratio at sqrt(s) = 13.6 TeV"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2023-03-27",
+    "hepdata": "https://www.hepdata.net/record/ins2648095",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2021-08",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Observation of four-top-quark production in multi-lepton final states"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2023-02-02",
+    "hepdata": "https://www.hepdata.net/record/ins2628980",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2018-44",
+    "luminosity": "140 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Observation of the tgamma production"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2023-01-27",
+    "hepdata": "https://www.hepdata.net/record/ins2627201",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-06",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Search for flavour-changing neutral-current couplings between the top-quark and the Z boson at 13 TeV"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2022-12-20",
+    "hepdata": "https://www.hepdata.net/record/ins2616326?",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2021-29",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "ttgamma charge asymmetry"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2022-11-15",
+    "hepdata": "https://www.hepdata.net/record/ins2182381",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-30",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for gluinos in multi-b final states"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2022-09-19",
+    "hepdata": "https://www.hepdata.net/record/ins2153660",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2018-04",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Measurement of the s-channel single top cross-section at 13 TeV"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2022-05-05",
+    "hepdata": "https://www.hepdata.net/record/129959",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2019-19",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Search for flavor-changing neutral-current couplings between the top-quark and the photon at 13 TeV"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2022-04-27",
+    "hepdata": "https://www.hepdata.net/record/116034",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-05",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for SUSY in events with 2 leptons, jets and MET"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-12-22",
+    "hepdata": "https://www.hepdata.net/record/ins1995886",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/HDBS-2018-34",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "HDBS",
+    "title": "Search BSM H\u2192hh\u2192bb gamma gamma and hh\u2192bb gamma gamma"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-08-17",
+    "hepdata": "https://www.hepdata.net/record/ins1906174",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-41",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for charginos and neutralinos in all-hadronic final states"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-06-22",
+    "hepdata": "https://www.hepdata.net/record/ins1869695",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2020-10",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "4-top xsec measurement"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-06-17",
+    "hepdata": "https://www.hepdata.net/record/ins1869040?version=1",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-04",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for gluinos, stops and electroweakinos in RPV models in final states with 1L and many jets"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-06-03",
+    "hepdata": "https://www.hepdata.net/record/ins1866951",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-09",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for charginos and neutralinos in final states with 3L and MET"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-03-23",
+    "hepdata": "https://www.hepdata.net/record/ins1853014",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2018-08",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Measurement of ttZ cross sections in Run 2"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-01-27",
+    "hepdata": "https://www.hepdata.net/record/ins1843001",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2019-15",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "EXOT",
+    "title": "Search for third-generation scalar leptoquarks decaying to a top quark and a tau lepton"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2021-01-05",
+    "hepdata": "https://www.hepdata.net/record/ins1839446?version=1",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-10",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for squarks and gluinos in final states 1L, jets and MET"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-11-20",
+    "hepdata": "https://www.hepdata.net/record/ins1831992",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-36",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for charginos and neutralinos in RPV models in final states with 3L (or more)"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-11-13",
+    "hepdata": "https://www.hepdata.net/record/ins1831504?version=1",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-14",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for displaced leptons"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-10-27",
+    "hepdata": "https://www.hepdata.net/record/95664",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-22",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Search for squarks and gluinos in final states with 0L, jets and MET"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-07-29",
+    "hepdata": "https://www.hepdata.net/record/100170",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2018-05",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Evidence for four-top-quarks production in the two same-sign lepton and three lepton channels"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-06-23",
+    "hepdata": "https://www.hepdata.net/record/95748",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/TOPQ-2020-02",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "TOPQ",
+    "title": "Measurement of the ttbar production cross-section in the lepton+jets channel at 13 TeV"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2020-03-26",
+    "hepdata": "https://www.hepdata.net/record/ins1788448",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-33",
+    "luminosity": "136 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Stop pair, long-lived; displaced vertex and displaced muon"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-12-18",
+    "hepdata": "https://www.hepdata.net/record/ins1771533",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-06",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Chargino-neutralino pair; 3 leptons, weak-scale mass splittings"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-11-28",
+    "hepdata": "https://www.hepdata.net/record/ins1767649",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-16",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Chargino-neutralino pair, slepton pair; soft leptons"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-11-15",
+    "hepdata": "https://www.hepdata.net/record/ins1765529",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-04",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Staus; taus"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-09-19",
+    "hepdata": "https://www.hepdata.net/record/ins1755298",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-08",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Chargino-neutralino pair; Higgs boson in final state, 2 b-jets and 1 lepton"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-09-18",
+    "hepdata": "https://www.hepdata.net/record/ins1754675",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-09",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Stop pair, sbottom pair, gluino pair; two same-sign leptons or three leptons"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-08-21",
+    "hepdata": "https://www.hepdata.net/record/ins1750597",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-32",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Chargino pair, slepton pair; 2 leptons"
+  },
+  {
+    "comEnergyTeV": "13",
+    "date": "2019-08-08",
+    "hepdata": "https://www.hepdata.net/record/ins1748602",
+    "link": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-31",
+    "luminosity": "139 fb-1",
+    "physicsGroup": "SUSY",
+    "title": "Sbottom; b-jets"
+  }
+]

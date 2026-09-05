@@ -1,0 +1,6 @@
+m100_dm2 191 parameters
+  note: SLSQP result untrusted (objective non-finite 33x during the minimization) -- re-minimizing with NaN-guarded iminuit MIGRAD and ESCALATING: all further fits on this model go straight to MIGRAD (CR-005; totals in exclusion.json 'optimizer')
+  [cls scan] mu=1 CLs_obs=6.129e-05 (1 pts)
+  [cls scan] mu=0.5 CLs_obs=0.0571 (2 pts)
+  [cls scan] mu=0.25 CLs_obs=0.4123 (3 pts)
+  [cls scan] mu=0.125 CLs_obs=0.6851 (4 pts)

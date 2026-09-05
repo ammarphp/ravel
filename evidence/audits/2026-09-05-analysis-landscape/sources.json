@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "index",
+      "title": "ATLAS public probability-model index",
+      "url": "https://pyhf.github.io/public-probability-models/atlas.json",
+      "retrieval_status": "downloaded_metadata",
+      "scope": "45 entries; record pointers, titles and publication metadata, not workspace payloads.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "pyhf",
+      "title": "pyhf HistFactory likelihood documentation",
+      "url": "https://scikit-hep.org/pyhf/likelihood.html",
+      "retrieval_status": "primary_document_read",
+      "scope": "Statistical-model channels, samples, modifiers, measurements and observations.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "rrr",
+      "title": "Reduce, Reuse, Reinterpret",
+      "url": "https://arxiv.org/abs/2306.11055v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Published mapyde pipeline and compressed-spectrum examples.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "madagents",
+      "title": "MadAgents",
+      "url": "https://arxiv.org/abs/2601.21015v4",
+      "retrieval_status": "primary_document_read",
+      "scope": "Author-reported agentic MadGraph installation, support and simulation campaigns.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "agentic-recasting",
+      "title": "Agentic Re-Casting using Agentic Re-Simulations",
+      "url": "https://arxiv.org/abs/2607.22813v1",
+      "retrieval_status": "primary_document_read",
+      "scope": "MadAgents.v3 and physicist-in-the-loop SFitter update; distinct from ColliderAgent.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "collideragent",
+      "title": "An End-to-end Architecture for Collider Physics and Beyond",
+      "url": "https://arxiv.org/abs/2603.14553v1",
+      "retrieval_status": "primary_document_read",
+      "scope": "Author-reported ColliderAgent/Magnus architecture and phenomenology examples.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "recast",
+      "title": "RECAST for ATLAS",
+      "url": "https://github.com/recast-hep/recast-atlas",
+      "retrieval_status": "pinned_document_read",
+      "scope": "Workflow CLI, local Linux-container execution and REANA backend; internal data require access.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "reana",
+      "title": "REANA",
+      "url": "https://github.com/reanahub/reana",
+      "retrieval_status": "pinned_document_read",
+      "scope": "Preserved data/code/environment/workflows; execution platform, not physics certification.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "smodels",
+      "title": "SModelS documentation",
+      "url": "https://smodels.github.io/",
+      "retrieval_status": "primary_document_read",
+      "scope": "Simplified-model interpretation tool; version 3.2.0 announced 2026-09-02.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "smodels-release",
+      "title": "SModelS 3.2.0 release notes",
+      "url": "https://smodels.readthedocs.io/en/latest/ReleaseUpdate.html",
+      "retrieval_status": "primary_document_read",
+      "scope": "Changed statistical-model database schema, ONNX surrogates and interfaces.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "smodels-list",
+      "title": "SModelS analysis list",
+      "url": "https://smodels.github.io/docs/ListOfAnalyses",
+      "retrieval_status": "primary_document_read",
+      "scope": "ATLAS-SUSY-2016-06 and CMS-EXO-19-010 list efficiency maps. Live list changed from cached 3.1.1 to 3.2.0 during retrieval; no total-count claim retained.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "madanalysis",
+      "title": "MadAnalysis 5 repository",
+      "url": "https://github.com/MadAnalysis/madanalysis5",
+      "retrieval_status": "pinned_document_read",
+      "scope": "Public Analysis Database linked by official repository; PAD page fetch itself failed.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "checkmate",
+      "title": "Implementation of full and simplified likelihoods in CheckMATE",
+      "url": "https://arxiv.org/abs/2507.08565v3",
+      "retrieval_status": "primary_document_read",
+      "scope": "Published multibin likelihood support; current repository independently pinned.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "contur",
+      "title": "Testing new physics models with global comparisons to collider measurements",
+      "url": "https://arxiv.org/abs/2102.04377v3",
+      "retrieval_status": "primary_document_read",
+      "scope": "Contur measurement-reuse method and limitations.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "contur-docs",
+      "title": "Contur 3.0 documentation",
+      "url": "https://hepcedar.gitlab.io/contur/contur.html",
+      "retrieval_status": "primary_document_read",
+      "scope": "Covariance, theory and data-background options; exact installed defaults must be recorded per run.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "rivet",
+      "title": "Rivet project",
+      "url": "https://gitlab.com/hepcedar/rivet",
+      "retrieval_status": "repository_pinned",
+      "scope": "Particle-level analysis framework; selected routines and beam definitions require separate inspection.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "hepdata",
+      "title": "HEPData output formats",
+      "url": "https://www.hepdata.net/formats",
+      "retrieval_status": "primary_document_read",
+      "scope": "JSON record/search endpoints and versioned data access.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "reco",
+      "title": "Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+      "url": "https://arxiv.org/abs/2003.07868",
+      "retrieval_status": "primary_document_read",
+      "scope": "Experimental auxiliary-information and reuse recommendations.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "ww",
+      "title": "ATLAS fiducial and differential WW measurement",
+      "url": "https://arxiv.org/abs/1905.04242v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Electron-muon fiducial differential measurements with jet veto and EFT interpretation.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "wgamma",
+      "title": "CMS Wgamma differential measurement and EFT constraints",
+      "url": "https://arxiv.org/abs/2111.13948v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Two-dimensional angular and photon-pT measurement sensitive to SM-EFT interference.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "omnifold",
+      "title": "ATLAS simultaneous unbinned Z+jets measurement",
+      "url": "https://arxiv.org/abs/2405.20041",
+      "retrieval_status": "primary_document_read",
+      "scope": "Unfolded particle-level event representation of 24 observables; not raw collision events.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "omnifold-code",
+      "title": "ATLAS public Z-jets OmniFold 2024 repository",
+      "url": "https://gitlab.cern.ch/atlas-physics/public/sm-z-jets-omnifold-2024",
+      "retrieval_status": "repository_pinned",
+      "scope": "Public reuse repository; payload and statistical prescription not executed in survey.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "atlas-dt",
+      "title": "ATLAS disappearing-track search",
+      "url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-06/",
+      "retrieval_status": "primary_document_read",
+      "scope": "2017 paper and auxiliary-material/data links; no map arrays fetched.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "cms-dt",
+      "title": "CMS disappearing-track search",
+      "url": "https://arxiv.org/abs/2004.05153",
+      "retrieval_status": "primary_document_read",
+      "scope": "2017-2018 collision dataset and lifetime-dependent search.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "narrow",
+      "title": "ATLAS boosted low-mass hadronic resonance plus photon search",
+      "url": "https://arxiv.org/abs/2408.00049v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Narrow spin-1 mediator interpretation; public paper and auxiliary-figure links.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "dijet",
+      "title": "ATLAS dijet resonance mass distributions",
+      "url": "https://arxiv.org/abs/1910.08447v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Data-derived smooth background, model benchmarks and Gaussian-shape limits.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "svj-atlas",
+      "title": "ATLAS non-resonant semi-visible jets",
+      "url": "https://arxiv.org/abs/2305.18037",
+      "retrieval_status": "primary_document_read",
+      "scope": "t-channel dark-sector benchmark and public result; HEPData record fetch failed.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "svj-cms",
+      "title": "CMS resonant strongly coupled dark matter",
+      "url": "https://arxiv.org/abs/2112.11125v3",
+      "retrieval_status": "primary_document_read",
+      "scope": "Inclusive and BDT semi-visible-jet searches are distinct selections.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "svj-contur",
+      "title": "Semi-visible jets using the CONTUR toolkit",
+      "url": "https://arxiv.org/abs/2502.11237",
+      "retrieval_status": "primary_document_read",
+      "scope": "Author demonstration of measurement constraints on dark-sector parameters.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "ad-cms",
+      "title": "CMS model-agnostic dijet anomalous substructure search",
+      "url": "https://arxiv.org/abs/2412.03747v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "CMS-EXO-22-026; complementary anomaly methods and benchmark exclusions.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "ad-atlas",
+      "title": "ATLAS two-body masses with unsupervised anomaly detection",
+      "url": "https://arxiv.org/abs/2307.01612v2",
+      "retrieval_status": "primary_document_read",
+      "scope": "Autoencoder selected regions; lepton-triggered event sample and nine mass spectra.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "open-cms",
+      "title": "CMS four-lepton ROOT RDataFrame Open Data analysis",
+      "url": "https://opendata.cern.ch/record/12360",
+      "retrieval_status": "downloaded_metadata",
+      "scope": "Versioned software file manifest/checksums and linked reduced education datasets; not full official Higgs analysis.",
+      "accessed_on": "2026-09-05"
+    },
+    {
+      "id": "open-atlas",
+      "title": "ATLAS research Open Data release",
+      "url": "https://atlas.cern/Updates/News/Open-Data-Research",
+      "retrieval_status": "primary_document_read",
+      "scope": "2015/2016 research collision data and simulation; distinct from educational releases.",
+      "accessed_on": "2026-09-05"
+    }
+  ],
+  "source_policy": "Primary authors, experiments, maintainers and public data portals. Scientific admission requirements are reviewer judgments, not assertions of source-provided validation."
+}

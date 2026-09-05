@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "review_scope": "Independent retained-artifact review; no profile fits or simulation",
+  "original_files_unchanged": 41,
+  "original_file_hashes": {
+    "refit.py": "7277cf114f1be2767f99a187f35a74aaf6862a1793494ab4877e655a300f957b",
+    "results/m50_dm5-jax.json": "07eefdb42a783d27cc9a9d459afaea7fb2c9050383be28c10aae690ec07e7682",
+    "results/atlas-m150_dm20-jax-refit.json": "7b1a50bd4d044d34a0a16578102a087310227c79a7761f623cac4c399b303a73",
+    "results/m100_dm2-jax-refit.json": "0cbd6587de495ba1bc4010a42c1d7660d9a0c3c08783e6caf341da7fb2e57be3",
+    "results/atlas-m150_dm20-nominal-sr-only-refit.json": "62f1aa90540ebc6cfed601fe3dfb0e6ada2587102a446e83f69ec18c5a2a4b3e",
+    "results/m200_dm20-jax-refit.json": "31fd17fde878e8ec983975ed5172e69801fc4bae06fed3ae2b24a1cc742ebf9f",
+    "results/m50_dm5-jax-refit.json": "bf85b514cb3c463f6dd9cebc7c000c9d75a2da3f4bc67bc8945169b9e86344c2",
+    "results/m50_dm5-numpy-check.json": "e81d71d2677c3c1dc71dc1db4d27fb95e21355d51e20f9bc26a3f965c385ba03",
+    "results/m100_dm2-numpy-check.json": "8966de3818dcb529772f1260979e7820cc09fac6bba3d774782722d5b63a77a5",
+    "results/atlas-m150_dm20-no-signal-nuisances-refit.json": "26507039b0cf91051cc7679a67f7de0d7d39dc2185d5a2bc3cf061f845abd875",
+    "logs/atlas-m150_dm20-nominal-sr-only-refit.log": "fe69d69bb738a7442dabffc64b83ab4f245f104398c6b62726e67ace706ceaf0",
+    "logs/atlas-m150_dm20-no-signal-nuisances-refit.log": "54c4c43fb8819b20ed8716b9f373760de67548f875c1463b9758e2d6692a9840",
+    "logs/m200_dm20-jax-refit.log": "8d17bcbd603c18e1d801f194a3324a1f4e9c4e6734b2aaf899e5ba26fb92ccff",
+    "logs/m50_dm5-refit.log": "b8aa8252f51843591df0756d21ef1bfce9dbbb79ba839b92542d487de7534981",
+    "logs/m50_dm5-jax-refit.log": "b5b76d6239ed02713342b40dc15d416eeb303faef52388705f1dd5e3ddce27d2",
+    "logs/m150_dm20-tight-refit.log": "8c13242f9bfa9e84ae8d5aeabc634ef716206719dadd80924eb061ed828f3565",
+    "logs/m100_dm2-refit.log": "a15d13f2922c6dd84743f0919fbe321b4f1cddce995ccc8950eb78cafc843d6f",
+    "logs/m100_dm2-jax-refit.log": "d3f93c00226acd1dbca78a2d8e2c8ae5fb9eecd1a20c3698d15e356bde0df72e",
+    "logs/m50_dm5-jax.log": "6e6d53660284640b671e9ab17eca51b0a90d0521a86a124361875fc1207c17d6",
+    "logs/m100_dm2-numpy-check.log": "79a2e717919a2124c26add0a926fb7f185e7b1ab9e453dbe7a6d6640ad283fb1",
+    "logs/m50_dm5-numpy-check.log": "38fa5f54eb19d631561457d26044cf79a61a47b41e3cb36bf5f48f04467cbc12",
+    "logs/atlas-m150_dm20-jax-refit.log": "afcf5ae27639e5464ba4a04e72faa4df231d3015df439d9229b37db988b4eae6",
+    "logs/m150_dm20-jax-refit.log": "82e416ffe475186feeb791654750275cb28adf27669f8a812ab4f3578f11c2ab",
+    "inputs/m50_dm5-legacy.json": "e54c1d822b3960e7c9f32f5310cab9c87e143b67e0134d9757fa6a23826c5f06",
+    "inputs/probe_jax-source.txt": "65a65d9c6a5b44c97659fbdf04df170402b06732d7728bff6ca415d4a7c730d3",
+    "inputs/background.json": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+    "inputs/m100_dm2-legacy.json": "33579e338f3e62c28f0a8d0ec52a8add5df5e237eef0c36b75b0257f09e011a7",
+    "inputs/m150_dm20-legacy.json": "50940784909f03d025450d13a2a2b70f5aa103d418b8fe84a9cf5042aa2ebc09",
+    "inputs/m50_dm5-patch.json": "e91b80ae59bf0c348c498dd67047a8d3e832afc75f3e0c50dbd0168e5184d4fd",
+    "inputs/m200_dm20-legacy.json": "8b0dc44738bfb9d553a19ebbd2b875f27002fada70da0186b0c9dc10bf83d38b",
+    "inputs/atlas-m150_dm20-metadata.json": "67f35254ea3040be7df6b743cc5c14f0579ad18b389a9d0428fe64f59e601d79",
+    "inputs/comparison-context.json": "032257aa600b8fcc10a5e8aa63925972456b054ccb06f9fd83ebe2762d514367",
+    "inputs/m100_dm2-patch.json": "8bf237a56ca24b50b9086ec2573a8192806e68d472132de041130e5ece47db66",
+    "inputs/atlas-m150_dm20-patch.json": "747156e6add2a43f166db63de8dfc45d5c1abd473769a65a9cba487a0deb303b",
+    "inputs/probe_refit-source.txt": "8ec9df9fa403e93bbb25e815834da3e0f3a36f91a1e19a7bd3a5d4cbcaf78162",
+    "inputs/atlas-m150_dm20-no-signal-nuisances-patch.json": "71b8100b69cdd37c9e757129d3031e0490423c4ddbb0388469622e79f67550cf",
+    "inputs/m200_dm20-patch.json": "bf2a51893642976c3ecb3f8000bead09401d913263083b4255d4bdba6da578a0",
+    "inputs/atlas-m150_dm20-nominal-sr-only-patch.json": "083b77a86d3a5724cdefb6006ec71ad8bb801c369625b0f00232fe5fab38e064",
+    "inputs/m150_dm20-patch.json": "375f59c906c94b54090b9c287886faf11e35d49094f6e8e73cff27e8fe2afc66",
+    "inputs/initial-driver-source.txt": "55190de0d728c08ea952671111d5b719d21543683d88fa7d509e6d321b6922a3",
+    "inputs/probe_numpy_check-source.txt": "21ee08e129514573eb042bdc58ca7fee8ff3e418d3597f40ce089b3a60647ebb"
+  },
+  "numerical_background_equivalence_independently_rechecked": true,
+  "parameter_order_bounds_initial_fixed_and_observation_data_identical": true,
+  "fixed_parameter_checks": [
+    {
+      "mu": 0.0,
+      "expected_data_exact_equal": true,
+      "logpdf_exact_equal": true,
+      "logpdf": [
+        -229.43141186339773
+      ]
+    },
+    {
+      "mu": 1.0,
+      "expected_data_exact_equal": true,
+      "logpdf_exact_equal": true,
+      "logpdf": [
+        -239.94247934904962
+      ]
+    },
+    {
+      "mu": 2.0,
+      "expected_data_exact_equal": true,
+      "logpdf_exact_equal": true,
+      "logpdf": [
+        -260.1038034591252
+      ]
+    }
+  ],
+  "backend": "numpy 64b",
+  "pyhf_version": "0.7.6",
+  "integrity_tests": {
+    "command": "python evidence/audits/2026-09-05-rrr-refits/test_summarize.py",
+    "passed": 9
+  },
+  "plot_visually_reviewed": true,
+  "publication_closure_claimed": false
+}

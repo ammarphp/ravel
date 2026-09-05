@@ -73,3 +73,14 @@ The generated LHE embeds the full run card and SLHA banner:
 ```bash
 gunzip -c build/runs/slepton_200_150/Events/run_02/unweighted_events.lhe.gz | sed -n '/<MGRunCard>/,/<\/MGRunCard>/p'
 ```
+
+## 2026-09-05 — RRR diagnostics and controlled likelihood omissions
+
+No generator, parameter, shower or detector card was changed. Added the unmodified
+HEPData v5 table 9 expected contour alongside the retained observed table 10.
+The new RRR refit audit copies the existing background likelihood and selected
+native patches. It retains an official 150/130 GeV ATLAS benchmark patch plus two
+explicit counterfactual derivatives: remove signal nuisance modifiers, then remove
+six control-region signal samples. These are diagnostic inputs, not replacement
+physics templates or a new baseline. Source/result hashes, failures and source
+versions are retained in `evidence/audits/2026-09-05-rrr-refits/`.

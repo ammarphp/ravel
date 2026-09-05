@@ -519,6 +519,12 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     invalid limits do not enter the fill or contour. The reference is never
     interpolated. Explicit model normalization and published axis choices apply.
     """
+    # A matching residual fill does not make an observed/expected contour mixture
+    # a like-for-like comparison. Retain only the requested reference family.
+    omitted_contours = [c[0] for c in atlas_contours if c[0].split("_", 1)[0] != kind]
+    atlas_contours = [c for c in atlas_contours if c[0].split("_", 1)[0] == kind]
+    if omitted_contours:
+        print(f"  (fig3 {kind}: omitted unlike reference contours: {omitted_contours})")
     plt, hep = setup(args)
     if not _basis_guard(scan, f"fig3 {kind}"):
         die("reference comparison requires an explicit model_basis; rebase the scan first")
@@ -646,10 +652,6 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
         if role.startswith("observed"):
             ax.plot(xx, yy, ls="none", marker="o", ms=3.2, color=house.OKABE_ITO["blue"],
                     mec="none", zorder=5)
-            # label the dots by COLUMN, not just "ATLAS" (RRR's own bare label): on the
-            # expected-variant panel the dots are still the published OBSERVED contour, and an
-            # unlabeled mixed overlay reads as like-columns when it is not (Tier-B 2026-08-28
-            # finding 4). The FILL stays like-columns in both variants.
             handles.append(Line2D([], [], marker="o", ls="none", ms=5,
                                   color=house.OKABE_ITO["blue"], mec="none",
                                   label="ATLAS observed"))
@@ -709,6 +711,8 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     if n_missing:
         lines.insert(4, rf"$\circ$ white cell: no published ref point")
     lines += _legacy_note(scan)
+    if not atlas_contours:
+        lines.append(f"No {kind} reference contour supplied; residual cells only compared")
     if flagged:
         lines.insert(4, rf"$\times$ floored/capped $\mu_{{95}}$: bound, not a limit (CR-001)")
     if scan.get("model_basis"):
@@ -886,7 +890,7 @@ def main():
                     help="which limit column(s) the fig3 fill compares (LIKE-COLUMNS rule: the scan's "
                          "mu95_obs against the reference's Observed UL, mu95_exp against Expected — "
                          "never mixed). 'both' renders the two variants (__fig3 = observed, "
-                         "__fig3_expected = expected); RRR Fig 3 itself is expected-vs-expected. "
+                         "__fig3_expected = expected). Pin a paper figure's role from its source data. "
                          "A variant is skipped with a warning if either side lacks that column.")
     ap.add_argument("--experiment", default="ATLAS", choices=["ATLAS", "CMS"])
     ap.add_argument("--com", type=float, default=13)
@@ -975,7 +979,7 @@ def main():
     # RRR Fig 3's actual FORM — the DEFAULT headline artifact whenever both references are
     # available with a 2-D grid: ONE panel = rel-diff fill (EXACT reference matches only) + ATLAS
     # contour + Ravel mu=1 contour on a LOG-Delta-m axis. kinds per --limit-kind (LIKE-COLUMNS
-    # rule): observed → <out>__fig3, expected → <out>__fig3_expected (the RRR Fig-3 convention).
+    # rule): observed → <out>__fig3, expected → <out>__fig3_expected.
     # The two-panel outputs above remain as diagnostics.
     if layout == "grid" and atlas and limit_grid is not None:
         kinds = ["observed", "expected"] if args.limit_kind == "both" else [args.limit_kind]

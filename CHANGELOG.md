@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — RRR diagnosis and macOS portability
+
+- Audit all 156 retained records across three slepton campaigns, preserving original results and identifying coarse interpolation, incomplete detector exposure and confounded PDF/preparation comparisons.
+- Retain three resolved native cached-workspace refits and one numerical failure. Recover the official ATLAS 150/130 GeV model within 1% and record controlled signal-nuisance/control-region omissions, without claiming native detector or full reproduction closure.
+- Compare expected panels with the expected reference contour family and observed panels with the observed family. Keep residual colors distinct from event-excess or exclusion significance.
+- Add read-only macOS native diagnostics, pinned ARM/Intel bootstrap assets, explicit conda prefixes and staged build helpers. Repair the independently reproduced compiler-override mismatch; add architecture, quoting, ownership and absent-tool tests plus an Intel/ARM CI matrix.
+- Publish 26 curated HEP-analysis candidates and a 45-entry discovery index, with source metadata, admission requirements and zero newly validated analyses.
+- Embed full-population diagnosis and controlled-comparison requirements in the reproduction workflow. Preserve historical certificates, scan medians and failed trials.
+
+No events were generated and no installed toolchain was rebuilt in this follow-up.
+Its focused checks do not establish clean-Mac provisioning, Intel HEP execution,
+statistical coverage or end-to-end physics reproduction. Final source verification
+passes 1,155 tests with two release-only skips; a separate 44-test wheel/fidelity
+run enables both skipped cases. Public-export and remote-CI verification remain
+pending.
+
 ## v0.4.0 — 2026-09-05
 
 - Preserve resolved limits, one-sided scan bounds, missing values and historical estimates through result packs, scans, projections and plots.

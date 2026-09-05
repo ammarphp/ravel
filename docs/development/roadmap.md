@@ -19,6 +19,12 @@ The [current board](status.md) records implementation and evidence. The [scienti
 
 ## Scientific work after architecture closure
 
+The current concrete sequence is the [RRR diagnosis and research
+program](../research/2026-09-05-rrr-diagnosis-and-research-program.md). Its priorities
+are numerical/exposure repair, controlled truth and detector closure, held-out
+full-plane reproduction, then admission of additional analyses from the
+[public-data survey](../research/2026-09-05-public-hep-analysis-landscape.md).
+
 - Run physics fidelity campaigns against predeclared published anchors. Diagnose generation, shower, reconstruction, selection and normalization separately, retaining failed and unscorable points. Close the observed eRJR and compressed-slepton residuals through evidence rather than tolerance changes.
 - Validate statistical behavior with nuisance/correlation checks, independent numerical implementations where appropriate, closure toys and coverage studies. Numerical root convergence and central-value agreement are prerequisites, not coverage evidence.
 - Improve visualization around scientific support: exact references, contour topology, unresolved regions, uncertainty, basis conventions and failed/missing population accounting. Preserve authoritative-source arithmetic through derived figures.

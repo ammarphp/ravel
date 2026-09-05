@@ -164,10 +164,11 @@ $CONDA run -n rivet python scripts/run.py ravel.plotting.scan_contour \
 #   With BOTH --atlas-contour AND --atlas-limit on a 2-D grid, the HEADLINE artifacts are
 #   <out>__fig3.{png,pdf} (observed) and <out>__fig3_expected.{png,pdf} — RRR Fig 3's actual FORM
 #   in ONE panel: the (mapyde−ATLAS)/ATLAS rel-diff color map as the fill + the ATLAS published
-#   contour + the mapyde µ₉₅=1 contour (smooth tri-cubic, hull-masked) on the ATLAS log-Δm plane
+#   contour + the Ravel µ₉₅=1 contour (piecewise linear, missing-vertex triangles masked) on the log-Δm plane
 #   convention (plot-guidelines.md). --limit-kind picks the variant(s) (default both; LIKE-COLUMNS
-#   rule — mu95_obs vs the Observed UL column, mu95_exp vs Expected; RRR Fig 3 is
-#   expected-vs-expected). The fill colors ONLY exact (tolerance-snapped) matches to the published
+#   rule — mu95_obs vs Observed, mu95_exp vs Expected, including matching contour roles).
+#   Pin the paper figure's role from primary data; dot styling does not identify it.
+#   The fill colors ONLY exact (tolerance-snapped) matches to the published
 #   grid — the reference is NEVER interpolated; scanned cells without a published point are white +
 #   gray circle (stated on the figure), unscanned cells are holes (checklist: scan-and-contour.md).
 #   The GRID two-panel outputs (scatter+tricontour; __reldiff) are still written as diagnostics;

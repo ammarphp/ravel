@@ -10,6 +10,38 @@
 > dated record exists but the key claim is reasoned/documented, not measured · `thorough` = measured
 > and/or adversarially verified with artifacts.
 
+## September 5 investigation addendum
+
+This addendum supersedes the July attribution and confidence claims for entries
+1, 6, 8 and 11 below; those dated records remain for provenance. The queue is no
+longer evidence that these issues are negligible or uninvestigated.
+
+- **Entries 1 and 6, compressed acceptance / detector attribution:** reopened,
+  measured numerical and model confounders. The three-campaign audit finds sparse
+  interpolation in all 152 unflagged observed and expected-median limits and four
+  incomplete detector samples. One red cell disappears under fixed-template root
+  refinement. Confidence is high in those identified defects, not in a universal
+  10–20% fast-simulation floor. Next test: full retained-population numerical closure,
+  then truth and exclusive-bin detector checks under controlled generation settings.
+- **Entry 8, signal uncertainty:** thoroughly investigated for presence/absence and
+  one full-modifier omission control, still unresolved as a model implementation.
+  All 156 retained signal patches have only a POI modifier. Removing all signal
+  nuisances from one official ATLAS patch strengthens the observed limit by about
+  5.4%. The separate MC-statistical contribution has not been isolated. Next test:
+  weighted native templates with recorded sumw/sumw2 and justified modifiers;
+  measure the per-component impact without importing another model's uncertainties.
+- **Entry 11, selection/likelihood pairing:** structural check exists, scientific
+  completeness remains open. Removing six CR signal contributions from the same
+  nominal, nuisance-stripped ATLAS anchor strengthens its observed limit by a further
+  approximately 8.7%. Next test: implement and independently validate those CR
+  selections and contamination before treating untouched channels as negligible.
+  Confidence is high at the tested anchor; a mass-plane effect size is unmeasured.
+
+Evidence: [archival diagnosis](../../evidence/audits/2026-09-05-rrr-diagnosis/README.md),
+[fixed-template controls](../../evidence/audits/2026-09-05-rrr-refits/README.md), and
+[prospective closure sequence](../workflow/checklists/reproduction-closure.md).
+No new events were generated; the controls do not close detector fidelity or coverage.
+
 ---
 
 ## Physics fidelity

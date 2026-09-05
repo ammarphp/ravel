@@ -5,6 +5,15 @@ and proposed experiments. Use the [workflow guide](../workflow/README.md) for
 operating instructions and [validation results](../validation/results.md) for
 artifact-backed measurements.
 
+The [public HEP analysis landscape](2026-09-05-public-hep-analysis-landscape.md)
+surveys 26 concrete candidates, a separate 45-entry public-model index, and pinned
+tool repositories. Each candidate records available artifacts, required adapters,
+and unresolved physics/statistical conditions. Discovery does not grant execution
+or certify an analysis.
+
+The [RRR diagnosis and proposed campaign](2026-09-05-rrr-diagnosis-and-research-program.md)
+connects measured pipeline failures to a staged physics and capability program.
+
 ## Reliability study
 
 The [competitive assessment and prospective experiment design](2026-09-05-competitive-design-and-validation.md)

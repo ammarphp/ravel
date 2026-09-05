@@ -150,3 +150,14 @@ The isolated replay environment remains separate from the existing native Python
 This migration installs no new native physics tool versions and performs no event generation.
 Source and installed replay, import boundaries, executable loading, and dependency compatibility
 are checked separately. See `docs/development/repository-layout.md` and `native/README.md`.
+
+## 2026-09-05 — Native portability helpers; installed stack preserved
+
+Added architecture-aware prerequisite checks and dry-run/staged build helpers.
+The bootstrap now selects Intel/ARM Miniforge 26.5.3-0 by pinned SHA256 and obtains
+MadGraph at the pinned v2.9.27 revision. These are provisioning defaults, not claims
+that the existing installed stack was upgraded. No native toolchain installation
+or compilation was performed in this pass. Refit diagnostics use the existing
+native Python 3.14/JAX environment separately from the supported Python 3.12 replay
+lock. See `docs/reference/native-portability.md` and the dated RRR implementation
+record for versions, verification scope and remaining clean-install requirements.

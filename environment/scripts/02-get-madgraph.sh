@@ -1,39 +1,31 @@
 #!/usr/bin/env bash
-# 02_get_madgraph.sh
-# -----------------------------------------------------------------------------
-# PURPOSE: Fetch the MadGraph5_aMC@NLO event generator source.
-#
-# WHAT MADGRAPH IS: a "matrix element" generator. Given a model (here the MSSM)
-#   and a process (here slepton-pair production), it (1) writes the Feynman
-#   amplitudes, (2) generates Fortran code to compute the squared matrix element,
-#   (3) integrates that over phase space (the "MadEvent" sub-package) to get a
-#   cross-section, and (4) draws unweighted parton-level events, written as a
-#   Les Houches Event (LHE) file. That LHE file is the deliverable of this stage.
-#
-# VERSION: v2.9.27 — the latest patch in the 2.9 series carried by the official
-#   GitHub repo (github.com/mg5amcnlo/mg5amcnlo). The paper used v2.9.3, which is
-#   NOT tagged on GitHub (tags start at v2.9.10); LO slepton matrix-element
-#   physics is identical across 2.9.x patch releases, so any 2.9.x reproduces it.
-#
-# A shallow clone (--depth 1) of just this tag keeps the download small.
-# -----------------------------------------------------------------------------
+# Fetch the recorded MG5 source revision. This does not generate events.
 set -euo pipefail
-
 PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$PROJECT/../native/scripts/paths.sh"
-BUILD="${BUILD_DIR:-$RAVEL_NATIVE_BUILD}"   # local-only build area (gitignored); override with BUILD_DIR=...
+source "$PROJECT/../native/scripts/macos-common.sh"
+DRY=0
+case "${1:-}" in --dry-run) DRY=1 ;; '') ;; *) echo "Usage: $0 [--dry-run]" >&2; exit 2 ;; esac
+[ "$#" -le 1 ] || { echo 'Unexpected arguments' >&2; exit 2; }
+ARCH="$(ravel_macos_arch)"
+BUILD="${BUILD_DIR:-$RAVEL_NATIVE_BUILD}"
+PREFIX="$BUILD/tools/miniforge3"
 DEST="$BUILD/tools/mg5amcnlo"
-TAG="v2.9.27"
-REPO="https://github.com/mg5amcnlo/mg5amcnlo"
-
-if [ -d "$DEST" ]; then
-  echo "[skip] MadGraph already present at $DEST"
-else
-  echo "[1/2] Shallow-cloning MadGraph $TAG ..."
-  git clone --depth 1 --branch "$TAG" "$REPO" "$DEST"
+TAG=v2.9.27
+REV=eb76cab72b8d44aac7162ac7221ac08a4384a169
+REPO=https://github.com/mg5amcnlo/mg5amcnlo
+ravel_check_conda "$PREFIX" "$ARCH"
+ravel_check_macos_binary "$PREFIX/envs/mg5/bin/python" "$ARCH"
+if [ -e "$DEST" ] || [ -L "$DEST" ]; then
+  [ -f "$DEST/bin/mg5_aMC" ] && [ "$(git -C "$DEST" rev-parse HEAD)" = "$REV" ] || {
+    echo "ERROR: existing MadGraph is incomplete or has a different revision: $DEST; it was not changed" >&2; exit 1;
+  }
+  [ -z "$(git -C "$DEST" diff --name-only HEAD)" ] || { echo 'ERROR: tracked MadGraph source changes require review; existing files preserved' >&2; exit 1; }
+  echo "[reuse] Recorded MadGraph source: $DEST ($REV)"
+  exit 0
 fi
-
-echo "[2/2] Checking mg5_aMC launches under the env's Python 3.10 ..."
-"$BUILD/tools/miniforge3/bin/conda" run -n mg5 python "$DEST/bin/mg5_aMC" --version
-
-echo "[done] MadGraph at $DEST"
+printf 'Source: %s tag %s, required commit %s\nDestination: %s\n' "$REPO" "$TAG" "$REV" "$DEST"
+[ "$DRY" = 0 ] || exit 0
+git clone --depth 1 --branch "$TAG" "$REPO" "$DEST"
+[ "$(git -C "$DEST" rev-parse HEAD)" = "$REV" ] || { echo 'ERROR: upstream tag changed; clone retained for inspection, not executed' >&2; exit 1; }
+echo '[done] Source obtained; use the approved native plan/run interface for generation.'

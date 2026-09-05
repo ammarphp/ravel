@@ -197,6 +197,28 @@ def test_forced_line_layout_cannot_connect_different_parent_masses(tmp_path, mon
     assert not plots.saved
 
 
+@pytest.mark.parametrize("kind,other", [("observed", "expected"), ("expected", "observed")])
+def test_fig3_never_overlays_an_unlike_reference_contour(plots, kind, other):
+    doc = scan()
+    grid = ([p["m_parent"] for p in doc["points"]],
+            [p["dm"] for p in doc["points"]], [10] * 4)
+    contours = [(other, "fixture", [100, 200], [15, 15], "mass", "Delta m")]
+    renderer.render_fig3(doc, contours, grid, plots.args, kind=kind)
+    assert not any(label.startswith("ATLAS") for label in plots.legends)
+    assert any(f"No {kind} reference contour supplied" in line for line in plots.annotations)
+
+
+@pytest.mark.parametrize("kind", ["observed", "expected"])
+def test_fig3_selects_matching_reference_from_both_families(plots, kind):
+    doc = scan()
+    grid = ([p["m_parent"] for p in doc["points"]],
+            [p["dm"] for p in doc["points"]], [10] * 4)
+    contours = [(role, "fixture", [100, 200], [15, 15], "mass", "Delta m")
+                for role in ("observed", "expected")]
+    renderer.render_fig3(doc, contours, grid, plots.args, kind=kind)
+    assert [label for label in plots.legends if label.startswith("ATLAS")] == [f"ATLAS {kind}"]
+
+
 @pytest.mark.parametrize("value", [-1, 0, float("nan"), float("inf"), True, "3"])
 def test_invalid_expected_medians_are_rejected_at_load(tmp_path, value):
     doc = scan()

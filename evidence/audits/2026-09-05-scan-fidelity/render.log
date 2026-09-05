@@ -1,24 +1,26 @@
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan.pdf
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan.png
-grid scan: 52 points, Ravel contour drawn; axes x=linear y=log; 1 ATLAS contour(s)
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__reldiff.pdf
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__reldiff.png
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan.pdf
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan.png
+grid scan: 52 points, Ravel contour drawn; axes x=linear y=log; 2 ATLAS contour(s)
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__reldiff.pdf
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__reldiff.png
 exact difference map: 50/52 matched; median |residual| = 24.9%
+  (fig3 observed: omitted unlike reference contours: ['expected'])
   (fig3 observed: 2 point(s) carry a limit-quality flag ['unverified'] -- bounds, not limits; drawn as 'x', excluded from fill+contour: ['m60_dm5', 'm70_dm5'])
   (fig3 observed: 2 point(s) lack sigma_ref_fb/mu95_obs or have Delta m<=0, skipped: ['m60_dm5', 'm70_dm5'])
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__fig3.pdf
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__fig3.png
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__fig3.pdf
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__fig3.png
 fig3 single panel (observed): axes x=linear y=log; 50 points, 50 exactly on the published grid (0 meshed-but-unpublished -> white+circle), median |rel diff| = 24.9%, Ravel mu=1 contour drawn, 1 ATLAS contour(s)
+  (fig3 expected: omitted unlike reference contours: ['observed'])
   (fig3 expected: 2 point(s) carry a limit-quality flag ['unverified'] -- bounds, not limits; drawn as 'x', excluded from fill+contour: ['m60_dm5', 'm70_dm5'])
   (fig3 expected: 2 point(s) lack sigma_ref_fb/mu95_exp or have Delta m<=0, skipped: ['m60_dm5', 'm70_dm5'])
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__fig3_expected.pdf
-wrote <repository>/local-runs/architecture-hardening/scan-final/scan__fig3_expected.png
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__fig3_expected.pdf
+wrote <repository>/local-runs/rrr-diagnosis/final-contour-correction/scan__fig3_expected.png
 fig3 single panel (expected): axes x=linear y=log; 50 points, 50 exactly on the published grid (0 meshed-but-unpublished -> white+circle), median |rel diff| = 24.1%, Ravel mu=1 contour drawn, 1 ATLAS contour(s)
   note: 2 scan point(s) carry a limit-quality flag (floored/capped: CR-001 bounds, not limits): ['m60_dm5', 'm70_dm5']
 WARNING: mplhep style unavailable (No module named 'mplhep'); falling back to matplotlib defaults
-smart_annotate: every inside corner occluded (best upper right: ~157 samples) — placed below the axes as a caption
+smart_annotate: every inside corner occluded (best upper right: ~249 samples) — placed below the axes as a caption
 WARNING: mplhep style unavailable (No module named 'mplhep'); falling back to matplotlib defaults
 WARNING: mplhep style unavailable (No module named 'mplhep'); falling back to matplotlib defaults
 smart_annotate: every inside corner occluded (best upper right: ~94 samples) — placed below the axes as a caption
 WARNING: mplhep style unavailable (No module named 'mplhep'); falling back to matplotlib defaults
-smart_annotate: every inside corner occluded (best upper right: ~94 samples) — placed below the axes as a caption
+smart_annotate: every inside corner occluded (best upper right: ~179 samples) — placed below the axes as a caption

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-09-05T21:26:21.658938+00:00",
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "unchanged_evidence_positive_control",
+      "result": {
+        "status": "PASS",
+        "errors": [],
+        "curated_candidates": 26,
+        "discovery_index_entries": 45,
+        "sources": 33,
+        "successful_repository_pins": 16,
+        "new_scientific_validations": 0,
+        "scope": "Dated survey integrity only; external executions and scientific validity not tested."
+      }
+    },
+    {
+      "name": "unsupported_validation",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "errors": [
+        "P01: unsupported validation promotion in dated survey"
+      ]
+    },
+    {
+      "name": "missing_source",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "errors": [
+        "P01: unknown source not-a-source"
+      ]
+    },
+    {
+      "name": "executable_promotion",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "errors": [
+        "P01: contradictory execution admission"
+      ]
+    },
+    {
+      "name": "index_identity_substitution",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "errors": [
+        "P01: publication/data identity mismatch"
+      ]
+    },
+    {
+      "name": "saved_metadata_mutation",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "errors": [
+        "saved metadata hash mismatch: cms-open-four-lepton"
+      ]
+    },
+    {
+      "name": "report_census_and_local_links",
+      "status": "PASS",
+      "row_count": 26
+    }
+  ],
+  "file_sha256": {
+    "evidence/audits/2026-09-05-analysis-landscape/candidate-census.json": "f566f5e7d832e6b37f00a20f63df6b879ca425694527bd1a55ff14cef6607f9a",
+    "evidence/audits/2026-09-05-analysis-landscape/cms-open-four-lepton-metadata.json": "40f63b68605c460796d7c2ce102ae0cef7faf0df34668db5d4f2c8f6a1c76057",
+    "evidence/audits/2026-09-05-analysis-landscape/documentation-checks.json": "ce485fe52f2da0128b807bd86753d2ac595972adedd9f63a59ea7223f7610b15",
+    "evidence/audits/2026-09-05-analysis-landscape/metadata-fetches.json": "e24b86f779bc25286a8932d94a18ba93203c0d91d76bd6abb45c03ee3f551f1d",
+    "evidence/audits/2026-09-05-analysis-landscape/public-models-metadata.json": "430629c054f00dff227747eeb59e019c5a1299039a8d986aa0d3e1804e0bf4d6",
+    "evidence/audits/2026-09-05-analysis-landscape/repository-pins.json": "d5865bd9b6adba7e54f0e44978a3c3ded567b8abc2b2c2b9cbcaba6d46027d67",
+    "evidence/audits/2026-09-05-analysis-landscape/sources.json": "87bd6e8ab4483ed750239c2d1fff93cbaff0967e023968c37fce060ea5249990",
+    "evidence/audits/2026-09-05-analysis-landscape/validate_catalog.py": "623cc4928c3f050e8a30d4a1aae3bdd6328642f393dc9ad1fa56fc69a1fa09bb",
+    "docs/research/2026-09-05-public-hep-analysis-landscape.md": "3549e78e317d278c0c61cbe0cb62a63890a65b9355dce5003cdbccd41ccd2d41"
+  },
+  "scope": "Survey integrity and five rejection controls; not physics or external-tool execution."
+}

@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "retrieved_at_utc": "2026-09-05T21:10:15.502377+00:00",
+  "pin_scope": "Remote default-branch HEAD identity; documentation/metadata review, not installation or execution verification. No competitor source code copied.",
+  "repositories": [
+    {
+      "name": "mapyde",
+      "repository": "https://github.com/scipp-atlas/mapyde",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/scipp-atlas/mapyde.git",
+        "HEAD"
+      ],
+      "commit": "7cc0afbb52283ea2a8f4375e4063227e8e2f9b8f",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "MadAgents",
+      "repository": "https://github.com/MadGraphTeam/MadAgents",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/MadGraphTeam/MadAgents.git",
+        "HEAD"
+      ],
+      "commit": "df241214d1e4a66b1f9964aa33dd2342b7084b9a",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "ColliderAgent",
+      "repository": "https://github.com/HET-AGI/ColliderAgent",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/HET-AGI/ColliderAgent.git",
+        "HEAD"
+      ],
+      "commit": "1140f39e8730889422a64a141fbd3ca10529e13b",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "RECAST",
+      "repository": "https://github.com/recast-hep/recast-atlas",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/recast-hep/recast-atlas.git",
+        "HEAD"
+      ],
+      "commit": "731d4e2807f3b6c416bb4e5db91876e19b6a3b81",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "REANA",
+      "repository": "https://github.com/reanahub/reana",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/reanahub/reana.git",
+        "HEAD"
+      ],
+      "commit": "6e700b4a299e7052ced6852938b374d8a193f80b",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "pyhf",
+      "repository": "https://github.com/scikit-hep/pyhf",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/scikit-hep/pyhf.git",
+        "HEAD"
+      ],
+      "commit": "f19891b2255b9d8327ad0a2fc1d3b49664afbd9d",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "public-probability-models",
+      "repository": "https://github.com/pyhf/public-probability-models",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/pyhf/public-probability-models.git",
+        "HEAD"
+      ],
+      "commit": "b2f2db8f4f4aa00fc88d0928e9b61cc047f0e6d5",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "SModelS",
+      "repository": "https://github.com/SModelS/smodels",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/SModelS/smodels.git",
+        "HEAD"
+      ],
+      "commit": "53a19a64c4c7d0bf3e9129d647091bba49c5e405",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "MadAnalysis5",
+      "repository": "https://github.com/MadAnalysis/madanalysis5",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/MadAnalysis/madanalysis5.git",
+        "HEAD"
+      ],
+      "commit": "20f2114b447c52b787ce32916ce9e44f990dd783",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "CheckMATE",
+      "repository": "https://github.com/CheckMATE2/checkmate2",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/CheckMATE2/checkmate2.git",
+        "HEAD"
+      ],
+      "commit": "b812999b2aebfb37b65e36ea0b408661940a0515",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "Contur",
+      "repository": "https://gitlab.com/hepcedar/contur",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://gitlab.com/hepcedar/contur.git",
+        "HEAD"
+      ],
+      "commit": "d91be4f4cfab398b87a93e0186508b373a922491",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "Rivet",
+      "repository": "https://gitlab.com/hepcedar/rivet",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://gitlab.com/hepcedar/rivet.git",
+        "HEAD"
+      ],
+      "commit": "17a93d75b880d4327a94d536f6ec996eb2ecb08d",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "HEPData",
+      "repository": "https://github.com/HEPData/hepdata",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/HEPData/hepdata.git",
+        "HEAD"
+      ],
+      "commit": "8fa68fbd1fce31bace340aa0cb0e167ba94ec0cc",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "CERNOpenData",
+      "repository": "https://github.com/cernopendata/opendata.cern.ch",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/cernopendata/opendata.cern.ch.git",
+        "HEAD"
+      ],
+      "commit": "1114a7e38d2cc16f344df895c4fa338435d6f45d",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "ATLAS-OmniFold-2024",
+      "repository": "https://gitlab.cern.ch/atlas-physics/public/sm-z-jets-omnifold-2024",
+      "ref": "HEAD",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://gitlab.cern.ch/atlas-physics/public/sm-z-jets-omnifold-2024.git",
+        "HEAD"
+      ],
+      "commit": "881209c512c4ba7c4745874be57c93b4bf424a58",
+      "status": "pinned",
+      "error": null
+    },
+    {
+      "name": "CMS-open-four-lepton",
+      "repository": "https://github.com/cms-opendata-analyses/HiggsToFourLeptonsNanoAODOutreachAnalysis",
+      "ref": "refs/heads/2012",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/cms-opendata-analyses/HiggsToFourLeptonsNanoAODOutreachAnalysis.git",
+        "refs/heads/2012"
+      ],
+      "commit": null,
+      "status": "failed",
+      "error": "Remote query succeeded with no matching refs; the documented refs/heads/2012 is absent."
+    },
+    {
+      "name": "CMS-open-four-lepton-current",
+      "repository": "https://github.com/cms-opendata-analyses/HiggsToFourLeptonsNanoAODOutreachAnalysis",
+      "ref": "HEAD",
+      "command": [
+        "git",
+        "ls-remote",
+        "https://github.com/cms-opendata-analyses/HiggsToFourLeptonsNanoAODOutreachAnalysis.git",
+        "HEAD"
+      ],
+      "commit": "ffbe653cd2774f9b30acfff77de0882fcf3d7feb",
+      "status": "pinned",
+      "error": null,
+      "note": "Current HEAD is not asserted equivalent to versioned Open Data software archive."
+    }
+  ]
+}

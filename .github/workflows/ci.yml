@@ -8,6 +8,54 @@ permissions:
   contents: read
 
 jobs:
+  macos-portability:
+    name: macOS prerequisite and helper checks (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+          # Explicit Intel/ARM labels, checked 2026-09-05; no HEP installation here.
+          - runner: macos-15-intel
+            arch: x86_64
+            python-arch: x64
+          - runner: macos-15
+            arch: arm64
+            python-arch: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
+        with:
+          python-version: "3.12"
+          architecture: ${{ matrix.python-arch }}
+      - name: assert actual runner and Python architecture
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          test "$(uname -m)" = "$EXPECTED_ARCH"
+          python -c 'import os, platform, sys; assert platform.system() == "Darwin"; assert platform.machine() == os.environ["EXPECTED_ARCH"]; assert sys.version_info[:2] == (3, 12)'
+      - name: install test runner only
+        run: python -m pip install pytest==8.3.5
+      - name: read-only doctor fails clearly for an absent native stack
+        working-directory: ${{ runner.temp }}
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          export RAVEL_NATIVE_BUILD="$RUNNER_TEMP/native-not-installed"
+          export RAVEL_NATIVE_BIN="$RUNNER_TEMP/native-binaries-not-installed"
+          code=0
+          python -m ravel.validation.native_doctor --json > "$RUNNER_TEMP/native-doctor.json" || code=$?
+          test "$code" = 1
+          python -c 'import json, os; from pathlib import Path; r=json.loads((Path(os.environ["RUNNER_TEMP"])/"native-doctor.json").read_text()); assert r["read_only"] and r["host"]["supported"] and not r["ready"]; assert r["counts"]["fail"] > 0; assert not Path(os.environ["RAVEL_NATIVE_BUILD"]).exists()'
+      - name: architecture, path, bootstrap and build-helper adversarial tests
+        working-directory: ${{ runner.temp }}
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -m pytest "$GITHUB_WORKSPACE/tests/unit/test_native_portability.py" -q
+
   claims-check:
     name: claims match evidence
     runs-on: ubuntu-24.04

@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "source_archive": "stages/01-event-generation/build/tools/checkmate2/data/atlas_1911_12606/likelihoods_1911_12606.tar.gz",
+  "source_archive_sha256": "93a133c25dfeb9774cf9ecb088f3e09cde67bbb3550707b72a03914c03f33e8e",
+  "member": "statistical_models/Sleptons_bkgonly.json",
+  "official_raw_sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282",
+  "retained_raw_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+  "patchset_canonical_sha256": "7f3c55fc8985618b8190047100942847c8ee6e2f4db261356e3ea3394855bc42",
+  "retained_canonical_sha256": "0c95a4e37ce618c77789e243c0f161e09ebe61a84e32527428740ef180e45a1e",
+  "json_numeric_value_and_structure_equal": true,
+  "exhaustive_type_differences": [
+    {
+      "path": "/channels/22/samples/3/modifiers/32/data/lo_data/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 0.0,
+      "retained_value": 0
+    },
+    {
+      "path": "/measurements/0/config/parameters/0/auxdata/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/0/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/2/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 0.0,
+      "retained_value": 0
+    },
+    {
+      "path": "/measurements/0/config/parameters/2/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/2/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/3/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/3/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/3/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/4/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/4/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/4/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/5/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/5/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/5/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/6/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/6/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/6/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/7/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/7/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/7/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    },
+    {
+      "path": "/measurements/0/config/parameters/8/bounds/0/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": -5.0,
+      "retained_value": -5
+    },
+    {
+      "path": "/measurements/0/config/parameters/8/bounds/0/1",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 5.0,
+      "retained_value": 5
+    },
+    {
+      "path": "/measurements/0/config/parameters/8/inits/0",
+      "official_type": "float",
+      "retained_type": "int",
+      "official_value": 1.0,
+      "retained_value": 1
+    }
+  ],
+  "model_parameters_bounds_initial_values_and_fixed_flags_equal": true,
+  "observations_and_auxdata_equal": true,
+  "tensor_checks": [
+    {
+      "mu": 0.0,
+      "expected_data_sha256": "dca40ce10de12c45e07295210f673395b820c4a15feec9f9142b7be13c1534a7",
+      "logpdf": [
+        -229.43141186339773
+      ],
+      "exact_tensor_equality": true
+    },
+    {
+      "mu": 1.0,
+      "expected_data_sha256": "cfed8cf71877545fcb0813c08e659266d49cee4bed06ac3d478cf530aa70be41",
+      "logpdf": [
+        -239.94247934904962
+      ],
+      "exact_tensor_equality": true
+    },
+    {
+      "mu": 2.0,
+      "expected_data_sha256": "2d39ae7536c81a582e5f3c175e7583bdf9621cffeebd36e88353d25dc4e51f18",
+      "logpdf": [
+        -260.1038034591252
+      ],
+      "exact_tensor_equality": true
+    }
+  ],
+  "pyhf_version": "0.7.6",
+  "backend": "numpy 64b",
+  "scope": "Representation audit and fixed-parameter likelihood checks; no refit. Integer versus float serialization explains digest difference."
+}

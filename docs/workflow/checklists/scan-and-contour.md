@@ -3,6 +3,10 @@
 Read with `docs/workflow/steps/08-scan.md`. The reference paper (arXiv:2306.11055) reports **contours from
 grid scans**, never single points. This checklist keeps a scan honest.
 
+If the map disagrees with the reference, follow [reproduction
+diagnosis](reproduction-closure.md). Check numerical roots, normalization algebra,
+sampling and matched intermediate quantities before attributing the residual.
+
 ## Before scanning
 - [ ] **Mode is explicit.** *Reproduction* (re-derive ATLAS's published contour → validation; the
       figure of merit is the relative difference of the limits vs ATLAS) **or** *reinterpretation*
@@ -14,8 +18,10 @@ grid scans**, never single points. This checklist keeps a scan honest.
 - [ ] **Spec drives it.** One grid spec JSON (`points` | `line` | `grid`); masses substituted by the
       orchestrator's keyed line edit (never a greedy sed — `.claude/rules/madgraph-pythia.md`).
 - [ ] **Each point is a full pipeline run** (steps 3–7). Per-point fidelity (the detector gate, NLO σ,
-      the cutflow cert) applies to **every** point, not just one — the cert is per-routine, so it carries
-      across points, but the per-point yields still pass step-7 sanity.
+      the cutflow comparison) applies to **every** point, not just one. A certificate
+      covers its declared artifacts and points; it does not automatically transfer
+      across masses or models because the routine name is unchanged. State the
+      validation coverage of the plane and pass per-point step-7 checks.
 
 ## Compute honesty
 - [ ] **State the cost — native is the default, the 2-D grid is the target.** NATIVE backend
@@ -55,8 +61,13 @@ grid scans**, never single points. This checklist keeps a scan honest.
 - [ ] **LIKE-COLUMNS RULE: expected against expected, observed against observed — never mixed.**
       Published UL tables usually carry both columns; the scan carries `mu95_obs` and `mu95_exp`.
       `scan_contour.py --limit-kind observed|expected|both` selects the pair on BOTH sides at once;
-      render both variants and lead with the one matching the published comparison figure (RRR Fig 3
-      is expected-vs-expected). Which column the published figure used is a per-analysis fact — pin
+      pass `--atlas-contour observed=OBSERVED.yaml` and
+      `--atlas-contour expected=EXPECTED.yaml` when both are available. Each Fig-3
+      panel omits contours from the other family and states when its matching
+      reference contour is missing. A matching fill does not justify mixed contours.
+      render both variants and lead with the one matching the published comparison figure.
+      RRR's Figure-3 caption does not specify this role; do not infer it from dot styling.
+      Which column the published figure used is a per-analysis fact — pin
       it via the figure contract, don't assume.
 - [ ] **NEVER INTERPOLATE THE REFERENCE.** A published per-point UL grid is a set of exact
       statements at its own lattice — σ-UL varies ~10× between adjacent Δm rows, so interpolating

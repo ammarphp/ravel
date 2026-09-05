@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "original_archive_and_reference_files_rehashed": 1627,
+  "changed_originals": [],
+  "generated_hashes_verified": [
+    "diagnosis.json",
+    "paired-changes.png",
+    "points.csv",
+    "retained-inputs.json",
+    "signed-residuals.png"
+  ],
+  "script_sha256": "c21f2ed824ff01732250b7c52f1a739df7cec23494e2969718f39aa149b3e732",
+  "test_sha256": "06faa37821da9ff82b23573eaf2d9dcf416524010cbe2a6814d5709328c334c6",
+  "snapshot_bytes": 3165553,
+  "snapshot_sha256": "0cce2a6965f3e73974d11ae55d9df77717dcffa4474b3b46a61c35ab6e9acee3",
+  "replay_scope": "stdlib snapshot analysis plus installed Matplotlib; no source imports or private archive reads during replay",
+  "tests": {
+    "command": "env -u PYTHONPATH python -m pytest hep-agentic-pipeline/evidence/audits/2026-09-05-rrr-diagnosis/test_diagnose.py -q (from parent directory)",
+    "result": "12 passed"
+  },
+  "plot_visual_review": "Both PNGs inspected after final layout change; colorbar and text unobstructed.",
+  "renderer_refresh": {
+    "prior_snapshot_sha256": "32bc887a160eeb54ffc8f4a3a26d5a83a808d354ca89fc58ec25527edfc05dd1",
+    "changed_source_entries": [
+      "src/ravel/plotting/scan_contour.py"
+    ],
+    "prior_renderer": {
+      "sha256": "8b4e380622468ab0fec8ef6e3add3dfb8df5a2f79d9a38aa4860c1236c77f383",
+      "bytes": 56429
+    },
+    "current_renderer": {
+      "sha256": "9396bd9771a825eef1e8b7b2b916eae5030e12717be1a4c4ee7a349dfd8bf4d3",
+      "bytes": 56408
+    },
+    "scientific_snapshot_fields_unchanged": true,
+    "diagnosis_csv_and_png_bytes_unchanged": true,
+    "focused_tests": {
+      "command": "env -u PYTHONPATH python -m pytest hep-agentic-pipeline/evidence/audits/2026-09-05-rrr-diagnosis/test_diagnose.py hep-agentic-pipeline/tests/unit/test_scan_fidelity.py hep-agentic-pipeline/tests/unit/test_scan_rendering.py -q (from parent directory)",
+      "result": "72 passed",
+      "scope": "Archived diagnosis and observed/expected contour rendering regressions"
+    },
+    "fidelity_audits_check": "PASS: integrity and arithmetic; not physics certification"
+  },
+  "csv_line_endings": {
+    "before": "CRLF",
+    "after": "LF",
+    "all_csv_fields_unchanged": true,
+    "prior_csv_sha256": "ab7259f2c1d7e55d55b1931cf92566d729462220fd69a06e30a0cde3fde74447",
+    "current_csv_sha256": "cf4b10a7f4d8a58861d9e1a88954e533657dffa7e338ce4c1b721bf20716cfb9"
+  }
+}

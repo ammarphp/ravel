@@ -1,0 +1,58 @@
+[
+  {
+    "id": "public-models",
+    "url": "https://pyhf.github.io/public-probability-models/atlas.json",
+    "status": 200,
+    "final_url": "https://pyhf.github.io/public-probability-models/atlas.json",
+    "bytes": 16597,
+    "saved": "public-models-metadata.json",
+    "keys": "list",
+    "retrieved_at_utc": "2026-09-05T21:13:56.905663+00:00",
+    "response_sha256": "1e941e8d60bf276ca435f1984e823db3a6ef355aa9d1185798e60780e9d70c15",
+    "saved_sha256": "430629c054f00dff227747eeb59e019c5a1299039a8d986aa0d3e1804e0bf4d6",
+    "storage_note": "JSON reserialized; response and stored hashes are distinct."
+  },
+  {
+    "id": "compressed",
+    "url": "https://www.hepdata.net/record/ins1767649?format=json",
+    "status": "fetch_failed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "multib",
+    "url": "https://www.hepdata.net/record/ins2182381?format=json",
+    "status": "fetch_failed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "svj",
+    "url": "https://www.hepdata.net/record/144506?format=json",
+    "status": "fetch_failed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "disappearing",
+    "url": "https://www.hepdata.net/record/ins1790827?format=json",
+    "status": "fetch_failed",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "cms-open-four-lepton",
+    "url": "https://opendata.cern.ch/api/records/12360",
+    "status": 200,
+    "final_url": "https://opendata.cern.ch/api/records/12360",
+    "bytes": 9952,
+    "saved": "cms-open-four-lepton-metadata.json",
+    "keys": [
+      "created",
+      "id",
+      "links",
+      "metadata",
+      "updated"
+    ],
+    "retrieved_at_utc": "2026-09-05T21:13:57.080683+00:00",
+    "response_sha256": "8314b374d9d5f214b68b6916d135afd5f452865022a12a93708b0993edab6164",
+    "saved_sha256": "40f63b68605c460796d7c2ce102ae0cef7faf0df34668db5d4f2c8f6a1c76057",
+    "storage_note": "JSON reserialized; response and stored hashes are distinct."
+  }
+]

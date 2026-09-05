@@ -34,10 +34,16 @@ reuse outputs only while their recorded dependencies remain current. See the
 
 **Compressed-slepton example.** This figure freshly re-renders a recorded
 52-point scan against the published ATLAS upper-limit grid. Fifty points have
-valid exact reference matches; two legacy bounds are excluded from residuals and
+exact reference matches; two legacy bounds are excluded from residuals and
 retained in the coverage count. The observed-limit comparison has a
 <!-- claim:fig3_residual -->24.9% median same-basis residual<!-- /claim -->.
-This is a measured discrepancy to investigate, not a general accuracy guarantee.
+These are historical interpolated limits, whose numerical precision is not certified.
+The [RRR diagnosis](evidence/audits/2026-09-05-rrr-diagnosis/README.md) compares three
+retained campaigns and exposes coarse limit interpolation, incomplete detector
+samples in a rescan, and confounded generator comparisons. A [fixed-template
+refit](evidence/audits/2026-09-05-rrr-refits/README.md) removes the prominent low-mass
+red cell's numerical excess without retuning physics. The remaining disagreement
+is unresolved; this figure is not a general accuracy guarantee.
 The [figure, inputs, and per-point JSON](evidence/audits/2026-09-05-scan-fidelity/README.md)
 are available alongside the [original scan record](evidence/scans/slepton-bino-figure-3/RESULT.md).
 
@@ -134,6 +140,8 @@ selection → statistical inference → validation → result artifacts. Provisi
 its toolchain using the [environment guide](docs/workflow/steps/01-environment.md)
 and [native pipeline instructions](docs/workflow/reference/native-pipeline.md).
 The replay installation alone does not install MadGraph, Pythia, or detector tools.
+For Intel and Apple Silicon Macs, use the [native doctor and build helpers](docs/reference/native-portability.md)
+to check architecture, dependencies and explicit tool prefixes before provisioning.
 Check [capabilities](docs/reference/capabilities.md) before choosing an analysis;
 backend and validation coverage differ by routine.
 
@@ -159,6 +167,12 @@ compares lessons from MadAgents, ColliderAgent, established recasting tools, and
 statistical tooling. Statistical superiority has not been established by a
 controlled comparison; inference correctness and detector fidelity need separate
 evidence.
+
+The [RRR diagnosis and research program](docs/research/2026-09-05-rrr-diagnosis-and-research-program.md)
+separates numerical, likelihood, normalization and detector failures using retained
+inputs and controlled refits. The [public HEP analysis survey](docs/research/2026-09-05-public-hep-analysis-landscape.md)
+maps 26 candidates to distinct reuse methods and required admission evidence.
+These are measured diagnostics and proposed extensions, not newly validated analyses.
 
 ## Explore, contribute, and cite
 

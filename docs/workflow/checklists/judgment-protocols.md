@@ -34,7 +34,7 @@ exists (on the published exclusion contour, UL/σ_model ≡ 1).
 | Thought | Reality |
 |---|---|
 | "Both are 'the cross-section limit', just divide" | Ours was on the ISR-tagged 6-state SAMPLE σ, ATLAS's on the inclusive 4-state MODEL σ — a mass-dependent ×0.56→×1.01 spurious tilt that inflated the headline residual 33% vs the real 26% (A4). |
-| "Expected, observed — they're within a band anyway" | Like columns or nothing (A3). RRR's own convention is expected-vs-expected. |
+| "Expected, observed — they're within a band anyway" | Pair like columns and contour roles (A3). Pin the reference role from primary data; a caption or dot style may not specify it. |
 **Worked incident:** A4 (σ-comparison-basis) — caught only by the UL/σ_model=1 on-contour identity
 (measured 1.10 on the right basis; 1.47/0.74 on wrong ones).
 
