@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""claims_check -- CI gate: every number the README quotes must match results/manifest.json.
+"""claims_check -- CI gate: every number the results page quotes must match evidence/claims.json.
 
-Spec Part III E2. Mechanism: README.md carries HTML claim markers
+Spec Part III E2. Mechanism: results.md carries HTML claim markers
     <!-- claim:tests_collected -->344<!-- /claim -->
 around each headline number. This script asserts, for every marker: (a) the claim id exists in
-results/manifest.json, (b) the marked text EQUALS the manifest 'value' (whitespace-normalized),
-(c) the manifest entry is status VERIFIED (an UNVERIFIED claim in the README fails the build),
+evidence/claims.json, (b) the marked text EQUALS the manifest 'value' (whitespace-normalized),
+(c) the manifest entry is status VERIFIED (an UNVERIFIED claim in the results page fails the build),
 (d) every manifest artifact path exists in the tree. It also asserts the reverse: every VERIFIED
-manifest claim is actually cited in the README (no orphan evidence), and cross-checks the one
-value shared with evidence_manifest.json (the fig3 residual) for agreement.
+manifest claim is actually cited in the results page (no orphan evidence), and cross-checks the one
+value shared with evidence/manifest.json (the fig3 residual) for agreement.
 
 Exit 0 = all claims verified. Nonzero = drift; the build fails. Stdlib only.
 
   python3 scripts/claims_check.py            # gate (CI entrypoint; also `make claims`)
-  python3 scripts/claims_check.py --selftest # prove the gate objects to a doctored README
+  python3 scripts/claims_check.py --selftest # prove the gate objects to a doctored results page
 """
 import json
 import os
@@ -22,9 +22,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from ravel.evidence_layout import resolve
 from validation_summary import benchmark_headline, load_baseline, summarize
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PUBLIC_RESULTS = "docs/validation/results.md"
 MARKER = re.compile(r"<!--\s*claim:([a-z0-9_]+)\s*-->(.*?)<!--\s*/claim\s*-->", re.S)
 
 
@@ -42,25 +45,27 @@ def check(readme_path, manifest_path, root=ROOT):
     cited = {}
     for cid, text in MARKER.findall(readme):
         if cid in cited:
-            fails.append(f"duplicate README claim marker '{cid}'")
+            fails.append(f"duplicate results page claim marker '{cid}'")
         cited[cid] = norm(text)
         if cid not in claims:
-            fails.append(f"README cites unknown claim id '{cid}' (no manifest entry)")
+            fails.append(f"results page cites unknown claim id '{cid}' (no manifest entry)")
             continue
         entry = claims[cid]
         if entry.get("status") != "VERIFIED":
-            fails.append(f"README cites claim '{cid}' whose manifest status is "
+            fails.append(f"results page cites claim '{cid}' whose manifest status is "
                          f"{entry.get('status')} — unverified numbers may not ship")
         if norm(text) != norm(str(entry["value"])):
-            fails.append(f"claim '{cid}' drift: README says '{norm(text)}' but manifest says "
+            fails.append(f"claim '{cid}' drift: results page says '{norm(text)}' but manifest says "
                          f"'{entry['value']}'")
     for cid, entry in claims.items():
         if entry.get("status") == "VERIFIED" and cid not in cited:
-            warns.append(f"VERIFIED manifest claim '{cid}' is not cited in the README "
-                         f"(orphan evidence — cite it or drop it)")
+            fails.append(f"VERIFIED manifest claim '{cid}' is not cited in the results page")
         for a in entry.get("artifacts", []):
-            if not os.path.exists(os.path.join(root, a)):
-                fails.append(f"claim '{cid}' artifact missing on disk: {a}")
+            if not resolve(root, a.rstrip("/")).exists():
+                message = f"claim '{cid}' artifact missing on disk: {a}"
+                # An uncited historical/unverified claim may reference an intentionally
+                # private archive. A published VERIFIED claim has no such exemption.
+                (fails if entry.get("status") == "VERIFIED" else warns).append(message)
     # Numerical agreement between two hand-edited strings is insufficient: derive the
     # benchmark headline's value AND metric scope from its actual baseline artifacts.
     if "benchmarks_reproduced" in claims:
@@ -72,7 +77,7 @@ def check(readme_path, manifest_path, root=ROOT):
         except (OSError, ValueError, KeyError, TypeError) as exc:
             fails.append(f"benchmark source invalid: {exc}")
     # cross-check the shared physics headline against the sha-pinned evidence manifest
-    ev_path = os.path.join(root, "evidence_manifest.json")
+    ev_path = os.path.join(root, "evidence/manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
         ev = json.load(open(ev_path))
         heads = [c for c in ev["claims"]
@@ -92,30 +97,30 @@ def check(readme_path, manifest_path, root=ROOT):
 
 
 def main():
-    fails, warns = check(os.path.join(ROOT, "README.md"),
-                         os.path.join(ROOT, "results", "manifest.json"))
+    fails, warns = check(os.path.join(ROOT, PUBLIC_RESULTS),
+                         os.path.join(ROOT, "evidence", "claims.json"))
     for w in warns:
         print(f"[WARN] {w}")
     for f in fails:
         print(f"[FAIL] {f}")
-    n_cited = len(MARKER.findall(open(os.path.join(ROOT, 'README.md')).read()))
+    n_cited = len(MARKER.findall(open(os.path.join(ROOT, PUBLIC_RESULTS)).read()))
     if fails:
-        print(f"claims_check: {len(fails)} FAIL — README numbers do not match their evidence.")
+        print(f"claims_check: {len(fails)} FAIL — results page numbers do not match their evidence.")
         return 1
-    print(f"claims_check: OK — {n_cited} README claim(s) verified against results/manifest.json"
+    print(f"claims_check: OK — {n_cited} results page claim(s) verified against evidence/claims.json"
           f" ({len(warns)} warn).")
     return 0
 
 
 def selftest():
     import tempfile
-    claims = json.load(open(os.path.join(ROOT, "results", "manifest.json")))["claims"]
+    claims = json.load(open(os.path.join(ROOT, "evidence", "claims.json")))["claims"]
     entry = next(c for c in claims if c["status"] == "VERIFIED")
     ok_readme = f'<!-- claim:{entry["claim"]} -->{entry["value"]}<!-- /claim -->'
     bad_readme = f'<!-- claim:{entry["claim"]} -->DOCTORED<!-- /claim -->'
     with tempfile.TemporaryDirectory() as td:
-        rp = os.path.join(td, "README.md")
-        mp = os.path.join(ROOT, "results", "manifest.json")
+        rp = os.path.join(td, "results.md")
+        mp = os.path.join(ROOT, "evidence", "claims.json")
         open(rp, "w").write(bad_readme)
         fails, _ = check(rp, mp)
         assert any("drift" in f for f in fails), "gate failed to object to a doctored number"

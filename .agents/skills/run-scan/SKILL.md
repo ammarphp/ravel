@@ -6,12 +6,15 @@ allowed-tools: Bash, Read, Write
 ---
 # Skill — run a scan (grid → contour; the deliverable, not a point)
 
+Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
+this selects the native build and binary paths, including an existing local toolchain.
+
 Steps 1–7 take one point to one µ₉₅; the PRODUCT is the step-8 contour
-(`workflow/steps/08-scan.md` + `checklists/scan-and-contour.md` govern; this skill is the
+(`docs/workflow/steps/08-scan.md` + `docs/workflow/checklists/scan-and-contour.md` govern; this skill is the
 operational order). A 1-D line is a declared partial PoC, never the deliverable (catalogue D1).
 
 ## 0. REUSE before you plan (points are expensive; re-renders are cheap)
-A completed scan of the same analysis+model+grid (check `framework/STATUS.md`, `DIRECTORY.md`,
+A completed scan of the same analysis+model+grid (check `docs/development/status.md`, `DIRECTORY.md`,
 the spec's `run_root` for `scan_manifest.json` + assembled `scan.json`) is reused READ-ONLY:
 re-run `assemble`/`scan_contour.py` against it after verifying provenance (coverage covers your
 grid; the ATLAS reference yamls match a fresh fetch). Single-point question + covering scan =
@@ -20,7 +23,7 @@ read `scan.json` (`mu95_obs<1` ⇒ excluded), cite coverage + σ basis; `mass_pl
 
 ## 1. Cost + disk BEFORE launch
 ```bash
-python3 trial-runs/_infrastructure/cost_preflight.py --mode scan --points <N> --parallel 4
+python3 scripts/run.py ravel.workflow.cost_preflight --mode scan --points <N> --parallel 4
 ```
 Native: ~30–50 min/point, parallel; **~6 GB/point transient**. The scan must state its disk
 plan: after each point's harvest (`output/exclusion.json` exists), delete/gzip its LHE + HepMC
@@ -31,9 +34,9 @@ curated trio). A full grid left uncleaned exhausts a laptop disk mid-scan.
 A scan must not SHIP its varied physics until every varied-param/trap obligation is recorded PASS.
 Emit the obligations, discharge each with evidence, then GATE the launch on them:
 ```bash
-python3 trial-runs/_infrastructure/validate_parameters.py emit   --rundir <scandir> --param <name>:varied
-python3 trial-runs/_infrastructure/validate_parameters.py record --rundir <scandir> --param <name> --status PASS --evidence "<why>"
-python3 trial-runs/_infrastructure/validate_parameters.py check  --rundir <scandir> --require-nonempty   # exit 0 REQUIRED before launch
+python3 scripts/run.py ravel.validation.validate_parameters emit   --rundir <scandir> --param <name>:varied
+python3 scripts/run.py ravel.validation.validate_parameters record --rundir <scandir> --param <name> --status PASS --evidence "<why>"
+python3 scripts/run.py ravel.validation.validate_parameters check  --rundir <scandir> --require-nonempty   # exit 0 REQUIRED before launch
 ```
 `emit` auto-seeds a `trap_obligation` for each gated trap (T3/T6/T7/T8) that `inputs/trap_sweep.json`
 hit — record those PASS too. Skipping this makes `validate_run_state.py`'s
@@ -41,13 +44,13 @@ hit — record those PASS too. Skipping this makes `validate_run_state.py`'s
 
 ## 2. The loop (declarative, resumable, fail-loud)
 ```bash
-CONDA=stages/01-event-generation/build/tools/miniforge3/bin/conda
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_orchestrator.py plan <spec.json>
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_orchestrator.py launch <scandir> --backend native --max 4 --go
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_orchestrator.py status <scandir>   # any time; resumable
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_orchestrator.py assemble <scandir> --nlo-renorm <process>
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_orchestrator.py rebase <scandir> --process <process>  # REQUIRED before --atlas-limit
-$CONDA run -n rivet python trial-runs/_infrastructure/scan_contour.py --scan <scandir>/scan.json \
+CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda
+$CONDA run -n rivet python scripts/run.py ravel.workflow.scan_orchestrator plan <spec.json>
+$CONDA run -n rivet python scripts/run.py ravel.workflow.scan_orchestrator launch <scandir> --backend native --max 4 --go
+$CONDA run -n rivet python scripts/run.py ravel.workflow.scan_orchestrator status <scandir>   # any time; resumable
+$CONDA run -n rivet python scripts/run.py ravel.workflow.scan_orchestrator assemble <scandir> --nlo-renorm <process>
+$CONDA run -n rivet python scripts/run.py ravel.workflow.scan_orchestrator rebase <scandir> --process <process>  # REQUIRED before --atlas-limit
+$CONDA run -n rivet python scripts/run.py ravel.plotting.scan_contour --scan <scandir>/scan.json \
   --experiment ATLAS --com 13 --lumi <L> --atlas-contour observed=<obs>.yaml \
   --atlas-contour expected=<exp>.yaml --atlas-limit <UL_grid>.yaml --out <scandir>/plots/<name>__contour
 ```
@@ -66,7 +69,7 @@ points), what remains. After a restart/compaction: re-anchor from `task_contract
 
 **Self-report every ~30 min (G7 mandate).** For any compute expected to exceed ~30 min (a scan or a
 native point), schedule a `ScheduleWakeup` every ~30 min running
-`python3 trial-runs/_infrastructure/progress_reporter.py --rundir <rundir>` so the run **self-reports**
+`python3 scripts/run.py ravel.workflow.progress_reporter --rundir <rundir>` so the run **self-reports**
 its one-line progress (`done=k/N running=… failed=… pending=… free=…GB`) WITHOUT a nudge — the non-hook
 FALLBACK for the G7 reporter (the abandoned-ScheduleWakeup fix). It is read-only and never gates (exit 0
 always); `--json` for the machine form.

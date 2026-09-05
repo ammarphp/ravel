@@ -1,6 +1,6 @@
 ---
 name: postmortem-capture
-description: Capture what a hep-agentic-pipeline run hit — gaps, failures, workarounds, near-misses — into the durable records at run close: the run RESULT.md GAPS section, framework/FAILURE-CATALOGUE.md (what happened → how caught → where the guard lives), and framework/CHANGES-REGISTRY.md entries. Use at the END of any run or trial that hit at least one unplanned obstacle, before reporting it complete.
+description: Capture what a hep-agentic-pipeline run hit — gaps, failures, workarounds, near-misses — into the durable records at run close: the run RESULT.md GAPS section, docs/reference/failure-modes.md (what happened → how caught → where the guard lives), and docs/development/change-registry.md entries. Use at the END of any run or trial that hit at least one unplanned obstacle, before reporting it complete.
 when_to_use: closing a run/trial/eval that hit unplanned obstacles, workarounds, or tool defects; after a verification panel surfaced findings worth guarding against
 allowed-tools: Bash, Read, Edit, Write
 ---
@@ -13,7 +13,7 @@ stay in chat memory recur (charter §4d). Run this at close, while the evidence 
 Append a **GAPS** section to the run's `RESULT.md`: one numbered line per gap —
 what was attempted, what failed/missed, the workaround, file:line evidence. Cross-check the
 run's `DEVIATIONS.md`: every ledger entry that exposed a tooling/doc hole gets a GAP line.
-**Then write the run's verification ladder** (per `workflow/checklists/verification-ladder.md`,
+**Then write the run's verification ladder** (per `docs/workflow/checklists/verification-ladder.md`,
 as a VERIFICATION-LADDER file at the run root): R0–R6 statuses + the bracketing verdict per gap —
 a gap is CONFIRMED only by the bracket (rung above passes, rung at/below fails); everything else
 is labeled PLAUSIBLE-UNATTRIBUTED in RESULT.md. `not-checked` rungs are the run's named debt,
@@ -21,7 +21,7 @@ never implied away.
 
 ## 2. The failure catalogue (real incidents only)
 For each gap that is a REAL incident (not a wishlist item), APPEND to
-`framework/FAILURE-CATALOGUE.md` in its format: **what happened → how it was caught → where
+`docs/reference/failure-modes.md` in its format: **what happened → how it was caught → where
 the guard now lives** (or `guard: PENDING (CR-NNN)`). The catalogue is append-only and seeds
 the step-9 Tier-B attack list and the routing evals — write entries so an adversary can
 re-attempt the failure class mechanically.
@@ -36,7 +36,7 @@ comparison/check-in — until you fix the helper (or substitute a blessed tool) 
 
 ## 3. The changes registry (every fix is findable)
 For each gap needing a code/doc/skill fix: add a `CR-NNN` entry to
-`framework/CHANGES-REGISTRY.md` (ID · date · what · why · where-embedded · status). Fix now →
+`docs/development/change-registry.md` (ID · date · what · why · where-embedded · status). Fix now →
 status EMBEDDED with the fix + wiring named; defer → DEFERRED with the trigger. Map each gap
 to its OWNER surface (a named skill / harness script / doc / PRODUCT-CONTRACT row) — a gap
 with no owner is itself a finding.
@@ -45,7 +45,7 @@ with no owner is itself a finding.
 - Owner is a skill/doc you can fix in-session → fix it, then the `embed-and-commit` skill
   (which now enforces the registry step).
 - The gap class is routing/intake-shaped → note it as a candidate eval prompt in
-  `framework/ROUTING-EVALS.md` so the next eval round tests it.
+  `docs/research/routing-evaluation.md` so the next eval round tests it.
 
 ## Red flags (you are rationalizing — stop)
 | Thought | Reality |

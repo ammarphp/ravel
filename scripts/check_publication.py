@@ -13,12 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     failed = False
-    for script, args in [('scripts/claims_check.py', []),
+    for script, args in [('scripts/check_repository.py', []),
+                         ('scripts/claims_check.py', []),
                          ('scripts/gen_validation_pages.py', ['--check']),
-                         ('framework/gen_status.py', ['--check'])]:
+                         ('scripts/gen_status.py', ['--check'])]:
         result = subprocess.run([sys.executable, str(ROOT / script), *args], cwd=ROOT)
         failed |= result.returncode != 0
-    contract = (ROOT / 'PRODUCT-CONTRACT.md').read_text()
+    contract = (ROOT / 'docs/reference/scope.md').read_text()
     required = 'any smoke, full, or scan generation before CHECK-IN 1'
     if required not in contract or 'generation beyond a smoke test' in contract:
         print('publication: FAIL: product-contract generation approval semantics drifted')

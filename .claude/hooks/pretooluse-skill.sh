@@ -6,7 +6,7 @@
 # a repo-wide glob (a mature repo carries many old trial-runs/*/inputs/task_contract.json that would
 # mask a fresh run and leave G22 permanently dead). No resolvable active run -> block (a physics
 # session must run physicist-intake first). Reads the tool-call JSON on stdin; exit 2 blocks.
-# Fallback: workflow/INITIATE.md's "fire physicist-intake first".
+# Fallback: docs/workflow/start.md's "fire physicist-intake first".
 set -u
 input="$(cat)"
 REPO="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
@@ -84,7 +84,7 @@ have=bool(rd) and any(os.path.isfile(os.path.join(rd,x))
                       for x in ("task_contract.json", os.path.join("inputs","task_contract.json")))
 print("yes" if have else "no")' "$REPO")"
 if [ "$have_contract" = "no" ]; then
-  echo "BLOCKED (G22/N1): the '$skill' skill presupposes an approved task_contract.json for THIS run, but the active run has none yet. Invoke the physicist-intake skill FIRST -- it routes the request, runs the no-generation survey, and composes CHECK-IN 1 (workflow/INITIATE.md)." >&2
+  echo "BLOCKED (G22/N1): the '$skill' skill presupposes an approved task_contract.json for THIS run, but the active run has none yet. Invoke the physicist-intake skill FIRST -- it routes the request, runs the no-generation survey, and composes CHECK-IN 1 (docs/workflow/start.md)." >&2
   exit 2
 fi
 exit 0

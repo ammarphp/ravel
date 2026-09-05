@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "ravel-hep"
 version = "0.2.0"
 description = "Artifact-bound validation and cached collider reinterpretation replay"
-readme = "docs/CLI.md"
+readme = "docs/cli.md"
 requires-python = ">=3.10,<3.13"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -32,7 +32,7 @@ Repository = "https://github.com/ammarphp/ravel"
 packages = ["src/ravel"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/ravel", "pyproject.toml", "hatch_build.py", "docs/CLI.md", "LICENSE", "NOTICE", "requirements-replay.txt", "requirements-replay.lock", "framework/tests/test_ravel_cli.py", "framework/tests/test_run_benchmark_out.py"]
+include = ["src/ravel", "pyproject.toml", "hatch_build.py", "scripts/run.py", "docs/cli.md", "LICENSE", "NOTICE", "requirements-replay.txt", "requirements-replay.lock", "tests/unit/test_ravel_cli.py", "tests/unit/test_run_benchmark_out.py"]
 
 [tool.hatch.build.hooks.custom]
 path = "hatch_build.py"

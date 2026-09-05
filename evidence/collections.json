@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "collections": [
+    {
+      "source": "trial-runs/sleptonscan_fig3_SCAN",
+      "destination": "evidence/scans/slepton-bino-figure-3",
+      "source_run_id": "sleptonscan_fig3_SCAN",
+      "title": "Slepton-bino figure 3 scan",
+      "kind": "scan",
+      "include": [
+        "scan.json",
+        "scan_manifest.json",
+        "RESULT.md",
+        "verification.json",
+        "inputs/*.json",
+        "plots/*.png",
+        "plots/*.pdf"
+      ],
+      "exclude": []
+    },
+    {
+      "source": "trial-runs/CR004rescan_SCAN",
+      "destination": "evidence/scans/slepton-bino-pdf-rescan",
+      "source_run_id": "CR004rescan_SCAN",
+      "title": "Slepton-bino paired PDF rescan",
+      "kind": "scan",
+      "include": [
+        "scan_manifest.json",
+        "scan.json",
+        "CR004-FULL-RESULT.md",
+        "plots/*.png"
+      ],
+      "exclude": []
+    },
+    {
+      "source": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair",
+      "destination": "evidence/benchmarks/atlas-2016-squark-pair",
+      "source_run_id": "2026-06-08_ATLAS_2016_I1458270_squark-pair",
+      "title": "ATLAS 2016 squark-pair cached benchmark",
+      "kind": "benchmark",
+      "include": [
+        "RESULT.md",
+        "provenance.json",
+        "outputs/sr_yields_fitted.json",
+        "outputs/sr_yields.json",
+        "outputs/squark.yoda",
+        "outputs/pyhf_exclusion/exclusion.json",
+        "outputs/hepdata/**",
+        "plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d04-x01-y01__meff-incl_SR-2jl.png"
+      ],
+      "exclude": []
+    },
+    {
+      "source": "trial-runs/2026-06-16_slepton_200-150_native",
+      "destination": "evidence/native-validation/slepton-200-150",
+      "source_run_id": "2026-06-16_slepton_200-150_native",
+      "title": "Native slepton 200/150 benchmark and ARM64 timing",
+      "kind": "native-validation",
+      "include": [
+        "output/exclusion.json",
+        "output/EwkCompressed2018.txt",
+        "output/*_patch.json",
+        "logs/STATUS.txt",
+        "RESULT.md"
+      ],
+      "exclude": []
+    },
+    {
+      "source": "trial-runs/CR005_refactor_smoke",
+      "destination": "evidence/native-validation/compressed-electroweak",
+      "source_run_id": "CR005_refactor_smoke",
+      "title": "Compressed electroweak native and container oracle comparison",
+      "kind": "native-validation",
+      "include": [
+        "output/*.txt",
+        "config/*.toml",
+        "logs/STATUS.txt"
+      ],
+      "exclude": [
+        "output/native_objects.txt"
+      ]
+    },
+    {
+      "source": "trial-runs/CR005_c1n2_sample",
+      "destination": "evidence/native-validation/three-lepton-electroweak",
+      "source_run_id": "CR005_c1n2_sample",
+      "title": "Three-lepton electroweak native and container oracle comparison",
+      "kind": "native-validation",
+      "include": [
+        "output/*.txt",
+        "config/*.toml",
+        "logs/STATUS.txt"
+      ],
+      "exclude": [
+        "output/native_objects.txt"
+      ]
+    },
+    {
+      "source": "trial-runs/CR005_squark_sample",
+      "destination": "evidence/native-validation/zero-lepton-squark",
+      "source_run_id": "CR005_squark_sample",
+      "title": "Zero-lepton squark native and container oracle comparison",
+      "kind": "native-validation",
+      "include": [
+        "output/*.txt",
+        "config/*.toml",
+        "logs/STATUS.txt"
+      ],
+      "exclude": [
+        "output/native_objects.txt"
+      ]
+    },
+    {
+      "source": "trial-runs/2026-06-06_slepton_200-150_50k",
+      "destination": "evidence/case-studies/arm64-container-slepton-200-150",
+      "source_run_id": "2026-06-06_slepton_200-150_50k",
+      "title": "ARM64 emulated-container slepton timing",
+      "kind": "case-study",
+      "include": [
+        "logs/STATUS.txt",
+        "RESULT.md"
+      ],
+      "exclude": []
+    },
+    {
+      "source": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass",
+      "destination": "evidence/case-studies/hvt-zprime-ww-low-mass-summary",
+      "source_run_id": "2026-07-06_SURVEY_hvt-zprime-ww-lowmass",
+      "title": "HVT Z-prime to WW low-mass published-limit summary",
+      "kind": "case-study",
+      "include": [
+        "VERIFICATION-LADDER.md",
+        "outputs/survey.json",
+        "outputs/summary_audit.json",
+        "inputs/basis_manifest.json",
+        "plots/hvt_zprime_ww_summary.*",
+        "plots/qa_*.png"
+      ],
+      "exclude": []
+    }
+  ],
+  "distribution": {
+    "files": [
+      "README.md",
+      "CONTRIBUTING.md",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "DIRECTORY.md",
+      "CITATION.cff",
+      "LICENSE",
+      "NOTICE",
+      "CHANGELOG.md",
+      "Makefile",
+      "pyproject.toml",
+      "hatch_build.py",
+      "requirements-replay.txt",
+      "requirements-replay.lock",
+      ".gitignore"
+    ],
+    "trees": [
+      "src",
+      "tests",
+      "docs",
+      "benchmarks",
+      "native/src",
+      "native/scripts",
+      "environment",
+      "evidence",
+      "scripts",
+      ".github",
+      ".claude/skills",
+      ".claude/rules",
+      ".claude/agents",
+      ".claude/hooks",
+      ".agents"
+    ],
+    "extra_files": [
+      ".claude/settings.json",
+      "native/README.md"
+    ],
+    "exclude": [
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/.DS_Store",
+      "**/.pytest_cache/**",
+      "**/.work/**",
+      "docs/superpowers/**",
+      "evidence/export-provenance.json",
+      "**/*.aux",
+      "**/*.fls",
+      "**/*.fdb_latexmk",
+      "**/*.synctex.gz",
+      "**/*.toc"
+    ]
+  }
+}

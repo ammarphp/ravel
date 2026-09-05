@@ -12,6 +12,6 @@ except Exception:
     d = {}
 print((d.get("tool_input") or {}).get("command", "") or "")')"
 [ -z "$cmd" ] && exit 0
-python3 "$REPO/trial-runs/_infrastructure/resource_census.py" \
+python3 "$REPO/src/ravel/workflow/resource_census.py" \
     --pre-generate-hook --command "$cmd" --project-dir "${CLAUDE_PROJECT_DIR:-$REPO}"
 exit $?

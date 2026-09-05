@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Reorganized active implementations into the `ravel` Python package, with separate native
+  tooling, environment provisioning, benchmarks, tests, documentation, and evidence trees.
+- Replaced the research-heavy README with installation and first-use navigation; retained
+  claim checks in dedicated validation pages.
+- Added explicit mappings from preserved historical runs to readable public evidence
+  collections. Public directory maps now describe the files actually shipped.
+- Updated imports, source launchers, packaged assets, native path lookup, hooks, and CI for
+  the new layout. The existing native installation and original scientific records are preserved.
+- Strengthened migration checks for installed execution, mutation-safe test fixtures,
+  enforcement coverage, and strict directory references.
+
 ## v0.2.0 — 2026-09-05
 
 - Added the installable `ravel-hep` package and `ravel validate`, `ravel replay`, and diagnostic

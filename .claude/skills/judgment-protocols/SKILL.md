@@ -7,8 +7,8 @@ allowed-tools: Bash, Read
 # Skill — judgment protocols (the HOW behind every [judgment] tag)
 
 The full protocols with thought→reality tables and worked incidents:
-**`workflow/checklists/judgment-protocols.md`** — read the matching one and RUN it. The domain
-trap catalogue behind P3: **`workflow/checklists/physics-traps.md`** (T1–T12, each with its cheap
+**`docs/workflow/checklists/judgment-protocols.md`** — read the matching one and RUN it. The domain
+trap catalogue behind P3: **`docs/workflow/checklists/physics-traps.md`** (T1–T12, each with its cheap
 check + route consequence).
 
 ## Which protocol fires (route by situation, not by step number)
@@ -39,7 +39,7 @@ check + route consequence).
 
 ## P3 → the D10 parameter-validation contract (trap hits become obligations you must discharge)
 A trap sweep that flags **T3/T6/T7/T8** is not "recorded" until its physics is actually validated.
-`trial-runs/_infrastructure/validate_parameters.py emit --rundir <run> --param <varied>` reads
+`src/ravel/validation/validate_parameters.py emit --rundir <run> --param <varied>` reads
 `inputs/trap_sweep.json` (`traps_hit[]`) and writes `inputs/validations.json` (schema_version 1,
 `generated_by`+`input_fingerprint`): a PENDING obligation for each varied physics parameter AND an
 auto-emitted `trap_obligation` for each **GATED_TRAPS=(T3,T6,T7,T8)** hit (each carries the concrete
@@ -63,7 +63,7 @@ this gate applies in ALL task modes at generation.
 These protocols do NOT replace escalation — they make it sharp. A cheap model at a [judgment]
 site runs the protocol MECHANICALLY (extract / manifest / sweep / anchor / decompose / climb),
 then presents the structured evidence as the numbered CHECK-IN flag; escalate-to-physicist stays
-the default verdict wherever the site names nothing else (`workflow/WORKFLOW.md` §Roles).
+the default verdict wherever the site names nothing else (`docs/workflow/README.md` §Roles).
 
 ## Stop conditions
 - A protocol's mechanical step is impossible (artifact unfetchable, no anchor exists) → that IS

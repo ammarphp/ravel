@@ -1,0 +1,492 @@
+{
+  "cases": [
+    {
+      "case_id": "conf2016037_gluino_2step_sleptons_1400_60",
+      "error": null,
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "provenance: deliverable missing/empty: outputs/analysis_patched.yoda"
+        ]
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "SR3l2",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.297012,
+          "mu95_exp": 0.241349,
+          "mu95_obs": 0.297011,
+          "our_excluded_obs": true,
+          "s95_exp": 3.80526,
+          "s95_obs": 4.68286,
+          "s95_ratio_exp": 0.951314,
+          "s95_ratio_obs": 0.918208,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 8.43667,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [
+            "deliverable missing/empty: outputs/analysis_patched.yoda"
+          ],
+          "ok": false
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.297012,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 4.46238,
+        "total_s": 4.46311
+      }
+    },
+    {
+      "case_id": "conf2016054_gluino_onestep_1500_60",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "GG-4j-0lowx",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.223874,
+          "mu95_exp": 0.287067,
+          "mu95_obs": 0.223768,
+          "our_excluded_obs": true,
+          "s95_exp": 6.44594,
+          "s95_obs": 5.0246,
+          "s95_ratio_exp": 0.976658,
+          "s95_ratio_obs": 0.913563,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 3.51266,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.223874,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 5.23755,
+        "total_s": 5.23838
+      }
+    },
+    {
+      "case_id": "ins1452559_dm_axial_850_1",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "IM7",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.343173,
+          "mu95_exp": 0.317922,
+          "mu95_obs": 0.34208,
+          "our_excluded_obs": true,
+          "s95_exp": 46.8517,
+          "s95_obs": 59.5823,
+          "s95_ratio_exp": 0.976077,
+          "s95_ratio_obs": 0.976759,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 292.699,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.343173,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 6.65157,
+        "total_s": 6.65237
+      }
+    },
+    {
+      "case_id": "ins1458270_gluino_1000_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "WARN",
+          "driving_sr": "5j",
+          "n_attributed": 1,
+          "residual": 0.132428,
+          "tier": "Acceptable",
+          "worst_driving_mu95_impact": 0.132428
+        },
+        "limit": {
+          "best_sr": "5j",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.0523732,
+          "mu95_exp": 0.0859664,
+          "mu95_obs": 0.0496729,
+          "our_excluded_obs": true,
+          "s95_exp": 8.83734,
+          "s95_obs": 5.10637,
+          "s95_ratio_exp": 1.01579,
+          "s95_ratio_obs": 0.945623,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 19.1198,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Acceptable",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.0523732,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.57649,
+        "pyhf_s": 4.88572,
+        "total_s": 6.46358
+      }
+    },
+    {
+      "case_id": "ins1458270_gluino_merged_1000_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "5j",
+          "n_attributed": 1,
+          "residual": 0.0807821,
+          "tier": "Good",
+          "worst_driving_mu95_impact": 0.0807821
+        },
+        "limit": {
+          "best_sr": "5j",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.055,
+          "mu95_exp": 0.08993,
+          "mu95_obs": 0.0517962,
+          "our_excluded_obs": true,
+          "s95_exp": 8.82545,
+          "s95_obs": 5.08311,
+          "s95_ratio_exp": 1.01442,
+          "s95_ratio_obs": 0.941317,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 19.9422,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Good",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.055,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.54995,
+        "pyhf_s": 4.94547,
+        "total_s": 6.49677
+      }
+    },
+    {
+      "case_id": "ins1458270_squark_800_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "2jl",
+          "n_attributed": 2,
+          "residual": 0.0244824,
+          "tier": "Ideal",
+          "worst_driving_mu95_impact": 0.0244824
+        },
+        "limit": {
+          "best_sr": "2jl",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.222544,
+          "mu95_exp": 0.275714,
+          "mu95_obs": 0.219143,
+          "our_excluded_obs": true,
+          "s95_exp": 55.2397,
+          "s95_obs": 43.9057,
+          "s95_ratio_exp": 1.02296,
+          "s95_ratio_obs": 0.997857,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 57.5015,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Ideal",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.222544,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.54606,
+        "pyhf_s": 6.38622,
+        "total_s": 7.93363
+      }
+    },
+    {
+      "case_id": "ins1458270_squark_merged_800_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "2jl",
+          "n_attributed": 1,
+          "residual": 0.0393797,
+          "tier": "Ideal",
+          "worst_driving_mu95_impact": 0.0393797
+        },
+        "limit": {
+          "best_sr": "2jl",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.225796,
+          "mu95_exp": 0.279824,
+          "mu95_obs": 0.222408,
+          "our_excluded_obs": true,
+          "s95_exp": 55.2266,
+          "s95_obs": 43.8947,
+          "s95_ratio_exp": 1.02271,
+          "s95_ratio_obs": 0.997607,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 58.3786,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Ideal",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.225796,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.45432,
+        "pyhf_s": 4.86726,
+        "total_s": 6.32286
+      }
+    },
+    {
+      "case_id": "ins1676551_c1n2_300_100",
+      "error": null,
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "provenance: deliverable missing/empty: build/analysis.yoda"
+        ]
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "SR3L_Low",
+          "n_attributed": 1,
+          "residual": 0.064454,
+          "tier": "Good",
+          "worst_driving_mu95_impact": 0.064454
+        },
+        "limit": {
+          "best_sr": "SR3L_Low",
+          "best_sr_matches": true,
+          "mu95_baseline": 2.7123,
+          "mu95_exp": 0.976397,
+          "mu95_obs": 2.7123,
+          "our_excluded_obs": false,
+          "s95_exp": 9.2813,
+          "s95_obs": 18.6562,
+          "s95_ratio_exp": null,
+          "s95_ratio_obs": null,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 1096.54,
+          "sigma_ul_ratio_obs": 4.99673,
+          "sigma_ul_tier_info": "BELOW",
+          "stability_ok": true,
+          "tier": null,
+          "verdict_pipeline_match": false
+        },
+        "provenance": {
+          "failures": [
+            "deliverable missing/empty: build/analysis.yoda"
+          ],
+          "ok": false
+        }
+      },
+      "required": {
+        "axe_tier": "Good",
+        "limit_tier": null,
+        "mu95_stability": {
+          "baseline_mu95_obs": 2.7123,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.03405,
+        "pyhf_s": 3.83882,
+        "total_s": 4.87444
+      }
+    },
+    {
+      "case_id": "ins2182381_gbb_1900_1",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "FAIL",
+          "driving_sr": "SR_Gbb_0l_B",
+          "n_attributed": 1,
+          "residual": 0.2649,
+          "tier": "Acceptable",
+          "worst_driving_mu95_impact": 0.2649
+        },
+        "limit": {
+          "best_sr": "SR_Gbb_0l_B",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.17694,
+          "mu95_exp": 0.1139,
+          "mu95_obs": 0.17694,
+          "our_excluded_obs": true,
+          "s95_exp": 6.03208,
+          "s95_obs": 9.37067,
+          "s95_ratio_exp": null,
+          "s95_ratio_obs": null,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 0.302495,
+          "sigma_ul_ratio_obs": 0.732717,
+          "sigma_ul_tier_info": "Acceptable",
+          "stability_ok": true,
+          "tier": null,
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Acceptable",
+        "limit_tier": null,
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.17694,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.01333,
+        "pyhf_s": 3.33954,
+        "total_s": 4.35445
+      }
+    }
+  ],
+  "cases_file": "$DSRLAB_ROOT/hep-agentic-pipeline/benchmarks/cases.json",
+  "generated": "2026-09-05T12:54:45+00:00",
+  "schema_version": 1,
+  "selection": "full",
+  "summary": {
+    "gate_ok": false,
+    "n_breach": 2,
+    "n_cases": 9
+  }
+}

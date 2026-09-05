@@ -9,7 +9,10 @@ import platform
 import subprocess
 import sys
 
-from . import __version__, _validator, validate_task_contract
+from . import __version__, validate_task_contract
+from .validation.validate_task_contract import SCHEMA, load_contract
+from .evidence_layout import resolve
+from .paths import module_command, repository_root
 from .resources import payload_files, resource_root
 
 
@@ -33,10 +36,10 @@ def parser() -> argparse.ArgumentParser:
 
 def _validate(args) -> int:
     if args.schema:
-        print(json.dumps(_validator()["SCHEMA"], indent=2))
+        print(json.dumps(SCHEMA, indent=2))
         return 0
     try:
-        contract = _validator()["load_contract"](args.contract)
+        contract = load_contract(args.contract)
     except (OSError, ValueError, UnicodeError, RecursionError) as exc:
         errors = [f"cannot read contract: {exc}"]
         code = 2
@@ -63,11 +66,13 @@ def _replay(args) -> int:
             raise ValueError("Replay dependencies are missing. Install 'ravel-hep[replay]' "
                              "or requirements-replay.txt from the checkout.") from exc
     root = resource_root()
-    engine = root / "framework/benchmark/run_benchmark.py"
     fingerprint = hashlib.sha256()
     for relative in sorted(payload_files(root)):
         fingerprint.update(relative.encode() + b"\0")
-        fingerprint.update(hashlib.sha256((root / relative).read_bytes()).digest())
+        fingerprint.update(hashlib.sha256(resolve(root, relative).read_bytes()).digest())
+    for module in sorted(Path(__file__).parent.rglob("*.py")):
+        fingerprint.update(str(module.relative_to(Path(__file__).parent)).encode() + b"\0")
+        fingerprint.update(hashlib.sha256(module.read_bytes()).digest())
     output = args.out.expanduser().resolve()
     output.mkdir(parents=True, exist_ok=False)
     environment = {"ravel_version": __version__, "python": platform.python_version(),
@@ -81,22 +86,22 @@ def _replay(args) -> int:
     (output / "environment.json").write_text(json.dumps(environment, indent=2) + "\n")
     print("Replay uses cached events; acceptance certification may come from the recorded baseline.", flush=True)
     # Interpreter selection avoids silently escaping the lock into a local conda environment.
-    return subprocess.call([sys.executable, str(engine), "--fast", "--python-current",
-                            "--work-dir", str(output / "work"), "--out", str(output / "results.json")])
+    return subprocess.call(module_command("ravel.validation.benchmark", "--fast", "--python-current",
+                            "--work-dir", str(output / "work"), "--out", str(output / "results.json")))
 
 
 def _audit(args) -> int:
     candidates = ([args.root.expanduser().resolve()] if args.root else
                   [Path.cwd(), *Path.cwd().parents])
     root = next((candidate for candidate in candidates
-                 if (candidate / "framework/audit.py").is_file()
-                 and (candidate / "framework/capability-matrix.json").is_file()
-                 and (candidate / "workflow").is_dir()), None)
+                 if (candidate / "scripts/audit.py").is_file()
+                 and (candidate / "benchmarks/capabilities.json").is_file()
+                 and (candidate / "docs/workflow").is_dir()), None)
     if root is None:
         raise ValueError("The R1-R9 audit needs a Ravel source checkout. Clone "
                          "https://github.com/ammarphp/ravel and run 'ravel audit --root PATH'. "
                          "The wheel contains only the curated replay bundle.")
-    cmd = [sys.executable, str(root / "framework/audit.py")]
+    cmd = [sys.executable, str(root / "scripts/audit.py")]
     if args.out:
         target = args.out.expanduser().resolve()
         if target.exists():

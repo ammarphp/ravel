@@ -20,7 +20,7 @@ jobs:
       - name: Scoped publication claims and generated documentation
         run: python3 scripts/check_publication.py
       - name: evidence manifest sha-pins
-        run: python3 framework/check_evidence.py --check
+        run: python3 scripts/check_evidence.py --check
 
   replay:
     name: replay-mode demo (benchmark gate)
@@ -32,7 +32,7 @@ jobs:
       - name: install statistics layer
         run: python -m pip install --require-hashes -r requirements-replay.lock
       - name: re-validate cached benchmarks through pyhf
-        run: python3 framework/benchmark/run_benchmark.py --fast
+        run: python3 scripts/run.py ravel.validation.benchmark --fast
 
   tests:
     name: test suite
@@ -44,7 +44,6 @@ jobs:
       - name: install
         run: python -m pip install --require-hashes -r requirements-replay.lock
       - name: pytest
-        working-directory: framework
         run: python -m pytest tests -q
 
   spine:
@@ -55,9 +54,9 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
         with: { python-version: "3.12" }
       - name: install git hooks (G20 asserts the pre-commit gate is INSTALLED, not just present)
-        run: bash trial-runs/_infrastructure/install_git_hooks.sh
+        run: bash scripts/maintenance/install-git-hooks.sh
       - name: spine_sim --require-all
-        run: python3 framework/spine_sim/run_spine_sim.py --require-all
+        run: python3 tests/adversarial/run_suite.py --require-all
 
   package:
     name: isolated installed-wheel replay
@@ -77,7 +76,6 @@ jobs:
           ravel validate --schema
           ravel replay --out "$RUNNER_TEMP/ravel-installed-replay"
       - name: verify packaged engines and replay away from source
-        working-directory: framework
         run: |
           export RAVEL_TEST_WHEEL="$(echo "$RUNNER_TEMP"/ravel-dist/ravel_hep-*.whl)"
-          python -m pytest tests/test_ravel_cli.py -q
+          python -m pytest tests/unit/test_ravel_cli.py -q

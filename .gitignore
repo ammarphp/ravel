@@ -107,7 +107,7 @@ trial-runs/**/inputs/*_src/
 trial-runs/**/inputs/*.pdf
 
 # benchmark scratch (fresh pyhf/cert re-runs by run_benchmark.py; fully regenerable)
-framework/benchmark/.work/
+benchmarks/.work/
 
 # session scratch for in-flight generations (promoted to dated run dirs on success)
 trial-runs/_scratch-*/
@@ -120,7 +120,7 @@ trial-runs/_infrastructure/rjr_resolve
 
 # clean-room self-drive live artifact (a run product of clean_room.py --live / G21/D17);
 # the dir is tracked via .gitkeep, the verdict JSON itself is regenerable and never committed
-framework/spine_sim/self_drive/last_verdict.json
+tests/adversarial/self_drive/last_verdict.json
 
 # superpowers subagent-driven-development scratch (progress ledger + task briefs;
 # per-session working state, regenerable from git log — never distributed)
@@ -137,3 +137,15 @@ framework/spine_sim/self_drive/last_verdict.json
 /build/
 *.egg-info/
 .pytest_cache/
+
+# Native generated binaries and new tool installations
+/native/build/
+
+# Generated LaTeX intermediates for the relocated source/PDF guide pairs.
+docs/guides/*.aux
+docs/guides/*.log
+docs/guides/*.out
+docs/guides/*.toc
+docs/guides/*.fls
+docs/guides/*.fdb_latexmk
+docs/guides/*.synctex.gz

@@ -16,8 +16,8 @@ a repo meant to be distributed to other researchers.
 
 ## Procedure
 
-1. **Locate the map.** Find `DIRECTORY.md` at the project root (e.g.
-   `hep-agentic-pipeline/DIRECTORY.md`). If it does not exist, create it from the template below.
+1. **Locate the map.** Find `DIRECTORY.md` at the root of the current checkout.
+   If it does not exist, create it from the template below.
 
 2. **List the actual tree** (excluding local-only/gitignored paths):
    ```bash
@@ -34,9 +34,9 @@ a repo meant to be distributed to other researchers.
    - **Moved/renamed** → update the path.
 
 4. **Confirm change-logging hygiene** (do not skip):
-   - If the environment changed (new tool/version/config), it must be in the stage's
-     `changes/ENVIRONMENT-CHANGES.md`.
-   - If a card or data file changed, it must be in `changes/DATA-AND-CARD-CHANGES.md` with both a
+   - If the environment changed (new tool/version/config), it must be in
+     `docs/development/history/environment-changes.md`.
+   - If a card or data file changed, it must be in `docs/development/history/data-and-card-changes.md` with both a
      workflow-level and a pedagogical-level pointer.
    - If either is missing, add it (or flag it to the user).
 
@@ -60,7 +60,7 @@ output | local-only | meta. Kept in sync by the `directory-keeper` skill.
 
 ## Trial runs
 - If the task ran the pipeline, confirm a dated run folder exists under `trial-runs/` following the
-  layout in `trial-runs/README.md` (RESULT.md + config/ + inputs/ + logs/ + outputs/), and that
+  layout in `docs/workflow/run-directory.md` (RESULT.md + config/ + inputs/ + logs/ + outputs/), and that
   `RESULT.md` is filled in. Flag any incomplete run folder.
 
 ## Red flags (you are rationalizing — stop)
@@ -81,6 +81,6 @@ output | local-only | meta. Kept in sync by the `directory-keeper` skill.
   gitignored) — list `build/` and `trial-runs/` as single entries.
 - This skill is about the *map*, not the files themselves; it does not move or delete anything
   except editing `DIRECTORY.md`.
-- Mechanical backstop: `python3 trial-runs/_infrastructure/check_agent_surface.py` asserts the
+- Mechanical backstop: `python3 scripts/run.py ravel.validation.check_agent_surface` asserts the
   map two ways (every row exists on disk; unmapped top-level entries WARN) — run it to confirm
   the reconcile landed clean.

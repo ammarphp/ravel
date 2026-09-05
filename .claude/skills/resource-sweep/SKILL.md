@@ -13,7 +13,7 @@ that fell to a second look).
 
 ## Run it (conda env for TLS certs — system python has no CA bundle; NEVER bypass verification)
 ```bash
-<conda> run -n rivet python trial-runs/_infrastructure/resource_census.py \
+<conda> run -n rivet python scripts/run.py ravel.workflow.resource_census \
     --inspire <recid> --arxiv <id> --analysis-id <ATLAS-XXX-20YY-NN> \
     --rundir <rundir> --markdown
 ```
@@ -44,7 +44,7 @@ won't build, a Pythia merge that vetoes every event) is a search target, not jus
 Fire the tool+model+symptom-keyed external search the moment a stage fails — the fix (a card, a run
 config, a recast repo, a thesis appendix) is often already published:
 ```bash
-python3 trial-runs/_infrastructure/resource_census.py --debug recipe-search \
+python3 scripts/run.py ravel.workflow.resource_census --debug recipe-search \
     --tool <madgraph|pythia|delphes> --model <SVJ|wino-c1n2|slepton> \
     --symptom "<free-text error keywords>" --rundir <rundir>
 ```
@@ -53,7 +53,7 @@ python3 trial-runs/_infrastructure/resource_census.py --debug recipe-search \
 - Exit 2 = bad `--debug` value (only `recipe-search`); exit 3 = EVERY search failed → a
   network/environment finding, NOT evidence that no recipe exists (do not close the failure as if the
   search ran).
-- Offline self-check: `python3 trial-runs/_infrastructure/resource_census.py --selftest` (record assembly,
+- Offline self-check: `python3 scripts/run.py ravel.workflow.resource_census --selftest` (record assembly,
   fingerprint stability, bad-mode exit-2).
 
 ## Manual rungs the script cannot walk (do these when the paper claims something the sweep lacks)

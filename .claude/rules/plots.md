@@ -1,7 +1,7 @@
 # Rule — publication-grade plots (the fidelity a scientist trusts)
 
 Read when producing any figure. A figure ships only if it passes
-`workflow/checklists/plot-criteria.md`. Use `trial-runs/_infrastructure/overlay_on_data.py` (built on
+`docs/workflow/checklists/plot-criteria.md`. Use `src/ravel/plotting/overlay_on_data.py` (built on
 **mplhep**) for the signal-over-data overlay; `--experiment ATLAS|CMS --com 13 --lumi <fb⁻¹>` applies
 the house style (Helvetica / TeX-Gyre-Heros, the bold-italic experiment label, the √s+L header,
 four-side inward ticks), `--stack <bkg.json>` draws the per-process stack.
@@ -28,7 +28,7 @@ four-side inward ticks), `--stack <bkg.json>` draws the per-process stack.
 ## Cutflow-only / counting analyses
 No differential distribution exists — the publishable figure is the **per-SR yield overlay** (data
 points + background band + signal+background across SRs), not a distribution overlay. See
-`workflow/reference/example-rivet-ewk-path.md`.
+`docs/workflow/reference/example-rivet-ewk-path.md`.
 
 The goal of this stage is the figure a referee trusts at a glance: correct numbers, no chartjunk, and
 the model's excess (or its absence) immediately visible over the published data.

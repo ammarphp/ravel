@@ -14,7 +14,7 @@
 # check-ins.md).
 input="$(cat)"
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
-WS="$PROJECT_DIR/trial-runs/_infrastructure/workflow_state.py"
+WS="$PROJECT_DIR/src/ravel/workflow/workflow_state.py"
 [ -f "$WS" ] || exit 0
 
 out="$(INPUT="$input" python3 - <<'PY'

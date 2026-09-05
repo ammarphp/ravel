@@ -17,7 +17,7 @@ and its `outputs/` (sr_yields, exclusion, cutflow_cert, nlo). Then check:
    over-tier residuals attributed with a bounded µ₉₅-impact, or hidden?
 4. **Statistical model** — is it the analysis's own (published likelihood, or observed+background per
    SR)? Does the limit reach the true CLs=0.05 crossing? Is it 95% CLs (not mislabelled as discovery)?
-5. **Plots** — does the overlay pass `workflow/checklists/plot-criteria.md` (incl. no axis-tick
+5. **Plots** — does the overlay pass `docs/workflow/checklists/plot-criteria.md` (incl. no axis-tick
    overlap), and reproduce the published figure's axes/binning?
 6. **Provenance** — versions, seeds, σ-source recorded (R5)?
 

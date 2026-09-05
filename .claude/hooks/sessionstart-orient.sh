@@ -28,7 +28,7 @@ what = nr.get('what') if isinstance(nr, dict) else nr
 ctx = ('ACTIVE RUN ' + rd + ': current_step=' + str(step)
        + (('; next_required=' + str(what)) if what else '')
        + ' -- the run-state machine + gates are MANDATORY '
-         '(status: python3 trial-runs/_infrastructure/workflow_state.py status --rundir ' + rd
+         '(status: python3 src/ravel/workflow/workflow_state.py status --rundir ' + rd
        + '; resume record: ' + rd + '/RESUME.md).')
 print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart',
                                           'additionalContext': ctx}}))

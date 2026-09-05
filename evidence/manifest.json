@@ -1,0 +1,803 @@
+{
+  "schema_version": 1,
+  "generated": "",
+  "source_commit": "c75e7905f9dd399878c5ab4b07f85bc4c23c7aed",
+  "claims": [
+    {
+      "claim_id": "P1_hvt_zprime_ww_summary",
+      "source": "benchmarks/capabilities.json:prompts.P1_hvt_zprime_ww_summary",
+      "headline": "HVT Z' -> WW low-mass summary plot (survey/summary track)",
+      "status": "served",
+      "gate": "summary_audit",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/plots/hvt_zprime_ww_summary.png",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.png",
+          "sha256": "b474ca313b9cb09d56d8dbedcc9ee065fa841cef7fa9eec3a08132c70e6f93a9",
+          "bytes": 220422,
+          "shipped": true,
+          "dev_only": false,
+          "role": "headline-figure"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/plots/hvt_zprime_ww_summary.pdf",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.pdf",
+          "sha256": "16ce418cf603b13c5b048d7178f521741d1e39e5f3650d1436d56509cbf691a8",
+          "bytes": 25642,
+          "shipped": true,
+          "dev_only": false,
+          "role": "headline-figure"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/outputs/survey.json",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/survey.json",
+          "sha256": "916a90ef75ed4c3a082735d974588bea31b5a4870ca4ed6d252e7f6e96a0973c",
+          "bytes": 10173,
+          "shipped": true,
+          "dev_only": false,
+          "role": "survey-data"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/outputs/summary_audit.json",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/summary_audit.json",
+          "sha256": "c83b9229643e00c2cede83622077507c824f08a0e64d5186469379006f9b67d7",
+          "bytes": 1290,
+          "shipped": true,
+          "dev_only": false,
+          "role": "gate-result"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/inputs/basis_manifest.json",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/inputs/basis_manifest.json",
+          "sha256": "13c5fa9658616be19a5eaebaef5e2d7671a0f7c1573c97e18b6c352390f261e9",
+          "bytes": 8037,
+          "shipped": true,
+          "dev_only": false,
+          "role": "basis-manifest"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/VERIFICATION-LADDER.md",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/VERIFICATION-LADDER.md",
+          "sha256": "7714896e5e2faf50607438d43467c4cdf2bfc45360b6dcdd1c91b5e8e4d4aee3",
+          "bytes": 5895,
+          "shipped": true,
+          "dev_only": false,
+          "role": "verification-ladder"
+        },
+        {
+          "path": "evidence/case-studies/hvt-zprime-ww-low-mass-summary/plots/qa_1710.01123_digitize_overlay.png",
+          "source_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/qa_1710.01123_digitize_overlay.png",
+          "sha256": "e1c217bc096806ea3ee603ab186ff6b25c9ed1f1c7cad6bb33c3b9d7f616904c",
+          "bytes": 110072,
+          "shipped": true,
+          "dev_only": false,
+          "role": "qa-plot"
+        }
+      ]
+    },
+    {
+      "claim_id": "P4_dijet_photon_widths",
+      "source": "benchmarks/capabilities.json:prompts.P4_dijet_photon_widths",
+      "headline": "Dijet/diphoton resonance widths via the scoped shape-fit engine",
+      "status": "served",
+      "gate": "shape_fit_selftest",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "src/ravel/physics/shape_fit.py",
+          "sha256": "e16c4ef2b122c26fd83b14d45e5753507bf18a2da9762daec228de420c8afe95",
+          "bytes": 31711,
+          "shipped": true,
+          "dev_only": false,
+          "role": "engine-code"
+        },
+        {
+          "path": "docs/development/decisions/shape-fit.md",
+          "sha256": "570e47be27c159a738c9a9951aeb62fcc3babf70a18d5ffdfe078e4f9dcbd139",
+          "bytes": 4758,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1458270_squark_800_100",
+      "source": "benchmarks/cases.json:cases.ins1458270_squark_800_100",
+      "headline": "Historical benchmark record: squark-pair (m_sq=800, m_LSP=100), 8 mass-degenerate, q~ -> q chi10, NLO+NNLL (k=0.862) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/RESULT.md",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/RESULT.md",
+          "sha256": "ac305717f7b018d2d6dddaf102571f0db9ff21d770c906253a8f78c0572bf1c0",
+          "bytes": 6202,
+          "shipped": true,
+          "dev_only": false,
+          "role": "result-record"
+        },
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/provenance.json",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/provenance.json",
+          "sha256": "2e97488e0779f34731af261c7d2cced94a864dfa0cc38c2cd09b553522125fe4",
+          "bytes": 561,
+          "shipped": true,
+          "dev_only": false,
+          "role": "provenance"
+        },
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/outputs/squark.yoda",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/squark.yoda",
+          "sha256": "3c2bd87ea5a3017baddf5b5aaf516f2fef2a855c53b5d1ccfbefefdcc9de2ae5",
+          "bytes": 58635,
+          "shipped": true,
+          "dev_only": false,
+          "role": "yoda-output"
+        },
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/outputs/sr_yields.json",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/sr_yields.json",
+          "sha256": "781434913f79d2c2f71e9d4b250d15de64e571d420f31cc1e00c8a87171798aa",
+          "bytes": 641,
+          "shipped": true,
+          "dev_only": false,
+          "role": "sr-yields"
+        },
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/outputs/pyhf_exclusion/exclusion.json",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "c15bd99a316e4a2e898a36ba3a6fb3975fb08ded73cd9e1c67c5aa791dd80700",
+          "bytes": 6452,
+          "shipped": true,
+          "dev_only": false,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "evidence/benchmarks/atlas-2016-squark-pair/plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d04-x01-y01__meff-incl_SR-2jl.png",
+          "source_path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d04-x01-y01__meff-incl_SR-2jl.png",
+          "sha256": "59d07851660614d31a9894bdb092cd4a1a7d404a8a9a8d7fab36ea4544ba0c46",
+          "bytes": 114356,
+          "shipped": true,
+          "dev_only": false,
+          "role": "headline-figure"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1676551_c1n2_300_100",
+      "source": "benchmarks/cases.json:cases.ins1676551_c1n2_300_100",
+      "headline": "Historical benchmark record: wino C1N2 (m=300, m_LSP=100) -> WZ + 2x chi10, recursive jigsaw, combined 2l+3l counting, NLO+NLL (k=1.29) vs published ins1676551; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "certify_axe",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/RESULT.md",
+          "sha256": "af7238a98a9073a8a5f20fa7f882ea80ae352e8ffd3b1d1ee0ad3fb03de560fd",
+          "bytes": 12446,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/outputs/sr_yields.json",
+          "sha256": "2b310684751ba96c611755694b7344eb4d10794b5287c33296fc3fe5bd22fb30",
+          "bytes": 660,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/outputs/axe_compare.json",
+          "sha256": "89d4728eb8b16ecf344e6cfa6e44a869d61670682aa230f0344794f32441f2de",
+          "bytes": 2366,
+          "shipped": false,
+          "dev_only": true,
+          "role": "axe-comparison"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "b0bf7c32c1f78adb3e45567ef6613ef3735500b94dcc61f03328f33d50b707d2",
+          "bytes": 6473,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/plots/named/ATLAS_2018_I1676551__SRyields__overlay-sigbkg-vs-data.png",
+          "sha256": "bbce03d07e0d7a692d5af9e2b15dfa59a1ff7cf3052a3dcf5ad864fa02ea63e1",
+          "bytes": 98580,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1458270_gluino_1000_100",
+      "source": "benchmarks/cases.json:cases.ins1458270_gluino_1000_100",
+      "headline": "Historical benchmark record: gluino-pair (m_gl=1000, m_LSP=100), g~ -> q qbar chi10, NLO+NLL (k=1.915) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/RESULT.md",
+          "sha256": "00195d1c731069b863e67bdccafab40391076b22b40ffc3dc35bf48cc29f4689",
+          "bytes": 5841,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/provenance.json",
+          "sha256": "6257760ebdb15d7f478e235771245158435dec875d19d5059c781e933defbb12",
+          "bytes": 561,
+          "shipped": false,
+          "dev_only": true,
+          "role": "provenance"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/outputs/gluino.yoda",
+          "sha256": "bf5dca3133be71ed074eb323db652e07e2b617e33d726a980bf1c90e6e596a37",
+          "bytes": 58635,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/outputs/sr_yields.json",
+          "sha256": "f674f097a3f22391274e84cd377f0a1f13de1e1d4b55b394af6ae0ad96920ed4",
+          "bytes": 642,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "92a320a0696cbf8c7379e857a2056316744a00216a7c768094a2798b69b1b1f2",
+          "bytes": 6581,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d08-x01__overlay-sigbkg-vs-data_SR-5j.png",
+          "sha256": "bd9511236f93e0d913d21a1b8e9bf7d9707176cee06ff3d66b92614e3f2bd88c",
+          "bytes": 99951,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1458270_squark_merged_800_100",
+      "source": "benchmarks/cases.json:cases.ins1458270_squark_merged_800_100",
+      "headline": "Historical benchmark record: squark-pair (800,100) MLM-merged (+1j,+2j ME, xqcut=80, qCut=100), matched sigma NLO+NNLL (k=0.855) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/RESULT.md",
+          "sha256": "660836b1b60b3b7b3a2fb94d13c84480adfcd47ab25a2c250c4231b3885103ca",
+          "bytes": 5614,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/build/analysis.yoda",
+          "sha256": "0ed70268aff969ecc6854d5493c1f004dae1971ab6981c61a240649fb5ef4882",
+          "bytes": 58635,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/outputs/sr_yields.json",
+          "sha256": "2b121be8a30f353dfa7f1d18d24d692b46a24629a908de4e050cdffe7309d920",
+          "bytes": 640,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/outputs/cutflow_cert",
+          "sha256": "71a2c22d93b19d398750f846602e2ca0f3da17354178587654299dc0bbd0d1eb",
+          "bytes": 1987,
+          "shipped": false,
+          "dev_only": true,
+          "role": "cutflow-cert"
+        },
+        {
+          "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d04-x01__overlay-sigbkg-vs-data_SR-2jl.png",
+          "sha256": "a757612f09787df6a334f65100ce4971d9684f28593c03cf254c35596abecd86",
+          "bytes": 113313,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1458270_gluino_merged_1000_100",
+      "source": "benchmarks/cases.json:cases.ins1458270_gluino_merged_1000_100",
+      "headline": "Historical benchmark record: gluino-pair MLM-merged (+j,+jj, xqcut=250=m/4 from measured stability scan), matched sigma, NLO+NNLL (k=1.939) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/RESULT.md",
+          "sha256": "3b4be13185aeaccca80bc4c69696a42c54bf6d285eb2320e4ecc4d17282bb40e",
+          "bytes": 3481,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/provenance.json",
+          "sha256": "1c4ff96276a1c527d2b21eefe83f23a308fe4c2531292c2c394656b14ef75286",
+          "bytes": 1444,
+          "shipped": false,
+          "dev_only": true,
+          "role": "provenance"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/outputs/gluino_merged.yoda",
+          "sha256": "aef5505b2cc8a8b511661cfc03b340e716f3ed51e59bf0699daf77f4ce52366e",
+          "bytes": 58635,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/outputs/sr_yields.json",
+          "sha256": "d1781f8bb227d791556a21a6dcd4afd9a83e2ac5a465b8f891f03eafbafd53c6",
+          "bytes": 971,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "5f0e3c7cc3aa006f7da12487f75a714ad4ce171b19a1cc34deea5de2b2f55a8f",
+          "bytes": 6983,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/outputs/cutflow_cert.json",
+          "sha256": "7536bd2fd2ba1e06f44fa17d43a5caec83fa6a9fdba028a12df058fd05b811e2",
+          "bytes": 3072,
+          "shipped": false,
+          "dev_only": true,
+          "role": "cutflow-cert"
+        },
+        {
+          "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/plots/ATLAS_2016_I1458270__d08-x01__overlay-sigbkg-vs-data_SR-5j.png",
+          "sha256": "304ca8b13b6369751c50201663c7ead2adc6dd83577237e103552c1ea9d0b970",
+          "bytes": 98900,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_conf2016054_gluino_onestep_1500_60",
+      "source": "benchmarks/cases.json:cases.conf2016054_gluino_onestep_1500_60",
+      "headline": "Historical benchmark record: gluino one-step x=1/2 (m_go=1500, m_C1=780, m_LSP=60), go->qq'C1, C1->W N1, NLO+NNLL (k=1.985) vs published ATLAS-CONF-2016-054; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/RESULT.md",
+          "sha256": "3141779e5599df2a081f5cdbb332c2bd6ef2e4be4e50f0fb878e66ee8e576317",
+          "bytes": 3816,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/provenance.json",
+          "sha256": "5fe3563251668fcdcfbcf77e44518cd70aad4b5af17f16f7dec06f7017cf34fb",
+          "bytes": 1603,
+          "shipped": false,
+          "dev_only": true,
+          "role": "provenance"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/outputs/analysis.yoda",
+          "sha256": "e88825106f40c3805f40e77a3620e8f8c9074f4c66d0e4278238b01f92db6eda",
+          "bytes": 6551,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/outputs/sr_yields.json",
+          "sha256": "a0a3a77ddecbe4edcba05913d64fb005aedc1a2baf2fee76f67e0346f38a9817",
+          "bytes": 1538,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "f5702e363ca5d57966f7c27adfefe01237396371623751386410cdb0ccee10ee",
+          "bytes": 7163,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/plots/ATLAS_2016_CONF_2016_054__SRyields__overlay-sigbkg-vs-data.png",
+          "sha256": "e5fc7a444aec6c65a0266deb6181c87adaeca2be1577c36f8ef7f5287504b2c7",
+          "bytes": 172129,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins1452559_dm_axial_850_1",
+      "source": "benchmarks/cases.json:cases.ins1452559_dm_axial_850_1",
+      "headline": "Historical benchmark record: DM simplified s-channel axial-vector mediator (m_med=850, m_DM=1), g_q=0.25 g_DM=1, minimal width, LO (no higher-order grid exists) vs published ins1452559; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/RESULT.md",
+          "sha256": "cc56b568646f27a54301d9b3ed6eba9675185992db5a76eafd2ec0f9dbc01d2c",
+          "bytes": 2943,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/provenance.json",
+          "sha256": "5f8c75725f8e1928b89aaf7cac37a791b03f0d8f2353d1ef28a3b1c73c0ae89e",
+          "bytes": 1971,
+          "shipped": false,
+          "dev_only": true,
+          "role": "provenance"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/outputs/analysis.yoda",
+          "sha256": "1819881ecccb2d304e4b8b1cf5acc9af9ed3bad409a5c7033192203f069e044e",
+          "bytes": 7810,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/outputs/sr_yields.json",
+          "sha256": "c4ab14533f2df954c4456f55d6a8f12c1482799717bf96af5dcb5b67c83bf81f",
+          "bytes": 1140,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "afa966b7f4a88143f6dcfea10410658b8fa0fa785eda8088f49bd4fe263b09ce",
+          "bytes": 6763,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/plots/ATLAS_2016_I1452559__SRyields__overlay-sigbkg-vs-data.png",
+          "sha256": "8d1a86dfdcbb64fd77ff842fb65dee24f62c209fec1422f3a78c2a180910417c",
+          "bytes": 117773,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_conf2016037_gluino_2step_sleptons_1400_60",
+      "source": "benchmarks/cases.json:cases.conf2016037_gluino_2step_sleptons_1400_60",
+      "headline": "Historical benchmark record: gluino pair, 2-step slepton-mediated (1400,730,395,60), light flavours, NNLOapprox+NNLL (k=1.975), A14 vs published conf2016037; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/RESULT.md",
+          "sha256": "d3c49e67e77bb8bc06d600791c605fcafd17d332868b4ddf3bd3f1d517a9b452",
+          "bytes": 3710,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/provenance.json",
+          "sha256": "abb688b97dc150b182a76d74ed8f2bb59bf7007ab14a9cf79a349a34e814e065",
+          "bytes": 1917,
+          "shipped": false,
+          "dev_only": true,
+          "role": "provenance"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/outputs/sr_yields.json",
+          "sha256": "d3bd8ca36cf2b4f333bcae41e74ee3a6c70be559559b77e99790b027c6379893",
+          "bytes": 1324,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/outputs/pyhf_exclusion/exclusion.json",
+          "sha256": "d282f79c0e38d85e008c32061585ecf628bbb6ec683ccea979f3881c8975240c",
+          "bytes": 7188,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/config/rivet_patched/ATLAS_2016_CONF_2016_037_PATCHED.cc",
+          "sha256": "43041db86b682f69a14638f2ef8089c554cf0013f005ac7b2adcdc531490d0f4",
+          "bytes": 8226,
+          "shipped": false,
+          "dev_only": true,
+          "role": "patched-routine"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/plots/ATLAS_2016_CONF_2016_037__SRyields__overlay-sigbkg-vs-data.png",
+          "sha256": "d84df2efcc2626918ff16492cfa068da191e206c5de1f582e95ea7860a043b0a",
+          "bytes": 139854,
+          "shipped": false,
+          "dev_only": true,
+          "role": "headline-figure"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "BENCH_ins2182381_gbb_1900_1",
+      "source": "benchmarks/cases.json:cases.ins2182381_gbb_1900_1",
+      "headline": "Historical benchmark record: gluino pair production (m_gluino=1900, m_LSP=1), Gbb decay (g~ -> b bbar chi10, BR=1), NLO+NNLL (k=2.059). FIRST published-likelihood (Mode A) case in this registry (task 7.1) -- scored here via the counting-mode reconstruction of the same SR yields (see published.notes: the harness has no pyhf_mode='likelihood' hook yet); the Mode-A pyhf likelihood itself is this run's primary RESULT, not (yet) benchmark-gated. vs published ins2182381; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
+      "gate": "certify_axe",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/RESULT.md",
+          "sha256": "b8db38a61a4820e6863f3118951809935148897f63c04b491e4fd7a5c532a407",
+          "bytes": 14905,
+          "shipped": false,
+          "dev_only": true,
+          "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/analysis.yoda",
+          "sha256": "38b51219d8a1e7111253c162751a6ad4ef2fe05ccca561a87d9856460ac7e0ac",
+          "bytes": 73235,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/sr_yields.json",
+          "sha256": "c8a97811f76bee5e2865df767093b31dc482a54d38c36b2b8fa21c5e578f39f8",
+          "bytes": 751,
+          "shipped": false,
+          "dev_only": true,
+          "role": "sr-yields"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/axe_compare.json",
+          "sha256": "2a7436beeffb8bca836ee06065cafc6b8a936a48819ea8d0dcb4dcd62bfc6459",
+          "bytes": 643,
+          "shipped": false,
+          "dev_only": true,
+          "role": "axe-comparison"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/counting/exclusion.json",
+          "sha256": "7eb0342f9da63b640f2fb79091c165605bed06b1d0aaab3202f9df52ed12760c",
+          "bytes": 11651,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/likelihood_B/exclusion.json",
+          "sha256": "041907b655efed236f99381a47d6323ed7621a9aea24771dcca04e8e2352299e",
+          "bytes": 5218,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/likelihood_M/exclusion.json",
+          "sha256": "78722bf5c743da65030cae45992ebe11459127e21dff6a14c9e417f95639ae9a",
+          "bytes": 4964,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/likelihood_C/exclusion.json",
+          "sha256": "493234ac8128d42882577687fae5a736ecef185e064c8e7b0165a058e2400cc3",
+          "bytes": 5245,
+          "shipped": false,
+          "dev_only": true,
+          "role": "exclusion-result"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/patches/CC_Gbb_B_pairing_check.json",
+          "sha256": "6408f2a53bc0dd9d2b26efb2ab5376c9484a4b3d71e6707638adcd657bb0dacb",
+          "bytes": 500,
+          "shipped": false,
+          "dev_only": true,
+          "role": "artifact"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/patches/CC_Gbb_M_pairing_check.json",
+          "sha256": "fe920025ac59e79f3224e7e8edc1877d2bcce3ab332d58e5a72d409ba1e2afa7",
+          "bytes": 500,
+          "shipped": false,
+          "dev_only": true,
+          "role": "artifact"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/patches/CC_Gbb_C_pairing_check.json",
+          "sha256": "b57484477016d6d87f22c7ba02a7b29f76b71d9289528af2168396840af68bf3",
+          "bytes": 500,
+          "shipped": false,
+          "dev_only": true,
+          "role": "artifact"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/config/rivet_patched/ATLAS_2022_I2182381_PATCHED.cc",
+          "sha256": "d376a1916d387618b3a79b6efe4e13bc008518ae632430fca85f499d46a1abea",
+          "bytes": 31160,
+          "shipped": false,
+          "dev_only": true,
+          "role": "patched-routine"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/config/certify_axe.py",
+          "sha256": "9584c46b5a154c06aaede90507c5573a61f39ab9b331ccd43b6e276e178602a4",
+          "bytes": 7231,
+          "shipped": false,
+          "dev_only": true,
+          "role": "artifact"
+        },
+        {
+          "path": "benchmarks/cases.json",
+          "sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+          "bytes": 35016,
+          "shipped": true,
+          "dev_only": false,
+          "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "HEADLINE_native_141_bitforbit",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_native_141_bitforbit (stated in docs/workflow/reference/native-pipeline.md)",
+      "headline": "Native SimpleAnalysis (EwkCompressed2018) reproduces the container's per-SR yields bit-for-bit: 141/141 SRs",
+      "status": "served",
+      "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/native-validation/slepton-200-150/output/EwkCompressed2018.txt",
+          "source_path": "trial-runs/2026-06-16_slepton_200-150_native/output/EwkCompressed2018.txt",
+          "sha256": "492c889e623ab8d80b7c12f9f3bded929230929d11ea0ae044094088bc58968f",
+          "bytes": 3928,
+          "shipped": true,
+          "dev_only": false,
+          "role": "native-sr-yields"
+        }
+      ]
+    },
+    {
+      "claim_id": "HEADLINE_native_mu95_0p51pct",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_native_mu95_0p51pct (stated in docs/workflow/reference/native-pipeline.md)",
+      "headline": "Native slepton 200/150 point's mu95 agrees with the container to 0.51% (6.333 vs 6.366)",
+      "status": "served",
+      "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/native-validation/slepton-200-150/output/exclusion.json",
+          "source_path": "trial-runs/2026-06-16_slepton_200-150_native/output/exclusion.json",
+          "sha256": "0866ea324421dd09a9056c5515eff5abd08bda31f51f741fea32c69f74f2a3f8",
+          "bytes": 2973,
+          "shipped": true,
+          "dev_only": false,
+          "role": "exclusion-result"
+        }
+      ]
+    },
+    {
+      "claim_id": "HEADLINE_fig3_scan_same_basis_residual",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_fig3_scan_same_basis_residual (stated in docs/development/status.md)",
+      "headline": "Fig-3 52/52-point native slepton-bino scan: ~24-25% median same-basis residual vs the published ATLAS contour",
+      "status": "served",
+      "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/scans/slepton-bino-figure-3/scan.json",
+          "source_path": "trial-runs/sleptonscan_fig3_SCAN/scan.json",
+          "sha256": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
+          "bytes": 42776,
+          "shipped": true,
+          "dev_only": false,
+          "role": "scan-aggregate"
+        }
+      ]
+    }
+  ]
+}

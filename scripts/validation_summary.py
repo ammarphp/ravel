@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_baseline(root=ROOT):
-    registry = json.loads((Path(root) / 'framework/benchmark/cases.json').read_text())
-    baseline = json.loads((Path(root) / 'framework/benchmark/results.json').read_text())
+    registry = json.loads((Path(root) / 'benchmarks/cases.json').read_text())
+    baseline = json.loads((Path(root) / 'benchmarks/results.json').read_text())
     cases, rows = registry['cases'], baseline['cases']
     ids, result_ids = [c['case_id'] for c in cases], [r['case_id'] for r in rows]
     if len(ids) != len(set(ids)) or len(result_ids) != len(set(result_ids)):

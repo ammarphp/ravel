@@ -6,29 +6,32 @@ allowed-tools: Bash, Read
 ---
 # Skill — certify a run (tiered + attribution; pick the right engine)
 
+Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
+this selects the native build and binary paths, including an existing local toolchain.
+
 Domain detail: `.claude/rules/statistics.md`. The gate map (step 3.5,
-`workflow/checklists/detector-fidelity.md`) decides WHICH engine:
+`docs/workflow/checklists/detector-fidelity.md`) decides WHICH engine:
 
 | engine | when | scope |
 |---|---|---|
 | `certify_acceptance.py` | **per-RUN** for SA/Delphes (incl. the native backend — the step-8 default) | this run's per-SR acc×eff vs the published acc×eff map |
 | `validate_cutflow.py` | **one-time per ROUTINE** (Rivet path) | the routine's A×ε vs the published cutflow; carries across that routine's runs |
 
-`CONDA=stages/01-event-generation/build/tools/miniforge3/bin/conda`
+`CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda`
 
 ## Per-run (SA/Delphes/native) — step 3.5's acceptance gate
 ```bash
-$CONDA run -n rivet python trial-runs/_infrastructure/certify_acceptance.py \
+$CONDA run -n rivet python scripts/run.py ravel.validation.certify_acceptance \
   --acceptance <the run's per-SR acceptance source> --tables-dir <hepdata acc×eff yaml dir> \
   --grid "<model phrase in the HEPData descriptions>" --m-parent <m> --m-lsp <m> \
   --srs "<comma list of SR names>"     # --dm instead of --m-lsp; --help for tier flags
 ```
 Run it for EVERY native/SA run whose yields feed a limit — the per-point yields in a scan
-inherit the routine-level cert plus this run-level check (see `checklists/detector-fidelity.md`).
+inherit the routine-level cert plus this run-level check (see `docs/workflow/checklists/detector-fidelity.md`).
 
 ## One-time per routine (Rivet) — the cutflow comparator
 ```bash
-$CONDA run -n rivet python trial-runs/_infrastructure/validate_cutflow.py \
+$CONDA run -n rivet python scripts/run.py ravel.validation.validate_cutflow \
   --signal <rundir>/build/analysis.yoda --routine <RIVET_ID> \
   --sigma-pb <σ> --lumi-fb <L> --tables-dir <hepdata tables dir> \
   --grid "<grid label>" --m-parent <m> --m-lsp <m> \
@@ -54,7 +57,7 @@ the verdict can't reach PASS). Optional tiers: `--driving-tol 0.15 --contributin
 
 Tier targets: driving ≤12–15% (Good ≤10%, Ideal ≤5%), contributing ≤25%, tail report-only.
 Record the verdict in `RESULT.md`. This certification is one gate of several: the portfolio
-gate is `framework/benchmark/`, and DELIVERY is gated by the step-9 panel — `verify_pack.py`
+gate is `benchmarks/`, and DELIVERY is gated by the step-9 panel — `verify_pack.py`
 plus the adversary (`verification-panel` skill) — which audits this cert's presence too.
 
 ## What "certified" means (claim → evidence)
@@ -72,7 +75,7 @@ plus the adversary (`verification-panel` skill) — which audits this cert's pre
 
 ## Stop conditions
 - No published acc×eff map / cutflow covers the point → the cert cannot run; that is a
-  detector-fidelity finding (`workflow/checklists/detector-fidelity.md`) for the CHECK-IN
+  detector-fidelity finding (`docs/workflow/checklists/detector-fidelity.md`) for the CHECK-IN
   flags — never certify against interpolated or invented reference values.
 - Un-remediated FAIL on the driving SR → the yields do not feed a delivered limit; read the
   attribution rows and diagnose (or re-route) before step 9.

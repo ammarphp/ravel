@@ -7,7 +7,7 @@ This tool sets **95% CL exclusion limits** via the **CLs** method (≈1.64σ one
 *excluded or allowed* by the published data? It does **not** make **5σ discovery** claims — 5σ is for
 claiming a new particle in the data, which is out of scope. Never phrase a result as a discovery.
 
-## pyhf exclusion (`trial-runs/_infrastructure/pyhf_exclude.py`)
+## pyhf exclusion (`src/ravel/physics/pyhf_exclude.py`)
 - **Mode A — likelihood** (preferred when published): apply the signal patch to the published
   background-only HistFactory JSON. `… likelihood --bkg <bkgonly>.json --patch <patch>.json`.
 - **Mode B — counting**: one single-bin model per SR from observed+background±unc+signal; quote the

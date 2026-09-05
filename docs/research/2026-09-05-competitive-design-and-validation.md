@@ -16,8 +16,8 @@ The local development baseline at the beginning of this review was
 `b7b07de4665a02ff4c3cad3b1964f75bfc17a1e3`. Concurrent hardening work is outside
 that snapshot; any experiment must freeze the final evaluated commit separately.
 Local authorities inspected were `AGENTS.md`, `DIRECTORY.md`,
-`framework/STATUS.md`, `framework/PLAN-OF-RECORD.md`,
-`framework/FAILURE-CATALOGUE.md`, and `framework/ROUTING-EVALS.md`.
+`docs/development/status.md`, `docs/development/history/mission-and-plan.md`,
+`docs/reference/failure-modes.md`, and `docs/research/routing-evaluation.md`.
 
 Fresh shallow clones, rather than old working copies or the pasted critique,
 established these external revisions. The GitHub connector independently located
@@ -140,7 +140,7 @@ not assertions that every listed defect remains open today.
 | D4–D18: stalled drive, recovery, changing protocol, incomplete delivery | Interrupt, resume, change upstream evidence, and inspect surviving downstream state | No stale result is served; next action and reason for any block remain explicit |
 | N7/N9: premature blocking and enforcement disarm | Present a recoverable resource gap; separately attempt to disable a live guard | The first gets a bounded repair attempt; the second does not bypass the serving boundary |
 
-The routing record deserves special care. `framework/ROUTING-EVALS.md` says the
+The routing record deserves special care. `docs/research/routing-evaluation.md` says the
 7/7 historical success used an injected working-directory hint, and that one
 subject read an expected-verdict row. It records an unhinted spot-check as 1/2
 because the second assignment did not run, plus a later individual P4 check. A
@@ -291,7 +291,7 @@ system. Freeze and evaluate a later unseen cohort after fixing exposed failures.
 
 ## Implemented support and remaining work
 
-The new [`framework/experiments`](../../framework/experiments/README.md) utility
+The new [`framework/experiments`](../../benchmarks/governance/README.md) utility
 creates the complete crossed roster, binds outcomes to it, rejects omissions,
 duplicates, unplanned assignments, changed registry contents, self-scoring,
 absent evidence digests, and nonfinite/invalid metrics. It keeps unknown

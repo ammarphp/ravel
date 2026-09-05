@@ -6,19 +6,22 @@ allowed-tools: Bash, Read
 ---
 # Skill — the figure contract (declare → extract → echo → counterpart → compose)
 
+Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
+this selects the native build and binary paths, including an existing local toolchain.
+
 Every reproduction claims a SPECIFIC published figure; the contract makes that claim
 machine-checkable and kills the caption-imagined-figure class (catalogue A1/A2). Checklist:
-`workflow/checklists/figure-contract.md`; this skill is the operational order.
+`docs/workflow/checklists/figure-contract.md`; this skill is the operational order.
 
 ## 1. DECLARE (step 2, before generation)
 ```bash
-CONDA=stages/01-event-generation/build/tools/miniforge3/bin/conda
-$CONDA run -n rivet python trial-runs/_infrastructure/hepdata_fetch.py --inspire insNNNN --out <rundir>/outputs/hepdata
-$CONDA run -n rivet python trial-runs/_infrastructure/figure_target.py resolve \
+CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda
+$CONDA run -n rivet python scripts/run.py ravel.workflow.hepdata_fetch --inspire insNNNN --out <rundir>/outputs/hepdata
+$CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target resolve \
   --analysis <ID> --hepdata-manifest <rundir>/outputs/hepdata/hepdata_manifest.json \
   --role summary --model-keywords "<model words>"     # ranked candidates; [judgment] CHOOSES
-$CONDA run -n rivet python trial-runs/_infrastructure/fetch_figures.py --inspire insNNNN --figure <N> --out <rundir>/outputs/published
-$CONDA run -n rivet python trial-runs/_infrastructure/figure_target.py declare --rundir <rundir> \
+$CONDA run -n rivet python scripts/run.py ravel.plotting.fetch_figures --inspire insNNNN --figure <N> --out <rundir>/outputs/published
+$CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target declare --rundir <rundir> \
   --role summary --primary --figure-id "Figure <N>" --source <user-prompt|registry-hint|...> \
   --caption "<first sentence of the PAPER caption>" --inspire insNNNN \
   --axes-x <linear|log> --axes-y <linear|log>
@@ -44,16 +47,16 @@ primary target (or a `--figure-id` one) and re-echoes the block — the lifecycl
 only a checked-in target counts as bound to the approved contract. When the counterpart
 exists:
 ```bash
-$CONDA run -n rivet python trial-runs/_infrastructure/figure_target.py attach-generated \
+$CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target attach-generated \
   --rundir <rundir> --figure-id "Figure <N>" --path <the counterpart .png> --step <NN-step>
-$CONDA run -n rivet python trial-runs/_infrastructure/figure_target.py compose --rundir <rundir> --figure-id "Figure <N>"
+$CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target compose --rundir <rundir> --figure-id "Figure <N>"
 ```
 The side-by-side composite (published | produced) is the check-in headline; for a scan the
 `__fig3` single-panel output is the counterpart, not the grid diagnostic (step 8).
 
 Once the physicist has signed off against that composite, close the lifecycle with:
 ```bash
-$CONDA run -n rivet python trial-runs/_infrastructure/figure_target.py fulfil-primary \
+$CONDA run -n rivet python scripts/run.py ravel.plotting.figure_target fulfil-primary \
   --rundir <rundir> --by "<physicist>" [--utc <ts>] [--note "<one-line sign-off>"]
 ```
 `fulfil-primary` is the ONLY write site of `verified_by_physicist` — a WRITTEN lifecycle field, not

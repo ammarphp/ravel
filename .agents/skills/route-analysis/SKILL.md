@@ -14,8 +14,8 @@ Turns `task_contract.json` targets into the concrete route.
 | "No routine, so I'll build my own selection" | G-CMS-01/G-AD-07: the silently-improvised custom path is the recorded failure — Option C is DECLARED in the contract, capped and labeled. |
 | "Same signature as the last analysis — same route" | A trap-sweep hit (T2/T5/T10) changes the route entirely; similarity is not routing. |
 
-**BEFORE routing, run the trap-sweep** (`workflow/checklists/physics-traps.md` T1–T12, protocol
-P3 of `checklists/judgment-protocols.md`): interference, long-lived, broken simplified-model
+**BEFORE routing, run the trap-sweep** (`docs/workflow/checklists/physics-traps.md` T1–T12, protocol
+P3 of `docs/workflow/checklists/judgment-protocols.md`): interference, long-lived, broken simplified-model
 purity, trigger floors, shape-fit stats, compressed-ISR, dark showers, wide widths, σ×BR
 conventions, non-standard objects — a hit CHANGES the route (T2 → efficiency-map folding, T5 →
 the named refusal, T10 → Option C or the block) and becomes a numbered CHECK-IN flag. Record
@@ -23,13 +23,13 @@ the named refusal, T10 → Option C or the block) and becomes a numbered CHECK-I
 
 ## 1. Resolve the routine — both ecosystems at once
 ```bash
-python3 trial-runs/_infrastructure/routine_fetch.py --query "<ATLAS-SUSY-20XX-XX | insNNNN>"
+python3 scripts/run.py ravel.workflow.routine_fetch --query "<ATLAS-SUSY-20XX-XX | insNNNN>"
 ```
 `routine_fetch` matches **analysis CODES / literal ids, not physics vocabulary**. On 0 hits:
 - extract the analysis CODE from the paper/HEPData landing page (hepdata.net search; the Rivet
   id's `_I<NNNN>` suffix ↔ `ins<NNNN>`), re-query with the code — NEVER conclude "no routine"
   from a vocabulary query;
-- still 0 → check the SimpleAnalysis catalogue (`workflow/analysis-simpleanalysis/`) and the
+- still 0 → check the SimpleAnalysis catalogue (`docs/workflow/analysis-simpleanalysis/`) and the
   Rivet share directly (`rivet --show-analysis`, substring hunt);
 - genuinely no routine → the **no_routine route** (below), declared in the contract, never
   improvised silently.
@@ -38,19 +38,19 @@ python3 trial-runs/_infrastructure/routine_fetch.py --query "<ATLAS-SUSY-20XX-XX
 - Rivet routine ships → `rivet-smearing`; check `rivet --show-analysis` Status flags
   (SINGLEWEIGHT/NOTREENTRY → run-stage skill knows the flags).
 - SimpleAnalysis routine → `simpleanalysis-delphes-native` when a native port exists (today:
-  EwkCompressed2018/slepton — `workflow/reference/native-pipeline.md` scope; CR-005), else
+  EwkCompressed2018/slepton — `docs/workflow/reference/native-pipeline.md` scope; CR-005), else
   `container` (legacy fallback, ~9 h/pt sequential — say so in the plan).
 - Stat: serialized pyhf workspace on HEPData (`hepdata_fetch.py` resources) →
   `published-likelihood`; else `best-sr-counting`/`combined-counting` (exclusive SRs);
   shape/template-fit paper → **`shape-fit`** — route to the `shape_fit.py` engine (Option B,
-  `framework/DECISION-SHAPE-FIT.md`), NOT a blanket refusal. Two per-analysis gates: (1)
+  `docs/development/decisions/shape-fit.md`), NOT a blanket refusal. Two per-analysis gates: (1)
   REPRESENTABILITY — the engine handles binned 1-D shape/bump fits; an unbinned/multi-observable/
   NN-based fit DOWNGRADES to `blocked-shape-fit` with the reason named; (2) R5 — no limit ships
   until the engine reproduces the paper's own published fit within tolerance (`shape_fit.py`
   prints the gate; engine R5-validated on ins2813982, CR-027). Until R5 closes, the
   generator-level shape comparison + `sensitivity-expected-only` is the shippable offer
-  (precedent + boundary: `framework/interrogations/generality.md`).
-- Detector-fidelity gate (step 3.5, `workflow/checklists/detector-fidelity.md`) applies to
+  (precedent + boundary: `docs/research/reviews/generality.md`).
+- Detector-fidelity gate (step 3.5, `docs/workflow/checklists/detector-fidelity.md`) applies to
   WHICHEVER path wins — name it in the plan.
 
 ## 3. The no_routine route (Option C — custom particle-level)

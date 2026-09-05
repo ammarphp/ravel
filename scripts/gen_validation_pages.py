@@ -15,7 +15,7 @@ def render(root=ROOT):
     summary = summarize(cases, results)
     stats, axe = summary['statistical_layer'], summary['acceptance_layer']
     index = ['# Benchmark validation', '',
-             'Generated from the committed historical `framework/benchmark/{cases.json,results.json}`.',
+             'Generated from the committed historical `benchmarks/{cases.json,results.json}`.',
              f"Baseline timestamp: `{baseline.get('generated', 'not recorded')}`. These pages do not claim a fresh replay.", '',
              f'All {len(cases)} registered cases are listed, including failures and unscorable comparisons.',
              f"The {stats['comparisons']} observed model-independent S95 comparisons span "
@@ -25,7 +25,7 @@ def render(root=ROOT):
              f"recorded cert verdicts are {axe['verdict_counts']}.",
              'Acceptance certification, the regression tier, and numerical stability are separate judgments.', '',
              'The end-to-end mass-plane result is recorded separately in the',
-             '[flagship scan](../../trial-runs/sleptonscan_fig3_SCAN/RESULT.md): 24.9% median same-basis',
+             '[flagship scan](../../evidence/scans/slepton-bino-figure-3/RESULT.md): 24.9% median same-basis',
              'cross-section-limit residual over 50 reference-matched cells from a 52-point scan.', '',
              '| Case | Observed S95 deviation | Acceptance verdict | Baseline gate |',
              '|---|---|---|---|']
@@ -38,7 +38,7 @@ def render(root=ROOT):
         ratio = lim.get('s95_ratio_obs')
         delta = f'{abs(1-ratio)*100:.1f}%' if ratio is not None else 'unscorable'
         cert_label = cert.get('cert_verdict', 'missing') if cert else 'unscorable'
-        index.append(f"| [{cid}]({cid}.md) | {delta} | {cert_label} | {r.get('status')} |")
+        index.append(f"| [{cid}](cases/{cid.replace("_", "-")}.md) | {delta} | {cert_label} | {r.get('status')} |")
         page = [f'# Benchmark: `{cid}`', '',
                 f"- Analysis: `{c['analysis_id']}`; routine: `{c['routine']}`.",
                 f"- Model: {c.get('model', 'see registry')}; masses (parent, LSP): "
@@ -64,11 +64,11 @@ def render(root=ROOT):
         if c.get('public_note'):
             page += ['', c['public_note']]
         page += ['', '## Reproduce', '', '```bash',
-                 f'python3 framework/benchmark/run_benchmark.py --case {cid}', '```', '',
+                 f'python3 scripts/run.py ravel.validation.benchmark --case {cid}', '```', '',
                  "The public quickstart ships the fast case's cached inputs. Other cases require the",
                  'development evidence named in the registry; absent inputs must produce a failure.',
                  'This command re-fits cached inputs. Fresh generation and detector validation are separate work.', '']
-        pages[f'{cid}.md'] = '\n'.join(page)
+        pages[f'cases/{cid.replace(chr(95), chr(45))}.md'] = '\n'.join(page)
     pages['README.md'] = '\n'.join(index) + '\n'
     return pages, summary
 
@@ -83,7 +83,7 @@ def main():
         print(f'validation pages: FAIL: {exc}', file=sys.stderr)
         return 1
     outputs = {ROOT / 'docs/validation' / name: text for name, text in pages.items()}
-    outputs[ROOT / 'results/validation-summary.json'] = json.dumps(summary, indent=2, allow_nan=False) + '\n'
+    outputs[ROOT / 'evidence/validation-summary.json'] = json.dumps(summary, indent=2, allow_nan=False) + '\n'
     stats, axe = summary['statistical_layer'], summary['acceptance_layer']
     verdicts = axe['verdict_counts']
     body = (f"{summary['registry_cases']} cases are registered in the historical benchmark baseline. "
@@ -92,8 +92,8 @@ def main():
             f"{axe['scorable']} cases ({verdicts['PASS']} PASS, {verdicts['WARN']} WARN, "
             f"{verdicts['FAIL']} FAIL), and unscorable in {axe['unscorable']}. These are historical "
             "measurements, not a fresh end-to-end reproduction claim. All cases, including failed "
-            "certifications, appear in [validation pages](../docs/validation/README.md).\n")
-    status = ROOT / 'framework/STATUS.md'
+            "certifications, appear in [validation pages](../validation/README.md).\n")
+    status = ROOT / 'docs/development/status.md'
     status_text = status.read_text()
     pattern = r'(<!-- VALIDATION-STATUS:BEGIN -->\n).*?(<!-- VALIDATION-STATUS:END -->)'
     if len(re.findall(pattern, status_text, re.S)) != 1:
@@ -108,7 +108,7 @@ def main():
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text)
-    extra = set((ROOT / 'docs/validation').glob('*.md')) - set(outputs)
+    extra = set((ROOT / 'docs/validation/cases').glob('*.md')) - set(outputs)
     stale.extend(str(p.relative_to(ROOT)) + ' (unregistered page)' for p in sorted(extra))
     if stale:
         print('validation pages: FAIL: ' + ', '.join(stale))

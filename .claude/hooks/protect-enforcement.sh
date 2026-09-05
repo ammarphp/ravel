@@ -18,11 +18,11 @@ path = ti.get('file_path') or ti.get('notebook_path') or ''
 if not path:
     print('allow'); raise SystemExit
 p = os.path.abspath(path)
-ENF = re.compile(r'/\.claude/settings\.json$|/\.claude/hooks/|/framework/spine_sim/'
-                 r'|/framework/green_board\.py$|/Makefile$'
-                 r'|/trial-runs/_infrastructure/(validate_run_state|stop_dispatch|workflow_state'
-                 r'|validate_checkin|validate_parameters|provenance|stage_supervisor'
-                 r'|preflight_watcher|resource_census|verify_pack|figure_target|lhe_check)\.py$')
+ENF = re.compile(r'/\.claude/settings\.json$|/\.claude/hooks/|/tests/adversarial/'
+                 r'|/scripts/(green_board|check_publication|check_repository|check_evidence|export_safety)\.py$|/Makefile$'
+                 r'|/src/ravel/(validation|workflow)/[^/]+\.py$'
+                 r'|/src/ravel/plotting/figure_target\.py$'
+                 r'|/src/ravel/(paths|evidence_layout|_bootstrap)\.py$')
 if not ENF.search(p):
     print('allow'); raise SystemExit
 repo = sys.argv[1]

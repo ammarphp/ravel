@@ -16,7 +16,7 @@ goal is the strongest version of the right ideas, not agreeable execution of eve
 2. **Placement — where in the workflow does it live?** Pre-analysis (setup/gate before compute),
    during-analysis (a stage), or post-analysis (a check-in that may trigger a re-run/adjustment)? Name
    the exact step/checklist. If it changes SCOPE (a new task/detector/stat mode, a refusal line, a
-   fidelity label), it lands in `PRODUCT-CONTRACT.md` first. A change with no clear home is usually
+   fidelity label), it lands in `docs/reference/scope.md` first. A change with no clear home is usually
    premature.
 3. **Additivity — how much marginal value over what exists?** Does it duplicate or overlap an existing
    tool/step? Quantify the delta. "Nice but redundant" is a decline.
@@ -30,7 +30,7 @@ goal is the strongest version of the right ideas, not agreeable execution of eve
    invented one.) State it. For trigger/routing/escalation WORDING changes (skill descriptions,
    intake routing), the strongest form is MEASURED: should/shouldn't-trigger prompts weighted
    toward near-misses, split train/held-out so the wording isn't tuned to its own test set —
-   `framework/ROUTING-EVALS.md` is the live harness.
+   `docs/research/routing-evaluation.md` is the live harness.
 
 ## The verdict
 Conclude with one of: **ADOPT** (build it, in the strongest form, at the named placement) · **ADAPT**
@@ -51,6 +51,6 @@ delivered until it's in the workflow and committed.
 
 ## Stop conditions
 - The suggestion changes SCOPE (task/detector/stat mode, a refusal line, a fidelity label) →
-  it lands as a `PRODUCT-CONTRACT.md` row BEFORE any build starts.
+  it lands as a `docs/reference/scope.md` row BEFORE any build starts.
 - No named concrete failure/gap after question 1 → the verdict cannot be ADOPT; it is DEFER
   (name the trigger) or DECLINE.

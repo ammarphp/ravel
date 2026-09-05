@@ -9,7 +9,7 @@ allowed-tools: Bash, Read
 Compute is the scarce resource and the physicist approves its budget at CHECK-IN 1 (charter
 F5). Numbers come from the measured model, never from vibes:
 ```bash
-python3 trial-runs/_infrastructure/cost_preflight.py --mode <none|dry|smoke|full|scan> \
+python3 scripts/run.py ravel.workflow.cost_preflight --mode <none|dry|smoke|full|scan> \
   [--points N] [--events E] [--backend native|container] [--parallel M] [--json]
 ```
 

@@ -6,7 +6,10 @@ allowed-tools: Bash, Read, Edit, Write
 ---
 # Skill — run a pipeline stage
 
-`CONDA=stages/01-event-generation/build/tools/miniforge3/bin/conda`. Full domain detail:
+Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
+this selects the native build and binary paths, including an existing local toolchain.
+
+`CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda`. Full domain detail:
 `.claude/rules/madgraph-pythia.md`. Long jobs always run in the **background** (`timeout` is
 absent here) and buffer to their own log — poll it, don't block. Background long jobs via the harness
 `run_in_background`, **NOT** `nohup`/`start_new_session`; a detached job is admissible ONLY with a
@@ -17,8 +20,8 @@ detached entries).
 
 ## Generate (env `mg5`)
 1. Steering `.mg5`: `import model …`, `generate …` (+ `add process … j`/`… j j` if ≥4-jet SRs —
-   `workflow/checklists/merging.md`), `output <procdir> -f -nojpeg`.
-2. `$CONDA run -n mg5 stages/01-event-generation/build/tools/mg5amcnlo/bin/mg5_aMC <steering.mg5>`
+   `docs/workflow/checklists/merging.md`), `output <procdir> -f -nojpeg`.
+2. `$CONDA run -n mg5 $RAVEL_NATIVE_BUILD/tools/mg5amcnlo/bin/mg5_aMC <steering.mg5>`
    (the absolute binary path — an env-relative `$CONDA_PREFIX/..` idiom does NOT resolve here).
 3. `cp <param_card_copy> <procdir>/Cards/param_card.dat`; edit `run_card.dat` with a **keyed
    Python** edit (not greedy sed): `nevents`, `ebeam1/2`=½√s, `iseed`, `use_syst=False`, and for
@@ -28,7 +31,7 @@ detached entries).
 4. **Verify — mechanically, not by eye**: `Events/<run>/` non-empty (MG can report done with
    an empty events dir), then the MANDATORY pre-shower gate:
    ```bash
-   $CONDA run -n rivet python trial-runs/_infrastructure/lhe_check.py \
+   $CONDA run -n rivet python scripts/run.py ravel.validation.lhe_check \
      <procdir>/Events/<run>/unweighted_events.lhe.gz --expect-mass <PDG>:<mass> [...]
    ```
    It asserts first-event + banner masses (width-aware: the event tolerance auto-widens to 3Γ
@@ -40,7 +43,7 @@ detached entries).
    be silently skipped (CR-116).
 
 ## Shower (env `rivet`)
-- Plain: `$CONDA run -n rivet trial-runs/_infrastructure/pythia_shower <cfg> <out.hepmc> <N>`.
+- Plain: `$CONDA run -n rivet $RAVEL_NATIVE_BIN/pythia_shower <cfg> <out.hepmc> <N>`.
 - **`<N>` is MANDATORY (🔴 silent trap, CR-145)**: with no count (arg or cfg
   `Main:numberOfEvents`), Pythia's default showers exactly **1000** of the LHE's N events with
   exit 0 — per-σ normalization survives, statistics are silently 1000/N. Pass `<N>` = the LHE
@@ -57,18 +60,18 @@ detached entries).
   weight" log line.
 
 ## Analyze — Option B: SimpleAnalysis (native DEFAULT; container fallback)
-- **Native (the step-8 default; scope: `workflow/reference/native-pipeline.md`)** — a single
+- **Native (the step-8 default; scope: `docs/workflow/reference/native-pipeline.md`)** — a single
   point end-to-end:
   ```bash
-  python3 trial-runs/_infrastructure/prepare_native_slepton.py --rundir <abs> \
+  python3 scripts/run.py ravel.physics.prepare_native_slepton --rundir <abs> \
     --m-parent <M> --m-lsp <M> --nevents <N> --toml <config.toml>   # applies run.options (CR-002)
-  bash trial-runs/_infrastructure/run-pipeline-native.sh <abs-rundir> <config-rel>
+  bash native/scripts/run-pipeline-native.sh <abs-rundir> <config-rel>
   ```
   The driver chains MadGraph → lhe_check gate → Pythia → Delphes → Delphes2SA → native
   SimpleAnalysis → sa2json → pyhf, writing `logs/STATUS.txt` + `output/exclusion.json`;
   a grid of points goes through `scan_orchestrator.py` (the `run-scan` skill).
   - **Self-catches hangs (G6/D6 CATCH).** Each `run_stage` is wrapped by
-    `trial-runs/_infrastructure/stage_supervisor.py` — since `timeout` is absent here, this python
+    `src/ravel/workflow/stage_supervisor.py` — since `timeout` is absent here, this python
     subprocess supervisor polls wall-clock + progress-stall + exit-0-plausibility against per-stage
     kill thresholds derived from `cost_preflight` (`stage_budget_min`), SIGTERM→SIGKILLs a hung
     stage, writes `logs/<stage>.failure.json` (+ a `next_action`), records the open failure to the
@@ -78,10 +81,10 @@ detached entries).
     unchanged either way). A recovered point is reset by removing `logs/STATUS.txt` (or via
     `scan_babysitter.py`'s HEAL loop) so the babysitter re-runs it.
 - **Container (legacy, other SA analyses only)**: `run-pipeline.sh` via mapyde/podman —
-  ~9 h/point, sequential; see `workflow/analysis-simpleanalysis/`.
+  ~9 h/point, sequential; see `docs/workflow/analysis-simpleanalysis/`.
 
 Record σ, seeds, tool versions and the σ source in the run's `RESULT.md` — that is the audit's
-**R5 provenance** requirement (`framework/STATUS.md` rigor table; scored by `framework/audit.py`).
+**R5 provenance** requirement (`docs/development/status.md` rigor table; scored by `scripts/audit.py`).
 Then `certify` the run.
 
 ## Red flags (you are rationalizing — stop)

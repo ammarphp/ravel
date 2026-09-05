@@ -58,7 +58,7 @@ except ValueError:
 gen = None
 try:
     spec = importlib.util.spec_from_file_location(
-        'rc_guard', os.path.join(repo, 'trial-runs', '_infrastructure', 'resource_census.py'))
+        'rc_guard', os.path.join(repo, 'src', 'ravel', 'workflow', 'resource_census.py'))
     rc = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(rc)
     gen = bool(rc.GEN_LAUNCH_RE.search(cmd))
@@ -94,14 +94,14 @@ marker = os.path.join(repo, 'logs', '.route-pending-' + session) if session else
 if rd is None:
     if marker and os.path.isfile(marker):
         print('block:generation BEFORE intake -- this session has no run/contract yet. '
-              'Fire physicist-intake first (workflow/INITIATE.md).')
+              'Fire physicist-intake first (docs/workflow/start.md).')
     else:
         print('allow')
     raise SystemExit
 contract = None
 try:
     contract_spec = importlib.util.spec_from_file_location(
-        'task_contract_guard', os.path.join(repo, 'trial-runs', '_infrastructure', 'validate_task_contract.py'))
+        'task_contract_guard', os.path.join(repo, 'src', 'ravel', 'validation', 'validate_task_contract.py'))
     contract_validator = importlib.util.module_from_spec(contract_spec)
     contract_spec.loader.exec_module(contract_validator)
 except Exception as e:
@@ -127,13 +127,13 @@ if plan not in ('smoke', 'full', 'scan'):
 if plan in ('smoke', 'full', 'scan') and not os.path.isfile(
         os.path.join(rd, 'inputs', 'checkin1_approval.json')):
     print('block:UNAPPROVED ' + plan + ' generation -- record the go-ahead first: '
-          'python3 trial-runs/_infrastructure/workflow_state.py approve --rundir '
+          'python3 src/ravel/workflow/workflow_state.py approve --rundir '
           + os.path.relpath(rd, repo) + ' --quote \"<the physicist reply>\" '
           '(requires a valid checkin1.json + cost_preflight.json).')
     raise SystemExit
 try:
-    sys.path.insert(0, os.path.join(repo, 'trial-runs', '_infrastructure'))
-    import workflow_state
+    sys.path.insert(0, os.path.join(repo, 'src'))
+    from ravel.workflow import workflow_state
     approval_errors = workflow_state.verify_approval(rd, required_plan='scan' if explicit_scan else None)
 except Exception as e:
     print('block:approval verifier is unavailable or failed: ' + str(e))

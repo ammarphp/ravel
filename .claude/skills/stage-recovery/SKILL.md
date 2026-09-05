@@ -10,20 +10,20 @@ The failure this kills: on a diagnosed stage failure the external fix-search is 
 so a public recipe/UFO/restrict-card/known-fix that would repair it sits unexamined while the run
 improvises. RESOLVE means the two branches run **in parallel, both first-class**.
 
-1. **Record the failure.** `python3 trial-runs/_infrastructure/workflow_state.py record --kind failure
+1. **Record the failure.** `python3 scripts/run.py ravel.workflow.workflow_state record --kind failure
    --payload '{"stage":"<madgraph|pythia|delphes|...>","logfile":"logs/<stage>.log","failure_class":
    "tool_generator_model|other"}'` — this appends to `run_state.open_failure_records`.
 2. **Branch A — local diagnosis (judgment-protocols P: discrepancy-decomposition / anchor-chain).**
    Read the stage log; check the known traps (SLHA width-only DECAY, `MSOFT` mass override, `xqcut`
    merging, env-trap generation outside the mg5 env — `.claude/rules/madgraph-pythia.md`).
 3. **Branch B — external recipe search (CO-PRIMARY, run at the SAME time as A):**
-   `python3 trial-runs/_infrastructure/resource_census.py --debug recipe-search --tool <tool>
+   `python3 scripts/run.py ravel.workflow.resource_census --debug recipe-search --tool <tool>
    --model <model> --symptom "<symptom keywords>" --rundir <rundir>` — writes
    `inputs/recipe_search.json` (GitHub code search finds recipes hidden in recast run configs;
    INSPIRE finds theses/recasts). LOOK at the hits before concluding "the tool is broken".
 4. **Close-block (mandatory for a generator-model failure).** You may NOT close a `tool_generator_model`
    failure until `inputs/recipe_search.json` exists:
-   `python3 trial-runs/_infrastructure/resource_census.py --assert-recipe-search --rundir <rundir>`
+   `python3 scripts/run.py ravel.workflow.resource_census --assert-recipe-search --rundir <rundir>`
    must exit 0. The Stop-dispatcher runs this at turn-end; a nonzero exit blocks the close.
 5. **Apply + re-run + record the resolution** (postmortem-capture at run close): what the recipe search
    found, what fixed it, and a DEVIATIONS.md entry if the fix changed the plan.

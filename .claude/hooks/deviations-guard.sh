@@ -12,7 +12,7 @@ except Exception:
 ti = d.get("tool_input") or {}
 print(ti.get("file_path") or ti.get("path") or "")')"
 [ -z "$path" ] && exit 0
-VRS="$CLAUDE_PROJECT_DIR/trial-runs/_infrastructure/validate_run_state.py"
+VRS="$CLAUDE_PROJECT_DIR/src/ravel/validation/validate_run_state.py"
 [ -f "$VRS" ] || exit 0
 if python3 "$VRS" --edit-guard "$path"; then
   exit 0            # exit 0 from --edit-guard == allow
