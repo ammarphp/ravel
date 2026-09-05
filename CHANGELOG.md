@@ -6,7 +6,7 @@
   `ravel audit` commands. Cached replay works outside a checkout; the native pipeline remains
   the default for full simulation. Replay dependencies are version- and hash-locked.
 - Enforced task-contract schema and strict JSON at approval, lifecycle, and pre-execution
-  boundaries; malformed contracts and generation beyond declared scope fail closed.
+  boundaries. Known generation entry points reject missing, stale or unbound approval records.
 - Distinguished statistical S95 recovery, acceptance certification, and mass-plane fidelity.
   All nine benchmark cases now have generated pages, including failures and unscorable cases.
 - Required shipped physics evidence itself, checked manifest completeness against source

@@ -41,6 +41,15 @@ is separate from the historical accepted baseline:
 | `conf2016037_gluino_2step_sleptons_1400_60` | BREACH | Required `outputs/analysis_patched.yoda` is missing. |
 | `ins2182381_gbb_1900_1` | Regression OK; certification FAIL | The 26.5% acceptance residual meets the locked Acceptable floor, but it does not become a certification PASS. |
 
+A bounded recovery search of the DSRLab development/public checkouts, two worktrees, five
+backup archives, reachable Git history and reflogs found no replacement for either missing
+YODA artifact. None of 41 accessible YODA files, including decompressed gzip contents,
+matched the C1N2 result record's MD5 `4c7c5ed79b005335a71d45910b65855b` or contained
+either target analysis path. A July 12 ignored-file inventory lists both exact missing paths,
+but the inspected archives contain provenance records without the YODA bytes. No expected
+CONF037 YODA digest was found in the inspected records. This was a bounded local search,
+not proof that no external backup exists; neither artifact was substituted or regenerated.
+
 All nine [generated validation pages](../validation/README.md) distinguish observed
 model-independent S95 recovery, acceptance certification, numerical repeatability, and
 cross-section limits. Seven S95 comparisons within 8.6% validate the statistical/data-input

@@ -129,3 +129,6 @@ cached-input allowlist. The new CLI uses its own interpreter and writes replay o
 new user-selected directory. This does not alter the native MadGraph/Pythia/Delphes/Rivet stack.
 The recorded full HEP environment remains an inventory, not a verified cross-platform lock.
 Recipe and runtime verification: `docs/CLI.md`; scientific scope: `docs/development/2026-09-05-hardening.md`.
+CI uses Ubuntu 24.04 and Python 3.12 with the locked audit/replay dependencies. Checkout 7.0.1
+and setup-python 7.0.0 are pinned by full commit SHA and use Node 24. The package job installs
+the built wheel and runs its console entry point outside the checkout.
