@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "kind": "observed",
+  "planned": 52,
+  "recorded": 52,
+  "missing_scan_points": 0,
+  "counts": {
+    "matched": 50,
+    "quality_flag": 2,
+    "invalid_input": 0,
+    "unmatched_reference": 0
+  },
+  "matched_fraction_of_plan": 0.9615384615384616,
+  "median_absolute_residual": 0.24924755409103866,
+  "reference_matching": "exact, 0.05 GeV tolerance; no interpolation or extrapolation",
+  "contour_interpolation": "piecewise linear; triangles touching unsupported lattice vertices masked",
+  "records": [
+    {
+      "tag": "m50_dm2",
+      "m_parent": 50.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 1083.3999999999999,
+      "limit_fb": 991.416138387357,
+      "residual": -0.0849029551528917
+    },
+    {
+      "tag": "m50_dm5",
+      "m_parent": 50.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 526.9200000000001,
+      "limit_fb": 989.7770654954294,
+      "residual": 0.8784199982832863
+    },
+    {
+      "tag": "m60_dm2",
+      "m_parent": 60.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 707.51,
+      "limit_fb": 831.919738658896,
+      "residual": 0.17584166818687508
+    },
+    {
+      "tag": "m60_dm5",
+      "m_parent": 60.0,
+      "dm": 5.0,
+      "status": "quality_flag"
+    },
+    {
+      "tag": "m70_dm2",
+      "m_parent": 70.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 568.9300000000001,
+      "limit_fb": 488.8700920378915,
+      "residual": -0.1407201377359404
+    },
+    {
+      "tag": "m70_dm5",
+      "m_parent": 70.0,
+      "dm": 5.0,
+      "status": "quality_flag"
+    },
+    {
+      "tag": "m90_dm20",
+      "m_parent": 90.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 358.95,
+      "limit_fb": 283.43197133239477,
+      "residual": -0.21038592747626472
+    },
+    {
+      "tag": "m90_dm40",
+      "m_parent": 90.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 2499.2999999999997,
+      "limit_fb": 413.33726370184087,
+      "residual": -0.834618787779842
+    },
+    {
+      "tag": "m100_dm2",
+      "m_parent": 100.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 238.13,
+      "limit_fb": 348.1420828045565,
+      "residual": 0.46198329821759754
+    },
+    {
+      "tag": "m100_dm5",
+      "m_parent": 100.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 90.003,
+      "limit_fb": 103.13478304472902,
+      "residual": 0.1459038370357546
+    },
+    {
+      "tag": "m100_dm10",
+      "m_parent": 100.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 96.834,
+      "limit_fb": 68.49550317404207,
+      "residual": -0.29265027599766535
+    },
+    {
+      "tag": "m100_dm20",
+      "m_parent": 100.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 320.95,
+      "limit_fb": 199.88617325302283,
+      "residual": -0.3772046323320678
+    },
+    {
+      "tag": "m100_dm30",
+      "m_parent": 100.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 920.14,
+      "limit_fb": 270.3865893659021,
+      "residual": -0.7061462501729061
+    },
+    {
+      "tag": "m100_dm40",
+      "m_parent": 100.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 1134.2,
+      "limit_fb": 548.8420635397085,
+      "residual": -0.5160976339801547
+    },
+    {
+      "tag": "m125_dm2",
+      "m_parent": 125.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 168.15,
+      "limit_fb": 118.94043868163727,
+      "residual": -0.29265275836076554
+    },
+    {
+      "tag": "m125_dm5",
+      "m_parent": 125.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 76.247,
+      "limit_fb": 70.50308094903853,
+      "residual": -0.07533304983752098
+    },
+    {
+      "tag": "m125_dm10",
+      "m_parent": 125.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 66.653,
+      "limit_fb": 57.2576123399797,
+      "residual": -0.14095971164119103
+    },
+    {
+      "tag": "m125_dm20",
+      "m_parent": 125.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 204.88,
+      "limit_fb": 126.188551279904,
+      "residual": -0.3840855560332682
+    },
+    {
+      "tag": "m125_dm30",
+      "m_parent": 125.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 498.28,
+      "limit_fb": 235.4755471285443,
+      "residual": -0.5274232416943399
+    },
+    {
+      "tag": "m125_dm40",
+      "m_parent": 125.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 552.63,
+      "limit_fb": 439.2169094060657,
+      "residual": -0.2052242740964737
+    },
+    {
+      "tag": "m150_dm2",
+      "m_parent": 150.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 121.06,
+      "limit_fb": 86.49385960828877,
+      "residual": -0.28552899712300706
+    },
+    {
+      "tag": "m150_dm5",
+      "m_parent": 150.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 51.446,
+      "limit_fb": 59.81654547834596,
+      "residual": 0.16270546744831393
+    },
+    {
+      "tag": "m150_dm10",
+      "m_parent": 150.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 46.633,
+      "limit_fb": 31.311369949824392,
+      "residual": -0.32855767482631637
+    },
+    {
+      "tag": "m150_dm20",
+      "m_parent": 150.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 128.33,
+      "limit_fb": 101.8077078959926,
+      "residual": -0.20667257931900107
+    },
+    {
+      "tag": "m150_dm25p7",
+      "m_parent": 150.0,
+      "dm": 25.700000000000003,
+      "status": "matched",
+      "reference_fb": 200.2,
+      "limit_fb": 131.7015246845447,
+      "residual": -0.3421502263509255
+    },
+    {
+      "tag": "m150_dm30",
+      "m_parent": 150.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 334.09,
+      "limit_fb": 273.4893639515494,
+      "residual": -0.18139015249917856
+    },
+    {
+      "tag": "m150_dm40",
+      "m_parent": 150.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 545.11,
+      "limit_fb": 209.51922655093256,
+      "residual": -0.6156386297243996
+    },
+    {
+      "tag": "m175_dm2",
+      "m_parent": 175.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 82.24199999999999,
+      "limit_fb": 69.26965073692351,
+      "residual": -0.1577338739704346
+    },
+    {
+      "tag": "m175_dm5",
+      "m_parent": 175.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 49.546,
+      "limit_fb": 32.20709828200977,
+      "residual": -0.34995563149376807
+    },
+    {
+      "tag": "m175_dm10",
+      "m_parent": 175.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 33.589,
+      "limit_fb": 29.35025714109173,
+      "residual": -0.1261943749116755
+    },
+    {
+      "tag": "m175_dm20",
+      "m_parent": 175.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 85.084,
+      "limit_fb": 76.68600711886562,
+      "residual": -0.09870237507797452
+    },
+    {
+      "tag": "m175_dm30",
+      "m_parent": 175.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 302.47,
+      "limit_fb": 171.51083784232017,
+      "residual": -0.432965788863953
+    },
+    {
+      "tag": "m175_dm40",
+      "m_parent": 175.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 268.23,
+      "limit_fb": 240.3087789968347,
+      "residual": -0.10409432577700228
+    },
+    {
+      "tag": "m200_dm2",
+      "m_parent": 200.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 79.242,
+      "limit_fb": 56.97765054840687,
+      "residual": -0.280966525978561
+    },
+    {
+      "tag": "m200_dm5",
+      "m_parent": 200.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 38.733,
+      "limit_fb": 34.27738782017661,
+      "residual": -0.11503400665642705
+    },
+    {
+      "tag": "m200_dm10",
+      "m_parent": 200.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 37.495,
+      "limit_fb": 32.077850420139946,
+      "residual": -0.14447658567435795
+    },
+    {
+      "tag": "m200_dm20",
+      "m_parent": 200.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 78.76700000000001,
+      "limit_fb": 45.445781921092745,
+      "residual": -0.42303525688305077
+    },
+    {
+      "tag": "m200_dm30",
+      "m_parent": 200.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 147.31,
+      "limit_fb": 122.90131857896621,
+      "residual": -0.1656960248525816
+    },
+    {
+      "tag": "m200_dm40",
+      "m_parent": 200.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 150.01,
+      "limit_fb": 133.5033755315833,
+      "residual": -0.1100368273342891
+    },
+    {
+      "tag": "m225_dm2",
+      "m_parent": 225.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 53.833,
+      "limit_fb": 52.32994818452864,
+      "residual": -0.02792064004367878
+    },
+    {
+      "tag": "m225_dm5",
+      "m_parent": 225.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 35.82,
+      "limit_fb": 26.159181118936477,
+      "residual": -0.2697046030447662
+    },
+    {
+      "tag": "m225_dm10",
+      "m_parent": 225.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 30.735,
+      "limit_fb": 23.202701956643,
+      "residual": -0.2450723293755327
+    },
+    {
+      "tag": "m225_dm20",
+      "m_parent": 225.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 77.102,
+      "limit_fb": 45.69299109521336,
+      "residual": -0.4073695741327935
+    },
+    {
+      "tag": "m225_dm30",
+      "m_parent": 225.0,
+      "dm": 30.0,
+      "status": "matched",
+      "reference_fb": 189.95999999999998,
+      "limit_fb": 103.45922650259956,
+      "residual": -0.4553630948483913
+    },
+    {
+      "tag": "m225_dm40",
+      "m_parent": 225.0,
+      "dm": 40.0,
+      "status": "matched",
+      "reference_fb": 304.34,
+      "limit_fb": 101.86116617022041,
+      "residual": -0.6653047047045395
+    },
+    {
+      "tag": "m250_dm2",
+      "m_parent": 250.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 39.794000000000004,
+      "limit_fb": 35.56474989190773,
+      "residual": -0.1062785874275588
+    },
+    {
+      "tag": "m250_dm5",
+      "m_parent": 250.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 35.652,
+      "limit_fb": 23.294198395141652,
+      "residual": -0.3466229553701994
+    },
+    {
+      "tag": "m250_dm10",
+      "m_parent": 250.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 22.349999999999998,
+      "limit_fb": 18.408422898713212,
+      "residual": -0.1763569172835251
+    },
+    {
+      "tag": "m250_dm20",
+      "m_parent": 250.0,
+      "dm": 20.0,
+      "status": "matched",
+      "reference_fb": 61.205000000000005,
+      "limit_fb": 45.69425882314544,
+      "residual": -0.2534227788065446
+    },
+    {
+      "tag": "m300_dm2",
+      "m_parent": 300.0,
+      "dm": 2.0,
+      "status": "matched",
+      "reference_fb": 53.641,
+      "limit_fb": 42.912358062663714,
+      "residual": -0.2000082387974923
+    },
+    {
+      "tag": "m300_dm5",
+      "m_parent": 300.0,
+      "dm": 5.0,
+      "status": "matched",
+      "reference_fb": 32.372,
+      "limit_fb": 24.475923218929474,
+      "residual": -0.24391686584302874
+    },
+    {
+      "tag": "m300_dm10",
+      "m_parent": 300.0,
+      "dm": 10.0,
+      "status": "matched",
+      "reference_fb": 22.643,
+      "limit_fb": 15.643458954117207,
+      "residual": -0.3091260453951682
+    }
+  ]
+}

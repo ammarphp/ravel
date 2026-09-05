@@ -1,6 +1,18 @@
 # Changelog
 
-## Unreleased
+## v0.3.0 — 2026-09-05
+
+- Expand README with installation, draft initiation, cached replay, and real result artifacts.
+- Add `ravel initiate` with validated draft contracts and no-overwrite lifecycle initialization.
+- Correct the eRJR invisible-momentum boost; publish the identical-event differential and remaining acceptance failure.
+- Preserve native nominal weights, sumw/sumw2, signal eta, and supported identification requirements.
+- Refine CLs roots and record fit/crossing diagnostics; reject invalid numerical inputs and incomplete acceptance comparisons.
+- Use exact reference populations and supported linear contours, with rendering and scientific-geometry regressions.
+- Repair all active scan-template paths and dry-plan each specification.
+- Add pinned landscape and implementation reports without claiming statistical superiority.
+
+
+### Repository organization included in this release
 
 - Reorganized active implementations into the `ravel` Python package, with separate native
   tooling, environment provisioning, benchmarks, tests, documentation, and evidence trees.

@@ -94,7 +94,8 @@ def public_directory(selection):
     """An index of the actual public files, rather than the private workspace map."""
     lines = ['# Repository directory', '',
              'Generated from `evidence/collections.json` during distribution export.',
-             'Historical evidence is read-only. New runs use a per-run `run_state.json` ledger.', '']
+             'Historical evidence is read-only. New runs use a per-run `run_state.json` ledger.',
+             'README demonstrations write to ignored `local-runs/`; these local outputs are not exported.', '']
     files = sorted(destination for _source, destination in selection)
     lines += ['## Root files', '', '| File | Purpose |', '|---|---|']
     for relative in files:

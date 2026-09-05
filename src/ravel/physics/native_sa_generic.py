@@ -53,7 +53,7 @@ import sys
 # reuse the VALIDATED framework primitives -- never re-implement them. (CR-005: they now live in
 # sa_native_core, the shared layer under BOTH the flagship port and this engine.)
 from .sa_native_core import (Obj, filterObjects, overlapRemoval, invmass, calcMT,   # noqa: E402
-                            minDphi, ELECTRON, MUON, ME, MMU)
+                            minDphi, ELECTRON, MUON, ME, MMU, summarize_weights)
 JET = 2   # jet type tag (native_simpleanalysis types only leptons; jets are a separate collection)
 
 
@@ -81,7 +81,7 @@ def compute_vars(sig_el, sig_mu, sig_jet, sig_bjet, met):
         "dphiMin": minDphi(met, jets[:4]) if jets else 9.99,
         "mTlep": calcMT(leps[0], met) if leps else 0.0,
     }
-    # dilepton invariant mass of the leading opposite-sign same-flavour pair (else leading two)
+    # Invariant mass of the leading two leptons; no implicit flavour/charge pairing.
     if len(leps) >= 2:
         v["mll"] = invmass(leps[0], leps[1])
     else:
@@ -119,14 +119,15 @@ def select_event(spec, el, mu, jet, met):
     for step in spec.get("overlap_removal", []):
         coll[step["remove"]] = overlapRemoval(coll[step["remove"]], coll[step["near"]], step["dR"])
     el2, mu2, jet2 = coll["electron"], coll["muon"], coll["jet"]
-    # signal-level tightenings (optional)
+    # Apply every declared signal requirement to the baseline survivors.
     sig = spec.get("signal", {})
-    if "electron" in sig:
-        el2 = [c for c in el2 if c.pt >= sig["electron"].get("pt", 0)]
-    if "muon" in sig:
-        mu2 = [c for c in mu2 if c.pt >= sig["muon"].get("pt", 0)]
-    if "jet" in sig:
-        jet2 = [c for c in jet2 if c.pt >= sig["jet"].get("pt", 0)]
+    def tighten(objects, name):
+        cuts = sig.get(name, {})
+        unsupported = set(cuts) - {"pt", "eta", "id"}
+        if unsupported:
+            raise ValueError(f"Unsupported signal {name} requirements: {sorted(unsupported)}")
+        return filterObjects(objects, cuts.get("pt", 0), cuts.get("eta", math.inf), cuts.get("id", 0))
+    el2, mu2, jet2 = tighten(el2, "electron"), tighten(mu2, "muon"), tighten(jet2, "jet")
     # b-jets (optional): from the signal jets, by id bit
     bjet = []
     if "btag" in spec:
@@ -136,17 +137,24 @@ def select_event(spec, el, mu, jet, met):
     return compute_vars(el2, mu2, jet2, bjet, met)
 
 
-def run_events(spec, events, weights):
+def run_events(spec, events, weights, *, return_sumw2=False):
     """events = list of (el, mu, jet, met) Obj-lists; weights = per-event weight. Returns per-SR
     weighted yields."""
+    if len(events) != len(weights):
+        raise ValueError('Each event must have exactly one nominal weight')
+    summarize_weights(weights)  # Reject missing, non-finite, or zero-normalization inputs.
     yields = {r["name"]: 0.0 for r in spec["regions"]}
+    sumw2 = {name: 0.0 for name in yields}
     raw = {r["name"]: 0 for r in spec["regions"]}
     for (el, mu, jet, met), w in zip(events, weights):
         v = select_event(spec, el, mu, jet, met)
         for r in spec["regions"]:
             if passes(r, v):
                 yields[r["name"]] += w
+                sumw2[r["name"]] += w*w
                 raw[r["name"]] += 1
+    if return_sumw2:
+        return yields, raw, sumw2
     return yields, raw
 
 
@@ -156,13 +164,22 @@ def read_delphes(path):
     import numpy as np
     f = uproot.open(path)
     t = f["Delphes"]
+    if 'Event.Weight' not in t:
+        raise ValueError('Delphes input lacks Event.Weight; nominal weights cannot be assumed to be unity')
+    nominal = t['Event.Weight'].array(library='np')
+    if any(len(row) != 1 for row in nominal):
+        raise ValueError('Delphes Event.Weight must contain exactly one nominal weight per event')
+    weights = [float(row[0]) for row in nominal]
+    summarize_weights(weights)
     br = {b: t[b].array(library="np") for b in
           ("Electron.PT", "Electron.Eta", "Electron.Phi", "Electron.Charge",
            "Muon.PT", "Muon.Eta", "Muon.Phi", "Muon.Charge",
            "Jet.PT", "Jet.Eta", "Jet.Phi", "Jet.Mass", "Jet.BTag",
            "MissingET.MET", "MissingET.Phi") if b in t}
     n = len(br["MissingET.MET"])
-    events, weights = [], []
+    if len(weights) != n:
+        raise ValueError('Event.Weight and MissingET have different event counts')
+    events = []
     for i in range(n):
         el = [Obj(br["Electron.PT"][i][j], br["Electron.Eta"][i][j], br["Electron.Phi"][i][j],
                   ME, br["Electron.Charge"][i][j], 0x7FFFFFFF, ELECTRON)
@@ -180,8 +197,28 @@ def read_delphes(path):
                            br["Jet.Mass"][i][j], 0, idbits, JET))
         met = Obj(br["MissingET.MET"][i][0], 0.0, br["MissingET.Phi"][i][0], 0.0, 0, 0, JET)
         events.append((el, mu, jet, met))
-        weights.append(1.0)
     return events, weights
+
+
+def validate_delphes_spec(spec):
+    """Delphes cannot supply ATLAS lepton quality IDs or arbitrary jet working points.
+
+    The direct reader represents only a boolean Delphes b tag with the established
+    generic bit (1 << 4). Fully populated SA objects may use their actual IDs through
+    select_event, but the Delphes adapter must not invent them.
+    """
+    for group in ['objects', 'signal']:
+        for name, cuts in spec.get(group, {}).items():
+            bits = cuts.get('id', 0)
+            if not isinstance(bits, int) or isinstance(bits, bool) or bits < 0:
+                raise ValueError(f'{group}.{name}.id must be a nonnegative integer mask')
+            supported = (1 << 4) if name == 'jet' else 0
+            if bits & ~supported:
+                raise ValueError(f'{group}.{name}.id={bits} is unsupported by the Delphes adapter; '
+                                 'supply reconstructed SA objects with real quality IDs')
+    if 'btag' in spec and spec['btag'].get('idbit') != 1 << 4:
+        raise ValueError('Delphes adapter supports only btag.idbit=16 (boolean Delphes BTag); '
+                         'other ATLAS b-tag working points require a validated conversion')
 
 
 # ---------------- selftest ----------------
@@ -264,20 +301,26 @@ def _selftest():
 def cmd_run(args):
     with open(args.spec) as f:
         spec = json.load(f)
+    validate_delphes_spec(spec)
     events, weights = read_delphes(args.delphes)
     lumi_fb = float(spec.get("lumi_fb", args.lumi_fb))
     n = len(events)
-    yields, raw = run_events(spec, events, weights)
-    # yields above are raw event counts; scale to expected = xs[pb]*1000*lumi[fb]*(passing/total)
-    norm = args.xs_pb * 1000.0 * lumi_fb / n if n else 0.0
+    yields, raw, sumw2 = run_events(spec, events, weights, return_sumw2=True)
+    total = summarize_weights(weights)
+    if not math.isfinite(args.xs_pb) or args.xs_pb <= 0 or not math.isfinite(lumi_fb) or lumi_fb <= 0:
+        raise ValueError('Cross section and luminosity must be finite and positive')
+    norm = args.xs_pb * 1000.0 * lumi_fb / total['sumW']
     out = {"analysis": spec["name"], "lumi_fb": lumi_fb, "xs_pb": args.xs_pb, "n_events": n,
-           "regions": {name: {"raw": raw[name], "acceptance": raw[name] / n if n else 0.0,
-                              "yield": raw[name] * norm} for name in yields},
+           "sumw": total['sumW'], "sumw2": total['sumW2'],
+           "regions": {name: {"raw": raw[name], "sumw": yields[name], "sumw2": sumw2[name],
+                              "acceptance": yields[name] / total['sumW'],
+                              "yield": yields[name] * norm,
+                              "mc_stat_error": math.sqrt(sumw2[name]) * abs(norm)} for name in yields},
            "note": "cut-based native SimpleAnalysis via native_sa_generic (CR-005); step-3.5 "
                    "detector-fidelity + certify_acceptance still apply"}
     dst = args.out or "sr_yields_generic.json"
     with open(dst, "w") as f:
-        json.dump(out, f, indent=1)
+        json.dump(out, f, indent=1, allow_nan=False)
     for name in yields:
         print(f"  {name:16s} raw={raw[name]:5d}  acc={out['regions'][name]['acceptance']:.4f}  "
               f"yield={out['regions'][name]['yield']:.2f}")

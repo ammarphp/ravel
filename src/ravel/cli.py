@@ -1,4 +1,4 @@
-"""A small command surface over the existing validation, replay, and audit engines."""
+"""A small command surface over the existing intake, validation, replay, and audit engines."""
 import argparse
 from datetime import datetime, timezone
 import importlib.metadata
@@ -20,6 +20,12 @@ def parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="ravel", description=__doc__)
     ap.add_argument("--version", action="version", version=f"ravel-hep {__version__}")
     sub = ap.add_subparsers(dest="command", required=True)
+    initiate = sub.add_parser("initiate", help="draft an intake contract and empty run ledger; never runs compute")
+    request = initiate.add_mutually_exclusive_group(required=True)
+    request.add_argument("--prompt", help="physics request to route deterministically")
+    request.add_argument("--prompt-file", type=Path, help="UTF-8 file containing the physics request")
+    initiate.add_argument("--out", type=Path, required=True,
+                          help="new run directory; existing paths are never overwritten")
     validate = sub.add_parser("validate", help="validate a task contract; never authorizes compute")
     choice = validate.add_mutually_exclusive_group(required=True)
     choice.add_argument("contract", type=Path, nargs="?", help="task_contract.json")
@@ -32,6 +38,54 @@ def parser() -> argparse.ArgumentParser:
     audit.add_argument("--root", type=Path, help="Ravel source checkout (otherwise search cwd parents)")
     audit.add_argument("--out", type=Path, help="write the audit report to this explicit path")
     return ap
+
+
+def _initiate(args) -> int:
+    from .workflow import route_prompt, workflow_state
+
+    prompt = (args.prompt if args.prompt is not None else
+              args.prompt_file.expanduser().read_bytes().decode("utf-8"))
+    if not prompt.strip():
+        raise ValueError("the request must not be blank; compute_authorized=false")
+    contract = route_prompt.route(prompt)
+    errors = validate_task_contract(contract)
+    if errors:
+        print("ravel: invalid draft route; compute_authorized=false:\n" +
+              "\n".join(f"  - {error}" for error in errors), file=sys.stderr)
+        return 1
+    if contract["task_mode"] == "unsupported":
+        print("ravel: unsupported request; compute_authorized=false:\n" +
+              "\n".join(f"  - {reason}" for reason in contract["blocking"]), file=sys.stderr)
+        return 1
+
+    # Do not resolve the final path before mkdir: even a dangling symlink is an
+    # existing destination and must not silently redirect a new run elsewhere.
+    output = args.out.expanduser().absolute()
+    output.mkdir(parents=True, exist_ok=False)
+    try:
+        inputs = output / "inputs"
+        inputs.mkdir()
+        contract_path = inputs / "task_contract.json"
+        contract_path.write_text(json.dumps(contract, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+        (output / "request.txt").write_text(prompt, encoding="utf-8")
+        # Read the persisted bytes through the same strict reader used by validate.
+        persisted = load_contract(contract_path)
+        errors = validate_task_contract(persisted)
+        if errors:
+            raise ValueError("persisted task contract is invalid: " + "; ".join(errors))
+        state = workflow_state.new_state(str(output), persisted, str(contract_path), "")
+        workflow_state.write_state(str(output), state)
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"intake did not complete; partial output retained at {output}; "
+                         f"compute_authorized=false: {exc}") from exc
+
+    print(f"Draft intake created: {output}")
+    print(f"task_mode={contract['task_mode']} compute_plan={contract['compute_plan']} "
+          "compute_authorized=false")
+    print("Routing uses deterministic keyword rules. The contract is a draft, and the run ledger is empty.")
+    print("Next: resolve required inputs and flagged assumptions, then present and obtain approval "
+          "for the CHECK-IN 1 plan before generation or scans. No compute was launched.")
+    return 0
 
 
 def _validate(args) -> int:
@@ -115,7 +169,8 @@ def _audit(args) -> int:
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     try:
-        return {"validate": _validate, "replay": _replay, "audit": _audit}[args.command](args)
+        return {"initiate": _initiate, "validate": _validate,
+                "replay": _replay, "audit": _audit}[args.command](args)
     except (OSError, ValueError) as exc:
         print(f"ravel: {exc}", file=sys.stderr)
         return 2

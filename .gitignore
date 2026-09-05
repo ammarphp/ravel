@@ -134,6 +134,7 @@ tests/adversarial/self_drive/last_verdict.json
 # Local Python build and test environments
 .venv*/
 /dist/
+/local-runs/
 /build/
 *.egg-info/
 .pytest_cache/

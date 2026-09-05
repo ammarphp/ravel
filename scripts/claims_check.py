@@ -35,7 +35,7 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-def check(readme_path, manifest_path, root=ROOT):
+def check(readme_path, manifest_path, root=ROOT, require_all=True):
     fails, warns = [], []
     manifest = json.load(open(manifest_path))
     claims = {c["claim"]: c for c in manifest["claims"]}
@@ -58,7 +58,7 @@ def check(readme_path, manifest_path, root=ROOT):
             fails.append(f"claim '{cid}' drift: results page says '{norm(text)}' but manifest says "
                          f"'{entry['value']}'")
     for cid, entry in claims.items():
-        if entry.get("status") == "VERIFIED" and cid not in cited:
+        if require_all and entry.get("status") == "VERIFIED" and cid not in cited:
             fails.append(f"VERIFIED manifest claim '{cid}' is not cited in the results page")
         for a in entry.get("artifacts", []):
             if not resolve(root, a.rstrip("/")).exists():
@@ -99,6 +99,10 @@ def check(readme_path, manifest_path, root=ROOT):
 def main():
     fails, warns = check(os.path.join(ROOT, PUBLIC_RESULTS),
                          os.path.join(ROOT, "evidence", "claims.json"))
+    readme_fails, readme_warns = check(os.path.join(ROOT, "README.md"),
+                                      os.path.join(ROOT, "evidence", "claims.json"), require_all=False)
+    fails.extend("README: " + failure for failure in readme_fails)
+    warns.extend("README: " + warning for warning in readme_warns)
     for w in warns:
         print(f"[WARN] {w}")
     for f in fails:

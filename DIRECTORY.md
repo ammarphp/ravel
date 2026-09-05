@@ -2,6 +2,7 @@
 
 Generated from `evidence/collections.json` during distribution export.
 Historical evidence is read-only. New runs use a per-run `run_state.json` ledger.
+README demonstrations write to ignored `local-runs/`; these local outputs are not exported.
 
 ## Root files
 
@@ -36,21 +37,21 @@ Historical evidence is read-only. New runs use a per-run `run_state.json` ledger
 | `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 17 |
 | `src/ravel/plotting/` | Figures and comparisons | 12 |
 | `src/ravel/data/` | Templates, fixtures, and reference inputs | 9 |
-| `tests/unit/` | Focused regression tests | 71 |
+| `tests/unit/` | Focused regression tests | 77 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 6 |
-| `benchmarks/` | Benchmark and capability registries | 11 |
+| `benchmarks/` | Benchmark and capability registries | 12 |
 | `native/src/` | Native C++ source | 3 |
 | `native/scripts/` | Native build and execution scripts | 7 |
 | `environment/` | Simulation environment setup | 6 |
-| `scripts/` | Maintenance, documentation, and export commands | 17 |
+| `scripts/` | Maintenance, documentation, and export commands | 18 |
 | `docs/workflow/` | Physics workflow instructions | 50 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 8 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 20 |
-| `docs/research/` | Research and evaluation protocols | 12 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 21 |
+| `docs/research/` | Research and evaluation protocols | 13 |
 | `docs/guides/` | Longer guides and sources | 5 |
-| `evidence/` | Curated historical inputs, measurements, and provenance | 185 |
+| `evidence/` | Curated historical inputs, measurements, and provenance | 211 |
 | `.claude/` | Agent skills, rules, and enforcement hooks | 32 |
 | `.agents/` | Mirrored skills | 16 |
 | `.github/` | Continuous integration | 1 |

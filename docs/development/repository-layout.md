@@ -38,17 +38,19 @@ Start at the [documentation index](../README.md) for user tasks or
 
 ## Documentation boundaries
 
-The root README explains what Ravel does, gives one working first command, and points readers
-to the next task. It does not contain the capability board, benchmark tables, an architecture
-essay, or a publication-novelty argument.
+The root README explains what Ravel does, demonstrates recorded results, and gives working
+installation, initiation, replay, and inspection commands. A compact evidence table and real
+figures make the software assessable before readers open the detailed guides. Extended
+benchmark case histories, architecture discussion, and publication arguments live in docs.
 
 `docs/workflow/` contains operational instructions. `docs/reference/` defines interfaces,
 scope, and limitations. `docs/validation/` explains measured comparisons and their evidence.
 `docs/research/` contains research discussion and prospective experiments.
 `docs/development/` describes maintenance, decisions, and development history.
 
-Numerical publication claims remain checked at their dedicated validation destination.
-Moving them out of the README does not remove the evidence checks.
+Registered numerical claims are checked in both the README and the detailed validation page
+against the same evidence registry. The README may select a subset; the validation page must
+cover every verified registered claim. Repeating a result does not create a second authority.
 
 ## Historical records and public evidence
 

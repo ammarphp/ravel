@@ -2,7 +2,7 @@
   "name": "slepton-bino-fig3-FULL",
   "model": "slepton-bino",
   "analysis_id": "ins1767649",
-  "template_toml": "trial-runs/_infrastructure/templates/slepton_scan_template.toml",
+  "template_toml": "src/ravel/data/templates/slepton_scan_template.toml",
   "subst": {
     "MSLEP": "m_parent",
     "MN1": "m_lsp"

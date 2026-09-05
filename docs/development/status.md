@@ -70,6 +70,15 @@ Acceptable. The public package replays the single bundled fast case. Details and
 priorities: [hardening audit](history/2026-09-05-hardening.md).
 
 ## What exists (do not rebuild)
+The subsequent v0.3.0 fidelity pass adds tested draft initiation, reproducible README
+demonstrations, exact-reference scan plots, bracket-refined CLs limits, signed-weight
+and channel-order handling, and stricter acceptance comparisons. Correcting the eRJR
+Lorentz-frame expression increases SRlow selection from 43 to 95 on the same 200,000
+retained events; its 23.1% acceptance shortfall still fails the 15% threshold. The
+compressed-slepton scan residual remains 24.9%, and the two missing-artifact provenance
+failures remain open. See the [implementation and verification report](history/2026-09-05-physics-fidelity.md)
+and [pinned landscape review](../research/2026-09-05-fidelity-and-validation-landscape.md).
+
 - **Method**: `docs/workflow/` — WORKFLOW.md + 9 steps (8 = scan→contour; 9 = the mandatory
   verification panel) + checklists (merging, plot-criteria, complex-analysis, model-cards
   [with the EWKino recipe], validation, check-ins, verification-panel, DISTRIBUTION).

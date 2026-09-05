@@ -1,55 +1,13 @@
 #!/usr/bin/env python
-"""Render a grid SCAN (scan.json) into the RRR exclusion CONTOUR -- the paper's actual deliverable.
+"""Render recorded exclusion scans and exact HEPData limit comparisons.
 
-This is the renderer the corrected mental model points at (docs/workflow/steps/08-scan.md). It does NOT plot
-a single tested point on someone else's published contour (that is mass_plane_overlay.py's unit-level
-quick-look). It plots the contour the SCAN itself produced -- the mu95_obs = 1 crossing interpolated
-across the grid of model points assembled by scan_orchestrator.py -- which is what RRR Fig 3/6/8/10 are.
-
-Layouts, auto-selected by the scan's shape and the references supplied:
-  * LINE scan  (one m_parent, several Delta m): mu95_obs vs Delta m, with the +/-1sigma expected band if
-    present, the mu95 = 1 exclusion line, and the interpolated excluded-Delta m interval shaded. This is
-    the honest, compute-affordable PoC: a 1-D slice through the contour. If an ATLAS reference contour
-    is supplied (--atlas-contour), its Delta m reach AT THIS m_parent is drawn as a vertical reference
-    and the relative difference of the reach (mapyde-ATLAS)/ATLAS is annotated -- the 1-D analogue of
-    the paper's color map.
-  * GRID scan (>=2 m_parent AND >=2 Delta m): the mapyde mu95_obs = 1 exclusion CONTOUR (tricontour) in
-    the (m_parent, Delta m) plane, scanned points scattered + colored by mu95_obs, and -- when an ATLAS
-    HEPData contour is supplied -- the ATLAS contour overlaid so "the mapyde exclusion contour follows
-    the corresponding ATLAS contour" (Sec 3.3) can be read directly.
-  * FIG-3 single panel (the HEADLINE artifact, written to <out>__fig3.{png,pdf} whenever BOTH
-    --atlas-contour AND --atlas-limit are supplied with a 2-D grid): RRR Fig 3's actual FORM -- ONE
-    panel with the (mapyde-ATLAS)/ATLAS relative-difference color map as the FILL, the ATLAS observed
-    contour (black solid; expected dashed if given), and the mapyde mu95=1 contour overlaid, on the
-    ATLAS compressed-plane convention (LOG Delta m axis -- docs/workflow/checklists/plot-guidelines.md).
-    Both fields are smoothly interpolated (matplotlib.tri cubic, linear fallback) from the scattered
-    scan points onto a fine regular grid in (m, log10 Delta m) space, masked outside the convex hull
-    of the scanned points, so the contour is a smooth curve, not lattice-jagged. The two-panel outputs
-    above are still written as diagnostics. --limit-kind observed|expected|both picks which limit
-    column BOTH sides use (like-columns rule; expected -> <out>__fig3_expected, RRR's own convention);
-    the fill colors ONLY exact (tolerance-snapped) matches to the published grid -- the reference is
-    never interpolated; scanned cells without a published point are white + gray circle (stated on
-    the figure), unscanned cells are holes.
-
-AXIS SCALES (docs/workflow/checklists/plot-guidelines.md -- the published figure's scales are FACTS,
-not defaults): when a figure contract exists, pass --figure-target <rundir-or-figure_target.json>
-and the grid/fig3 layouts CONSUME the axes recorded there at declaration ({"x","y"} in
-linear|log); explicit --logx/--linx/--logy/--liny always win over the contract. With neither, the
-current defaults hold: grid = linear/linear, fig3 = linear m + LOG Delta m (the ATLAS
-compressed-plane convention), line = mu95 log-y only when it spans >~1.5 decades. The line layout
-draws (Delta m, mu95) -- not the published plane -- so it honors only the explicit flags.
-
-It sets a 95% CL EXCLUSION, never a discovery. Reuses read_contour() + the house style from the
-sibling modules so the figure is in the experiment's published style.
-
-Usage:
-  scan_contour.py --scan <scandir>/scan.json \
-    --experiment ATLAS --com 13 --lumi 139 \
-    --atlas-contour observed=outputs/hepdata/.../exclusion_obs.yaml \
-    [--figure-target <rundir>] [--logx|--linx] [--logy|--liny] \
-    --out <scandir>/plots/sleptonscan__contour
-
-See docs/workflow/steps/08-scan.md and docs/workflow/checklists/scan-and-contour.md.
+Line and grid layouts show sampled mu95 values. Reference comparisons use exact
+mass coordinates within 0.05 GeV and matching observed/expected columns on an
+explicit model cross-section basis. Quality bounds never enter limit contours.
+The residual diagnostic writes a JSON sidecar retaining the planned denominator.
+Contours are piecewise linear with missing lattice vertices masked; no cubic
+overshoot or reference extrapolation is used. Original scan inputs are read-only.
+See docs/workflow/checklists/scan-and-contour.md for the workflow contract.
 """
 
 if not __package__:  # Direct file execution uses the same package implementation.
@@ -67,6 +25,10 @@ import numpy as np
 
 from . import mplhep_style as house
 from .mass_plane_overlay import read_contour, parse_contour_args, texify
+
+
+class MissingLimitColumn(ValueError):
+    """A table lacks the requested observed/expected column, rather than malformed data."""
 
 
 def die(msg):
@@ -88,6 +50,28 @@ def load_scan(path):
         for k in ("m_parent", "m_lsp", "dm", "mu95_obs"):
             if p.get(k) is None:
                 die(f"scan point {p.get('tag')} missing '{k}'")
+            value = p[k]
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not np.isfinite(value):
+                die(f"scan point {p.get('tag')} has nonfinite or nonnumeric '{k}'")
+            if value < 0 or (k != "m_lsp" and value == 0):
+                die(f"scan point {p.get('tag')} has nonphysical '{k}'")
+        if p.get("mu95_exp") is not None:
+            expected = p["mu95_exp"]
+            if isinstance(expected, bool) or not isinstance(expected, (int, float)) or not np.isfinite(expected) or expected <= 0:
+                die(f"scan point {p.get('tag')} has invalid expected limit")
+        if p.get("mu95_exp_band") is not None:
+            band = p["mu95_exp_band"]
+            if not isinstance(band, list) or len(band) != 5 or any(isinstance(v, bool) or
+                    not isinstance(v, (int, float)) or not np.isfinite(v) or v <= 0 for v in band):
+                die(f"scan point {p.get('tag')} has invalid expected band")
+            if any(a > b for a, b in zip(band, band[1:])):
+                die(f"scan point {p.get('tag')} has unordered expected band")
+            if p.get("mu95_exp") is not None and not np.isclose(band[2], p["mu95_exp"], rtol=1e-5):
+                die(f"scan point {p.get('tag')} expected median disagrees with band")
+        if not np.isclose(p["m_parent"] - p["m_lsp"], p["dm"], atol=1e-5, rtol=0):
+            die(f"scan point {p.get('tag')} has inconsistent masses and splitting")
+    if len({(p["m_parent"], p["dm"]) for p in pts}) != len(pts):
+        die("scan.json has duplicate mass coordinates")
     flagged = [p.get("tag") for p in pts if p.get("quality")]
     if flagged:
         print(f"  note: {len(flagged)} scan point(s) carry a limit-quality flag (floored/capped: "
@@ -112,17 +96,34 @@ def interp_crossing(xs, ys, level=1.0):
     return sorted(out)
 
 
+def excluded_intervals(dms, mu, level=1.0):
+    """Return disjoint excluded spans; nonfinite values split support into pieces."""
+    order = np.argsort(dms)
+    x, y = np.asarray(dms, float)[order], np.asarray(mu, float)[order]
+    if len(np.unique(x)) != len(x):
+        raise ValueError("duplicate splitting coordinates in a line scan")
+    spans = []
+    for x0, x1, y0, y1 in zip(x[:-1], x[1:], y[:-1], y[1:]):
+        if not np.isfinite(y0) or not np.isfinite(y1) or min(y0, y1) >= level:
+            continue
+        lo, hi = x0, x1
+        if y0 >= level:
+            lo = x0 + (level - y0) / (y1 - y0) * (x1 - x0)
+        elif y1 >= level:
+            hi = x0 + (level - y0) / (y1 - y0) * (x1 - x0)
+        if spans and spans[-1][1] == lo:
+            spans[-1] = (spans[-1][0], float(hi))
+        else:
+            spans.append((float(lo), float(hi)))
+    return spans
+
+
 def excluded_interval(dms, mu, level=1.0):
-    """For a 1-D Delta m slice, the contiguous excluded (mu<level) Delta m span as (lo, hi) or None."""
-    dms = np.asarray(dms, float); mu = np.asarray(mu, float)
-    order = np.argsort(dms); dms, mu = dms[order], mu[order]
-    below = dms[mu < level]
-    if below.size == 0:
-        return None
-    cr = interp_crossing(dms, mu, level)
-    lo = min(below.min(), min(cr) if cr else below.min())
-    hi = max(below.max(), max(cr) if cr else below.max())
-    return float(lo), float(hi)
+    """Compatibility helper for a genuinely single contiguous excluded interval."""
+    spans = excluded_intervals(dms, mu, level)
+    if len(spans) > 1:
+        raise ValueError("exclusion is disconnected; use excluded_intervals")
+    return spans[0] if spans else None
 
 
 def setup(args):
@@ -168,29 +169,20 @@ def save(fig, stem):
 
 
 def atlas_dm_reach(atlas_contours, m_parent):
-    """For a line scan, the ATLAS contour's Delta m reach at this m_parent (max Delta m on the boundary
-    near m_parent). Returns the reach in GeV or None. The contour is a polyline in (m, Delta m) or
-    (m, m_lsp); we orient to (m, Delta m) and take the boundary Delta m at the nearest m column."""
-    best = None
+    """Largest exact polyline intersection at this mass, without nearest extrapolation."""
+    intersections = []
     for role, path, x, y, xn, yn in atlas_contours:
-        # orient so y = Delta m
-        def is_dm(nm):
-            return bool(nm) and ("delta" in nm.lower() or "\\Delta" in nm or "Δ" in nm)
-        xx, yy = np.asarray(x, float), np.asarray(y, float)
-        if is_dm(xn) and not is_dm(yn):
-            xx, yy = yy, xx
-        elif not is_dm(xn) and not is_dm(yn):
-            # mass-mass contour: Delta m = m_parent - m_lsp (y is m_lsp)
-            yy = xx - yy
-        # nearest boundary vertices in m, take the max Delta m there
-        if xx.size == 0:
+        if not role.startswith("observed"):
             continue
-        win = np.abs(xx - m_parent) <= max(5.0, 0.05 * m_parent)
-        cand = yy[win] if win.any() else yy[np.argsort(np.abs(xx - m_parent))[:3]]
-        if cand.size:
-            r = float(np.nanmax(cand))
-            best = r if best is None else max(best, r)
-    return best
+        xx, yy = _orient_dm(x, y, xn, yn)
+        for x0, x1, y0, y1 in zip(xx[:-1], xx[1:], yy[:-1], yy[1:]):
+            if not all(np.isfinite(v) for v in (x0, x1, y0, y1)):
+                continue
+            if x0 == x1 == m_parent:
+                intersections.extend([y0, y1])
+            elif x0 != x1 and min(x0, x1) <= m_parent <= max(x0, x1):
+                intersections.append(y0 + (m_parent - x0) / (x1 - x0) * (y1 - y0))
+    return max(intersections) if intersections else None
 
 
 # ----------------------------------------------------------------- LINE layout (1-D Delta m slice)
@@ -198,10 +190,14 @@ def render_line(scan, atlas_contours, args):
     plt, hep = setup(args)
     pts = sorted(scan["points"], key=lambda r: r["dm"])
     m_parent = pts[0]["m_parent"]
+    if any(p["m_parent"] != m_parent for p in pts):
+        die("line layout requires a single parent mass; use the grid layout")
     dms = [p["dm"] for p in pts]
-    mu_obs = [p["mu95_obs"] for p in pts]
-    mu_exp = [p.get("mu95_exp") for p in pts]
-    band = [p.get("mu95_exp_band") for p in pts]
+    mu_obs = [p["mu95_obs"] if not p.get("quality") else np.nan for p in pts]
+    mu_exp = [p.get("mu95_exp") if not p.get("quality") else np.nan for p in pts]
+    band = [p.get("mu95_exp_band") if not p.get("quality") else None for p in pts]
+    if not np.any(np.isfinite(mu_obs)):
+        die("line has no measured limits: every point is a quality bound")
 
     fig, ax = plt.subplots(figsize=(8, 6))
     # +/-1,2 sigma expected band, if every point shipped a 5-entry band [-2,-1,med,+1,+2]
@@ -214,14 +210,14 @@ def render_line(scan, atlas_contours, args):
     if all(m is not None for m in mu_exp):
         ax.plot(dms, mu_exp, color=house.OKABE_ITO["blue"], ls="--", lw=1.8,
                 label=r"expected median $\mu_{95}$")
-    ax.plot(dms, mu_obs, color="black", marker="o", ms=6, lw=2.0, label=r"observed $\mu_{95}$ (mapyde)")
+    ax.plot(dms, mu_obs, color="black", marker="o", ms=6, lw=2.0, label=r"observed $\mu_{95}$ (Ravel)")
     ax.axhline(1.0, color=house.OKABE_ITO["vermillion"], ls=":", lw=1.5)
     ax.text(dms[0], 1.0, r" $\mu_{95}=1$ (exclusion)", color=house.OKABE_ITO["vermillion"],
             va="bottom", ha="left", fontsize=10)
 
-    interval = excluded_interval(dms, mu_obs)
-    if interval:
-        lo, hi = interval
+    intervals = excluded_intervals(dms, mu_obs)
+    interval = intervals[0] if len(intervals) == 1 else None
+    for lo, hi in intervals:
         ax.axvspan(lo, hi, color=house.OKABE_ITO["bluishgreen"], alpha=0.12, lw=0)
         # place the label in the empty mid-height of the shaded band (the ATLAS label owns the top)
         ax.text(0.5 * (lo + hi), ax.get_ylim()[1] * 0.55,
@@ -236,10 +232,13 @@ def render_line(scan, atlas_contours, args):
             ax.axvline(reach, color="0.4", ls="-.", lw=1.4)
             ax.text(reach, ax.get_ylim()[1] * 0.80, " ATLAS reach", rotation=90, va="top",
                     ha="right", color="0.4", fontsize=9)
-            if interval:
+            measured_upper_crossings = [x0 + (1 - y0) / (y1 - y0) * (x1 - x0)
+                for x0, x1, y0, y1 in zip(dms[:-1], dms[1:], mu_obs[:-1], mu_obs[1:])
+                if np.isfinite(y0) and np.isfinite(y1) and y0 < 1 <= y1]
+            if interval and any(np.isclose(interval[1], crossing) for crossing in measured_upper_crossings):
                 rel = (interval[1] - reach) / reach
                 # keep the percent OUT of mathtext ($...$): matplotlib mathtext chokes on a bare '%'
-                note = (rf"reach $\Delta m$: mapyde {interval[1]:.1f} vs ATLAS {reach:.1f} GeV "
+                note = (rf"reach $\Delta m$: Ravel {interval[1]:.1f} vs ATLAS {reach:.1f} GeV "
                         rf"($\Rightarrow$ {rel*100:+.0f} percent)")
 
     ax.set_xlabel(r"$\Delta m(\tilde{\ell},\tilde{\chi}^0_1)$ [GeV]")
@@ -249,7 +248,7 @@ def render_line(scan, atlas_contours, args):
     # the span heuristic (log-y only when mu95 spans >~1.5 decades, plot-guidelines.md).
     log_x = resolve_axis(args.logx, None, False)
     log_y = resolve_axis(args.logy, None,
-                         (max(mu_obs) / max(min(mu_obs), 1e-3)) >= 30)
+                         (np.nanmax(mu_obs) / max(np.nanmin(mu_obs), 1e-3)) >= 30)
     if log_x:
         ax.set_xscale("log")
     ax.set_yscale("log" if log_y else "linear")
@@ -257,6 +256,7 @@ def render_line(scan, atlas_contours, args):
     lines = [rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$",
              rf"slepton-bino line  $m_{{\tilde\ell}}={m_parent:g}$ GeV",
              f"{scan['n_done']}/{scan['n_planned']} grid points",
+             "Shading restricted to sampled support; endpoints may be censored",
              "95% CL exclusion (CLs), not a discovery"]
     if note:
         lines.insert(3, note)
@@ -276,23 +276,31 @@ def render_line(scan, atlas_contours, args):
 
 
 # ----------------------------------------------------------------- GRID layout (2-D contour)
+def _has_contour(contour):
+    """Matplotlib can return a nonempty list containing only empty segments."""
+    return any(len(segment) >= 2 and np.all(np.isfinite(segment))
+               for level in getattr(contour, "allsegs", []) for segment in level)
+
+
 def render_grid(scan, atlas_contours, args):
     plt, hep = setup(args)
     import matplotlib.tri as mtri
     pts = scan["points"]
     mpar = np.array([p["m_parent"] for p in pts], float)
     dm = np.array([p["dm"] for p in pts], float)
-    mu = np.array([p["mu95_obs"] for p in pts], float)
+    mu = np.array([p["mu95_obs"] if not p.get("quality") else np.nan for p in pts], float)
 
+    if not np.any(np.isfinite(mu)):
+        die("grid has no measured limits: every point is a quality bound")
     fig, ax = plt.subplots(figsize=(8, 7))
     # scatter colored by mu95_obs (log-normalized; excluded points mu<1 stand out)
     sc = ax.scatter(mpar, dm, c=mu, s=60, cmap="viridis_r",
-                    norm=__import__("matplotlib").colors.LogNorm(vmin=max(mu.min(), 1e-2),
-                                                                 vmax=mu.max()),
+                    norm=__import__("matplotlib").colors.LogNorm(vmin=max(np.nanmin(mu), 1e-2),
+                                                                 vmax=max(np.nanmax(mu), max(np.nanmin(mu), 1e-2) * 1.001)),
                     edgecolors="black", linewidths=0.5, zorder=4)
     cb = fig.colorbar(sc, ax=ax, pad=0.02)
-    cb.set_label(r"observed $\mu_{95}$ (mapyde)")
-    # the mapyde exclusion contour: mu95_obs = 1 (needs a triangulable point cloud).
+    cb.set_label(r"observed $\mu_{95}$ (Ravel)")
+    # the Ravel exclusion contour: mu95_obs = 1 (needs a triangulable point cloud).
     # NOTE: matplotlib >=3.8 removed ContourSet.collections; check allsegs and add a proxy legend
     # handle (the contour lines are drawn by tricontour regardless of how we label them).
     from matplotlib.lines import Line2D
@@ -300,13 +308,12 @@ def render_grid(scan, atlas_contours, args):
     if len({(a, b) for a, b in zip(mpar, dm)}) >= 3 and len(np.unique(mpar)) >= 2 \
             and len(np.unique(dm)) >= 2:
         try:
-            tri = mtri.Triangulation(mpar, dm)
-            cs = ax.tricontour(tri, mu, levels=[1.0], colors=[house.OKABE_ITO["vermillion"]],
+            tri, supported_mu = _supported_triangulation(mpar, dm, mu, logy=False)
+            cs = ax.tricontour(tri, supported_mu, levels=[1.0], colors=[house.OKABE_ITO["vermillion"]],
                                linewidths=2.4, zorder=6)
-            segs = getattr(cs, "allsegs", [[]])
-            if segs and segs[0]:  # at least one polyline at the mu=1 level
+            if _has_contour(cs):  # at least one polyline at the mu=1 level
                 ax.add_line(Line2D([], [], color=house.OKABE_ITO["vermillion"], lw=2.4,
-                                   label=r"mapyde 95% CL excl. ($\mu_{95}=1$)"))
+                                   label=r"Ravel 95% CL excl. ($\mu_{95}=1$)"))
                 drew_contour = True
             else:
                 print("  (no mu95=1 crossing within the scanned grid -- contour not drawn)")
@@ -359,7 +366,7 @@ def render_grid(scan, atlas_contours, args):
     house.tick_hygiene(ax, axr=None, logy=log_y, logx=log_x)
     save(fig, args.out)
     cstate = "drawn" if drew_contour else "NOT drawn (no mu95=1 crossing or too few points)"
-    print(f"grid scan: {len(pts)} points, mapyde contour {cstate}; "
+    print(f"grid scan: {len(pts)} points, Ravel contour {cstate}; "
           f"axes x={'log' if log_x else 'linear'} y={'log' if log_y else 'linear'}; "
           f"{len(atlas_contours)} ATLAS contour(s)")
 
@@ -393,78 +400,123 @@ def _orient_dm(x, y, xn, yn):
     return xx, yy
 
 
-def _smooth_field(mpar, dm, z, nx=200, ny=200, logy=True):
-    """Interpolate a scattered (m, Delta m) -> z field onto a fine regular grid in the space the
-    figure is DRAWN in -- (m, log10 Delta m) when the Delta m axis is log (logy=True, the ATLAS
-    compressed-plane default), plain (m, Delta m) when the resolved axis is linear -- so smoothness
-    is smoothness ON the figure. matplotlib.tri only (no scipy dependency in the rivet env):
-    CubicTriInterpolator (kind='geom'), falling back to LinearTriInterpolator PER CELL where cubic
-    is ill-conditioned (masked/non-finite), and wholesale if cubic cannot be built. Points outside
-    the convex hull of the scanned lattice stay MASKED (no extrapolation artifacts). Returns
-    (M, DM, Z) with Z a masked array on the fine grid."""
+def _supported_triangulation(mpar, dm, z, logy=True):
+    """Linear support on the observed rectangular lattice; missing vertices stay holes.
+
+    Infill the lattice from repeated mass/splitting axes before triangulation, then
+    mask triangles touching absent/invalid values. Removing bad points first would
+    bridge holes. One-off refinement coordinates do not create a whole missing row.
+    This does not infer coverage beyond recorded mass and splitting coordinates.
+    """
     import matplotlib.tri as mtri
-    mpar = np.asarray(mpar, float)
-    ldm = np.log10(np.asarray(dm, float)) if logy else np.asarray(dm, float)
-    z = np.asarray(z, float)
-    tri = mtri.Triangulation(mpar, ldm)
-    xi = np.linspace(mpar.min(), mpar.max(), nx)
-    yi = np.linspace(ldm.min(), ldm.max(), ny)
-    Xi, Yi = np.meshgrid(xi, yi)
-    lin = mtri.LinearTriInterpolator(tri, z)(Xi, Yi)     # defines the hull mask
-    try:
-        cub = mtri.CubicTriInterpolator(tri, z, kind="geom")(Xi, Yi)
-        bad = np.ma.getmaskarray(cub) | ~np.isfinite(cub.filled(np.nan))
-        Zi = np.ma.where(bad, lin, cub)
-        Zi.mask = np.ma.getmaskarray(lin)                # hull-only mask
-    except Exception as e:  # noqa: BLE001 -- degenerate triangulation for cubic -> linear everywhere
-        print(f"  (fig3: cubic interpolation unavailable ({e}); using linear)")
-        Zi = lin
+    mpar, dm, z = (np.asarray(v, float) for v in (mpar, dm, z))
+    if not (mpar.ndim == dm.ndim == z.ndim == 1 and len(mpar) == len(dm) == len(z)):
+        raise ValueError("contour coordinates and values must be equal-length vectors")
+    if not np.all(np.isfinite(mpar)) or not np.all(np.isfinite(dm)) or (logy and np.any(dm <= 0)):
+        raise ValueError("contour coordinates must be finite (and positive on a log axis)")
+    coords = list(zip(mpar, dm))
+    if len(set(coords)) != len(coords):
+        raise ValueError("duplicate scan coordinates cannot define an unambiguous contour")
+    xx, xcounts = np.unique(mpar, return_counts=True)
+    yy, ycounts = np.unique(dm, return_counts=True)
+    if len(xx) < 2 or len(yy) < 2:
+        raise ValueError("contour needs at least two masses and two mass splittings")
+    sites = sorted(set(coords) | {(mass, split) for mass in xx[xcounts >= 2] for split in yy[ycounts >= 2]})
+    lookup = dict(zip(coords, z))
+    values = np.array([lookup.get(site, np.nan) for site in sites])
+    tri = mtri.Triangulation([site[0] for site in sites],
+                             [np.log10(site[1]) if logy else site[1] for site in sites])
+    tri.set_mask(~np.all(np.isfinite(values[tri.triangles]), axis=1))
+    if np.all(tri.mask):
+        raise ValueError("no triangle has three supported finite scan points")
+    return tri, np.nan_to_num(values, nan=0.0)
+
+
+def _smooth_field(mpar, dm, z, nx=200, ny=200, logy=True):
+    """Piecewise linear field, masked outside supported triangles, without overshoot.
+
+    A linear interpolant is bounded by its triangle's vertex values: it cannot
+    invent a mu=1 crossing when all three limits lie on the same side of one.
+    """
+    import matplotlib.tri as mtri
+    tri, values = _supported_triangulation(mpar, dm, z, logy=logy)
+    Xi, Yi = np.meshgrid(np.linspace(tri.x.min(), tri.x.max(), nx),
+                         np.linspace(tri.y.min(), tri.y.max(), ny))
+    Zi = mtri.LinearTriInterpolator(tri, values)(Xi, Yi)
     return Xi, (10.0 ** Yi if logy else Yi), Zi
 
 
+def comparison_data(scan, limit_grid, kind="observed"):
+    """One accountable population for every quantitative reference comparison."""
+    mu_key = {"observed": "mu95_obs", "expected": "mu95_exp"}[kind]
+    records = []
+    seen = set()
+    for point in scan["points"]:
+        record = {"tag": point.get("tag"), "m_parent": point.get("m_parent"),
+                  "dm": point.get("dm"), "status": "eligible"}
+        for coordinate_name in ("m_parent", "dm"):
+            v = record[coordinate_name]
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not np.isfinite(v):
+                record[coordinate_name] = None
+        reason = None
+        if point.get("quality"):
+            reason = "quality_flag"
+        for key in ("m_parent", "dm", mu_key, "sigma_ref_fb"):
+            value = point.get(key)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not np.isfinite(value) or value <= 0:
+                reason = reason or "invalid_input"
+        coordinate = (point.get("m_parent"), point.get("dm"))
+        if coordinate in seen:
+            raise ValueError(f"duplicate scan coordinate: {coordinate}")
+        seen.add(coordinate)
+        if reason:
+            record["status"] = reason
+        else:
+            reference = _exact_grid_lookup(*limit_grid, [point["m_parent"]], [point["dm"]])[0]
+            if not np.isfinite(reference):
+                record["status"] = "unmatched_reference"
+            else:
+                prediction = point[mu_key] * point["sigma_ref_fb"]
+                residual = prediction / reference - 1
+                if not np.isfinite(prediction) or not np.isfinite(residual):
+                    record["status"] = "invalid_input"
+                else:
+                    record.update(status="matched", reference_fb=float(reference),
+                                  limit_fb=float(prediction), residual=float(residual))
+        records.append(record)
+    counts = {key: sum(r["status"] == key for r in records)
+              for key in ("matched", "quality_flag", "invalid_input", "unmatched_reference")}
+    planned = scan.get("n_planned", len(records))
+    if isinstance(planned, bool) or not isinstance(planned, int) or planned < len(records):
+        raise ValueError("n_planned must be an integer at least as large as the recorded population")
+    residuals = [abs(r["residual"]) for r in records if r["status"] == "matched"]
+    return {"schema_version": 1, "kind": kind, "planned": planned, "recorded": len(records),
+            "missing_scan_points": planned - len(records), "counts": counts,
+            "matched_fraction_of_plan": counts["matched"] / planned if planned else 0,
+            "median_absolute_residual": float(np.median(residuals)) if residuals else None,
+            "reference_matching": "exact, 0.05 GeV tolerance; no interpolation or extrapolation",
+            "contour_interpolation": "piecewise linear; triangles touching unsupported lattice vertices masked",
+            "records": records}
+
+
 def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
-    """THE headline artifact, RRR Fig 3's actual FORM -- ONE panel: the (mapyde-ATLAS)/ATLAS
-    relative-difference color map as the FILL + the ATLAS reference contour + the mapyde mu95=1
-    contour. Axis scales resolve per plot-guidelines.md (the published figure's scales are FACTS):
-    explicit --logx/--linx/--logy/--liny > the figure contract's declared axes (--figure-target)
-    > the DEFAULT x = m_slepton linear, y = Delta m LOG (the ATLAS compressed-plane convention --
-    the RRR slepton target IS log-Delta m, so that case renders identically with no flags). The mu
-    field feeding the CONTOUR is interpolated smoothly (see _smooth_field, in the space the figure
-    is drawn in) as log10(mu) from ALL scanned points, so the mu=1 contour is a smooth curve, not
-    lattice-jagged. Writes <out>__fig3.{png,pdf} for kind="observed",
-    <out>__fig3_expected.{png,pdf} for kind="expected".
+    """Exact per-cell residual fill with a supported, linear limit contour.
 
-    LIKE-COLUMNS RULE (kind): compare expected-to-expected or observed-to-observed, never mixed --
-    `kind` selects BOTH the scan mu column (mu95_obs / mu95_exp) and the reference dependent
-    column (read_limit_grid). RRR Fig 3 itself is the EXPECTED-vs-expected comparison; render both
-    variants and lead with the one matching the published figure.
-
-    NEVER-INTERPOLATE-THE-REFERENCE RULE (fill): a published per-point UL grid is exact at its
-    lattice and NOTHING between (sigma-UL varies ~10x between adjacent Delta m rows) -- so the fill
-    colors ONLY scan points that exactly (tolerance-snap, 0.05 GeV) match a published grid point.
-    Mesh rows are restricted to Delta m values with at least one exact match; a meshed cell with no
-    published point is drawn WHITE with a gray open marker and the annotation says what white
-    means (no published reference there -- NOT "agrees within 5%", NOT a hole, NOT interpolated;
-    RRR leaves the two whites ambiguous, we do not). All scanned points -- matched or not -- still
-    feed the mu=1 contour.
-
-    COMPARISON-BASIS RULE: the fill is only meaningful if mu95 x sigma_ref_fb is the UL on the
-    SAME model sigma the published grid quotes (the experiment's inclusive simplified-model sigma).
-    A sample-sigma sigma_ref (e.g. an ISR-TAGGED subset sigma from the MadGraph log) is a DIFFERENT
-    basis and bakes a mass-dependent tilt into the map (the 2026-07 slepton fix: tagged-6-state vs
-    inclusive-4-state = 0.56..1.01 across m). Run `scan_orchestrator.py rebase` first; scans carry
-    scan['model_basis'] once rebased, and _basis_guard() warns loudly when it is absent. Under a
-    pure sigma re-NORMALIZATION (mu and sigma_ref scaled inversely, e.g. the NLO renorm) the fill
-    is invariant; under the basis REBASE it moves -- that is the point."""
+    Observed and expected variants compare matching columns. Quality bounds and
+    invalid limits do not enter the fill or contour. The reference is never
+    interpolated. Explicit model normalization and published axis choices apply.
+    """
     plt, hep = setup(args)
-    _basis_guard(scan, f"fig3 {kind}")
+    if not _basis_guard(scan, f"fig3 {kind}"):
+        die("reference comparison requires an explicit model_basis; rebase the scan first")
+    accounting = comparison_data(scan, limit_grid, kind)
+    eligible_coords = {(r["m_parent"], r["dm"]) for r in accounting["records"] if r["status"] in ("matched", "unmatched_reference")}
     # resolve the axis scales FIRST -- the mesh-edge geometry and the smooth-field space below
     # must be built in the same space the axes are drawn in.
     log_x = resolve_axis(args.logx, (args.contract_axes or {}).get("x"), False)
     log_y = resolve_axis(args.logy, (args.contract_axes or {}).get("y"), True)
     mu_key = {"observed": "mu95_obs", "expected": "mu95_exp"}[kind]
-    rows = [p for p in scan["points"]
-            if p.get("sigma_ref_fb") and p.get("dm", 0) > 0 and p.get(mu_key) is not None]
+    rows = [p for p in scan["points"] if (p.get("m_parent"), p.get("dm")) in eligible_coords or p.get("quality")]
     # CR-001: quality-flagged points (floored / capped / floored-legacy, tagged at harvest) carry
     # an upper BOUND or a scan ceiling, not a measured limit -- never color them as measurements
     # and never feed them to the smooth mu-contour field. Drawn as gray 'x' + counted in the note.
@@ -484,10 +536,10 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     mpar = np.array([p["m_parent"] for p in rows], float)
     dm = np.array([p["dm"] for p in rows], float)
     mu = np.array([p[mu_key] for p in rows], float)
-    mapyde_sul = mu * np.array([p["sigma_ref_fb"] for p in rows], float)
+    ravel_sul = mu * np.array([p["sigma_ref_fb"] for p in rows], float)
     # EXACT reference lookup -- no interpolation, no extrapolation (rule above): NaN off-lattice
     atlas_sul = _exact_grid_lookup(*limit_grid, mpar, dm)
-    rel = (mapyde_sul - atlas_sul) / atlas_sul
+    rel = (ravel_sul - atlas_sul) / atlas_sul
     matched = np.isfinite(rel)
 
     # THE FILL, RRR Fig 3's ACTUAL form (verified against the extracted figure, arXiv:2306.11055
@@ -496,13 +548,13 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     # colorbar in 0.10 steps saturating at +/-0.55. NOT a smooth interpolated heatmap (the first
     # implementation's mistake: rendered from the caption without looking at the figure).
     from matplotlib.colors import BoundaryNorm, ListedColormap
-    import matplotlib.cm as mcm
+    from matplotlib import colormaps
     bounds = np.concatenate([np.arange(-0.55, -0.049, 0.10), [0.05],
                              np.arange(0.15, 0.551, 0.10)])           # white band spans -0.05..0.05
     # CR-026 critique fix #1: the PUBLISHED palette is the saturated pure red/white/blue 'bwr'
     # family, not the muted RdBu_r — the cell colors are this figure's payload, so the hue
     # family is a style FACT (figure-critique-fig3.md, degrades-level mismatch).
-    base = mcm.get_cmap("bwr")
+    base = colormaps["bwr"]
     colors = [base(v) for v in np.linspace(0.02, 0.44, 5)] + [(1, 1, 1, 1)] + \
              [base(v) for v in np.linspace(0.56, 0.98, 5)]
     cmap = ListedColormap(colors)
@@ -558,21 +610,23 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
                 marker="x", ms=7, color="0.35", mew=1.6, zorder=3)
     cb = fig.colorbar(pc, ax=ax, pad=0.02, ticks=bounds, extend="both")
     cb.ax.set_yticklabels([f"{b:.2f}" for b in bounds])
-    cb.set_label(r"Limits on $\mu_{\mathrm{SUSY}}$: (mapyde $-$ ATLAS) / ATLAS")
+    cb.set_label(r"Limits on $\mu_{\mathrm{SUSY}}$: (Ravel $-$ ATLAS) / ATLAS")
 
     from matplotlib.lines import Line2D
     handles = []
-    # the mapyde exclusion contour, a smooth LINE (like RRR's "DELPHES, tuned" blue line):
+    # the Ravel exclusion contour, a smooth LINE (like RRR's "DELPHES, tuned" blue line):
     # log10(mu)=0 on the smoothly-interpolated grid (not the lattice)
-    _, _, LMU = _smooth_field(mpar, dm, np.log10(np.clip(mu, 1e-12, None)), logy=log_y)
-    M, DM, _ = _smooth_field(mpar, dm, rel, logy=log_y)
+    support = [p for p in scan["points"] if all(isinstance(p.get(k), (int, float)) and np.isfinite(p[k])
+                and p[k] > 0 for k in ("m_parent", "dm"))]
+    M, DM, LMU = _smooth_field([p["m_parent"] for p in support], [p["dm"] for p in support],
+        [np.log10(p[mu_key]) if p in rows else np.nan for p in support], logy=log_y)
     cs = ax.contour(M, DM, LMU, levels=[0.0], colors=[house.OKABE_ITO["blue"]],
                     linewidths=2.0, zorder=6)
-    if getattr(cs, "allsegs", [[]])[0]:
+    if _has_contour(cs):
         handles.append(Line2D([], [], color=house.OKABE_ITO["blue"], lw=2.0,
-                              label=f"mapyde (native), 95% CL {kind[:3]}."))
+                              label=f"Ravel (native), 95% CL {kind[:3]}."))
     else:
-        print(f"  (fig3 {kind}: no mu95=1 crossing inside the scanned hull -- mapyde contour not drawn)")
+        print(f"  (fig3 {kind}: no mu95=1 crossing inside the scanned hull -- Ravel contour not drawn)")
     # ATLAS published contour: observed as round DOTS (RRR's "ATLAS" blue dots); expected dashed
     for role, path, x, y, xn, yn in atlas_contours:
         xx, yy = _orient_dm(x, y, xn, yn)
@@ -663,7 +717,7 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
           f"y={'log' if log_y else 'linear'}; {len(rows)} points, {int(matched.sum())} exactly on the "
           f"published grid ({n_missing} meshed-but-unpublished -> white+circle), "
           f"median |rel diff| = {med:.1f}%, "
-          f"mapyde mu=1 contour {'drawn' if handles and 'mapyde' in handles[0].get_label() else 'MISSING'}, "
+          f"Ravel mu=1 contour {'drawn' if handles and 'Ravel' in handles[0].get_label() else 'MISSING'}, "
           f"{len(atlas_contours)} ATLAS contour(s)")
 
 
@@ -679,7 +733,7 @@ def read_limit_grid(path, kind="observed"):
         doc = yaml.safe_load(fh)
     iv = doc.get("independent_variables", []) or []
     dv = doc.get("dependent_variables", []) or []
-    if len(iv) < 2 or not dv:
+    if len(iv) != 2 or not dv:
         die(f"--atlas-limit {path}: expected a 2-D per-point limit grid (2 independent mass vars + a "
             f"dependent UL), got {len(iv)} indep / {len(dv)} dep. Pick the 'upper-cross-section-limits' "
             f"table (kind=limit in hepdata_manifest.json), not the exclusion-contour boundary.")
@@ -691,22 +745,40 @@ def read_limit_grid(path, kind="observed"):
         nm = hdr(v).get("name", "") or ""
         return "delta" in nm.lower() or "\\Delta" in nm or "Δ" in nm
     key = {"observed": "observ", "expected": "expect"}[kind]
-    di = next((i for i, v in enumerate(dv) if key in (hdr(v).get("name", "") or "").lower()), None)
+    candidates = [i for i, v in enumerate(dv) if key in (hdr(v).get("name", "") or "").lower()]
+    if len(candidates) > 1:
+        die(f"--atlas-limit {path}: ambiguous '{kind}' columns; select an explicit median-only table")
+    di = candidates[0] if candidates else None
     if di is None:
-        if kind == "observed" and len(dv) == 1:
-            di = 0   # single unnamed UL column: treat as observed (the common HEPData minimal case)
-        else:
-            die(f"--atlas-limit {path}: no dependent column matching '{kind}' "
-                f"(columns: {[hdr(v).get('name') for v in dv]})")
+        raise MissingLimitColumn(f"--atlas-limit {path}: no dependent column matching '{kind}' "
+                                 f"(columns: {[hdr(v).get('name') for v in dv]})")
+    for column in (*iv, dv[di]):
+        for row in column.get("values", []):
+            value = row.get("value")
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                die(f"--atlas-limit {path}: grid values must be numbers, not booleans or strings")
     x0 = np.array([r["value"] for r in iv[0]["values"]], float)
     x1 = np.array([r["value"] for r in iv[1]["values"]], float)
     sig = np.array([r["value"] for r in dv[di]["values"]], float)
-    m, dm = (x1, x0) if (is_dm(iv[0]) and not is_dm(iv[1])) else (x0, x1)
+    if not (len(x0) == len(x1) == len(sig)) or not len(sig):
+        die(f"--atlas-limit {path}: coordinate and limit columns must have equal nonzero lengths")
+    if is_dm(iv[0]) and is_dm(iv[1]):
+        die(f"--atlas-limit {path}: both independent variables identify a mass splitting")
+    for column in iv:
+        if (hdr(column).get("units", "") or "").lower() != "gev":
+            die(f"--atlas-limit {path}: mass coordinate units must explicitly be GeV")
+    m, dm = _orient_dm(x0, x1, hdr(iv[0]).get("name"), hdr(iv[1]).get("name"))
     units = (hdr(dv[di]).get("units", "") or "").lower()
     if units == "pb":
         sig = sig * 1000.0
-    elif units not in ("fb", ""):
-        print(f"  (warning: --atlas-limit dep units '{units}' not pb/fb; assuming fb)")
+    elif units != "fb":
+        die(f"--atlas-limit {path}: unsupported or missing cross-section units '{units}'; require pb or fb")
+    if not all(np.all(np.isfinite(v)) for v in (m, dm, sig)) or np.any(sig <= 0) or np.any(dm <= 0) or np.any(m <= 0):
+        die(f"--atlas-limit {path}: masses, splittings and limits must be finite and positive")
+    if np.any(dm > m):
+        die(f"--atlas-limit {path}: splitting exceeds parent mass (negative daughter mass)")
+    if len(set(zip(m, dm))) != len(m):
+        die(f"--atlas-limit {path}: duplicate reference coordinates")
     return m, dm, sig
 
 
@@ -718,6 +790,10 @@ def _exact_grid_lookup(gx, gy, gz, qx, qy, atol=0.05):
     values that were never published (never-interpolate-the-reference rule,
     docs/workflow/checklists/scan-and-contour.md)."""
     gx = np.asarray(gx, float); gy = np.asarray(gy, float); gz = np.asarray(gz, float)
+    if not (len(gx) == len(gy) == len(gz)) or len(qx) != len(qy):
+        raise ValueError("reference and query coordinates must have matching lengths")
+    if not all(np.all(np.isfinite(v)) for v in (gx, gy, gz)) or np.any(gz <= 0):
+        raise ValueError("reference grid must be finite with positive limits")
     out = np.full(len(qx), np.nan)
     for i, (x, y) in enumerate(zip(qx, qy)):
         hit = np.where((np.abs(gx - x) <= atol) & (np.abs(gy - y) <= atol))[0]
@@ -729,113 +805,58 @@ def _exact_grid_lookup(gx, gy, gz, qx, qy, atol=0.05):
     return out
 
 
-def _interp_grid(gx, gy, gz, qx, qy):
-    """Interpolate scattered grid (gx,gy)->gz onto query points (qx,qy): linear, nearest fallback for
-    points outside the convex hull. scipy if present, else pure-numpy nearest neighbour. DIAGNOSTIC
-    use only (the __reldiff two-panel); the headline fig3 fill uses _exact_grid_lookup instead."""
-    try:
-        from scipy.interpolate import griddata
-        out = griddata((gx, gy), gz, (qx, qy), method="linear")
-        nan = ~np.isfinite(out)
-        if nan.any():
-            out[nan] = griddata((gx, gy), gz, (qx[nan], qy[nan]), method="nearest")
-        return out
-    except ImportError:
-        out = np.empty(len(qx))
-        for i, (x, y) in enumerate(zip(qx, qy)):
-            out[i] = gz[int(np.argmin((gx - x) ** 2 + (gy - y) ** 2))]
-        return out
-
-
-def render_diffmap(scan, atlas_contours, limit_grid, args):
-    """The RRR Fig-3 figure-of-merit: the (mapyde−ATLAS)/ATLAS relative difference in the σ upper limit
-    (≡ the difference in the signal-strength limit µ — but ONLY when both σ-ULs are quoted on the SAME
-    model σ, which then cancels in the ratio; see _basis_guard and the scan-and-contour checklist).
-    mapyde σ_UL = µ95_obs × σ_ref (both from scan.json); ATLAS σ_UL is the published per-point grid,
-    interpolated onto the scanned points. 2-D grid → tricontourf color map; a 1-D line → a rel-diff curve."""
-    plt, hep = setup(args)
-    _basis_guard(scan, "diff map")
-    rows = [p for p in scan["points"] if p.get("sigma_ref_fb")]
-    missing = [p["tag"] for p in scan["points"] if not p.get("sigma_ref_fb")]
-    if not rows:
-        die("the difference map needs sigma_ref_fb per point (σ_UL = µ95×σ_ref). Re-assemble the scan "
-            "after the runs (scan_orchestrator reads it from logs/madgraph.log×kfactor); the contour "
-            "overlay still renders without --atlas-limit.")
-    if missing:
-        print(f"  (diff map: {len(missing)} point(s) lack sigma_ref_fb, skipped: {missing})")
-    mpar = np.array([p["m_parent"] for p in rows], float)
-    dm = np.array([p["dm"] for p in rows], float)
-    mapyde_sul = np.array([p["mu95_obs"] * p["sigma_ref_fb"] for p in rows], float)
-    atlas_sul = _interp_grid(*limit_grid, mpar, dm)
-    rel = (mapyde_sul - atlas_sul) / atlas_sul
-    twoD = (len(np.unique(mpar)) >= 2 and len(np.unique(dm)) >= 2 and len(rows) >= 3)
-
-    fig, ax = plt.subplots(figsize=(8, 7) if twoD else (8, 6))
-    # ROBUST color scale: a few corner points (very light sleptons / tiny Δm) can blow the rel-diff to
-    # many-hundred % (LO σ + fast-sim break down there); scaling to the max washes out the bulk. Clamp to
-    # a robust percentile so the typical ~±tens-of-% structure is visible; outliers SATURATE (extend=both).
-    absr = np.abs(rel[np.isfinite(rel)]) if len(rel) else np.array([1.0])
-    vmax = float(np.nanpercentile(absr, 85)) if absr.size else 1.0
-    vmax = min(max(vmax, 0.1), 1.5)
-    if twoD:
-        import matplotlib.tri as mtri
-        tri = mtri.Triangulation(mpar, dm)
-        tcf = ax.tricontourf(tri, np.clip(rel, -vmax, vmax), levels=np.linspace(-vmax, vmax, 21),
-                             cmap="RdBu_r", extend="both")
-        cb = fig.colorbar(tcf, ax=ax, pad=0.02)
-        cb.set_label(r"$(\mu_{95}^{\mathrm{mapyde}}-\mu_{95}^{\mathrm{ATLAS}})/\mu_{95}^{\mathrm{ATLAS}}$")
-        ax.plot(mpar, dm, "k.", ms=4, zorder=4)
-        try:
-            cs = ax.tricontour(tri, np.array([p["mu95_obs"] for p in rows], float), levels=[1.0],
-                               colors=[house.OKABE_ITO["bluishgreen"]], linewidths=2.2, zorder=6)
-            if getattr(cs, "allsegs", [[]])[0]:
-                from matplotlib.lines import Line2D
-                ax.add_line(Line2D([], [], color=house.OKABE_ITO["bluishgreen"], lw=2.2,
-                                   label=r"mapyde 95% CL excl."))
-        except Exception:
-            pass
-        for role, path, x, y, xn, yn in atlas_contours:
-            xx, yy = np.asarray(x, float), np.asarray(y, float)
-            def _isdm(nm): return bool(nm) and ("delta" in nm.lower() or "\\Delta" in nm or "Δ" in nm)
-            if _isdm(xn) and not _isdm(yn): xx, yy = yy, xx
-            elif not _isdm(xn) and not _isdm(yn): yy = xx - yy
-            ax.plot(xx, yy, "k-" if role.startswith("observed") else "k--", lw=1.8, zorder=5,
-                    label=f"ATLAS {role.replace('_', ' ')}")
-        ax.set_xlabel(r"$m_{\tilde{\ell}}$ [GeV]"); ax.set_ylabel(r"$\Delta m$ [GeV]")
-        if ax.get_legend_handles_labels()[0]:
-            house.smart_legend(ax, fontsize=10, reserved_corners=(),
-                               candidates={"upper right": (0.58, 1.00, 0.55, 1.00),
-                                           "upper left": (0.00, 0.42, 0.55, 1.00),
-                                           "lower right": (0.58, 1.00, 0.00, 0.45),
-                                           "lower left": (0.00, 0.42, 0.00, 0.45)})
-    else:  # 1-D line: rel-diff vs Δm at the single mass
-        order = np.argsort(dm)
-        ax.axhline(0, color="0.5", lw=1)
-        ax.plot(dm[order], 100 * rel[order], "o-", color=house.OKABE_ITO["vermillion"], lw=2, ms=6)
-        ax.set_xlabel(r"$\Delta m(\tilde{\ell},\tilde{\chi}^0_1)$ [GeV]")
-        ax.set_ylabel(r"$(\sigma_{\mathrm{UL}}^{\mathrm{mapyde}}-\sigma_{\mathrm{UL}}^{\mathrm{ATLAS}})"
-                      r"/\sigma_{\mathrm{UL}}^{\mathrm{ATLAS}}$  [%]")
-        ax.text(0.5, 0.04, f"m={mpar[0]:g} GeV  ·  1-D slice of the difference map (need a 2-D grid for "
-                f"the color map)", transform=ax.transAxes, ha="center", va="bottom", fontsize=9, color="0.4")
-    # the fill occupies the whole panel -> experiment label ABOVE the axes (as in render_fig3);
-    # inside-axes placement was found overdrawn by the 2026-08-28 Tier-B panel.
-    if hep is not None:
-        explabel = getattr(hep, args.experiment.lower()).label
-        try:
-            explabel(ax=ax, data=True, text="", lumi=args.lumi, com=args.com, loc=0)
-        except TypeError:
-            header(ax, hep, args)
-    house.smart_annotate(ax, [
-        rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$  vs ATLAS",
-        "rel. diff in the 95% CL limit (RRR Fig-3 figure-of-merit)",
-        "smoothly INTERPOLATED between lattice points" if twoD else "1-D slice",
-        "(diagnostic; exact per-cell map: __fig3)",
-        f"median |rel diff| = {100*float(np.nanmedian(np.abs(rel))):.1f} percent"], fontsize=10)
-    house.tick_hygiene(ax, axr=None, logy=False, logx=False)
-    stem = args.out + "__reldiff"
+def render_diffmap(scan, atlas_contours, limit_grid, args, kind="observed"):
+    """Exact observed-limit comparisons and coverage, with no interpolated references."""
+    plt, _ = setup(args)
+    if not _basis_guard(scan, "difference map"):
+        die("reference comparison requires an explicit model_basis; rebase the scan first")
+    report = comparison_data(scan, limit_grid, kind)
+    fig, (ax, residual_ax) = plt.subplots(1, 2, figsize=(12, 5.5), layout="constrained")
+    valid = [r for r in report["records"] if r["status"] == "matched"]
+    if not valid:
+        die("no valid scan point exactly matches the published reference grid")
+    residual = np.array([r["residual"] for r in valid])
+    maximum = max(0.1, float(np.max(np.abs(residual))))
+    plot = ax.scatter([r["m_parent"] for r in valid], [r["dm"] for r in valid],
+                      c=100 * residual, cmap="RdBu_r", vmin=-100 * maximum, vmax=100 * maximum,
+                      marker="s", s=42, edgecolors="0.25", linewidths=0.4, zorder=3)
+    fig.colorbar(plot, ax=ax, label="(Ravel − ATLAS) / ATLAS [%]", shrink=0.8)
+    for status, marker, label in (("quality_flag", "x", "Bound / quality flag"),
+                                  ("unmatched_reference", "o", "No exact reference"),
+                                  ("invalid_input", "+", "Invalid input")):
+        items = [r for r in report["records"] if r["status"] == status
+                 and isinstance(r["m_parent"], (int, float)) and isinstance(r["dm"], (int, float))
+                 and np.isfinite(r["m_parent"]) and np.isfinite(r["dm"]) and r["dm"] > 0]
+        if items:
+            ax.scatter([r["m_parent"] for r in items], [r["dm"] for r in items], marker=marker,
+                       color="0.4", s=45, label=f"{label} ({len(items)})", zorder=4)
+    ax.set(xlabel="Parent mass [GeV]", ylabel="Mass splitting [GeV]", yscale="log")
+    handles, labels = ax.get_legend_handles_labels()
+    from matplotlib.ticker import ScalarFormatter
+    tick_values = sorted({r["dm"] for r in report["records"] if isinstance(r.get("dm"), (int, float))
+                          and np.isfinite(r["dm"]) and r["dm"] > 0})
+    if len(tick_values) <= 10:
+        ax.set_yticks(tick_values)
+        ax.yaxis.set_major_formatter(ScalarFormatter())
+    order = np.argsort(residual)
+    residual_ax.axhline(0, color="0.4", lw=0.8)
+    residual_ax.plot(np.arange(1, len(valid) + 1), 100 * residual[order], "o", ms=4, color="#0072B2")
+    residual_ax.set(xlabel="Matched point, ordered by residual", ylabel="Signed residual [%]")
+    median = 100 * report["median_absolute_residual"]
+    fig.suptitle(f"{scan.get('model', 'Scan')} · {kind} limits · exact reference comparison\n"
+                 f"{len(valid)}/{report['planned']} planned points matched · median |residual| {median:.1f}%",
+                 fontsize=13)
+    coverage_note = " · ".join(labels)
+    fig.text(0.5, -0.03, "Cached scan reanalysis · exact matched cells only · " + coverage_note,
+             ha="center", fontsize=9)
+    if handles:
+        ax.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, -0.17), fontsize=8)
+    stem = args.out + ("__reldiff_expected" if kind == "expected" else "__reldiff")
     save(fig, stem)
-    print(f"difference map ({'2-D color map' if twoD else '1-D line slice'}): "
-          f"{len(rows)} points, median |(mapyde-ATLAS)/ATLAS| = {100*float(np.nanmedian(np.abs(rel))):.1f}%")
+    from pathlib import Path
+    Path(stem + ".json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    plt.close(fig)
+    print(f"exact difference map: {len(valid)}/{report['planned']} matched; median |residual| = {median:.1f}%")
 
 
 def main():
@@ -846,7 +867,7 @@ def main():
                     help="optional ATLAS HEPData reference contour(s) to overlay (RRR comparison)")
     ap.add_argument("--atlas-limit", default=None, metavar="HEPDATA_UL.yaml",
                     help="optional ATLAS per-point σ upper-limit grid (HEPData 'upper cross-section "
-                         "limits' table) → also render the (mapyde−ATLAS)/ATLAS difference map (RRR Fig 3b)")
+                         "limits' table) → also render the (Ravel−ATLAS)/ATLAS difference map (RRR Fig 3b)")
     ap.add_argument("--limit-kind", choices=["observed", "expected", "both"], default="both",
                     help="which limit column(s) the fig3 fill compares (LIKE-COLUMNS rule: the scan's "
                          "mu95_obs against the reference's Observed UL, mu95_exp against Expected — "
@@ -921,17 +942,25 @@ def main():
     else:
         render_grid(scan, atlas, args)
 
-    # the (mapyde−ATLAS)/ATLAS difference map — the two-panel diagnostic (observed, interpolated)
+    # Exact observed-reference comparison, with coverage and per-point JSON accounting.
     limit_grid = None
     if args.atlas_limit:
         if not os.path.exists(args.atlas_limit):
             die(f"--atlas-limit not found: {args.atlas_limit}")
-        limit_grid = read_limit_grid(args.atlas_limit, kind="observed")
-        render_diffmap(scan, atlas, limit_grid, args)
+        base_kind = "expected" if args.limit_kind == "expected" else "observed"
+        try:
+            limit_grid = read_limit_grid(args.atlas_limit, kind=base_kind)
+        except MissingLimitColumn:
+            if args.limit_kind != "both":
+                raise
+            base_kind = "expected"
+            limit_grid = read_limit_grid(args.atlas_limit, kind=base_kind)
+            print("  (observed reference unavailable; rendering expected comparison)")
+        render_diffmap(scan, atlas, limit_grid, args, kind=base_kind)
 
     # RRR Fig 3's actual FORM — the DEFAULT headline artifact whenever both references are
     # available with a 2-D grid: ONE panel = rel-diff fill (EXACT reference matches only) + ATLAS
-    # contour + mapyde mu=1 contour on a LOG-Delta-m axis. kinds per --limit-kind (LIKE-COLUMNS
+    # contour + Ravel mu=1 contour on a LOG-Delta-m axis. kinds per --limit-kind (LIKE-COLUMNS
     # rule): observed → <out>__fig3, expected → <out>__fig3_expected (the RRR Fig-3 convention).
     # The two-panel outputs above remain as diagnostics.
     if layout == "grid" and atlas and limit_grid is not None:
@@ -940,14 +969,14 @@ def main():
             if kind == "expected" and not any(p.get("mu95_exp") is not None for p in scan["points"]):
                 print("  (fig3 expected: scan.json has no mu95_exp -- variant skipped)")
                 continue
-            if kind == "observed":
+            if kind == base_kind:
                 grid_k = limit_grid
             else:
                 try:
                     grid_k = read_limit_grid(args.atlas_limit, kind=kind)
-                except SystemExit:
+                except MissingLimitColumn:
                     if args.limit_kind == "both":   # default sweep: table simply lacks the column
-                        print("  (fig3 expected: --atlas-limit table has no Expected column -- "
+                        print(f"  (fig3 {kind}: --atlas-limit table has no {kind} column -- "
                               "variant skipped)")
                         continue
                     raise

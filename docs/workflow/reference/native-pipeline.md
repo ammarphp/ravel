@@ -1,5 +1,12 @@
 # Reference — the NATIVE (VM-free) pipeline backend
 
+The September 2026 [native fidelity audit](../../../evidence/audits/2026-09-05-native-fidelity/README.md)
+corrects the eRJR invisible-momentum boost against the ATLAS paper. Its SR-low
+selection intentionally differs from the older container oracle; the recorded
+9/9 comparison is historical. The unchanged compressed and zero-lepton selections
+were replayed separately. Selection parity alone does not certify physics fidelity.
+
+
 The default execution backend for the scan (`scan_orchestrator launch --backend native`, step 8) and a
 drop-in for a single point. It runs every stage in a **native arm64 conda env — no podman, no VM, no x86
 emulation, no ATLAS AnalysisBase** — which makes a full-chain point **~30–50 min** (not ~9 h; the

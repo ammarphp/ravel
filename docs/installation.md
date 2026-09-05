@@ -19,7 +19,7 @@ python3.12 -m venv .venv-replay
 .venv-replay/bin/python -m pip install --require-hashes -r requirements-replay.lock
 .venv-replay/bin/python -m pip install --no-deps .
 .venv-replay/bin/ravel --help
-.venv-replay/bin/ravel replay --out ravel-replay-example
+.venv-replay/bin/ravel replay --out local-runs/replay-example
 ```
 
 The dependency lock checks downloaded distribution hashes. `--no-deps` keeps the
@@ -33,7 +33,7 @@ uv python install 3.12.13
 uv venv --python 3.12.13 .venv-replay
 uv pip sync --python .venv-replay/bin/python --require-hashes requirements-replay.lock
 uv pip install --python .venv-replay/bin/python --no-deps .
-.venv-replay/bin/ravel replay --out ravel-replay-example
+.venv-replay/bin/ravel replay --out local-runs/replay-example
 ```
 
 Use one setup method and a new output directory for each replay. The directory

@@ -15,6 +15,7 @@ def main():
     failed = False
     for script, args in [('scripts/check_repository.py', []),
                          ('scripts/claims_check.py', []),
+                         ('scripts/check_fidelity_audits.py', []),
                          ('scripts/gen_validation_pages.py', ['--check']),
                          ('scripts/gen_status.py', ['--check'])]:
         result = subprocess.run([sys.executable, str(ROOT / script), *args], cwd=ROOT)

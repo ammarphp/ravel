@@ -1,0 +1,25 @@
+{
+  "scope": "fresh plotting of cached historical scan; no event generation or new likelihood fits",
+  "python": "3.12.13",
+  "command": "python benchmarks/plot_scan_demo.py --out NEW_DIRECTORY",
+  "inputs": {
+    "trial-runs/sleptonscan_fig3_SCAN/scan.json": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-limit-grid.yaml": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-observed-contour.yaml": "221b61e2aa3d7846847a5139363a3f2bcf1c4ded6d35b7780ecc1dc047813755",
+    "src/ravel/plotting/scan_contour.py": "0e2e90a15fe7dc52c37c38ad3a5cc155185bddfabd073f278827f0eb7c8aac03",
+    "src/ravel/plotting/mplhep_style.py": "2e36211ea90aad6bfcf8a957f872db5410b9fe30c2e9c1a4f6c972dc87e49ab7",
+    "benchmarks/plot_scan_demo.py": "620fedaf03406c19f39344db38b20fd2a686c9c25d369eca61108e76fd638602"
+  },
+  "outputs": {
+    "render.log": "fe65d010735b6f18353c9df685d0c0d76412082d528b77b0c56dc5562ea5449b",
+    "scan.pdf": "b41efe3f0246753b06de2646b2d63f912f8f3c60fe70dd731fd0cb6f85760c5c",
+    "scan.png": "243cee2db9ace7cdd1fdc734025bdd223f128d2dc7d94f08f04c8e1c91284c65",
+    "scan__fig3.pdf": "2cb54830b31a4d85f03460be37d7657082bca8b00d9caa2f3ed01aa9447950b3",
+    "scan__fig3.png": "b9e10bf8ab0ea7a1ef6162cfda339fd9b3aeba2dcc6688f834272e547181e200",
+    "scan__fig3_expected.pdf": "ad5d1886c63566d3199160737ddc4a3760461db80a3533dcace0f38032cd4131",
+    "scan__fig3_expected.png": "9100be3234e6cc5df7d7346347090af5a85a24cdc285d7888ea8799796494194",
+    "scan__reldiff.json": "337acbcce5259d4126237a5de3defedf0efdb5790b06898fc8aeb9d470f51da0",
+    "scan__reldiff.pdf": "78d2c0d23936f07a94a6d7b1ee500956bd9c82e86918841c0505b17ae576a2ba",
+    "scan__reldiff.png": "4ca825958646f08f213aca149569c2307e0839c9e462d7bdb4587ce2259cce4e"
+  }
+}

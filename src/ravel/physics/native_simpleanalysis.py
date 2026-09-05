@@ -460,6 +460,8 @@ def main():
 
     # ---- pass 2: apply the SR cascade with native RJR ----
     counts = {sr: 0 for sr in sr_order()}
+    sumw = {sr: 0.0 for sr in sr_order()}
+    sumw2 = {sr: 0.0 for sr in sr_order()}
     ntuple_rows = []   # (Event, weight, isee, ismm, accepted-set) per selected event -> the SA .root
     for ev, sel in selected.items():
         r = rjr.get(ev)
@@ -471,10 +473,12 @@ def main():
         accepted, isee, ismm = select_regions(sel, RISR, MS)
         for sr in accepted:
             counts[sr] += 1
+            sumw[sr] += sel['_w']
+            sumw2[sr] += sel['_w']*sel['_w']
         ntuple_rows.append((ev, sel['_w'], isee, ismm, accepted))
 
     # ---- emit the txt (exact container format + order) ----
-    write_txt(outtxt, counts, sr_order(), w)
+    write_txt(outtxt, counts, sr_order(), w, sumw=sumw, sumw2=sumw2)
 
     # diagnostic summary to stdout
     tot = sum(counts.values())

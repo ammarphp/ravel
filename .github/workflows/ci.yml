@@ -78,4 +78,4 @@ jobs:
       - name: verify packaged engines and replay away from source
         run: |
           export RAVEL_TEST_WHEEL="$(echo "$RUNNER_TEMP"/ravel-dist/ravel_hep-*.whl)"
-          python -m pytest tests/unit/test_ravel_cli.py -q
+          python -m pytest tests/unit/test_ravel_cli.py tests/unit/test_cli_initiate.py -q

@@ -2,7 +2,7 @@
   "name": "cr004-smoke-nnpdf30-1pt",
   "model": "slepton-bino",
   "analysis_id": "ins1767649",
-  "template_toml": "trial-runs/_infrastructure/templates/slepton_scan_template.toml",
+  "template_toml": "src/ravel/data/templates/slepton_scan_template.toml",
   "subst": {"MSLEP": "m_parent", "MN1": "m_lsp"},
   "plane": "dm",
   "run_root": "trial-runs",

@@ -1,5 +1,5 @@
 """Ravel's task-contract API; full simulation remains workflow-driven."""
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = ["validate_task_contract", "__version__"]
 
 

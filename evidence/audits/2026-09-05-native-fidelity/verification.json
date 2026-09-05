@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "scope": "Native selection/reconstruction/output verification; no new generation or fit",
+  "engine_sha256": {
+    "sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+    "native_simpleanalysis.py": "21c6c453fe0b7b691a8a22fe72ca40ee529bc47adbd820dc8768b03758f7d193",
+    "native_sa_generic.py": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
+    "sa_routines/ewkthreeleptonerjr2018.py": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec"
+  },
+  "unit_tests": {
+    "command": "python -m pytest tests/unit/test_native_fidelity.py -q",
+    "passed": 15
+  },
+  "retained_erjr_replay": {
+    "entries": 200000,
+    "sr_low_historical": 43,
+    "sr_low_paper": 95,
+    "sr_isr_historical": 19,
+    "sr_isr_paper": 19,
+    "changed_events": 73,
+    "sr_low_added": 52,
+    "sr_low_lost": 0,
+    "agrees_with_independent_pre_edit_instrumentation": true
+  },
+  "cached_output_comparisons": [
+    {
+      "name": "compressed-electroweak",
+      "byte_identical": true,
+      "historical_sha256": "50a66bd6c5ffe693820d3bd472840f2a32e7e40e77e60668de717daa1a83415c",
+      "replay_sha256": "50a66bd6c5ffe693820d3bd472840f2a32e7e40e77e60668de717daa1a83415c"
+    },
+    {
+      "name": "zero-lepton-squark-oracle",
+      "byte_identical": true,
+      "historical_sha256": "767aae80e07f5e103cd03409619fb802891b0c1c1d038acacc238735d85a8c3b",
+      "replay_sha256": "767aae80e07f5e103cd03409619fb802891b0c1c1d038acacc238735d85a8c3b"
+    },
+    {
+      "name": "zero-lepton-squark-certification",
+      "byte_identical": true,
+      "historical_sha256": "ea89a2a8aa604db8387c41f7c2cb77a3fa0f5532a3f45937778e5bbe21f6d8da",
+      "replay_sha256": "ea89a2a8aa604db8387c41f7c2cb77a3fa0f5532a3f45937778e5bbe21f6d8da"
+    },
+    {
+      "name": "zero-lepton-gluino-certification",
+      "byte_identical": true,
+      "historical_sha256": "1a0065f2ed216f766d73dc78a3dc3687f784fe75c3edcd542b4023c1d4240bd4",
+      "replay_sha256": "1a0065f2ed216f766d73dc78a3dc3687f784fe75c3edcd542b4023c1d4240bd4"
+    }
+  ],
+  "direct_delphes_nominal_weight_read": {
+    "events": 10000,
+    "minimum": 0.312063992023468,
+    "maximum": 0.312063992023468,
+    "unit_weights_forced": false
+  },
+  "graphics": {
+    "png_visually_checked": true,
+    "pdf_present": true
+  },
+  "historical_inputs_preserved": true
+}

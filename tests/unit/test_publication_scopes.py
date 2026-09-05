@@ -91,3 +91,14 @@ def test_private_history_exemption_never_applies_to_a_published_claim(tmp_path):
     manifest.write_text(json.dumps({'claims': [entry]}))
     page.write_text('<!-- claim:example -->42<!-- /claim -->')
     assert any('artifact missing' in m for m in claims_check.check(page, manifest, tmp_path)[0])
+
+
+def test_readme_subset_claims_are_checked_without_requiring_every_claim(tmp_path):
+    page, manifest = tmp_path / 'README.md', tmp_path / 'claims.json'
+    manifest.write_text(json.dumps({'claims': [
+        {'claim': 'one', 'status': 'VERIFIED', 'value': '1', 'artifacts': []},
+        {'claim': 'two', 'status': 'VERIFIED', 'value': '2', 'artifacts': []}]}))
+    page.write_text('<!-- claim:one -->1<!-- /claim -->')
+    assert claims_check.check(page, manifest, tmp_path, require_all=False)[0] == []
+    page.write_text('<!-- claim:one -->100<!-- /claim -->')
+    assert any('drift' in m for m in claims_check.check(page, manifest, tmp_path, require_all=False)[0])

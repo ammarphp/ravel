@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 from ravel import evidence_layout
 
 CONVENTIONAL = {'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'DIRECTORY.md', 'CHANGELOG.md', 'SKILL.md'}
-LOCAL_TOOL_DIRS = {'.git', '.pytest_cache', '.ruff_cache', '__pycache__', 'dist', 'build'}
+LOCAL_TOOL_DIRS = {'.git', '.pytest_cache', '.ruff_cache', '__pycache__', 'dist', 'build', 'local-runs', 'logs'}
 PUBLIC_ROOTS = {
     'src', 'tests', 'docs', 'benchmarks', 'native', 'environment', 'evidence', 'scripts',
     '.github', '.claude', '.agents', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'DIRECTORY.md',

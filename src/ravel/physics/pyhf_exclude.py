@@ -13,10 +13,11 @@ Two model-building modes, matching what a search actually publishes:
                EXPECTED CLs), which is the standard prescription when the SRs
                overlap and cannot be statistically combined.
 
-Both modes report the OBSERVED and EXPECTED (+/-1,2 sigma) 95% CL upper limit on
-mu via pyhf.infer.intervals.upper_limit (a real root-find -- no fixed grid that
-could truncate the scan), plus a CLs-vs-mu curve that is guaranteed to reach the
-0.05 crossing.
+Both modes invert pyhf's asymptotic CLs with a shared scan and bracketed root
+refinement. Observed and expected (+/-1,2 sigma) limits have separate resolved /
+above-scan / below-scan statuses. A scan endpoint is a bound, not a measured limit.
+This computes the supplied statistical model; it does not establish asymptotic
+coverage, detector fidelity, or the validity of missing background correlations.
 
 Every minimization runs through `robust_optimizer` (CR-005, 2026-08-28): scipy/SLSQP
 first (bit-identical to stock on clean surfaces), with a NaN-guarded iminuit-MIGRAD
@@ -92,10 +93,13 @@ class robust_optimizer(scipy_optimizer):
 
     def _minimize(self, minimizer, func, x0, do_grad=False, bounds=None, fixed_vals=None, options={}):
         if do_grad:
-            # autodiff backends carry exact gradients; the finite-difference NaN
-            # line-search failure class does not apply -- delegate untouched.
-            return super()._minimize(minimizer, func, x0, do_grad=do_grad, bounds=bounds,
-                                     fixed_vals=fixed_vals, options=options)
+            result = super()._minimize(minimizer, func, x0, do_grad=do_grad, bounds=bounds,
+                                      fixed_vals=fixed_vals, options=options)
+            if not result.success or not self._valid_result(
+                result.x, result.fun, lambda x: func(x)[0], bounds, fixed_vals
+            ):
+                raise RuntimeError("robust_optimizer: gradient fit failed numerical validation")
+            return result
         robust_optimizer.n_fits += 1
         if robust_optimizer.escalated:
             robust_optimizer.n_escalated += 1
@@ -115,7 +119,7 @@ class robust_optimizer(scipy_optimizer):
         except Exception as exc:
             why = f"scipy raised {type(exc).__name__}"
         scipy_clean = (result is not None and bool(getattr(result, "success", False))
-                       and np.isfinite(float(result.fun)))
+                       and self._valid_result(result.x, result.fun, func, bounds, fixed_vals))
         if why is None and not scipy_clean:
             why = "scipy reported failure or a non-finite minimum"
         if why is None and fixed_vals:
@@ -142,6 +146,24 @@ class robust_optimizer(scipy_optimizer):
         if scipy_clean and float(result.fun) <= float(fallback.fun):
             return result
         return fallback
+
+    @staticmethod
+    def _valid_result(x, value, func, bounds, fixed_vals):
+        """Convergence flags cannot validate a penalty value or nonphysical parameters."""
+        x = np.asarray(x, dtype=float)
+        if x.ndim != 1 or not np.all(np.isfinite(x)) or not np.isfinite(float(value)):
+            return False
+        if bounds is not None and len(x) != len(bounds):
+            return False
+        if bounds is not None and any(
+            (lo is not None and v < lo - 1e-7) or (hi is not None and v > hi + 1e-7)
+            for v, (lo, hi) in zip(x, bounds)
+        ):
+            return False
+        if any(abs(x[i] - v) > 1e-6 * max(1.0, abs(v)) for i, v in (fixed_vals or [])):
+            return False
+        actual = float(np.asarray(func(x)).ravel()[0])
+        return bool(np.isfinite(actual) and np.isclose(actual, value, rtol=1e-7, atol=1e-7))
 
     @staticmethod
     def _migrad(func, x0, bounds, fixed_vals):
@@ -176,6 +198,9 @@ class robust_optimizer(scipy_optimizer):
             raise RuntimeError("robust_optimizer: guarded MIGRAD found no valid minimum "
                                f"(fval={m.fval}, edm={m.fmin.edm}) -- the likelihood surface is "
                                "sick; refusing to report a limit from an unconverged fit (CR-005)")
+        if not robust_optimizer._valid_result(m.values, m.fval, func, bounds, fixed_vals):
+            raise RuntimeError("robust_optimizer: MIGRAD minimum fails original-objective, "
+                               "finite-parameter or bound validation; refusing to report a limit")
         return so.OptimizeResult(x=np.asarray(m.values, dtype=float), fun=float(m.fval),
                                  success=True, message="migrad-fallback ok", nfev=m.nfcn)
 
@@ -193,11 +218,85 @@ MODIFIER_SETTINGS = {
 }
 
 
+def _number(value, name, *, positive=False):
+    """Counting observations may be fractional Asimov counts, but never strings or booleans."""
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, (int, float, np.number)):
+        raise ValueError(f"{name} must be a finite number")
+    value = float(value)
+    if not np.isfinite(value) or value < 0 or (positive and value == 0):
+        raise ValueError(f"{name} must be finite and {'positive' if positive else 'nonnegative'}")
+    return value
+
+
+def _counting_inputs(sr):
+    if not isinstance(sr, dict):
+        raise ValueError("each counting SR must be an object with n, b, db, s")
+    values = {key: _number(sr.get(key), key) for key in ("n", "b", "db", "s")}
+    # pyhf shapesys disables its nuisance when b=0. A positive quoted db would be lost.
+    if values["b"] == 0 and values["db"] > 0:
+        raise ValueError("db > 0 with zero background cannot be represented by shapesys; "
+                         "supply a likelihood with an appropriate background constraint")
+    return values
+
+
+def _read_json(path):
+    """Reject ambiguous keys and nonfinite constants before model construction."""
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = value
+        return result
+
+    with open(path) as stream:
+        result = json.load(stream, object_pairs_hook=pairs)
+
+    def check(value):
+        if isinstance(value, float) and not np.isfinite(value):
+            raise ValueError(f"nonfinite JSON number in {path}")
+        if isinstance(value, dict):
+            for child in value.values():
+                check(child)
+        elif isinstance(value, list):
+            for child in value:
+                check(child)
+    check(result)
+    return result
+
+
+def scale_result(result, factor):
+    """Change signal-strength units consistently in limits, curves and per-SR records."""
+    factor = _number(factor, "sigma_scale", positive=True)
+    if factor == 1:
+        return
+    result["sigma_scale_k"] = factor
+    result["obs_limit_lo"] = result["obs_limit"]
+    result["exp_limits_lo"] = list(result["exp_limits"])
+    result["obs_limit"] /= factor
+    result["exp_limits"] = [value / factor for value in result["exp_limits"]]
+    result["scan_mu"] = [value / factor for value in result["scan_mu"]]
+    brackets = result.get("limit_brackets", {})
+    for bracket in [brackets.get("observed", []), *brackets.get("expected", [])]:
+        bracket[:] = [value / factor if value is not None else None for value in bracket]
+    for record in result.get("per_sr", {}).values():
+        for field in ("obs_limit", "exp_median"):
+            if field in record:
+                record[field] /= factor
+        if "s" in record:
+            record["s_lo"] = record["s"]
+            record["s"] *= factor
+    if "inference" in result:
+        result["inference"]["root_atol"] /= factor
+    if "fit_diagnostics" in result:
+        result["fit_diagnostics"]["signal_strength_units"] = "original supplied-model units (before sigma_scale_k)"
+
+
 def model_from_likelihood(bkg_path, patch_path):
     """Background-only workspace + signal JSON-Patch -> (model, data)."""
     import jsonpatch
-    bkg = json.load(open(bkg_path))
-    patch = json.load(open(patch_path))
+    bkg = _read_json(bkg_path)
+    patch = _read_json(patch_path)
     spec = jsonpatch.apply_patch(bkg, patch)
     ws = pyhf.Workspace(spec)
     model = ws.model(modifier_settings=MODIFIER_SETTINGS)
@@ -207,6 +306,7 @@ def model_from_likelihood(bkg_path, patch_path):
 
 def model_from_counting(sr):
     """One SR's (n,b,db,s) -> (model, data) single-bin counting experiment."""
+    sr = _counting_inputs(sr)
     model = pyhf.simplemodels.uncorrelated_background(
         signal=[float(sr["s"])], bkg=[float(sr["b"])], bkg_uncertainty=[float(sr["db"])]
     )
@@ -223,17 +323,20 @@ def model_from_counting_combined(srs):
     Published correlations are not available for a counting input, so background
     constraints are taken uncorrelated; document this with the result.
     """
+    if not isinstance(srs, list) or not srs:
+        raise ValueError("combined counting needs a nonempty list of SRs")
+    srs = [_counting_inputs(sr) for sr in srs]
     model = pyhf.simplemodels.uncorrelated_background(
         signal=[float(sr["s"]) for sr in srs],
         bkg=[float(sr["b"]) for sr in srs],
-        bkg_uncertainty=[max(float(sr["db"]), 1e-6) for sr in srs],
+        bkg_uncertainty=[sr["db"] for sr in srs],
     )
     data = [float(sr["n"]) for sr in srs] + model.config.auxdata
     return model, data
 
 
 def low_count_flags(sr):
-    """Honesty metadata: where the Gaussian-constraint approximation is strained."""
+    """Where asymptotic qtilde calibration needs scrutiny (shapesys is Poisson-constrained)."""
     flags = []
     if float(sr["b"]) < 5:
         flags.append("b<5")
@@ -262,16 +365,44 @@ def _cross(mu, cls, level=0.05):
     return float(mu[-1])      # whole curve above level: report the ceiling (at_poi_cap flags it)
 
 
-def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
+def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-4):
     """Observed+expected 95% CL UL on mu plus a CLs-vs-mu curve, sharing ONE scan.
 
-    Each fit is expensive on a full likelihood (~40 s for a 191-parameter ATLAS
-    workspace), so we do a single bracket+scan and INTERPOLATE both the observed
-    and expected limits from the same hypotest calls -- not a separate dense
-    upper_limit() scan on top of the curve.
+    Shared CLs evaluations bracket all six curves; Brent root refinement gives
+    numerical precision independent of the plotting grid. This controls numerical
+    inversion error, not the coverage of the asymptotic qtilde approximation.
+    Unresolved endpoints retain their historical numeric bounds, with per-curve
+    status. Nonfinite points may only be omitted below every crossing bracket.
     """
     bounds = model.config.suggested_bounds()
     poi_idx = model.config.poi_index
+    level = _number(level, "level", positive=True)
+    if level >= 1:
+        raise ValueError("level must be between zero and one")
+    poi_cap = _number(poi_cap, "poi_cap", positive=True)
+    root_rtol = _number(root_rtol, "root_rtol", positive=True)
+    if root_rtol < 4 * np.finfo(float).eps or root_rtol >= 1:
+        raise ValueError("root_rtol must be between 4*machine-epsilon and one")
+    if type(n_curve) is not int or n_curve < 2:
+        raise ValueError("n_curve must be an integer >= 2")
+    if poi_idx is None or model.config.suggested_fixed()[poi_idx]:
+        raise ValueError("limit inference needs an unfixed parameter of interest")
+    raw_data = np.asarray(data)
+    if raw_data.dtype.kind not in "iuf":
+        raise ValueError("data must contain numeric counts and auxiliary observations")
+    data = np.asarray(data, dtype=float)
+    if data.ndim != 1 or len(data) != model.config.nmaindata + model.config.nauxdata:
+        raise ValueError("data shape does not match the model")
+    # Gaussian auxiliary observations can be negative; Poisson main counts cannot.
+    if not np.all(np.isfinite(data)) or np.any(data[:model.config.nmaindata] < 0):
+        raise ValueError("data must be finite with nonnegative observed main-bin counts")
+    offset = model.config.nmaindata
+    for name in model.config.auxdata_order:
+        parameter_set = model.config.param_set(name)
+        auxiliary = data[offset:offset + parameter_set.n_parameters]
+        if parameter_set.pdf_type == "poisson" and np.any(auxiliary < 0):
+            raise ValueError(f"Poisson auxiliary counts for {name} must be nonnegative")
+        offset += parameter_set.n_parameters
     # optimizer-guard provenance (CR-005): snapshot the robust_optimizer counters so the
     # result can report how many minimizations in THIS computation needed the fallback.
     # Escalation is a property of one model's surface, so it is scoped per compute():
@@ -286,12 +417,51 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
         return b
 
     cache = {}
+    fit_diagnostics = {"available": False, "reason": "calculator supplied no fit diagnostics",
+                       "covariance": None, "nuisance_pull_uncertainties": None}
+
+    def evaluate(mu):
+        nonlocal fit_diagnostics
+        fit_bounds = par_bounds(max(mu * 1.5, 2.0))
+        returned = hypotest(mu, data, model, par_bounds=fit_bounds, test_stat="qtilde",
+                            return_expected_set=True, return_calculator=True)
+        observed, expected = returned[:2]
+        calculator = returned[2] if len(returned) == 3 else None
+        fits = getattr(calculator, "fitted_pars", None)
+        if fits is not None:
+            pars = np.asarray(fits.free_fit_to_data, dtype=float)
+            fixed = model.config.suggested_fixed()
+            parameters = []
+            for i, (name, value, (lower, upper)) in enumerate(zip(model.config.par_names, pars, fit_bounds)):
+                tolerance = 1e-5 * max(1.0, abs(upper - lower))
+                parameters.append({"name": name, "value": float(value), "fixed": bool(fixed[i]),
+                                   "bounds": [float(lower), float(upper)],
+                                   "near_lower_bound": bool(value - lower <= tolerance),
+                                   "near_upper_bound": bool(upper - value <= tolerance)})
+            fit_diagnostics = {
+                "available": True, "source": "pyhf AsymptoticCalculator free_fit_to_data",
+                "reference_mu": float(mu), "twice_nll": float(pyhf.infer.mle.twice_nll(pars, data, model)[0]),
+                "parameters": parameters, "covariance": None, "nuisance_pull_uncertainties": None,
+                "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+                "signal_strength_units": "supplied-model units",
+            }
+        return observed, expected
+
+    def checked_cls(o, e):
+        values = np.asarray([float(o), *map(float, e)])
+        if values.shape != (6,):
+            raise RuntimeError("CLs result needs an observed value and five expected quantiles")
+        finite = values[np.isfinite(values)]
+        if np.any(finite < 0) or np.any(finite > 1):
+            raise RuntimeError("CLs probabilities must lie in [0, 1]")
+        if np.all(np.isfinite(values)) and np.any(np.diff(values[1:]) < -1e-6):
+            raise RuntimeError("CLs expected quantiles are out of order")
+        return float(values[0]), values[1:].tolist()
 
     def cls_at(mu):
         if mu not in cache:
             esc_before = robust_optimizer.escalated
-            o, e = hypotest(mu, data, model, par_bounds=par_bounds(max(mu * 1.5, 2.0)),
-                            test_stat="qtilde", return_expected_set=True)
+            o, e = evaluate(mu)
             if robust_optimizer.escalated and not esc_before:
                 # This hypotest just flipped escalation: the model's surface is NaN-pocketed,
                 # so every CLs point computed BEFORE the flip mixed now-untrusted SLSQP minima
@@ -305,14 +475,12 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
                           "earlier CLs point(s) with the guarded-MIGRAD path (CR-005)",
                           file=sys.stderr, flush=True)
                 for m2 in stale:
-                    o2, e2 = hypotest(m2, data, model, par_bounds=par_bounds(max(m2 * 1.5, 2.0)),
-                                      test_stat="qtilde", return_expected_set=True)
-                    cache[m2] = (float(o2), [float(v) for v in e2])
+                    o2, e2 = evaluate(m2)
+                    cache[m2] = checked_cls(o2, e2)
                     print(f"  [cls scan] recompute mu={m2:.6g} CLs_obs={cache[m2][0]:.4g}",
                           file=sys.stderr, flush=True)
-                o, e = hypotest(mu, data, model, par_bounds=par_bounds(max(mu * 1.5, 2.0)),
-                                test_stat="qtilde", return_expected_set=True)
-            cache[mu] = (float(o), [float(v) for v in e])  # obs, [-2,-1,med,+1,+2]sigma
+                o, e = evaluate(mu)
+            cache[mu] = checked_cls(o, e)  # obs, [-2,-1,med,+1,+2]sigma
             # heartbeat (stall-guard interop): one line per fresh hypotest so the redirected log's
             # mtime advances during the multi-minute CLs scan -- stage_supervisor.py's progress-stall
             # watchdog keys on log writes and killed silent-but-progressing pyhf fits at 12 min
@@ -326,12 +494,12 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
     # bracket: double mu from 1 until BOTH the observed AND the +2sigma-EXPECTED CLs are < level.
     # The +2sigma expected limit is the largest of the five; bracketing on the observed alone leaves
     # the upper expected band pinned at the ceiling (the half-resolved-band bug). e=[-2,-1,med,+1,+2].
-    hi = 1.0
-    while hi < poi_cap:
+    hi = min(1.0, poi_cap)
+    while True:
         o, e = cls_at(hi)
-        if o <= level and e[4] <= level:
+        if (o <= level and e[4] <= level) or hi == poi_cap:
             break
-        hi *= 2.0
+        hi = min(hi * 2.0, poi_cap)
 
     # CR-001: bracket DOWN as well. On a hyper-excluded point CLs(mu=1) is already << level, the
     # upward loop exits immediately at hi=1.0, and the whole CLs curve sits below `level`: _cross
@@ -339,77 +507,95 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
     # m60_dm5/m70_dm5 dark-red diff-map cells). Halve mu until EVERY column rises above `level`
     # (observed + all five expected bands -- then every crossing is bracketed) or the floor is
     # hit (truly hyper-excluded: flagged at_mu_floor below, never reported as a limit).
-    lo, mu_floor = 1.0, 1e-6
+    lo, mu_floor = min(1.0, hi), min(1e-6, hi / 1000)
     while lo > mu_floor:
         o, e = cls_at(lo)
         if o > level and all(v > level for v in e):
             break
-        lo /= 2.0
+        lo = max(lo / 2.0, mu_floor)
 
     # shared scan over [~0, hi]; reuse the bracket points already in the cache. If the downward
     # bracket ran (lo < 1), add geometric points across the low decades so the interpolation near
     # a low crossing has resolution comparable to the linear grid near mu~1 (CR-001).
-    base = set(np.linspace(1e-3, hi, n_curve))
-    if lo < 1.0:
-        base |= set(np.geomspace(max(lo / 2.0, 1e-7), 1.0, n_curve))
+    base = set(np.linspace(min(1e-3, hi / 1000), hi, n_curve))
+    if lo < min(1.0, hi):
+        base |= set(np.geomspace(max(lo / 2.0, mu_floor / 10), min(1.0, hi), n_curve))
     scan = sorted(base.union(k for k in cache))
     for mu in scan:
         cls_at(mu)
-    # qtilde at mu~0 can return NaN; drop any non-finite obs/expected points so _cross stays defined
-    def _finite(m):
-        o, e = cache[m]
-        return np.isfinite(o) and all(np.isfinite(v) for v in e)
-    scan_all = sorted(cache)
-    scan = [m for m in scan_all if _finite(m)]
-    n_dropped = len(scan_all) - len(scan)
-    if n_dropped:
-        print(f"  note: dropped {n_dropped} non-finite CLs point(s) (e.g. qtilde at mu~0) from the scan",
-              file=sys.stderr)
-    if len(scan) < 2:
-        sys.exit("pyhf_exclude: <2 finite CLs points -- cannot interpolate a limit")
-    obs = [cache[m][0] for m in scan]
-    exp = [cache[m][1] for m in scan]  # list of 5-vectors
-    exp_arr = np.array(exp)
+    def validated_scan():
+        ordered = sorted(cache)
+        finite = [m for m in ordered if np.all(np.isfinite([cache[m][0], *cache[m][1]]))]
+        if len(finite) < 2:
+            raise RuntimeError("CLs scan has fewer than two finite points")
+        omitted = [m for m in ordered if m not in finite]
+        for m in omitted:
+            # A numerical problem below a proven common low bracket cannot affect
+            # any root. A hole inside or above that bracket cannot be interpolated away.
+            if not any(m2 > m and min([cache[m2][0], *cache[m2][1]]) > level for m2 in finite):
+                raise RuntimeError(f"nonfinite CLs at mu={m:g} intersects the inference range")
+        values = np.asarray([[cache[m][0], *cache[m][1]] for m in finite])
+        if np.any(np.diff(values, axis=0) > 1e-5):
+            raise RuntimeError("CLs observed or expected curve is not monotonically decreasing")
+        return finite, values, omitted
 
-    obs_limit = _cross(scan, obs, level)
-    exp_limits = [_cross(scan, exp_arr[:, j], level) for j in range(5)]  # [-2,-1,med,+1,+2]
+    from scipy.optimize import brentq
 
-    # robustness honesty: a ceiling is NOT a limit, and interpolation assumes a
-    # decreasing CLs curve -- flag violations instead of silently reporting.
-    at_cap = bool(obs[-1] > level) or hi >= poi_cap  # never crossed within the bracket / hit the cap
-    # CR-124 (catalogue N9): at_poi_cap above also fires on mere bracket GRANULARITY (the doubling
-    # bracket reached the cap chasing the +2sigma band while the median crossed far below it) --
-    # consumers drew finite medians as ">cap" arrows. median_at_cap is true only when the MEDIAN
-    # expected CLs itself never dropped below `level` anywhere in the scan, i.e. the reported
-    # median limit really is the scan ceiling.
-    median_at_cap = bool(exp_arr[:, 2].min() > level)
-    # CR-001 mirror flag: any column whose CLs never rises above `level` at the LOW end got its
-    # "limit" from the scan floor -- an upper bound on a hyper-excluded point, never a limit.
-    at_floor = bool(obs[0] <= level) or any(float(exp_arr[0, j]) <= level for j in range(5))
-    non_mono = any(obs[i + 1] > obs[i] + 1e-6 for i in range(len(obs) - 1))
-    # CR-132 (catalogue B4): at weakly-constrained points the five expected quantiles can come
-    # back (near-)identical -- a band spanning x1.005 where healthy qtilde bands span x2.5-4.
-    # The median then looks plausible but the band is unusable: flag it, quote as a bound only.
+    def limits_from_scan():
+        scan, values, omitted = validated_scan()
+        limits, statuses, brackets = [], [], []
+        for col in range(6):
+            curve = values[:, col]
+            if curve[0] < level:
+                limits.append(float(scan[0]))
+                statuses.append("below_scan")
+                brackets.append([None, float(scan[0])])
+                continue
+            if curve[-1] > level:
+                limits.append(float(scan[-1]))
+                statuses.append("above_scan")
+                brackets.append([float(scan[-1]), None])
+                continue
+            exact = np.flatnonzero(curve == level)
+            if len(exact):
+                a = b = float(scan[exact[0]])
+                root = a
+            else:
+                i = next(i for i in range(len(scan) - 1) if curve[i] > level > curve[i + 1])
+                a, b = float(scan[i]), float(scan[i + 1])
+
+                def objective(mu):
+                    observed, expected = cls_at(float(mu))
+                    value = [observed, *expected][col]
+                    if not np.isfinite(value):
+                        raise RuntimeError(f"nonfinite CLs inside root bracket at mu={mu:g}")
+                    return value - level
+
+                root = float(brentq(objective, a, b, xtol=1e-10, rtol=root_rtol, maxiter=100))
+            limits.append(root)
+            statuses.append("resolved")
+            brackets.append([a, b])
+        return limits, statuses, brackets
+
+    escalated_before_roots = robust_optimizer.escalated
+    limits, statuses, brackets = limits_from_scan()
+    if robust_optimizer.escalated and not escalated_before_roots:
+        # A new root evaluation can reveal the same optimizer failure as the
+        # initial scan. All roots then need the recomputed, consistently fitted cache.
+        limits, statuses, brackets = limits_from_scan()
+    scan, values, omitted = validated_scan()
+    obs = values[:, 0].tolist()
+    exp = values[:, 1:].tolist()
+    obs_limit, exp_limits = limits[0], limits[1:]
+    at_cap = statuses[0] == "above_scan"
+    median_at_cap = statuses[3] == "above_scan"
+    at_floor = "below_scan" in statuses
     band_degenerate = bool(exp_limits[4] / max(exp_limits[0], 1e-12) < 1.5)
-    if at_cap:
-        print(f"  WARNING: observed CLs never crossed {level} up to mu={scan[-1]:.3g} "
-              "-- reported obs_limit is a scan CEILING, not a limit", file=sys.stderr)
-    if median_at_cap:
-        print(f"  WARNING: the MEDIAN expected CLs never crossed {level} in the scan -- the "
-              "reported median expected limit is the scan ceiling, not a limit (CR-124)",
-              file=sys.stderr)
-    if band_degenerate:
-        print("  WARNING: expected band is DEGENERATE (+2sigma/-2sigma limit ratio < 1.5 where "
-              "healthy qtilde bands span ~2.5-4x) -- the band is unusable; quote the result as "
-              "a bound only (CR-132)", file=sys.stderr)
-    if at_floor:
-        print(f"  WARNING: CLs at the lowest scanned mu={scan[0]:.3g} is still <= {level} for the "
-              "observed and/or an expected band -- that reported value is a scan FLOOR (an upper "
-              "bound on a hyper-excluded point), not a limit (CR-001)", file=sys.stderr)
-    if non_mono:
-        print("  WARNING: observed CLs curve is not monotonically decreasing in mu; "
-              "the interpolated crossing may be inaccurate -- inspect scan_cls_obs",
-              file=sys.stderr)
+    for name, status in zip(["observed", "expected -2sigma", "expected -1sigma",
+                             "expected median", "expected +1sigma", "expected +2sigma"], statuses):
+        if status != "resolved":
+            print(f"  WARNING: {name} limit is {status}; reported value is a scan bound",
+                  file=sys.stderr)
 
     return {
         "obs_limit": obs_limit,
@@ -418,11 +604,19 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0):
         "scan_cls_obs": obs,
         "scan_cls_exp": exp,
         "n_fits": len(cache),
-        "at_poi_cap": at_cap,          # bracket reached the cap (granularity -- see median_at_cap)
+        "at_poi_cap": at_cap,          # observed limit itself is the scan ceiling
         "median_at_cap": median_at_cap,  # CR-124: the median limit itself is the scan ceiling
         "at_mu_floor": at_floor,
         "band_degenerate": band_degenerate,  # CR-132: expected band unusable, quote as bound only
-        "cls_monotonic": not non_mono,
+        "cls_monotonic": True,
+        "limit_status": {"observed": statuses[0], "expected": statuses[1:]},
+        "limit_brackets": {"observed": brackets[0], "expected": brackets[1:]},
+        "fit_diagnostics": fit_diagnostics,
+        "inference": {"method": "asymptotic CLs", "test_stat": "qtilde", "level": level,
+                      "root_solver": "scipy.brentq", "root_rtol": root_rtol,
+                      "root_atol": 1e-10, "omitted_low_mu_nonfinite": omitted,
+                      "coverage_validated": False,
+                      "scope": "statistical inversion of the supplied model; no acceptance certification"},
         "optimizer": {  # CR-005 provenance: which fits needed the guarded-MIGRAD fallback
             "primary": "scipy.SLSQP",
             "fallback": "iminuit.MIGRAD nan-guarded",
@@ -613,6 +807,10 @@ def main():
     if args.mode == "selftest":
         selftest()
         return
+    try:
+        _number(args.sigma_scale, "sigma_scale", positive=True)
+    except ValueError as exc:
+        ap.error(str(exc))
     os.makedirs(args.out, exist_ok=True)
 
     if args.mode == "likelihood":
@@ -620,9 +818,20 @@ def main():
         print(f"likelihood model: {model.config.nmaindata} bins, {len(model.config.par_order)} parameters")
         res = compute(model, data)
         res["mode"] = "likelihood"
+        res["model_scope"] = {"correlations": "preserved from the supplied workspace modifier structure",
+                              "acceptance_validated": False}
         best_label = None
     else:
-        srs = json.load(open(args.srs))
+        srs = _read_json(args.srs)
+        if not isinstance(srs, list) or not srs:
+            ap.error("counting inputs must be a nonempty list of SRs")
+        names = []
+        for sr in srs:
+            _counting_inputs(sr)
+            name = sr.get("name")
+            if not isinstance(name, str) or not name.strip() or name in names:
+                ap.error("counting SR names must be distinct nonempty strings")
+            names.append(name)
         # per-SR limits always computed: they feed best_sr (best EXPECTED sensitivity)
         # and the per_sr record consumers (cert engines, the benchmark gate).
         best, best_res = None, None
@@ -632,7 +841,7 @@ def main():
             flags = low_count_flags(sr)
             if flags:
                 entry["low_count_flags"] = flags
-            if float(sr["s"]) <= 0.0:
+            if float(sr["s"]) == 0.0:
                 # a zero-signal SR puts NO constraint on mu: the bracket would run to
                 # the poi cap and record a ceiling that is not a limit. Skip honestly.
                 entry["skipped"] = "zero signal (s<=0): no constraint on mu"
@@ -642,16 +851,19 @@ def main():
             model, data = model_from_counting(sr)
             r = compute(model, data, n_curve=25)  # counting fits are instant -> fine grid
             entry.update({"obs_limit": r["obs_limit"], "exp_median": r["exp_limits"][2]})
+            entry["limit_status"] = r["limit_status"]
             for flag in ("at_poi_cap", "median_at_cap", "band_degenerate"):
                 if r[flag]:
                     entry[flag] = True
             per_sr[sr["name"]] = entry
             print(f"  SR {sr['name']:6s}: s={sr['s']:.2f} b={sr['b']:.1f}+-{sr['db']:.1f} n={sr['n']:.0f}"
                   f"  -> mu_obs={r['obs_limit']:.2f} (exp {r['exp_limits'][2]:.2f})")
-            if best is None or r["exp_limits"][2] < best_res["exp_limits"][2]:
+            if r["limit_status"]["expected"][2] == "resolved" and (
+                best is None or r["exp_limits"][2] < best_res["exp_limits"][2]
+            ):
                 best, best_res = sr["name"], r
         if best is None:
-            sys.exit("counting: no SR with s>0 -- nothing constrains mu")
+            sys.exit("counting: no resolved median expected limit; cannot rank a best SR")
         per_sr[best]["is_best"] = True
         if getattr(args, "combined", False):
             # headline = simultaneous fit of all constraining channels (exclusive SRs);
@@ -671,26 +883,31 @@ def main():
             res["mode"] = "counting"
         res["best_sr"] = best
         res["per_sr"] = per_sr
+        res["model_scope"] = {
+            "background_constraint": "independent Poisson shapesys constraints",
+            "correlations": "background correlations unavailable; assumed independent",
+            "mutual_exclusivity": "required but not inferred from yields" if args.combined else "best-expected SR only",
+            "acceptance_validated": False,
+        }
         best_label = best
 
     res["label"] = args.label
     # apply the NLO+NLL k-factor: a stronger nominal σ scales the signal-strength limit by 1/k.
     k = getattr(args, "sigma_scale", 1.0)
-    if k and k != 1.0:
-        res["sigma_scale_k"] = k
-        res["obs_limit_lo"] = res["obs_limit"]
-        res["exp_limits_lo"] = list(res["exp_limits"])
-        res["obs_limit"] = res["obs_limit"] / k
-        res["exp_limits"] = [x / k for x in res["exp_limits"]]
+    if k != 1.0:
+        scale_result(res, k)
         print(f"  applied NLO+NLL k={k}: µ₉₅(LO)={res['obs_limit_lo']:.3f} -> µ₉₅(NLO)={res['obs_limit']:.3f}")
-    json.dump(res, open(os.path.join(args.out, "exclusion.json"), "w"), indent=2)
+    json.dump(res, open(os.path.join(args.out, "exclusion.json"), "w"), indent=2, allow_nan=False)
     plot(res, os.path.join(args.out, "exclusion.png"), args.label, sr_label=best_label)
 
     print("\n=== 95% CL upper limit on mu ===")
     print(f"  observed : {res['obs_limit']:.3f}")
     el = res["exp_limits"]
     print(f"  expected : {el[2]:.3f}  (+1s {el[3]:.3f} / -1s {el[1]:.3f})")
-    verdict = "EXCLUDED (mu=1 disfavoured)" if res["obs_limit"] < 1.0 else "NOT excluded (mu=1 allowed)"
+    verdict = ("EXCLUDED (mu=1 disfavoured)" if res["obs_limit"] < 1.0
+               else "NOT excluded at this confidence level")
+    if res["limit_status"]["observed"] != "resolved":
+        verdict = "UNRESOLVED: scan bound only; inspect limit_status"
     print(f"  nominal signal (mu=1): {verdict}")
 
 

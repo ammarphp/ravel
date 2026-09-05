@@ -42,3 +42,5 @@ tools without copying implementation code:
 - [mapyde](https://github.com/scipp-atlas/mapyde/blob/7cc0afbb52283ea2a8f4375e4063227e8e2f9b8f/README.md): visible configuration and command interfaces, with the research paper separate.
 
 These are design precedents, not measured evidence of usability or adoption.
+
+- [Physics fidelity and validation landscape](2026-09-05-fidelity-and-validation-landscape.md): pinned comparisons, implemented lessons, and future calibration studies.

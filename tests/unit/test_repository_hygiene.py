@@ -58,6 +58,8 @@ def test_public_root_is_explicit_and_does_not_include_private_archives(repo):
     (repo / '.venv-replay').mkdir()
     (repo / 'dist').mkdir()
     (repo / 'build').mkdir()
+    write(repo, 'local-runs/replay-example/results.json', '{}')
+    write(repo, 'logs/hook-probe.log', 'local hook output')
     assert not hygiene.check(repo, public=True)[0]
     (repo / 'trial-runs').mkdir()
     write(repo, 'evidence/export-provenance.json', '{}')

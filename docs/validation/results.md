@@ -25,6 +25,17 @@ references. [Evidence checks](evidence.md) verify required artifact paths and
 checksums. Consistency and integrity checks alone do not establish scientific
 correctness.
 
+## Fresh fidelity and numerical audits
+
+The [September physics pass](../development/history/2026-09-05-physics-fidelity.md)
+adds a paper-defined eRJR correction, tested on identical retained events, and
+stricter numerical/comparison checks. The
+[native differential](../../evidence/audits/2026-09-05-native-fidelity/README.md)
+improves one selection residual while retaining its FAIL verdict. These new
+measurements do not overwrite the historical table above or its parity records.
+The [scan re-render](../../evidence/audits/2026-09-05-scan-fidelity/README.md)
+keeps the original pointwise limits and residuals and improves coverage accounting.
+
 ## Statistical recovery and selection fidelity
 
 Model-independent S95 recovery tests the statistical inputs and inference for

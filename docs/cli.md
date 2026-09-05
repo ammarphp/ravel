@@ -1,9 +1,22 @@
-# Ravel package and replay environment
+# Ravel package, intake, and replay environment
 
 The distribution name is `ravel-hep`; the import and command are `ravel`. Install from a
 checkout or a built wheel. These commands do not imply that a package has been published on
 PyPI. Python 3.10–3.12 is declared; the frozen replay environment was verified on
 CPython 3.12.13, macOS ARM64. Other declared platforms are not established by that check.
+
+For draft intake and contract validation, the base package has no runtime dependencies:
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install .
+.venv/bin/ravel --help
+```
+
+Run installation from the checkout, or replace `.` with the path to a built wheel. Use
+`pip install -e .` for editable development. The installed `ravel` command and
+`python -m ravel` can be run from any working directory with that environment active.
+The additional frozen environment below is needed for the cached numerical replay:
 
 ```sh
 uv python install 3.12.13
@@ -35,6 +48,60 @@ The wheel includes the engines and the small explicit input allowlist in
 `src/ravel/resources.py`. Build-time missing-input checks prevent an incomplete export from
 producing an apparently usable wheel. Engine code is packaged from its existing source files;
 there is no separately maintained copy of the physics or contract logic.
+
+## Start a draft intake
+
+```sh
+ravel initiate \
+  --prompt "Reproduce Figure 3 of ATLAS SUSY-2018-16 for a slepton-bino model." \
+  --out /tmp/ravel-slepton-intake
+ravel validate /tmp/ravel-slepton-intake/inputs/task_contract.json --json
+```
+
+Use exactly one of `--prompt` or `--prompt-file`. File input must be UTF-8. `--out` is
+required and must name a new directory. For a longer request:
+
+```sh
+ravel initiate --prompt-file request.txt --out /tmp/ravel-intake-from-file
+```
+
+The command writes these three files:
+
+| File | Contents |
+|---|---|
+| `request.txt` | The original request, including its whitespace and line endings |
+| `inputs/task_contract.json` | The existing deterministic router's schema-validated draft |
+| `run_state.json` | The existing workflow ledger's initial state and contract fingerprint |
+
+Intake uses local keyword rules, with no model call, network request, or simulation. A valid
+draft may still contain missing inputs, `TBD-judgment` fields, and flagged assumptions.
+Its cost estimate uses the router's stated defaults; it is a draft budget to review.
+`compute_plan=scan` describes a proposed plan, and the command visibly reports
+`compute_authorized=false`. The ledger records no skills, approvals, check-ins, or compute
+as completed, and its `routed` field remains false until the workflow completes routing.
+
+Next, use the [analysis workflow](workflow/start.md) to resolve the required inputs and
+flagged assumptions, inspect the published figure targets, and present the CHECK-IN 1 plan
+for approval before generation or scans. Intake does not generate the plan or begin an
+autonomous analysis. An installed wheel can prepare the draft outside a checkout; continuing
+the full agent workflow also requires its documents, tools, and separately provisioned native
+HEP environment.
+
+Exit 0 means all three intake files were written. Exit 1 means the route is invalid or the
+request is unsupported, including an unmatched task or a discovery claim. Exit 2 means a
+command/input/write error. Blank requests, unsupported routes, and invalid contracts create
+no output directory. Existing output paths, including symlinks, are refused. A write failure
+is reported as failure, with any partial output retained for inspection; choose a new output
+directory for a retry. No intake exit status grants compute approval.
+
+Without installing the package, the same entry point is available from a checkout:
+
+```sh
+python3.12 /path/to/ravel/scripts/run.py ravel.__main__ initiate \
+  --prompt-file /path/to/request.txt --out /tmp/ravel-source-intake
+```
+
+## Validate, replay, and audit
 
 ```sh
 ravel validate path/to/task_contract.json --json
@@ -84,8 +151,9 @@ For public release, build from the sanitized public export so historical machine
 research metadata are not copied into the wheel. Run the package portability check with:
 
 ```sh
-RAVEL_TEST_WHEEL=/tmp/ravel-dist/ravel_hep-0.2.0-py3-none-any.whl \
-  .venv-replay/bin/python -m pytest tests/unit/test_ravel_cli.py -q
+RAVEL_TEST_WHEEL=/tmp/ravel-dist/ravel_hep-0.3.0-py3-none-any.whl \
+  .venv-replay/bin/python -m pytest tests/unit/test_ravel_cli.py \
+  tests/unit/test_cli_initiate.py -q
 ```
 
 The 2026-09-05 clean-environment check built a wheel from its source distribution and

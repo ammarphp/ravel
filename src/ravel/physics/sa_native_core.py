@@ -280,6 +280,23 @@ BASE_BRANCHES = ['Event',
                  'met_pt','met_phi','mcWeights']
 
 
+def summarize_weights(weights):
+    """Validate nominal weights and retain signed sumw and nonnegative sumw2."""
+    values = [float(x) for x in weights]
+    if not values:
+        raise ValueError('Cannot normalize an empty event sample')
+    if any(not math.isfinite(x) for x in values):
+        raise ValueError('Nominal event weights must be finite')
+    try:
+        total = math.fsum(values)
+        squared = math.fsum(x*x for x in values)
+    except OverflowError as exc:
+        raise ValueError('Nominal event-weight sums overflow') from exc
+    if total == 0 or not math.isfinite(total) or not math.isfinite(squared):
+        raise ValueError('Nominal event weights require finite sums and nonzero sumw')
+    return {'sumW': total, 'sumW2': squared}
+
+
 def load_ntuple(path, ngen=None, branches=BASE_BRANCHES):
     """Read the Delphes2SA 'ntuple' -> (arrays, events, Nread, weights dict).
     Weight conventions match the container SA exactly (see write_txt)."""
@@ -291,13 +308,12 @@ def load_ntuple(path, ngen=None, branches=BASE_BRANCHES):
     Nread = min(N, nentries)
     arrays = tin.arrays(branches, entry_stop=Nread, library='np')
     events = arrays['Event']
-    w_all = np.array([x[0] if len(x) > 0 else 1.0 for x in arrays['mcWeights']],
-                     dtype=np.float64)
-    w = dict(w_all=w_all,
-             sumW=float(w_all.sum()),
-             sumW2=float((w_all * w_all).sum()),
+    if any(len(row) == 0 for row in arrays['mcWeights']):
+        raise ValueError('Every event needs a nominal mcWeights[0]; unit weights cannot be assumed')
+    w_all = np.array([x[0] for x in arrays['mcWeights']], dtype=np.float64)
+    w = dict(summarize_weights(w_all), w_all=w_all,
              absw0=float(abs(w_all[0])) if len(w_all) else 1.0,
-             Ngen=N)
+             Ngen=Nread)
     return arrays, events, Nread, w
 
 
@@ -333,19 +349,29 @@ def _g(x):
     return f"{x:.6g}"
 
 
-def write_txt(path, counts, sr_order, w):
+def write_txt(path, counts, sr_order, w, *, sumw=None, sumw2=None):
     """Emit <Routine>.txt in the container's exact format and order.
     All row : events = N_gen ; acceptance = sum(w) ; err = sum(w^2).
-    Per-SR  : events = raw unweighted count ; acceptance = events*|w|/sum(w) ;
-              err = sqrt(events)*|w|/sum(w). The integer `events` column is the
-              bit-for-bit quantity the validation diff compares."""
-    norm = (w['absw0'] / w['sumW']) if w['sumW'] != 0 else 0.0
+    Per-SR  : events = raw unweighted count ; acceptance = sum(w_SR)/sum(w_all) ;
+              err = sqrt(sum(w_SR^2))/abs(sum(w_all)). Counts alone are sufficient
+              only for a verified uniform-positive-weight sample."""
+    if sumw is None or sumw2 is None:
+        values = w.get('w_all', [])
+        if not len(values) or values[0] <= 0 or any(x != values[0] for x in values):
+            raise ValueError('Nonuniform or signed event weights require per-region sumw and sumw2')
+        sumw = {sr: counts.get(sr, 0)*float(values[0]) for sr in sr_order}
+        sumw2 = {sr: counts.get(sr, 0)*float(values[0])**2 for sr in sr_order}
+    denominator = w['sumW']
+    if not math.isfinite(denominator) or denominator == 0:
+        raise ValueError('Cannot normalize signal regions with non-finite or zero sumw')
     lines = ["SR,events,acceptance,err"]
     lines.append(f"All,{w['Ngen']},{_g(w['sumW'])},{_g(w['sumW2'])}")
     for sr in sr_order:
         ev = counts.get(sr, 0)
-        acc = ev * norm
-        err = math.sqrt(ev) * norm
+        if not math.isfinite(sumw[sr]) or not math.isfinite(sumw2[sr]) or sumw2[sr] < 0:
+            raise ValueError(f'Invalid weighted moments for region {sr}')
+        acc = sumw[sr] / denominator
+        err = math.sqrt(sumw2[sr]) / abs(denominator)
         lines.append(f"{sr},{ev},{_g(acc)},{_g(err)}")
     with open(path, "w") as f:
         f.write("\n".join(lines) + "\n")
@@ -380,6 +406,8 @@ def run_counting_routine(routine, input_path, output_dir, ngen=None):
     arrays, events, Nread, w = load_ntuple(input_path, ngen, branches)
     order = routine.sr_order()
     counts = {sr: 0 for sr in order}
+    sumw = {sr: 0.0 for sr in order}
+    sumw2 = {sr: 0.0 for sr in order}
     rows = []
     for i in range(Nread):
         res = routine.select(arrays, i)
@@ -388,9 +416,12 @@ def run_counting_routine(routine, input_path, output_dir, ngen=None):
         accepted, f1, f2 = res
         for sr in accepted:
             counts[sr] += 1
+            weight = float(w['w_all'][i])
+            sumw[sr] += weight
+            sumw2[sr] += weight*weight
         rows.append((int(events[i]), float(w['w_all'][i]), f1, f2, accepted))
     outtxt = os.path.join(output_dir, f"{routine.NAME}.txt")
-    write_txt(outtxt, counts, order, w)
+    write_txt(outtxt, counts, order, w, sumw=sumw, sumw2=sumw2)
     write_root(os.path.join(output_dir, f"{routine.NAME}.root"), rows, order,
                getattr(routine, "FLAVOUR_FLAGS", ("isee", "ismm")))
     print(f"[native:{routine.NAME}] {Nread} events read, "

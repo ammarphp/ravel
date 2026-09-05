@@ -1,51 +1,41 @@
 #!/usr/bin/env python
-"""Certify a run's signal acceptance×efficiency against the analysis's PUBLISHED values.
+"""Compare a run's selection acceptance times efficiency with published values.
 
-This is the physics-validation gate (R1): the pipeline is only trustworthy for new models if it
-reproduces the experiment's own acceptance×efficiency for a benchmark the authors did publish.
-A×ε is a ratio (selected/generated), so it is independent of cross-section and luminosity — it
-isolates the fidelity of the generation→shower→detector→selection chain.
+This is a benchmark point-estimate comparison of the generation, shower, detector
+and selection chain. It does not isolate detector efficiency or establish CLs
+coverage. Cross-section cancellation requires a consistent generated-process and
+normalization basis on both sides.
 
-For each signal region:
-  my A×ε   = (routine's normalised SR yield) / (sigma[fb] * lumi[fb])   [= selected_weight/sumW]
-  pub A×ε  = the published "acceptance times efficiency for <SR> in <model> direct decay" grid,
-             read at the model's (parent, LSP) mass point (nearest grid node).
-Reports per-SR ratio + an overall verdict (default tolerance 30%, per reinterpretation practice),
-and writes a certification md+json under evidence/validation/studies/.
+--sr-reader counter reads A×ε = normalized SR yield / (sigma[fb] * lumi[fb]).
+--sr-reader cutflow reads last/first bin. The first bin MUST count the uncut
+generated sample; otherwise this is conditional acceptance. This tool cannot
+verify that semantic assumption from anonymous bin values. auto chooses by the
+YODA object interface (.val() for counter, otherwise .bins() for cutflow).
 
-SR reader (pluggable; see the EWK jigsaw run's STUMBLES S6/S8 — folds in the run-local adapter):
-  `--sr-reader auto|counter|cutflow` selects how the routine's per-SR A×ε is read from the YODA:
-  - **counter** (the historic path): `/routine/<SR>` is a **scalar** counter (`Estimate0D`, has
-    `.val()`) holding signal events at lumi; A×ε = val/(σ·lumi).
-  - **cutflow**: `/routine/<SR>` is a **Cutflow** (`BinnedEstimate1D`, has `.bins()`) — e.g. a
-    recursive-jigsaw EWK search books only cutflows, no scalar counter. Its per-SR A×ε is the
-    **last/first cutflow bin** (a ratio of two bins of the SAME cutflow ⇒ invariant under the
-    routine's `normalizeFirst(scale)` in finalize(); first bin = pre-selection stage, last = full SR).
-    The events-at-lumi used for tail classification is then A×ε·σ·lumi (the counter relation, inverted).
-  - **auto** (default): per SR, look up `/routine/<SR>` and dispatch by object kind — `.val()` ⇒
-    counter, else `.bins()` ⇒ cutflow. Mixed routines resolve per object. Both readers feed the SAME
-    tiered + attribution + µ₉₅-bound cert below unchanged; the counter case is bit-identical to before.
-  This makes the run-local `certify_axe.py` adapter (which clones this file's verdict logic for the
-  cutflow case) unnecessary for any routine whose published grid `published_axe()` can resolve.
-  - Grid lookup (upgraded Session 2/S4): `published_axe()` uses an exact node when one exists
-    (bit-identical to the historic nearest-node behaviour there), else a **1-D linear interpolation**
-    when the requested point is bracketed along ONE axis by nodes sharing the other coordinate
-    (fixed-LSP interpolation along the splitting axis preferred — the physically correct direction,
-    mirroring the adapter above; brackets wider than --interp-max-span are not trusted), else the
-    legacy nearest node, flagged `NEAREST` in the per-SR `node` field (output rows + JSON) because
-    on a coarse/edge grid it can compare against the wrong mass-splitting and flip the verdict.
+Published reference lookup uses a node within 1 GeV, then local 1-D linear
+interpolation across at most --interp-max-span. Interpolation is an approximation
+without propagated interpolation uncertainty. A NEAREST reference is retained
+for diagnosis but cannot certify a driving region at a different mass point.
 
-SR roles come from --exclusion (driving = best/near-best expected µ). For a demo/variant run with
-no exclusion.json of its own (or a foreign one), --driving-sr-override forces named SRs to driving.
+Driving regions come from --exclusion (best/near-best expected sensitivity), or
+--driving-sr-override. The maximum residual across ALL driving regions controls
+the verdict. Missing driving evidence, no driving region, or an unmatched driving
+reference means FAIL. Zero selected acceptance against positive published
+acceptance is a measured 100% deficit, never missing data. Tails are report-only.
 
-Exit codes: 0 whenever a certification was produced (PASS/WARN/FAIL is the `verdict` field in the
-JSON — the benchmark gate parses that, not the exit code); nonzero only for unusable inputs
-(σ≤0, lumi≤0, unreadable files).
+The legacy mu95_impact fields store abs(mine/published - 1), a selection residual
+proxy. The separate inverse_signal_limit_shift is 1/ratio - 1, valid only for a
+uniform rescaling of the complete signal template with the model otherwise fixed.
+Neither quantity is a propagated likelihood uncertainty. MC and published
+uncertainties are not propagated, and discrepancy causes remain unresolved.
 
-Usage:
-  validate_cutflow.py --signal SIG.yoda --routine NAME --sigma-pb S --lumi-fb L \
-      --tables-dir DIR --grid "gluino direct decay" --m-parent 1000 --m-lsp 100 \
-      --srs 2jl,2jm,2jt,4jt,5j,6jm,6jt --label "gluino(1000,100)" --out evidence/validation/studies/NAME.md
+Exit code 0 means a report was produced; consumers MUST read its PASS/WARN/FAIL
+verdict. Input parse/validation failures exit nonzero. Output is Markdown + JSON.
+
+Example:
+  validate_cutflow.py --signal SIG.yoda --routine NAME --sigma-pb S --lumi-fb L
+      --tables-dir DIR --grid "gluino direct decay" --m-parent 1000 --m-lsp 100
+      --srs 2jl,2jm,2jt,4jt,5j,6jm,6jt --out acceptance-certification.md
 """
 
 # Permit direct source execution as well as normal package imports.
@@ -56,7 +46,61 @@ if not __package__:
     __package__ = "ravel.validation"
 
 
-import argparse, glob, json, os, re, sys
+import argparse, glob, json, math, numbers, os, re, sys
+
+
+def finite_nonnegative(value, name, *, positive=False):
+    """Validate measurements without converting booleans, strings, or NaN into evidence."""
+    if isinstance(value, bool) or not isinstance(value, numbers.Real):
+        raise ValueError(f"{name} must be a finite number")
+    value = float(value)
+    if not math.isfinite(value) or value < 0 or (positive and value == 0):
+        raise ValueError(f"{name} must be finite and {'positive' if positive else 'nonnegative'}")
+    return value
+
+
+def unique_json_object(items):
+    result = {}
+    for key, value in items:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def comparison_metadata(rows):
+    """Point-estimate acceptance agreement is neither a fit nor detector certification."""
+    evaluated = sum(r["ratio"] is not None for r in rows)
+    return {
+        "comparison_counts": {"requested": len(rows), "evaluated": evaluated,
+                              "missing": len(rows) - evaluated},
+        "scope": "selection acceptance times efficiency at the stated benchmark and normalization",
+        "uncertainty_treatment": "point-estimate residuals; MC and published uncertainties are not propagated",
+        "attribution_status": "diagnostic hypotheses only; no physical cause is established by this comparison",
+        "mu95_impact_semantics": "legacy name for abs(mine/published - 1), an acceptance residual proxy; "
+                                 "not a likelihood-derived limit uncertainty",
+        "inverse_signal_limit_shift_semantics": "signed 1/ratio - 1: exact only if the complete signal "
+                                                "template rescales uniformly with background/model fixed; "
+                                                "not a multiregion uncertainty estimate",
+    }
+
+
+def comparison_ratio(mine, published):
+    if mine is not None:
+        finite_nonnegative(mine, "measured A×ε")
+    if published is not None:
+        finite_nonnegative(published, "published A×ε")
+    if mine is None or published is None or published == 0:
+        return None
+    return finite_nonnegative(mine / published, "A×ε ratio")
+
+
+def inverse_signal_shift(ratio):
+    """Conditional algebraic rescaling, kept separate from the residual gate."""
+    if ratio is None or ratio == 0:
+        return None
+    shift = 1 / ratio - 1
+    return shift if math.isfinite(shift) else None
 
 
 
@@ -78,7 +122,8 @@ def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=1.0, interp_ma
       3. Legacy nearest node, flagged NEAREST: on a coarse/edge grid this can compare against
          the wrong mass-splitting and bias or flip the verdict (observed on ins1676551, and on
          the ins1458270 gluino point (1000,100) which has NO exact node — nearest is (1000,0),
-         a distance-100 tie with (1100,100) resolved by file order) — inspect it.
+         a distance-100 tie with (1100,100) resolved by file order). Its numerical residual
+         is diagnostic only: a driving nearest-node comparison cannot certify this mass point.
     """
     import yaml
     subs = glob.glob(os.path.join(tables_dir, "**", "submission.yaml"), recursive=True)
@@ -96,7 +141,11 @@ def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=1.0, interp_ma
     d = yaml.safe_load(open(os.path.join(base, target), errors="replace"))
     iv = d["independent_variables"]; dv = d["dependent_variables"][0]["values"]
     pm = [x["value"] for x in iv[0]["values"]]; lm = [x["value"] for x in iv[1]["values"]]
-    pts = [(pm[i], lm[i], dv[i]["value"]) for i in range(len(pm))]
+    if not pm or len(pm) != len(lm) or len(pm) != len(dv):
+        raise ValueError("published A×ε table has empty or misaligned grid columns")
+    pts = [(finite_nonnegative(pm[i], "published parent mass"),
+            finite_nonnegative(lm[i], "published LSP mass"),
+            finite_nonnegative(dv[i]["value"], "published A×ε")) for i in range(len(pm))]
     # 1) exact node — same value + descriptor as the historic nearest-node lookup at a node
     for a, b, v in pts:
         if abs(a - m_parent) < node_tol and abs(b - m_lsp) < node_tol:
@@ -142,7 +191,10 @@ def read_sr_axe(obj, sr_reader, sigma_fb, lumi_fb):
     """
     if obj is None:
         return None, None
+    sigma_fb = finite_nonnegative(sigma_fb, "sigma_fb", positive=True)
+    lumi_fb = finite_nonnegative(lumi_fb, "lumi_fb", positive=True)
     denom = sigma_fb * lumi_fb
+    finite_nonnegative(denom, "sigma*lumi", positive=True)
     has_val = hasattr(obj, "val")
     has_bins = hasattr(obj, "bins")
     mode = sr_reader
@@ -151,12 +203,12 @@ def read_sr_axe(obj, sr_reader, sigma_fb, lumi_fb):
     if mode == "counter":
         if not has_val:
             return None, None
-        norm = obj.val()                       # signal events at lumi
+        norm = finite_nonnegative(obj.val(), "SR yield")  # signal events at lumi
         return (norm / denom if denom else None), norm
     if mode == "cutflow":
         if not has_bins:
             return None, None
-        vals = [b.val() for b in obj.bins()]
+        vals = [finite_nonnegative(b.val(), "cutflow bin") for b in obj.bins()]
         if not vals or vals[0] == 0:
             return None, None
         axe = vals[-1] / vals[0]               # last/first = selected/generated (σ-independent)
@@ -197,10 +249,16 @@ def main():
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    if args.sigma_pb <= 0:
-        sys.exit(f"ERROR: --sigma-pb must be > 0 (got {args.sigma_pb}) — A×ε = yield/(σ·lumi) is undefined")
-    if args.lumi_fb <= 0:
-        sys.exit(f"ERROR: --lumi-fb must be > 0 (got {args.lumi_fb})")
+    try:
+        for name in ("sigma_pb", "lumi_fb", "driving_tol", "contributing_tol", "mu95_bound", "interp_max_span"):
+            finite_nonnegative(getattr(args, name), name, positive=True)
+        for name in ("m_parent", "m_lsp"):
+            finite_nonnegative(getattr(args, name), name)
+    except ValueError as exc:
+        ap.error(str(exc))
+    srs = [sr.strip() for sr in args.srs.split(",") if sr.strip()]
+    if not srs or len(srs) != len(set(srs)):
+        ap.error("--srs must contain distinct nonempty signal regions")
 
     import yoda
     sig = yoda.read(args.signal)
@@ -209,9 +267,20 @@ def main():
 
     # SR roles from the exclusion: driving = best-expected SR + any within 1.5x its expected µ
     per_sr, best_sr = {}, None
-    if args.exclusion and os.path.exists(args.exclusion):
-        ex = json.load(open(args.exclusion))
+    if args.exclusion:
+        if not os.path.isfile(args.exclusion):
+            ap.error(f"exclusion file does not exist: {args.exclusion}")
+        ex = json.load(open(args.exclusion), object_pairs_hook=unique_json_object)
         per_sr = ex.get("per_sr", {}); best_sr = ex.get("best_sr")
+        if not isinstance(per_sr, dict) or not isinstance(best_sr, str) or best_sr not in per_sr:
+            ap.error("exclusion must name a best_sr present in its per_sr records")
+        for sr, record in per_sr.items():
+            if not isinstance(record, dict):
+                ap.error(f"invalid per_sr record in exclusion: {sr}")
+            if "exp_median" in record:
+                finite_nonnegative(record["exp_median"], f"{sr}.exp_median", positive=True)
+        if "exp_median" not in per_sr[best_sr]:
+            ap.error("best_sr has no median expected limit")
     best_exp = per_sr.get(best_sr, {}).get("exp_median") if best_sr else None
 
     def classify(sr, signal_events):
@@ -226,20 +295,15 @@ def main():
 
     def cause_class(sr, ratio):
         if ratio is None: return "selection-mapping"
-        if ratio < 1 and any(j in sr for j in ("4j", "5j", "6j", "7j", "8j")):
-            return "merging"            # high-jet-multiplicity deficit ⇒ missing ME multiplicity
-        if any(l in sr.lower() for l in ("l-", "ll", "lep", "ee", "mm", "3l", "2l")):
-            return "fast-sim-floor"     # lepton SRs ⇒ soft-lepton efficiency / fast-sim
-        return "fast-sim-floor"
+        return "unresolved"  # SR names and residual direction cannot identify a physical cause.
 
     rows = []
-    for sr in args.srs.split(","):
-        sr = sr.strip()
+    for sr in srs:
         o = sig.get(f"/{args.routine}/{sr}")
         mine, norm = read_sr_axe(o, args.sr_reader, sigma_fb, args.lumi_fb)       # A×ε, signal events at lumi
         pub, node = published_axe(args.tables_dir, sr, args.grid, args.m_parent, args.m_lsp,
                                   interp_max_span=args.interp_max_span)
-        ratio = (mine / pub) if (mine and pub) else None
+        ratio = comparison_ratio(mine, pub)
         role = classify(sr, norm)
         tol = args.driving_tol if role == "driving" else (args.contributing_tol if role == "contributing" else None)
         resid = abs(1 - ratio) if ratio is not None else None
@@ -250,24 +314,36 @@ def main():
             attribution = {"sr": sr, "ratio": round(ratio, 3), "role": role,
                            "residual_pct": round(resid * 100), "cause_class": cause_class(sr, ratio),
                            "mu95_impact_pct": (round(mu95_impact * 100) if mu95_impact is not None else None),
-                           "note": "[Opus to confirm physical cause]"}
+                           "note": "diagnostic hypothesis only; physical cause requires independent evidence"}
         rows.append(dict(sr=sr, mine=mine, pub=pub, ratio=ratio, role=role, tol=tol, ok=ok,
-                         signal=norm, mu95_impact=mu95_impact, node=node, attribution=attribution))
+                         signal=norm, mu95_impact=mu95_impact, node=node, attribution=attribution,
+                         inverse_signal_limit_shift=inverse_signal_shift(ratio)))
 
     driving = [r for r in rows if r["role"] == "driving"]
-    # the counting-model µ₉₅ is set by the single most-sensitive (best) SR, so the limit's
-    # reliability is that SR's residual; near-best driving SRs are checked too but do not move µ₉₅.
-    best_row = next((r for r in rows if r["sr"] == best_sr), None)
-    best_resid = best_row["mu95_impact"] if (best_row and best_row["mu95_impact"] is not None) else \
-                 (max((r["mu95_impact"] for r in driving if r["mu95_impact"] is not None), default=0.0))
+    # Every driving comparison remains in the certification denominator. The best
+    # expected SR can set a counting limit but is not the worst acceptance residual.
+    best_resid = max((r["mu95_impact"] for r in driving if r["mu95_impact"] is not None), default=None)
     driving_ok = all(r["ok"] for r in driving) if driving else None
+    driving_nearest = any(r["node"].startswith("NEAREST") for r in driving)
     worst_driving = best_resid
-    if driving and driving_ok and best_resid <= args.mu95_bound:
+    if not driving or not driving_ok or best_resid is None or driving_nearest:
+        verdict = "FAIL"
+    elif best_resid <= args.mu95_bound:
         verdict = "PASS"
     elif best_resid <= 1.5 * args.mu95_bound:
         verdict = "WARN"   # the limit-setting SR is within 1.5× the bound; residuals bounded + attributed
     else:
         verdict = "FAIL"   # the best SR is off enough that µ₉₅ (and maybe the verdict) is unreliable
+    worst_s = "-" if worst_driving is None else f"{worst_driving*100:.0f}%"
+    fail_reason = None
+    if not driving:
+        fail_reason = "no driving SR identified; no acceptance certification is possible"
+    elif any(r["ratio"] is None for r in driving):
+        fail_reason = "driving SR comparison missing or published reference is zero; comparison unusable"
+    elif driving_nearest:
+        fail_reason = "driving SR uses a different published mass point (NEAREST); diagnostic residual only"
+    elif verdict == "FAIL":
+        fail_reason = "driving acceptance residual exceeds the stated tolerance or residual bound"
 
     lines = [f"# A×ε certification (tiered + attribution) — {args.routine} · {args.label}", "",
              f"A×ε = (routine SR yield)/(σ·lumi); published = '{args.grid}' acc×eff at "
@@ -291,18 +367,25 @@ def main():
             lines.append(f"- **{a['sr']}** ({a['role']}): ratio {a['ratio']}, residual {a['residual_pct']}% → "
                          f"`{a['cause_class']}`, µ₉₅ impact {a['mu95_impact_pct']}%. {a['note']}")
     lines += ["", f"**Verdict: {verdict}.** Driving SR(s) {'within' if driving_ok else 'NOT within'} "
-              f"±{args.driving_tol*100:.0f}%; worst driving |Δµ₉₅| = {worst_driving*100:.0f}% "
-              f"(bound {args.mu95_bound*100:.0f}%). A×ε is σ-independent — this certifies selection fidelity; "
-              "the absolute limit uses the NLO+NLL σ (`nlo_xsec.py`)."]
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+              f"±{args.driving_tol*100:.0f}%; worst driving acceptance residual = {worst_s} "
+              f"(bound {args.mu95_bound*100:.0f}%). This checks point-estimate selection agreement at "
+              "the stated normalization; it does not certify detector response or statistical coverage. "
+              "MC and published uncertainties are not propagated. The legacy µ95-impact field is an "
+              "acceptance-residual proxy, not an inferred uncertainty on a limit."]
+    if fail_reason:
+        lines += ["", f"FAIL CAUSE: {fail_reason}."]
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     open(args.out, "w").write("\n".join(lines) + "\n")
-    json.dump({"routine": args.routine, "label": args.label, "verdict": verdict,
+    json.dump({"routine": args.routine, "label": args.label, "verdict": verdict, **comparison_metadata(rows),
                "driving_tol": args.driving_tol, "mu95_bound": args.mu95_bound,
                "worst_driving_mu95_impact": worst_driving,
-               "rows": [{k: r[k] for k in ("sr", "role", "mine", "pub", "node", "ratio", "ok", "mu95_impact", "attribution")}
+               "fail_reason": fail_reason, "driving_reference_unmatched": driving_nearest,
+               "acceptance_denominator": "counter: supplied sigma*lumi; cutflow: first bin, which must represent "
+                                         "the uncut generated sample (not independently verified)",
+               "rows": [{k: r[k] for k in ("sr", "role", "mine", "pub", "node", "ratio", "ok", "mu95_impact", "attribution", "inverse_signal_limit_shift")}
                         for r in rows]},
-              open(args.out.replace(".md", ".json"), "w"), indent=2)
-    print(f"{verdict}: driving={'ok' if driving_ok else 'OFF'} worst|Δµ95|={worst_driving*100:.0f}% "
+              open(args.out.replace(".md", ".json"), "w"), indent=2, allow_nan=False)
+    print(f"{verdict}: driving={'ok' if driving_ok else 'OFF'} worst-residual={worst_s} "
           f"({len(attribs)} attributed) -> {args.out}")
     for r in rows:
         node_flag = "" if (r['node'] or "").startswith("grid node") else f"  [{r['node']}]"
