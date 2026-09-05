@@ -155,12 +155,15 @@ def wait_for(path, timeout=5):
 
 
 def spawn_supervisor(root):
+    from ravel.paths import module_command
     code = ("import os,time; open('child.pid','w').write(str(os.getpid())); "
             "open('partial.txt','w').write('started'); time.sleep(60)")
-    return subprocess.Popen([sys.executable, "-m", "ravel.workflow.stage_supervisor",
+    child_env = dict(os.environ)
+    child_env.pop("PYTHONPATH", None)
+    return subprocess.Popen(module_command("ravel.workflow.stage_supervisor",
         "--stage", "fit", "--rundir", str(root), "--cwd", str(root),
         "--log", "logs/fit.log", "--output", "partial.txt", "--kill-secs", "30", "--resume",
-        "--", sys.executable, "-c", code], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        "--", sys.executable, "-c", code), env=child_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 def test_concurrent_same_stage_is_rejected_and_term_records_failure(tmp_path):

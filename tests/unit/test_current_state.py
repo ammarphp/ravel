@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from ravel import cli
+from ravel.paths import module_command
 from ravel.workflow import current_state, workflow_state, stop_dispatch
 from ravel.workflow.state_io import atomic_json, read_json
 
@@ -60,9 +61,11 @@ def test_stale_writer_rejected_and_forced_reset_archived(tmp_path):
 def test_concurrent_cli_records_do_not_lose_updates(tmp_path):
     root = tmp_path / "run"
     initiate(root)
-    processes = [subprocess.Popen([sys.executable, "-m", "ravel.workflow.workflow_state", "record",
-        "--rundir", str(root), "--kind", "edit", "--payload", json.dumps({"path": f"input-{i}.dat"})],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE) for i in range(12)]
+    child_env = dict(os.environ)
+    child_env.pop("PYTHONPATH", None)
+    processes = [subprocess.Popen(module_command("ravel.workflow.workflow_state", "record",
+        "--rundir", str(root), "--kind", "edit", "--payload", json.dumps({"path": f"input-{i}.dat"})),
+        env=child_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE) for i in range(12)]
     for process in processes:
         out, err = process.communicate(timeout=20)
         assert process.returncode == 0, (out, err)

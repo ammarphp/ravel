@@ -142,5 +142,16 @@
     "wheel_specific_cases_enabled": true,
     "junit_sha256": "98c5805e30650560be5cb7bb09d7437034c5bf8b50713336673e3293aa19b06e",
     "exported_python_files_matching_source": 81
+  },
+  "ci_import_repair": {
+    "source_tests_passed": 38,
+    "public_tests_passed": 38,
+    "independent_review": "PASS, all process/concurrency assertions retained; production unchanged",
+    "explicit_child_environment": "PYTHONPATH removed",
+    "review_sha256": "a22f4cf76fccf000f654f4c7fb36d38d6fb20a9d8c4f25f6b5412493083ab2c9",
+    "test_sha256": {
+      "tests/unit/test_current_state.py": "54b7a2ec68f6a37ddcde86cf958392ddddc9ff245daf8542f5d33ebb4346c223",
+      "tests/unit/test_execution_durability.py": "7c49cb8d96290cea537852f2f7e3688443d3b3534126070b45d7044b7152030a"
+    }
   }
 }

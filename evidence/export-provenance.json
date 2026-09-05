@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "04dd734bfd4e26faadde6b5b9b881ac475df386a",
+  "source_commit": "ce2338575f66b17b6ec63f1042412d39279f3cb8",
   "claim_manifest_source_commit": "8d8b4b5",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -810,8 +810,8 @@
     {
       "source_path": "docs/development/change-registry.md",
       "public_path": "docs/development/change-registry.md",
-      "source_sha256": "5e0af8ad1081feb14f361f08b509a9cab91098aae40bfcb992b405739409d76f",
-      "export_sha256": "5e0af8ad1081feb14f361f08b509a9cab91098aae40bfcb992b405739409d76f"
+      "source_sha256": "b239ac0eb6a055057512fa38d3198af5f7f4f884ea14103bc67f474ebde12e4e",
+      "export_sha256": "b239ac0eb6a055057512fa38d3198af5f7f4f884ea14103bc67f474ebde12e4e"
     },
     {
       "source_path": "docs/development/decisions/benchmark-design.md",
@@ -846,14 +846,14 @@
     {
       "source_path": "docs/development/history/2026-09-05-architecture-hardening.md",
       "public_path": "docs/development/history/2026-09-05-architecture-hardening.md",
-      "source_sha256": "de36e21a2ba543d7a3b8d6bcc750145a05383aa6cf04e941b10ffa99cf7eb90a",
-      "export_sha256": "de36e21a2ba543d7a3b8d6bcc750145a05383aa6cf04e941b10ffa99cf7eb90a"
+      "source_sha256": "0c4e38c4677fcbeefd2130d5c08387a34572a677cfaf5eaa6da9d2b9e9fa1d93",
+      "export_sha256": "0c4e38c4677fcbeefd2130d5c08387a34572a677cfaf5eaa6da9d2b9e9fa1d93"
     },
     {
       "source_path": "docs/development/history/2026-09-05-architecture-verification.json",
       "public_path": "docs/development/history/2026-09-05-architecture-verification.json",
-      "source_sha256": "a0b2c80c82ee949e737372f526b6b850f65404ca17d220737e27eb7597423151",
-      "export_sha256": "a0b2c80c82ee949e737372f526b6b850f65404ca17d220737e27eb7597423151"
+      "source_sha256": "35d4e227ecff493bf3c15f8d87733125c7a759e49322a5fe51696aee3c4ea631",
+      "export_sha256": "35d4e227ecff493bf3c15f8d87733125c7a759e49322a5fe51696aee3c4ea631"
     },
     {
       "source_path": "docs/development/history/2026-09-05-hardening.md",
@@ -2886,8 +2886,8 @@
     {
       "source_path": "tests/unit/test_current_state.py",
       "public_path": "tests/unit/test_current_state.py",
-      "source_sha256": "31618c354ad27a5e1a3ad8b8bb336f5f97b46faecf5e9a08ab24a01c2785be49",
-      "export_sha256": "31618c354ad27a5e1a3ad8b8bb336f5f97b46faecf5e9a08ab24a01c2785be49"
+      "source_sha256": "54b7a2ec68f6a37ddcde86cf958392ddddc9ff245daf8542f5d33ebb4346c223",
+      "export_sha256": "54b7a2ec68f6a37ddcde86cf958392ddddc9ff245daf8542f5d33ebb4346c223"
     },
     {
       "source_path": "tests/unit/test_deviations_guard.py",
@@ -2904,8 +2904,8 @@
     {
       "source_path": "tests/unit/test_execution_durability.py",
       "public_path": "tests/unit/test_execution_durability.py",
-      "source_sha256": "a9a639f7cc5977b9249c72131e9c43ad419bc3d37829d9eab0e65168914c32b5",
-      "export_sha256": "a9a639f7cc5977b9249c72131e9c43ad419bc3d37829d9eab0e65168914c32b5"
+      "source_sha256": "7c49cb8d96290cea537852f2f7e3688443d3b3534126070b45d7044b7152030a",
+      "export_sha256": "7c49cb8d96290cea537852f2f7e3688443d3b3534126070b45d7044b7152030a"
     },
     {
       "source_path": "tests/unit/test_export_safety.py",
