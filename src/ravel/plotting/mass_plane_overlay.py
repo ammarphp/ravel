@@ -66,10 +66,12 @@ if not __package__:  # Direct file execution uses the same package implementatio
     __package__ = "ravel.plotting"
 
 import argparse
+import json
 import os
 import sys
 
 import numpy as np
+from ravel.limits import read_limits, LimitCurve, LimitResult, STATUSES
 
 from . import mplhep_style as house
 
@@ -152,9 +154,12 @@ def main():
     ap.add_argument("--point", required=True, metavar="X,Y",
                     help="tested point in GeV, in the PLANE's coordinates: 'm_parent,m_lsp' on the "
                          "mass plane; 'm,Delta_m' on --plane dm (e.g. 300,100 or 150,20)")
-    ap.add_argument("--mu95-obs", type=float, required=True,
-                    help="observed mu95 from pyhf (verdict: <1 excluded => green; >=1 allowed => red)")
+    ap.add_argument("--mu95-obs", type=float,
+                    help="legacy reported observed value; prefer --limit-artifact to retain numerical status")
     ap.add_argument("--mu95-exp", type=float, default=None, help="expected (median) mu95 from pyhf")
+    ap.add_argument("--limit-artifact", help="exclusion/result JSON carrying per-curve statuses and brackets")
+    ap.add_argument("--mu95-obs-status", choices=sorted(STATUSES), default="legacy_reported")
+    ap.add_argument("--mu95-exp-status", choices=sorted(STATUSES), default="legacy_reported")
     ap.add_argument("--analysis", required=True, help="analysis id, e.g. ATLAS_2018_I1676551")
     ap.add_argument("--experiment", default="ATLAS", choices=["ATLAS", "CMS"])
     ap.add_argument("--com", type=float, default=13, help="sqrt(s) in TeV")
@@ -203,6 +208,25 @@ def main():
     ap.add_argument("--no-lint", action="store_true",
                     help="downgrade the CR-016 plot-lint gate to WARN")
     args = ap.parse_args()
+    try:
+        if args.limit_artifact:
+            with open(args.limit_artifact) as fh:
+                limits = read_limits(json.load(fh))
+            for given, curve in ((args.mu95_obs, limits.observed), (args.mu95_exp, limits.expected[2])):
+                if given is not None and given != curve.value:
+                    raise ValueError("CLI scalar conflicts with limit artifact")
+            args.mu95_obs, args.mu95_exp = limits.observed.value, limits.expected[2].value
+        else:
+            if args.mu95_obs is None:
+                ap.error("provide --limit-artifact or an explicitly reported --mu95-obs")
+            expected = [LimitCurve(None, "missing") for _ in range(5)]
+            if args.mu95_exp is not None:
+                expected[2] = LimitCurve(args.mu95_exp, args.mu95_exp_status)
+            limits = LimitResult(LimitCurve(args.mu95_obs, args.mu95_obs_status), tuple(expected))
+        if limits.observed.value is None:
+            raise ValueError("observed limit is missing; no tested-point verdict can be plotted")
+    except (ValueError, TypeError, OSError) as exc:
+        ap.error(str(exc))
 
     import matplotlib
     matplotlib.use("Agg")
@@ -363,9 +387,10 @@ def main():
                     rotation_mode="anchor", ha="left", va="bottom", fontsize=10, color="0.4", zorder=2)
 
     # ---- tested point: green if excluded (obs mu95<1), red if allowed
-    excluded = args.mu95_obs < 1.0
-    pt_color = house.OKABE_ITO["bluishgreen"] if excluded else house.OKABE_ITO["vermillion"]
-    verdict = "excluded" if excluded else "allowed"
+    excluded = limits.observed.exclusion()
+    pt_color = (house.OKABE_ITO["bluishgreen"] if excluded is True else
+                house.OKABE_ITO["vermillion"] if excluded is False else "0.5")
+    verdict = "excluded" if excluded is True else "not excluded" if excluded is False else "unresolved"
     ax.plot([mpar], [mlsp], marker="*", ms=20, mfc=pt_color, mec="black", mew=1.0,
             ls="none", zorder=10)
     legend_handles.append(Line2D([0], [0], marker="*", ms=14, mfc=pt_color, mec="black",
@@ -397,9 +422,9 @@ def main():
         rf"$\mathbf{{{args.analysis.replace('_', chr(92)+'_')}}}$",
         (rf"tested point $(m={mpar:.0f},\ \Delta m={mlsp:.0f})$ GeV" if dm_plane
          else f"tested point $({mpar:.0f},{mlsp:.0f})$ GeV"),
-        rf"obs. $\mu_{{95}} = {args.mu95_obs:.2f}$"
-        + (rf",  exp. $\mu_{{95}} = {args.mu95_exp:.2f}$" if args.mu95_exp is not None else ""),
-        rf"$\Rightarrow$ point {verdict} ($\mu_{{95}}{'<' if excluded else r'\geq'}1$)",
+        f"obs. mu95 {args.mu95_obs:.2f} ({limits.observed.status})",
+        (f"exp. mu95 {args.mu95_exp:.2f} ({limits.expected[2].status})" if args.mu95_exp is not None else "expected limit missing"),
+        f"Point {verdict} under this upper-limit test",
     ]
     if synth_band_note:
         lines.append(synth_band_note)

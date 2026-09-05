@@ -22,6 +22,7 @@ import os
 import sys
 
 import numpy as np
+from ravel.limits import read_limits, point_value
 
 from . import mplhep_style as house
 from .mass_plane_overlay import read_contour, parse_contour_args, texify
@@ -47,7 +48,7 @@ def load_scan(path):
     if not pts:
         die("scan.json has no points")
     for p in pts:
-        for k in ("m_parent", "m_lsp", "dm", "mu95_obs"):
+        for k in ("m_parent", "m_lsp", "dm"):
             if p.get(k) is None:
                 die(f"scan point {p.get('tag')} missing '{k}'")
             value = p[k]
@@ -55,19 +56,10 @@ def load_scan(path):
                 die(f"scan point {p.get('tag')} has nonfinite or nonnumeric '{k}'")
             if value < 0 or (k != "m_lsp" and value == 0):
                 die(f"scan point {p.get('tag')} has nonphysical '{k}'")
-        if p.get("mu95_exp") is not None:
-            expected = p["mu95_exp"]
-            if isinstance(expected, bool) or not isinstance(expected, (int, float)) or not np.isfinite(expected) or expected <= 0:
-                die(f"scan point {p.get('tag')} has invalid expected limit")
-        if p.get("mu95_exp_band") is not None:
-            band = p["mu95_exp_band"]
-            if not isinstance(band, list) or len(band) != 5 or any(isinstance(v, bool) or
-                    not isinstance(v, (int, float)) or not np.isfinite(v) or v <= 0 for v in band):
-                die(f"scan point {p.get('tag')} has invalid expected band")
-            if any(a > b for a, b in zip(band, band[1:])):
-                die(f"scan point {p.get('tag')} has unordered expected band")
-            if p.get("mu95_exp") is not None and not np.isclose(band[2], p["mu95_exp"], rtol=1e-5):
-                die(f"scan point {p.get('tag')} expected median disagrees with band")
+        try:
+            read_limits(p)
+        except (ValueError, TypeError) as exc:
+            die(f"scan point {p.get('tag')} has invalid observed/expected limit or band: {exc}")
         if not np.isclose(p["m_parent"] - p["m_lsp"], p["dm"], atol=1e-5, rtol=0):
             die(f"scan point {p.get('tag')} has inconsistent masses and splitting")
     if len({(p["m_parent"], p["dm"]) for p in pts}) != len(pts):
@@ -77,6 +69,18 @@ def load_scan(path):
         print(f"  note: {len(flagged)} scan point(s) carry a limit-quality flag (floored/capped: "
               f"CR-001 bounds, not limits): {flagged}", file=sys.stderr)
     return scan
+
+
+def _plot_value(point, kind="observed"):
+    value = point_value(point, kind, allow_legacy=True)
+    return value if value is not None else np.nan
+
+
+def _legacy_note(scan):
+    if any(any(c.status == "legacy_reported" for c in
+               [read_limits(p).observed, *read_limits(p).expected]) for p in scan["points"]):
+        return ["Historical reported limits; numerical root evidence unavailable"]
+    return []
 
 
 def interp_crossing(xs, ys, level=1.0):
@@ -193,9 +197,9 @@ def render_line(scan, atlas_contours, args):
     if any(p["m_parent"] != m_parent for p in pts):
         die("line layout requires a single parent mass; use the grid layout")
     dms = [p["dm"] for p in pts]
-    mu_obs = [p["mu95_obs"] if not p.get("quality") else np.nan for p in pts]
-    mu_exp = [p.get("mu95_exp") if not p.get("quality") else np.nan for p in pts]
-    band = [p.get("mu95_exp_band") if not p.get("quality") else None for p in pts]
+    mu_obs = [_plot_value(p) for p in pts]
+    mu_exp = [_plot_value(p, "expected") for p in pts]
+    band = [[_plot_value(p, i) for i in range(5)] for p in pts]
     if not np.any(np.isfinite(mu_obs)):
         die("line has no measured limits: every point is a quality bound")
 
@@ -258,6 +262,7 @@ def render_line(scan, atlas_contours, args):
              f"{scan['n_done']}/{scan['n_planned']} grid points",
              "Shading restricted to sampled support; endpoints may be censored",
              "95% CL exclusion (CLs), not a discovery"]
+    lines += _legacy_note(scan)
     if note:
         lines.insert(3, note)
     # legend FIRST (scored over every corner), then the annotation box scores the remainder --
@@ -288,7 +293,7 @@ def render_grid(scan, atlas_contours, args):
     pts = scan["points"]
     mpar = np.array([p["m_parent"] for p in pts], float)
     dm = np.array([p["dm"] for p in pts], float)
-    mu = np.array([p["mu95_obs"] if not p.get("quality") else np.nan for p in pts], float)
+    mu = np.array([_plot_value(p) for p in pts], float)
 
     if not np.any(np.isfinite(mu)):
         die("grid has no measured limits: every point is a quality bound")
@@ -362,7 +367,7 @@ def render_grid(scan, atlas_contours, args):
     house.smart_annotate(
         ax, [rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$",
              f"{scan['n_done']}/{scan['n_planned']} grid points",
-             "95% CL exclusion (CLs), not a discovery"], fontsize=10)
+             "95% CL exclusion (CLs), not a discovery"] + _legacy_note(scan), fontsize=10)
     house.tick_hygiene(ax, axr=None, logy=log_y, logx=log_x)
     save(fig, args.out)
     cstate = "drawn" if drew_contour else "NOT drawn (no mu95=1 crossing or too few points)"
@@ -459,8 +464,16 @@ def comparison_data(scan, limit_grid, kind="observed"):
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not np.isfinite(v):
                 record[coordinate_name] = None
         reason = None
-        if point.get("quality"):
-            reason = "quality_flag"
+        try:
+            limits = read_limits(point)
+            curve = limits.curve(kind)
+            record.update(limit_status=curve.status, limit_bracket=curve.to_dict()["bracket"],
+                          limit_origin=limits.origin, historical_only=curve.status == "legacy_reported")
+            if not curve.usable(allow_legacy=True):
+                reason = "quality_flag"
+        except (ValueError, TypeError) as exc:
+            reason = "invalid_input"
+            record["limit_error"] = str(exc)
         for key in ("m_parent", "dm", mu_key, "sigma_ref_fb"):
             value = point.get(key)
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not np.isfinite(value) or value <= 0:
@@ -516,17 +529,17 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     log_x = resolve_axis(args.logx, (args.contract_axes or {}).get("x"), False)
     log_y = resolve_axis(args.logy, (args.contract_axes or {}).get("y"), True)
     mu_key = {"observed": "mu95_obs", "expected": "mu95_exp"}[kind]
-    rows = [p for p in scan["points"] if (p.get("m_parent"), p.get("dm")) in eligible_coords or p.get("quality")]
+    rows = [p for p in scan["points"] if (p.get("m_parent"), p.get("dm")) in eligible_coords or not np.isfinite(_plot_value(p, kind))]
     # CR-001: quality-flagged points (floored / capped / floored-legacy, tagged at harvest) carry
     # an upper BOUND or a scan ceiling, not a measured limit -- never color them as measurements
     # and never feed them to the smooth mu-contour field. Drawn as gray 'x' + counted in the note.
-    flagged = [p for p in rows if p.get("quality")]
+    flagged = [p for p in rows if not np.isfinite(_plot_value(p, kind))]
     if flagged:
-        kinds_f = sorted({p["quality"] for p in flagged})
+        kinds_f = sorted({read_limits(p).curve(kind).status for p in flagged})
         print(f"  (fig3 {kind}: {len(flagged)} point(s) carry a limit-quality flag {kinds_f} -- "
               f"bounds, not limits; drawn as 'x', excluded from fill+contour: "
               f"{[p.get('tag') for p in flagged]})")
-        rows = [p for p in rows if not p.get("quality")]
+        rows = [p for p in rows if np.isfinite(_plot_value(p, kind))]
     if len(rows) < 4:
         die(f"fig3 layout needs >=4 points with sigma_ref_fb, {mu_key} and Delta m>0, got {len(rows)}")
     skipped = [p["tag"] for p in scan["points"] if p not in rows]
@@ -695,6 +708,7 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
              "95% CL exclusion (CLs), not a discovery"]
     if n_missing:
         lines.insert(4, rf"$\circ$ white cell: no published ref point")
+    lines += _legacy_note(scan)
     if flagged:
         lines.insert(4, rf"$\times$ floored/capped $\mu_{{95}}$: bound, not a limit (CR-001)")
     if scan.get("model_basis"):

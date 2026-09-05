@@ -1,124 +1,113 @@
-# Reference — the NATIVE (VM-free) pipeline backend
+# Native execution reference
 
-The September 2026 [native fidelity audit](../../../evidence/audits/2026-09-05-native-fidelity/README.md)
-corrects the eRJR invisible-momentum boost against the ATLAS paper. Its SR-low
-selection intentionally differs from the older container oracle; the recorded
-9/9 comparison is historical. The unchanged compressed and zero-lepton selections
-were replayed separately. Selection parity alone does not certify physics fidelity.
+The native backend builds an explicit execution plan and runs it through the durable stage supervisor. Planning validates the requested physics family, cards, detector adapter, routine, and statistical mapping before generation. It prints `compute_authorized: false`; a plan records a proposed computation and does not grant approval or certify physics.
 
+The executable registry is `ravel.physics.native_capabilities.CAPABILITIES`. Registration means the adapters below can be called with their declared inputs. It does not establish experimental acceptance, detector accuracy, or permission to serve an exclusion.
 
-The default execution backend for the scan (`scan_orchestrator launch --backend native`, step 8) and a
-drop-in for a single point. It runs every stage in a **native arm64 conda env — no podman, no VM, no x86
-emulation, no ATLAS AnalysisBase** — which makes a full-chain point **~30–50 min** (not ~9 h; the
-MadGraph stage itself is minutes) and lets scan points run
-**in parallel**. This is what unlocked local scans → contours.
+| Routine | Declared model | Preparation | Statistics |
+|---|---|---|---|
+| `EwkCompressed2018` | `slepton-bino` | Specific slepton template or explicit cards | Yields, compressed likelihood, or explicit channel mapping |
+| `EwkThreeLeptonERJR2018` | `c1n2-wz` | Explicit cards | Yields or explicit channel mapping |
+| `ZeroLeptonDiscovery2018` | `squark-neutralino`, `gluino-neutralino` | Explicit cards | Yields only |
 
-## The chain (all native, `run-pipeline-native.sh <run-dir-abs> <config-rel>`)
-| Stage | Tool / env | Notes |
-|---|---|---|
-| madgraph | `mg5_aMC` (mg5) | runs `output/run.mg5`; LHE only (`shower=OFF`) |
-| pythia | `pythia_shower` (rivet) | LHE → HepMC3 (Monash default) |
-| delphes | `DelphesHepMC3` (recast, ROOT 6.40) | the ATLAS card; native libDelphes |
-| analysis | `delphes2sa_native.py` (recast) | Delphes→SA ntuple — **bit-identical to the container** |
-| simpleanalysis | `native_simpleanalysis.py` (rivet) + `rjr_resolve` (recast) | **native EwkCompressed2018**: full object selection in Python, RestFrames RJR (`R_ISR`/`M_S`) via the natively-built `libRestFrames`; reproduces the container per-SR yields **bit-for-bit (141/141 SRs)** |
-| sa2json | `sa2json_native.py` (rivet) | SA `.root` → pyhf signal patch (bit-identical) |
-| pyhf | `pyhf_exclude.py` (rivet) | → `output/exclusion.json` (the harvest target) |
+All three use the `simpleanalysis-delphes` detector adapter. Compressed analysis additionally requires the native RestFrames resolver. The zero-lepton discovery regions overlap, so this registry does not combine them as independent likelihood channels. Arbitrary generic analysis specifications, unsupported model combinations, NLO generation, and merged generation are not registered by this driver. The separate declarative generic engine remains a separate interface with its own validation requirements.
 
-Validated end-to-end: a fresh native generation of slepton (200,150) reproduced the container's observed
-µ₉₅ to **0.51%** (6.333 vs 6.366). The driver reads the mapyde TOML (`read_toml`, `python -c` not a
-heredoc — `conda run <<heredoc` passes no stdin), parses σ from the MadGraph log × the k-factor, and
-writes the same `logs/STATUS.txt` + `output/` layout as `run-pipeline.sh`, so `scan_orchestrator`
-status/assemble are unchanged.
+## Configuration
 
-**Evidence:** the shipped `output/EwkCompressed2018.txt` (141/141 SR yields) and `output/exclusion.json`
-(the 0.51% µ₉₅ comparison) back the two claims above — see `docs/validation/evidence.md`'s
-`HEADLINE_native_141_bitforbit` / `HEADLINE_native_mu95_0p51pct` rows for the exact shipped path and
-sha256 (the source run directory itself is a dev-only record per `docs/development/distribution.md`).
+New native configurations declare their model and adapters. For example, this configuration describes a chargino–neutralino execution using user-supplied cards; the named card files must already exist and encode the intended physics.
 
-## Per-point input materialization — `prepare_native_slepton.py`
-`run-pipeline-native.sh` expects `output/{run.mg5,shower.cfg,*_card.dat}` to exist; the orchestrator's
-native launch calls `prepare_native_slepton.py --rundir <abs> --m-parent <M> --m-lsp <M> --nevents <N>
---toml <point-config.toml>` first. It renders the param card from the point's masses (the base
-`SleptonBino.slha` has `{{MSLEP}}`/`{{MN1}}` placeholders + explicit BR=1 decay rows → no width-only
-decay trap), the run card — applying the TOML's **`[madgraph.run.options]` block first, fail-loud on
-any unmatched key** (`ptj1min=50` etc.; CR-002: dropping it silently generated at ptj1min=0, a ×2.14
-σ_tag drift vs the container reference — `docs/development/change-registry.md`), then `{{ecms}}`→6500 GeV,
-`{{nevents}}`/`{{iseed}}`, `pdlabel=cteq6l1` so no LHAPDF is needed (acc×eff is σ-independent so the
-PDF set does not bias the cert) — `run.mg5` from the fixed slepton process template
-(`src/ravel/data/templates/slepton_isrslep_generate.mg5`), and `shower.cfg`. A fail-loud guard rejects any unrendered
-`{{…}}` placeholder. NOTE: every native sample generated BEFORE 2026-07-06 predates the run.options
-fix (ptj1min=0); the 52-point fig3 grid rescan at ptj1min=50 is tracked as CR-004.
+```toml
+[madgraph.run]
+nevents = 20000
+seed = 17
+ecms = 13000
 
-## Port-fidelity invariant — lepton-ID cuts are deliberate NO-OPS (do not "complete" them)
-mapyde's share converter script `Delphes2SA` (consumed by both backends) writes `el_id`/`mu_id` =
-`0x7FFFFFFF` — every quality bit set — for every lepton, because Delphes emulates no ID quality.
-The native SA (`native_simpleanalysis.py`) accordingly reads the id fields but **never cuts on
-them**, exactly like the container chain: that is part of WHY the yields are bit-for-bit
-(141/141 SRs). A maintainer "completing" the port with real ID/quality cuts from the ATLAS
-analysis source would silently change every SR yield and break the validated parity. Any future
-ID-quality emulation is a DETECTOR-model change: it goes through the step-3.5 fidelity gate +
-re-certification, not through the SA port.
+[analysis]
+script = "Delphes2SA.py"
+lumi = 139000       # inverse pb
+kfactor = 1.0       # explicit correction, applied exactly once
 
-## SCOPE + when to use the container instead
-Two native SA paths now exist:
-- **`native_simpleanalysis.py` + `rjr_resolve`** — the RJR-complex EwkCompressed2018 port,
-  bit-for-bit vs the container (141/141 SRs). This is the worked example for analyses needing
-  recursive jigsaw or bespoke variables; each such analysis is a per-analysis port (the `--objects`
-  RJR interface already generalizes the jigsaw solve).
-- **`native_sa_generic.py`** (CR-005, 2026-07-07) — a DECLARATIVE engine for the ~85% of SA
-  analyses that are **cut-and-count on standard objects** (the 4 archetypes: 0ℓ jets+MET, 1ℓ+jets,
-  2ℓ, monojet). It reuses the same validated primitives (imported from `native_simpleanalysis.py`)
-  and runs a JSON analysis spec (object defs → overlap-removal order → signal tightenings → a
-  derived-variable library → a declarative SR cut cascade) against a Delphes ROOT. Porting a
-  cut-based analysis is a spec file, not a rewrite. `--selftest` PASS; the real-input path is
-  `run --delphes <root> --spec <spec.json> --xs-pb <σ>`.
-  **Remaining before it is the default for a given cut-based analysis:** an end-to-end validation of
-  the generic path on a real Delphes ROOT vs a container SA run (bit-parity for the declarative
-  engine, same class as the EwkCompressed2018 141/141 proof).
+[simpleanalysis]
+name = "EwkThreeLeptonERJR2018"
 
-For an analysis the native paths do not yet cover (RJR not ported, or the generic engine not yet
-validated for it) → `--backend container` (the mapyde VM path, `docs/workflow/analysis-simpleanalysis/`), general
-but slow + sequential. `prepare_native_slepton.py` (the input materializer) is still slepton-card-
-specific — generalizing it beyond slepton cards is the remaining CR-005 driver work.
+[ravel.native]
+model = "c1n2-wz"
+preparation = "explicit-cards"
+detector = "simpleanalysis-delphes"
+statistics = "yields"
 
-## Build prerequisites (one-time, regenerable)
-- Native RestFrames: `bash native/scripts/restframes-native-build.sh` installs under the selected native
-  build directory's tools/restframes-native subdirectory (see `native/scripts/paths.sh`).
-- The RJR resolver: `$CONDA run -n recast bash native/scripts/rjr-resolve-build.sh`.
-Both are gitignored/regenerable; `run-pipeline-native.sh` assumes they exist.
+[ravel.native.inputs]
+process_card = "cards/process.dat"
+param_card = "cards/param.dat"
+run_card = "cards/run.dat"
+shower_card = "cards/shower.cfg"
+delphes_card = "cards/detector.tcl"
+```
 
-## §porting — the CR-005 recipe: add the NEXT routine natively (~half a session, proven twice)
-1. **Pick + read** the routine's ANA-…cxx source (SimpleAnalysisCodes/src under the
-   SA source tree in the build tools). Disqualify (for THIS
-   recipe) anything needing RestFrames, fat jets, photons, taus, or ML weights — those take a
-   dedicated port (the flagship's RJR path) or a different route.
-2. **Transcribe** into `src/ravel/physics/sa_routines/<name>.py` on `sa_native_core`
-   (NAME/BRANCHES/FLAVOUR_FLAGS/`sr_order()`/`select(arrays, i)`), with an **ambiguity ledger**
-   in the docstring. NON-NEGOTIABLE traps (each cost a real port a silent diff or nearly did):
-   - **ID bits are copied header-verbatim from `AnalysisObject.h` enums — never guessed** (e.g.
-     `EIsoFixedCutTight` is 1<<10, not 1<<14; `EGood` is a 7-bit combination).
-   - **SA's `a + b` on collections SORTS by pT after concatenating** (`AnalysisObject.cxx`) —
-     use `core.concat_sorted`, never python list `+`. Load-bearing wherever the combined list
-     feeds `[i].Pt()` cuts (e.g. 0-lepton "corrected jets" = jets + 50 GeV leptons).
-   - `sumObjectsPt`/`minDphi` take **first-N in list order** with a pt floor
-     (`core.sum_objects_pt` / `core.min_dphi_n`); `aplanarity` = 1.5×λ_min of the |p|^(r−2)
-     momentum tensor (`core.aplanarity`); variable-radius OR = `core.overlapRemovalVR`.
-   - `getMCVeto()` is 0 on Delphes2SA input (no mcVetoCode); lepton-ID cuts are no-ops
-     (el/mu_id = 0x7FFFFFFF) — transcribe them anyway, identically no-op in the oracle.
-3. **Register** it in `src/ravel/physics/sa_routines/__init__.py::REGISTRY`; run via
-   `native_simpleanalysis.py --routine <Name> --input <Delphes2SA.root> --output <dir>`.
-4. **Sample**: materialize a rundir from a tracked card whose topology populates the routine
-   (copy a smoke rundir's `output/{run_card,shower}.cfg` pattern; fix `Beams:LHEF`; drop
-   `[madgraph.masses]` so the lhe_check gate derives expectations `--expect-from-card`), then
-   `run-pipeline-native.sh` through the `analysis` stage.
-5. **ORACLE GATE (mandatory)**: provision the container per-use (`podman machine init/start`
-   via the NATIVE podman 5.8.2 bundled in the build tools (podman-native) — the conda podman's vfkit
-   fails; source `pipeline-env.sh` under BASH, its `BASH_SOURCE` corrupts under zsh — then pull
-   `simple-analysis:master`), and run
-   `python3 scripts/run.py ravel.validation.validate_native_parity --rundir <dir> --config <toml> --routine <Name> --native-txt <txt>`.
-   **100% of SR integer counts must match** (the container writes `<Name>_oracle.txt`; the
-   validator never clobbers the native output). Tear the VM down after
-   (`podman machine rm -f` + `system connection rm` + the machine cache dir).
-6. **Record**: registry entry; per-analysis acc×eff certification (`certify_acceptance.py` vs
-   the published maps) + a µ95 anchor where a likelihood exists are the physics-fidelity
-   follow-through for any routine that will SERVE results (bit-for-bit alone proves the CODE).
+Paths are absolute or relative to the run directory. The example's luminosity, event count, seed, energy, and correction are explicit study inputs to review, not universal defaults.
+
+The explicit-card adapter accepts bounded unmerged LO `MSSM_SLHA2` production. It checks proton initial states, two produced particles from the declared family, model masses, positive parent widths, and explicit branching rows to the LSP. Branching fractions must sum to one. For a scan, supplied masses must agree with the selected point. A different point needs its own parameter card. The process card may contain model import, aliases, settings, and generation commands; output and launch commands are generated by Ravel. Alias definitions must precede generation. No slepton template is substituted for a different model.
+
+The process card must use one jet multiplicity. Combining separate unmerged zero-jet and one-jet samples would double-count phase space; that requires a matching/merging adapter. Chargino–neutralino aliases must retain associated production in each final-state slot.
+
+The run card must explicitly provide `nevents`, `iseed`, both beam energies, `ickkw = 0`, a PDF choice, and disabled additional systematic weights. Counts, seed, and energies must agree with the TOML. The shower card must declare `Beams:frameType = 4` and `Beams:LHEF`; Ravel binds that path to this run's generated events. Matching and merging settings require a separate adapter. The input cards are preserved unchanged.
+
+For `statistics = "mapped-likelihood"`, add `likelihood` and `channel_map` paths to the inputs table. The likelihood must validate as a pyhf workspace. The channel map must cover every workspace channel with either `null` for zero signal or an object such as `{"region": "SRlow"}`; a supported `flavour` may also be given. Mapped signal channels must be single-bin and name regions present in the selected routine. The signal uses the workspace's declared POI, which must be unambiguous and must not already scale a background sample. The compressed adapter requires its known `mu_SIG` POI. Mapping does not establish that an experimental likelihood is appropriate for the model.
+
+The specific `slepton-bino` preparation renders only the known slepton parameter and process templates. It requires an explicit supported PDF and the complete `[madgraph.run.options]` block. The collision energy comes from the TOML; each beam receives half that energy. Legacy scan TOMLs are accepted only when the manifest explicitly declares `slepton-bino`, the routine is `EwkCompressed2018`, and the named mapyde adapters are `SleptonBino` and `isrslep`. This narrow compatibility route does not infer arbitrary physics from masses.
+
+## Plan, execute, and resume
+
+Use Python from the installed Ravel environment. These commands work from outside the source checkout after ordinary or editable installation.
+
+```bash
+python -m ravel.physics.native_pipeline plan \
+  --rundir /absolute/run --config config.toml
+
+# Persist the reviewed proposal in inputs/native_execution_plan.json.
+python -m ravel.physics.native_pipeline plan \
+  --rundir /absolute/run --config config.toml --write
+
+# Execute only after the study's compute approval.
+python -m ravel.physics.native_pipeline run \
+  --plan /absolute/run/inputs/native_execution_plan.json
+```
+
+Before execution, the task contract must include `execution_plan: {"path": "inputs/native_execution_plan.json", "sha256": "<SHA256 of the saved file bytes>"}`. Record the user's actual approval with `workflow_state approve` after the CHECK-IN 1 and cost artifacts are complete. The executor verifies their current content binding and checks model, analysis, detector, statistical outputs, masses, luminosity, and event/point/backend budget against this exact plan. Missing or older unbound contracts remain held; execution never fabricates or renews approval. A smoke approval cannot cover more than 1,000 events or a multipoint campaign.
+
+For scans, `scan_orchestrator launch <scan-dir> --backend native --write-plans` persists proposals without running tools. Each point's contract pins its own saved plan and approval. Add `--go` after approval; add `--resume --go` to include repaired failed/interrupted durable points. A native plan is never rewritten by the executor after approval.
+
+The source-tree convenience wrapper `bash native/scripts/run-pipeline-native.sh /absolute/run config.toml` invokes the same planner and executor. `RAVEL_PYTHON` can select the Ravel Python interpreter. Native backend locations use `RAVEL_NATIVE_BUILD` and `RAVEL_NATIVE_BIN`; see `native/scripts/paths.sh`. The selected conda executable, environment prefixes, generator, shower, detector, converter, and optional RestFrames resolver are declared dependencies. Missing or non-executable required tools stop execution before the first stage.
+
+For a legacy slepton configuration, provide `--model slepton-bino --analysis-id ins1767649 --pdf cteq6l1` to the plan command, or select another explicitly intended supported PDF. PDF changes can change acceptance and require validation.
+
+Each plan contains ordered stages with `stage`, `command`, `inputs`, `outputs`, and `depends_on`. The chain is:
+
+1. Materialize the declared cards.
+2. Generate in a fresh, retained `<rundir>/work/madgraph/attempt-*` directory.
+3. Unpack the stable `output/madgraph/unweighted_events.lhe.gz` while preserving it.
+4. Run the mandatory LHE mass/card/structure gate.
+5. Shower the requested event count to HepMC.
+6. Resolve and record normalization evidence.
+7. Run Delphes and convert its nominal weights to the SimpleAnalysis ntuple.
+8. Execute exactly the selected routine, writing `output/<Routine>.root` and `.txt`.
+9. If requested, make the signal patch and run likelihood inference.
+10. Write `output/native_execution_result.json`, identifying the actual routine, model, statistical adapter, plan hash, and output hashes.
+
+The final report does not invent an exclusion for yields-only runs. Statistical runs also produce `output/exclusion.json`.
+
+Re-running the same `run --plan` command resumes by checking input, code, runtime, dependency, and output receipts in `execution_state.json`. Only a matching successful stage is reused. Original sources are rechecked before every stage; changing a card invalidates the saved plan. After a deliberate input change, build and review a new plan, update its contract pin, record renewed actual approval, then run it. Retries archive prior declared outputs and logs under `logs/execution/<stage>/<attempt>/`. MadGraph gets a new working directory, so it neither prompts to overwrite an old PROC nor deletes an unpacked downstream LHE. Earlier process directories remain available for diagnosis.
+
+There is no unsupervised fallback. A nonzero exit, invalid output, unresolved normalization, or failed dependency stops downstream stages. A quiet log alone is not proof of a stalled job. The supervisor uses process ownership and bounded termination for interrupted attempts. Do not delete `STATUS.txt`, receipt files, or intermediate dependencies to force a retry. The babysitter retains all artifacts for execution-ledger runs; held failures require input/tool repair followed by supervised resume. Disk planning must include retained attempts and receipt dependencies.
+
+The canonical scan dispatcher supports container commands as dry diagnostics only. Live `--backend container --go` is refused until a container adapter can bind its exact inputs and outputs to approval. It cannot bypass the native approval boundary.
+
+## Normalization and scientific limits
+
+The authoritative generated cross section is the LHE init-block rate in pb. A MadGraph log summary, when present, must corroborate it within its printed precision. The native shower must explicitly report a compatible rate in mb and preserve the requested event count. A missing rate never becomes 1 pb. Luminosity is required in inverse pb, and a finite positive correction is required explicitly; corrections below one are valid. `XSoverride` is rejected by this adapter.
+
+`output/normalization.json` records the generated rate, the correction applied once, the corrected rate, event count, signed weight moments, and hashes of its evidence. Signed individual nominal weights are preserved, but the total must be positive and finite. The converter checks event counts, weight signs, relative weight moments, every converted nominal weight, and the final weight sum. It writes `Delphes2SA.root.normalization.json`; luminosity remains unapplied in those ntuple weights and is applied once when producing signal yields for inference.
+
+These checks establish bookkeeping consistency within the bounded adapter. They do not prove that a generator, PDF, shower tune, detector card, or correction is experimentally accurate. The [September native fidelity audit](../../../evidence/audits/2026-09-05-native-fidelity/README.md) records routine-specific retained-event evidence and the corrected eRJR invisible-momentum boost. Older container parity observations remain historical evidence for their exact artifacts, not universal certification of new generation or new cards.
+
+The shared Delphes converter writes all lepton ID bits set because that detector representation does not emulate those quality decisions. Changing that behavior is a detector-model change requiring validation, not a routine port cleanup. Acceptance certification and current experimental comparison are separate from executable registration and successful receipts.

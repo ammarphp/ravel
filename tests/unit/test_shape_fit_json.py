@@ -5,7 +5,7 @@ validator, next task) needs a machine artifact to key off. These tests pin the t
 non-negotiable consistencies the writer must honour:
   - excluded_obs == (mu95_obs < 1)
   - r5_status NEVER defaults to "closed" -- a run earns it only with >=2 in-tolerance
-    r5_reference_points (DECISION-SHAPE-FIT.md's R5 gate); a bare synthetic/Gaussian-stand-in
+    artifact-bound comparisons (DECISION-SHAPE-FIT.md's R5 gate); a bare synthetic/Gaussian-stand-in
     run is "na", an unclosed reproduction attempt is "held".
 
 Import the module under test by file path, not by package import: the repo root carries a
@@ -37,7 +37,7 @@ def test_selftest_passes_and_writes_json():
     assert result.returncode == 0, result.stdout + result.stderr
     assert "JSON artifact" in result.stdout
     assert "r5_status=na" in result.stdout
-    assert "2-in-tol-points=closed, 1-in-tol-point=held" in result.stdout
+    assert "2-in-tol-points=held, 1-in-tol-point=held" in result.stdout
 
 
 def _make_fixture(tmp_path, sf):
@@ -81,6 +81,10 @@ def test_fit_run_writes_shape_fit_json_consistent(tmp_path):
 
     assert rec["schema_version"] == 1
     assert rec["generated_utc"] == "2026-07-08T00:00:00Z"
+    assert rec["limit_status"]["observed"] == "resolved"
+    assert rec["limit_status"]["expected"] == ["missing", "missing", "resolved", "missing", "missing"]
+    assert rec["numerical_evidence"]["observed"]["calibrated"] is False
+    assert rec["limit_brackets"]["observed"][0] <= rec["mu95_obs"] <= rec["limit_brackets"]["observed"][1]
     assert rec["generator"] == "shape_fit.py"
     assert rec["stat_mode"] == "shape-fit"
     assert set(rec) >= {"spectrum", "bkg_form", "fit_quality", "signal", "mu95_obs", "mu95_exp",
@@ -111,9 +115,8 @@ def test_gauss_stand_in_is_synthetic_na(tmp_path):
     assert rec["excluded_obs"] == (rec["mu95_obs"] < 1.0)
 
 
-def test_r5_points_close_only_with_two_in_tolerance(tmp_path):
-    """r5_status reaches 'closed' only when --r5-points supplies >=2 in_tolerance points; one
-    in-tolerance point alone stays 'held' (never earns closure by half-measures)."""
+def test_legacy_r5_point_booleans_never_close(tmp_path):
+    """Legacy notes remain readable; neither one nor two booleans grant certification."""
     sf = _load_shape_fit()
     spec_path, sig_path = _make_fixture(tmp_path, sf)
 
@@ -129,7 +132,7 @@ def test_r5_points_close_only_with_two_in_tolerance(tmp_path):
         cwd=REPO, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     rec_closed = json.loads((tmp_path / "closed_run.json").read_text())
-    assert rec_closed["r5_status"] == "closed"
+    assert rec_closed["r5_status"] == "held"
     assert len(rec_closed["r5_reference_points"]) == 2
 
     r5_one = tmp_path / "r5_one.json"

@@ -42,6 +42,7 @@ if not __package__:  # Direct file execution uses the same package implementatio
 import argparse, json, os, sys
 import numpy as np
 from ..paths import package_data_path
+from ..limits import attach_limits, read_limits, rescale_artifact
 
 try:
     import pyhf
@@ -273,16 +274,11 @@ def scale_result(result, factor):
     result["sigma_scale_k"] = factor
     result["obs_limit_lo"] = result["obs_limit"]
     result["exp_limits_lo"] = list(result["exp_limits"])
-    result["obs_limit"] /= factor
-    result["exp_limits"] = [value / factor for value in result["exp_limits"]]
+    rescale_artifact(result, 1.0 / factor)
     result["scan_mu"] = [value / factor for value in result["scan_mu"]]
-    brackets = result.get("limit_brackets", {})
-    for bracket in [brackets.get("observed", []), *brackets.get("expected", [])]:
-        bracket[:] = [value / factor if value is not None else None for value in bracket]
     for record in result.get("per_sr", {}).values():
-        for field in ("obs_limit", "exp_median"):
-            if field in record:
-                record[field] /= factor
+        if "obs_limit" in record:
+            rescale_artifact(record, 1.0 / factor)
         if "s" in record:
             record["s_lo"] = record["s"]
             record["s"] *= factor
@@ -597,7 +593,7 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
             print(f"  WARNING: {name} limit is {status}; reported value is a scan bound",
                   file=sys.stderr)
 
-    return {
+    return attach_limits({
         "obs_limit": obs_limit,
         "exp_limits": exp_limits,  # [-2,-1,med,+1,+2] sigma
         "scan_mu": [float(m) for m in scan],
@@ -626,7 +622,7 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
             "n_nan_flagged": robust_optimizer.n_nan_flagged - opt0[2],
             "n_escalated": robust_optimizer.n_escalated - opt0[3],
         },
-    }
+    }, source="pyhf")
 
 
 def plot(res, out_png, title, sr_label=None):
@@ -645,8 +641,11 @@ def plot(res, out_png, title, sr_label=None):
     ax.plot(mu, exp[:, 2], "k--", lw=1.4, label="expected median")
     ax.plot(mu, obs, "ko-", ms=3, lw=1.6, label="observed")
     ax.axhline(0.05, color="red", lw=1.3, label=r"95% CL ($\mathrm{CL}_s=0.05$)")
+    obs_curve = read_limits(res).observed
+    relation = {"resolved": "=", "below_scan": "<", "above_scan": ">"}.get(obs_curve.status, "\\sim")
+    qualifier = "" if obs_curve.status == "resolved" else f" ({obs_curve.status}; bound/report only)"
     ax.axvline(res["obs_limit"], color="navy", ls=":", lw=1.4,
-               label=rf"$\mu^{{95}}_{{obs}}={res['obs_limit']:.2f}$")
+               label=rf"$\mu^{{95}}_{{obs}}{relation}{res['obs_limit']:.2f}$" + qualifier)
     ax.set_xlabel(r"signal strength $\mu$")
     ax.set_ylabel(r"$\mathrm{CL}_s$")
     ax.set_ylim(0, 1.05)
@@ -851,7 +850,10 @@ def main():
             model, data = model_from_counting(sr)
             r = compute(model, data, n_curve=25)  # counting fits are instant -> fine grid
             entry.update({"obs_limit": r["obs_limit"], "exp_median": r["exp_limits"][2]})
+            entry["exp_limits"] = r["exp_limits"]
             entry["limit_status"] = r["limit_status"]
+            entry["limit_brackets"] = r["limit_brackets"]
+            attach_limits(entry, result=read_limits(r))
             for flag in ("at_poi_cap", "median_at_cap", "band_degenerate"):
                 if r[flag]:
                     entry[flag] = True

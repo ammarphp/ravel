@@ -49,3 +49,7 @@ missing interior vertices, no-overshoot behavior, reference units/columns,
 duplicate coordinates, complete denominator accounting, and all active scan
 specifications through dry planning. See the
 [implementation report](../../../docs/development/history/2026-09-05-physics-fidelity.md).
+
+## v0.4.0 verification refresh
+
+The demonstration was rerun against the typed-limit implementation. All 52 original points and the 50 matched comparisons remain unchanged; the two legacy quality flags now travel through the explicit unverified status. The current provenance also pins the shared limit reader. Original scan and reference bytes are preserved. The previous rendering remains available in the v0.3.0 Git history.

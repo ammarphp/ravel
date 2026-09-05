@@ -136,8 +136,11 @@ def fit_bkg(counts, edges, sqrt_s, form, p0=None):
         q0[0] = math.log(max(g[0], 1e-6))
         r = minimize(obj, q0, method="Nelder-Mead",
                      options={"maxiter": 20000, "xatol": 1e-6, "fatol": 1e-6})
-        if best is None or r.fun < best.fun:
-            best = r
+        if r.success and np.isfinite(r.fun) and np.all(np.isfinite(r.x)):
+            if best is None or r.fun < best.fun:
+                best = r
+    if best is None:
+        raise RuntimeError("shape background optimizer did not converge to a finite solution")
     p = np.array(best.x, float)
     p[0] = math.exp(p[0])
     return p, float(best.fun)
@@ -168,6 +171,8 @@ def fit_mu_profiled(counts, edges, sqrt_s, form, sig, mu_fixed=None, p0=None):
     r = minimize(obj_fixed if mu_fixed is not None else obj_float, q0,
                  method="Nelder-Mead",
                  options={"maxiter": 40000, "xatol": 1e-6, "fatol": 1e-6})
+    if not r.success or not np.isfinite(r.fun) or not np.all(np.isfinite(r.x)):
+        raise RuntimeError("shape profile optimizer did not converge to a finite solution")
     if mu_fixed is not None:
         return float(r.fun), unpack(r.x), mu_fixed
     return float(r.fun), unpack(r.x), max(float(r.x[npar]), 0.0)
@@ -193,34 +198,55 @@ def cls_at_mu(counts, asimov, edges, sqrt_s, form, sig, mu):
     return (p_sb / one_m_pb) if one_m_pb > 1e-12 else 0.0
 
 
-def upper_limit(counts, edges, sqrt_s, form, sig, cl=0.05, mu_hi0=1.0):
-    """Bisect CLs(mu) = cl. Brackets upward (the pyhf_exclude lesson: reach the TRUE crossing)."""
-    asimov = None
-    pb, _ = fit_bkg(counts, edges, sqrt_s, form)
-    asimov = bkg_binned(form, edges, sqrt_s, pb)      # background-only Asimov of the DATA fit
-    lo, hi = 0.0, mu_hi0
-    for _ in range(24):                                # bracket up until excluded
-        if cls_at_mu(counts, asimov, edges, sqrt_s, form, sig, hi) < cl:
-            break
-        hi *= 2.0
-    else:
-        return math.inf
-    for _ in range(40):                                # bisect
-        mid = 0.5 * (lo + hi)
-        if cls_at_mu(counts, asimov, edges, sqrt_s, form, sig, mid) < cl:
-            hi = mid
-        else:
-            lo = mid
-        if hi - lo < 1e-3 * max(hi, 1e-9):
-            break
-    return 0.5 * (lo + hi)
-
-
-def expected_limit(edges, sqrt_s, form, sig, counts, cl=0.05):
-    """Median expected: the observed-data background fit's Asimov IS the pseudo-data."""
+def upper_limit(counts, edges, sqrt_s, form, sig, cl=0.05, mu_hi0=1.0, *, details=False):
+    """Finite converged profile fits plus a verified CLs crossing; no calibration claim."""
+    if not (math.isfinite(cl) and 0 < cl < 1 and math.isfinite(mu_hi0) and mu_hi0 > 0):
+        raise ValueError("limit level and initial bracket must be finite and positive")
     pb, _ = fit_bkg(counts, edges, sqrt_s, form)
     asimov = bkg_binned(form, edges, sqrt_s, pb)
-    return upper_limit(asimov, edges, sqrt_s, form, sig, cl=cl)
+
+    def evaluate(mu):
+        value = cls_at_mu(counts, asimov, edges, sqrt_s, form, sig, mu)
+        if not math.isfinite(value) or value < 0:
+            raise RuntimeError("shape CLs evaluation is non-finite or negative")
+        return value
+
+    lo, hi = 0.0, mu_hi0
+    low_cls = evaluate(lo)
+    if low_cls < cl:
+        raise RuntimeError("shape limit has no valid lower crossing bracket at mu=0")
+    for _ in range(24):
+        high_cls = evaluate(hi)
+        if high_cls < cl:
+            break
+        lo, low_cls = hi, high_cls
+        hi *= 2.0
+    else:
+        # Last tested point, never the untested doubled endpoint.
+        result = {"value": lo, "status": "above_scan", "bracket": [lo, None],
+                  "cls_endpoints": [low_cls, None], "calibrated": False}
+        return result if details else math.inf
+    for _ in range(40):
+        mid = 0.5 * (lo + hi)
+        mid_cls = evaluate(mid)
+        if mid_cls < cl:
+            hi, high_cls = mid, mid_cls
+        else:
+            lo, low_cls = mid, mid_cls
+        if hi - lo < 1e-3 * max(hi, 1e-9):
+            break
+    if not (low_cls >= cl > high_cls):
+        raise RuntimeError("shape limit lost its crossing bracket")
+    result = {"value": 0.5 * (lo + hi), "status": "resolved", "bracket": [lo, hi],
+              "cls_endpoints": [low_cls, high_cls], "calibrated": False}
+    return result if details else result["value"]
+
+
+def expected_limit(edges, sqrt_s, form, sig, counts, cl=0.05, *, details=False):
+    """Median expected from the observed-data background fit's Asimov pseudo-data."""
+    pb, _ = fit_bkg(counts, edges, sqrt_s, form)
+    asimov = bkg_binned(form, edges, sqrt_s, pb)
+    return upper_limit(asimov, edges, sqrt_s, form, sig, cl=cl, details=details)
 
 
 # ---------------------------------------------------------------- signal builders
@@ -255,23 +281,19 @@ def _json_out_path(out):
 
 
 def _r5_status(r5_points, is_synthetic):
-    """NEVER default to 'closed' -- a run must EARN it with >=2 in-tolerance reference points
-    (DECISION-SHAPE-FIT.md's non-negotiable R5 gate). 'na' = bare synthetic/validation run with no
-    published target; 'held' = a real reproduction attempt that has not (yet) closed."""
-    n_ok = sum(1 for p in r5_points if p.get("in_tolerance"))
-    if len(r5_points) >= 2 and n_ok == len(r5_points):
-        return "closed", (f"{n_ok} published reference point(s) reproduced within tolerance "
-                           "(R5 gate closed per DECISION-SHAPE-FIT.md)")
+    """Legacy point notes are diagnostics. Only a recomputed bound certificate closes R5."""
     if is_synthetic:
-        return "na", "synthetic/validation run (no published target to reproduce); R5 not applicable"
-    return "held", (f"reproduction not yet closed: {n_ok}/{len(r5_points)} recorded reference "
-                     "point(s) in tolerance (>=2 in-tolerance points required to close R5)")
+        return "na", "synthetic/validation run (no published target); R5 not applicable"
+    return "held", ("R5 needs an artifact-bound comparison plan and certificate; "
+                    f"{len(r5_points)} legacy reference notes do not establish closure")
 
 
 def write_shape_fit_json(out_json, *, spectrum_label, n_bins, edge_lo, edge_hi, lumi_fb,
                           bkg_form, chi2, ndf, sig_label, sig_yield_mu1,
                           mu95_obs, mu95_exp, mu95_exp_band, r5_points, is_synthetic,
-                          png_path, pdf_path, timestamp, caveats=None):
+                          png_path, pdf_path, timestamp, caveats=None, validation_context=None,
+                          certification_plan=None, rundir=None,
+                          certificate_path="outputs/r5-certificate.json", numerical_evidence=None):
     """Write the shape_fit.json machine artifact (PRODUCT-CONTRACT S6.1: mu95_obs, mu95_exp,
     r5_status in closed|held|na, r5_evidence). Enforces the two non-negotiable consistencies:
     excluded_obs == (mu95_obs < 1), and r5_status=='closed' only earned (see _r5_status)."""
@@ -308,11 +330,52 @@ def write_shape_fit_json(out_json, *, spectrum_label, n_bins, edge_lo, edge_hi, 
         "plots": {"png": png_path, "pdf": pdf_path},
         "caveats": list(caveats or []),
     }
+    from ravel.limits import attach_limits, read_limits
+    from ravel.validation import certificates
+    if numerical_evidence is not None:
+        observed, expected = numerical_evidence["observed"], numerical_evidence["expected"]
+        if band is not None:
+            raise ValueError("shape numerical evidence currently resolves only the median, not an expected band")
+        for curve, scalar in ((observed, mu95_obs), (expected, float(mu95_exp))):
+            if curve["value"] != scalar or curve["status"] not in ("resolved", "above_scan"):
+                raise ValueError("shape numerical evidence disagrees with the measured limit")
+            ends = curve["cls_endpoints"]
+            if curve["status"] == "resolved" and not (ends[0] >= .05 > ends[1]):
+                raise ValueError("shape numerical evidence lacks a CLs crossing")
+        record["numerical_evidence"] = numerical_evidence
+        record["limit_status"] = {"observed": observed["status"],
+            "expected": ["missing", "missing", expected["status"], "missing", "missing"]}
+        record["limit_brackets"] = {"observed": observed["bracket"],
+            "expected": [None, None, expected["bracket"], None, None]}
+    attach_limits(record, source="shape-fit-unverified")
+    record["excluded_obs"] = read_limits(record).observed.exclusion()
+    if validation_context is not None:
+        quantity = validation_context.get("quantity")
+        if quantity not in ("mu95_exp", "mu95_obs"):
+            raise ValueError("shape validation context quantity must be mu95_exp or mu95_obs")
+        record["validation_point"] = certificates.measurement(
+            validation_context, record[quantity], quantity=quantity)
+        record["certification_producer"] = {"module": "ravel.physics.shape_fit",
+                                             "sha256": certificates.digest(__file__)}
     outdir = os.path.dirname(os.path.abspath(out_json))
     if outdir:
         os.makedirs(outdir, exist_ok=True)
     with open(out_json, "w") as fh:
         json.dump(record, fh, indent=2)
+    if certification_plan is not None:
+        if is_synthetic or rundir is None:
+            raise ValueError("R5 certification needs a real target and explicit rundir")
+        from pathlib import Path
+        subject = str(Path(out_json).resolve().relative_to(Path(rundir).resolve()))
+        cert = certificates.create_certificate(rundir, certification_plan, certificate_path)
+        contract = certificates.read_json(certificates.local_path(rundir, "inputs/task_contract.json"))
+        checked = certificates.validate_certificate(rundir, certificate_path, kind="r5",
+            contract=contract, required_subjects=[subject], live=True)
+        record["r5_certificate"] = certificate_path
+        record["r5_status"] = "closed" if checked["status"] == "PASS" else "held"
+        record["r5_evidence"] = cert["scope"] if checked["status"] == "PASS" else "; ".join(checked["errors"])
+        with open(out_json, "w") as fh:
+            json.dump(record, fh, indent=2, allow_nan=False)
     return record
 
 
@@ -389,7 +452,7 @@ def _selftest():
             reread = json.load(fh)
         ok5 = (os.path.isfile(json_path)
                and reread["r5_status"] in ("na", "held") and reread["r5_status"] != "closed"
-               and reread["excluded_obs"] == (reread["mu95_obs"] < 1.0)
+               and reread["excluded_obs"] is None
                and reread == rec)
         if not ok5:
             fails.append(f"JSON artifact: r5_status={rec.get('r5_status')} "
@@ -411,7 +474,7 @@ def _selftest():
             sig_label="x", sig_yield_mu1=1.0, mu95_obs=0.5, mu95_exp=0.6, mu95_exp_band=None,
             r5_points=[{"mass_gev": 20.0, "in_tolerance": True}],
             is_synthetic=False, png_path=None, pdf_path=None, timestamp="")
-        ok5b = (rec_closed["r5_status"] == "closed" and rec_one_point["r5_status"] == "held")
+        ok5b = (rec_closed["r5_status"] == "held" and rec_one_point["r5_status"] == "held")
         if not ok5b:
             fails.append(f"R5 closure logic: 2-point={rec_closed['r5_status']} "
                          f"1-point={rec_one_point['r5_status']}")
@@ -467,12 +530,17 @@ def main():
                    help="generated_utc for shape_fit.json (else $SHAPE_FIT_UTC, else \"\"; "
                         "never datetime.now())")
     p.add_argument("--r5-points", default=None,
-                   help="JSON list of prior R5 reference-point comparisons against the target "
-                        "paper's OWN published limit, e.g. "
-                        "[{\"mass_gev\":20,\"in_tolerance\":true}, ...]; r5_status only reaches "
-                        "'closed' with >=2 in_tolerance points (DECISION-SHAPE-FIT.md)")
+                   help="legacy reference notes, retained for diagnostics; cannot close R5")
+    p.add_argument("--validation-context", help="explicit point identity/basis JSON; measured value comes from this fit")
+    p.add_argument("--certification-plan", help="approved R5 plan path relative to --rundir")
+    p.add_argument("--rundir", help="run containing the approved plan and all bound artifacts")
+    p.add_argument("--r5-certificate-out", default="outputs/r5-certificate.json")
     args = ap.parse_args()
 
+    from ravel.validation.certificates import read_json
+    if args.certification_plan and (not args.rundir or not args.out):
+        ap.error("--certification-plan requires --rundir and --out")
+    validation_context = read_json(args.validation_context) if args.validation_context else None
     r5_points = []
     if args.r5_points:
         r5_points = json.load(open(args.r5_points))
@@ -550,8 +618,9 @@ def main():
     bexp = bkg_binned(args.bkg_form, edges, sqrt_s, pb)
     chi2 = float(np.sum((counts - bexp) ** 2 / np.clip(bexp, 1e-9, None)))
     ndf = len(counts) - _npar(args.bkg_form)
-    ul = upper_limit(counts, edges, sqrt_s, args.bkg_form, sig)
-    ul_exp = expected_limit(edges, sqrt_s, args.bkg_form, sig, counts)
+    observed_evidence = upper_limit(counts, edges, sqrt_s, args.bkg_form, sig, details=True)
+    expected_evidence = expected_limit(edges, sqrt_s, args.bkg_form, sig, counts, details=True)
+    ul, ul_exp = observed_evidence["value"], expected_evidence["value"]
 
     print(f"background fit [{args.bkg_form}]: chi2/ndf = {chi2:.1f}/{ndf} "
           f"params = {np.array2string(pb, precision=3)}")
@@ -583,7 +652,10 @@ def main():
             mu95_obs=ul, mu95_exp=ul_exp, mu95_exp_band=None,
             r5_points=r5_points, is_synthetic=bool(args.gauss),
             png_path=args.out + ".png", pdf_path=args.out + ".pdf",
-            timestamp=_resolve_timestamp(args.timestamp), caveats=caveats)
+            timestamp=_resolve_timestamp(args.timestamp), caveats=caveats,
+            validation_context=validation_context, certification_plan=args.certification_plan,
+            rundir=args.rundir, certificate_path=args.r5_certificate_out,
+            numerical_evidence={"observed": observed_evidence, "expected": expected_evidence})
         print(f"wrote {json_path}")
 
         import matplotlib

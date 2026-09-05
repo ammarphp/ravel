@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "generated": "",
-  "source_commit": "c75e7905f9dd399878c5ab4b07f85bc4c23c7aed",
+  "source_commit": "8d8b4b5",
   "claims": [
     {
       "claim_id": "P1_hvt_zprime_ww_summary",
       "source": "benchmarks/capabilities.json:prompts.P1_hvt_zprime_ww_summary",
       "headline": "HVT Z' -> WW low-mass summary plot (survey/summary track)",
-      "status": "served",
-      "gate": "summary_audit",
+      "status": "partial",
+      "gate": "decision",
       "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
@@ -80,14 +80,14 @@
       "claim_id": "P4_dijet_photon_widths",
       "source": "benchmarks/capabilities.json:prompts.P4_dijet_photon_widths",
       "headline": "Dijet/diphoton resonance widths via the scoped shape-fit engine",
-      "status": "served",
-      "gate": "shape_fit_selftest",
+      "status": "partial",
+      "gate": "decision",
       "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "src/ravel/physics/shape_fit.py",
-          "sha256": "e16c4ef2b122c26fd83b14d45e5753507bf18a2da9762daec228de420c8afe95",
-          "bytes": 31711,
+          "sha256": "f2c41ca548ea710f120854c3398cfe01ddea1b5d2ce768c3df0df06aff570c59",
+          "bytes": 36435,
           "shipped": true,
           "dev_only": false,
           "role": "engine-code"

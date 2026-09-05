@@ -44,6 +44,8 @@ the verdict can't reach PASS). Optional tiers: `--driving-tol 0.15 --contributin
 --mu95-bound 0.10`.
 
 ## Read the verdict (both engines share the tiering)
+These reports diagnose a comparison. Before they support a **live** result, bind them to an approved comparison plan with `ravel.validation.certificates`. Follow `docs/reference/scientific-results.md`: pin the policy, references, dependencies, point identities and served outputs; create the certificate; verify with `--live`. Use `--certification-context` when producing the report so its operands carry explicit identity, units and basis. A legacy PASS/WARN label or sibling run cannot substitute for this binding. Changing inputs or outputs requires rechecking the certificate; changing the plan requires a new actual approval.
+
 - **PASS**: driving SR within tier **and** worst |Δµ₉₅| ≤ bound **and** the verdict can't flip.
 - **WARN/FAIL**: read the attribution rows — each over-tier residual names its `cause_class`
   and bounded µ₉₅-impact. A WARN with a bounded, attributed cause on a non-driving SR is an
@@ -63,7 +65,7 @@ plus the adversary (`verification-panel` skill) — which audits this cert's pre
 ## What "certified" means (claim → evidence)
 | Claim | Requires | Not sufficient |
 |---|---|---|
-| "acceptance certified" | THIS run's verdict from the right engine (table above), recorded in `RESULT.md` | the other engine, a sibling run's verdict, or "yields look close" |
+| "acceptance comparison certified" | This run's valid live artifact-bound certificate, declared comparison scope and report from the right engine | A bare report label, a sibling certificate, or a central-value comparison described as detector/coverage certification |
 | "PASS" | driving SR tagged (pass `--exclusion`) and within tier, worst \|Δµ₉₅\| ≤ bound, verdict can't flip | every SR merely "contributing" because no driving SR was tagged |
 | "WARN, reportable" | attribution rows: each over-tier residual's `cause_class` + bounded µ₉₅ impact | an unattributed residual, or any residual on the driving SR |
 

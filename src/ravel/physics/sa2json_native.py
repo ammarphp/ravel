@@ -71,6 +71,39 @@ def JSONtoSA(SRname, background):
     return SAname
 
 
+def validate_channel_map(mapping, workspace):
+    """Explicit one-bin channel mapping; null means declared zero signal there."""
+    names = {channel["name"] for channel in workspace["channels"]}
+    if not isinstance(mapping,dict) or set(mapping) != names:
+        raise ValueError("channel map must cover every workspace channel exactly")
+    for channel in workspace["channels"]:
+        entry = mapping[channel["name"]]
+        if entry is None:
+            continue
+        if not isinstance(entry,dict) or set(entry)-{"region","flavour"} or not isinstance(entry.get("region"),str) or not entry["region"]:
+            raise ValueError("channel map entries require a named region and optional flavour")
+        if entry.get("flavour") is not None and (not isinstance(entry["flavour"],str) or not entry["flavour"]):
+            raise ValueError("channel-map flavour must be a named branch")
+        if any(len(sample["data"]) != 1 for sample in channel["samples"]):
+            raise ValueError("mapped native yields require single-bin signal channels")
+    if not any(entry is not None for entry in mapping.values()):
+        raise ValueError("channel map declares no signal channel")
+    return mapping
+
+
+def signal_poi(workspace):
+    """The injected signal must use the workspace's declared, signal-only POI."""
+    measurements=workspace.get("measurements",[])
+    pois={m.get("config",{}).get("poi") for m in measurements}
+    if len(pois)!=1 or not all(isinstance(poi,str) and poi for poi in pois):
+        raise ValueError("native signal injection requires one unambiguous measurement POI")
+    poi=next(iter(pois))
+    if any(modifier.get("name")==poi for channel in workspace["channels"]
+           for sample in channel["samples"] for modifier in sample.get("modifiers",[])):
+        raise ValueError("signal POI already modifies a background sample")
+    return poi
+
+
 
 def main(argv=None):
     p = argparse.ArgumentParser(description="SA ROOT -> HiFa pyhf patch (native).")
@@ -82,6 +115,7 @@ def main(argv=None):
     p.add_argument("-s", "--scale", type=float, default=1.0, help="extra weight scale")
     p.add_argument("-c", "--compressed", action="store_true",
                    help="compressed search: apply ee/mm flavour masks")
+    p.add_argument("--channel-map",help="explicit JSON channel -> {region, flavour?} mapping; null declares zero signal")
     args = p.parse_args(argv)
     import jsonpatch, pyhf, uproot
     for name in ("lumi", "scale"):
@@ -96,8 +130,17 @@ def main(argv=None):
 
     with open(args.background) as f:
         spec = json.load(f)
+    mapping = None
+    if args.channel_map:
+        if args.compressed:
+            p.error("--channel-map and --compressed are mutually exclusive")
+        with open(args.channel_map) as stream:
+            mapping = validate_channel_map(json.load(stream),spec)
     newspec = copy.deepcopy(spec)
     ws = pyhf.Workspace(spec)
+    poi = signal_poi(spec)
+    if args.compressed and poi!="mu_SIG":
+        raise ValueError("compressed likelihood adapter requires its declared mu_SIG POI")
 
     with ExitStack() as stack:
         rootfiles = [stack.enter_context(uproot.open(i)) for i in args.input]
@@ -106,14 +149,15 @@ def main(argv=None):
 
     for c_index, specification in enumerate(spec["channels"]):
         channel = specification["name"]
-        SAname = JSONtoSA(channel, args.background)
+        entry = mapping[channel] if mapping is not None else None
+        SAname = entry["region"] if entry is not None else (None if mapping is not None else JSONtoSA(channel, args.background))
         if SAname is None:
             continue
         if any(len(sample["data"]) != 1 for sample in specification["samples"]):
             raise ValueError(f"channel {channel} is not single-bin; an aggregate SR yield cannot define its shape")
         if any(sample["name"] == args.name for sample in specification["samples"]):
             raise ValueError(f"signal sample {args.name} already exists in {channel}")
-        flavname = ("isee" if "ee" in channel else "ismm") if args.compressed else None
+        flavname = entry.get("flavour") if entry is not None else (("isee" if "ee" in channel else "ismm") if args.compressed else None)
         yld = math.fsum(selected_weight_sum(branches, SAname, flavname) for branches in branchsets)
         yld *= args.lumi * args.scale
         if not math.isfinite(yld) or yld < 0:
@@ -123,7 +167,7 @@ def main(argv=None):
         newspec["channels"][c_index]["samples"].append({
             "name": args.name,
             "data": [float(yld)],
-            "modifiers": [{"name": "mu_SIG", "type": "normfactor", "data": None}],
+            "modifiers": [{"name": poi, "type": "normfactor", "data": None}],
         })
 
     patch = jsonpatch.make_patch(spec, newspec)

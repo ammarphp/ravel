@@ -71,6 +71,7 @@ if not __package__:
 
 import argparse
 import json
+import math
 import os
 import re
 import subprocess
@@ -78,6 +79,7 @@ import sys
 
 from pathlib import Path
 from ravel.paths import repository_root, package_data_path
+from ravel.limits import attach_limits, read_limits, rescale_artifact, source_errors, NUMERICAL_METADATA
 REPO = str(repository_root() or Path.cwd())
 SCHEMA_VERSION = 1
 
@@ -253,6 +255,10 @@ def sigma_ref_fb(mp):
     σ_theory cancels in the relative difference). Reads logs/madgraph.log + the run's TOML kfactor;
     returns None if unavailable (the contour overlay still works, only the difference map needs it)."""
     run_dir = os.path.join(REPO, mp["run_dir"])
+    normalization = os.path.join(run_dir, "output", "normalization.json")
+    if os.path.exists(normalization):
+        from ravel.physics.native_normalization import load_normalization
+        return load_normalization(normalization)["applied_cross_section_pb"] * 1000.0
     log = os.path.join(run_dir, "logs", "madgraph.log")
     sigma_pb = None
     if os.path.exists(log):
@@ -274,19 +280,17 @@ def sigma_ref_fb(mp):
                 for line in open(alog, errors="ignore"):
                     m = re.search(r"Using cross section\s+([0-9.eE+-]+)", line)
                     if m:
-                        sigma_pb = float(m.group(1))
+                        applied = float(m.group(1))
+                        if math.isfinite(applied) and applied > 0:
+                            # The converter logs the cross section it actually
+                            # received, including k. Never apply that factor twice.
+                            return applied * 1000.0
             except OSError:
                 sigma_pb = None
-    if sigma_pb is None:
+    if sigma_pb is None or not math.isfinite(sigma_pb) or sigma_pb <= 0:
         return None
-    kf = 1.0
-    try:
-        import tomllib
-        cfg = tomllib.load(open(os.path.join(run_dir, mp["config"]), "rb"))
-        kf = float(cfg.get("analysis", {}).get("kfactor", 1.0)) or 1.0
-    except Exception:
-        kf = 1.0
-    return sigma_pb * kf * 1000.0   # pb -> fb
+    kf = point_kfactor(mp)
+    return sigma_pb * kf * 1000.0 if kf is not None else None
 
 
 def point_kfactor(mp):
@@ -294,10 +298,17 @@ def point_kfactor(mp):
     the same value sigma_ref_fb() folded in). None if the TOML is unreadable: the NLO re-norm must
     then fail loud rather than guess what normalization it is replacing."""
     try:
+        normalization = os.path.join(REPO, mp["run_dir"], "output", "normalization.json")
+        if os.path.exists(normalization):
+            from ravel.physics.native_normalization import load_normalization
+            return load_normalization(normalization)["kfactor"]
         import tomllib
         cfg = tomllib.load(open(os.path.join(REPO, mp["run_dir"], mp["config"]), "rb"))
-        return float(cfg.get("analysis", {}).get("kfactor", 1.0)) or 1.0
-    except Exception:
+        value = cfg.get("analysis", {}).get("kfactor")
+        if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            return None
+        return float(value)
+    except (ValueError, OSError, KeyError):
         return None
 
 
@@ -353,15 +364,11 @@ def apply_nlo_renorm(rows, process, man):
         fac = flat_k / k
         r["mu95_obs_lo"] = r["mu95_obs"]
         r["k_nlo"] = round(k, 4)
-        r["mu95_obs"] = r["mu95_obs"] * fac
-        if r.get("mu95_exp") is not None:
-            r["mu95_exp"] = r["mu95_exp"] * fac
-        if isinstance(r.get("mu95_exp_band"), (list, tuple)):
-            r["mu95_exp_band"] = [b * fac for b in r["mu95_exp_band"]]
+        rescale_artifact(r, fac)
         if r.get("sigma_ref_fb"):
             r["sigma_ref_fb_lo"] = r["sigma_ref_fb"]
             r["sigma_ref_fb"] = r["sigma_ref_fb"] / fac   # x k/flat_k: mu x sigma_ref invariant
-        r["excluded_obs"] = bool(r["mu95_obs"] < 1.0)
+        r["excluded_obs"] = read_limits(r).observed.exclusion()
     print(f"NLO+NLL re-normalization ({process}): mu'95 = mu95 x {flat_k:g}/k(m)")
     print(f"  {'m':>6}  {'sigma_LO_pb':>12}  {'sigma_NNLL_pb':>13}  {'k':>6}  {'mu-scale':>8}")
     for m in sorted(ks):
@@ -454,14 +461,10 @@ def cmd_rebase(args):
         fac = bm["sigma_incl4_assumed_fb"] / bm["sigma_model_fb"]
         r["mu95_obs_tagged6"] = r["mu95_obs"]
         r["sigma_ref_fb_tagged6"] = r["sigma_ref_fb"]
-        r["mu95_obs"] = r["mu95_obs"] * fac
-        if r.get("mu95_exp") is not None:
-            r["mu95_exp"] = r["mu95_exp"] * fac
-        if isinstance(r.get("mu95_exp_band"), (list, tuple)):
-            r["mu95_exp_band"] = [b * fac for b in r["mu95_exp_band"]]
+        rescale_artifact(r, fac)
         r["sigma_ref_fb"] = bm["sigma_model_fb"]
         r["sigma_incl4_assumed_fb"] = bm["sigma_incl4_assumed_fb"]
-        r["excluded_obs"] = bool(r["mu95_obs"] < 1.0)
+        r["excluded_obs"] = read_limits(r).observed.exclusion()
         # per-mass diagnostics need the tagged-sample LO sigma (sigma_ref_fb_lo = MG sigma x flat_k)
         if flat_k and r.get("sigma_ref_fb_lo") and "f_tag_lo" not in bm:
             bm["sigma_tag6_lo_fb"] = r["sigma_ref_fb_lo"] / flat_k
@@ -497,7 +500,7 @@ def cmd_rebase(args):
     n_exc = sum(1 for r in scan["points"] if r["excluded_obs"])
     out = args.out or scan_path
     with open(out, "w") as fh:
-        json.dump(scan, fh, indent=2)
+        json.dump(scan, fh, indent=2, allow_nan=False)
     print(f"rebased {len(scan['points'])} points onto the inclusive model-sigma basis -> "
           f"{os.path.relpath(out, REPO)}")
     print(f"  {'m':>6} {'sig_tag6_LO':>12} {'sig_incl4_LO':>13} {'f_tag':>6} {'frac4':>6} "
@@ -518,54 +521,82 @@ def harvest_point(mp):
     path (run-pipeline-native.sh ends at pyhf -> exclusion.json)."""
     run_dir = os.path.join(REPO, mp["run_dir"])
     sref = sigma_ref_fb(mp)
-    res = os.path.join(run_dir, "result.json")
-    if os.path.exists(res):
+    if os.path.exists(os.path.join(run_dir, "execution_state.json")):
+        from ravel.workflow.execution import validate_execution
+        errors = validate_execution(run_dir)
+        if errors:
+            raise ValueError(f"stale/invalid execution artifacts: {errors}")
+    for relative in ("result.json", "output/exclusion.json"):
+        path = os.path.join(run_dir, relative)
+        if not os.path.exists(path):
+            continue
         try:
-            d = json.load(open(res))
-        except (json.JSONDecodeError, OSError):
-            return None
-        if d.get("mu95_obs") is not None:
-            return dict(mu95_obs=float(d["mu95_obs"]),
-                        mu95_exp=(float(d["mu95_exp"]) if d.get("mu95_exp") is not None else None),
-                        mu95_exp_band=d.get("mu95_exp_band"),
-                        m_parent=float(d.get("m_parent", mp["m_parent"])),
-                        m_lsp=float(d.get("m_lsp", mp["m_lsp"])),
-                        sigma_ref_fb=(float(d["sigma_ref_fb"]) if d.get("sigma_ref_fb") is not None else sref),
-                        source="result.json")
-    exc = os.path.join(run_dir, "output", "exclusion.json")
-    if os.path.exists(exc):
-        try:
-            d = json.load(open(exc))
-        except (json.JSONDecodeError, OSError):
-            return None
-        obs = d.get("obs_limit")
-        if obs is None:
-            return None
-        band = d.get("exp_limits")
-        exp = float(band[2]) if isinstance(band, list) and len(band) == 5 else None
-        # CR-001 propagation guard: a floored/capped "limit" is an upper bound / scan ceiling,
-        # NOT a measurement -- tag it so assemble/render refuse to color it as one.
-        quality = None
-        if d.get("at_mu_floor"):
-            quality = "floored"
-        elif d.get("at_poi_cap"):
-            quality = "capped"
-        elif float(obs) == 1.0 and isinstance(band, list) and band and len(set(band)) == 1:
-            # pre-fix artifacts carry no flag; the CR-001 READING RULE identifies them:
-            # obs_limit == 1.0 exactly + a flat expected band = floored, hyper-excluded.
-            quality = "floored-legacy"
-        out = dict(mu95_obs=float(obs), mu95_exp=exp, mu95_exp_band=band,
-                   m_parent=float(mp["m_parent"]), m_lsp=float(mp["m_lsp"]),
-                   sigma_ref_fb=sref, source="exclusion.json")
-        if quality:
-            out["quality"] = quality
-        return out
+            with open(path) as fh:
+                d = json.load(fh)
+            if not isinstance(d, dict) or not any(k in d for k in ("limits", "obs_limit", "mu95_obs")):
+                raise ValueError("artifact has no limit representation")
+            if relative == "result.json":
+                errors = source_errors(d, run_dir, required=("limits" in d or "limit_status" in d))
+                if errors:
+                    raise ValueError("; ".join(errors))
+                if os.path.isfile(os.path.join(run_dir, "inputs/task_contract.json")):
+                    from ravel.validation.certificates import validate_pack_certificates
+                    primary = (d.get("limit_source") or {}).get("path") or (d.get("pointers") or {}).get("exclusion")
+                    validate_pack_certificates(run_dir, primary, (d.get("pointers") or {}).get("cert"))
+            # Preserve the documented CR-001 archive diagnostic; do not apply it
+            # to a modern explicitly resolved result merely sharing these values.
+            band = d.get("exp_limits", d.get("mu95_exp_band"))
+            obs = d.get("obs_limit", d.get("mu95_obs"))
+            if "limit_status" not in d and "limits" not in d and obs == 1.0 \
+                    and isinstance(band, list) and len(band) == 5 and len(set(band)) == 1:
+                d["quality"] = "floored-legacy"
+            limits = read_limits(d)
+            for key in ("m_parent", "m_lsp"):
+                if type(mp[key]) not in (int, float) or not math.isfinite(mp[key]) or mp[key] < 0:
+                    raise ValueError(f"planned {key} is invalid")
+                if d.get(key) is not None and float(d[key]) != float(mp[key]):
+                    raise ValueError(f"{key} differs from the planned point")
+            out = dict(mu95_obs=limits.observed.value,
+                       mu95_exp=limits.expected[2].value,
+                       mu95_exp_band=[c.value for c in limits.expected],
+                       m_parent=float(mp["m_parent"]), m_lsp=float(mp["m_lsp"]),
+                       sigma_ref_fb=d.get("sigma_ref_fb", sref), source=os.path.basename(path))
+            if mp["m_lsp"] >= mp["m_parent"]:
+                raise ValueError("planned LSP mass must be below the parent mass")
+            if out["sigma_ref_fb"] is not None and (type(out["sigma_ref_fb"]) not in (int, float)
+                    or not math.isfinite(out["sigma_ref_fb"]) or out["sigma_ref_fb"] <= 0):
+                raise ValueError("sigma_ref_fb must be a finite positive number or null")
+            for key in ("quality", *NUMERICAL_METADATA):
+                if key in d:
+                    out[key] = d[key]
+            attach_limits(out, result=limits)
+            return out
+        except (ValueError, TypeError, OSError) as exc:
+            # A corrupt preferred headline cannot silently fall back to an older
+            # exclusion file. Preserve the failed point in the planned population.
+            raise ValueError(f"invalid limit artifact {path}: {exc}") from exc
     return None
 
 
 def point_status(mp):
     """Return (state, mu95_obs_or_None) for one manifest point by inspecting its run dir."""
-    h = harvest_point(mp)
+    run_dir = os.path.join(REPO,mp["run_dir"])
+    if os.path.exists(os.path.join(run_dir,"execution_state.json")):
+        from ravel.workflow.scan_babysitter import point_state
+        state = point_state(run_dir)
+        if state != "done":
+            return state,None
+        from ravel.workflow.state_io import read_json
+        try:
+            report=read_json(Path(run_dir)/"output/native_execution_result.json")
+        except (ValueError,OSError):
+            return "failed",None
+        if report.get("statistics")=="yields":
+            return "done",None
+    try:
+        h = harvest_point(mp)
+    except ValueError:
+        return "failed", None
     if h is not None:
         return "done", h["mu95_obs"]
     status_txt = os.path.join(REPO, mp["run_dir"], "logs", "STATUS.txt")
@@ -595,9 +626,14 @@ def cmd_assemble(args):
     scandir, man = load_manifest(args.scandir)
     rows = []
     missing = []
+    invalid = {}
     for mp in man["points"]:
-        h = harvest_point(mp)
-        if h is None or h["mu95_obs"] is None:
+        try:
+            h = harvest_point(mp)
+        except ValueError as exc:
+            invalid[mp["tag"]] = str(exc)
+            h = None
+        if h is None:
             missing.append(mp["tag"])
             continue
         rows.append({
@@ -606,8 +642,11 @@ def cmd_assemble(args):
             "mu95_obs": h["mu95_obs"], "mu95_exp": h["mu95_exp"],
             "mu95_exp_band": h.get("mu95_exp_band"),
             "sigma_ref_fb": h.get("sigma_ref_fb"),   # σ the signal was normalized to → σ_UL = µ95×σ_ref
-            "excluded_obs": bool(h["mu95_obs"] < 1.0),
+            "excluded_obs": read_limits(h).observed.exclusion(),
             "source": h["source"],
+            "limits": h["limits"], "limit_status": h["limit_status"],
+            "limit_brackets": h["limit_brackets"], "limit_eligibility": h["limit_eligibility"],
+            **{key: h[key] for key in NUMERICAL_METADATA if key in h},
             # CR-001: the harvest quality tag (floored/capped/floored-legacy) MUST survive into
             # scan.json — a floored µ is a bound, and the renderer keys on this field.
             **({"quality": h["quality"]} if h.get("quality") else {}),
@@ -624,11 +663,15 @@ def cmd_assemble(args):
         "analysis_id": man.get("analysis_id"), "plane": man.get("plane", "dm"),
         "n_planned": man["n_points"], "n_done": len(rows), "n_missing": len(missing),
         "missing_tags": missing, "points": rows,
+        "invalid_points": invalid,
+        "n_observed_roots": sum(read_limits(row).observed.usable() for row in rows),
+        "n_expected_roots": sum(read_limits(row).expected[2].usable() for row in rows),
+        "completion_scope": "inference artifacts collected; roots, bounds and legacy reports counted separately",
     }
     if nlo_meta:
         scan["nlo_renorm"] = nlo_meta
     with open(out, "w") as fh:
-        json.dump(scan, fh, indent=2)
+        json.dump(scan, fh, indent=2, allow_nan=False)
     cov = 100.0 * len(rows) / man["n_points"]
     print(f"assembled {len(rows)}/{man['n_points']} points ({cov:.0f}% coverage) -> "
           f"{os.path.relpath(out, REPO)}")
@@ -650,61 +693,85 @@ def _toml_nevents(run_dir, config_rel):
     return int(cfg["madgraph"]["run"]["nevents"])
 
 
+def launch_point(mp, manifest, args, *, plan=None):
+    """Launch exactly the validated capability plan for this point."""
+    run_dir = os.path.join(REPO, mp["run_dir"])
+    if args.backend == "native":
+        from ravel.physics.native_pipeline import build_execution_plan, write_plan
+        from ravel.paths import module_command
+        plan = plan or build_execution_plan(
+            run_dir, mp["config"], model=manifest.get("model"),
+            analysis_id=manifest.get("analysis_id"), m_parent=mp.get("m_parent"),
+            m_lsp=mp.get("m_lsp"), pdf=getattr(args, "pdf", None),campaign_points=len(manifest.get("points",[mp])))
+        cap = plan["capability"]
+        print(f"  {mp['tag']}: {cap['model']} -> {cap['routine']} "
+              f"({cap['preparation']}, {cap['detector']}, {cap['statistics_adapter']})")
+        print("    stages: " + " -> ".join(s["stage"] for s in plan["stages"]))
+        if not args.go:
+            if getattr(args,"write_plans",False):
+                print(f"    proposal saved: {write_plan(plan)}")
+            return plan
+        from ravel.physics.native_pipeline import verify_execution_approval
+        verify_execution_approval(plan)
+        path = Path(plan["plan_path"])
+        cmd = module_command("ravel.physics.native_pipeline", "run", "--plan", path)
+    else:
+        if args.go:
+            die("live container dispatch is unsupported until an adapter binds exact execution inputs to approval")
+        cmd = ["bash", os.path.join(REPO, "native/scripts/run-pipeline.sh"), run_dir, mp["config"]]
+        print(f"  {mp['tag']}: container {mp['config']} [DRY DIAGNOSTIC ONLY; live dispatch unsupported]")
+        if not args.go:
+            return cmd
+    os.makedirs(os.path.join(run_dir, "logs"), exist_ok=True)
+    with open(os.path.join(run_dir, "logs", "orchestrator_launch.log"), "a") as log:
+        process = subprocess.Popen(cmd, cwd=run_dir, stdout=log, stderr=subprocess.STDOUT)
+    print(f"    -> backgrounded pid={process.pid}")
+    return process
+
+
 def cmd_launch(args):
     scandir, man = load_manifest(args.scandir)
-    native = (args.backend == "native")
-    # SEQUENTIAL-ONLY SAFETY GATE applies ONLY to the container/VM backend: the shared podman VM uses
-    # FIXED per-stage container names and run-pipeline.sh `podman rm -f`s all containers at startup, so a
-    # concurrent launch would clobber the in-flight point. The NATIVE backend (run-pipeline-native.sh)
-    # has NO shared VM and NO fixed container names -- each point is independent processes -- so native
-    # points may run in PARALLEL (one of the payoffs of going VM-free; --max sets the concurrency).
+    if args.max < 1:
+        die("--max must be positive")
+    native = args.backend == "native"
     if not native:
+        if args.go:
+            die("live container dispatch is unsupported until an adapter binds exact execution inputs to approval")
         running = [mp["tag"] for mp in man["points"] if point_status(mp)[0] == "running"]
         if running and not args.force:
-            die(f"point(s) {running} are RUNNING (container backend). The shared VM + fixed container "
-                f"names mean a concurrent launch would CLOBBER the in-flight run -- wait, re-check with "
-                f"`status`, then launch the next. (--force only if each point has an isolated VM.)")
-    pending = [mp for mp in man["points"] if point_status(mp)[0] in ("pending",)]
+            die(f"point(s) {running} are RUNNING in the shared container backend")
+        if args.max > 1 and not args.force:
+            die("container backend is sequential; --max must be 1")
+    pending = [mp for mp in man["points"] if point_status(mp)[0] == "pending" or
+               (native and getattr(args,"resume",False) and point_status(mp)[0] == "failed"
+                and os.path.exists(os.path.join(REPO,mp["run_dir"],"execution_state.json")))]
     if not pending:
         print("no pending points (all done/running/failed)")
         return
-    todo = pending[: args.max]
-    backend_name = "NATIVE (parallel-ok)" if native else "container (sequential)"
-    runner = os.path.join(REPO, "native/scripts/run-pipeline-native.sh" if native
-                          else "native/scripts/run-pipeline.sh")
-    prep = os.path.join(REPO, "src/ravel/physics/prepare_native_slepton.py")
-    print(f"{len(pending)} pending; launching {len(todo)} [{backend_name}, max={args.max}]"
-          f"{' [DRY]' if not args.go else ''}:")
-    for mp in todo:
-        run_dir = os.path.join(REPO, mp["run_dir"])
-        if native:
-            # materialize this point's native inputs (run.mg5/shower.cfg/cards) from its masses +
-            # the TOML's nevents (single source of truth), via the stdlib-only prep helper.
-            nev = _toml_nevents(run_dir, mp["config"])
-            prep_cmd = [sys.executable, prep, "--rundir", run_dir,
-                        "--m-parent", str(mp["m_parent"]), "--m-lsp", str(mp["m_lsp"]),
-                        "--nevents", str(nev),
-                        "--pdf", getattr(args, "pdf", "cteq6l1"),
-                        # CR-002: the point's own TOML supplies [madgraph.run.options]
-                        # (ptj1min=50 etc.) so native and container samples share one
-                        # tag/phase-space definition.
-                        "--toml", os.path.join(run_dir, mp["config"])]
-            print(f"  {mp['tag']}: prep ({mp['m_parent']:g},{mp['m_lsp']:g}) nevents={nev}  +  "
-                  f"bash run-pipeline-native.sh")
+    todo = pending[:args.max]
+    plans = []
+    if native:
+        from ravel.physics.native_pipeline import build_execution_plan
+        # Validate the entire selected batch before preparing or launching any
+        # expensive work. A wrong-family request must not partly launch a scan.
+        try:
+            for mp in todo:
+                plans.append(build_execution_plan(
+                    os.path.join(REPO,mp["run_dir"]),mp["config"],model=man.get("model"),
+                    analysis_id=man.get("analysis_id"),m_parent=mp.get("m_parent"),
+                    m_lsp=mp.get("m_lsp"),pdf=getattr(args,"pdf",None),campaign_points=len(man["points"])))
             if args.go:
-                pr = subprocess.run(prep_cmd, capture_output=True, text=True)
-                if pr.returncode != 0:
-                    print(f"    PREP FAILED: {pr.stderr.strip()[:200]}"); continue
-        else:
-            print(f"  {mp['tag']}: bash run-pipeline.sh {mp['config']}")
-        cmd = ["bash", runner, run_dir, mp["config"]]
-        if args.go:
-            os.makedirs(os.path.join(run_dir, "logs"), exist_ok=True)
-            log = open(os.path.join(run_dir, "logs", "orchestrator_launch.log"), "a")
-            subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT)
-            print(f"    -> backgrounded ({backend_name})")
+                from ravel.physics.native_pipeline import verify_execution_approval
+                for plan in plans:
+                    verify_execution_approval(plan)
+        except (ValueError,OSError,KeyError) as exc:
+            die(f"native execution plan rejected before launch: {exc}")
+    print(f"{len(pending)} pending; {len(todo)} selected [{args.backend}]"
+          f"{' [DRY, compute_authorized=false]' if not args.go else ''}")
+    for i,mp in enumerate(todo):
+        launch_point(mp,man,args,plan=plans[i] if native else None)
     if not args.go:
-        print("  (dry run; pass --go to actually launch these)")
+        print("  (dry plan; pass --go after the compute plan is approved)")
 
 
 def main():
@@ -740,7 +807,11 @@ def main():
     p.add_argument("--max", type=int, default=1,
                    help="max points to launch this call (native points run in parallel)")
     p.add_argument("--go", action="store_true")
-    p.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"], default="cteq6l1",
+    p.add_argument("--resume", action="store_true",
+                   help="include failed/interrupted durable native points after input/tool repair; preserve prior attempts")
+    p.add_argument("--write-plans", action="store_true",
+                   help="persist dry native proposals for review and approval binding; does not authorize compute")
+    p.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"], default=None,
                    help="proton PDF passed to the native prep (nnpdf30 = LHAPDF lhaid 260000, "
                         "the CR-004 rescan basis); native backend only")
     p.add_argument("--force", action="store_true",

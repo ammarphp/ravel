@@ -16,8 +16,7 @@ Writes into <rundir>/output/:
                     block FIRST (ptj1min=50 etc., fail-loud on unmatched keys -- CR-002: dropping
                     it silently generated at ptj1min=0, a x2.14 sigma_tag drift), then nevents,
                     iseed, pdlabel=cteq6l1, use_syst=False -- cteq6l1 is MadGraph-internal so no
-                    LHAPDF needed; acc x eff is cross-section-independent so the PDF set does not
-                    bias the cert)
+                    LHAPDF needed. PDF changes can change acceptance and require validation)
   pythia_card.dat  (copied; unused by pythia_shower but kept for provenance)
   run.mg5          (the slepton process template + native `output output/PROC_madgraph`,
                     shower=OFF -- native pythia_shower runs separately -- and the rendered cards)
@@ -25,7 +24,7 @@ Writes into <rundir>/output/:
                     docs/workflow/reference/shower-config-template.cfg)
 
 Usage:
-  prepare_native_slepton.py --rundir <abs> --m-parent 150 --m-lsp 140 [--nevents 50000] [--seed 0]
+  prepare_native_slepton.py --rundir <abs> --m-parent 150 --m-lsp 140 --nevents 50000 --seed 0 --pdf cteq6l1 --toml config.toml
 See docs/workflow/steps/08-scan.md.
 """
 
@@ -40,6 +39,7 @@ import os
 import re
 import shutil
 import sys
+import math
 
 from ..paths import native_build_root, package_data_path
 MSHARE = str(native_build_root() / "tools/miniforge3/envs/pipeline/share/mapyde")
@@ -82,29 +82,41 @@ def read_run_options(toml_path):
         die(f"no [madgraph.run.options] block in {toml_path} (CR-002: refusing to guess)")
 
 
-def render_runcard(nevents, seed, out, run_options, pdf="cteq6l1"):
-    if not os.path.exists(BASE_RUNCARD):
-        die(f"base run card not found: {BASE_RUNCARD}")
-    lines = open(BASE_RUNCARD).read().splitlines()
+def render_runcard_text(nevents, seed, run_options, pdf, ecms, template):
+    if isinstance(nevents, bool) or not isinstance(nevents, int) or nevents <= 0:
+        raise ValueError("nevents must be a positive integer")
+    if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
+        raise ValueError("seed must be a nonnegative integer")
+    if isinstance(ecms,bool) or not math.isfinite(ecms) or ecms <= 0:
+        raise ValueError("ecms must be finite and positive")
+    if not isinstance(run_options, dict):
+        raise ValueError("explicit [madgraph.run.options] is required")
+    lines = open(template).read().splitlines()
     # keyed line edits (never a greedy sed -- .claude/rules/madgraph-pythia.md)
     def setkey(key, val):
-        for i, l in enumerate(lines):
-            if re.search(rf"=\s*{re.escape(key)}\b", l):
-                indent = l[: len(l) - len(l.lstrip())]
-                lines[i] = f"{indent}  {val}  = {key}"
-                return True
-        return False
+        found = [i for i,l in enumerate(lines) if not l.lstrip().startswith(("#","!")) and re.search(rf"=\s*{re.escape(key)}\s*(?:[#!]|$)",l)]
+        if len(found) != 1:
+            raise ValueError(f"run card needs exactly one {key} assignment")
+        lines[found[0]] = f"  {val}  = {key}"
+        return True
     # CR-002: apply the [madgraph.run.options] block FIRST, fail-loud on any unmatched key —
     # dropping it silently generated at ptj1min=0 (×2.14 σ_tag drift vs the container reference).
     for k, v in run_options.items():
+        if k in ("nevents", "iseed", "ebeam1", "ebeam2", "pdlabel", "lhaid", "use_syst", "ickkw"):
+            raise ValueError(f"run option {k} conflicts with declared native generation controls")
+        if isinstance(v, float) and not math.isfinite(v):
+            raise ValueError(f"run option {k} must be finite")
         val = ("True" if v else "False") if isinstance(v, bool) else str(v)
         if not setkey(k, val):
             die(f"[madgraph.run.options] key '{k}' has no matching run-card line -- "
                 f"the template changed; add an explicit rule for it (CR-002 fail-loud)")
     setkey("nevents", f"{int(nevents)}")
     setkey("iseed", f"{int(seed)}")
-    setkey("ebeam1", "6500.0")   # {{ecms}} -> per-beam energy (sqrt(s)=13 TeV)
-    setkey("ebeam2", "6500.0")
+    setkey("ebeam1", f"{ecms/2:g}")
+    setkey("ebeam2", f"{ecms/2:g}")
+    # Matching requires a different shower and rate treatment. This preparation
+    # explicitly supports unmerged LO; never inherit an unnoticed matching flag.
+    setkey("ickkw", "0")
     if pdf == "cteq6l1":                       # MadGraph-internal PDF (the pre-CR-004 baseline)
         setkey("pdlabel", "cteq6l1")
     elif pdf == "nn23nlo":                     # CR-004 basis: MG-INTERNAL NNPDF2.3 NLO — no
@@ -115,15 +127,33 @@ def render_runcard(nevents, seed, out, run_options, pdf="cteq6l1"):
             die("run-card template lacks a pdlabel/lhaid line -- cannot set the LHAPDF basis "
                 "(same silent-drop class as CR-002; refusing)")
     else:
-        die(f"unknown --pdf '{pdf}' (cteq6l1|nnpdf30)")
+        raise ValueError(f"unknown --pdf '{pdf}'")
     setkey("use_syst", "False")
     rendered = "\n".join(lines) + "\n"
     # fail-loud: no un-rendered jinja placeholder may reach MadGraph (it crashes with
     # "{{X}} can not be mapped to a float" -- the bug a live scan run surfaced).
     if "{{" in rendered:
         leftover = sorted(set(re.findall(r"\{\{[^}]+\}\}", rendered)))
-        die(f"run card still has unrendered placeholder(s) {leftover} -- add a setkey() for each")
-    open(out, "w").write(rendered)
+        raise ValueError(f"run card still has unrendered placeholder(s) {leftover}")
+    return rendered
+
+
+def render_runcard(nevents, seed, out, run_options, pdf, ecms):
+    open(out, "w").write(render_runcard_text(nevents, seed, run_options, pdf, ecms, BASE_RUNCARD))
+
+
+def render_inputs(m_parent, m_lsp, nevents, seed, run_options, pdf, ecms, *, param_template=BASE_PARAM, run_template=BASE_RUNCARD):
+    """Pure rendering for the registered slepton adapter; never writes a dry plan."""
+    if any(isinstance(x, bool) or not math.isfinite(x) for x in (m_parent,m_lsp)) or not 0 <= m_lsp < m_parent:
+        raise ValueError("slepton masses must be finite with 0 <= LSP < parent")
+    text = open(param_template).read()
+    if "{{MSLEP}}" not in text or "{{MN1}}" not in text:
+        raise ValueError("slepton param template is missing its model-specific placeholders")
+    text = text.replace("{{MSLEP}}",f"{m_parent:g}").replace("{{MN1}}",f"{m_lsp:g}")
+    if "{{" in text:
+        raise ValueError("unresolved parameter-card placeholder")
+    return {"param_card.dat":text,
+            "run_card.dat":render_runcard_text(nevents,seed,run_options,pdf,ecms,run_template)}
 
 
 def write_run_mg5(rundir, param_path, runcard_path, seed, out):
@@ -139,7 +169,7 @@ launch output/PROC_madgraph
 madspin=OFF
 shower=OFF
 reweight=OFF
-
+done
 {param_path}
 {runcard_path}
 set iseed {int(seed)}
@@ -165,29 +195,32 @@ def main():
     ap.add_argument("--rundir", required=True, help="absolute run dir")
     ap.add_argument("--m-parent", type=float, required=True, help="slepton mass (GeV)")
     ap.add_argument("--m-lsp", type=float, required=True, help="bino LSP mass (GeV)")
-    ap.add_argument("--nevents", type=int, default=50000)
-    ap.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"], default="cteq6l1",
+    ap.add_argument("--nevents", type=int, required=True)
+    ap.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"], required=True,
                     help="proton PDF: cteq6l1 (MG-internal, the record-scan baseline) or "
                          "nnpdf30 (LHAPDF lhaid=260000 — the CR-004 rescan basis; requires "
                          "lhapdf in the mg5 env + the set installed)")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--toml", default=f"{MSHARE}/templates/sleptons.toml",
+    ap.add_argument("--seed", type=int, required=True)
+    ap.add_argument("--toml", required=True,
                     help="mapyde TOML whose [madgraph.run.options] block is applied to the run "
                          "card (CR-002); the orchestrator passes the point's own config TOML")
     args = ap.parse_args()
 
     rundir = os.path.abspath(args.rundir)
-    if args.m_lsp >= args.m_parent:
-        die(f"m_lsp ({args.m_lsp}) must be < m_parent ({args.m_parent}) -- kinematically forbidden")
-    outdir = os.path.join(rundir, "output")
-    os.makedirs(outdir, exist_ok=True)
-
     run_options = read_run_options(args.toml)
     print(f"applying [madgraph.run.options] from {args.toml}: "
           f"{', '.join(f'{k}={v}' for k, v in run_options.items())}")
-    render_param(args.m_parent, args.m_lsp, os.path.join(outdir, "param_card.dat"))
-    render_runcard(args.nevents, args.seed, os.path.join(outdir, "run_card.dat"), run_options,
-                   pdf=args.pdf)
+    import tomllib
+    with open(args.toml,"rb") as stream:
+        ecms = float(tomllib.load(stream)["madgraph"]["run"]["ecms"])
+    rendered = render_inputs(args.m_parent,args.m_lsp,args.nevents,args.seed,run_options,args.pdf,ecms)
+    if not os.path.isfile(GEN_TEMPLATE):
+        die(f"process template not found: {GEN_TEMPLATE}")
+    outdir = os.path.join(rundir, "output")
+    os.makedirs(outdir, exist_ok=True)
+    for name,text in rendered.items():
+        with open(os.path.join(outdir,name),"w") as stream:
+            stream.write(text)
     if os.path.exists(BASE_PYTHIA):
         shutil.copy(BASE_PYTHIA, os.path.join(outdir, "pythia_card.dat"))
     write_run_mg5(rundir, os.path.join(outdir, "param_card.dat"),

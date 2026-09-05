@@ -48,6 +48,7 @@ import math
 import os
 import re
 import sys
+from ravel.limits import claim_errors, read_limits, prose_errors, source_errors
 
 # directories never containing deliverable artifacts (heavy / regenerable)
 SKIP_DIRS = {"build", "logs", "__pycache__", ".git", "Events"}
@@ -108,9 +109,10 @@ def find_artifact_jsons(rundir):
     """Artifact JSONs: top-level *.json + everything under inputs/ and outputs/."""
     found = []
     for f in sorted(os.listdir(rundir)):
-        if f.endswith(".json") and os.path.isfile(os.path.join(rundir, f)):
+        if f.endswith(".json") and f not in ("execution_state.json", "current_state.json") \
+                and os.path.isfile(os.path.join(rundir, f)):
             found.append(f)
-    for sub in ("inputs", "outputs"):
+    for sub in ("inputs", "output", "outputs"):
         top = os.path.join(rundir, sub)
         if not os.path.isdir(top):
             continue
@@ -125,6 +127,8 @@ def find_artifact_jsons(rundir):
 def resolve_ref(rundir, index, ref):
     """Resolve a referenced path: rundir-relative, repo-relative, then a unique
     suffix match against the file index (prose often cites basenames/suffixes)."""
+    if "logs/execution/" in ref.replace(os.sep, "/"):
+        return None  # prior attempts cannot satisfy a current scientific pointer
     if os.path.isfile(os.path.join(rundir, ref)):
         return ref
     # repo-relative (e.g. 'trial-runs/<run>/plots/x.png' cited from inside the run)
@@ -195,25 +199,33 @@ def check_figure_target(rep, rundir, index, name, tgt_doc):
                 rep.ok(name, f"figure-contract target {fid}: {label} exists on disk")
 
 
+def check_limit_record(rep, name, doc):
+    archive = "limits" not in doc and "limit_status" not in doc
+    errors = claim_errors(doc, allow_legacy=archive)
+    for error in errors:
+        rep.fail(name, f"limit representation: {error}")
+    if not errors:
+        result = read_limits(doc)
+        statuses = [result.observed.status, *[c.status for c in result.expected]]
+        if "legacy_reported" in statuses:
+            rep.warn(name, "historical reported limits; no numerical root certification")
+        else:
+            rep.ok(name, f"limit statuses and claim eligibility consistent: {statuses}")
+
+
 def check_result(rep, rundir, index, name, doc, figures_doc):
-    mu = doc.get("mu95_obs")
-    excl = doc.get("excluded_obs")
-    if mu is not None and excl is not None:
-        if bool(excl) == (float(mu) < 1.0):
-            rep.ok(name, f"verdict self-consistent: excluded_obs={excl} vs mu95_obs={mu:.4g}")
-        else:
-            rep.fail(name, f"verdict INCONSISTENT: excluded_obs={excl} but mu95_obs={mu:.4g}")
-    band = doc.get("mu95_exp_band")
-    exp = doc.get("mu95_exp")
-    if band and exp is not None:
-        if len(band) == 5 and close(exp, band[2]):
-            rep.ok(name, "mu95_exp equals the expected-band median")
-        else:
-            rep.fail(name, f"mu95_exp={exp} is not the 5-entry band median (band={band})")
-        if band == sorted(band):
-            rep.ok(name, "expected band is ordered (-2σ … +2σ)")
-        else:
-            rep.warn(name, f"expected band not monotonically ordered: {band}")
+    check_limit_record(rep, name, doc)
+    for error in source_errors(doc, rundir, required=("limits" in doc or "limit_status" in doc)):
+        rep.fail(name, f"limit source: {error}")
+    prose = os.path.join(rundir, "RESULT.md")
+    if os.path.isfile(prose):
+        try:
+            with open(prose) as fh:
+                errors = prose_errors(fh.read(), doc)
+            for error in errors:
+                rep.fail(name, error)
+        except (ValueError, TypeError) as exc:
+            rep.fail(name, str(exc))
     for what, ref in (doc.get("pointers") or {}).items():
         if not ref:
             continue
@@ -254,13 +266,10 @@ def check_scan(rep, name, doc):
     bad_verdict, bad_band, bad_dm = [], [], []
     for p in points:
         tag = p.get("tag", "?")
-        mu = p.get("mu95_obs")
-        if mu is not None and p.get("excluded_obs") is not None \
-                and bool(p["excluded_obs"]) != (float(mu) < 1.0):
-            bad_verdict.append(tag)
+        check_limit_record(rep, f"{name}:{tag}", p)
         band, exp = p.get("mu95_exp_band"), p.get("mu95_exp")
         if band is not None and exp is not None \
-                and not (len(band) == 5 and close(exp, band[2])):
+                and not (isinstance(band, list) and len(band) == 5 and band[2] is not None and close(exp, band[2])):
             bad_band.append(tag)
         mp, ml, dm = p.get("m_parent"), p.get("m_lsp"), p.get("dm")
         if None not in (mp, ml, dm) and not close(dm, mp - ml, rel=1e-4):
@@ -513,6 +522,8 @@ def main(argv):
             check_figures(rep, rundir, index, name, doc)
         elif base == "result.json":
             check_result(rep, rundir, index, name, doc, figures_doc)
+        elif base in ("exclusion.json", "shape_fit.json"):
+            check_limit_record(rep, name, doc)
         elif name in scan_docs:
             check_scan(rep, name, doc)
         elif base == "scan_manifest.json":

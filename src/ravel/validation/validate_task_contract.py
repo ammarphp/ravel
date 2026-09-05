@@ -122,6 +122,22 @@ _COST["anyOf"] = [
     {"required": ["walltime_h_naive", "walltime_h_with_lhe_reuse", "lhe_reuse_note"]},
 ]
 
+INTERPRETATION_SCHEMA = _object({
+    "schema_version": {"type": "integer", "const": 1},
+    "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "kind": _enum((*TASK_MODES[:-1], "method_study")),
+    "objective": _TEXT,
+    "requested_outputs": {"type": "array", "items": _TEXT, "minItems": 1},
+    "evidence": {"type": "array", "minItems": 1, "items": _object({
+        "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1},
+        "text": _TEXT}, ("start", "end", "text"))},
+    "unresolved": _TEXTS,
+}, ("schema_version", "prompt_sha256", "kind", "objective", "requested_outputs", "evidence", "unresolved"))
+INTAKE_SCHEMA = {**INTERPRETATION_SCHEMA, "properties": {
+    **INTERPRETATION_SCHEMA["properties"], "source": _enum(("host-agent", "local-parser")),
+    "review_status": {"type": "string", "const": "draft"}},
+    "required": [*INTERPRETATION_SCHEMA["required"], "source", "review_status"]}
+
 SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Ravel task contract, version 1",
@@ -140,6 +156,13 @@ SCHEMA = {
         "compute_plan": _enum(COMPUTE_PLANS),
         "approval_required": {"type": "boolean", "const": True},
         "targets": _TARGETS,
+        "intake": INTAKE_SCHEMA,
+        "execution_plan": _object({"path": _TEXT,
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, ("path", "sha256")),
+        "certification_plans": _object({kind: _object({
+            "path": _TEXT,
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        }, ("path", "sha256")) for kind in ("r5", "acceptance")}),
         "cost_estimate": _COST,
         "blocking": _TEXTS,
         "escalate": _TEXTS,
@@ -233,6 +256,27 @@ def validate(c, *, legacy=False):
     if errs:
         return errs  # malformed structures must never reach type-assuming cross-field logic
     tm, sm, cp = c["task_mode"], c["stat_mode"], c["compute_plan"]
+    if "execution_plan" in c:
+        path = c["execution_plan"]["path"]
+        if path.startswith("/") or "\\" in path or any(p in ("", ".", "..") for p in path.split("/")):
+            errs.append("execution_plan.path must be a portable run-relative path")
+    if "intake" in c:
+        from ravel.workflow.intake import validate_interpretation
+        intent = c["intake"]
+        errs.extend(validate_interpretation({k: v for k, v in intent.items()
+                                             if k not in ("source", "review_status")}, c["prompt"]))
+        expected = "survey" if intent["kind"] == "method_study" else intent["kind"]
+        if expected != tm:
+            errs.append("intake kind disagrees with task_mode")
+        if intent["kind"] == "method_study" and (cp != "none" or sm != "none-survey"):
+            errs.append("method study intake is a zero-compute proposal")
+    if c.get("certification_plans"):
+        if not (c.get("targets") or {}).get("analysis"):
+            errs.append("certification_plans require targets.analysis identities")
+        for kind, pin in c["certification_plans"].items():
+            path = pin["path"]
+            if path.startswith("/") or "\\" in path or any(p in ("", ".", "..") for p in path.split("/")):
+                errs.append(f"certification_plans.{kind}.path must be a portable run-relative path")
     if tm == "unsupported":
         if not c.get("blocking"):
             errs.append("task_mode=unsupported requires 'blocking' to NAME the refusal line "

@@ -130,6 +130,8 @@ human-approval service. A hash binding cannot prove who approved the work.
 
 ## Version-2 approval binding
 
+Native execution also requires an `execution_plan` object with a portable run-relative `path` and lowercase 64-character `sha256` of the exact saved plan bytes. Pin the actual model, analysis, cards, seeds, budget and stage outputs before presenting the plan. The executor verifies this pin and the current approval before every stage; a status view or `--go` flag alone cannot authorize it. A changed execution plan requires recording the actual renewed authorization for its scope. Artifact-bound comparison policies use the separate `certification_plans` pins described in [scientific results](scientific-results.md).
+
 Task contracts remain version 1. Newly recorded `inputs/checkin1_approval.json` artifacts
 use version 2 and require exactly these fields:
 
@@ -138,7 +140,7 @@ use version 2 and require exactly these fields:
 | `schema_version` | Integer `2`, never a boolean or string. |
 | `generated_by` | Literal `workflow_state.py approve`. |
 | `generated_utc` | String; an empty deterministic timestamp remains supported. |
-| `approved_plan` | `smoke`, `full`, or `scan`, at or below the task contract's requested rung. |
+| `approved_plan` | `none`, `dry`, `smoke`, `full`, or `scan`, at or below the task contract's requested rung. Static comparison approval does not authorize generation. |
 | `quote` | Nonblank string recording the physicist's reply. |
 | `task_contract` | The active contract's run-relative path, either `inputs/task_contract.json` or the supported root layout `task_contract.json`. |
 | `checkin1` | Literal `inputs/checkin1.json`. The source must have `kind=checkin1`. |

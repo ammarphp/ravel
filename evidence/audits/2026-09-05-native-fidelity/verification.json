@@ -3,13 +3,18 @@
   "scope": "Native selection/reconstruction/output verification; no new generation or fit",
   "engine_sha256": {
     "sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
-    "native_simpleanalysis.py": "21c6c453fe0b7b691a8a22fe72ca40ee529bc47adbd820dc8768b03758f7d193",
+    "native_simpleanalysis.py": "90938ef53977f5459edf00632d4324eb0fd92d103e16ae4367c7932ee21c3d2e",
     "native_sa_generic.py": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
     "sa_routines/ewkthreeleptonerjr2018.py": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec"
   },
   "unit_tests": {
-    "command": "python -m pytest tests/unit/test_native_fidelity.py -q",
-    "passed": 15
+    "command": "PYTHONPATH=<repo>/src PYTHONDONTWRITEBYTECODE=1 /private/tmp/ravel-cli-clean-env/bin/python -m pytest <repo>/tests/unit/test_native_fidelity.py -q -o cache_dir=/private/tmp/ravel-native-audit-pytest-cache",
+    "working_directory": "/private/tmp",
+    "path_notation": "<repo> is the source checkout root",
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.17
   },
   "retained_erjr_replay": {
     "entries": 200000,
@@ -58,5 +63,54 @@
     "png_visually_checked": true,
     "pdf_present": true
   },
-  "historical_inputs_preserved": true
+  "historical_inputs_preserved": true,
+  "refresh": {
+    "performed_utc": "2026-09-05T18:36:58.822657+00:00",
+    "reason": "Refresh current native driver provenance after explicit native routine/tool dispatch changes; replay the original retained-event differential and current production driver, not a hash-only repin.",
+    "git_head_at_refresh": "8d8b4b53b358c9798ae9b0d6345919c907b8639e",
+    "working_tree_changes_present": true,
+    "previous_verification_sha256": "b9ccf13372e2e7ae2fb9fbee3c8eee41da050b1cd6c0a2494d0495b4ce85efaa",
+    "previous_engine_sha256": {
+      "sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+      "native_simpleanalysis.py": "21c6c453fe0b7b691a8a22fe72ca40ee529bc47adbd820dc8768b03758f7d193",
+      "native_sa_generic.py": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
+      "sa_routines/ewkthreeleptonerjr2018.py": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec"
+    },
+    "working_directory": "repository root",
+    "commands": [
+      "PYTHONDONTWRITEBYTECODE=1 stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python scripts/run.py ravel.physics.sa_routines.ewkthreeleptonerjr2018 --input trial-runs/CR005cert_c1n2_300_100/output/analysis/Delphes2SA.root --out /private/tmp/ravel-native-audit-refresh-20260905T183416Z/erjr_differential.json",
+      "PYTHONDONTWRITEBYTECODE=1 stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python scripts/run.py ravel.physics.native_simpleanalysis --input trial-runs/CR005cert_c1n2_300_100/output/analysis/Delphes2SA.root --output /private/tmp/ravel-native-audit-refresh-20260905T183416Z/driver --ngen 200000 --routine EwkThreeLeptonERJR2018"
+    ],
+    "runtime": {
+      "python": "3.14.5 (conda-forge)",
+      "numpy": "2.4.6",
+      "uproot": "5.7.4"
+    },
+    "retained_input_sha256": "91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac",
+    "differential_sha256": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "differential_byte_identical_to_original": true,
+    "all_changed_event_records_identical": true,
+    "all_region_counts_and_cutflows_identical": true,
+    "production_driver_entries": 200000,
+    "production_driver_paper_counts": {
+      "Preselection": 1055,
+      "SRlow": 95,
+      "SRISR": 19,
+      "CRlow": 65,
+      "CRISR": 16,
+      "VRlow": 28,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    },
+    "production_driver_all_paper_counts_agree": true,
+    "production_driver_txt_sha256": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0",
+    "historical_checks_not_repeated": [
+      "cached_output_comparisons",
+      "direct_delphes_nominal_weight_read",
+      "graphics"
+    ],
+    "preservation": "Original erjr_differential.json, reference.json, zero-lepton cutflows, rendered figures, retained detector events, and historical certification records were not modified. Earlier verification.json bytes remain in Git history and are identified by previous_verification_sha256.",
+    "scope": "Retained-event reconstruction/output refresh and regression tests only. No generation, detector retuning, fit, changed tolerance, new acceptance certification, or physics closure."
+  }
 }

@@ -32,6 +32,12 @@ The renderer uses Matplotlib from the replay environment. To render the distribu
 
 Regression checks cover the invariant-mass identity for massless constituents, invariance under longitudinal boosts, and an actual retained event previously lost to the mixed-frame expression. The full 200,000-event replay agrees with an independently instrumented pre-edit differential on every region count and changed event ID. This validates the bounded algorithm correction, not the full simulation chain.
 
+## Verification refresh — 2026-09-05
+
+After the native driver's explicit routine/tool dispatch changes, the original **200,000-event** differential was rerun with the current source, and the current `native_simpleanalysis` driver independently processed the same retained ntuple. The differential JSON is **byte-identical** to the preserved original, including all region counts, cutflows, and all **73** changed-event records. The source event SHA-256 remains `91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac`. The production driver reproduces every paper-definition region count, including **SR-low 95**, **SR-ISR 19**, and **preselection 1,055**. The native-fidelity unit tests pass **15/15**.
+
+[The refreshed verification record](verification.json) records the commands, runtime versions, current source hashes, previous verification/source hashes, and output hashes. The differential replay used Python 3.14.5, NumPy 2.4.6, and uproot 5.7.4; unit tests used the locked Python 3.12 environment. Existing compressed/zero-lepton cached-output comparisons, the earlier direct weight read, and the figure inspection remain historical checks and were not repeated in this refresh. Original event files, differential data, references, figures, and certification records are unchanged. This refresh confirms current reconstruction/output consistency; the **23.1% SR-low acceptance deficit remains**, and no new physics certification or closure is claimed.
+
 ## Other failure mechanisms and limits
 
 The [zero-lepton cutflows](zero_lepton_cutflow.json) retain input/reference hashes and reproduce the original squark and gluino counts. They compare the same benchmark masses against the rounded published cutflow, which is distinct from the higher-precision acceptance map used in certification. [ATLAS zero-lepton analysis](https://arxiv.org/abs/2010.14293)

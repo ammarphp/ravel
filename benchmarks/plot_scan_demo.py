@@ -35,7 +35,7 @@ def main():
         return result.returncode
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     files = [scan, reference, contour, ROOT / 'src/ravel/plotting/scan_contour.py',
-             ROOT / 'src/ravel/plotting/mplhep_style.py', Path(__file__)]
+             ROOT / 'src/ravel/plotting/mplhep_style.py', ROOT / 'src/ravel/limits.py', Path(__file__)]
     record = {'scope': 'fresh plotting of cached historical scan; no event generation or new likelihood fits',
               'python': platform.python_version(),
               'command': 'python benchmarks/plot_scan_demo.py --out NEW_DIRECTORY',

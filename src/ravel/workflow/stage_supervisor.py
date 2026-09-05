@@ -18,10 +18,13 @@ if not __package__:
     __package__ = "ravel.workflow"
 
 import argparse, hashlib, json, os, signal, subprocess, sys, time
+from pathlib import Path
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 from ravel.workflow import cost_preflight as cp  # noqa: E402
+from ravel.workflow import execution
+from ravel.workflow.state_io import atomic_json, file_lock
 
 SCHEMA_VERSION = 1
 KILL_MARGIN = 3.0          # kill at 3x the modelled stage budget
@@ -38,7 +41,7 @@ MUST_PRODUCE = ("madgraph", "pythia", "delphes", "analysis", "simpleanalysis", "
 
 def _resolve_timestamp():
     ov = os.environ.get("GATE_TIMESTAMP")
-    return ov if ov else "1970-01-01T00:00:00Z"
+    return ov if ov else execution.utc_now()
 
 def stage_budget_min(stage, events):
     """Modelled wall-clock budget (minutes) for a stage. Only quantified data is cost_preflight's
@@ -60,15 +63,14 @@ def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel):
         "input_fingerprint": _fingerprint(cmd), "stage": stage, "status": "open",
         "reason": reason, "elapsed_s": round(elapsed, 1), "kill_threshold_s": round(kill_secs, 1),
         "logfile": logrel,
-        "next_action": (f"stage '{stage}' was killed after {round(elapsed)}s ({reason}); the point "
-                        f"is now FAILED. Inspect {logrel}, then reset the point (remove "
-                        f"logs/STATUS.txt so the babysitter re-runs it) or diagnose+fix the hang "
-                        f"before relaunch."),
+        "next_action": (f"stage '{stage}' failed after {round(elapsed)}s ({reason}). "
+                        f"Inspect {logrel} and execution_state.json; fix the input or tool "
+                        "and resume the declared pipeline. Earlier attempts are retained; "
+                        "deleting a status file is not evidence of recovery."),
     }
     path = os.path.join(rundir, "logs", f"{stage}.failure.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as fh:
-        json.dump(rec, fh, indent=2)
+    atomic_json(path, rec)
     # RECONCILE D-3: durably record the open failure in the run ledger so the Stop CATCH branch's
     # FALLBACK (`workflow_state.py status` -> open_failure_records) sees it. Best-effort: never let a
     # ledger hiccup (missing/older run_state, CLI drift) mask the stage failure the caller surfaces.
@@ -82,56 +84,140 @@ def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel):
             pass
     return path
 
+def _terminate_group(proc, grace):
+    """Terminate the owned process session, including children of a shell/conda wrapper."""
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    try:
+        proc.wait(timeout=grace)
+    except subprocess.TimeoutExpired:
+        pass
+    # The group may contain children even after its leader exits.
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    proc.wait()
+
+
+def _recover_orphan(rundir, stage, grace):
+    old = execution.load_execution(rundir)["stages"].get(stage, {})
+    if old.get("status") != "running" or not old.get("child_pid"):
+        return
+    pid = old["child_pid"]
+    identity = execution.process_identity(pid)
+    if identity is None:
+        if not execution.process_group_members(pid):
+            return
+        if not old.get("child_identity"):
+            raise ValueError(f"cannot establish ownership of previous group {pid}; stage {stage} held")
+    elif identity != old.get("child_identity") or os.getpgid(pid) != pid:
+        raise ValueError(f"cannot establish ownership of previous process {pid}; stage {stage} held")
+    os.killpg(pid, signal.SIGTERM)
+    deadline = time.monotonic() + grace
+    while execution.process_group_members(pid) and time.monotonic() < deadline:
+        time.sleep(min(0.1, grace))
+    try:
+        os.killpg(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    # Once the owned group is signalled, preserve an explicit interruption record.
+    old.update(status="interrupted", finished_utc=execution.utc_now(),
+               error="owned orphan terminated during resume")
+    execution._update(rundir, stage, old)
+
+
 def supervise(stage, rundir, events, logrel, cmd, kill_secs=None, stall_secs=None,
-              poll=POLL_SECS, grace=GRACE_SECS):
+              poll=POLL_SECS, grace=GRACE_SECS, *, inputs=None, outputs=None,
+              depends_on=None, resume=False, cwd=None):
+    """Run one declared stage; resume only a content-identical successful attempt.
+
+    Log silence is not a default failure signal. A caller may supply stall_secs only
+    for tools with a documented live progress stream. Scientific postconditions use
+    explicit output artifacts; legacy callers retain the empty-producing-log check.
+    """
     budget_min = stage_budget_min(stage, events)
     if kill_secs is None:
         kill_secs = max(FLOOR_SECS, budget_min * KILL_MARGIN * 60.0)
-    if stall_secs is None:
-        stall_secs = max(FLOOR_SECS, budget_min * 60.0)   # no log write for a whole budget => stalled
-    logpath = os.path.join(rundir, logrel)
-    os.makedirs(os.path.dirname(logpath), exist_ok=True)
-    log = open(logpath, "wb")
-    t0 = time.time()
-    proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT)
-    reason = None
-    while True:
-        rc = proc.poll()
-        if rc is not None:
-            break
-        now = time.time()
-        elapsed = now - t0
+    import math
+    for name, value in (("kill_secs", kill_secs), ("poll", poll), ("grace", grace),
+                        ("stall_secs", stall_secs)):
+        if value is not None and (type(value) not in (int, float) or not math.isfinite(value) or value <= 0):
+            raise ValueError(f"{name} must be positive and finite")
+    root = Path(rundir).resolve()
+    if not root.is_dir():
+        raise ValueError("run directory does not exist")
+    if not execution.NAME.fullmatch(stage):
+        raise ValueError("invalid stage name")
+    logpath = execution.log_path(root, logrel)
+    logpath.parent.mkdir(parents=True, exist_ok=True)
+    with file_lock(root / "logs/execution" / f"{stage}.lock", blocking=False):
+        specification = execution.plan_stage(root, stage, list(cmd), inputs or [], outputs or [],
+                                             depends_on or [], cwd or os.getcwd())
+        if resume and execution.reusable(root, stage, specification):
+            print(f"REUSED {stage}: inputs, dependencies and outputs verified", flush=True)
+            return 0
+        _recover_orphan(root, stage, grace)
+        record = execution.begin_attempt(root, stage, specification, logrel)
+        t0 = time.monotonic()
+        proc = None
+        reason = None
+        previous_handlers = {}
+        def interrupted(signum, frame):
+            raise KeyboardInterrupt(f"signal {signum}")
         try:
-            mtime = os.path.getmtime(logpath)
-        except OSError:
-            mtime = t0
-        if elapsed > kill_secs:
-            reason = "wall-clock"
-        elif elapsed > FLOOR_SECS and (now - mtime) > stall_secs:
-            reason = "progress-stall"
-        if reason:
-            proc.send_signal(signal.SIGTERM)
-            t_term = time.time()
-            while proc.poll() is None and (time.time() - t_term) < grace:
-                time.sleep(0.2)
-            if proc.poll() is None:
-                proc.send_signal(signal.SIGKILL)
-                proc.wait()
-            log.flush(); log.close()
-            write_failure(rundir, stage, reason, time.time() - t0, kill_secs, cmd, logrel)
-            return 124
-        time.sleep(poll)
-    log.flush(); log.close()
-    elapsed = time.time() - t0
-    if rc == 0 and stage in MUST_PRODUCE:
-        try:
-            size = os.path.getsize(logpath)
-        except OSError:
-            size = 0
-        if size == 0:
-            write_failure(rundir, stage, "exit-0-implausible", elapsed, kill_secs, cmd, logrel)
-            return 3
-    return rc
+            # Native pipeline commands run in the main thread. Library callers in another
+            # thread still receive timeout/exception cleanup without process-global handlers.
+            import threading
+            if threading.current_thread() is threading.main_thread():
+                for sig in (signal.SIGTERM, signal.SIGINT):
+                    previous_handlers[sig] = signal.signal(sig, interrupted)
+            with logpath.open("wb") as log:
+                proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
+                                        cwd=cwd, start_new_session=True)
+                execution.record_process(root, record, proc.pid)
+                while proc.poll() is None:
+                    elapsed = time.monotonic() - t0
+                    if elapsed > kill_secs:
+                        reason = "wall-clock"
+                    elif stall_secs is not None and time.time() - logpath.stat().st_mtime > stall_secs:
+                        reason = "progress-stall"
+                    if reason:
+                        _terminate_group(proc, grace)
+                        break
+                    time.sleep(poll)
+            code = 124 if reason else (proc.returncode if proc.returncode >= 0 else 128 - proc.returncode)
+            if execution.process_group_members(proc.pid):
+                _terminate_group(proc, grace)
+                code, reason = 3, "descendants remained active after the stage leader exited"
+            if code == 0 and not outputs and stage in MUST_PRODUCE and logpath.stat().st_size == 0:
+                code, reason = 3, "exit-0-implausible"
+        except KeyboardInterrupt:
+            if proc:
+                _terminate_group(proc, grace)
+            code, reason = 130, "interrupted"
+        except Exception as exc:
+            if proc:
+                _terminate_group(proc, grace)
+            code, reason = 2, str(exc)
+        finally:
+            for sig, handler in previous_handlers.items():
+                signal.signal(sig, handler)
+        code = execution.finish_attempt(root, record, code, reason)
+        if code:
+            write_failure(str(root), stage, record.get("error") or f"exit-{code}",
+                          time.monotonic() - t0, kill_secs, cmd, logrel)
+        else:
+            failure = root / "logs" / f"{stage}.failure.json"
+            if failure.exists():
+                # Preserve the original failed receipt, then record how it was resolved.
+                old = execution.read_json(failure)
+                old.update(status="resolved", resolved_by_attempt=record["attempt_id"],
+                           resolved_utc=execution.utc_now())
+                atomic_json(failure, old)
+        return code
 
 def selftest():
     import tempfile
@@ -177,6 +263,11 @@ def main(argv=None):
     ap.add_argument("--log", required=True, help="log path relative to rundir")
     ap.add_argument("--kill-secs", type=float, default=None)
     ap.add_argument("--stall-secs", type=float, default=None)
+    ap.add_argument("--input", action="append", default=[], dest="inputs")
+    ap.add_argument("--output", action="append", default=[], dest="outputs")
+    ap.add_argument("--depends-on", action="append", default=[])
+    ap.add_argument("--resume", action="store_true")
+    ap.add_argument("--cwd", help="working directory for the stage command")
     ap.add_argument("cmd", nargs=argparse.REMAINDER)
     args = ap.parse_args(argv)
     cmd = args.cmd[1:] if (args.cmd and args.cmd[0] == "--") else args.cmd
@@ -184,8 +275,14 @@ def main(argv=None):
         print("stage_supervisor: no command after --", file=sys.stderr); return 2
     if not os.path.isdir(args.rundir):
         print(f"stage_supervisor: not a directory: {args.rundir}", file=sys.stderr); return 2
-    return supervise(args.stage, args.rundir, args.events, args.log, cmd,
-                     kill_secs=args.kill_secs, stall_secs=args.stall_secs)
+    try:
+        return supervise(args.stage, args.rundir, args.events, args.log, cmd,
+                         kill_secs=args.kill_secs, stall_secs=args.stall_secs,
+                         inputs=args.inputs, outputs=args.outputs, depends_on=args.depends_on,
+                         resume=args.resume, cwd=args.cwd)
+    except (OSError, ValueError) as exc:
+        print(f"stage_supervisor: {exc}", file=sys.stderr)
+        return 2
 
 if __name__ == "__main__":
     sys.exit(main())

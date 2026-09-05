@@ -173,6 +173,14 @@ def test_prompt_specs_skips_non_served_prompts():
     assert be.prompt_specs(matrix) == []
 
 
+def test_partial_prompt_retains_declared_component_evidence():
+    be = _load_build_evidence()
+    specs = be.prompt_specs({"prompts": {"PY_partial": {"status": "partial", "gate": {},
+                            "evidence_artifacts": ["outputs/component.json"]}}})
+    assert len(specs) == 1 and specs[0]["status"] == "partial"
+    assert specs[0]["candidates"][0][0] == "outputs/component.json"
+
+
 # --------------------------------------------------------------------------- #
 # build_evidence: live-repo enumeration (pure function of the real matrix/cases -- no disk writes)
 # --------------------------------------------------------------------------- #
@@ -185,7 +193,7 @@ def test_enumerate_specs_matches_live_repo_sources():
     claim_ids = {s["claim_id"] for s in specs}
     assert "P1_hvt_zprime_ww_summary" in claim_ids
     assert "P4_dijet_photon_widths" in claim_ids
-    assert "P2_toponium_heavy_higgs_summary" not in claim_ids   # partial -- not enumerated
+    assert "P2_toponium_heavy_higgs_summary" not in claim_ids   # no declared artifact list
     for case in cases_doc["cases"]:
         assert f"BENCH_{case['case_id']}" in claim_ids
     for hc in be.HEADLINE_CLAIMS:

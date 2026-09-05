@@ -22,10 +22,15 @@ def parser() -> argparse.ArgumentParser:
     sub = ap.add_subparsers(dest="command", required=True)
     initiate = sub.add_parser("initiate", help="draft an intake contract and empty run ledger; never runs compute")
     request = initiate.add_mutually_exclusive_group(required=True)
-    request.add_argument("--prompt", help="physics request to route deterministically")
+    request.add_argument("--prompt", help="physics request to interpret as a draft")
     request.add_argument("--prompt-file", type=Path, help="UTF-8 file containing the physics request")
     initiate.add_argument("--out", type=Path, required=True,
                           help="new run directory; existing paths are never overwritten")
+    initiate.add_argument("--interpretation", type=Path,
+                          help="host-agent interpretation JSON with exact request hash and evidence spans")
+    status = sub.add_parser("status", help="derive a compact current-state packet from live artifacts")
+    status.add_argument("--rundir", type=Path, required=True)
+    status.add_argument("--write", action="store_true", help="also refresh current_state.json")
     validate = sub.add_parser("validate", help="validate a task contract; never authorizes compute")
     choice = validate.add_mutually_exclusive_group(required=True)
     choice.add_argument("contract", type=Path, nargs="?", help="task_contract.json")
@@ -47,7 +52,11 @@ def _initiate(args) -> int:
               args.prompt_file.expanduser().read_bytes().decode("utf-8"))
     if not prompt.strip():
         raise ValueError("the request must not be blank; compute_authorized=false")
-    contract = route_prompt.route(prompt)
+    if args.interpretation:
+        from .workflow.state_io import read_json
+        contract = route_prompt.route(prompt, interpretation=read_json(args.interpretation))
+    else:
+        contract = route_prompt.route(prompt)
     errors = validate_task_contract(contract)
     if errors:
         print("ravel: invalid draft route; compute_authorized=false:\n" +
@@ -75,6 +84,17 @@ def _initiate(args) -> int:
             raise ValueError("persisted task contract is invalid: " + "; ".join(errors))
         state = workflow_state.new_state(str(output), persisted, str(contract_path), "")
         workflow_state.write_state(str(output), state)
+        if contract.get("intake", {}).get("kind") == "method_study":
+            intent = contract["intake"]
+            (output / "method_proposal.md").write_text(
+                "# Draft method study\n\n" + intent["objective"] +
+                "\n\nRequested outputs:\n\n" + "\n".join("- " + x for x in intent["requested_outputs"]) +
+                "\n\nResolve before designing an execution plan:\n\n" +
+                "\n".join("- " + x for x in intent["unresolved"]) +
+                "\n\nNo model training, data access, statistical claim, or compute approval is implied.\n",
+                encoding="utf-8")
+        from .workflow.current_state import write_packet
+        write_packet(output)
     except (OSError, ValueError) as exc:
         raise ValueError(f"intake did not complete; partial output retained at {output}; "
                          f"compute_authorized=false: {exc}") from exc
@@ -82,10 +102,18 @@ def _initiate(args) -> int:
     print(f"Draft intake created: {output}")
     print(f"task_mode={contract['task_mode']} compute_plan={contract['compute_plan']} "
           "compute_authorized=false")
-    print("Routing uses deterministic keyword rules. The contract is a draft, and the run ledger is empty.")
+    print("Intake uses a deterministic action parser or a grounded host-agent interpretation. "
+          "The contract is a draft; current_state.json records the next required step.")
     print("Next: resolve required inputs and flagged assumptions, then present and obtain approval "
           "for the CHECK-IN 1 plan before generation or scans. No compute was launched.")
     return 0
+
+
+def _status(args) -> int:
+    from .workflow.current_state import build_packet, write_packet
+    packet = (write_packet if args.write else build_packet)(args.rundir)
+    print(json.dumps(packet, indent=2, allow_nan=False))
+    return 0 if packet["execution"]["status"] != "invalid" else 1
 
 
 def _validate(args) -> int:
@@ -169,7 +197,7 @@ def _audit(args) -> int:
 def main(argv=None) -> int:
     args = parser().parse_args(argv)
     try:
-        return {"initiate": _initiate, "validate": _validate,
+        return {"initiate": _initiate, "status": _status, "validate": _validate,
                 "replay": _replay, "audit": _audit}[args.command](args)
     except (OSError, ValueError) as exc:
         print(f"ravel: {exc}", file=sys.stderr)

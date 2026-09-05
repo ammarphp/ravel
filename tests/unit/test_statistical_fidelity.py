@@ -207,14 +207,16 @@ def test_cli_rejects_invalid_signal_scale_before_reading_or_fitting(tmp_path, mo
 
 def test_signal_scale_changes_every_signal_strength_coordinate_consistently():
     result = {"obs_limit": 2, "exp_limits": [1, 1.5, 2, 3, 4], "scan_mu": [0.1, 1, 10],
-              "limit_brackets": {"observed": [1, 3], "expected": [[None, 1], [10, None]]},
+              "limit_status": {"observed": "resolved", "expected": ["below_scan", "resolved", "resolved", "resolved", "above_scan"]},
+              "limit_brackets": {"observed": [1, 3], "expected": [[None, 1], [1, 2], [1, 3], [2, 4], [4, None]]},
               "per_sr": {"A": {"obs_limit": 2, "exp_median": 3, "s": 10}}}
     exclude.scale_result(result, 2)
     assert result["obs_limit_lo"] == 2
     assert result["obs_limit"] == 1
     assert result["scan_mu"] == [0.05, 0.5, 5]
-    assert result["limit_brackets"] == {"observed": [0.5, 1.5], "expected": [[None, 0.5], [5, None]]}
-    assert result["per_sr"]["A"] == {"obs_limit": 1, "exp_median": 1.5, "s_lo": 10, "s": 20}
+    assert result["limit_brackets"] == {"observed": [0.5, 1.5], "expected": [[None, 0.5], [.5, 1], [.5, 1.5], [1, 2], [2, None]]}
+    assert {k: result["per_sr"]["A"][k] for k in ("obs_limit", "exp_median", "s_lo", "s")} == {
+        "obs_limit": 1, "exp_median": 1.5, "s_lo": 10, "s": 20}
     assert result["per_sr"]["A"]["s"] * result["per_sr"]["A"]["obs_limit"] == 20
 
 

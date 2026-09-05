@@ -15,7 +15,7 @@ Pins:
   - a served prompt with no gate field at all -> migration WARN, credited as claimed (not a
     hard red), so mid-rollout matrices don't spuriously tank R9
   - the live benchmarks/capabilities.json + scripts/audit.py integration: readiness stays
-    96%, R9 stays 0.64 (P1 summary_audit PASS + P4 shape_fit --selftest exit 0, both green today)
+    inventory-dependent readiness; R9 is 0.50 because component passes do not establish complete task delivery
 
 Import audit.py by file path, not by package import: the repo root carries a `py.py` file that
 shadows the real `py` package pytest depends on internally if the repo root ends up on sys.path.
@@ -51,39 +51,28 @@ def _matrix():
 #  green gates (the honest-today state must be credited in full)
 # --------------------------------------------------------------------------- #
 
-def test_p1_artifact_gate_is_green_and_credited_full():
-    """P1's gate reads trial-runs/.../summary_audit.json's verdict field; it is PASS today."""
+def test_p1_component_evidence_does_not_credit_complete_delivery():
     audit = _load_audit()
-    m = _matrix()
-    p1 = m["prompts"]["P1_hvt_zprime_ww_summary"]
-    assert p1["status"] == "served"
-    green, why = audit._gate_verdict(p1["gate"])
-    assert green is True, why
-    assert "PASS" in why
+    p1 = _matrix()["prompts"]["P1_hvt_zprime_ww_summary"]
+    assert p1["status"] == "partial"
+    assert audit._gate_verdict(p1["gate"])[0] is False
+    assert "independent physics" in " ".join(p1["blocking"])
 
 
-def test_p4_selftest_gate_is_green_and_credited_full():
-    """P4's gate runs shape_fit.py --selftest; it exits 0 today."""
+def test_p4_engine_evidence_does_not_credit_analysis_specific_closure():
     audit = _load_audit()
-    m = _matrix()
-    p4 = m["prompts"]["P4_dijet_photon_widths"]
-    assert p4["status"] == "served"
-    green, why = audit._gate_verdict(p4["gate"])
-    assert green is True, why
-    assert "exit=0" in why
+    p4 = _matrix()["prompts"]["P4_dijet_photon_widths"]
+    assert p4["status"] == "partial"
+    assert audit._gate_verdict(p4["gate"])[0] is False
+    assert "R5" in " ".join(p4["blocking"])
 
 
-def test_served_green_gate_credits_1_0_in_reconciler():
-    audit = _load_audit()
-    m = _matrix()
-    row = audit._score_capability(m)
-    ev = row[5]
-    p1_line = next(l for l in ev if l.startswith("P1_hvt_zprime_ww_summary:"))
-    p4_line = next(l for l in ev if l.startswith("P4_dijet_photon_widths:"))
-    assert "GREEN" in p1_line
-    assert "GREEN" in p4_line
-    assert "RED" not in p1_line
-    assert "RED" not in p4_line
+def test_partial_deliverables_remain_partial_in_reconciler():
+    row = _load_audit()._score_capability(_matrix())
+    assert row[2] == 0.5
+    for name in ("P1_hvt_zprime_ww_summary", "P4_dijet_photon_widths"):
+        line = next(line for line in row[5] if line.startswith(name + ":"))
+        assert "partial" in line and "GREEN" not in line
 
 
 # --------------------------------------------------------------------------- #
@@ -263,4 +252,4 @@ def test_live_matrix_report_matches_current_inventory_and_coverage():
     assert result.returncode == 0, result.stderr
     assert f"readiness {expected}%" in result.stdout
     assert "R9 Capability coverage" in result.stdout
-    assert "(0.64)" in result.stdout
+    assert "(0.50)" in result.stdout

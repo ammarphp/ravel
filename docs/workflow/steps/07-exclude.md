@@ -7,6 +7,8 @@ this selects the native build and binary paths, including an existing local tool
 Turn the comparison into a 95% CL upper limit on the signal strength µ with **pyhf** — the standard
 statistical tool. Never hand-roll the statistical model. Pick the mode by what step 6 produced.
 
+Carry the versioned `limits` object through every pack, scan and plot. Follow `docs/reference/scientific-results.md`: a scan endpoint remains a bound, missing expected slots remain missing, and shape R5 or acceptance comparison authority requires the current artifact-bound certificate. Keep numerical convergence separate from model validation and statistical coverage.
+
 ## Mode A — serialized likelihood (preferred when published)
 A `stat_mode=published-likelihood` run pairs the chain's signal patch against the published
 background-only workspace BEFORE the limit: run the likelihood↔selection pairing gate (structural

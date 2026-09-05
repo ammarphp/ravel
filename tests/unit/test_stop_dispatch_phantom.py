@@ -19,12 +19,12 @@ def test_phantom_blocks_claim_without_live_bg(tmp_path):
     r = _run(rd, "The scan is now running in the background; I'll report when it finishes.")
     assert r.returncode == 2 and "PHANTOM" in r.stderr
 
-def test_phantom_passes_with_recent_logfile(tmp_path):
+def test_phantom_blocks_recent_log_without_verified_process(tmp_path):
     lf = os.path.join(tmp_path, "logs", "orchestrator_launch.log")
     rd = _mk_run(tmp_path, compute_launched=[{"bg_kind": "harness", "logfile": lf}])
-    open(lf, "w").write("running")            # mtime = now -> live
+    open(lf, "w").write("running")            # recent output is not process liveness
     r = _run(rd, "The scan is now running in the background.")
-    assert r.returncode == 0
+    assert r.returncode == 2 and "PHANTOM" in r.stderr
 
 def test_phantom_passes_when_no_claim(tmp_path):
     rd = _mk_run(tmp_path)

@@ -81,6 +81,10 @@ def live_points(ps_output=None):
 
 
 def clean_heavy(run_dir):
+    # Receipt inputs and outputs remain necessary evidence even after the last
+    # stage succeeds. Only the old unreceipted layout supports this cleanup.
+    if (Path(run_dir)/"execution_state.json").exists():
+        return 0
     freed = 0
     outdir = os.path.join(run_dir, "output")
     for sub in HEAVY:
@@ -112,6 +116,23 @@ def load_manifest(scandir):
 
 def point_state(run_dir):
     """(state, run_dir) using the same rules as scan_orchestrator.point_status, locally."""
+    if (Path(run_dir)/"execution_state.json").exists():
+        from .execution import load_execution,validate_execution
+        try:
+            ledger=load_execution(run_dir)
+            for name,record in ledger["stages"].items():
+                if record.get("status")=="running":
+                    if supervised_stage_active(run_dir,name):
+                        return "running"
+                    # A quiet log says nothing about liveness. A missing owned
+                    # child is held for stage_supervisor recovery, never deleted.
+                    return "failed"
+            if validate_execution(run_dir):
+                return "failed"
+            final=ledger["stages"].get("native_report",{})
+            return "done" if final.get("status")=="succeeded" else "pending"
+        except (ValueError,OSError,KeyError,TypeError):
+            return "failed"
     excl = os.path.join(run_dir, "output", "exclusion.json")
     if os.path.isfile(excl):
         return "done"
@@ -126,7 +147,27 @@ def point_state(run_dir):
     return "pending"
 
 
+def supervised_stage_active(run_dir,stage):
+    """An owned supervisor holds this advisory lock even while its tool is quiet."""
+    import fcntl
+    from .execution import NAME
+    if not NAME.fullmatch(stage):
+        return False
+    try:
+        with (Path(run_dir)/"logs/execution"/(stage+".lock")).open("rb") as stream:
+            try:
+                fcntl.flock(stream.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+            except BlockingIOError:
+                return True
+            fcntl.flock(stream.fileno(),fcntl.LOCK_UN)
+            return False
+    except OSError:
+        return False
+
+
 def reset_point(run_dir):
+    if (Path(run_dir)/"execution_state.json").exists():
+        raise ValueError("durable runs must resume through native_pipeline; receipt artifacts cannot be reset")
     clean_heavy(run_dir)
     status = os.path.join(run_dir, "logs", "STATUS.txt")
     if os.path.isfile(status):
@@ -151,6 +192,9 @@ def cycle(scandir, man, args):
         run_dir = os.path.join(REPO, mp["run_dir"])
         tag = mp["tag"]
         st = point_state(run_dir)
+        if (Path(run_dir)/"execution_state.json").exists():
+            counts[st] += 1
+            continue
         if st == "done":
             counts["done"] += 1
             freed += clean_heavy(run_dir)                      # 1. CLEAN
@@ -180,7 +224,7 @@ def main():
     ap.add_argument("--interval", type=float, default=180.0)
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--backend", default="native")
-    ap.add_argument("--pdf", default="cteq6l1", choices=["cteq6l1", "nnpdf30"])
+    ap.add_argument("--pdf", choices=["cteq6l1", "nn23nlo", "nnpdf30"])
     args = ap.parse_args()
     man = load_manifest(args.scandir)
     ntot = len(man["points"])
@@ -195,6 +239,9 @@ def main():
 
         remaining = counts["pending"] + counts["running"]
         if remaining == 0 and counts["healed"] == 0:
+            if counts["failed"]:
+                print(f"[babysit] SCAN HELD: {counts['failed']} point(s) need input repair and supervised resume; artifacts retained.",flush=True)
+                return 1
             print(f"[babysit] SCAN COMPLETE: {counts['done']}/{ntot} done. Nothing pending/running.",
                   flush=True)
             return 0
@@ -204,7 +251,7 @@ def main():
         if slots > 0 and counts["pending"] > 0 and fg >= args.min_free_gb:
             cmd = [sys.executable, ORCH, "launch", args.scandir, "--backend", args.backend,
                    "--max", str(slots), "--go"]
-            if args.backend == "native":
+            if args.backend == "native" and args.pdf:
                 cmd += ["--pdf", args.pdf]
             subprocess.run(cmd, capture_output=True, text=True)
             print(f"[babysit] fed {slots} point(s) (free {fg:.0f}GB >= {args.min_free_gb})", flush=True)

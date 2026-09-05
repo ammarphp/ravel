@@ -1,5 +1,7 @@
 # Checklist — detector fidelity  ·  [judgment] judge · [agent] run
 
+Live delivery uses the artifact-bound plan and certificate described in `docs/reference/scientific-results.md`. The diagnostic comparators below supply measured operands and attribution; their standalone PASS/WARN labels are not serving authority. Pin exact reference points, units, process/normalization basis and the comparison policy before approving it. Keep deterministic agreement, precision checks and full detector/coverage validation distinct.
+
 Why this matters: between the showered truth events and the analysis selection sits a **detector
 model** — object reconstruction, smearing, and efficiencies. If that model does not reproduce the
 **performance the analysis actually had** (its trigger/reco/ID efficiencies, especially for *soft*

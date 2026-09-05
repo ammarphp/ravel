@@ -18,7 +18,7 @@ A completed scan of the same analysis+model+grid (check `docs/development/status
 the spec's `run_root` for `scan_manifest.json` + assembled `scan.json`) is reused READ-ONLY:
 re-run `assemble`/`scan_contour.py` against it after verifying provenance (coverage covers your
 grid; the ATLAS reference yamls match a fresh fetch). Single-point question + covering scan =
-read `scan.json` (`mu95_obs<1` ⇒ excluded), cite coverage + σ basis; `mass_plane_overlay.py
+read `scan.json` through its typed limit status (a resolved `mu95_obs<1` implies exclusion; bounds require directional reasoning), cite coverage + σ basis; `mass_plane_overlay.py
 --plane dm` to show it (its `--point` is `m,Delta_m` there).
 
 ## 1. Cost + disk BEFORE launch
@@ -26,9 +26,7 @@ read `scan.json` (`mu95_obs<1` ⇒ excluded), cite coverage + σ basis; `mass_pl
 python3 scripts/run.py ravel.workflow.cost_preflight --mode scan --points <N> --parallel 4
 ```
 Native: ~30–50 min/point, parallel; **~6 GB/point transient**. The scan must state its disk
-plan: after each point's harvest (`output/exclusion.json` exists), delete/gzip its LHE + HepMC
-+ Delphes root (keep `exclusion.json`/`.txt`/`_patch.json`/`exclusion.png` + `config/` — the
-curated trio). A full grid left uncleaned exhausts a laptop disk mid-scan.
+plan before launch. For runs with durable receipts, keep declared inputs and outputs through validation and delivery; deleting or modifying them invalidates reuse and serving. Never compress an artifact in place after its receipt. Use separate stages for transformed products and reduce the grid/concurrency if the evidence cannot fit. Archival curation is a separate operation that must explicitly relinquish live replay certification. See `docs/workflow/reference/durable-execution.md`.
 
 ## 1b. Validate the varied params BEFORE launch (D10/G12 — `param-validated-before-scan`)
 A scan must not SHIP its varied physics until every varied-param/trap obligation is recorded PASS.

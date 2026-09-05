@@ -94,7 +94,7 @@ def test_shape_fit_r5_held_fails_r5_before_limit_ships():
         assert result["exit"] == 1
         inv = {i["name"]: i for i in result["invariants"]}
         assert inv["R5-before-limit-ships"]["status"] == "FAIL"
-        assert "held" in inv["R5-before-limit-ships"]["detail"]
+        assert "not closed" in inv["R5-before-limit-ships"]["detail"]
 
 
 def test_legacy_fixture_waives_missing_new_artifacts_to_warn():
@@ -345,13 +345,12 @@ def test_scan_aggregator_without_sibling_intermediates_passes_generation_and_ana
         by_name = {s["name"]: s for s in result["stages"]}
         assert by_name["generation"]["status"] == "PASS", by_name["generation"]
         assert by_name["analysis"]["status"] == "PASS", by_name["analysis"]
-        assert result["exit"] == 0, result
-        # verdict may be WARN (a likelihood-selection-pairing WARN is expected and acceptable:
-        # the bkg-only workspace / signal patch also live in the per-point siblings, not under
-        # the aggregator) but must never be FAIL
-        assert result["verdict"] in ("PASS", "WARN"), result
-        assert not any(s["status"] == "FAIL" for s in result["stages"])
-        assert not any(i["status"] == "FAIL" for i in result["invariants"])
+        # Discovery still succeeds, but an unbound aggregate PASS cannot authorize serving.
+        inv = {i["name"]: i for i in result["invariants"]}
+        assert inv["certify-before-limit"]["status"] == "FAIL"
+        assert result["exit"] == 1, result
+        assert result["verdict"] == "FAIL", result
+        # Stage discovery and live scientific authority are deliberately separate checks.
 
 
 # --------------------------------------------------------------------------- #

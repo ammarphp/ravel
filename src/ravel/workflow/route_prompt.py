@@ -144,31 +144,41 @@ PARTICLE_LEVEL_RE = re.compile(r"particle.?level|truth.?level|generator.?level|n
 SENSITIVITY_RE = re.compile(r"sensitivit|s/\s*(sqrt|√)\s*b|expected.?only|tagger|discriminat", re.I)
 
 
-def route(prompt):
+def route(prompt, interpretation=None):
+    from ravel.workflow import intake
+    if not isinstance(prompt, str) or not prompt.strip():
+        raise ValueError("the request must not be blank")
+    semantic = intake.proposal(prompt, interpretation)
     p = prompt.strip()
-    view = classification_view(p)  # keyword rules + mass extraction must not see model prose
+    active = intake.actionable_text(p)
+    view = classification_view(active)
     targets = {
         "model": None, "process": None,
-        "analysis": [m.group(1).upper().replace(" ", "-") for m in ANACODE_RE.finditer(p)],
-        "arxiv": ARXIV_RE.findall(p),
-        "inspire": [f"ins{m.group(1)}" for m in INSPIRE_RE.finditer(p)],
-        "figures": [f"Figure {m.group(1)}" for m in FIGURE_RE.finditer(p)],
+        "analysis": [m.group(1).upper().replace(" ", "-") for m in ANACODE_RE.finditer(active)],
+        "arxiv": ARXIV_RE.findall(active),
+        "inspire": [f"ins{m.group(1)}" for m in INSPIRE_RE.finditer(active)],
+        "figures": [f"Figure {m.group(1)}" for m in FIGURE_RE.finditer(active)],
         "masses_gev": extract_masses(view),
-        "lumi_fb": (float(LUMI_RE.search(p).group(1)) if LUMI_RE.search(p) else None),
+        "lumi_fb": (float(LUMI_RE.search(active).group(1)) if LUMI_RE.search(active) else None),
     }
     # model hints (free-text, best-effort; the physicist confirms at CHECK-IN 1)
     m = re.search(r"\b(HVT|Z'?′?|W'|slepton|higgsino|wino|bino|toponium|heavy higgs|dark (pion|rho)|"
-                  r"semi.?visible jets?|SVJ|pMSSM|axial|pseudo.?scalar|supersymmetry|SUSY)\b", p, re.I)
+                  r"semi.?visible jets?|SVJ|pMSSM|axial|pseudo.?scalar|supersymmetry|SUSY)\b", active, re.I)
     targets["model"] = m.group(0) if m else None
 
     blocking, escalate, assumptions, missing = [], [], [], []
 
     task_mode = None
-    if UNSUPPORTED_RE.search(view):
+    if intake.requests_discovery(view):
         task_mode = "unsupported"
         blocking.append("discovery-language: this tool sets 95% CLs exclusion limits, never a "
                         "5-sigma/discovery claim (PRODUCT-CONTRACT section 6.2) — re-phrase as "
                         "an exclusion question")
+    if task_mode is None and semantic:
+        task_mode = "survey" if semantic["kind"] == "method_study" else semantic["kind"]
+    if task_mode is None:
+        inferred = intake.infer_kind(view)
+        task_mode = "survey" if inferred == "method_study" else inferred
     if task_mode is None:
         for mode, rx in RULES:
             if rx.search(view):
@@ -178,12 +188,14 @@ def route(prompt):
         task_mode = "unsupported"
         blocking.append("no supported task mode matched (PRODUCT-CONTRACT section 1) — if this "
                         "IS a reproduction/reinterpretation/survey ask, name the analysis and "
-                        "the deliverable")
+                        "the deliverable, or provide a grounded --interpretation file")
 
     # ---- stat mode
     stat_mode = "TBD-judgment"
     blocked_ids = [a for a in targets["arxiv"] if a in SHAPE_FIT_BLOCKLIST]
-    if blocked_ids or SHAPE_FIT_HINTS.search(view):
+    if semantic and semantic["kind"] == "method_study":
+        stat_mode = "none-survey"
+    elif blocked_ids or SHAPE_FIT_HINTS.search(view):
         # Option B (DECISION-SHAPE-FIT.md, signed 2026-07-07): shape/template fits route to the
         # scoped shape_fit.py engine, NOT a blanket refusal. Two per-analysis gates decide whether
         # the limit ships or the run downgrades to blocked-shape-fit (PRODUCT-CONTRACT section 6.1).
@@ -281,6 +293,12 @@ def route(prompt):
         "blocking": blocking,
         "escalate": escalate,
     }
+    if semantic and task_mode != "unsupported":
+        contract["intake"] = semantic
+        contract["required_user_inputs"].extend(semantic["unresolved"])
+        contract["assumptions"].append("Grounded intent is a draft interpretation, not execution approval or a physics validation.")
+        if semantic["kind"] == "method_study":
+            contract["assumptions"].append("Method study routes to a zero-compute research proposal. Training and final statistical evaluation require a separate supported execution plan.")
     return contract
 
 
@@ -368,20 +386,16 @@ def selftest():
 
 def _init_run_state(out_path, contract):
     """CR-131 (catalogue N11): EVERY contract write initializes the minimal run_state.json in the
-    rundir — compute=none tracks included — so the open-defect gate (N5/G26) evaluates on every
-    run. Best-effort: a ledger-init failure must never block the contract itself."""
-    try:
-        from ravel.workflow import workflow_state
-        d = os.path.dirname(os.path.abspath(out_path))
-        rundir = os.path.dirname(d) if os.path.basename(d) == "inputs" else d
-        if os.path.isfile(os.path.join(rundir, "run_state.json")):
-            return
-        state = workflow_state.new_state(rundir, contract, out_path,
-                                         os.environ.get("CLAUDE_SESSION_ID", ""))
-        workflow_state.write_state(rundir, state)
-        print(f"initialized {os.path.join(rundir, 'run_state.json')} (CR-131)")
-    except Exception as e:  # noqa: BLE001 — intake must not die on the ledger side-effect
-        print(f"route_prompt: run_state init skipped ({e})", file=sys.stderr)
+    rundir, including compute=none tracks. Failed ledger writes fail intake."""
+    from ravel.workflow import workflow_state
+    d = os.path.dirname(os.path.abspath(out_path))
+    rundir = os.path.dirname(d) if os.path.basename(d) == "inputs" else d
+    if os.path.isfile(os.path.join(rundir, "run_state.json")):
+        raise ValueError("run ledger already exists; preserve the existing request and use an explicit new run")
+    state = workflow_state.new_state(rundir, contract, out_path,
+                                     os.environ.get("CLAUDE_SESSION_ID", ""))
+    workflow_state.write_state(rundir, state)
+    print(f"initialized {os.path.join(rundir, 'run_state.json')}")
 
 
 def main():
@@ -393,22 +407,25 @@ def main():
     g.add_argument("--selftest", action="store_true")
     ap.add_argument("--out", help="write task_contract.json here (e.g. <rundir>/inputs/)")
     ap.add_argument("--print", dest="do_print", action="store_true", help="contract to stdout")
+    ap.add_argument("--interpretation", help="grounded host-agent interpretation JSON")
     args = ap.parse_args()
 
     if args.selftest:
         selftest()
         return
     prompt = args.prompt if args.prompt else open(args.prompt_file).read()
-    contract = route(prompt)
+    from ravel.workflow.state_io import read_json
+    contract = route(prompt, interpretation=read_json(args.interpretation) if args.interpretation else None)
     errs = validate(contract)
     if errs:  # the router must never emit an invalid contract — this is a router bug
         sys.exit("route_prompt: produced an INVALID contract (router bug):\n  " +
                  "\n  ".join(errs))
     if args.out:
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
-        json.dump(contract, open(args.out, "w"), indent=2)
-        print(f"wrote {args.out}")
+        with open(args.out, "x", encoding="utf-8") as stream:
+            json.dump(contract, stream, indent=2, allow_nan=False)
         _init_run_state(args.out, contract)
+        print(f"wrote {args.out}")
     if args.do_print or not args.out:
         print(json.dumps(contract, indent=2))
     print(f"\nROUTED: task_mode={contract['task_mode']}  detector={contract['detector_mode']}  "

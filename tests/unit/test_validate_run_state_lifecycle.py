@@ -45,12 +45,12 @@ def test_certify_before_limit_fails_on_fail_cert():
         assert by_name["analysis"]["status"] == "WARN"
         assert inv["certify-before-limit"]["status"] == "FAIL", inv["certify-before-limit"]
         assert result["exit"] == 1
-        # flip the cert to WARN -> D12 passes (WARN is delivery-allowed)
+        # Flipping the unbound report label to WARN cannot authorize serving.
         vrs._write_json(os.path.join(rd, "outputs", "cutflow_cert.json"),
                         {"routine": "TEST", "label": "t", "verdict": "WARN",
                          "driving_tol": 0.15, "mu95_bound": 0.2, "rows": []})
         inv2 = {i["name"]: i for i in vrs.evaluate(rd, contract)["invariants"]}
-        assert inv2["certify-before-limit"]["status"] == "PASS", inv2["certify-before-limit"]
+        assert inv2["certify-before-limit"]["status"] == "FAIL", inv2["certify-before-limit"]
 
 
 def test_certify_before_limit_scan_attestation_insufficient():
@@ -210,13 +210,13 @@ def test_sensitivity_without_pyhf_method_fails(tmp_path):
     assert any(c["name"] == "method" and "pyhf" in c["msg"] for c in checks)
 
 
-def test_sensitivity_with_pyhf_method_and_cert_passes(tmp_path):
+def test_sensitivity_with_pyhf_method_still_needs_bound_certificate(tmp_path):
     vrs, rd, contract = _a78_run(tmp_path, method="pyhf-counting-expected", with_cert=True)
     facts = vrs.discover_facts(rd, contract)
     status, _, checks = vrs.check_statistics(rd, contract, facts, "R", False)
     assert status == "PASS", checks
     inv_status, detail = vrs.inv_certify_before_limit(rd, contract, facts, False, False)
-    assert inv_status == "PASS", detail
+    assert inv_status == "FAIL" and "artifact" in detail, detail
 
 
 def test_certify_required_for_sensitivity_mode(tmp_path):

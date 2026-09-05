@@ -56,6 +56,7 @@ if HERE not in sys.path:
 from ravel.validation import validate_task_contract  # noqa: E402
 from ravel.workflow import result_pack             # noqa: E402
 from ravel.workflow import provenance              # noqa: E402
+from ravel.limits import claim_errors, read_limits, prose_errors, source_errors  # noqa: E402
 
 GATE_EPOCH = "2026-07-08"
 SKIP_DIRS = {"build", "logs", "__pycache__", ".git", "Events"}
@@ -133,7 +134,7 @@ def find_anywhere(rundir, filename):
         if os.path.isfile(p):
             return os.path.relpath(p, rundir)
     for root, dirs, files in os.walk(rundir):
-        dirs[:] = [x for x in dirs if x not in SKIP_DIRS and not x.startswith(".")]
+        dirs[:] = [x for x in dirs if x not in SKIP_DIRS and x != "execution" and not x.startswith(".")]
         if filename in files:
             return os.path.relpath(os.path.join(root, filename), rundir)
     return None
@@ -142,7 +143,7 @@ def find_anywhere(rundir, filename):
 def find_all_anywhere(rundir, filename):
     hits = []
     for root, dirs, files in os.walk(rundir):
-        dirs[:] = [x for x in dirs if x not in SKIP_DIRS and not x.startswith(".")]
+        dirs[:] = [x for x in dirs if x not in SKIP_DIRS and x != "execution" and not x.startswith(".")]
         if filename in files:
             hits.append(os.path.relpath(os.path.join(root, filename), rundir))
     return sorted(hits)
@@ -155,7 +156,7 @@ def find_all_matching(rundir, pattern):
     SKIP_DIRS-pruned walks would never see."""
     hits = []
     for root, dirs, files in os.walk(rundir):
-        dirs[:] = [d for d in dirs if d not in ("build", "__pycache__", ".git")]
+        dirs[:] = [d for d in dirs if d not in ("build", "__pycache__", ".git", "execution")]
         for f in files:
             if fnmatch.fnmatch(f, pattern):
                 hits.append(os.path.relpath(os.path.join(root, f), rundir))
@@ -184,14 +185,16 @@ def generation_artifacts(rundir):
                 if re.match(r"sr_yields.*\.json$", f):
                     hits.append(os.path.relpath(os.path.join(root, f), rundir))
     for root, dirs, files in os.walk(rundir):
+        dirs[:] = [d for d in dirs if d != "execution"]
         if os.path.basename(root) == "output":
             for f in files:
                 if f.endswith("_patch.json"):
                     hits.append(os.path.relpath(os.path.join(root, f), rundir))
     logs = os.path.join(rundir, "logs")
     if os.path.isdir(logs):
-        for root, _dirs, files in os.walk(logs):
-            if files:
+        for root, dirs, files in os.walk(logs):
+            dirs[:] = [d for d in dirs if d not in ("execution", "state")]
+            if any(f.endswith(".log") for f in files):
                 hits.append(os.path.relpath(root, rundir))
                 break
     nat = os.path.join(rundir, "output", "native_objects.txt")
@@ -203,7 +206,7 @@ def generation_artifacts(rundir):
 def locate_lhe_gz(rundir):
     """First *.lhe.gz under the rundir (walking INTO Events/, where MadGraph writes it)."""
     for root, dirs, files in os.walk(rundir):
-        dirs[:] = [d for d in dirs if d not in ("build", "__pycache__", ".git")]
+        dirs[:] = [d for d in dirs if d not in ("build", "__pycache__", ".git", "execution")]
         for f in files:
             if f.endswith(".lhe.gz"):
                 return os.path.join(root, f)
@@ -218,7 +221,8 @@ def lhe_producer_complete(rundir, lhe_path):
     xsec_seen = False
     logs_dir = os.path.join(rundir, "logs")
     if os.path.isdir(logs_dir):
-        for root, _dirs, files in os.walk(logs_dir):
+        for root, dirs, files in os.walk(logs_dir):
+            dirs[:] = [d for d in dirs if d != "execution"]
             for f in files:
                 if not f.endswith(".log"):
                     continue
@@ -885,16 +889,12 @@ def check_statistics(rundir, contract, facts, level, legacy):
             status = "WARN"
     # D14 PLAUSIBILITY fold (single-point limit modes only; scan.json points are attested elsewhere)
     if name in ("exclusion.json", "shape_fit.json"):
-        # (a) excluded_obs must equal (mu95_obs < 1) when the artifact stores both (shape_fit.json)
-        if isinstance(doc, dict) and doc.get("excluded_obs") is not None and doc.get("mu95_obs") is not None:
-            try:
-                consistent = bool(doc["excluded_obs"]) == (float(doc["mu95_obs"]) < 1.0)
-            except (TypeError, ValueError):
-                consistent = False
-            if not consistent:
+        # (a) scalar thresholding is insufficient for censored/unverified limits.
+        if isinstance(doc, dict):
+            numerical_errors = claim_errors(doc, allow_legacy=legacy)
+            if numerical_errors:
                 checks.append({"name": "excluded-obs-consistency", "level": "FAIL",
-                    "msg": f"excluded_obs={doc.get('excluded_obs')} contradicts "
-                           f"mu95_obs={doc.get('mu95_obs')} (must equal mu95_obs<1.0)"})
+                    "msg": "; ".join(numerical_errors)})
                 return "FAIL", path, checks
         # (b) fold the sr_plausibility.json verdict (all-zero yields / degenerate mu95 / accxeff)
         plaus_rel = find_anywhere(rundir, "sr_plausibility.json")
@@ -1121,25 +1121,21 @@ def inv_r5_before_limit(rundir, contract, facts, legacy, strict):
         return "PASS", "no shape-fit/fold/replane trigger"
     if not (facts["result_pack_paths"] or facts["verification_json_path"]):
         return "PASS", "trigger present but result_pack/verification not yet reached"
-    detail_bits, r5_closed = [], False
-    sf_path = (facts["statistics_path"] if facts["statistics_artifact_name"] == "shape_fit.json"
+    if legacy and not strict:
+        return "waived-legacy", "historical R5 claim retained as unverified archive evidence; no live closure"
+    from ravel.validation.certificates import validate_certificate
+    subject = (facts.get("statistics_path") or facts.get("fold_result_path") or facts.get("replane_path"))
+    if not subject:
+        return "FAIL", "R5 has no current scientific output to bind"
+    sf_path = (facts.get("statistics_path") if facts.get("statistics_artifact_name") == "shape_fit.json"
                else find_anywhere(rundir, "shape_fit.json"))
-    if sf_path:
-        doc, err = load_json_safe(rundir, sf_path)
-        if not err and isinstance(doc, dict):
-            r5_closed = doc.get("r5_status") == "closed"
-            detail_bits.append(f"shape_fit.json r5_status={doc.get('r5_status')}")
-    ladder_status = None
-    if facts["ladder_path"]:
-        text = open(os.path.join(rundir, facts["ladder_path"]), encoding="utf-8", errors="replace").read()
-        ladder_status = parse_r5_row(text)
-        detail_bits.append(f"ladder R5={ladder_status}")
-    if ladder_status == "checked-pass":
-        r5_closed = True
-    if r5_closed:
-        return "PASS", "; ".join(detail_bits) or "R5 closed"
-    return "FAIL", "R5 not closed before result_pack/verification: " + (
-        "; ".join(detail_bits) or "no shape_fit.json / VERIFICATION-LADDER.md R5 row found")
+    doc, _ = load_json_safe(rundir, sf_path) if sf_path else ({}, None)
+    cert = (doc.get("r5_certificate") if isinstance(doc, dict) else None) or "outputs/r5-certificate.json"
+    checked = validate_certificate(rundir, cert, kind="r5", contract=contract,
+                                   required_subjects=[subject], live=True)
+    if checked["status"] == "PASS":
+        return "PASS", "R5 recomputed from the approved artifact-bound plan: " + checked["evidence"]["scope"]
+    return "FAIL", "R5 not closed: " + "; ".join(checked["errors"]) + "; legacy booleans and ladder checkmarks cannot grant closure"
 
 
 def inv_likelihood_pairing(rundir, contract, facts, legacy, strict):
@@ -1232,14 +1228,19 @@ def inv_result_prose_matches(rundir, contract, facts, legacy, strict):
         return "N/A", "no RESULT.md to trace"
     text = open(os.path.join(rundir, facts["result_md_path"]), encoding="utf-8", errors="replace").read()
     ref = {}
+    problems, oks = [], []
     for _name, rel in (facts["result_pack_paths"] or {}).items():
         if rel and rel.endswith(".json"):
             doc, err = load_json_safe(rundir, rel)
             if not err and isinstance(doc, dict):
+                if any(k in doc for k in ("limits", "mu95_obs", "obs_limit")):
+                    try:
+                        problems.extend(prose_errors(text, doc))
+                    except (ValueError, TypeError) as exc:
+                        problems.append(str(exc))
                 for k in ("mu95_obs", "mu95_exp", "excluded_obs", "n_done", "n_planned"):
                     if k in doc and k not in ref:
                         ref[k] = doc[k]
-    problems, oks = [], []
     for m in MU_RE.finditer(text):
         kind = m.group(1)
         if not kind:
@@ -1251,9 +1252,9 @@ def inv_result_prose_matches(rundir, contract, facts, legacy, strict):
             else:
                 oks.append(key)
     if "excluded_obs" in ref:
-        word = True if re.search(r"\bexcluded\b", text, re.I) else (
+        word = False if re.search(r"\bnot excluded\b", text, re.I) else True if re.search(r"\bexcluded\b", text, re.I) else (
             False if re.search(r"\ballowed\b", text, re.I) else None)
-        if word is not None and bool(ref["excluded_obs"]) != word:
+        if word is not None and (ref["excluded_obs"] is None or ref["excluded_obs"] != word):
             problems.append(f"prose says {'excluded' if word else 'allowed'} vs artifact "
                              f"excluded_obs={ref['excluded_obs']}")
         elif word is not None:
@@ -1367,37 +1368,39 @@ def _find_limit_cert(rundir, contract, facts):
 
 
 def inv_certify_before_limit(rundir, contract, facts, legacy, strict):
-    """D12: a limit-shipping mode (incl. scan) requires a discoverable acc*eff cert with
-    verdict in {PASS,WARN} BEFORE statistics/result_pack ship. A FAIL cert (which the analysis
-    stage only WARNs on) or a missing cert is a hard block."""
+    """D12: live limits require recomputed, approved, artifact-bound acceptance evidence.
+
+    Historical diagnostic reports remain readable; their PASS/WARN labels do not authorize
+    current serving. The detached certificate binds the current statistics and report.
+    """
     if contract.get("stat_mode") not in CERT_REQUIRED_STAT_MODES:
         return "PASS", f"stat_mode={contract.get('stat_mode')} ships no acc*eff-certified limit"
     reached = bool(facts["statistics_path"]) or bool(facts["result_pack_paths"]) \
         or (contract.get("task_mode") == "scan" and scan_json_ok(facts))
     if not reached:
         return "PASS", "cert-required mode but the limit stage is not yet reached"
-    if legacy:
-        return "waived-legacy", "certify-before-limit waived: run predates GATE_EPOCH"
-    cert_rel = _find_limit_cert(rundir, contract, facts)
-    if cert_rel is None:
-        extra = (" (scan.json point attestation does NOT satisfy D12 -- a per-point/aggregate "
-                 "acc*eff cert verdict is required)") if contract.get("task_mode") == "scan" else ""
-        return "FAIL", "limit-shipping run has no discoverable acc*eff cert before the limit ships" + extra
-    if os.path.isabs(cert_rel):
-        try:
-            doc, err = json.load(open(cert_rel)), None
-        except (OSError, json.JSONDecodeError) as e:
-            doc, err = None, str(e)
-    else:
-        doc, err = load_json_safe(rundir, cert_rel)
-    if err or not isinstance(doc, dict):
-        return "FAIL", f"acc*eff cert unreadable ({cert_rel}): {err}"
-    verdict = doc.get("verdict")
-    if verdict == "FAIL":
-        return "FAIL", f"acc*eff cert verdict=FAIL ({cert_rel}) -- yields may not feed a limit (D12)"
-    if verdict not in ("PASS", "WARN"):
-        return "FAIL", f"acc*eff cert has no PASS/WARN verdict ({cert_rel}): verdict={verdict!r}"
-    return "PASS", f"acc*eff cert verdict={verdict} ({cert_rel}) precedes the limit"
+    if legacy and not strict:
+        return "waived-legacy", "historical acceptance report retained as unverified archive evidence; no live certification"
+    for path in (facts.get("result_pack_paths") or {}).values():
+        if os.path.basename(path) != "result.json":
+            continue
+        pack, error = load_json_safe(rundir, path)
+        errors = [error] if error else source_errors(pack, rundir, required=True,
+                                                    expected_path=facts.get("statistics_path"))
+        if errors:
+            return "FAIL", "served result is not bound to certified statistics: " + "; ".join(errors)
+    from ravel.validation.certificates import validate_certificate
+    report_path = _find_limit_cert(rundir, contract, facts)
+    report, _ = load_json_safe(rundir, report_path) if report_path and not os.path.isabs(report_path) else ({}, None)
+    cert = (report.get("certification") if isinstance(report, dict) else None) or "outputs/acceptance-certificate.json"
+    subjects = [p for p in (facts.get("statistics_path"), report_path) if p]
+    if not subjects:
+        return "FAIL", "no current acceptance/statistical output to bind; scan point attestation is insufficient"
+    checked = validate_certificate(rundir, cert, kind="acceptance", contract=contract,
+                                   required_subjects=subjects, live=True)
+    if checked["status"] == "PASS":
+        return "PASS", "acceptance comparison recomputed from the approved artifact-bound plan: " + checked["evidence"]["scope"]
+    return "FAIL", "acceptance certificate invalid: " + "; ".join(checked["errors"]) + "; report verdict/scan attestation is insufficient"
 
 
 def inv_trap_obligations(rundir, contract, facts, legacy, strict):
@@ -1616,7 +1619,57 @@ def verify_provenance_lifecycle(rundir, contract, facts):
     return violations
 
 
+def inv_limit_transport(rundir, contract, facts, legacy, strict):
+    """Validate declared results recursively without conflating collection with roots."""
+    paths = set((facts.get("result_pack_paths") or {}).values())
+    if facts.get("statistics_path"):
+        paths.add(facts["statistics_path"])
+    problems, legacy_count, checked = [], 0, 0
+    def inspect(doc, label):
+        nonlocal legacy_count, checked
+        if not isinstance(doc, dict):
+            return
+        if any(key in doc for key in ("limits", "obs_limit", "mu95_obs", "mu95_expected")):
+            checked += 1
+            errors = claim_errors(doc, allow_legacy=legacy)
+            problems.extend(f"{label}: {error}" for error in errors)
+            if not errors:
+                result = read_limits(doc)
+                legacy_count += any(c.status == "legacy_reported" for c in [result.observed, *result.expected])
+        for key in ("points", "scenarios"):
+            children = doc.get(key, [])
+            if isinstance(children, dict):
+                children = list(children.values())
+            if isinstance(children, list):
+                for i, child in enumerate(children):
+                    inspect(child, f"{label}:{key}[{i}]")
+    for path in sorted(p for p in paths if p and p.endswith(".json")):
+        doc, err = load_json_safe(rundir, path)
+        if err:
+            problems.append(f"{path}: {err}")
+        else:
+            inspect(doc, path)
+            if os.path.basename(path) == "result.json" or isinstance(doc, dict) and "limit_source" in doc:
+                problems.extend(f"{path}: {error}" for error in source_errors(doc, rundir,
+                    required=(not legacy or strict), expected_path=facts.get("statistics_path")))
+    if problems:
+        return "FAIL", "; ".join(problems)
+    if legacy_count:
+        return "WARN", f"{legacy_count} historical reported result(s); no numerical crossing certification"
+    return ("PASS" if checked else "N/A"), f"{checked} limit representations checked; status retained independently of completion"
+
+
+def inv_execution_current(rundir, contract, facts, legacy, strict):
+    from ravel.workflow.execution import STATE_NAME, validate_execution
+    if not os.path.exists(os.path.join(rundir, STATE_NAME)):
+        return "N/A", "no durable execution ledger; no stage-reuse certification claimed"
+    errors = validate_execution(rundir)
+    return ("FAIL", "; ".join(errors)) if errors else ("PASS", "stage inputs, dependencies and outputs match current receipts")
+
+
 INVARIANTS = (
+    ("execution-current", "generation", inv_execution_current),
+    ("limit-status-preserved", "statistics", inv_limit_transport),
     ("producer-complete", "generation", inv_producer_complete),
     ("lhe-check-before-shower", "generation", inv_lhe_check_before_shower),
     ("cost-preflight-recorded", "generation", inv_cost_preflight_recorded),

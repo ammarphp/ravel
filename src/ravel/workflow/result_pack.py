@@ -53,9 +53,12 @@ if not __package__:
 import argparse
 import datetime
 import json
+import math
+from pathlib import Path
 import os
 import re
 import sys
+from ravel.limits import attach_limits, read_limits, bind_source, NUMERICAL_METADATA
 
 SCHEMA_VERSION = 1
 
@@ -436,11 +439,125 @@ def resolve_driving_sr(cert, excl, override):
     return None
 
 
+def limit_headlines(excl, sigma_lo_pb, k, driving_sr):
+    """One implementation of numerical pack headlines, reused by verification."""
+    def number(value, name, positive=False):
+        if value is None:
+            return None
+        if type(value) not in (int, float) or not math.isfinite(value) or value < 0 or positive and value == 0:
+            raise ValueError(f"{name} must be finite, {'positive' if positive else 'nonnegative'}, and not Boolean")
+        return value
+    sigma_lo_pb = number(sigma_lo_pb, 'sigma_lo_pb', True)
+    k = number(k, 'sigma_scale_k', True)
+    limits = read_limits(excl)
+    per_sr = excl.get('per_sr', {})
+    entries = [entry for name, entry in per_sr.items() if normalize_sr(name) == driving_sr]
+    if len(entries) > 1:
+        raise ValueError('ambiguous driving signal region after name normalization')
+    driving_s = s95_obs = s95_exp = None
+    if entries:
+        entry = entries[0]
+        driving_s = number(entry.get('s'), 'driving_sr_s')
+        sr_limits = read_limits(entry if 'limits' in entry else
+            {key: entry[key] for key in ('obs_limit', 'exp_median', 'quality') if key in entry})
+        if driving_s is not None:
+            s95_obs = sr_limits.observed.value * driving_s if sr_limits.observed.usable() else None
+            s95_exp = sr_limits.expected[2].value * driving_s if sr_limits.expected[2].usable() else None
+    reference = sigma_lo_pb * 1000. * k if sigma_lo_pb is not None and k is not None else None
+    upper = limits.observed.value * reference if limits.observed.usable() and reference is not None else None
+    result = {'sigma_lo_pb': sigma_lo_pb, 'sigma_scale_k': k, 'sigma_ref_fb': reference,
+              'sigma_ul_ours_fb': upper, 'driving_sr_s': driving_s, 's95_obs': s95_obs, 's95_exp': s95_exp,
+              'mu95_baseline': limits.observed.value if limits.observed.usable() else None}
+    for key, value in result.items():
+        number(value, key)
+    return result
+
+
+def headline_errors(doc, excl, rundir):
+    """Recompute advertised arithmetic from primary operands and exact pointers.
+
+    Explicit caller-supplied cross sections remain declared inputs when no primary
+    rate is available. Their use is not independent cross-section certification.
+    """
+    errors = []
+    def equal_value(actual, expected):
+        if type(expected) in (int, float):
+            return type(actual) in (int, float) and math.isfinite(actual) and math.isclose(actual, expected, rel_tol=1e-10, abs_tol=1e-12)
+        if type(actual) is not type(expected):
+            return False
+        if isinstance(expected, dict):
+            return actual.keys() == expected.keys() and all(equal_value(actual[k], v) for k, v in expected.items())
+        if isinstance(expected, list):
+            return len(actual) == len(expected) and all(equal_value(a, b) for a, b in zip(actual, expected))
+        return actual == expected
+    def compare(key, expected):
+        if key not in doc:
+            return
+        actual = doc[key]
+        if not equal_value(actual, expected):
+            errors.append(f'{key} does not match its primary operands (expected {expected!r})')
+    def operand(name):
+        relative = (doc.get('pointers') or {}).get(name)
+        if not relative:
+            return None
+        root = Path(rundir).resolve()
+        path = Path(relative) if os.path.isabs(relative) else root / relative
+        path = path.resolve()
+        if path.is_relative_to(root / 'logs'):
+            raise ValueError(f'{name} cannot use an archived log as a primary operand')
+        from ravel.workflow.state_io import read_json
+        return read_json(path)
+    prov = operand('provenance') or {}
+    k = excl.get('sigma_scale_k', prov.get('sigma_scale_k', doc.get('sigma_scale_k')))
+    if k is None:
+        k = prov.get('sigma_scale_k', doc.get('sigma_scale_k'))
+    sigma = excl.get('sigma_lo_pb', prov.get('sigma_pb', doc.get('sigma_lo_pb')))
+    for key, value in limit_headlines(excl, sigma, k, doc.get('driving_sr')).items():
+        compare(key, value)
+    if prov.get('lumi_fb') is not None:
+        compare('lumi_fb', prov['lumi_fb'])
+    if prov.get('sigma_source') is not None:
+        compare('sigma_source', prov['sigma_source'])
+    best = normalize_sr(excl['best_sr']) if excl.get('best_sr') else None
+    compare('best_sr', best)
+    compare('best_sr_matches', (best == doc.get('driving_sr')) if best and doc.get('driving_sr') else None)
+    yields = operand('sr_yields')
+    if yields is not None:
+        compare('sr_yields_summary', [{'name': normalize_sr(row.get('name', '')),
+            **{key: row.get(key) for key in ('n', 'b', 'db', 's')}} for row in yields])
+        compare('n_srs', len(yields))
+    elif 'sr_yields_summary' in doc:
+        compare('n_srs', len(doc['sr_yields_summary']))
+    cert = operand('cert')
+    if cert is not None:
+        row = cert_driving_row(cert, doc.get('driving_sr'))
+        ratio = row.get('ratio') if row else None
+        residual = abs(ratio - 1.) if ratio is not None else None
+        compare('cert', {'verdict': cert.get('verdict'), 'tier': tier_of(residual),
+            'driving_sr': doc.get('driving_sr'), 'driving_ratio': ratio, 'driving_residual': residual,
+            'worst_driving_mu95_impact': cert.get('worst_driving_mu95_impact'),
+            'n_attributed': sum(1 for row in cert.get('rows', []) if row.get('attribution')),
+            'pointer': doc['pointers']['cert']})
+        compare('fidelity', {'verdict': cert.get('verdict'), 'attributed_causes': sorted({a['cause_class']
+            for row in cert.get('rows', []) if (a := row.get('attribution')) and a.get('cause_class')}),
+            'source': 'selection-level cutflow A*e cert (validate_cutflow / certify_axe)'})
+    return errors
+
+
 def build_result(args, rundir, prov, excl, cert, cert_ptr,
                  sr_yields, ptr):
     """Assemble the thin headline. Identity fields prefer the explicit flag, then
     the cert json, then provenance prose; numbers come from exclusion.json."""
 
+    if os.path.exists(os.path.join(rundir, "execution_state.json")):
+        from ravel.workflow.execution import validate_execution
+        errors = validate_execution(rundir)
+        if errors:
+            raise ValueError(f"stale/invalid execution artifacts: {errors}")
+    certificates = {}
+    if os.path.isfile(os.path.join(rundir, "inputs", "task_contract.json")):
+        from ravel.validation.certificates import validate_pack_certificates
+        certificates = validate_pack_certificates(rundir, ptr.get("exclusion"), cert_ptr)
     # --- identity (cert json carries the cleanest discrete fields) ---
     routine = args.routine or cert.get("routine") if cert else args.routine
     routine = routine or _routine_from_prov(prov)
@@ -452,28 +569,11 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
     driving_sr = resolve_driving_sr(cert, excl, args.driving_sr)
 
     # --- limit headline (from exclusion.json) ---
-    mu95_obs = excl.get("obs_limit")
-    band = excl.get("exp_limits")
-    if not isinstance(band, list) or len(band) != 5:
-        die(f"exclusion.json exp_limits must be a 5-entry band; got {band!r}")
+    limits = read_limits(excl)
+    mu95_obs = limits.observed.value
+    band = [c.value for c in limits.expected]
     mu95_exp = band[EXP_MEDIAN_IDX]
-    excluded_obs = (mu95_obs < 1.0) if mu95_obs is not None else None
-
-    # driving-SR s95 in events (per_sr µ * s); the pack POINTS at per_sr but carries
-    # the driving-SR headline directly so the gate need not re-derive it.
-    per_sr = excl.get("per_sr", {})
-    dentry = None
-    for k, v in per_sr.items():
-        if normalize_sr(k) == driving_sr:
-            dentry = v
-            break
-    s95_obs = s95_exp = driving_s = None
-    if dentry:
-        driving_s = dentry.get("s")
-        if dentry.get("obs_limit") is not None and driving_s is not None:
-            s95_obs = dentry["obs_limit"] * driving_s
-        if dentry.get("exp_median") is not None and driving_s is not None:
-            s95_exp = dentry["exp_median"] * driving_s
+    excluded_obs = limits.observed.exclusion()
 
     # --- sigma reference / k-factor ---
     k = excl.get("sigma_scale_k")
@@ -482,10 +582,7 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
     sigma_lo_pb = args.sigma_lo_pb
     if sigma_lo_pb is None and prov:
         sigma_lo_pb = prov.get("sigma_pb")
-    sigma_ref_fb = (sigma_lo_pb * 1000.0 * k
-                    if (sigma_lo_pb is not None and k is not None) else None)
-    sigma_ul_ours_fb = (mu95_obs * sigma_ref_fb
-                        if (mu95_obs is not None and sigma_ref_fb is not None) else None)
+    numerical = limit_headlines(excl, sigma_lo_pb, k, driving_sr)
     sigma_source = prov.get("sigma_source") if prov else None
 
     # --- per-SR yields summary (POINTER + thin summary, not a re-store) ---
@@ -559,19 +656,19 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
         "mu95_exp": mu95_exp,
         "mu95_exp_band": band,        # [-2σ,-1σ,median,+1σ,+2σ]
         "excluded_obs": excluded_obs,
-        "s95_obs": s95_obs,
-        "s95_exp": s95_exp,
-        "driving_sr_s": driving_s,
+        "s95_obs": numerical["s95_obs"],
+        "s95_exp": numerical["s95_exp"],
+        "driving_sr_s": numerical["driving_sr_s"],
 
         # sigma reference / k-factor (sigma-source headline)
         "sigma_lo_pb": sigma_lo_pb,
         "sigma_scale_k": k,
-        "sigma_ref_fb": sigma_ref_fb,
-        "sigma_ul_ours_fb": sigma_ul_ours_fb,
+        "sigma_ref_fb": numerical["sigma_ref_fb"],
+        "sigma_ul_ours_fb": numerical["sigma_ul_ours_fb"],
         "sigma_source": sigma_source,
 
         # stability anchor (the mu95-regression baseline the gate checks)
-        "mu95_baseline": mu95_obs,    # this run's mu95_obs IS its own stability anchor
+        "mu95_baseline": mu95_obs if limits.observed.usable() else None,
 
         # per-SR yields summary (thin) + POINTERS (not re-stored raw artifacts)
         "n_srs": len(yields_summary),
@@ -584,6 +681,19 @@ def build_result(args, rundir, prov, excl, cert, cert_ptr,
         # keyed limitations
         "limitations": parse_limitations(args.limitations),
     }
+    for key in NUMERICAL_METADATA:
+        if key in excl:
+            result[key] = excl[key]
+    attach_limits(result, result=limits)
+    if ptr.get("exclusion"):
+        bind_source(result, rundir, ptr["exclusion"])
+    if certificates:
+        result["scientific_certificates"] = certificates
+    for key in ("r5_certificate", "certification"):
+        if key in excl:
+            result[key] = excl[key]
+        elif cert and key in cert:
+            result[key] = cert[key]
     return result
 
 
@@ -696,7 +806,7 @@ def main(argv=None):
     res_out = os.path.join(out_dir, "result.json")
     fig_out = os.path.join(out_dir, "figures.json")
     with open(res_out, "w") as f:
-        json.dump(result, f, indent=2)
+        json.dump(result, f, indent=2, allow_nan=False)
         f.write("\n")
     with open(fig_out, "w") as f:
         json.dump(figures, f, indent=2)

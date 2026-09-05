@@ -27,7 +27,7 @@ def test_initiate_creates_valid_draft_without_approval_or_execution(tmp_path, mo
     assert cli.main(["initiate", "--prompt", PROMPT, "--out", "run"]) == 0
     output = tmp_path / "run"
     assert sorted(str(p.relative_to(output)) for p in output.rglob("*") if p.is_file()) == [
-        "inputs/task_contract.json", "request.txt", "run_state.json"]
+        "current_state.json", "inputs/task_contract.json", "logs/state/write.lock", "request.txt", "run_state.json"]
     contract_path = output / "inputs/task_contract.json"
     contract = load_contract(contract_path)
     assert contract == route_prompt.route(PROMPT)

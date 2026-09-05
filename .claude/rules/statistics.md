@@ -26,9 +26,12 @@ claiming a new particle in the data, which is out of scope. Never phrase a resul
 ## NLO+NLL normalization — and the single-charge caveat (a 🔴 trap)
 - `nlo_xsec.py --process <gluino|squark|stop|sbottom|wino-c1n2|slepton> --mass <m>` → σ_NLO+NLL + k.
   Pass `pyhf_exclude.py --sigma-scale <k>` to put the limit on NLO while A×ε stays σ-independent.
-- The HEPi EWKino grid (`wino-c1n2`) is a **single charge state**; MadGraph `x1± n2` is **both**.
-  Dividing single-charge NLO by both-charge LO gives an unphysical k<1. Compare like-for-like
-  (single-charge LO vs single-charge NLO, or sum both) → expect k≈1.2–1.3. `nlo_xsec.py` warns if k<1.
+- Match the numerator and denominator's explicit process, charge sum, flavor/multiplicity,
+  branching-ratio convention, perturbative order, masses and collision energy. Inspect the
+  actual grid and generator metadata: a single-charge reference cannot normalize a both-charge
+  sample without the corresponding documented conversion. A k-factor below one is not by itself
+  unphysical, and a value above one does not prove matching bases. Diagnose any warning against
+  these inputs; never tune the normalization to reach an expected numerical range.
 
 ## The tiered + attribution certification (`validate_cutflow.py`)
 A×ε = (routine SR yield)/(σ·lumi), cross-section-independent. Tiers: **driving** SR (best expected CLs

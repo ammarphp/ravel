@@ -32,12 +32,12 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 
 | Directory | Contents | Files |
 |---|---|---|
-| `src/ravel/physics/` | Event processing and statistical engines | 20 |
-| `src/ravel/workflow/` | Run lifecycle, approvals, provenance, and scan orchestration | 16 |
-| `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 17 |
+| `src/ravel/physics/` | Event processing and statistical engines | 23 |
+| `src/ravel/workflow/` | Run lifecycle, approvals, provenance, and scan orchestration | 20 |
+| `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 18 |
 | `src/ravel/plotting/` | Figures and comparisons | 12 |
 | `src/ravel/data/` | Templates, fixtures, and reference inputs | 9 |
-| `tests/unit/` | Focused regression tests | 77 |
+| `tests/unit/` | Focused regression tests | 84 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 6 |
 | `benchmarks/` | Benchmark and capability registries | 12 |
@@ -45,10 +45,10 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `native/scripts/` | Native build and execution scripts | 7 |
 | `environment/` | Simulation environment setup | 6 |
 | `scripts/` | Maintenance, documentation, and export commands | 18 |
-| `docs/workflow/` | Physics workflow instructions | 50 |
-| `docs/reference/` | Capabilities, contracts, and tool reference | 8 |
+| `docs/workflow/` | Physics workflow instructions | 51 |
+| `docs/reference/` | Capabilities, contracts, and tool reference | 9 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 21 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 29 |
 | `docs/research/` | Research and evaluation protocols | 13 |
 | `docs/guides/` | Longer guides and sources | 5 |
 | `evidence/` | Curated historical inputs, measurements, and provenance | 211 |

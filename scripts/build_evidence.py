@@ -7,7 +7,7 @@ checksums every artifact that exists, and fails loud if a served claim ends up w
 
 Claim sources:
   1. `benchmarks/capabilities.json` `prompts` entries carrying an `evidence_artifacts` list
-     (added to P1/P4 -- the two currently served/served-with-refusal prompts, Task 6.1 -- a future
+     (retained for P1/P4 component evidence even when their full-task status is partial -- a future
      served prompt must add its own list the same way, or this build FAILS LOUD naming it).
   2. `benchmarks/cases.json` `cases[].provenance.require_files` -- reused verbatim
      (resolved under the case's own `run_dir`) as that reproduction case's artifact list.
@@ -154,7 +154,7 @@ HEADLINE_CLAIMS = [
     },
 ]
 
-# short human headline for the two currently served matrix prompts (cosmetic; the claim's real
+# short human headline for the two artifact-bearing matrix prompts (cosmetic; the claim's real
 # evidence is its artifact list + gate, not this string)
 PROMPT_HEADLINES = {
     "P1_hvt_zprime_ww_summary": "HVT Z' -> WW low-mass summary plot (survey/summary track)",
@@ -185,10 +185,10 @@ def _matrix_gate_label(gate):
 def prompt_specs(matrix):
     specs = []
     for key, v in sorted(matrix.get("prompts", {}).items()):
-        if v.get("status") not in SERVED_STATUSES:
-            continue
         artifacts = v.get("evidence_artifacts")
         if not artifacts:
+            if v.get("status") not in SERVED_STATUSES:
+                continue
             raise BuildError(
                 f"{key}: status={v.get('status')!r} but capability-matrix.json carries no "
                 f"'evidence_artifacts' list for it -- a served prompt needs a named artifact "

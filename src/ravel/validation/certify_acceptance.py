@@ -277,6 +277,7 @@ def main():
                     help="widest splitting bracket (GeV) across which off-node 1-D interpolation is trusted")
     ap.add_argument("--label", default="")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--certification-context", help="JSON mapping every reported SR to explicit point identity/basis")
     args = ap.parse_args()
 
     try:
@@ -527,10 +528,16 @@ def main():
                 "does not isolate detector response or certify statistical coverage. MC and published "
                 "uncertainties are not propagated. A discrepancy requires diagnosis of selection, "
                 "normalization, generation and detector response before any retuning."]
+    certification_metadata = {}
+    if args.certification_context:
+        from ravel.validation.certificates import acceptance_points, read_json, digest
+        certification_metadata["validation_points"] = acceptance_points(rows, read_json(args.certification_context))
+        certification_metadata["certification_producer"] = {"module": "ravel.validation.certify_acceptance",
+                                                            "sha256": digest(__file__)}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     open(args.out, "w").write("\n".join(lines) + "\n")
     json.dump({"label": args.label, "grid": args.grid, "m_parent": args.m_parent, "splitting": splitting,
-               **comparison_metadata(rows),
+               **comparison_metadata(rows), **certification_metadata,
                "verdict": verdict, "driving_tol": args.driving_tol, "mu95_bound": args.mu95_bound,
                "worst_driving_residual": worst_driving, "driving_off_grid": driving_off_grid,
                "driving_reference_unmatched": driving_nearest,

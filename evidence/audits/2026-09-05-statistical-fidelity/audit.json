@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-09-05T15:21:50.797744+00:00",
+  "generated_utc": "2026-09-05T18:40:05.993300+00:00",
   "scope": "numerical inference and acceptance-comparison correctness audit; not new event generation or full physics reproduction",
-  "source_package_version": "0.3.0",
-  "starting_source_commit": "b0e09467be0f0d38ff0e26369605051ada27fbd9",
+  "source_package_version": "0.4.0",
+  "starting_source_commit": "8d8b4b53b358c9798ae9b0d6345919c907b8639e",
   "source_state": "uncommitted integration worktree; engine_sha256 binds the tested implementations",
   "engine_sha256": {
-    "src/ravel/physics/pyhf_exclude.py": "c73e009990b7d24a6704e0829741bb25a9b5c73679717615e159b600f81ba78a",
-    "src/ravel/physics/sa2json_native.py": "72e750b15c829d6be4fa35a403030dd6a8a7ba566a26094fd286dde28a0a4674",
-    "src/ravel/validation/validate_cutflow.py": "058753f10c6437b6696f8bd84f1654a26a0a9263e031238dc1604b251aefcd35",
-    "src/ravel/validation/certify_acceptance.py": "a3037c35784ea21281d9c9c7d711b151643666dffe4f49fd8d29cfd03f95c37d",
-    "tests/unit/test_statistical_fidelity.py": "8564876409150f1f5a2ce0b41543e1c6169c8e1409659562159ddf03199f12df"
+    "src/ravel/physics/pyhf_exclude.py": "4bfdbdbf6455eca8a3a996bdd32a1bdc837ab10f8adeab4ba0af646a06864158",
+    "src/ravel/physics/sa2json_native.py": "ac91fdd2f7919e3566e23e528c2e84bbbbc783bdcabc8c24a35ed55bd751663d",
+    "src/ravel/validation/validate_cutflow.py": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22",
+    "src/ravel/validation/certify_acceptance.py": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120",
+    "tests/unit/test_statistical_fidelity.py": "44867d1d369acd2c934de9b2209aa5a8d176cfdc88dc4564e28c5b238df5c074"
   },
   "runtime": {
     "python": "3.12.13",
@@ -135,7 +135,7 @@
   "tests": {
     "focused_passed": 65,
     "focused_failed": 0,
-    "command": "python -m pytest tests/unit/test_statistical_fidelity.py -q (run from outside checkout)",
+    "command": "python -m pytest tests -q; test_statistical_fidelity cases selected from JUnit record (outside checkout)",
     "selftest": "normal, hyper-excluded, unconstrained, synthetic NaN-pocket and published SUSY-2018-06 free fit all PASS",
     "published_free_fit": {
       "twice_nll": 271.7864,
@@ -149,7 +149,7 @@
     "passed_cases": 7,
     "breached_cases": 2,
     "all_statistical_stability_checks_passed": true,
-    "acceptance_baseline_cached_cases": 4,
+    "acceptance_baseline_cached_cases": 0,
     "baseline_rewritten": false,
     "cases": [
       {
@@ -207,8 +207,8 @@
         "s95_ratio_exp": 1.01338,
         "statistical_stability_ok": true,
         "acceptance_residual": 0.132428,
-        "acceptance_verdict": "WARN",
-        "acceptance_from_baseline_cache": true
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
       },
       {
         "case_id": "ins1458270_gluino_merged_1000_100",
@@ -221,8 +221,8 @@
         "s95_ratio_exp": 1.01339,
         "statistical_stability_ok": true,
         "acceptance_residual": 0.0807821,
-        "acceptance_verdict": "PASS",
-        "acceptance_from_baseline_cache": true
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
       },
       {
         "case_id": "ins1458270_squark_800_100",
@@ -236,7 +236,7 @@
         "statistical_stability_ok": true,
         "acceptance_residual": 0.0244824,
         "acceptance_verdict": "PASS",
-        "acceptance_from_baseline_cache": true
+        "acceptance_from_baseline_cache": false
       },
       {
         "case_id": "ins1458270_squark_merged_800_100",
@@ -250,7 +250,7 @@
         "statistical_stability_ok": true,
         "acceptance_residual": 0.0393797,
         "acceptance_verdict": "PASS",
-        "acceptance_from_baseline_cache": true
+        "acceptance_from_baseline_cache": false
       },
       {
         "case_id": "ins1676551_c1n2_300_100",
@@ -300,5 +300,33 @@
     "https://scikit-hep.org/pyhf/_generated/pyhf.infer.intervals.upper_limits.toms748_scan.html",
     "https://pyhf.readthedocs.io/en/v0.7.6/likelihood.html",
     "https://scikit-hep.org/iminuit/notebooks/basic.html"
-  ]
+  ],
+  "refresh": {
+    "previous_audit_sha256": "2e921517c8d1068fb31fd42d5845a11ec952e5597f04e192c6a0e7e3a7b6fab9",
+    "previous_release": "v0.3.0",
+    "scope": "Fresh numerical controls and all nine cached-input benchmark cases. Local rivet environment allowed new acceptance comparisons; no events generated or baseline changes.",
+    "benchmark_result_sha256": "83f937ce842b5de0540d756ddf673bf6791c34e52fb4afeedac42b0714a40fc9",
+    "root_result_sha256": "664cdb614af8716dcb83536282c19a8e4f0cc01aff709773a55a6fcd2f00e6db",
+    "acceptance_verdicts": {
+      "PASS": 3,
+      "FAIL": 3,
+      "unscorable": 3
+    },
+    "runtime_by_check": {
+      "root_and_source_tests": {
+        "python": "3.12.13",
+        "pyhf": "0.7.6",
+        "numpy": "1.26.4",
+        "scipy": "1.14.1",
+        "iminuit": "2.32.0"
+      },
+      "full_cached_benchmark": {
+        "python": "3.14.5",
+        "pyhf": "0.7.6",
+        "numpy": "2.4.6",
+        "environment": "existing rivet runtime, selected by benchmark toolchain resolver"
+      },
+      "real_root_io": "see separate root-io-verification.json"
+    }
+  }
 }

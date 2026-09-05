@@ -203,9 +203,11 @@ def test_native_converter_restores_process_state_if_upstream_fails(tmp_path, mon
     monkeypatch.setitem(sys.modules, 'ROOT', fake_root)
     monkeypatch.setenv('D2SA', str(script))
     monkeypatch.setenv('DELPHES_PATH', 'original')
+    monkeypatch.setattr(delphes2sa_native, 'read_weights', lambda *_a, **_k: [1.0])
     old_argv = sys.argv
     with pytest.raises(RuntimeError, match='converter failed'):
-        delphes2sa_native.main(['--input', 'arbitrary.root'])
+        delphes2sa_native.main(['--input', 'arbitrary.root', '--output', str(tmp_path / 'out.root'),
+                               '--lumi', '139000', '--XS', '1'])
     assert fake_root.gSystem.Load is load and fake_root.gInterpreter.Declare is declare
     assert os.environ['DELPHES_PATH'] == 'original' and sys.argv is old_argv
 

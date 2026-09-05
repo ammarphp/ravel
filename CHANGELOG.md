@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.0 — 2026-09-05
+
+- Preserve resolved limits, one-sided scan bounds, missing values and historical estimates through result packs, scans, projections and plots.
+- Bind live shape and acceptance certificates to approved comparison policies, exact reference points, scientific inputs and served output bytes. Legacy checkmarks cannot authorize a result.
+- Require explicit native luminosity, generated cross section, event normalization and corrections; validate the declared process and charge conventions.
+- Dispatch registered analysis/model/detector/statistics combinations through an inspectable stage plan. Unsupported combinations fail before launch; overlapping ZeroLepton regions remain yields-only.
+- Accept grounded host-agent intent alongside the local action parser. Negated discovery language no longer blocks legitimate reproduction requests; method-design requests produce a zero-compute research proposal.
+- Add `ravel status` and a derived current-state packet for resuming from current evidence. Repair parent workspace routing and load detailed instructions only when needed.
+- Record durable stage attempts with atomic state, output ownership, dependency fingerprints, process-group recovery and validated resume. Retain failed attempts and hold delivery when an applicable validator is unavailable.
+
+These changes strengthen the execution and evidence contract. They do not certify new detector acceptance, statistical coverage, autonomous task success or scientific superiority. Historical benchmark failures remain in the reported population.
+
 ## v0.3.0 — 2026-09-05
 
 - Expand README with installation, draft initiation, cached replay, and real result artifacts.

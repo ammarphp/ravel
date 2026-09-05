@@ -33,6 +33,9 @@ import argparse
 import json
 import os
 import sys
+from functools import wraps
+from pathlib import Path
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -42,6 +45,7 @@ from ravel.workflow import provenance               # noqa: E402
 from ravel.workflow import session_lock             # noqa: E402
 from ravel.validation import validate_run_state       # noqa: E402
 from ravel.validation import validate_task_contract   # noqa: E402
+from ravel.workflow.state_io import atomic_json, file_lock, read_json
 
 RUN_STATE_NAME = "run_state.json"
 SCHEMA_VERSION = 1
@@ -63,19 +67,51 @@ def load_state(rundir):
     if not os.path.isfile(p):
         return None, f"no {RUN_STATE_NAME} in {rundir} (run `workflow_state.py init` first)"
     try:
-        with open(p) as fh:
-            return json.load(fh), None
-    except (OSError, json.JSONDecodeError) as e:
+        state = read_json(p)
+        if not isinstance(state, dict):
+            raise ValueError("run state must be an object")
+        return state, None
+    except (OSError, ValueError) as e:
         return None, f"cannot read/parse {RUN_STATE_NAME}: {e}"
 
 
-def write_state(rundir, state):
-    """Atomic-ish write of run_state.json (indent=2, no trailing newline -- shape_fit convention)."""
-    p = _state_path(rundir)
-    tmp = p + ".tmp"
-    with open(tmp, "w") as fh:
-        json.dump(state, fh, indent=2)
-    os.replace(tmp, p)
+class StateConflict(ValueError):
+    """The caller read an older revision; re-read before changing the ledger."""
+
+
+def write_state(rundir, state, *, replace=False):
+    """Serialize writers and reject lost updates; keep forced reset evidence."""
+    path = Path(_state_path(rundir))
+    with file_lock(Path(rundir) / "logs/state/write.lock"):
+        current = read_json(path) if path.exists() else {}
+        expected = state.get("revision", 0)
+        actual = current.get("revision", 0)
+        if type(expected) is not int or type(actual) is not int:
+            raise ValueError("state revision must be an integer")
+        if not replace and actual != expected:
+            raise StateConflict(f"run state changed: expected revision {expected}, found {actual}")
+        if replace and current:
+            from ravel.workflow.execution import utc_now
+            backup = Path(rundir) / "logs/state" / f"revision-{actual}-{time.time_ns()}.json"
+            atomic_json(backup, {"archived_utc": utc_now(), "state": current})
+        updated = {**state, "revision": actual + 1}
+        atomic_json(path, updated)
+        state["revision"] = updated["revision"]
+
+
+def retry_conflict(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        for attempt in range(12):
+            try:
+                return function(*args, **kwargs)
+            except StateConflict:
+                if attempt == 11:
+                    print("workflow_state: concurrent updates did not settle; retry this operation",
+                          file=sys.stderr)
+                    return 3
+                time.sleep(0.005 * (attempt + 1))
+    return wrapped
 
 
 def new_state(rundir, contract, contract_path, session_id):
@@ -119,7 +155,7 @@ def cmd_init(args):
             print(f"  - {e}", file=sys.stderr)
         return 3
     state = new_state(rundir, contract, cpath, args.session_id)
-    write_state(rundir, state)
+    write_state(rundir, state, replace=args.force)
     print(f"workflow_state: initialized {_state_path(rundir)} "
           f"(task_mode={state['task_mode']}, compute_plan={state['compute_plan']})")
     return 0
@@ -256,6 +292,7 @@ def find_active_rundir(project_dir):
     return best
 
 
+@retry_conflict
 def cmd_record(args):
     rundir = args.rundir
     if rundir is None:
@@ -311,14 +348,23 @@ def _prev_stage(stage):
 def compute_next_required(rundir, contract):
     """The FIRST required stage not yet PASSing, as a next-action hint, else None when the full
     required prefix is satisfied. Read-only (reuses validate_run_state.evaluate)."""
+    from ravel.workflow.execution import validate_execution
+    execution_errors = validate_execution(rundir)
+    if execution_errors:
+        return {"kind": "execution", "what": "repair or resume invalid stage",
+                "why": "; ".join(execution_errors)}
     result = validate_run_state.evaluate(rundir, contract)
     for stage in result["stages"]:
         if stage["required"] == "R" and stage["status"] not in ("PASS", "N/A", "waived-legacy"):
             return {"kind": "artifact", "what": stage["name"],
                     "why": f"required stage {stage['name']!r} is {stage['status']}"}
+    for invariant in result["invariants"]:
+        if invariant["status"] == "FAIL":
+            return {"kind": "invariant", "what": invariant["name"], "why": invariant["detail"]}
     return None
 
 
+@retry_conflict
 def cmd_advance(args):
     rundir = args.rundir.rstrip("/")
     if not os.path.isdir(rundir):
@@ -371,6 +417,7 @@ def cmd_advance(args):
 
 APPROVAL_VERSION = 2
 APPROVAL_GENERATOR = "workflow_state.py approve"
+APPROVAL_PLANS = ("none", "dry", "smoke", "full", "scan")
 
 
 def approval_input_paths(rundir):
@@ -412,13 +459,13 @@ def verify_approval(rundir, record=None, *, required_plan=None):
     if record["generated_by"] != APPROVAL_GENERATOR:
         errors.append(f"approval.generated_by must be {APPROVAL_GENERATOR!r}")
     plan = record["approved_plan"]
-    if plan not in ("smoke", "full", "scan"):
-        errors.append("approval.approved_plan must be smoke|full|scan")
+    if plan not in APPROVAL_PLANS:
+        errors.append("approval.approved_plan must be none|dry|smoke|full|scan")
     if required_plan is not None:
-        if required_plan not in ("smoke", "full", "scan"):
-            errors.append("required_plan must be smoke|full|scan")
-        elif plan in ("smoke", "full", "scan") and (
-                ("smoke", "full", "scan").index(plan) < ("smoke", "full", "scan").index(required_plan)):
+        if required_plan not in APPROVAL_PLANS:
+            errors.append("required_plan must be none|dry|smoke|full|scan")
+        elif plan in APPROVAL_PLANS and (
+                APPROVAL_PLANS.index(plan) < APPROVAL_PLANS.index(required_plan)):
             errors.append(f"explicit {required_plan} launch exceeds approved_plan={plan}")
     paths = approval_input_paths(rundir)
     for key, path in zip(("task_contract", "checkin1", "cost_preflight"), paths):
@@ -464,6 +511,7 @@ def verify_approval(rundir, record=None, *, required_plan=None):
     return []
 
 
+@retry_conflict
 def cmd_approve(args):
     """Record a v2 approval bound to the contract, CHECK-IN 1, and budget bytes."""
     rd = args.rundir.rstrip("/")
@@ -484,8 +532,7 @@ def cmd_approve(args):
         print("workflow_state approve: REFUSED -- " + "; ".join(errors), file=sys.stderr)
         return 1
     out = os.path.join(rd, "inputs", "checkin1_approval.json")
-    with open(out, "w", encoding="utf-8") as fh:
-        json.dump(rec, fh, indent=2)
+    atomic_json(out, rec)
     state, _ = load_state(rd)
     if state is not None:
         state.setdefault("checkins", []).append(
@@ -598,7 +645,7 @@ def build_parser():
     pv.add_argument("--rundir", required=True)
     pv.add_argument("--quote", required=True,
                     help="the physicist's go-ahead reply, quoted verbatim")
-    pv.add_argument("--plan", default="smoke", choices=("smoke", "full", "scan"))
+    pv.add_argument("--plan", default="smoke", choices=APPROVAL_PLANS)
     pv.set_defaults(func=cmd_approve)
 
     ps = sub.add_parser("status")

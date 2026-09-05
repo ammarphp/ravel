@@ -52,7 +52,6 @@ if not __package__:  # Direct file execution uses the same package implementatio
     __package__ = "ravel.physics"
 
 import sys, os, math, argparse, subprocess
-import numpy as np
 
 # CR-005: the routine-AGNOSTIC machinery now lives in sa_native_core (extracted VERBATIM from
 # this file's validated implementation). This module keeps ONLY the EwkCompressed2018-specific
@@ -385,6 +384,9 @@ def main():
     ap.add_argument("--input", required=True, help="Delphes2SA.root (tree 'ntuple')")
     ap.add_argument("--output", required=True, help="output directory")
     ap.add_argument("--ngen", type=int, default=None, help="N_gen (default: ntuple entries)")
+    ap.add_argument("--rjr-binary", default=RJR_BIN, help="explicit RestFrames helper for EwkCompressed2018")
+    ap.add_argument("--recast-env", default=None, help="explicit conda prefix for the RestFrames helper")
+    ap.add_argument("--rjr-conda", default=CONDA, help="explicit conda executable for the RestFrames helper")
     ap.add_argument("--routine", default="EwkCompressed2018",
                     help="EwkCompressed2018 (this module's RJR two-pass flow) or a ported "
                          "routine from sa_routines.REGISTRY (single-pass counting driver)")
@@ -434,7 +436,8 @@ def main():
           f"{len(selected)} reach the RJR helper")
 
     # ---- run the native RJR resolver (recast env) on the pre-selected objects ----
-    cmd = [CONDA, "run", "-n", "recast", RJR_BIN, "--objects", objfile, rjrcsv]
+    environment = ["-p",args.recast_env] if args.recast_env else ["-n","recast"]
+    cmd = [args.rjr_conda, "run", *environment, args.rjr_binary, "--objects", objfile, rjrcsv]
     print(f"[native] invoking native RJR resolver:\n  {' '.join(cmd)}")
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:

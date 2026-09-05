@@ -2,7 +2,7 @@
 
 The limit solver now refines bracketed CLs crossings, validates numerical inputs and fit results, and distinguishes resolved limits from scan bounds. The acceptance comparators retain missing and zero measurements honestly and report the largest residual across every driving region. These are correctness improvements to inference and validation; they do not establish improved detector agreement or asymptotic coverage.
 
-[audit.json](audit.json) binds the tested implementations by SHA-256 and records the runtime, numerical comparison, all nine cached benchmark outcomes, and limitations. This audit was prepared for source version 0.3.0 from the integration worktree; the starting commit is recorded separately from the tested file hashes.
+[audit.json](audit.json) binds the tested implementations by SHA-256 and records the runtime, numerical comparison, all nine cached benchmark outcomes, and limitations. The current verification refresh targets source version 0.4.0 from the integration worktree; the starting commit is recorded separately from the tested file hashes. The v0.3.0 audit remains in Git history and its digest is retained in the refresh record.
 
 ## Numerical check
 
@@ -19,9 +19,11 @@ The method continues to use pyhf's asymptotic `qtilde` calculation. Root-finding
 
 ## Additional real ROOT verification
 
-The converter cases in the original 65-test suite used reader doubles. The additive [ROOT I/O verification](root-io-verification.json) runs eight cases with actual tiny ROOT TTrees using **uproot 5.7.4 and pyhf 0.7.6**, with no new installation or historical-input changes. An unsorted `Z,A` workspace receives signal yields `Z=9, A=12`, while pyhf's sorted `A,Z` view predicts totals `22,19`. Flavour masks preserve signed sums `1.5,2`. Negative-net weights, missing branches, nonfinite weights, and zero luminosity reject without producing patches. Every case checks that the input workspace bytes remain unchanged.
+The converter cases in the original 65-test suite used reader doubles. The [ROOT I/O verification](root-io-verification.json), refreshed on **2026-09-05** for the current explicit adapter, runs nine cases with actual tiny ROOT TTrees using **uproot 5.7.4 and pyhf 0.7.6**, with no new installation or historical-input changes. An unsorted `Z,A` workspace receives signal yields `Z=9, A=12`, while pyhf's sorted `A,Z` view predicts totals `22,19`. Explicit channel maps and flavour masks preserve signed sums `1.5,2`. Negative-net weights, missing branches, nonfinite weights, and zero luminosity reject without producing patches. Every case checks that the input workspace, channel map, and ROOT file bytes remain unchanged.
 
-Zero-net signal channels remain valid and are retained as zero. An entirely zero signal template is also accepted by the converter; this I/O check does not claim a finite exclusion limit for that case. The original [audit.json](audit.json) and its bound implementation hashes are unchanged.
+The fixture now declares a distinct signal POI, `signal_strength`, and constructs the patched pyhf model without overriding that declaration. Its earlier `background_scale` POI already modified background samples and is correctly rejected by the current converter. The ninth case retains that previous configuration as a required refusal. This refresh updates the maintained verifier to the supported interface; it does not relax the converter's signal/background separation.
+
+Zero-net signal channels remain valid and are retained as zero. An entirely zero signal template is also accepted by the converter; this I/O check does not claim a finite exclusion limit for that case. The prior eight-case verification remains in Git history. Historical scientific inputs and baseline verdicts are preserved.
 
 The portable [check_root_io.py](check_root_io.py) recreates its inputs in a fresh temporary directory, invokes the converter with the current Python environment, validates the patches through pyhf, and removes its temporary files. From a checkout with uproot, NumPy, pyhf, and jsonpatch available:
 
@@ -34,7 +36,7 @@ Use a new output path for each run, or omit `--out` to print the record. The gen
 
 ## Full cached replay
 
-All **nine** registered cases remain in the denominator. Seven aggregate gates pass. Two remain breached because native artifacts are missing: the three-lepton case's `build/analysis.yoda` and the same-sign gluino case's `outputs/analysis_patched.yoda`. All nine statistical stability checks pass. Four acceptance entries reuse baseline certificate summaries; those records do not exercise the new comparator rules. The Gbb acceptance comparison remains **FAIL**, with a 26.49% residual, despite meeting its separately declared regression floor.
+All **nine** registered cases remain in the denominator. Seven aggregate gates pass. Two remain breached because native artifacts are missing: the three-lepton case's `build/analysis.yoda` and the same-sign gluino case's `outputs/analysis_patched.yoda`. All nine statistical stability checks pass. The available native rivet environment allowed the acceptance comparisons to run on cached scientific inputs instead of reusing four baseline summaries. The resulting six scorable cases have **three PASS and three FAIL**, with three unscorable cases. The two gluino comparisons now report FAIL under the current all-row comparator, as does Gbb with a 26.49% residual. All three still meet their separately declared historical regression floors. This stricter fresh comparison does not overwrite the historical baseline or its recorded verdicts.
 
 No historical measurements or benchmark baselines were rewritten. Counting-mode background correlations remain assumptions; full-workspace modifier correlations are preserved. Acceptance comparisons still omit MC, published and interpolation uncertainty, and their residuals do not identify a detector or generation failure's cause. The legacy `mu95_impact` field is now explicitly labeled as an acceptance-residual proxy. Conditional inverse-signal rescaling is reported separately.
 

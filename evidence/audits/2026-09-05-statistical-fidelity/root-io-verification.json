@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "passed_cases": 8,
+  "passed_cases": 9,
   "engine": "src/ravel/physics/sa2json_native.py",
-  "engine_sha256": "72e750b15c829d6be4fa35a403030dd6a8a7ba566a26094fd286dde28a0a4674",
-  "script_sha256": "9306d6b07e0e225ae81f56bbb421e72e44889bac60390f3f5f26e3b9b7a9ff27",
+  "engine_sha256": "ac91fdd2f7919e3566e23e528c2e84bbbbc783bdcabc8c24a35ed55bd751663d",
+  "script_sha256": "878a1a1626f2a8a116334308aa3705b74fd6263b6fdad28ae4dc7234f816f1ac",
   "versions": {
     "uproot": "5.7.4",
     "numpy": "2.4.6",
@@ -11,12 +11,17 @@
     "jsonpatch": "1.33"
   },
   "background_unchanged": true,
+  "input_roots_unchanged": true,
+  "channel_maps_unchanged": true,
   "cases": [
     {
       "name": "signed-unsorted",
       "exit_code": 0,
       "patch_exists": true,
-      "input_root_sha256": "2d954a049352eb6ebfb5f745b816d9d70e6d7173912a2ed981dfda4f6ed2b202",
+      "input_root_sha256": "38f7d0ba57f255df160dace8b94a932b3f1e4fd1b613442e2d96dd44f9de5263",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
+      "model_poi": "signal_strength",
       "named_signal_data": {
         "Z_cuts": [
           9.0
@@ -37,13 +42,18 @@
         22.0,
         19.0
       ],
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "signed-masked",
       "exit_code": 0,
       "patch_exists": true,
-      "input_root_sha256": "61fa5a01ef66162b40b889ef59788e206823943edbb3d2b944379eefa1c65b16",
+      "input_root_sha256": "dfdf11256dc659459a859837433765f4b42671032d414116772fc1cc49ea1e2c",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
+      "model_poi": "signal_strength",
       "named_signal_data": {
         "Z_cuts": [
           1.5
@@ -64,21 +74,30 @@
         12.0,
         11.5
       ],
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "negative-net",
       "exit_code": 1,
       "patch_exists": false,
-      "input_root_sha256": "d8d5121cfe86bd94a1aaac0959ab9195ca78f1773221de5629a765545ab962c6",
+      "input_root_sha256": "b9f28a884be78f115db815ec40089523f2b5696374544a99efc7e11617a415f4",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
       "checked_error": "negative net signal yield",
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "zero-net",
       "exit_code": 0,
       "patch_exists": true,
-      "input_root_sha256": "83c042342ce27edb9a5066d1ff98c06bdb5b07966b9f34ec35dd8e46c9fc39ae",
+      "input_root_sha256": "5e53e85dc05ad1de2fb766f605fa0646c5e2526058d1de872b8ea7f016e8101c",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
+      "model_poi": "signal_strength",
       "named_signal_data": {
         "Z_cuts": [
           0.0
@@ -99,13 +118,18 @@
         16.0,
         10.0
       ],
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "all-zero-net",
       "exit_code": 0,
       "patch_exists": true,
-      "input_root_sha256": "d8d1cd79b2aada011faaad90a898c9721a237a28f55f30ccfd617d8e929a80b1",
+      "input_root_sha256": "0ca9431f3fecdff0fea6316b2d09aebec15311fd71e866bcf77f58599b12a4ad",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
+      "model_poi": "signal_strength",
       "named_signal_data": {
         "Z_cuts": [
           0.0
@@ -126,32 +150,58 @@
         10.0,
         10.0
       ],
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "zero-luminosity",
       "exit_code": 2,
       "patch_exists": false,
-      "input_root_sha256": "a5688cc0fbd6f2cc5fee7e4c312b85eb7316815b0ed00e43e429d55b46345a8d",
+      "input_root_sha256": "fbc53dfac0e8455653b730eb76f0a49141ba2bbc95cdb944cd9ee356d6bd732a",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
       "checked_error": "--lumi must be finite and positive",
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "missing-branch",
       "exit_code": 1,
       "patch_exists": false,
-      "input_root_sha256": "bec35356b76a68a2f3f690378e8c6ef66f7a4bd3ab33b9fd6847b70733e007ad",
+      "input_root_sha256": "2dd098d1f6a25d3d4e45e7f402aec9006dba335d250a903cb42112807aa29cd7",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
       "checked_error": "missing or invalid SR branch",
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     },
     {
       "name": "nonfinite-weight",
       "exit_code": 1,
       "patch_exists": false,
-      "input_root_sha256": "02625b80b54ae76613f1a11a2c40d1467bcfc0811806cd697748264f6ccc74c8",
+      "input_root_sha256": "6d377568134a315ee0182f1328e7fc2ec9acb493bb74c121ffc60bc44b952dd1",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "signal_strength",
       "checked_error": "must contain finite scalar weights",
-      "background_unchanged": true
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
+    },
+    {
+      "name": "background-owned-poi",
+      "exit_code": 1,
+      "patch_exists": false,
+      "input_root_sha256": "ab2d45cc61b6030167f5286a913c724c1fad57b1436b238522c5bf74a4a44be9",
+      "adapter": "explicit-channel-map",
+      "declared_poi": "background_scale",
+      "checked_error": "signal POI already modifies a background sample",
+      "background_unchanged": true,
+      "channel_map_unchanged": true,
+      "input_root_unchanged": true
     }
   ],
-  "scope": "Actual tiny ROOT TTree integration, including real Awkward-array reads and pyhf/JSON Patch validation. Zero-net channels and all-zero templates are accepted. Zero luminosity and negative-net templates are rejected. This is input/output correctness, not statistical coverage or a finite-limit claim."
+  "scope": "Actual tiny ROOT TTree integration, including real Awkward-array reads and pyhf/JSON Patch validation. Uses explicit channel maps and the declared signal-only POI without a model POI override. Zero-net channels and all-zero templates are accepted. Zero luminosity and negative-net templates are rejected, as is a POI already applied to background. This is input/output correctness, not statistical coverage or a finite-limit claim."
 }

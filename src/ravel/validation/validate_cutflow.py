@@ -247,6 +247,7 @@ def main():
                          "trusted (≈ one cell of the published grid); wider gaps fall back to the "
                          "flagged nearest node — linear interp across a sparse-grid chasm is not physical")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--certification-context", help="JSON mapping every reported SR to explicit point identity/basis")
     args = ap.parse_args()
 
     try:
@@ -374,9 +375,15 @@ def main():
               "acceptance-residual proxy, not an inferred uncertainty on a limit."]
     if fail_reason:
         lines += ["", f"FAIL CAUSE: {fail_reason}."]
+    certification_metadata = {}
+    if args.certification_context:
+        from ravel.validation.certificates import acceptance_points, read_json, digest
+        certification_metadata["validation_points"] = acceptance_points(rows, read_json(args.certification_context))
+        certification_metadata["certification_producer"] = {"module": "ravel.validation.validate_cutflow",
+                                                            "sha256": digest(__file__)}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     open(args.out, "w").write("\n".join(lines) + "\n")
-    json.dump({"routine": args.routine, "label": args.label, "verdict": verdict, **comparison_metadata(rows),
+    json.dump({"routine": args.routine, "label": args.label, "verdict": verdict, **comparison_metadata(rows), **certification_metadata,
                "driving_tol": args.driving_tol, "mu95_bound": args.mu95_bound,
                "worst_driving_mu95_impact": worst_driving,
                "fail_reason": fail_reason, "driving_reference_unmatched": driving_nearest,

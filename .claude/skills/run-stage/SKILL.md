@@ -60,28 +60,39 @@ detached entries).
   weight" log line.
 
 ## Analyze — Option B: SimpleAnalysis (native DEFAULT; container fallback)
-- **Native (the step-8 default; scope: `docs/workflow/reference/native-pipeline.md`)** — a single
-  point end-to-end:
+- **Native (registered model/routine combinations; scope: `docs/workflow/reference/native-pipeline.md`)**:
   ```bash
-  python3 scripts/run.py ravel.physics.prepare_native_slepton --rundir <abs> \
-    --m-parent <M> --m-lsp <M> --nevents <N> --toml <config.toml>   # applies run.options (CR-002)
-  bash native/scripts/run-pipeline-native.sh <abs-rundir> <config-rel>
+  python3 scripts/run.py ravel.physics.native_pipeline plan \
+    --rundir <abs> --config <config.toml> --write
+  # Review the exact plan, pin its path/SHA256 in the task contract, and record
+  # the user's actual CHECK-IN 1 approval with workflow_state approve.
+  python3 scripts/run.py ravel.physics.native_pipeline run \
+    --plan <abs>/inputs/native_execution_plan.json
   ```
-  The driver chains MadGraph → lhe_check gate → Pythia → Delphes → Delphes2SA → native
-  SimpleAnalysis → sa2json → pyhf, writing `logs/STATUS.txt` + `output/exclusion.json`;
-  a grid of points goes through `scan_orchestrator.py` (the `run-scan` skill).
-  - **Self-catches hangs (G6/D6 CATCH).** Each `run_stage` is wrapped by
-    `src/ravel/workflow/stage_supervisor.py` — since `timeout` is absent here, this python
-    subprocess supervisor polls wall-clock + progress-stall + exit-0-plausibility against per-stage
-    kill thresholds derived from `cost_preflight` (`stage_budget_min`), SIGTERM→SIGKILLs a hung
-    stage, writes `logs/<stage>.failure.json` (+ a `next_action`), records the open failure to the
-    run ledger (`workflow_state.py record --kind failure`), and returns nonzero so `stage_done`
-    writes the FAIL/STOPPED line — no more silently-wedged point holding a scan slot. Set
-    `STAGE_SUPERVISED=0` to disable (falls back to the raw subshell; the STATUS.txt contract is
-    unchanged either way). A recovered point is reset by removing `logs/STATUS.txt` (or via
-    `scan_babysitter.py`'s HEAL loop) so the babysitter re-runs it.
-- **Container (legacy, other SA analyses only)**: `run-pipeline.sh` via mapyde/podman —
-  ~9 h/point, sequential; see `docs/workflow/analysis-simpleanalysis/`.
+  The explicit-card adapter supports declared unmerged LO MSSM families and the actual
+  EwkCompressed, eRJR, and zero-lepton routines. The specific slepton template remains a
+  separate preparation capability. Required luminosity, PDF/card controls, and correction
+  are explicit; missing cross sections never become a numerical default. The LHE rate,
+  shower units/count, and converted nominal weights must reconcile.
+
+  Every stage uses the durable supervisor with declared inputs, outputs, and dependencies.
+  `execution_state.json` records process ownership, source/runtime hashes, dependency
+  receipts, and outputs. Repeating `run --plan` reuses only valid matching stages. Changed
+  inputs require a newly reviewed/pinned plan and renewed actual approval. Earlier logs
+  and outputs are archived per attempt. MadGraph uses fresh retained working directories
+  and stable compressed/unpacked LHE outputs. There is no `STAGE_SUPERVISED=0` fallback.
+  Do not remove STATUS, receipts, or intermediate dependencies to force recovery; repair
+  the input/tool and resume through the supervisor. Quiet logs alone do not establish a
+  hang. Disk estimates must cover retained attempts and their dependencies.
+
+  A scan uses `scan_orchestrator launch --backend native --write-plans` to save proposals,
+  `--go` after each point's bound approval, and `--resume --go` for repaired durable failures.
+  Yields-only plans end with `native_execution_result.json`; only registered statistical
+  adapters also produce `exclusion.json`. Registration and execution success do not certify
+  experimental physics or authorize serving an exclusion.
+- **Container**: the canonical scan dispatcher emits dry diagnostics only and refuses live
+  `--backend container --go` until an exact plan/approval adapter exists. Legacy mapyde
+  implementation notes remain in `docs/workflow/analysis-simpleanalysis/`.
 
 Record σ, seeds, tool versions and the σ source in the run's `RESULT.md` — that is the audit's
 **R5 provenance** requirement (`docs/development/status.md` rigor table; scored by `scripts/audit.py`).

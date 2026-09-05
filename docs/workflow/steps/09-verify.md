@@ -73,6 +73,8 @@ $CONDA run -n rivet python scripts/run.py ravel.validation.verify_pack <rundir>
 #   deviations/renorm/rebase provenance block, and NO OPEN run_state.open_defect_notes entry (N5/G26).
 #   Exit 1 on any FAIL — fail-loud.
 ```
+Before serving, also follow `docs/reference/scientific-results.md`: known one-sided limits remain bounds, and live acceptance/R5 claims require current artifact-bound certificates under their approved policies. `execution-current` rejects stale durable stage receipts. Neither a numerically resolved root nor a software gate pass certifies physics coverage.
+
 **D18 umbrella (Stop dispatcher).** The Stop hook `stop_dispatch.py` runs
 `validate_run_state.py --rundir` on any CHECK-IN/RESULT **delivery** turn and BLOCKS turn-end
 (exit 2, reason fed back) if it does not exit 0 — so a lifecycle-broken run cannot post a

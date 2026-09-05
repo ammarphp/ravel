@@ -65,41 +65,69 @@ required and must name a new directory. For a longer request:
 ravel initiate --prompt-file request.txt --out /tmp/ravel-intake-from-file
 ```
 
-The command writes these three files:
+Intake writes the original `request.txt`, a validated draft `inputs/task_contract.json`, an
+initial `run_state.json` ledger, and a derived `current_state.json` view. A method-study request
+also writes `method_proposal.md` and uses a survey contract with compute=`none`:
 
-| File | Contents |
-|---|---|
-| `request.txt` | The original request, including its whitespace and line endings |
-| `inputs/task_contract.json` | The existing deterministic router's schema-validated draft |
-| `run_state.json` | The existing workflow ledger's initial state and contract fingerprint |
+```sh
+ravel initiate --prompt "Develop a collider-search method and compare candidate baselines." \
+  --out /tmp/ravel-method-study
+```
 
-Intake uses local keyword rules, with no model call, network request, or simulation. A valid
-draft may still contain missing inputs, `TBD-judgment` fields, and flagged assumptions.
-Its cost estimate uses the router's stated defaults; it is a draft budget to review.
-`compute_plan=scan` describes a proposed plan, and the command visibly reports
-`compute_authorized=false`. The ledger records no skills, approvals, check-ins, or compute
-as completed, and its `routed` field remains false until the workflow completes routing.
+This preserves the research objective without pretending that a training executor, dataset,
+protected evaluation, or calibration study exists. Those decisions remain explicit in the proposal.
 
-Next, use the [analysis workflow](workflow/start.md) to resolve the required inputs and
-flagged assumptions, inspect the published figure targets, and present the CHECK-IN 1 plan
-for approval before generation or scans. Intake does not generate the plan or begin an
-autonomous analysis. An installed wheel can prepare the draft outside a checkout; continuing
-the full agent workflow also requires its documents, tools, and separately provisioned native
-HEP environment.
+The default local parser handles actions, quoted context and negated requests; it is bounded,
+not a general scientific reasoner. A host agent can supply a grounded interpretation for unfamiliar
+wording:
 
-Exit 0 means all three intake files were written. Exit 1 means the route is invalid or the
-request is unsupported, including an unmatched task or a discovery claim. Exit 2 means a
-command/input/write error. Blank requests, unsupported routes, and invalid contracts create
-no output directory. Existing output paths, including symlinks, are refused. A write failure
-is reported as failure, with any partial output retained for inspection; choose a new output
-directory for a retry. No intake exit status grants compute approval.
+```sh
+ravel initiate --prompt-file request.txt --interpretation intent.json --out /tmp/ravel-host-intake
+```
 
-Without installing the package, the same entry point is available from a checkout:
+The interpretation object requires `schema_version: 1`, `prompt_sha256`, `kind`, `objective`,
+`requested_outputs`, `evidence`, and `unresolved`. The hash is SHA-256 of the exact UTF-8 request;
+each evidence item is `{start, end, text}` with zero-based, end-exclusive Python character offsets
+and exact matching text. `kind` is a supported task mode or `method_study`; output and unresolved
+items are strings. Invalid hashes/spans, duplicate spans, unknown fields and introduced analysis
+identifiers fail validation. Grounding records the interpretation's source, not its scientific
+correctness or execution approval. Review the resulting draft before advancing.
+
+Intake makes no model call, network request or simulation. Missing inputs, `TBD-judgment`, default
+cost assumptions and proposed compute remain visible. `compute_authorized=false` is explicit;
+no skills, approvals or compute are recorded as complete. The `routed` ledger field remains false
+until the workflow completes routing. Continue through the [analysis workflow](workflow/start.md)
+to resolve inputs, review figures and budget, and present CHECK-IN 1. An installed wheel can draft
+intake elsewhere; the full workflow additionally needs its documents, tools and native environment.
+
+Exit 0 means intake files were written, not approved. Exit 1 means an invalid/unsupported route;
+exit 2 means an input, command or write error. Blank, unsupported or invalid requests create no
+output directory. Existing destinations, including symlinks, are refused. Partial outputs from
+write failures are retained; use a new destination for a new intake, never to resume an existing run.
+
+Without installation, use the same entry point from the source tree:
 
 ```sh
 python3.12 /path/to/ravel/scripts/run.py ravel.__main__ initiate \
   --prompt-file /path/to/request.txt --out /tmp/ravel-source-intake
 ```
+
+## Resume and inspect current state
+
+```sh
+ravel status --rundir /path/to/existing-run
+ravel status --rundir /path/to/existing-run --write
+```
+
+Both commands rebuild the packet from the live contract, ledger, lifecycle gates, execution
+receipts and approval. `--write` also refreshes `current_state.json`; it does not change the source
+contract, ledger or scientific artifacts. Inspect `next_required`, `blockers`, approval errors and
+stage receipts, then open only the relevant workflow step. Refresh after a restart or compaction.
+
+The packet is a view, not permission or a scientific certificate. Executors and serving gates
+revalidate the original artifacts. Do not edit the packet to unblock work or rerun intake to resume.
+Exit 0 means the packet was derived; lifecycle blockers or absent approval may still be present.
+Exit 1 indicates invalid execution evidence; input/command errors exit 2.
 
 ## Validate, replay, and audit
 
@@ -151,7 +179,7 @@ For public release, build from the sanitized public export so historical machine
 research metadata are not copied into the wheel. Run the package portability check with:
 
 ```sh
-RAVEL_TEST_WHEEL=/tmp/ravel-dist/ravel_hep-0.3.0-py3-none-any.whl \
+RAVEL_TEST_WHEEL=/tmp/ravel-dist/ravel_hep-0.4.0-py3-none-any.whl \
   .venv-replay/bin/python -m pytest tests/unit/test_ravel_cli.py \
   tests/unit/test_cli_initiate.py -q
 ```
@@ -161,5 +189,5 @@ installed it outside the checkout. The fast replay passed with observed/expected
 mu95 of 0.219143/0.275714 and S95 recovery ratios 0.997857/1.02296. Acceptance was explicitly
 cached. The existing five numerical selftests also passed, including the NaN-pocket
 optimizer and published 2018-06 free-fit regressions. These are scoped checks, not a fresh
-generation trial. The package and benchmark invocation tests passed 16 checks, including
-wheel payload parity and protection of existing output evidence.
+generation trial. Package portability checks also covered wheel payload parity and protection of existing output
+evidence; consult the release evidence for the tested revision and complete test counts.

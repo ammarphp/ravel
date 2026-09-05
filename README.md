@@ -24,6 +24,12 @@ and a report explaining the comparison with published results. A mass-plane scan
 adds per-point coverage and an exclusion contour. Missing points, quality bounds,
 and failed comparisons remain visible.
 
+Limits carry explicit observed/expected roles and distinguish resolved crossings
+from scan bounds. Result packs bind to their inference inputs, and resumed stages
+reuse outputs only while their recorded dependencies remain current. See the
+[result contracts](docs/reference/scientific-results.md) and
+[execution and recovery guide](docs/workflow/reference/durable-execution.md).
+
 ![Recorded compressed-slepton scan: exact reference comparisons and signed residuals](evidence/audits/2026-09-05-scan-fidelity/scan__reldiff.png)
 
 **Compressed-slepton example.** This figure freshly re-renders a recorded
@@ -106,9 +112,11 @@ Create a draft contract and initial run state from your request:
   --out local-runs/slepton-study
 .venv-replay/bin/ravel validate \
   local-runs/slepton-study/inputs/task_contract.json --json
+.venv-replay/bin/ravel status --rundir local-runs/slepton-study
 ```
 
-The deterministic router records a draft interpretation. Review it: a valid
+The local router records a draft interpretation; an agent can also supply a
+request-bound interpretation with literal supporting spans. Review it: a valid
 contract is a structural check, not approval, a resolved analysis implementation,
 or evidence that the requested result is feasible. Initiation does not launch
 simulation or call an LLM. See the [CLI reference](docs/cli.md) for the output

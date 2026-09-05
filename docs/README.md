@@ -19,6 +19,8 @@ The [workflow guide](workflow/README.md) connects the numbered steps, analysis
 choices, and checklists. [Task-contract reference](reference/task-contract.md)
 defines the fields that make a request executable and reviewable.
 
+[Scientific result contracts](reference/scientific-results.md) explain limits, scan bounds and artifact-bound certificates. [Durable execution](workflow/reference/durable-execution.md) explains stage reuse, interruption recovery and the current-state packet.
+
 Read the [results overview](validation/results.md) for the different validation
 questions, then the [benchmark cases](validation/README.md) for their individual
 outcomes. [Evidence checks](validation/evidence.md) explain how published claims

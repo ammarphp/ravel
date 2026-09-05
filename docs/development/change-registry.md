@@ -3618,3 +3618,10 @@ touched again.
 - **Status:** IMPLEMENTED with regression validation. This is engineering evidence, not a new
   acceptance closure, unhinted autonomy measurement, or causal superiority result. Remaining
   command-recognition and actual resource-consumption boundaries are documented explicitly.
+
+
+## CR-150 · 2026-09-05 · scientific result contracts and durable capability execution
+- **What:** implement the seven architecture priorities together: lossless limits with primary-source binding; approved artifact-bound comparison certificates; explicit native normalization; exact capability plans and executor approval; grounded intent; current entry/state handoff; durable attempts, dependencies, process ownership and failure recovery.
+- **Why:** concrete local/public diagnosis plus independent review exposed scientific value inconsistencies, unsupported observed projection semantics, denied-intent drift, process/output ownership gaps, missing new-entry approval checks and overclaimed task completion.
+- **Where-embedded:** `docs/reference/scientific-results.md`, `docs/workflow/reference/durable-execution.md`, `docs/workflow/reference/native-pipeline.md`, `docs/cli.md`, the intake/certify/run-stage/run-scan skills, statistics/verification steps and current state/roadmap. Full implementation and verification record: `docs/development/history/2026-09-05-architecture-hardening.md`.
+- **Status:** EMBEDDED and source-verified. All twelve independent findings were repaired and rechecked; 1,089 source tests and all 40 enabled wheel/CLI tests passed. Source publication, aggregate and evidence gates passed. Public export additionally exposed and repaired two fixture-only native-tool assumptions; twelve paired portability/preflight checks passed in both checkouts. The final public suite passed 1,081 tests with ten development-fixture skips and both wheel checks enabled. Remote CI is verified at publication. Historical benchmark baselines, original scientific runs and pristine cards remain preserved. These engineering changes do not establish new detector fidelity, coverage or autonomous scientific superiority.

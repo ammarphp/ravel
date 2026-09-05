@@ -5,8 +5,8 @@ Reads the Stop-hook JSON on stdin (session_id, cwd, transcript_path), resolves t
 order, and exits 2 (blocking turn-end; stderr = reason fed back to the agent) on the first BLOCK,
 else 0. Reuses validate_run_state.py for the D18 umbrella; reads run_state.json (SHARED-CONVENTIONS
 §C) for the ledger branches. stdlib-only. The .sh shim pipes stdin here.
-EXIT MAPPING (a hook, not a validator): 2 = BLOCK * 0 = allow OR fail-open (a crash never blocks the
-live agent -- the step-doc FALLBACK covers it) * 3 = usage."""
+EXIT MAPPING (a hook, not a validator): 2 = BLOCK * 0 = no blocking condition * 3 = usage.
+Unavailable applicable predicates hold delivery and retain a repairable failure record."""
 
 # Permit direct source execution as well as normal package imports.
 if not __package__:
@@ -118,6 +118,15 @@ def _delivery_artifacts_fresh(rundir, window_s=DELIVERY_FRESH_SECS):
     return False
 
 
+def _predicate_unavailable(ctx, name, detail):
+    from ravel.workflow.state_io import atomic_json
+    record = {"schema_version": 1, "stage": name, "status": "open",
+              "failure_class": "validator_unavailable", "reason": str(detail),
+              "next_action": "Repair the validator or its environment, rerun the gate, then resolve this record with evidence."}
+    atomic_json(Path(ctx["rundir"]) / "logs" / f"gate-{name}.failure.json", record)
+    return True, f"{name}: validation unavailable ({detail}). Delivery is held; repair and rerun the gate. Evidence: logs/gate-{name}.failure.json."
+
+
 def branch_d18(ctx):
     if not DELIVERY_RE.search(ctx.get("last_message") or ""):
         return False, ""
@@ -126,8 +135,8 @@ def branch_d18(ctx):
     try:
         r = subprocess.run(validator + ["--rundir", ctx["rundir"]],
                            capture_output=True, text=True, timeout=120)
-    except Exception:
-        return False, ""                      # fail-open on a validator crash
+    except Exception as exc:
+        return _predicate_unavailable(ctx, "d18", exc)
     if r.returncode != 0:
         tail = (r.stdout or r.stderr or "").strip().splitlines()
         tail = tail[-1] if tail else f"exit {r.returncode}"
@@ -138,7 +147,9 @@ def branch_d18(ctx):
 
 def branch_catch(ctx):
     unresolved = []
-    for root, _d, files in os.walk(ctx["rundir"]):
+    for root, dirs, files in os.walk(ctx["rundir"]):
+        if Path(root).resolve() == (Path(ctx["rundir"]) / "logs").resolve():
+            dirs[:] = [d for d in dirs if d != "execution"]
         for f in files:
             if not f.endswith(".failure.json"):
                 continue
@@ -182,14 +193,31 @@ def _bg_liveness(run_state, rundir, window_secs):
             return True
     return False
 
+def _verified_liveness(run_state, rundir):
+    """A current process identity is required for a claim that work is still running."""
+    from ravel.workflow import execution
+    try:
+        if (Path(rundir) / execution.STATE_NAME).exists():
+            records = execution.load_execution(rundir)["stages"].values()
+            return any(isinstance(r, dict) and r.get("status") == "running"
+                       and type(r.get("child_pid")) is int and r.get("child_identity")
+                       and execution.process_identity(r["child_pid"]) == r["child_identity"]
+                       for r in records)
+        return any(isinstance(r, dict) and type(r.get("pid")) is int and r.get("process_identity")
+                   and execution.process_identity(r["pid"]) == r["process_identity"]
+                   for r in run_state.get("compute_launched", []))
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 def branch_phantom(ctx):
     if not RUNNING_RE.search(ctx.get("last_message") or ""):
         return False, ""
-    if _bg_liveness(ctx["run_state"], ctx["rundir"], PHANTOM_WINDOW_SECS):
+    if _verified_liveness(ctx["run_state"], ctx["rundir"]):
         return False, ""
     return True, ("PHANTOM/D5-signature: the turn claims a background job is running, but no live "
-                  "job was found (no recent logfile, no matching process). Launch it via the "
-                  "harness-tracked run_in_background, or correct the claim.")
+                  "job identity was verified. Check the current stage receipt or record the "
+                  "actual PID/start identity, or correct the claim. A recent log is not process liveness.")
 
 def branch_drive(ctx):
     if ctx.get("is_delivery"):
@@ -276,8 +304,10 @@ def branch_recipe_search(ctx):
     try:
         r = subprocess.run([sys.executable, census, "--assert-recipe-search", "--rundir", ctx["rundir"]],
                            capture_output=True, text=True, timeout=120)
-    except Exception:
-        return False, ""                      # fail-open on a predicate crash (a hook never wedges the agent)
+    except Exception as exc:
+        return _predicate_unavailable(ctx, "recipe-search", exc)
+    if r.returncode not in (0, 1):
+        return _predicate_unavailable(ctx, "recipe-search", f"exit {r.returncode}: {(r.stderr or '')[-500:]}")
     if r.returncode == 1:
         tail = (r.stdout or r.stderr or "").strip().splitlines()
         tail = tail[-1] if tail else "open generator-model failure without inputs/recipe_search.json"
@@ -351,8 +381,10 @@ def branch_armed_watcher(ctx):
     try:
         r = subprocess.run([sys.executable, pf, "--assert-all", "--rundir", ctx["rundir"]],
                            capture_output=True, text=True, timeout=120)
-    except Exception:
-        return False, ""                      # fail-open on a predicate crash
+    except Exception as exc:
+        return _predicate_unavailable(ctx, "armed-watcher", exc)
+    if r.returncode not in (0, 1):
+        return _predicate_unavailable(ctx, "armed-watcher", f"exit {r.returncode}: {(r.stderr or '')[-500:]}")
     if r.returncode == 1:
         tail = (r.stdout or r.stderr or "").strip().splitlines()
         tail = tail[-1] if tail else "an armed watcher lacks a passing preflight"
@@ -371,8 +403,10 @@ def branch_open_defect(ctx):
     try:
         r = subprocess.run([sys.executable, vp, ctx["rundir"]],
                            capture_output=True, text=True, timeout=120)
-    except Exception:
-        return False, ""                      # fail-open on a predicate crash
+    except Exception as exc:
+        return _predicate_unavailable(ctx, "open-defect", exc)
+    if r.returncode not in (0, 1):
+        return _predicate_unavailable(ctx, "open-defect", f"exit {r.returncode}: {(r.stderr or '')[-500:]}")
     out = ((r.stdout or "") + (r.stderr or "")).lower()
     if r.returncode == 1 and "open defect note" in out:
         return True, ("G26-OPEN-DEFECT: a helper with an OPEN defect note feeds this delivery -- resolve "
@@ -437,8 +471,14 @@ def _selftest_phantom(fails):
         b, _ = branch_phantom(_ctx(tmp, "The scan is now running in the background."))
         lf = os.path.join(tmp, "logs", "x.log"); open(lf, "w").write("run")
         ctx = _ctx(tmp, "The scan is now running in the background.")
-        ctx["run_state"] = {"compute_launched": [{"bg_kind": "harness", "logfile": lf}]}
-        p, _ = branch_phantom(ctx)
+        from ravel.workflow.execution import process_identity
+        proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+        try:
+            ctx["run_state"] = {"compute_launched": [{"bg_kind": "harness", "logfile": lf,
+                                                       "pid": proc.pid, "process_identity": process_identity(proc.pid)}]}
+            p, _ = branch_phantom(ctx)
+        finally:
+            proc.terminate(); proc.wait()
         ok = (b is True) and (p is False)
         print(f"[selftest] phantom block/pass: {b}/{p}  {'ok' if ok else 'FAIL'}")
         if not ok: fails.append("phantom branch block/pass wrong")

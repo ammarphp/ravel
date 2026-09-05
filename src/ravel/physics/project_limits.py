@@ -55,6 +55,7 @@ if not __package__:  # Direct file execution uses the same package implementatio
     __package__ = "ravel.physics"
 
 import argparse
+from ravel.limits import attach_limits, read_limits, point_value, LimitCurve, LimitResult, NUMERICAL_METADATA
 import copy
 import json
 import os
@@ -107,11 +108,23 @@ def _limits(excl):
     """The engine's exclusion.json: exp_limits = the 5-point band [-2s,-1s,med,+1s,+2s];
     the projection quotes the MEDIAN expected. obs_limit exists but on an Asimov input it
     coincides with the median by construction (we still prefer the explicit expected)."""
-    if "exp_limits" in excl and len(excl["exp_limits"]) == 5:
-        return float(excl["exp_limits"][2])
-    if "obs_limit" in excl:
-        return float(excl["obs_limit"])
-    raise KeyError(f"no expected limit in exclusion.json keys={list(excl)[:8]}")
+    value = point_value(excl, "expected", allow_legacy=True)
+    if value is None:
+        raise ValueError("no resolved/reported expected median; inspect limit_status (observed is not a substitute)")
+    return value
+
+
+def projection_limits(record, engine, role):
+    """Keep engine pseudo-data diagnostics outside the observed-physics slot."""
+    limits = read_limits(engine)
+    record['diagnostic_observed'] = {**limits.observed.to_dict(), 'role': role}
+    record.update({key: engine[key] for key in NUMERICAL_METADATA if key in engine})
+    # Old engine flags describe the diagnostic, not the absent projection curve.
+    record.pop('at_poi_cap', None)
+    record.pop('at_mu_floor', None)
+    projected = LimitResult(LimitCurve(None, 'missing'), limits.expected,
+                            limits.origin, limits.notes)
+    return attach_limits(record, result=projected)
 
 
 def cmd_counting(args):
@@ -128,9 +141,13 @@ def cmd_counting(args):
         json.dump(proj, open(p, "w"), indent=1)
         excl = run_engine(p, os.path.join(args.out, f"pyhf_{sc}"),
                           sigma_scale=args.sigma_scale, combined=args.combined)
-        mu = _limits(excl)
-        results["scenarios"][sc] = {"mu95_expected": mu, "engine_output": f"pyhf_{sc}/exclusion.json"}
-        print(f"  scenario {sc:6s}: projected expected mu95 = {mu:.4g}")
+        limits = read_limits(excl)
+        rec = {"mu95_expected": limits.expected[2].value,
+               "engine_output": f"pyhf_{sc}/exclusion.json",
+               "observed_semantics": "Asimov diagnostic, not an observed projection"}
+        projection_limits(rec, excl, 'Asimov diagnostic; not observed data')
+        results["scenarios"][sc] = rec
+        print(f"  scenario {sc:6s}: expected {limits.expected[2].to_dict()}")
     json.dump(results, open(os.path.join(args.out, "projection.json"), "w"), indent=1)
     print(f"wrote {os.path.join(args.out, 'projection.json')}")
     print("LABEL (binding): projection, EXPECTED-ONLY, bracketing scenarios "
@@ -262,10 +279,12 @@ def cmd_likelihood(args):
             rec["error"] = excl["error"]
             print(f"  ENGINE FAIL {name} {sc}: {excl['error'][:120]}", flush=True)
         else:
-            rec["exp_limits"] = excl["exp_limits"]
-            rec["mu95_expected"] = float(excl["exp_limits"][2])
-            rec["obs_limit_scaled_data_proxy"] = excl.get("obs_limit")
-            print(f"  {name} {sc}: expected mu95 = {rec['mu95_expected']:.4g}", flush=True)
+            limits = read_limits(excl)
+            rec["exp_limits"] = [c.value for c in limits.expected]
+            rec["mu95_expected"] = limits.expected[2].value
+            rec["observed_semantics"] = "scaled-data proxy, never an observed projection"
+            projection_limits(rec, excl, 'scaled-data proxy; not observed data')
+            print(f"  {name} {sc}: expected {limits.expected[2].to_dict()}", flush=True)
         return rec
 
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
