@@ -31,6 +31,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import provenance               # noqa: E402
+import session_lock             # noqa: E402
 import validate_run_state       # noqa: E402
 import validate_task_contract   # noqa: E402
 
@@ -148,16 +149,23 @@ def _norm_edit(p):
 
 # --- state-mutator kinds (D-3): list_key is None, so the normalizer takes (state, payload, utc)
 #     and mutates `state` directly rather than returning a dict to append. These are the real
-#     writers of `routed` + `open_failure_records`; Phase 2 INVOKES them.
+#     writers of `routed` + `open_failure_records`; Phase 2 INVOKES them. Return True iff state
+#     was mutated -- False tells cmd_record to skip the write entirely (CR-135).
 def _norm_route(state, payload, utc):
-    """route: mark the run routed and leave an audit entry. payload is OPTIONAL -- it may carry the
-    chosen route/target (via --payload {"route":...} or the --what shortcut) for the audit trail."""
-    state["routed"] = True
+    """route: mark the run routed and leave an audit entry carrying the chosen route/target (via
+    --payload {"route":...} or the --what shortcut). A payload with NO routing content is a silent
+    no-op (CR-135): the router hook fires this blind on every physics-looking prompt, and a
+    contentless append is pure ledger noise ({"utc": ""} rows) whose rewrite also refreshes the
+    file mtime -- the loop that kept a closed run looking 'active' forever."""
     audit = {"utc": utc}
     for k in ("route", "next", "what"):
         if payload.get(k):
             audit[k] = payload[k]
+    if len(audit) == 1:
+        return False
+    state["routed"] = True
     state.setdefault("routes", []).append(audit)
+    return True
 
 
 def _norm_failure(state, payload, utc):
@@ -170,6 +178,7 @@ def _norm_failure(state, payload, utc):
     open_recs = state.setdefault("open_failure_records", [])
     if ref not in open_recs:
         open_recs.append(ref)
+    return True
 
 
 # kind -> (run_state list key, payload normalizer). Later phases register new kinds here.
@@ -185,24 +194,57 @@ RECORD_KINDS = {
 }
 
 
+# liveness window for the SESSION.lock heartbeat; matches session_lock's --stale-hours default
+LOCK_FRESH_HOURS = 24.0
+
+
+def _rundir_is_active(rundir, fresh_hours=LOCK_FRESH_HOURS):
+    """A rundir counts as ACTIVE for auto-resolution iff it is not closed (no RESULT.md -- the
+    run's closing record) and carries the CR-022 ownership mark: a SESSION.lock with a heartbeat
+    inside fresh_hours. NOT ledger-mtime freshness -- that rule is unsound: any maintenance write
+    to a stale ledger (even a noise scrub) resurrects it, and each misdirected append then keeps
+    it fresh forever. Runtime-only wall-clock comparison (like session_lock itself) -- nothing
+    here is recorded, so the no-datetime.now() emitter rule is not in play."""
+    if os.path.isfile(os.path.join(rundir, "RESULT.md")):
+        return False
+    lock = session_lock._read(os.path.join(rundir, session_lock.LOCK))
+    return bool(lock) and \
+        session_lock._age_hours(lock.get("renewed", lock.get("acquired", ""))) < fresh_hours
+
+
 def find_active_rundir(project_dir):
-    """The newest trial-runs/*/run_state.json under project_dir -> its rundir, else None. Lets the
-    PostToolUse observer resolve which ledger to append to without the agent passing --rundir; the
-    live workflow has exactly one active run_state.json at a time."""
+    """Resolve the ledger `record --project-dir` (the observer + router hooks) should append to.
+    Resolution order (CR-135):
+      1. cwd inside a trial-runs/* rundir that has a run_state.json -> that rundir (the session is
+         working IN that run -- unambiguous, even for a closed run being backfilled);
+      2. else the newest trial-runs/*/run_state.json among ACTIVE rundirs (live SESSION.lock, no
+         RESULT.md -- see _rundir_is_active) -> its rundir;
+      3. else None (record self-scopes to a no-op).
+    'Active' used to mean just 'newest mtime', which matched long-closed runs forever -- every
+    misdirected append refreshed the mtime that made the run look newest (the D-3 route-noise
+    class, the {"utc": ""} rows in closed runs' ledgers)."""
     base = os.path.join(project_dir, "trial-runs")
+    base_abs = os.path.abspath(base)
+    cwd = os.path.abspath(os.getcwd())
+    if cwd.startswith(base_abs + os.sep):
+        name = cwd[len(base_abs) + 1:].split(os.sep)[0]
+        rd = os.path.join(base, name)
+        if os.path.isfile(os.path.join(rd, RUN_STATE_NAME)):
+            return rd
     best, best_mtime = None, -1.0
     try:
         entries = os.listdir(base)
     except OSError:
         return None
     for name in entries:
-        cand = os.path.join(base, name, RUN_STATE_NAME)
+        rd = os.path.join(base, name)
+        cand = os.path.join(rd, RUN_STATE_NAME)
         try:
             m = os.path.getmtime(cand)
         except OSError:
             continue
-        if m > best_mtime:
-            best, best_mtime = os.path.join(base, name), m
+        if m > best_mtime and _rundir_is_active(rd):
+            best, best_mtime = rd, m
     return best
 
 
@@ -239,7 +281,8 @@ def cmd_record(args):
     utc = provenance._resolve_timestamp()
     try:
         if list_key is None:                          # state-mutator kind (route/failure)
-            norm(state, payload, utc)
+            if not norm(state, payload, utc):
+                return 0                              # nothing recorded -> no write, no mtime touch
         else:                                         # list-append kind (skill/compute/subagent/edit)
             entry = norm(payload)
             entry["utc"] = utc
@@ -283,8 +326,8 @@ def cmd_advance(args):
         return 3
     target = args.to
     prev = _prev_stage(target)
-    blockers = []
-    if prev is not None:
+    blockers = validate_task_contract.validate(contract)
+    if prev is not None and not blockers:
         result = validate_run_state.evaluate(rundir, contract, stage_limit=prev)
         for s in result["stages"]:
             if s["status"] == "FAIL":
@@ -318,39 +361,120 @@ def cmd_advance(args):
     return 0
 
 
+APPROVAL_VERSION = 2
+APPROVAL_GENERATOR = "workflow_state.py approve"
+
+
+def approval_input_paths(rundir):
+    """The single ordered input binding, shared by approval emission and verification."""
+    rel = validate_run_state.find_first_existing(rundir, "inputs/task_contract.json", "task_contract.json")
+    return [os.path.join(rundir, rel or "inputs/task_contract.json"),
+            os.path.join(rundir, "inputs", "checkin1.json"),
+            os.path.join(rundir, "inputs", "cost_preflight.json")]
+
+
+def verify_approval(rundir, record=None, *, required_plan=None):
+    """Return strict live-approval errors. This checks integrity, not human identity.
+
+    Version-1 approvals have no content binding and must be re-recorded before live
+    compute. No legacy waiver is available here. All declared source bytes must still
+    match the canonical provenance fingerprint captured by the approve command.
+    """
+    if record is None:
+        try:
+            record = validate_task_contract.load_contract(
+                os.path.join(rundir, "inputs", "checkin1_approval.json"))
+        except (OSError, ValueError, UnicodeError, RecursionError) as e:
+            return [f"checkin1_approval.json cannot be read: {e}"]
+    if type(record) is not dict:
+        return ["checkin1_approval.json must be an object"]
+    fields = {"schema_version", "generated_by", "generated_utc", "approved_plan", "quote",
+              "task_contract", "checkin1", "cost_preflight", "input_fingerprint"}
+    errors = [f"approval missing required field {key!r}" for key in sorted(fields - record.keys())]
+    errors += [f"approval has unknown field {key!r}" for key in record.keys() - fields]
+    if type(record.get("schema_version")) is not int or record.get("schema_version") != APPROVAL_VERSION:
+        errors.append("approval schema_version must be integer 2; unbound version-1 archives "
+                      "must be re-recorded with workflow_state.py approve before live compute")
+    for key in fields - {"schema_version"}:
+        value = record.get(key)
+        if type(value) is not str or (key != "generated_utc" and not value.strip()):
+            errors.append(f"approval.{key} must be a " + ("string" if key == "generated_utc" else "nonblank string"))
+    if errors:
+        return errors
+    if record["generated_by"] != APPROVAL_GENERATOR:
+        errors.append(f"approval.generated_by must be {APPROVAL_GENERATOR!r}")
+    plan = record["approved_plan"]
+    if plan not in ("smoke", "full", "scan"):
+        errors.append("approval.approved_plan must be smoke|full|scan")
+    if required_plan is not None:
+        if required_plan not in ("smoke", "full", "scan"):
+            errors.append("required_plan must be smoke|full|scan")
+        elif plan in ("smoke", "full", "scan") and (
+                ("smoke", "full", "scan").index(plan) < ("smoke", "full", "scan").index(required_plan)):
+            errors.append(f"explicit {required_plan} launch exceeds approved_plan={plan}")
+    paths = approval_input_paths(rundir)
+    for key, path in zip(("task_contract", "checkin1", "cost_preflight"), paths):
+        if record[key] != os.path.relpath(path, rundir):
+            errors.append(f"approval.{key} must name {os.path.relpath(path, rundir)!r}")
+    if errors:
+        return errors
+    contract, _cpath, error = validate_run_state.load_contract_for(rundir, None)
+    errors = [error] if error else validate_task_contract.validate(contract)
+    if errors:
+        return ["invalid task_contract.json: " + "; ".join(errors)]
+    ladder = ("none", "dry", "smoke", "full", "scan")
+    if ladder.index(plan) > ladder.index(contract["compute_plan"]):
+        return [f"approved plan={plan} exceeds task_contract compute_plan={contract['compute_plan']}"]
+    try:
+        import validate_checkin
+        checkin = validate_task_contract.load_contract(paths[1])
+        errors = validate_checkin.validate(checkin, base_dir=rundir)
+        if type(checkin) is dict:
+            if type(checkin.get("schema_version")) is not int:
+                errors.append("checkin1.schema_version must be an exact integer")
+            if checkin.get("kind") != "checkin1":
+                errors.append("checkin1.kind must be checkin1")
+    except (OSError, ValueError, UnicodeError, RecursionError) as e:
+        errors = [str(e)]
+    if errors:
+        return ["invalid checkin1.json: " + "; ".join(errors)]
+    try:
+        budget = validate_task_contract.load_contract(paths[2])
+        errors = validate_task_contract.validate(
+            {**contract, "compute_plan": plan, "cost_estimate": budget})
+        if type(budget) is dict and (type(budget.get("schema_version")) is not int
+                                    or budget.get("schema_version") != 1
+                                    or budget.get("generated_by") != "cost_preflight.py"):
+            errors.append("cost artifact requires schema_version=1 and generated_by=cost_preflight.py")
+    except (OSError, ValueError, UnicodeError, RecursionError) as e:
+        errors = [str(e)]
+    if errors:
+        return ["invalid cost_preflight.json: " + "; ".join(errors)]
+    matches, reason = provenance.verify_pair(record, APPROVAL_GENERATOR, paths)
+    if not matches:
+        return ["stale or unbound approval: " + reason + "; re-record approval for the current inputs"]
+    return []
+
+
 def cmd_approve(args):
-    """H1 (R3): record the physicist's CHECK-IN 1 go-ahead as an ARTIFACT. Refuses unless a VALID
-    inputs/checkin1.json and an inputs/cost_preflight.json exist -- the chain checkin1 -> budget ->
-    approval -> compute is forced end-to-end (the pre-exec Bash guard requires this artifact)."""
+    """Record a v2 approval bound to the contract, CHECK-IN 1, and budget bytes."""
     rd = args.rundir.rstrip("/")
     if not os.path.isdir(rd):
         print(f"workflow_state approve: not a directory: {rd}", file=sys.stderr)
         return 2
-    c1 = os.path.join(rd, "inputs", "checkin1.json")
-    if not os.path.isfile(c1):
-        print("workflow_state approve: REFUSED -- no inputs/checkin1.json (compose + validate "
-              "CHECK-IN 1 first; the go-ahead approves THAT artifact)", file=sys.stderr)
-        return 1
-    try:
-        import validate_checkin
-        errs = validate_checkin.validate(json.load(open(c1)), base_dir=rd)
-    except Exception as e:                                    # noqa: BLE001 -- fail loud either way
-        errs = [f"checkin1.json unreadable/invalid: {e}"]
-    if errs:
-        print("workflow_state approve: REFUSED -- inputs/checkin1.json is INVALID:", file=sys.stderr)
-        for e in errs:
-            print(f"  - {e}", file=sys.stderr)
-        return 1
-    cp = os.path.join(rd, "inputs", "cost_preflight.json")
-    if not os.path.isfile(cp):
-        print("workflow_state approve: REFUSED -- no inputs/cost_preflight.json (run "
-              "`cost_preflight.py --mode <plan> --rundir <rd>` first; approval covers a RECORDED "
-              "budget, H4)", file=sys.stderr)
-        return 1
-    rec = {"schema_version": 1, "generated_by": "workflow_state.py approve",
+    paths = approval_input_paths(rd)
+    # Fingerprint BEFORE validation; verify_approval recomputes after all reads. An edit
+    # during validation cannot silently become part of the newly recorded approval.
+    rec = {"schema_version": APPROVAL_VERSION,
            "generated_utc": os.environ.get("WORKFLOW_STATE_UTC", ""),
            "approved_plan": args.plan, "quote": args.quote,
-           "checkin1": "inputs/checkin1.json", "cost_preflight": "inputs/cost_preflight.json"}
+           "task_contract": os.path.relpath(paths[0], rd),
+           "checkin1": "inputs/checkin1.json", "cost_preflight": "inputs/cost_preflight.json",
+           **provenance.provenance_pair(APPROVAL_GENERATOR, paths)}
+    errors = verify_approval(rd, rec)
+    if errors:
+        print("workflow_state approve: REFUSED -- " + "; ".join(errors), file=sys.stderr)
+        return 1
     out = os.path.join(rd, "inputs", "checkin1_approval.json")
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(rec, fh, indent=2)
@@ -499,7 +623,7 @@ def selftest():
     def _survey_rundir(td):
         rd = os.path.join(td, "run")
         os.makedirs(os.path.join(rd, "inputs"))
-        contract = {"prompt": "selftest", "task_mode": "survey", "detector_mode": "particle-level",
+        contract = {"schema_version": 1, "prompt": "selftest", "task_mode": "survey", "detector_mode": "particle-level",
                     "stat_mode": "none-survey", "required_user_inputs": [], "assumptions": ["fx"],
                     "compute_plan": "none", "approval_required": True}
         with open(os.path.join(rd, "inputs", "task_contract.json"), "w") as fh:
@@ -531,6 +655,11 @@ def selftest():
         check("5b record failure registers open_failure_records",
               main(["record", "--rundir", rd, "--kind", "failure", "--what", "logs/gen.failure.json"]) == 0
               and load_state(rd)[0]["open_failure_records"] == ["logs/gen.failure.json"])
+        # CR-135: a route record with no routing content is a silent no-op (no row, no rewrite)
+        _pre = open(_state_path(rd), "rb").read()
+        check("5c record route without content is a no-op",
+              main(["record", "--rundir", rd, "--kind", "route"]) == 0
+              and open(_state_path(rd), "rb").read() == _pre)
         # --- advance ---
         check("6 advance to resource_census allowed",
               main(["advance", "--rundir", rd, "--to", "resource_census"]) == 0)

@@ -15,6 +15,13 @@ claiming a new particle in the data, which is out of scope. Never phrase a resul
 - The limit must reach the **true** CLs=0.05 crossing. A fixed µ grid (e.g. mapyde's 0.1–2.0) can stop
   short; `pyhf_exclude.py` brackets µ (doubles until CLs<0.05) and interpolates — a large µ₉₅ is a real
   (weakly-constrained) result, not a bug. Never hand-roll the statistical model.
+- **Silent-optimizer guard (CR-005, a 🔴 trap):** histosys workspaces can have NaN pockets on which
+  scipy/SLSQP returns its INIT vector claiming success (2018-06: µ₉₅ 1.192 with obs==exp, no error).
+  `pyhf_exclude.py` auto-detects this, falls back to NaN-guarded iminuit MIGRAD, and escalates the
+  whole model MIGRAD-first — check `exclusion.json` `"optimizer"` for `escalated`/`n_fallback`.
+  Honesty flags: `median_at_cap` (CR-124, the median really IS the ceiling — `at_poi_cap` alone is
+  bracket granularity) and `band_degenerate` (CR-132, band spans <1.5× — quote as bound only).
+  Regression: `pyhf_exclude.py selftest` (incl. the committed 2018-06 fixture).
 
 ## NLO+NLL normalization — and the single-charge caveat (a 🔴 trap)
 - `nlo_xsec.py --process <gluino|squark|stop|sbottom|wino-c1n2|slepton> --mass <m>` → σ_NLO+NLL + k.

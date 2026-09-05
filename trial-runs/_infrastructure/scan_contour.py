@@ -329,10 +329,23 @@ def render_grid(scan, atlas_contours, args):
         ax.set_xscale("log")
     if log_y:
         ax.set_yscale("log")
-    header(ax, hep, args)
+    # the scatter + contours occupy most of the panel, so the experiment label goes ABOVE the
+    # axes (mplhep loc=0) instead of inside top-left, where the 2026-08-28 Tier-B panel found it
+    # overdrawn by markers; the legend gets explicit corner candidates (incl. the lower ones)
+    # so it never sits on the scatter (same treatment render_fig3 already had).
+    if hep is not None:
+        explabel = getattr(hep, args.experiment.lower()).label
+        try:
+            explabel(ax=ax, data=True, text="", lumi=args.lumi, com=args.com, loc=0)
+        except TypeError:
+            header(ax, hep, args)
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        house.smart_legend(ax, fontsize=10)  # placed first; the annotation scores around it
+        house.smart_legend(ax, fontsize=10, reserved_corners=(),
+                           candidates={"upper right": (0.58, 1.00, 0.55, 1.00),
+                                       "upper left": (0.00, 0.42, 0.55, 1.00),
+                                       "lower right": (0.58, 1.00, 0.00, 0.45),
+                                       "lower left": (0.00, 0.42, 0.00, 0.45)})
     house.smart_annotate(
         ax, [rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$",
              f"{scan['n_done']}/{scan['n_planned']} grid points",
@@ -560,8 +573,13 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
         if role.startswith("observed"):
             ax.plot(xx, yy, ls="none", marker="o", ms=3.2, color=house.OKABE_ITO["blue"],
                     mec="none", zorder=5)
+            # label the dots by COLUMN, not just "ATLAS" (RRR's own bare label): on the
+            # expected-variant panel the dots are still the published OBSERVED contour, and an
+            # unlabeled mixed overlay reads as like-columns when it is not (Tier-B 2026-08-28
+            # finding 4). The FILL stays like-columns in both variants.
             handles.append(Line2D([], [], marker="o", ls="none", ms=5,
-                                  color=house.OKABE_ITO["blue"], mec="none", label="ATLAS"))
+                                  color=house.OKABE_ITO["blue"], mec="none",
+                                  label="ATLAS observed"))
         else:
             ax.plot(xx, yy, color="0.35", ls="--", lw=1.2, zorder=5)
             handles.append(Line2D([], [], color="0.35", ls="--", lw=1.2,
@@ -613,7 +631,7 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
     lines = [rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$  vs ATLAS",
              f"{kind} limits, both sides",
              f"{scan['n_done']}/{scan['n_planned']} grid points",
-             f"median |rel diff| = {med:.0f} percent ({int(matched.sum())} ref-matched cells)",
+             f"median |rel diff| = {med:.1f} percent ({int(matched.sum())} ref-matched cells)",
              "95% CL exclusion (CLs), not a discovery"]
     if n_missing:
         lines.insert(4, rf"$\circ$ white cell: no published ref point")
@@ -779,7 +797,11 @@ def render_diffmap(scan, atlas_contours, limit_grid, args):
                     label=f"ATLAS {role.replace('_', ' ')}")
         ax.set_xlabel(r"$m_{\tilde{\ell}}$ [GeV]"); ax.set_ylabel(r"$\Delta m$ [GeV]")
         if ax.get_legend_handles_labels()[0]:
-            house.smart_legend(ax, fontsize=10)  # scored corners; annotation box owns lower left
+            house.smart_legend(ax, fontsize=10, reserved_corners=(),
+                               candidates={"upper right": (0.58, 1.00, 0.55, 1.00),
+                                           "upper left": (0.00, 0.42, 0.55, 1.00),
+                                           "lower right": (0.58, 1.00, 0.00, 0.45),
+                                           "lower left": (0.00, 0.42, 0.00, 0.45)})
     else:  # 1-D line: rel-diff vs Δm at the single mass
         order = np.argsort(dm)
         ax.axhline(0, color="0.5", lw=1)
@@ -789,11 +811,20 @@ def render_diffmap(scan, atlas_contours, limit_grid, args):
                       r"/\sigma_{\mathrm{UL}}^{\mathrm{ATLAS}}$  [%]")
         ax.text(0.5, 0.04, f"m={mpar[0]:g} GeV  ·  1-D slice of the difference map (need a 2-D grid for "
                 f"the color map)", transform=ax.transAxes, ha="center", va="bottom", fontsize=9, color="0.4")
-    header(ax, hep, args)
+    # the fill occupies the whole panel -> experiment label ABOVE the axes (as in render_fig3);
+    # inside-axes placement was found overdrawn by the 2026-08-28 Tier-B panel.
+    if hep is not None:
+        explabel = getattr(hep, args.experiment.lower()).label
+        try:
+            explabel(ax=ax, data=True, text="", lumi=args.lumi, com=args.com, loc=0)
+        except TypeError:
+            header(ax, hep, args)
     house.smart_annotate(ax, [
         rf"$\mathbf{{{(scan.get('analysis_id') or '').replace('_', chr(92)+'_')}}}$  vs ATLAS",
         "rel. diff in the 95% CL limit (RRR Fig-3 figure-of-merit)",
-        f"median |rel diff| = {100*float(np.nanmedian(np.abs(rel))):.0f} percent"], fontsize=10)
+        "smoothly INTERPOLATED between lattice points" if twoD else "1-D slice",
+        "(diagnostic; exact per-cell map: __fig3)",
+        f"median |rel diff| = {100*float(np.nanmedian(np.abs(rel))):.1f} percent"], fontsize=10)
     house.tick_hygiene(ax, axr=None, logy=False, logx=False)
     stem = args.out + "__reldiff"
     save(fig, stem)

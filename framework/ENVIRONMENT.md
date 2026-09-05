@@ -1,6 +1,6 @@
 # Environment manifest
 
-Pinned toolchain for reproducibility (R5/R8). All under
+Recorded development toolchain inventory (R5/R8), not an exact environment lock. All under
 `stages/01-event-generation/build/tools/` (gitignored, regenerable). Conda = Miniforge arm64.
 
 ## Conda environments
@@ -25,7 +25,11 @@ Pinned toolchain for reproducibility (R5/R8). All under
 | HEPData | JSON API (open), `hepdata-cli` full tables, `/record/resource/<id>?view=true` likelihood |
 | podman runtime | native arm64 5.8.2 + applehv VM (`mg-vm`), amd64 images under emulation |
 
-## Reproduce the reinterpretation envs
+The Python replay environment is separately version- and hash-locked in
+`requirements-replay.lock`; see [CLI.md](../docs/CLI.md). The native HEP stack below is
+ARM64-specific and does not yet have a verified cross-platform lock or OCI reproduction.
+
+## Bootstrap examples for the reinterpretation environments
 ```bash
 CONDA=stages/01-event-generation/build/tools/miniforge3/bin/conda
 $CONDA run -n rivet python -m pip install "pyhf[minuit]" jsonpatch pyyaml

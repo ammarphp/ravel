@@ -112,7 +112,7 @@ the step involved.
 | `name_plots.py`           | 5 | standardized, parseable plot names + an `INDEX.md` legend |
 | `overlay_on_data.py`      | 5 | signal+background over the published data (the publishable view) |
 | `fetch_figures.py`        | 5 | the analysis's **published figures** (arXiv source/PDF) for the fidelity check |
-| `hepdata_fetch.py`        | 6 | published **likelihood** (resource endpoint) + **complete tables** (`--tables`, hepdata-cli) |
+| `hepdata_fetch.py`        | 6 | published **likelihood** (resource endpoint) + **complete tables** (`--tables`: hepdata-cli, auto-falling back to the open `/record/data/<recid>/<table_id>/<version>` endpoint — same verify-after-download contract) |
 | `rivet_ref_yields.py`     | 6 | Rivet bundled REF + signal YODA → per-SR (obs, bkg±unc, signal) |
 | `pyhf_exclude.py`         | 7 | 95% CL upper limit on µ — serialized likelihood **or** counting model |
 | `scan_orchestrator.py`    | 8 | **outer loop**: grid spec → per-point run dirs/TOMLs → harvest `result.json` → `scan.json` (plan/launch/status/assemble) |

@@ -418,7 +418,12 @@ def enforce_lint(fig, where="", allow=False):
 
 
 def _occupancy_points(ax):
-    """Sample the drawn artists into axes-fraction points (deterministic)."""
+    """Sample drawn artists in axes fractions, including sparse Line2D segments.
+
+    Line paths are transformed before interpolation (log scales, steps, and mixed
+    axes/data coordinates). Sampling is bounded to the visible rectangle and
+    roughly 1% of the axes diagonal, rather than depending on data magnitudes.
+    """
     pts = []
     trans = ax.transData
     to_axes = ax.transAxes.inverted()
@@ -437,8 +442,47 @@ def _occupancy_points(ax):
     except Exception:                              # very old matplotlib
         ContourSet = ()
 
+    from matplotlib.path import Path
+    from matplotlib.transforms import Bbox
+
+    spacing = max(1.0, 0.01 * np.hypot(ax.bbox.width, ax.bbox.height))
     for ln in ax.lines:
-        add(ln.get_xdata(), ln.get_ydata())
+        if not ln.get_visible() or ln.get_alpha() == 0:
+            continue
+        # Marker-only artists must not gain a fictitious connecting stroke.
+        stroke = ln.get_linestyle().lower() not in ("none", "", " ") and ln.get_linewidth() > 0
+        marker = ln.get_marker() not in ("None", "none", "", " ", None) and ln.get_markersize() > 0
+        clip = ax.bbox if ln.get_clip_on() else ax.figure.bbox
+        if ln.get_clip_on() and ln.get_clip_box() is not None:
+            clip = Bbox.intersection(clip, ln.get_clip_box())
+            if clip is None:
+                continue
+        if marker:
+            xy = ln.get_transform().transform(ln.get_xydata())
+            ok = (np.isfinite(xy).all(axis=1) & (xy[:, 0] >= clip.x0) & (xy[:, 0] <= clip.x1)
+                  & (xy[:, 1] >= clip.y0) & (xy[:, 1] <= clip.y1))
+            if ok.any():
+                pts.append(to_axes.transform(xy[ok]))
+        if not stroke:
+            continue
+        path = ln.get_transform().transform_path(ln.get_path())
+        previous = first = None
+        # iter_segments preserves MOVETO breaks at NaN/masked data; removing bad
+        # vertices ourselves would incorrectly join separate finite subpaths.
+        for vertices, code in path.iter_segments(remove_nans=True, clip=clip.extents,
+                                                  simplify=False, curves=False):
+            point = vertices[-2:] if code != Path.CLOSEPOLY else first
+            if point is None or not np.isfinite(point).all():
+                previous = None
+                continue
+            if code == Path.MOVETO:
+                previous = first = point
+                continue
+            if previous is not None and code in (Path.LINETO, Path.CLOSEPOLY):
+                count = min(257, max(2, int(np.ceil(np.hypot(*(point - previous)) / spacing)) + 1))
+                xy = np.linspace(previous, point, count)
+                pts.append(to_axes.transform(xy))
+            previous = point
     for coll in ax.collections:
         got = False
         try:

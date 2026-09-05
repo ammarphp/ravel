@@ -19,6 +19,10 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from validation_summary import benchmark_headline, load_baseline, summarize
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MARKER = re.compile(r"<!--\s*claim:([a-z0-9_]+)\s*-->(.*?)<!--\s*/claim\s*-->", re.S)
@@ -32,9 +36,13 @@ def check(readme_path, manifest_path, root=ROOT):
     fails, warns = [], []
     manifest = json.load(open(manifest_path))
     claims = {c["claim"]: c for c in manifest["claims"]}
+    if len(claims) != len(manifest["claims"]):
+        fails.append("duplicate manifest claim id")
     readme = open(readme_path).read()
     cited = {}
     for cid, text in MARKER.findall(readme):
+        if cid in cited:
+            fails.append(f"duplicate README claim marker '{cid}'")
         cited[cid] = norm(text)
         if cid not in claims:
             fails.append(f"README cites unknown claim id '{cid}' (no manifest entry)")
@@ -53,6 +61,16 @@ def check(readme_path, manifest_path, root=ROOT):
         for a in entry.get("artifacts", []):
             if not os.path.exists(os.path.join(root, a)):
                 fails.append(f"claim '{cid}' artifact missing on disk: {a}")
+    # Numerical agreement between two hand-edited strings is insufficient: derive the
+    # benchmark headline's value AND metric scope from its actual baseline artifacts.
+    if "benchmarks_reproduced" in claims:
+        try:
+            cases, results, _ = load_baseline(root)
+            expected = benchmark_headline(summarize(cases, results))
+            if claims["benchmarks_reproduced"]["value"] != expected:
+                fails.append(f"benchmark scope/value drift: expected '{expected}'")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            fails.append(f"benchmark source invalid: {exc}")
     # cross-check the shared physics headline against the sha-pinned evidence manifest
     ev_path = os.path.join(root, "evidence_manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
@@ -91,8 +109,10 @@ def main():
 
 def selftest():
     import tempfile
-    ok_readme = '<!-- claim:tests_collected -->344<!-- /claim -->'
-    bad_readme = '<!-- claim:tests_collected -->999<!-- /claim -->'
+    claims = json.load(open(os.path.join(ROOT, "results", "manifest.json")))["claims"]
+    entry = next(c for c in claims if c["status"] == "VERIFIED")
+    ok_readme = f'<!-- claim:{entry["claim"]} -->{entry["value"]}<!-- /claim -->'
+    bad_readme = f'<!-- claim:{entry["claim"]} -->DOCTORED<!-- /claim -->'
     with tempfile.TemporaryDirectory() as td:
         rp = os.path.join(td, "README.md")
         mp = os.path.join(ROOT, "results", "manifest.json")

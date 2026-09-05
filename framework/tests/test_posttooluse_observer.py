@@ -15,6 +15,7 @@ OBSERVER_SH = REPO / ".claude" / "hooks" / "posttooluse-observer.sh"
 WORKFLOW_STATE_PY = REPO / "trial-runs" / "_infrastructure" / "workflow_state.py"
 
 _SURVEY_CONTRACT = {
+    "schema_version": 1,
     "prompt": "selftest", "task_mode": "survey", "detector_mode": "particle-level",
     "stat_mode": "none-survey", "required_user_inputs": [], "assumptions": ["fx"],
     "compute_plan": "none", "approval_required": True,
@@ -31,6 +32,11 @@ def _project_with_run(tmp_path):
     r = subprocess.run([sys.executable, str(WORKFLOW_STATE_PY), "init", "--rundir", str(rd)],
                        cwd=REPO, capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
+    # CR-135: --project-dir auto-resolution requires the CR-022 ownership mark (live SESSION.lock)
+    import datetime
+    now = datetime.datetime.now().isoformat(timespec="seconds")
+    (rd / "SESSION.lock").write_text(json.dumps(
+        {"owner": "T", "acquired": now, "renewed": now, "history": []}))
     return proj, rd
 
 

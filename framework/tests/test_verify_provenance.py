@@ -12,6 +12,7 @@ VALIDATE_RUN_STATE_PY = REPO / "trial-runs" / "_infrastructure" / "validate_run_
 WORKFLOW_STATE_PY = REPO / "trial-runs" / "_infrastructure" / "workflow_state.py"
 
 _SURVEY_CONTRACT = {
+    "schema_version": 1,
     "prompt": "selftest", "task_mode": "survey", "detector_mode": "particle-level",
     "stat_mode": "none-survey", "required_user_inputs": [], "assumptions": ["fx"],
     "compute_plan": "none", "approval_required": True,

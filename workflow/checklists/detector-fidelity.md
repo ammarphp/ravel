@@ -163,12 +163,13 @@ attribution, same three-state verdict, same node-descriptor lookup — but its p
 
 ```bash
 $CONDA run -n rivet python trial-runs/_infrastructure/certify_acceptance.py \
-    --srs "<SR1,SR2,…>"            `# comma list of SR names, NOT a path` \
-    --acceff <run acc×eff source>  `# the run's per-SR acc×eff (selected/generated)` \
+    --srs "<SR1,SR2,…>"                `# comma list of SR names, NOT a path` \
+    --acceptance <run acc×eff source>  `# SimpleAnalysis CSV (SR,events,acceptance,err) or sr_yields json` \
     --tables-dir <hepdata yaml dir> --grid "<grid-description matcher>" \
-    --m-parent <m> --m-lsp <m>     `# the run's grid point` \
+    --m-parent <m> --m-lsp <m>         `# the run's grid point (--dm <Δm> instead of --m-lsp)` \
     --driving-tol 0.15 --contributing-tol 0.25 --mu95-bound 0.10 \
-    [--exclusion <run exclusion.json>] [--driving-sr-override "<SR,…>"] \
+    [--region-map "<SR=published-region,…>"] [--acc-unit-scale <z-axis scale>] \
+    [--driving-sr-override "<SR,…>"] \
     --out <rundir>/outputs/acceff_cert.md      # writes .md + sibling .json
 ```
 
@@ -187,6 +188,21 @@ exit code; any produced cert exits 0):
   mass-splitting beyond the map's last node), there is no exact node and no valid bracket — the cert
   falls back to the **flagged-nearest** node and says so. Surface that flag in the verdict; the only
   honest claim there is "nearest published node, flagged", not a clean certification.
+- **FAIL CAUSE — read which failure class fired before diagnosing.** Every FAIL prints (and stores in
+  the json as `fail_reason`) which cause it is: **unevaluable** (a driving SR had no computable ratio —
+  wrong `--grid`/`--region-map`, absent tables, missing routine yield → fix the *inputs*, the
+  comparison never happened) vs **evaluated-but-over-tolerance** (the driving SR was read at a real
+  published node and missed the tolerance → the comparison *worked*; diagnose the *physics* via the
+  attribution rows, not the lookup). Chasing a `--region-map` problem on an over-tolerance FAIL wastes
+  the diagnosis (this misprint burned four CR-005 cert readings before the causes were split).
+- **BASIS SUSPICION (CR-140 / catalogue A4) — a uniform ratio is a σ-basis fingerprint.** When every
+  evaluated SR sits at the *same* ratio (spread ≤1.25×) but ≥20% from unity, the cert prints a
+  basis-suspicion warning (also `basis_suspicion` in the json). A uniform **excess** is the A4 trap:
+  the acceptance denominator is the **tagged** generated sample while the published map's denominator
+  is the **inclusive** model σ — convert with A×ε_incl = A×ε_tag × f, f = σ_tag/σ_incl_LO from the
+  same σ table the scan rebase uses, then re-certify. A uniform **deficit** points at one global cause
+  (missing ME/PS merging, k-factor/σ basis, fast-sim floor) — decompose the normalization before
+  touching any cut.
 
 ---
 

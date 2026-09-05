@@ -1,16 +1,26 @@
-# Benchmark validation pages
+# Benchmark validation
 
-One page per known-answer benchmark case, generated from the gate's own
-`framework/benchmark/{cases.json,results.json}` by `scripts/gen_validation_pages.py`
-(regenerate after any `--full` gate re-run; CI checks freshness indirectly via the
-claims gate). Δ% = |1 − s95_obs(ours)/s95_obs(published)|.
+Generated from the committed historical `framework/benchmark/{cases.json,results.json}`.
+Baseline timestamp: `2026-07-09T02:22:22+00:00`. These pages do not claim a fresh replay.
 
-| Case | Analysis | Δ% (obs) | Tier | Page |
-|---|---|---|---|---|
-| `ins1458270_squark_800_100` | ATLAS_2016_I1458270 | 0.2 | Ideal | [ins1458270_squark_800_100.md](ins1458270_squark_800_100.md) |
-| `ins1458270_gluino_1000_100` | ATLAS_2016_I1458270 | 5.4 | Ideal | [ins1458270_gluino_1000_100.md](ins1458270_gluino_1000_100.md) |
-| `ins1458270_squark_merged_800_100` | ATLAS_2016_I1458270 | 0.2 | Ideal | [ins1458270_squark_merged_800_100.md](ins1458270_squark_merged_800_100.md) |
-| `ins1458270_gluino_merged_1000_100` | ATLAS_2016_I1458270 | 5.9 | Ideal | [ins1458270_gluino_merged_1000_100.md](ins1458270_gluino_merged_1000_100.md) |
-| `conf2016054_gluino_onestep_1500_60` | ATLAS_2016_CONF_2016_054 | 8.6 | Ideal | [conf2016054_gluino_onestep_1500_60.md](conf2016054_gluino_onestep_1500_60.md) |
-| `ins1452559_dm_axial_850_1` | ATLAS_2016_I1452559 | 2.3 | Ideal | [ins1452559_dm_axial_850_1.md](ins1452559_dm_axial_850_1.md) |
-| `conf2016037_gluino_2step_sleptons_1400_60` | ATLAS_2016_CONF_2016_037 (run-local PATCHED copy) | 8.2 | Ideal | [conf2016037_gluino_2step_sleptons_1400_60.md](conf2016037_gluino_2step_sleptons_1400_60.md) |
+All 9 registered cases are listed, including failures and unscorable comparisons.
+The 7 observed model-independent S95 comparisons span 4 distinct searches; their worst deviation is 8.6%.
+This tests the statistical/data-input layer. It does not establish detector selection or end-to-end fidelity.
+Acceptance is scorable in 6 cases and unscorable in 3; recorded cert verdicts are {'PASS': 4, 'WARN': 1, 'FAIL': 1}.
+Acceptance certification, the regression tier, and numerical stability are separate judgments.
+
+The end-to-end mass-plane result is recorded separately in the
+[flagship scan](../../trial-runs/sleptonscan_fig3_SCAN/RESULT.md): 24.9% median same-basis
+cross-section-limit residual over 50 reference-matched cells from a 52-point scan.
+
+| Case | Observed S95 deviation | Acceptance verdict | Baseline gate |
+|---|---|---|---|
+| [ins1458270_squark_800_100](ins1458270_squark_800_100.md) | 0.2% | PASS | OK |
+| [ins1676551_c1n2_300_100](ins1676551_c1n2_300_100.md) | unscorable | PASS | OK |
+| [ins1458270_gluino_1000_100](ins1458270_gluino_1000_100.md) | 5.4% | WARN | OK |
+| [ins1458270_squark_merged_800_100](ins1458270_squark_merged_800_100.md) | 0.2% | PASS | OK |
+| [ins1458270_gluino_merged_1000_100](ins1458270_gluino_merged_1000_100.md) | 5.9% | PASS | OK |
+| [conf2016054_gluino_onestep_1500_60](conf2016054_gluino_onestep_1500_60.md) | 8.6% | unscorable | OK |
+| [ins1452559_dm_axial_850_1](ins1452559_dm_axial_850_1.md) | 2.3% | unscorable | OK |
+| [conf2016037_gluino_2step_sleptons_1400_60](conf2016037_gluino_2step_sleptons_1400_60.md) | 8.2% | unscorable | OK |
+| [ins2182381_gbb_1900_1](ins2182381_gbb_1900_1.md) | unscorable | FAIL | OK |

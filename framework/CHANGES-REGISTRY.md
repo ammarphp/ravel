@@ -859,7 +859,12 @@
   |(mapyde−ATLAS)/ATLAS| — now the leading term after the NLO renorm + comparison-basis rebase.
 - **Where-embedded (when done):** a new assembled `scan.json` + refreshed fig3 artifact +
   RESULT.md decomposition; `framework/STATUS.md` headline updated.
-- **Status (2026-07-07 continuation-3, Opus):** RUNNING + PRELIMINARY RESULT. CR-002 is fixed; the
+- **Status (2026-07-07 continuation-3, Opus; line reconciled 2026-08-28 — it stalely said
+  "RUNNING + PRELIMINARY"):** COMPLETE — 52/52 points done (`trial-runs/CR004rescan_SCAN/scan.json`:
+  n_done=52, n_missing=0); final numbers per `CR004rescan_SCAN/CR004-FULL-RESULT.md` (and the
+  FINAL FINDING below): median same-basis |σ-UL residual| = **22.0%** (20.8% obs / 17.0% exp on
+  the fig3 panels), point-matched σ-UL(nn23nlo)/σ-UL(cteq6l1) median **+6.5%** — the PDF is a
+  minor contributor; entry CLOSED (see the closing Status line). Setup context: CR-002 is fixed; the
   LHAPDF/arm64 link blocker (D1) means the rescan basis is MG-internal `nn23nlo` (NNPDF2.3 NLO) via
   the `--pdf nnpdf30` path now wired into `prepare_native_slepton.py` + `scan_orchestrator launch`.
   The 52-point rescan (`trial-runs/CR004rescan_SCAN`, **same grid + 20k events/point** as the
@@ -952,6 +957,27 @@
   rundir materialization is the documented sample path; a generic prep tool stays un-built).
   **Named follow-ups:** per-analysis acc×eff certs + µ95 anchors for the two new routines
   before either SERVES physics results; further routines port-on-demand via §porting.
+  - **Follow-up status 2026-08-28:** the acc×eff certs + µ95 anchors for
+    `ZeroLeptonDiscovery2018` + `EwkThreeLeptonERJR2018` are **SCHEDULED — not done** — in the
+    Aug-28 adversarial campaign (`framework/overnight-roadmap/ADVERSARIAL-CAMPAIGN-2026-08-28.md`,
+    Phase-3 board item #2: "CR-005 routine certs + µ95 anchors (benchmark-point smokes)",
+    slotted SAT after the P1 scan). The serve-gate above stands until they land.
+  - **Follow-up status 2026-08-29: DONE — verdict FAIL for BOTH routines; the serve-gate STAYS CLOSED.**
+    Evidence: `trial-runs/CR005cert_{ss_1200_600,gg_2200_600,gg1step_2200_600,c1n2_300_100}/`
+    (WORKLOG + cert JSON + µ95 anchors each). Multi-jet lanes MLM-merged at scan-decided xqcut
+    (SS 200 → matched/LO 0.996; GG 220 → 0.997); c1n2 deliberately unmerged (EWK skip rule).
+    `ZeroLeptonDiscovery2018` (ins1827025): FAIL at all three benchmarks — A×ε ratios ≈0.71
+    (2j/4j driving) → 0.67 (5j) → 0.51 (6j) → 0.41–0.56 (hardest-meff SRs): a coherent deficit
+    ladder across independent grids/processes (≥10σ, not transcription; candidates recorded
+    unconfirmed: fast-sim jet/MET floor + radiation share). `EwkThreeLeptonERJR2018`
+    (ins1771533): FAIL (driving SR-low 0.348; ISR family consistent 1.11±0.26). µ95 anchors
+    (published bkgonly + CR-142 robust pyhf): exclusion DIRECTION agrees with the paper at every
+    point; limits 1.4–2.9× weaker, tracking the acceptance deficits; 6j-3400 escalated+recovered
+    (first production firing of the CR-142 guard); CR-142 refuses the sick c1n2 ours-patch
+    surface (edm 0.19) — retired-wrapper µ95_ours downgraded to indicative. **Neither routine
+    may serve physics results.** Reopen path: per-cut decomposition vs published cut_flow_1/2,
+    Delphes jet/MET response audit, qCut 1.5× spot-check; then re-run the lanes (per-lane
+    `config/production.sh` + `config/cert_and_anchor.sh`, ~50–85 min each).
 
 ### CR-006 — clean-room self-drive proof
 - **Date registered:** 2026-07-06
@@ -3194,7 +3220,11 @@ touched again.
   document that `at_poi_cap` = bracket reached the cap (granularity, not a capped limit).
   **Why:** catalogue N9 — a deliverable drew finite limits as ">cap" arrows off the ambiguous flag.
   **Where-embedded:** consumer-side guard in the run's build/run_limits.py (capped := median ≥ 127.9).
-- **Status:** DEFERRED — trigger: next pyhf_exclude.py touch (guard consumers exist meanwhile).
+- **Status:** EMBEDDED 2026-08-28 (CR-142 pickup — the registered trigger, "next pyhf_exclude.py
+  touch", fired): `pyhf_exclude.compute` emits `median_at_cap` (true iff the MEDIAN expected CLs
+  never crossed the level anywhere in the scan, i.e. the median limit IS the scan ceiling) with a
+  LOUD WARN; `at_poi_cap` documented as bracket granularity in `workflow/steps/07-exclude.md`
+  §honesty flags; regression = `selftest` (`unconstrained` asserts the flag true, `normal` false).
 
 ## CR-125 · 2026-07-11 · projection runs: limit-basis declaration is mandatory (B3 guard)
 - **What:** any projection/sensitivity run must declare, in its own inputs/basis_manifest.json, the
@@ -3231,7 +3261,11 @@ touched again.
   evaluates on every run. **Why:** catalogue N11 — the gate was [INFO]-skipped for the whole
   toponium-summary run. **Where-embedded:** owner = trial-runs/_infrastructure/route_prompt.py +
   .claude/skills/physicist-intake.
-- **Status:** DEFERRED — trigger: next route_prompt.py touch.
+- **Status:** EMBEDDED 2026-08-28 — picked up on the registered trigger (the CR-133 route_prompt
+  touch): `route_prompt.py --out` now best-effort-initializes the rundir's minimal
+  `run_state.json` via `workflow_state.new_state` (session id from `CLAUDE_SESSION_ID`, contract
+  pointer, every ledger list empty). Regression:
+  `framework/tests/test_intake_u1_defects.py::test_contract_write_initializes_run_state`.
 
 ## CR-132 · 2026-07-11 · fan-out agents persist findings incrementally
 - **What:** multi-agent survey/verify fan-outs write per-agent findings to disk as they go
@@ -3259,6 +3293,328 @@ touched again.
 - **Where-embedded (interim):** run-local guards in the SUSY-2020-04 run's build/proj_cls.py
   (minuit-first + monotonicity audit) and build/replane_run.py (BAND_RATIO_MIN filter);
   catalogue B4/B5 carry the attack signatures for Tier-B.
-- **Status:** DEFERRED — trigger: the next run that touches pyhf_exclude for a projection or
-  any tightly-constrained workspace, OR the next dev session on statistics infra (whichever
-  first). Benchmark --full gate mandatory on pickup.
+- **Status:** EMBEDDED 2026-08-28 (CR-142 pickup — "next dev session on statistics infra" fired):
+  (i) band-sanity check landed as `band_degenerate` (+2σ/−2σ limit ratio < 1.5 → LOUD WARN +
+  flag in exclusion.json, quote as bound only); (ii) the optimizer policy landed as
+  `robust_optimizer` (SLSQP-first + guarded-MIGRAD fallback + sticky per-model escalation —
+  per-fit isolation subsumed by escalation, which CR-005's 2018-06 evidence showed is REQUIRED:
+  SLSQP is silently stuck even in NaN-free minimizations on a pocketed surface). Benchmark
+  `--full` run per the pickup mandate: numerics bit-identical, no re-baseline needed.
+
+## CR-133 · 2026-08-28 · router word-context guards + mass plausibility filtering (route_prompt.py)
+- **What:** classification and mass extraction run on a VIEW of the prompt with model-description
+  content masked (symbol-glossary bullets like "- $P_L$ is the left-handed projection operator."
+  dropped whole; `$…$`/`$$…$$` math blanked; "projection operator" excluded as a phrase), and the
+  mass extractor gained (a) comma/'and' lists sharing one trailing unit ("750, 1000, … 5000 GeV")
+  and (b) plausibility guards: markdown-table rows, binning context (bins/bin edges/histogram),
+  and √s/beam constants in collider context are NOT candidate masses (same-line context window).
+- **Why:** the 2026-08-27 U1-leptoquark head-to-head (adjudication §II.4 honesty item 1,
+  catalogue N12) classified task_mode=projection off Lagrangian glossary text and extracted
+  masses [13000 (=√s), 5000, 3200 (=mT bin edge)] instead of the request's 9-value grid.
+- **Where-embedded:** owner = `trial-runs/_infrastructure/route_prompt.py`
+  (`classification_view`/`extract_masses`); regression = the verbatim run-record prompt in
+  `route_prompt.py --selftest` (dev tree) + the synthetic twins in
+  `framework/tests/test_intake_u1_defects.py` (both trees).
+- **Status:** EMBEDDED.
+
+## CR-134 · 2026-08-28 · detector_mode `delphes-custom-uncertified` (enum + gate/check-in threading)
+- **What:** new task-contract detector mode `delphes-custom-uncertified` — Delphes fast-sim
+  driving a CUSTOM selection with no certified routine (the Option-C detector variant). Threaded:
+  `validate_task_contract.DETECTOR_MODES` + `result_pack.DETECTOR_MODES` accept it;
+  `validate_run_state.check_route` WARNs with the no-exclusion-of-record obligation (instead of a
+  blank PASS); `validate_checkin` (rundir mode) FAILs a CHECK-IN 1 that does not surface the
+  uncertified status when the sibling contract declares the mode; PRODUCT-CONTRACT §2 carries the
+  row (fidelity ceiling: uncertified fast-sim proxy until per-SR acc×eff certification closes, T10).
+- **Why:** adjudication §II.4 honesty item 6 / catalogue N13 — the U1 run had to be recorded
+  detector_mode=particle-level with the actual route buried in an assumptions note.
+- **Where-embedded:** owners above; regression = `framework/tests/test_intake_u1_defects.py`
+  (enum acceptance, route-gate WARN, check-in surfacing) + the validators' own `--selftest`s.
+- **Status:** EMBEDDED.
+
+## CR-135 · 2026-08-28 · ledger route-noise fix: active-run resolution + contentless-route no-op
+- **What:** two `workflow_state.py` defects behind the `{"utc": ""}` rows accumulating in CLOSED
+  runs' `run_state.json` `routes` lists. (1) `find_active_rundir` defined "active" as "newest
+  mtime", so a long-closed run matched forever — and each misdirected append refreshed the very
+  mtime that kept it "newest". Now resolution is: cwd-inside-rundir first (unambiguous, even for
+  a closed run being backfilled); else the newest ACTIVE ledger only — not closed (no
+  `RESULT.md`) and carrying the CR-022 ownership mark (a `SESSION.lock` with a heartbeat inside
+  `LOCK_FRESH_HOURS` = 24 h, session_lock's own staleness rule); else None (record self-scopes
+  to a no-op). A ledger-mtime freshness arm was tried and REJECTED during the fix: the noise
+  scrub itself resurrected the 2026-07-10 ledger into the window and the end-to-end hook check
+  landed a fresh noise row there — any maintenance write reopens the loop. (2)
+  `_norm_route` appended an audit row and rewrote the file even with an EMPTY payload (the
+  router hook fires `record --kind route` blind on every physics-looking prompt; `utc` is ""
+  because `WORKFLOW_STATE_UTC` is unset in hook context). State-mutator normalizers now return
+  mutated-or-not; a contentless route record is a full no-op (no `routed` flip, no row, no
+  rewrite). The router hook now passes `--what "$tmode"` so the D-3 reconcile write carries
+  real routing content — and can only ever land on a genuinely active run. Both polluted
+  ledgers scrubbed (2026-07-11 higgsino-proj-replane: 30 rows; 2026-07-10 wino-c1n2: 23 rows;
+  every row was the degenerate `{"utc": ""}` shape — ledger noise, not evidence; `routed: true`
+  kept as the historical fact; git history preserves the defect evidence).
+- **Why:** 30+ degenerate route rows in the working tree of a run closed 2026-07-11 (some
+  already committed), appended by unrelated DEV sessions whose prompts matched the router's
+  physics pre-gate — ledger noise in the evidence chain, plus a standing wrong-run write hazard
+  for every `--project-dir` record (observer included).
+- **Where-embedded:** owner = `trial-runs/_infrastructure/workflow_state.py`
+  (`find_active_rundir`/`_rundir_is_active`/`_norm_route`/`cmd_record`) +
+  `.claude/hooks/userpromptsubmit-router.sh` (`--what "$tmode"`); regression =
+  `framework/tests/test_workflow_state.py` (contentless-route no-op; closed-run, stale-ledger,
+  live-lock, cwd-rundir resolution) + `workflow_state.py --selftest` case 5c; DIRECTORY.md
+  router-hook row updated.
+- **Status:** EMBEDDED.
+
+## CR-136 · 2026-08-28 · Annotation-number provenance guard (figure annotations must trace to artifacts)
+- **What:** guard candidate against catalogue N14 (guessed annotation text on a rendered
+  figure): numeric literals in `smart_annotate`/caption strings should be composed from the
+  artifact dict in code, and/or a render-gate check that flags annotation numbers not present in
+  any run artifact JSON.
+- **Why:** run 2026-08-28_SMMEAS_hvt-zprime-ww-lowmass shipped-to-lint a waypoint figure whose
+  annotation quoted a plan-stage GUESS (185–360 GeV) contradicting the machine artifact written
+  by the same script invocation (140–220 GeV); caught only by eyeball at the session's last
+  breath. A second same-class instance ("~3–5%" gloss) surfaced in the close-out audit.
+- **Where-embedded:** owner surface = `trial-runs/_infrastructure/mplhep_style.py`
+  (`smart_annotate`/`lint_figure`) or a sibling `annotation_trace.py`; interim procedural guard =
+  the close-out annotation audit recorded in that run's `VERIFICATION-LADDER.md`.
+- **Status:** DEFERRED (trigger: next dev session touching mplhep_style; the run-level audit
+  pattern is documented in the run's ladder + RESULT.md as the manual recipe).
+
+## CR-137 · 2026-08-28 · Deviation entries must name every artifact carrying a superseded reading
+- **What:** extend the DEVIATIONS discipline (checklists/check-ins.md): an entry that
+  resolves/overturns a physics reading names each on-disk artifact that still carries the
+  superseded text, so none is left stale (catalogue N15: survey.json contradicted D2 for the
+  rest of the run).
+- **Why:** two contradictory on-disk statements about the same EWPT bound coexisted for the
+  whole run; only the close-out cross-read caught it.
+- **Where-embedded:** owner surface = `workflow/checklists/check-ins.md` §DEVIATION check-ins
+  (doc rule) + optionally `validate_run_state.py` (grep-level: artifact named in a
+  conflict-resolving entry must have mtime >= the entry's).
+- **Status:** DEFERRED (trigger: next dev session in the workflow-docs track; procedural rule
+  recorded here and in the run's DEVIATIONS D4).
+
+## CR-138 · 2026-08-28 · `--live-stream` on all supervised native stages (conda-run capture defeated the stall watchdog)
+- **What:** `trial-runs/_infrastructure/run-pipeline-native.sh` — `"$CONDA" run --live-stream -n <env>`
+  on exactly the eight supervised stages (madgraph, lhe_check, pythia, delphes, analysis,
+  simpleanalysis, sa2json, pyhf; sub-second helper calls left captured), plus the
+  `pyhf_exclude.py` cls_at() per-hypotest stderr heartbeat (flush=True, print-only).
+- **Why:** plain `conda run` (conda 26.3.2) buffers child output until exit → log mtime frozen →
+  `stage_supervisor.py` progress-stall kills healthy long stages (two smoke pyhf kills, rc=124;
+  catalogue N16). Under capture every stage longer than its stall budget dies mid-scan.
+- **Where-embedded:** the two tool files (edits in-tree); evidence chain in
+  trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/DEVIATIONS.md + smoke failure.json ×2.
+- **Status:** APPLIED in-tree, commit + workflow-doc embed DEFERRED to the orchestrating session
+  (campaign constraint: no commits from the physics session). 52/52-point scan ran on it.
+
+## CR-139 · 2026-08-28 · pyhf stage budget = measured floor (PYHF_MEASURED_MIN=20 min)
+- **What:** `trial-runs/_infrastructure/stage_supervisor.py` stage_budget_min(): a 20.0-min floor
+  for the pyhf stage (stall 20 min / wall-kill 60 min); all other stages unchanged; selftest 3/3.
+- **Why:** the "MadGraph-linear + 12-min-flat-rest" model under-budgets the workspace-sized,
+  event-count-INDEPENDENT 141-SR CLs scan (measured 17.3 min solo full-stat, 18.5 min smoke);
+  at 12 min the 36-min wall kill sat inside parallel=3 contention range → spurious mid-scan
+  kills, each costing a full ~25-min babysitter-healed rerun.
+- **Where-embedded:** stage_supervisor.py (edit in-tree); measurement provenance in the run's
+  DEVIATIONS.md.
+- **Status:** APPLIED in-tree, commit + embed DEFERRED to the orchestrating session (as CR-138).
+
+## CR-140 · 2026-08-28 · certify_acceptance denominator-basis guard (A4 re-hit at the cert surface)
+- **What:** guard candidate: `certify_acceptance.py` should WARN (mirroring scan_contour's
+  `_basis_guard`) when the acceptance denominator σ traces to a generation log (tagged-sample σ)
+  rather than a model-σ table, and its docstring should carry the tagged→inclusive conversion
+  recipe (f = σ_tag/σ_incl_LO from the same table the rebase uses).
+- **Why:** the fresh flagship waypoint cert FAILed with a uniform ~2.7× excess — the A4
+  tagged-6 vs inclusive-4 σ-basis trap, already fixed at the limit surface (rebase), re-hit at
+  the cert surface where nothing warned (catalogue A4 re-hit entry, 2026-08-28).
+- **Where-embedded:** owner surface = `trial-runs/_infrastructure/certify_acceptance.py` +
+  `.claude/skills/certify/SKILL.md` trap list; interim recipe in the run's DEVIATIONS.md.
+- **Status:** EMBEDDED 2026-08-30 (with CR-148, the dev session that touched the file). Built as a
+  SYMPTOM fingerprint rather than a σ-provenance check — the cert never sees the generation log, so
+  it warns (`BASIS SUSPICION`, json `basis_suspicion`; verdict unchanged) when every evaluated
+  non-tail SR sits at the same ratio (spread ≤1.25×, ≥20% from unity): uniform EXCESS names the A4
+  tagged-vs-inclusive trap with the conversion recipe (A×ε_incl = A×ε_tag × f, f = σ_tag/σ_incl_LO
+  from the same table the rebase uses — also in the tool docstring), uniform DEFICIT names the
+  global single-cause suspects. Wired: certify SKILL.md trap row + verdict bullet,
+  detector-fidelity.md §B(b) BASIS SUSPICION bullet. Detector validated on synthetic uniform-excess
+  (2.69×) and uniform-deficit (0.70×) fixtures; stays quiet on the real 0L cert lanes
+  (spread 1.27× > 1.25 — those are attributed to the merging-deficit ladder, not σ-basis).
+
+## CR-141 · 2026-08-28 · Check-in anchors must be tool-computed from assembled artifacts (N17 guard)
+- **What:** guard candidate: a small `anchor_check.py` (or a scan_orchestrator subcommand) that,
+  given a rundir + point + reference yaml, emits the UL comparison line (mu95 x sigma_ref vs the
+  published column, like-columns, with the basis chain printed) — and the check-in checklist
+  requires anchor lines to come from it; validate_checkin flags a numeric anchor with no
+  tool-provenance field.
+- **Why:** the fresh flagship's CHECK-IN 2 anchor was hand-derived with a double-counted
+  k-factor (+0.1%/-15.1% claimed; -15.6%/-28.5% actual) and the error survived until the
+  step-9 Tier-B adversary (catalogue N17). Hand math around a multi-step basis chain
+  (raw-mu -> flat-k patch -> per-mass k renorm -> model-sigma rebase) is exactly where a
+  x1.186 slips through.
+- **Where-embedded:** owner surface = `trial-runs/_infrastructure/` (new helper or
+  scan_orchestrator subcommand) + `workflow/checklists/check-ins.md` anchor rule +
+  `validate_checkin.py`; interim recipe = the corrected derivation in the fresh run's
+  DEVIATIONS close-out entry.
+- **Status:** DEFERRED (trigger: next dev session in the check-in/validation track).
+
+## CR-142 · 2026-08-28 · pyhf_exclude robust optimizer — the CR-005 silent-SLSQP failure class closed in the engine
+- **What:** `pyhf_exclude.py` now runs EVERY minimization through `robust_optimizer`
+  (scipy/SLSQP first — bit-identical on clean surfaces — with a NaN-guarded iminuit-MIGRAD
+  fallback on any distrust signal: NaN evaluated mid-fit, reported failure, non-finite
+  minimum, drifted fixed parameter; loud RuntimeError if MIGRAD finds no valid minimum).
+  One distrusted fit ESCALATES the whole model to MIGRAD-first and `compute()` recomputes
+  any CLs points cached before the flip — measured on 2018-06, SLSQP is silently stuck even
+  in minimizations that never evaluate NaN, so per-fit signals alone leave a corrupt
+  non-monotonic curve (factor-3 wrong limit). `exclusion.json` gains an `"optimizer"`
+  provenance block (`escalated`, `n_minimizations`, `n_fallback`, `n_nan_flagged`,
+  `n_escalated`) plus honesty flags `median_at_cap` (CR-124) and `band_degenerate` (CR-132).
+- **Why:** CR-005 routine certifications (2026-08-28): on the ATLAS-SUSY-2018-06 published
+  likelihood (ins1771533) the −2lnL surface has NaN pockets (histosys interpolation drives
+  bins negative) and pyhf 0.7.6's default SLSQP returned the INIT vector claiming success —
+  free fit −2lnL 302.52 vs the true 271.79 with mu_hat==init==1.0 — shipping mu95_obs=1.192
+  with obs==exp and no error. pyhf's own minuit backend also aborts there (EDM blow-up, no
+  NaN guard). Validation: the hardened tool reproduces the CR005cert anchor
+  (`trial-runs/CR005cert_c1n2_300_100/outputs/anchor_official/exclusion.json`) to 4 decimals
+  — mu95 0.826/0.584 vs the PUBLISHED sigma95/sigma_theory 0.828/0.587 (sub-percent) —
+  and benchmark `--fast`+`--full` numerics are bit-identical to the committed baseline
+  (the only `--full` deltas are two provenance BREACHes from a concurrent session's
+  in-flight yoda regeneration, pre-existing this change).
+- **Where-embedded:** `trial-runs/_infrastructure/pyhf_exclude.py` (`robust_optimizer` +
+  `compute()` flags + `selftest` cases `nan-pocket` and `2018-06-freefit`);
+  `trial-runs/_infrastructure/testdata/susy-2018-06/` (committed single-point fixture,
+  provenance in its README); `workflow/steps/07-exclude.md` §Optimizer robustness +
+  §honesty flags; `.claude/rules/statistics.md` 🔴-trap entry;
+  `workflow/checklists/troubleshooting.md` symptom row. Reference implementation retired:
+  the run-local `CR005cert_c1n2_300_100/config/pyhf_tnc_exclude.py` wrapper is superseded
+  by the in-engine guard.
+- **Status:** EMBEDDED (regression: `pyhf_exclude.py selftest`, 5/5 incl. the committed
+  2018-06 fixture; benchmark fast gate OK, full gate numerics unmoved).
+
+## CR-143 · 2026-08-28 · Census R1 absence-vs-outage verdict (a 404 is a fact, a 503 is an outage)
+- **What:** `resource_census.py`'s R1 HEPData rung now CLASSIFIES its failures instead of
+  collapsing them into one ERROR: a served **404** from the open record-JSON API
+  (`/record/insNNNN?format=json`) returns status **`ABSENT`** — definitively no HEPData record
+  exists — corroborated against INSPIRE's `external_system_identifiers` (schema `HEPDATA`);
+  403/5xx/network trouble returns `ERROR` + `classification: outage-or-block` with an explicit
+  "NOT evidence of absence" meaning; API-404-but-INSPIRE-lists-an-id returns
+  `classification: inconsistent` (re-check manually, never conclude absence). `ABSENT` counts as
+  a walked rung (`_rung_ok`), and the CHECK-IN 1 markdown line (`_r1_markdown_line`) carries the
+  distinction into the physicist-facing text ("plan around absence, do not wait for an outage").
+- **Why:** measured defect (taunu U1 run 2026-08-27/28, RESULT.md gap G2): the census reported
+  "Cloudflare-blocked / 503" for CMS ins1684340 when in fact NO HEPData record exists (open API
+  404s; INSPIRE lists no HEPDATA id) — the drop-CMS-vs-wait physicist decision hinged on a
+  distinction the tool could not express. Live re-verified 2026-08-28: ins1684340 → `ABSENT`
+  (404, corroborated); ins1649273 → `OK` (8 tables) unchanged.
+- **Where-embedded:** `trial-runs/_infrastructure/resource_census.py`
+  (`hepdata_absence_verdict` + `_inspire_hepdata_xcheck` + `_rung_ok` + `_r1_markdown_line`;
+  selftest cases 9–10); `.claude/skills/resource-sweep/SKILL.md` (+ mirror) §R1 absence-vs-outage
+  + stop condition; `workflow/steps/02-inputs.md` sweep block; `workflow/checklists/troubleshooting.md`
+  symptom row; pytest `framework/tests/test_resource_census_r1_absence.py` (7 cases).
+- **Status:** EMBEDDED (selftest 10/10; new pytest 7/7 + existing census tests green; live
+  verdicts reproduced on both records).
+
+## CR-144 · 2026-08-28 · hepdata_fetch --tables fallback via the open /record/data endpoint
+- **What:** `hepdata_fetch.py --tables` now auto-falls back to the OPEN internal endpoint
+  `https://www.hepdata.net/record/data/<recid>/<table_id>/<version>` (recid, table ids, and
+  version all read from the open record JSON — `record_data_index`) when the hepdata-cli route
+  is unavailable or fails. Same verify-after-download integrity contract as the primary route:
+  EVERY table the record lists must land, parse as JSON, and carry a non-empty `values[]`, else
+  RuntimeError → the loud nonzero exit; tables land as `tables/<slug>_data.json`, classified by
+  the (now module-level, shared) `classify`; the manifest records `tables_route` +
+  `tables_route_note`. Also fixed in passing: `_open()`'s TLS retry referenced an undefined
+  `_VERIFIED_CTX` (latent NameError; now the module-level certifi context, never bypassing
+  verification per CR-021).
+- **Why:** measured defect (taunu U1 run 2026-08-28, RESULT.md gap G3): the tool documented the
+  `/download/table/...` Cloudflare-403 but did not know the open internal endpoint that serves
+  the identical content — the run fetched all 8 tables of ins1649273 through it by hand
+  (`build/r5_parse_tables.py` provenance, recid 80812 v3). Live re-verified 2026-08-28: with no
+  hepdata-cli in the env, `--tables --inspire ins1649273` falls back, lands 8/8 verified tables
+  (values bit-identical to the run's saved copies), exit 0.
+- **Where-embedded:** `trial-runs/_infrastructure/hepdata_fetch.py` (docstring source hierarchy
+  + `record_data_index` + `fetch_tables_via_record_data` + `_tables_via_hepdata_cli` refactor);
+  `workflow/WORKFLOW.md` tool table; `workflow/checklists/data-acquisition.md` full-table route
+  row; `workflow/steps/06-acquire-data.md` §6.4 comment + last-resort paragraph (browser demoted
+  to after BOTH script routes); `workflow/checklists/troubleshooting.md` symptom row; pytest
+  `framework/tests/test_hepdata_fetch_tables_fallback.py` (7 cases).
+- **Status:** EMBEDDED (pytest 7/7; live fallback fetch verified on ins1649273).
+
+## CR-145 · 2026-08-29 · pythia_shower `<N>` marked MANDATORY (silent 1000/N truncation, catalogue C13)
+- **What:** run-stage skill §Shower now flags the third positional arg `<N>` as a 🔴 silent
+  trap: omitted, Pythia's `Main:numberOfEvents` default showers exactly 1000 events of any LHE
+  with exit 0 (σ-normalization survives; statistics silently 1000/N). Documented pairing: pass
+  `<N>` = the LHE event count AND gate analyzed-count == LHE-count downstream (the 2408.00049
+  width run's `build/gen_point.py` 8b hard gate is the worked example).
+- **Why:** measured incident (2408.00049 width run 2026-08-28, DEVIATIONS entry 3): the first
+  20k campaign wave showered 1000/20000 per point, exit 0; caught only by a cutflow-vs-LHE
+  count diff. The binary itself cannot warn (compiled); the call-site idiom is the owner.
+- **Where-embedded:** `.claude/skills/run-stage/SKILL.md` §Shower; catalogue C13 (attack
+  replay: diff analyzed-event count vs banner nevents per point).
+- **Status:** EMBEDDED (doc guard; driver-gate pattern proven in-run — 18/18 points verified
+  20000/20000).
+
+## CR-146 · 2026-08-29 · lhe_check width-aware mode (per-event mass gate false-FAILs wide lineshapes, catalogue C14)
+- **What:** give `lhe_check.py` a `--width-aware`/`--gamma-over-m` mode: above a width
+  threshold (Γ/m ≳ few %) replace the per-event ±3Γ mass check with banner assertions (MASS
+  exact, DECAY width within tolerance) while keeping producer-complete/weights/merged gates.
+- **Why:** measured incident (2408.00049 width run, DEVIATIONS entry 6): the ±3Γ per-event
+  check rejected a legitimate bwcutoff=15Γ tail event at Γ/m=0.15; the run worked around it
+  in-driver (narrow points keep the full gate, wide points banner-assert).
+- **Where-embedded:** recipe in catalogue C14 + the run's `inputs/width_conventions.md` (W4) and
+  `build/gen_point.py`; tool change not yet made.
+- **Status:** DEFERRED — trigger: the next run generating hand-set-width (Γ/m ≥ 0.05) samples.
+
+## CR-147 · 2026-08-29 · plot-lint occupancy sampler must interpolate along segments (catalogue N20)
+- **What:** `mplhep_style._occupancy_points` samples only artist VERTICES; a legend/annotation
+  box over a sparse polyline (few markers, long segments) counts ≤tol_points vertices and
+  passes while the translucent frame visibly washes the curve. Fix: densify each Line2D by
+  interpolating points along segments (e.g. every ~1% of the axes diagonal) before scoring.
+- **Why:** measured miss (2408.00049 width figure 2026-08-29, DEVIATIONS entry 10): a 9-entry
+  legend at upper-center faded three 6-vertex curves; `enforce_lint` passed; caught by eye.
+- **Where-embedded:** `trial-runs/_infrastructure/mplhep_style.py::_occupancy_points` now
+  transforms the actual Line2D path into display coordinates, clips to the visible rectangle,
+  and samples segments at roughly 1% of the axes diagonal (bounded per segment). Mixed
+  axes/data and logarithmic transforms, step paths, and nonfinite subpath breaks are preserved;
+  marker-only and invisible artists do not acquire a fictitious connecting stroke.
+- **Verification:** `framework/tests/test_plot_lint_segments.py`: 11 regression cases pass,
+  including sparse crossing/noncrossing lines, mixed/log transforms, nonfinite gaps, steps,
+  marker-only/invisible lines, and distant clipped endpoints. Four crossing regressions failed
+  before the change. `python3 trial-runs/_infrastructure/plot_lint.py --selftest` passes with
+  the colliding fixture rejected and the house-helper fixture clean.
+- **Status:** IMPLEMENTED 2026-09-05 (development session). Occupancy remains an approximate
+  geometric lint; visual figure review remains necessary.
+
+## CR-148 · 2026-08-30 · certify_acceptance FAIL CAUSE names the actual driving_ok=False cause
+- **What:** `certify_acceptance.py` printed the unevaluable-lookup FAIL cause ("could not be
+  evaluated against a published value … comparison unusable") for EVERY driving_ok=False —
+  including driving SRs that WERE read at an exact published grid node and simply missed
+  `--driving-tol`. The reason ladder now splits the two causes: **unevaluable** (missing/unmapped
+  published value or routine yield → fix the inputs) vs **evaluated-but-over-tolerance** (names
+  the SRs + worst residual → the comparison worked, diagnose the physics via the attribution
+  rows); the mixed case prints both, the ladder FAIL (bounded-tol exceeds 1.5× the µ95 bound /
+  off-grid) gets its own named cause, and the json gains `fail_reason` + `basis_suspicion`
+  fields. Verdict logic and the machine-parsed `verdict` field are untouched.
+- **Why:** observed 4× (CR005cert_c1n2_300_100 WORKLOG 2026-08-28; the three 0L cert lanes
+  CR005cert_{ss_1200_600,gg_2200_600,gg1step_2200_600} 2026-08-29, logs/cert.log): every lane had
+  real evaluated ratios (0.5–0.7) yet the FAIL CAUSE sent the reader hunting a --grid/--region-map
+  lookup problem that did not exist.
+- **Where-embedded:** `trial-runs/_infrastructure/certify_acceptance.py` (reason ladder +
+  docstring); `workflow/checklists/detector-fidelity.md` §B(b) "FAIL CAUSE" bullet — and that
+  block's invocation corrected to the real interface (stale `--acceff`/`--exclusion` flags →
+  `--acceptance`, `--region-map`, `--acc-unit-scale`, `--dm`); `.claude/skills/certify/SKILL.md`
+  verdict bullets (mirrored). Verified on 6 synthetic fixture scenarios (over-tol / unmapped /
+  mixed / PASS / uniform-excess / uniform-deficit) + a re-run of the real CR005cert_ss_1200_600
+  cert: identical verdict/residuals, corrected cause line.
+- **Status:** EMBEDDED (benchmark fast gate OK; not in the benchmark's gated-infra path).
+
+
+## CR-149 · 2026-09-05 · strict contracts, bound approvals, scoped evidence, reproducible distribution
+- **What:** strict task-contract schema and JSON parsing at CLI/approval/lifecycle/preexecution
+  entry points; v2 approvals bound to contract/check-in/budget bytes; explicit scan-rung checks;
+  standalone cached-replay wheel with hashed dependency lock; complete historical validation
+  pages separated by statistical/acceptance/end-to-end scope; source-complete integrity gates;
+  safe non-destructive export and fast-forward publication; prospective crossed-experiment accounting.
+- **Why:** reproduced malformed contracts, validator bypasses in live paths, malformed/stale
+  approval acceptance, missing claim/artifact masking, headline overstatement, and a public/local
+  distribution gap. The fresh full cached replay also retained two missing-YODA breaches.
+- **Where-embedded:** `docs/development/2026-09-05-hardening.md` records the full diagnosis and
+  next scientific experiments; `framework/validation/task-contract-schema.md`, `docs/CLI.md`,
+  `docs/research/2026-09-05-competitive-design-and-validation.md`, the tests and CI bind the changes.
+- **Status:** IMPLEMENTED with regression validation. This is engineering evidence, not a new
+  acceptance closure, unhinted autonomy measurement, or causal superiority result. Remaining
+  command-recognition and actual resource-consumption boundaries are documented explicitly.

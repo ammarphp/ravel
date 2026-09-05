@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Check scoped public claims, generated pages, capability prose, and approval semantics.
+
+This gates registered facts and known drift patterns, not arbitrary natural-language truth.
+"""
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main():
+    failed = False
+    for script, args in [('scripts/claims_check.py', []),
+                         ('scripts/gen_validation_pages.py', ['--check']),
+                         ('framework/gen_status.py', ['--check'])]:
+        result = subprocess.run([sys.executable, str(ROOT / script), *args], cwd=ROOT)
+        failed |= result.returncode != 0
+    contract = (ROOT / 'PRODUCT-CONTRACT.md').read_text()
+    required = 'any smoke, full, or scan generation before CHECK-IN 1'
+    if required not in contract or 'generation beyond a smoke test' in contract:
+        print('publication: FAIL: product-contract generation approval semantics drifted')
+        failed = True
+    readme = (ROOT / 'README.md').read_text()
+    if re.search(r'What is genuinely novel|full limit reproduction|benchmarks reproduced within', readme):
+        print('publication: FAIL: obsolete unqualified novelty/reproduction headline')
+        failed = True
+    version = re.search(r'^version = "([^"]+)"', (ROOT / 'pyproject.toml').read_text(), re.M)
+    citation = re.search(r'^version: (.+)$', (ROOT / 'CITATION.cff').read_text(), re.M)
+    if not version or not citation or version[1] != citation[1].strip():
+        print('publication: FAIL: package/citation version mismatch')
+        failed = True
+    print('publication: ' + ('FAIL' if failed else 'OK'))
+    return int(failed)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -14,7 +14,7 @@
 #                 trial-runs/ run dirs backing the served claims -- see "1b." below
 #   DEV-ONLY    : trial-runs run records (minus the curated subset above)  SESSIONS/
 #                 ORCHESTRATION.md  framework/{overnight*,OPTION-C-DESIGN,TRIAL-*,OPS-PUBLISHING}
-#                 stages build/  .claude/hooks+settings (operator/machine-specific)
+#                 stages build/  .claude/settings.local.json (operator/machine-specific)
 #   GATE        : after assembly, framework/check_evidence.py --check --root <stage> re-verifies
 #                 every served claim's shipped artifact against the ACTUAL staged files (sha256) --
 #                 the export aborts (no push) if any is missing or mismatched (PRODUCT-CONTRACT
@@ -46,7 +46,7 @@ done
 LEAK="$HOME"
 
 echo "== 1. assemble the publishable subset -> $STAGE"
-rm -rf "$STAGE"; mkdir -p "$STAGE"
+STAGE="$(python3 "$REPO/scripts/export_safety.py" prepare "$STAGE" "$REPO")"
 rsync -a --exclude='__pycache__' --exclude='.DS_Store' --exclude='logs' \
   "$REPO/workflow" "$STAGE/"
 rsync -a --exclude='__pycache__' --exclude='.DS_Store' --exclude='logs' --exclude='pythia_shower' \
@@ -71,46 +71,21 @@ done
 # tests + spine_sim SHIP (2026-07-30 policy change, repo-audit spec: the verification surface IS
 # the credibility artifact — an engineer must be able to clone and run the 344-test suite + the
 # 30-case adversarial gate board; live-state pins auto-skip outside the dev repo via conftest)
-for d in benchmark validation crosscheck interrogations tests spine_sim; do
+for d in benchmark validation crosscheck interrogations tests spine_sim experiments; do
   [ -d "$REPO/framework/$d" ] && rsync -a --exclude='.work' --exclude='__pycache__' \
     --exclude='.DS_Store' --exclude='.pytest_cache' "$REPO/framework/$d" "$STAGE/framework/"
 done
 for f in README.md CITATION.cff LICENSE DIRECTORY.md AGENTS.md PRODUCT-CONTRACT.md \
          evidence_manifest.json EVIDENCE.md Makefile THIRD_PARTY.md requirements-replay.txt \
-         NOTICE CHANGELOG.md; do
+         NOTICE CHANGELOG.md .gitignore pyproject.toml hatch_build.py requirements-replay.lock; do
   [ -f "$REPO/$f" ] && cp "$REPO/$f" "$STAGE/"
 done
 # the evidence layer + CI (repo-audit spec E1/E2/E3/C1): claims manifest, claim-check + page
 # generators, validation pages + case studies, and the workflow definitions
-for d in results docs scripts .github; do
+for d in results docs scripts src .github; do
   [ -d "$REPO/$d" ] && rsync -a --exclude='__pycache__' --exclude='.DS_Store' \
     --exclude='superpowers' "$REPO/$d" "$STAGE/"   # docs/superpowers = dev planning material
 done
-# DIRECTORY.md maps the FULL research repo; tag rows whose paths are dev-only so a cold reader
-# is never sent hunting for files this snapshot deliberately omits (coldread 2026-08-16).
-python3 - "$STAGE" << 'PYD'
-import os, re, sys
-stage = sys.argv[1]
-p = os.path.join(stage, "DIRECTORY.md")
-out, tagged = [], 0
-for line in open(p).read().splitlines():
-    m = re.match(r"^\| `([^`]+)`", line)
-    if m and line.count("|") >= 3 and "dev repo only" not in line:
-        tok = m.group(1).split()[0].rstrip("/")
-        if not os.path.exists(os.path.join(stage, tok)):
-            line = re.sub(r"\s*\|\s*$", " *(dev repo only — not in this snapshot)* |", line)
-            tagged += 1
-    out.append(line)
-if tagged and "full map of the research repository" not in out[2]:
-    for i, l in enumerate(out):
-        if l.startswith("# "):
-            out.insert(i + 1, "\n> This is the full map of the research repository; rows tagged"
-                              " *(dev repo only)* describe files kept in the private working tree"
-                              " and deliberately absent from this public snapshot.")
-            break
-open(p, "w").write("\n".join(out) + "\n")
-print(f"   DIRECTORY.md: {tagged} dev-only rows tagged")
-PYD
 # orientation/conventions + the environment bootstrap (shipped step 01 needs the scripts tree)
 rsync -a --exclude='.DS_Store' "$REPO/shared" "$STAGE/"
 mkdir -p "$STAGE/stages/01-event-generation"
@@ -214,29 +189,14 @@ done
 cp "$HVTSRC"/plots/hvt_zprime_ww_summary.* "$HVTDST/plots/" 2>/dev/null || true
 cp "$HVTSRC"/plots/qa_*.png "$HVTDST/plots/" 2>/dev/null || true
 
-echo "== 2. sanitize CLAUDE.md (absolute paths -> \$DSRLAB_ROOT) and include it"
-sed -e "s|${LEAK}/Documents/DSRLab|\$DSRLAB_ROOT|g" "$REPO/CLAUDE.md" > "$STAGE/CLAUDE.md"
-
-echo "== 2b. belt-and-braces: sanitize remaining absolute paths in EVERY text file (grep -I)"
-# no extension list (the old 7-extension list let .cc/.txt/.dat/.cfg/.mg5 escape — audit 2026-07-30):
-# grep -rIl finds every TEXT file containing the leak prefix; sed rewrites in place.
-grep -rIl "$LEAK" "$STAGE" 2>/dev/null | while IFS= read -r f; do
-  sed -i '' -e "s|${LEAK}/Documents/DSRLab|\$DSRLAB_ROOT|g" -e "s|${LEAK}|\$OPERATOR_HOME|g" "$f"
-done
-
-# optional: re-home every repo self-reference (badges, clone commands, links) to a different
-# hosting account/repo — used for the identified public copy on the author's own account.
-if [ -n "${SELF_URL:-}" ]; then
-  SU="${SELF_URL%.git}"; SU="${SU#https://}"; SU="${SU#http://}"
-  OLDREF="github.com/ashen""joy/hep-agentic-pipeline"
-  echo "== 2c. re-home self-references -> $SU"
-  grep -rIl "$OLDREF" "$STAGE" 2>/dev/null | while IFS= read -r f; do
-    perl -pi -e "s{\Q$OLDREF\E}{$SU}g" "$f"
-  done
-fi
+echo "== 2. sanitize text files portably and include CLAUDE.md"
+cp "$REPO/CLAUDE.md" "$STAGE/CLAUDE.md"
+SANITIZE_ARGS=("$STAGE" "$LEAK")
+[ -n "${SELF_URL:-}" ] && SANITIZE_ARGS+=(--self-url "$SELF_URL")
+python3 "$REPO/scripts/export_safety.py" sanitize "${SANITIZE_ARGS[@]}"
 
 echo "== 3. sanitization check: NO home-rooted absolute paths may remain in ANY text file"
-if grep -rIl "$LEAK" "$STAGE" 2>/dev/null | head -5 | grep -q .; then
+if grep -rIq "$LEAK" "$STAGE"; then
   echo "FAIL: absolute home-rooted paths remain in:"; grep -rIl "$LEAK" "$STAGE" | head -10
   echo "Sanitize or exclude these before pushing."; exit 2
 fi
@@ -244,12 +204,14 @@ echo "   clean"
 
 echo "== 4. DISTRIBUTION hygiene grep (no dev trial-run leakage into ANY agent-facing surface)"
 HYG_SCOPE=("$STAGE/workflow" "$STAGE/.claude" "$STAGE/.agents" "$STAGE/shared" "$STAGE/README.md" "$STAGE/CLAUDE.md")
-if grep -rnE "gluino-pair|squark-pair|slepton_200|2026-[0-9]{2}-[0-9]{2}_|C1N2-WZ" \
-     "${HYG_SCOPE[@]}" --exclude=DISTRIBUTION.md 2>/dev/null \
-     | grep -vE "µ₉₅ *= *1|mu95 *= *1" | head -5 | grep -q .; then
-  echo "FAIL: dev trial-run references leaked into agent-facing surfaces:"; \
-  grep -rnE "gluino-pair|squark-pair|slepton_200|2026-[0-9]{2}-[0-9]{2}_|C1N2-WZ" \
-    "${HYG_SCOPE[@]}" --exclude=DISTRIBUTION.md 2>/dev/null | head -10; exit 3
+# Consume the full search before deciding. A display-limiting `head` pipeline can
+# SIGPIPE upstream grep under pipefail and turn a real leak into a false clean result.
+HYG_HITS=$(grep -rnE "gluino-pair|squark-pair|slepton_200|2026-[0-9]{2}-[0-9]{2}_|C1N2-WZ" \
+  "${HYG_SCOPE[@]}" --exclude=DISTRIBUTION.md | grep -vE "µ₉₅ *= *1|mu95 *= *1" || true)
+if [ -n "$HYG_HITS" ]; then
+  echo "FAIL: dev trial-run references leaked into agent-facing surfaces:"
+  echo "$HYG_HITS" | head -10
+  exit 3
 fi
 echo "   clean"
 
@@ -267,6 +229,35 @@ else
   echo "   clean"
 fi
 
+# Annotate the full source map only AFTER all curated artifacts have been copied.
+# Resolve row paths against their section base, using the same resolver as the gate.
+python3 - "$STAGE" << 'PYD'
+import importlib.util, os, re, sys
+stage = sys.argv[1]
+spec = importlib.util.spec_from_file_location("surface", os.path.join(stage, "trial-runs/_infrastructure/check_agent_surface.py"))
+surface = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(surface)
+p = os.path.join(stage, "DIRECTORY.md")
+out, tagged, base = [], 0, ""
+for line in open(p).read().splitlines():
+    heading = re.match(r"^#{2,3}\s+(.*)", line)
+    if heading:
+        match = re.search(r"`([^`]+?)/?`", heading.group(1))
+        base = match.group(1).rstrip("/") if match else ""
+    row = re.match(r"^\|\s*(.+?)\s*\|", line)
+    if row and "dev repo only" not in line and "(planned)" not in line:
+        refs = [t for t in surface.REF_RE.findall(row.group(1)) if surface._is_pathlike(t)]
+        bases = (os.path.join(stage, base), stage)
+        if refs and any(not surface._resolve(t, bases, root=stage) for t in refs):
+            line = re.sub(r"\s*\|\s*$", " *(includes dev repo only paths — not all files ship)* |", line)
+            tagged += 1
+    out.append(line)
+if tagged:
+    out.insert(1, "\n> Full development map; rows marked dev repo only include material outside this curated distribution.")
+open(p, "w").write("\n".join(out) + "\n")
+print(f"   DIRECTORY.md: {tagged} rows include development-only material")
+PYD
+
 echo "== 4c. staged-tree dead-reference scan (check_agent_surface --stage)"
 if python3 "$REPO/trial-runs/_infrastructure/check_agent_surface.py" --stage "$STAGE" \
      | tail -3 | grep -q "agent surface: OK"; then
@@ -279,6 +270,9 @@ fi
 
 echo "== 4d. evidence gate: every served claim's shipped artifact must be present + sha256-matching"
 echo "       in the stage (PRODUCT-CONTRACT sec 7 / CR-030) -- check_evidence.py --check --root \$STAGE"
+BIND_ARGS=("$STAGE" "$REPO" "$LEAK")
+[ -n "${SELF_URL:-}" ] && BIND_ARGS+=(--self-url "$SELF_URL")
+python3 "$REPO/scripts/export_safety.py" bind-evidence "${BIND_ARGS[@]}"
 if python3 "$REPO/framework/check_evidence.py" --check --root "$STAGE"; then
   echo "   clean"
 else
@@ -294,34 +288,26 @@ echo "   clean"
 echo "export ready: $STAGE  ($(du -sh "$STAGE" | cut -f1), $(find "$STAGE" -type f | wc -l | tr -d ' ') files)"
 
 if [ -n "$PUSH" ]; then
-  echo "== 6. commit + push -> $PUSH"
-  cd "$STAGE"
-  if [ ! -d .git ]; then
-    git init -q
-    git symbolic-ref HEAD refs/heads/main   # portable "main" (old git lacks init -b)
-  fi
-  # GitHub HTTPS rejects this host's chunked transfer on multi-MB packs (RPC 400 / curl 56 --
-  # observed 2026-07-06, silently stranding 14 dev commits); buffer the whole pack instead.
-  git config http.postBuffer 524288000
+  echo "== 6. append a distribution commit to the remote history -> $PUSH"
+  # A fresh source snapshot must never replace the published commit graph. Clone the
+  # remote, apply the reviewed curated tree, and use a normal fast-forward push. A
+  # concurrent publisher causes rejection; there is no force-push fallback.
+  PUBLISH_DIR=$(mktemp -d "${TMPDIR:-/tmp}/ravel-publish.XXXXXX")
+  git clone --branch main --single-branch "$PUSH" "$PUBLISH_DIR/repo"
+  rsync -a --delete --exclude='.git' "$STAGE/" "$PUBLISH_DIR/repo/"
+  cd "$PUBLISH_DIR/repo"
   git add -A
-  SRC_HEAD=$(git -C "$REPO" rev-parse --short HEAD)
-  git commit -q -m "Distribution export from dev repo @ $SRC_HEAD" || echo "(nothing new to commit)"
-  git remote remove origin 2>/dev/null || true
-  git remote add origin "$PUSH"
-  # CR-003: a lease needs a remote-tracking ref to compare against -- fetch first; and NEVER
-  # fall back to an un-leased force push (it would silently clobber a concurrent push).
-  if git fetch origin main 2>/dev/null; then
-    git push -u origin main --force-with-lease=main:origin/main
+  if git diff --cached --quiet; then
+    echo "No distribution changes."
   else
-    # brand-new/empty remote: nothing to clobber; a plain push creates the branch
-    git push -u origin main
+    SRC_HEAD=$(git -C "$REPO" rev-parse --short HEAD)
+    git commit -m "Distribution update from dev repo @ $SRC_HEAD"
+    git push origin HEAD:main
   fi
-  # CR-003 addendum: do NOT trust the push's exit path (a transport failure once printed
-  # "Everything up-to-date" and stranded 14 commits) -- verify the remote ref itself.
-  LOCAL_SHA=$(git rev-parse main)
-  REMOTE_SHA=$(git ls-remote origin main | cut -f1)
+  LOCAL_SHA=$(git rev-parse HEAD)
+  REMOTE_SHA=$(git ls-remote origin refs/heads/main | cut -f1)
   if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-    echo "FAIL: remote main ($REMOTE_SHA) != staged export ($LOCAL_SHA) after push."; exit 6
+    echo "FAIL: remote main ($REMOTE_SHA) != reviewed export ($LOCAL_SHA)."; exit 6
   fi
-  echo "pushed + remote-verified ($(git rev-parse --short main))."
+  echo "pushed + remote-verified ($LOCAL_SHA); checkout retained at $PUBLISH_DIR/repo"
 fi

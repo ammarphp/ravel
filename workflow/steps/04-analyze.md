@@ -91,6 +91,12 @@ TRACKED — they regenerate everything), on truth-level objects (`detector_mode=
 Every output carries the **particle-level-proxy** fidelity label (`PRODUCT-CONTRACT.md` §5) and
 the no-routine caps are CHECK-IN-1 flags: no detector model, no published acc×eff cert, no
 exclusion of record — sensitivity statements only (`stat_mode=sensitivity-expected-only`).
+When the custom selection instead runs on **Delphes fast-sim output** (a stock ATLAS/CMS card,
+e.g. a τ_h+MET recast), declare `detector_mode=delphes-custom-uncertified` (CR-134,
+PRODUCT-CONTRACT §2) — NOT particle-level, and never buried in an assumptions note: the route
+gate WARNs with the no-exclusion-of-record obligation, CHECK-IN 1 must surface the uncertified
+status (`validate_checkin` FAILs otherwise), and the upgrade path is per-SR acc×eff
+certification against the analysis's published anchors (trap T10; `certify` skill).
 
 ## Option D — EFFICIENCY-MAP FOLDING (no detector simulation; `reference/effmap-folding.md`)
 Fold PUBLISHED efficiency maps over the model point instead of simulating reconstruction:

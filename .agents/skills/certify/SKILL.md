@@ -45,6 +45,12 @@ the verdict can't reach PASS). Optional tiers: `--driving-tol 0.15 --contributin
 - **WARN/FAIL**: read the attribution rows — each over-tier residual names its `cause_class`
   and bounded µ₉₅-impact. A WARN with a bounded, attributed cause on a non-driving SR is an
   honest, reportable result; an un-remediated FAIL on the driving SR is not.
+- **On FAIL, read the printed FAIL CAUSE** (json `fail_reason`): it says whether the driving SR
+  was **unevaluable** (fix the inputs — `--grid`, `--region-map`, tables) or **evaluated but
+  over tolerance** (the comparison worked — diagnose the physics via the attribution rows).
+  Don't debug the lookup for an over-tolerance FAIL or the physics for a lookup FAIL.
+- **A `BASIS SUSPICION` line** (json `basis_suspicion`) means every evaluated SR sits at the same
+  ratio — a global σ-basis fingerprint, not per-SR selection physics (see trap table).
 
 Tier targets: driving ≤12–15% (Good ≤10%, Ideal ≤5%), contributing ≤25%, tail report-only.
 Record the verdict in `RESULT.md`. This certification is one gate of several: the portfolio
@@ -62,6 +68,7 @@ plus the adversary (`verification-panel` skill) — which audits this cert's pre
 |---|---|
 | "The routine is certified; this run inherits it" | Catalogue B2: `ptj1min` silently dropped per-run — a ×2.14 σ_tag drift the routine-level cert can never see. The per-run gate exists for exactly this. |
 | "It's a WARN, basically a PASS" | A WARN is reportable ONLY with its attribution rows; an un-remediated FAIL on the driving SR is not a reportable reproduction. |
+| "Every SR is ~the same factor off — the detector model is uniformly bad" | Catalogue A4 (CR-140): a UNIFORM ratio is the σ-basis fingerprint — tagged-sample denominator vs the published INCLUSIVE denominator (uniform excess ≈ σ_incl/σ_tag; the flagship re-hit was ~2.7×). Heed the cert's `BASIS SUSPICION` line: rebase with f = σ_tag/σ_incl_LO before touching efficiencies. |
 
 ## Stop conditions
 - No published acc×eff map / cutflow covers the point → the cert cannot run; that is a

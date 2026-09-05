@@ -35,7 +35,8 @@ Usage:
   stat-mode    one of: published-likelihood | simplified-likelihood |
                best-sr-counting | combined-counting | stability-only |
                blocked-shape-fit | sensitivity-expected-only | none-survey
-  detector-mode one of: rivet-smearing | simpleanalysis-delphes | particle-level
+  detector-mode one of: rivet-smearing | simpleanalysis-delphes | particle-level |
+               effmap-folded | delphes-custom-uncertified
 
 Most identity fields (analysis_id, routine, model, m_parent/m_lsp, driving_sr, ...)
 are inferred from the run's provenance.json + the cert json + exclusion.json; pass the
@@ -77,6 +78,9 @@ DETECTOR_MODES = (
     "simpleanalysis-delphes",
     "particle-level",
     "effmap-folded",
+    # (CR-134) Delphes fast-sim + custom uncertified selection (Option-C detector variant):
+    # proxy-labeled, no exclusion of record until the acc*eff certification closes
+    "delphes-custom-uncertified",
 )
 
 EXP_MEDIAN_IDX = 2  # exp_limits = [-2σ, -1σ, median, +1σ, +2σ]; mirror run_benchmark

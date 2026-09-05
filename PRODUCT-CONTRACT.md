@@ -35,6 +35,7 @@ a run** (step 8's reuse rule).
 | `container` | Delphes → SA in the ATLAS x86 container (podman, emulated) | SA analyses with no native port | = native, ~9 h/point, sequential (legacy fallback) |
 | `particle-level` | none (truth-level objects, no detector) | `no_routine` / `anomaly_search` / quick sensitivity | proxy only — labeled, never a claimed exclusion of record |
 | `effmap-folded` | published per-object / per-SR efficiency maps folded over truth objects (no detector sim of our own) | LLP/displaced (trap T2) via D2, or no-routine SUSY via D1 | map's documented accuracy (e.g. ~25%); R5-gated per analysis; out-of-envelope → conservative under-coverage (CR-034) |
+| `delphes-custom-uncertified` | Delphes fast-sim (stock ATLAS/CMS card) feeding a CUSTOM selection with no certified routine (the Option-C detector variant) | no Rivet/SA routine exists but a Delphes card is warranted (e.g. τ_h+MET recasts; CR-134, the 2026-08-27 U1 head-to-head) | uncertified fast-sim: labeled proxy, **never an exclusion of record** until per-SR acc×eff certification vs published anchors (T10) closes — the route gate WARNs and CHECK-IN 1 must surface it |
 
 ## 3. Statistical modes (`stat_mode` — canonical enum = `result_pack.py` STAT_MODES)
 
@@ -110,7 +111,7 @@ reproduction quality of record: fig3 52-point scan, median same-basis residual 2
    FETCHED (HEPData/paper/WG grids) or FLAGGED — never guessed (`AGENTS.md` hard rule).
 4. **Off-grid model points**: outside the published acc×eff grid / kinematic sensitivity
    (step 8's on-grid rule) → the point is refused as uninformative, with the grid bounds stated.
-5. **Heavy compute without an approved plan**: generation beyond a smoke test before CHECK-IN 1
+5. **Generation without an approved plan**: any smoke, full, or scan generation before CHECK-IN 1
    approval (`approval_required` is ALWAYS true in the task contract; the compute ladder is
    dry → smoke → full → scan, `cost_preflight.py`).
 6. **Beyond-scope physics**: non-LHC colliders, cosmology, detector design, real-data access —

@@ -119,3 +119,13 @@ Everything lands under `build/` (gitignored, regenerable).
   (stages/**/tools/podman-native/) — the conda podman's vfkit exits 1; `pipeline-env.sh` must be
   sourced under BASH (BASH_SOURCE corrupts its paths under zsh); after `machine rm`, stale
   `system connection` entries block re-init until `podman system connection rm mg-vm{,-root}`.
+
+
+## 2026-09-05 — isolated Python replay distribution
+
+Added `requirements-replay.lock` with transitive version/hash pins and an isolated CPython 3.12
+replay environment. The `ravel-hep` wheel packages the existing engine sources and an explicit
+cached-input allowlist. The new CLI uses its own interpreter and writes replay outputs into a
+new user-selected directory. This does not alter the native MadGraph/Pythia/Delphes/Rivet stack.
+The recorded full HEP environment remains an inventory, not a verified cross-platform lock.
+Recipe and runtime verification: `docs/CLI.md`; scientific scope: `docs/development/2026-09-05-hardening.md`.

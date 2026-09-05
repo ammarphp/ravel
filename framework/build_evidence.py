@@ -36,6 +36,7 @@ never calls `datetime.now()` on its own (determinism; pass `--timestamp` explici
 is wanted).
 """
 import argparse
+from fnmatch import fnmatchcase
 import hashlib
 import json
 import os
@@ -85,6 +86,32 @@ _SHIPPED_TOP_FILES = {"README.md", "CITATION.cff", "LICENSE", "DIRECTORY.md", "A
                        "PRODUCT-CONTRACT.md", "CLAUDE.md"}
 _SHIPPED_TOP_DIRS = {"workflow", "pedagogical", "shared", ".claude", ".agents"}
 
+# Curated run artifacts copied by export_distribution.sh. These are integrity obligations,
+# not optional dev evidence: deleting a headline scan must fail the public evidence gate.
+_CURATED_RUN_PATTERNS = (
+    "trial-runs/sleptonscan_fig3_SCAN/scan.json",
+    "trial-runs/sleptonscan_fig3_SCAN/scan_manifest.json",
+    "trial-runs/sleptonscan_fig3_SCAN/RESULT.md",
+    "trial-runs/sleptonscan_fig3_SCAN/verification.json",
+    "trial-runs/sleptonscan_fig3_SCAN/inputs/*.json",
+    "trial-runs/sleptonscan_fig3_SCAN/plots/*.png",
+    "trial-runs/sleptonscan_fig3_SCAN/plots/*.pdf",
+    "trial-runs/2026-06-16_slepton_200-150_native/output/EwkCompressed2018.txt",
+    "trial-runs/2026-06-16_slepton_200-150_native/output/exclusion.json",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/RESULT.md",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/provenance.json",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/squark.yoda",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/sr_yields.json",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/pyhf_exclusion/exclusion.json",
+    "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/plots/ATLAS_2016_I1458270/named/*.png",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/VERIFICATION-LADDER.md",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/survey.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/summary_audit.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/inputs/basis_manifest.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.*",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/qa_*.png",
+)
+
 
 def is_shipped(relpath):
     """True iff export_distribution.sh's CURRENT copy list already includes this exact repo-
@@ -93,7 +120,8 @@ def is_shipped(relpath):
     this function, which reports the present ground truth only."""
     parts = relpath.replace(os.sep, "/").split("/")
     if parts[0] == "trial-runs":
-        return len(parts) > 1 and parts[1] == "_infrastructure"
+        return (len(parts) > 1 and parts[1] == "_infrastructure"
+                or any(fnmatchcase(relpath, pattern) for pattern in _CURATED_RUN_PATTERNS))
     if parts[0] == "framework":
         if len(parts) == 2 and parts[1] in _SHIPPED_FRAMEWORK_FILES:
             return True
@@ -240,8 +268,9 @@ def benchmark_specs(cases_doc):
         specs.append({
             "claim_id": f"BENCH_{cid}",
             "source": f"framework/benchmark/cases.json:cases.{cid}",
-            "headline": f"Benchmark reproduction: {model} vs published {analysis}",
-            "status": "served",
+            "headline": f"Historical benchmark record: {model} vs published {analysis}; "
+                        "see scoped statistical and acceptance verdicts in docs/validation",
+            "status": "historical",
             "gate": c.get("cert", {}).get("engine", "benchmark_cert"),
             "candidates": candidates,
             "surrogate": ("framework/benchmark/cases.json", "benchmark-registry"),
@@ -300,6 +329,9 @@ def materialize_claim(spec, root=ROOT, warn=None):
     for relpath, role in spec["candidates"]:
         rec = _artifact_record(relpath, role, root)
         if rec is None:
+            if is_shipped(relpath):
+                raise BuildError(f"{claim_id}: mandatory shipped evidence missing: {relpath}; "
+                                 "a registry or documentation surrogate cannot replace it")
             missing.append(relpath)
         else:
             artifacts.append(rec)
@@ -334,6 +366,7 @@ def materialize_claim(spec, root=ROOT, warn=None):
         "headline": spec["headline"],
         "status": spec["status"],
         "gate": spec["gate"],
+        "evidence_scope": "artifact integrity; this does not certify scientific correctness",
         "artifacts": artifacts,
     }
 
@@ -374,11 +407,15 @@ def render_evidence_md(manifest):
         "`framework/check_evidence.py --check` verifies this table against real files on disk "
         "(sha256, per artifact); it must pass before any export ships (PRODUCT-CONTRACT "
         "section 7, CR-030)._", "",
+        "A checksum establishes artifact integrity, not scientific correctness. A registry or "
+        "documentation surrogate establishes that a historical claim was recorded; it does "
+        "not replace missing raw validation evidence. Benchmark certification verdicts and "
+        "unscorable cases are listed in [docs/validation](docs/validation/README.md).", "",
     ]
     if manifest.get("generated"):
-        lines.append(f"Generated: {manifest['generated']}  ")
+        lines.append(f"Generated: {manifest['generated']}")
     if manifest.get("source_commit"):
-        lines.append(f"Source commit: `{manifest['source_commit']}`  ")
+        lines.append(f"Source commit: `{manifest['source_commit']}`")
     lines += ["", "| Claim | Headline | Status | Gate | Shipped artifacts | Dev-only artifacts |",
               "|---|---|---|---|---|---|"]
     for c in manifest["claims"]:

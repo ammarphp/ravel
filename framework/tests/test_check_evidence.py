@@ -61,12 +61,13 @@ def _sha(text):
 # build_evidence.is_shipped
 # --------------------------------------------------------------------------- #
 
-def test_is_shipped_trial_runs_infrastructure_only():
+def test_is_shipped_curated_headlines_are_mandatory():
     be = _load_build_evidence()
     assert be.is_shipped("trial-runs/_infrastructure/shape_fit.py") is True
     assert be.is_shipped("trial-runs/2026-06-16_slepton_200-150_native/output/exclusion.json") \
-        is False
-    assert be.is_shipped("trial-runs/sleptonscan_fig3_SCAN/scan.json") is False
+        is True
+    assert be.is_shipped("trial-runs/sleptonscan_fig3_SCAN/scan.json") is True
+    assert be.is_shipped("trial-runs/unpublished-private/RESULT.md") is False
 
 
 def test_is_shipped_framework_row_by_row():
@@ -301,6 +302,7 @@ def test_cmd_check_fails_loud_when_manifest_missing(tmp_path, capsys):
 
 def test_cmd_check_exits_zero_on_intact_manifest_nonzero_on_tampered(tmp_path, capsys):
     ce = _load_check_evidence()
+    ce._source_specs = lambda root: [({"claim_id": "C1", "status": "served"}, ["a.txt"])]
     _write(tmp_path, "a.txt", "hello")
     manifest = {"schema_version": 1, "generated": "", "source_commit": "",
                 "claims": [{"claim_id": "C1", "status": "served",
@@ -330,3 +332,75 @@ def test_live_evidence_manifest_checks_clean():
                              cwd=REPO, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert " 0 FAIL" in result.stdout
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda c: c.update(status="servde"),
+    lambda c: c.update(status=[]),
+    lambda c: c["artifacts"][0].update(shipped="false"),
+    lambda c: c["artifacts"][0].update(dev_only=True),
+    lambda c: c["artifacts"][0].update(bytes=True),
+    lambda c: c["artifacts"][0].update(path="../outside.txt"),
+    lambda c: c["artifacts"][0].update(path="/outside.txt"),
+    lambda c: c["artifacts"].append(c["artifacts"][0].copy()),
+])
+def test_malformed_metadata_cannot_downgrade_integrity(tmp_path, mutate):
+    ce = _load_check_evidence()
+    _write(tmp_path, "a.txt", "hello")
+    claim = {"claim_id": "C1", "status": "served",
+             "artifacts": [_artifact("a.txt", "hello", True)]}
+    mutate(claim)
+    assert ce.check_claim(claim, tmp_path)[0] == "FAIL"
+
+
+def test_symlink_cannot_substitute_external_evidence(tmp_path):
+    ce = _load_check_evidence()
+    root = tmp_path / "repo"
+    root.mkdir()
+    _write(tmp_path, "external.txt", "hello")
+    (root / "a.txt").symlink_to(tmp_path / "external.txt")
+    claim = {"claim_id": "C1", "status": "served",
+             "artifacts": [_artifact("a.txt", "hello", True)]}
+    assert ce.check_claim(claim, root)[0] == "FAIL"
+
+
+def test_duplicate_claims_and_empty_or_unknown_schema_fail(tmp_path):
+    ce = _load_check_evidence()
+    _write(tmp_path, "a.txt", "hello")
+    c = {"claim_id": "C1", "status": "served", "artifacts": [_artifact("a.txt", "hello", True)]}
+    for m in ({}, [], {"schema_version": True, "claims": [c]},
+              {"schema_version": 1, "claims": []}, {"schema_version": 1, "claims": [c, c]}):
+        assert any(v == "FAIL" for _, v, _ in ce.check_manifest(m, tmp_path))
+
+
+def test_root_uses_staged_manifest_not_source_manifest(tmp_path, capsys):
+    ce = _load_check_evidence()
+    _write(tmp_path, "a.txt", "hello")
+    # The source manifest exists, but the requested stage has no manifest. This used
+    # to validate ROOT's manifest against unrelated files and bypass the stage's metadata.
+    ce.ROOT = str(REPO)
+    assert ce.cmd_check(types.SimpleNamespace(root=str(tmp_path))) == 1
+    assert str(tmp_path / "evidence_manifest.json") in capsys.readouterr().err
+    (tmp_path / "evidence_manifest.json").write_text('{"schema_version":1,"claims":[],"claims":[]}')
+    assert ce.cmd_check(types.SimpleNamespace(root=str(tmp_path))) == 1
+    assert "duplicate JSON key" in capsys.readouterr().err
+
+
+def test_curated_evidence_cannot_be_replaced_by_registry_after_deletion(tmp_path):
+    be = _load_build_evidence()
+    _write(tmp_path, "framework/STATUS.md", "a historical claim")
+    spec = {"claim_id": "C1", "source": "test", "headline": "scan", "status": "served",
+            "gate": "g", "candidates": [("trial-runs/sleptonscan_fig3_SCAN/scan.json", "scan-aggregate")],
+            "surrogate": ("framework/STATUS.md", "doc-citation")}
+    with pytest.raises(be.BuildError, match="mandatory shipped evidence missing"):
+        be.materialize_claim(spec, tmp_path)
+
+
+def test_manifest_cannot_drop_or_downgrade_source_claims(tmp_path):
+    ce = _load_check_evidence()
+    ce._source_specs = lambda root: [({"claim_id": "C1", "status": "served"}, ["a.txt"]),
+                                    ({"claim_id": "C2", "status": "historical"}, [])]
+    c = {"claim_id": "C1", "status": "partial", "artifacts": [_artifact("b.txt", "x", True)]}
+    rows = ce.check_completeness({"claims": [c]}, tmp_path)
+    assert len(rows) == 3
+    assert all(v == "FAIL" for _, v, _ in rows)

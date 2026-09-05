@@ -46,10 +46,12 @@ When the analysis has no published likelihood and the routine bundles no aligned
 must come from elsewhere:
 - a **reinterpretation database** that digitised this analysis — the HEPData `resources` often list
   SModelS / MadAnalysis 5 / CheckMATE entries (with efficiency maps + observed/background);
-- the **published tables** themselves, which on HEPData sit behind the blocked `/download/` path —
-  retrieve those numbers with the **Chrome MCP** (`mcp__Claude_in_Chrome__navigate`) if the browser is
-  connected (verify first), saving under `<rundir>/outputs/`. This route is a genuine last resort and
-  has not been exercised here — treat it as untested and record exactly what was taken and from where.
+- the **published tables** themselves: `/download/` is Cloudflare-403, but `hepdata_fetch.py --tables`
+  bypasses it (hepdata-cli, auto-falling back to the open `/record/data/<recid>/<table_id>/<version>`
+  endpoint). Only if BOTH script routes fail, retrieve the numbers with the **Chrome MCP**
+  (`mcp__Claude_in_Chrome__navigate`) if the browser is connected (verify first), saving under
+  `<rundir>/outputs/`; that browser route is a genuine last resort — record exactly what was taken
+  and from where.
 
 ## 6.3b No HEPData record at all — the digitized-anchor DEGRADED mode (declare it)
 Some analyses (esp. preliminary/CONF results) publish no machine-readable tables. The honest
@@ -66,7 +68,9 @@ them (general, any analysis):
 ```bash
 $CONDA run -n reinterp python trial-runs/_infrastructure/hepdata_fetch.py \
   --inspire insNNNN --out <rundir>/outputs/hepdata --tables
-#   (-n reinterp: hepdata-cli lives ONLY in the reinterp env — the rivet env fails this step)
+#   (-n reinterp: hepdata-cli lives ONLY in the reinterp env; any other env auto-falls back to
+#    the open /record/data/<recid>/<table_id>/<version> endpoint — same verification, manifest
+#    records tables_route)
 #   classifies every table; the classified kind + local yaml path live under the manifest's
 #   `table_files` key (the top-level `tables` key is names/descriptions only, no kind, no path).
 #   The two kinds the contour needs, read from hepdata_manifest.json → table_files[].kind/.file:

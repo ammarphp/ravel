@@ -51,15 +51,34 @@ built to catch, plus `merging` / `selection-mapping` / `off-grid` / `statistics`
 
 Verdict: a HARD-FAIL gate runs FIRST — the comparison must be USABLE before any PASS/WARN is possible.
 It FAILs immediately when there is no driving SR (e.g. an all-zero dead-sim where every SR is below the
-tail threshold), when the driving SR could not be evaluated against a published value (a wrong --grid,
-missing/unmapped tables → driving_ok is False), or when no computable driving residual exists. A blank
-or wrong comparison is NEVER laundered into WARN, and a worst-residual of '-' (no residual) is never
-shown as 0%. If the comparison is usable: PASS = a driving SR exists, all driving SRs within tol, AND
+tail threshold), when driving_ok is False, or when no computable driving residual exists. driving_ok is
+False for TWO distinct reasons and the printed FAIL CAUSE names which one fired (they demand opposite
+fixes): (a) UNEVALUABLE — a driving SR has no computable ratio (wrong --grid, missing/unmapped tables,
+missing routine yield) → the comparison is unusable, fix the INPUTS; (b) EVALUATED-BUT-OVER-TOLERANCE —
+the driving SR was read at a real published node and its residual missed --driving-tol → the comparison
+WORKED and the run failed the fidelity gate, fix the PHYSICS (detector model / merging / σ basis), not
+the lookup. A blank or wrong comparison is NEVER laundered into WARN, and a worst-residual of '-' (no
+residual) is never shown as 0%. If the comparison is usable: PASS = a driving SR exists, all driving SRs within tol, AND
 the worst driving residual <= --mu95-bound, AND no driving SR fell back to an off-grid NEAREST node;
 WARN = bounded (worst driving <= 1.5x the bound) and attributed; FAIL otherwise (or when the only
 comparison available is off-grid). Exit code is 0 whenever a certification is produced (PASS/WARN/FAIL
 is the `verdict` JSON field, which the benchmark gate parses); nonzero only for unusable inputs (an
 unparseable acceptance file exits non-zero with a one-line ERROR, not a traceback).
+
+Denominator-basis guard (CR-140, catalogue A4 at the cert surface): my A×ε divides by the GENERATED
+event count — i.e. by whatever σ-slice was actually generated. If the sample was generation-TAGGED
+(an ISR-jet-tagged or decay-filtered subprocess, σ_tag from logs/madgraph.log) while the published
+A×ε is normalized to the INCLUSIVE simplified-model σ, every SR comes out high by the SAME factor
+≈ σ_incl/σ_tag (the flagship re-hit was a uniform ~2.7× excess). This tool cannot see the generation
+log, so it fingerprints the symptom instead (mirroring scan_contour._basis_guard's role at the limit
+surface): a uniform ratio (max/min ≤ 1.25) across ≥2 evaluated non-tail SRs, with the common ratio
+≥20% from unity, prints a loud BASIS SUSPICION warning — excess direction names the A4 tagged-vs-
+inclusive trap, deficit direction names the global single-cause suspects (merging / k-factor / fast-
+sim floor). The warning also lands in the md and as `basis_suspicion` in the json; it never changes
+the verdict. Conversion recipe before re-certifying on the inclusive basis:
+A×ε_incl = A×ε_tag × f with f = σ_tag/σ_incl_LO, BOTH from the same σ table the scan rebase uses
+(`scan_orchestrator.py rebase <scandir> --process <p>`); never mix a generation-log σ with a
+model-σ table.
 
 Usage:
   certify_acceptance.py --acceptance EwkCompressed2018.txt --tables-dir HEPData-...-yaml \
@@ -67,7 +86,7 @@ Usage:
       --srs SR_S_iMT2a,SR_S_high_iMT2a,SR_S_low_iMT2a \
       --label "slepton(200,150) Δm=50" --out framework/validation/slepton_acceff.md
 """
-import argparse, glob, json, os, re, sys
+import argparse, glob, json, math, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -387,12 +406,39 @@ def main():
     driving_off_grid = any(r["off_grid"] for r in driving)
     worst_driving = best_resid
 
+    # CR-140 denominator-basis guard (catalogue A4 at the cert surface; see the docstring recipe).
+    # A UNIFORM ratio across every evaluated non-tail SR fingerprints a single GLOBAL-normalization
+    # cause, not per-SR selection physics. Excess direction = the tagged-sample-denominator trap
+    # (my A×ε high by ≈ σ_incl/σ_tag everywhere); deficit direction = a global suspect (merging /
+    # k-factor basis / fast-sim floor). Warn loudly; never changes the verdict.
+    basis_suspicion = None
+    evald = [r for r in rows if r["ratio"] is not None and r["ratio"] > 0 and r["role"] != "tail"]
+    if len(evald) >= 2:
+        rats = sorted(r["ratio"] for r in evald)
+        if rats[-1] / rats[0] <= 1.25:
+            gm = math.exp(sum(math.log(x) for x in rats) / len(rats))
+            if gm >= 1.2:
+                basis_suspicion = (
+                    f"uniform ~{gm:.2f}× EXCESS across all {len(evald)} evaluated SRs — the A4 "
+                    "σ-basis signature: the acceptance denominator is likely the TAGGED generated "
+                    "sample (generation-log σ) while the published A×ε denominator is the INCLUSIVE "
+                    "model σ. Convert before re-certifying: A×ε_incl = A×ε_tag × f, "
+                    "f = σ_tag/σ_incl_LO, both from the same σ table the scan rebase uses "
+                    "(scan_orchestrator.py rebase <scandir> --process <p>)")
+            elif gm <= 1 / 1.2:
+                basis_suspicion = (
+                    f"uniform ~{gm:.2f}× DEFICIT across all {len(evald)} evaluated SRs — a single "
+                    "global cause (ME/PS merging missing, k-factor/σ basis, fast-sim efficiency "
+                    "floor) rather than per-SR selection mapping; decompose the global "
+                    "normalization before touching cuts")
+
     # HARD-FAIL gate, evaluated BEFORE the PASS/WARN/FAIL ladder. A certification is only meaningful if
     # there is a driving SR AND it was actually evaluated (a real residual against a real published
     # value). Any of these means the comparison is unusable and must FAIL LOUDLY, never WARN:
     #   • no driving SR at all (e.g. an all-zero dead-sim where every SR fell below --tail-events), or
-    #   • driving_ok is False (a driving SR could not be evaluated — missing/unmapped published value
-    #     from a wrong --grid or absent tables, or a missing routine yield), or
+    #   • driving_ok is False — either a driving SR could not be evaluated (missing/unmapped published
+    #     value from a wrong --grid or absent tables, or a missing routine yield) OR it was evaluated
+    #     and missed --driving-tol; the fail_reason below names which cause actually fired, or
     #   • best_resid is None (no driving SR produced a computable residual — the 0.0 laundering case).
     # This is the LOUD failure a physicist needs: a blank/wrong comparison can never read as 'bounded'.
     if (driving is None) or (not driving) or (driving_ok is False) or (best_resid is None):
@@ -406,17 +452,44 @@ def main():
 
     # Why the hard-fail fired (named for the reader), when it did. '-' worst residual is the honest
     # rendering of 'no evaluated driving residual' — it must never print as 0%.
+    # driving_ok=False covers two OPPOSITE situations — a driving SR with no computable ratio (the
+    # comparison is unusable: fix the inputs) vs a driving SR evaluated at a real published node whose
+    # residual missed the tolerance (the comparison worked: fix the physics). Printing the first
+    # message for the second case sent readers hunting for a --grid/--region-map problem that did not
+    # exist (observed 4× across the CR-005 certs) — split them.
     if not driving:
         fail_reason = ("no driving SR could be identified (every SR fell below the tail threshold — a "
                        "dead/empty simulation, or selected-event counts are all missing) — nothing to "
                        "certify")
     elif driving_ok is False:
-        fail_reason = ("the driving SR could not be evaluated against a published value (missing/"
-                       "unmapped published acc×eff — check --grid, --region-map, and that the HEPData "
-                       "tables for this region exist) — comparison unusable")
+        uneval = [r["sr"] for r in driving if r["ratio"] is None]
+        overtol = [r for r in driving if r["ratio"] is not None and not r["ok"]]
+        parts = []
+        if uneval:
+            parts.append(f"driving SR(s) {', '.join(uneval)} could not be evaluated against a "
+                         "published value (missing/unmapped published acc×eff — check --grid, "
+                         "--region-map, and that the HEPData tables for this region exist) — "
+                         "comparison unusable")
+        if overtol:
+            worst_ot = max(abs(1 - r["ratio"]) for r in overtol)
+            parts.append(f"driving SR(s) {', '.join(r['sr'] for r in overtol)} evaluated against the "
+                         f"published acc×eff but outside the ±{args.driving_tol*100:.0f}% driving "
+                         f"tolerance (worst driving residual {worst_ot*100:.0f}%) — the comparison is "
+                         "usable and the run failed the fidelity gate (detector model / merging / σ "
+                         "basis — see the attribution rows), not a lookup failure")
+        fail_reason = "; AND ".join(parts)
     elif best_resid is None:
         fail_reason = ("no computable driving residual (routine yield and/or published value absent) — "
                        "comparison unusable")
+    elif verdict == "FAIL":
+        # the ladder FAIL: driving SR(s) evaluated and inside --driving-tol, but unbounded/off-grid
+        why = []
+        if best_resid > 1.5 * args.mu95_bound:
+            why.append(f"the worst driving residual {best_resid*100:.0f}% exceeds 1.5× the µ95 bound "
+                       f"({1.5*args.mu95_bound*100:.0f}%)")
+        if driving_off_grid:
+            why.append("the driving SR was compared OFF the published grid (extrapolation, not a node)")
+        fail_reason = "driving SR(s) evaluated within tolerance but " + " AND ".join(why)
     else:
         fail_reason = None
     worst_s = "-" if worst_driving is None else f"{worst_driving*100:.0f}%"
@@ -451,6 +524,8 @@ def main():
             rr = "-" if a["ratio"] is None else a["ratio"]
             lines.append(f"- **{a['sr']}** ({a['role']}, {a['region']}): ratio {rr}, residual {rp} → "
                          f"`{a['cause_class']}`, residual-impact {mp}. {a['note']}")
+    if basis_suspicion:
+        lines += ["", f"## Basis guard (CR-140 / A4)", "", f"⚠ BASIS SUSPICION: {basis_suspicion}."]
     lines += ["", f"**Verdict: {verdict}.** Driving SR(s) "
               f"{'within' if driving_ok else 'NOT within'} ±{args.driving_tol*100:.0f}%; "
               f"worst driving residual = {worst_s} (bound {args.mu95_bound*100:.0f}%)"
@@ -465,6 +540,7 @@ def main():
     json.dump({"label": args.label, "grid": args.grid, "m_parent": args.m_parent, "splitting": splitting,
                "verdict": verdict, "driving_tol": args.driving_tol, "mu95_bound": args.mu95_bound,
                "worst_driving_residual": worst_driving, "driving_off_grid": driving_off_grid,
+               "fail_reason": fail_reason, "basis_suspicion": basis_suspicion,
                "rows": [{k: r[k] for k in ("sr", "region", "role", "mine", "pub", "events", "node",
                                            "ratio", "ok", "mu95_impact", "off_grid", "attribution")}
                         for r in rows]},
@@ -473,6 +549,8 @@ def main():
           f"({len(attribs)} attributed){' OFF-GRID' if driving_off_grid else ''} -> {args.out}")
     if fail_reason:
         print(f"  FAIL CAUSE: {fail_reason}")
+    if basis_suspicion:
+        print(f"  BASIS SUSPICION (CR-140/A4): {basis_suspicion}")
     for r in rows:
         node_flag = "" if (r["node"] or "").startswith("grid node") else f"  [{r['node']}]"
         print(f"  {r['sr']:20s} {r['role']:12s} ratio={'-' if r['ratio'] is None else round(r['ratio'],2)} "

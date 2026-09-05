@@ -30,7 +30,73 @@ ANACODE_RE = re.compile(r"\b((?:ATLAS|CMS)[- ](?:SUSY|EXO|HIG|B2G|CONF|HDBS|HMBS
                         r"|(?:SUSY|EXO|HIG|B2G)-\d{4}-\d+)\b", re.I)
 FIGURE_RE = re.compile(r"\bfig(?:ure)?s?\.?\s*(\d+[a-z]?(?:\s*[-–&,]\s*\d+[a-z]?)*)", re.I)
 MASS_RE = re.compile(r"\b(\d+(?:\.\d+)?)\s*(GeV|TeV)\b", re.I)
+# a comma/'and' list of numbers sharing ONE trailing unit ("750, 1000, 1250 GeV") — the U1
+# head-to-head grid form the single-number regex missed (CR-133, adjudication §II.4 item 1b)
+MASS_LIST_RE = re.compile(r"\b\d+(?:\.\d+)?(?:\s*(?:,|and)\s*\d+(?:\.\d+)?)+\s*(GeV|TeV)\b", re.I)
 LUMI_RE = re.compile(r"\b(\d+(?:\.\d+)?)\s*fb(?:\^?-1|⁻¹|-1)?\b", re.I)
+
+# ------------------------------------------------- CR-133 plausibility + word-context guards
+# A prompt that pastes a model description carries numbers and jargon that are NOT the task:
+# the U1 head-to-head intake (adjudication §II.4 item 1) classified task_mode=projection off
+# "left-handed projection operator" in a Lagrangian glossary bullet, and extracted sqrt(s)=13000
+# and an mT bin edge (3200) as candidate masses. Classification and mass extraction therefore
+# run on a VIEW of the prompt with symbol-glossary bullets and $…$/$$…$$ math masked, and each
+# mass candidate must survive the context checks below.
+GLOSSARY_LINE_RE = re.compile(r"^\s*[-*•]\s*\$[^$\n]+\$\s*(?:is|are|denotes|stands\s+for)\b",
+                              re.I)
+MATH_SPAN_RE = re.compile(r"\$\$.*?\$\$|\$[^$\n]*\$", re.S)
+TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
+BINNING_CUE_RE = re.compile(r"\bbins?\b|bin.?edges?|\bbinned\b|histogram", re.I)
+COLLIDER_CUE_RE = re.compile(r"collider|\bLHC\b|sqrt\s*\(?\s*s\b|√s|\bbeam\b|"
+                             r"cent(?:er|re).of.mass|\bc\.o\.m\b", re.I)
+COLLIDER_SQRT_S_GEV = {900.0, 2760.0, 5020.0, 6500.0, 6800.0, 7000.0, 8000.0,
+                       13000.0, 13600.0, 14000.0}
+
+
+def classification_view(text):
+    """The prompt minus model-DESCRIPTION content: symbol-glossary bullets ('- $P_L$ is the
+    left-handed projection operator.') dropped whole, then math spans blanked."""
+    lines = [l for l in text.splitlines() if not GLOSSARY_LINE_RE.match(l)]
+    return MATH_SPAN_RE.sub(" ", "\n".join(lines))
+
+
+def _mass_plausible(text, start, end, value_gev):
+    """False for candidates that are collider constants, binning/table data — not particle masses."""
+    line_start = text.rfind("\n", 0, start) + 1
+    line_end = text.find("\n", end)
+    line_end = len(text) if line_end < 0 else line_end
+    line = text[line_start:line_end]
+    if TABLE_ROW_RE.match(line):
+        return False
+    # context window clipped to the candidate's own line: a neighbouring line's binning/collider
+    # prose must not veto a legitimate mass
+    window = text[max(line_start, start - 40):min(line_end, end + 40)]
+    if BINNING_CUE_RE.search(window):
+        return False
+    if round(value_gev, 3) in COLLIDER_SQRT_S_GEV and COLLIDER_CUE_RE.search(window):
+        return False
+    return True
+
+
+def extract_masses(text):
+    """Candidate particle masses in GeV from the classification view, list-aware + plausibility-
+    filtered (CR-133). Order-preserving, de-duplicated; the physicist confirms at CHECK-IN 1."""
+    out, list_spans = [], []
+    for m in MASS_LIST_RE.finditer(text):
+        list_spans.append(m.span())
+        unit = 1000.0 if m.group(1).lower() == "tev" else 1.0
+        for n in re.findall(r"\d+(?:\.\d+)?", m.group(0)):
+            v = float(n) * unit
+            if _mass_plausible(text, m.start(), m.end(), v):
+                out.append(v)
+    for m in MASS_RE.finditer(text):
+        if any(s <= m.start() < e for s, e in list_spans):
+            continue
+        v = float(m.group(1)) * (1000.0 if m.group(2).lower() == "tev" else 1.0)
+        if _mass_plausible(text, m.start(), m.end(), v):
+            out.append(v)
+    seen = set()
+    return [v for v in out if not (v in seen or seen.add(v))]
 
 # analyses whose result is a binned shape/template fit -> route to the shape_fit.py engine
 # (Option B, DECISION-SHAPE-FIT.md), R5-gated per analysis. framework/interrogations/generality.md
@@ -52,7 +118,8 @@ RULES = (
                                 r"overlay.*(searches|analyses|limits)|combined? (published )?limits", re.I)),
     ("anomaly_search", re.compile(r"model.?agnostic|anomal(y|ous)|strange (event )?topolog|"
                                   r"unusual topolog|CWoLa|weakly.?supervised", re.I)),
-    ("projection", re.compile(r"projection|extrapolat|hl.?lhc|run.?[34]\b|future (run|lumi)|"
+    # "projection operator" is the Dirac-algebra object, never a task ask (CR-133)
+    ("projection", re.compile(r"projection(?!\s+operator)|extrapolat|hl.?lhc|run.?[34]\b|future (run|lumi)|"
                               r"expected .{0,40}(limit|contour|exclusion|reach|sensitivit)|"
                               r"hypothetical .{0,30}(tagger|detector|trigger)", re.I)),
     ("reproduce", re.compile(r"\breproduc|re.?deriv|\bmatch (fig|the published)|validate against", re.I)),
@@ -71,14 +138,14 @@ SENSITIVITY_RE = re.compile(r"sensitivit|s/\s*(sqrt|√)\s*b|expected.?only|tagg
 
 def route(prompt):
     p = prompt.strip()
+    view = classification_view(p)  # keyword rules + mass extraction must not see model prose
     targets = {
         "model": None, "process": None,
         "analysis": [m.group(1).upper().replace(" ", "-") for m in ANACODE_RE.finditer(p)],
         "arxiv": ARXIV_RE.findall(p),
         "inspire": [f"ins{m.group(1)}" for m in INSPIRE_RE.finditer(p)],
         "figures": [f"Figure {m.group(1)}" for m in FIGURE_RE.finditer(p)],
-        "masses_gev": [float(v) * (1000.0 if u.lower() == "tev" else 1.0)
-                       for v, u in MASS_RE.findall(p)],
+        "masses_gev": extract_masses(view),
         "lumi_fb": (float(LUMI_RE.search(p).group(1)) if LUMI_RE.search(p) else None),
     }
     # model hints (free-text, best-effort; the physicist confirms at CHECK-IN 1)
@@ -89,14 +156,14 @@ def route(prompt):
     blocking, escalate, assumptions, missing = [], [], [], []
 
     task_mode = None
-    if UNSUPPORTED_RE.search(p):
+    if UNSUPPORTED_RE.search(view):
         task_mode = "unsupported"
         blocking.append("discovery-language: this tool sets 95% CLs exclusion limits, never a "
                         "5-sigma/discovery claim (PRODUCT-CONTRACT section 6.2) — re-phrase as "
                         "an exclusion question")
     if task_mode is None:
         for mode, rx in RULES:
-            if rx.search(p):
+            if rx.search(view):
                 task_mode = mode
                 break
     if task_mode is None:
@@ -108,7 +175,7 @@ def route(prompt):
     # ---- stat mode
     stat_mode = "TBD-judgment"
     blocked_ids = [a for a in targets["arxiv"] if a in SHAPE_FIT_BLOCKLIST]
-    if blocked_ids or SHAPE_FIT_HINTS.search(p):
+    if blocked_ids or SHAPE_FIT_HINTS.search(view):
         # Option B (DECISION-SHAPE-FIT.md, signed 2026-07-07): shape/template fits route to the
         # scoped shape_fit.py engine, NOT a blanket refusal. Two per-analysis gates decide whether
         # the limit ships or the run downgrades to blocked-shape-fit (PRODUCT-CONTRACT section 6.1).
@@ -129,9 +196,9 @@ def route(prompt):
                             "engine reproduces the paper's own published fit within tolerance.")
     elif task_mode in ("summary_plot", "survey"):
         stat_mode = "none-survey"
-    elif task_mode in ("projection", "anomaly_search") or SENSITIVITY_RE.search(p):
+    elif task_mode in ("projection", "anomaly_search") or SENSITIVITY_RE.search(view):
         stat_mode = "sensitivity-expected-only"
-    elif NATIVE_SA.search(p):
+    elif NATIVE_SA.search(view):
         stat_mode = "published-likelihood"
     if stat_mode == "TBD-judgment":
         escalate.append("stat_mode: published likelihood vs counting is a per-analysis fact — "
@@ -139,11 +206,11 @@ def route(prompt):
                         "confirm at CHECK-IN 1")
 
     # ---- detector mode
-    if PARTICLE_LEVEL_RE.search(p):
+    if PARTICLE_LEVEL_RE.search(view):
         detector_mode = "particle-level"
         assumptions.append("particle-level requested: results carry the particle-level-proxy "
                            "fidelity label, not an exclusion of record (PRODUCT-CONTRACT 5)")
-    elif NATIVE_SA.search(p):
+    elif NATIVE_SA.search(view):
         detector_mode = "simpleanalysis-delphes-native"
     elif task_mode in ("summary_plot", "survey"):
         detector_mode = "particle-level"
@@ -236,6 +303,31 @@ P4_EXPECT = [
 ]
 
 
+# the 2026-08-27 head-to-head run record (adjudication §II.4): the verbatim U1-leptoquark
+# request MUST route scan (not projection-off-"projection operator") with the 9-mass grid.
+# Dev-repo only (trial-runs/2026-* do not ship); the distribution keeps the synthetic twins
+# in framework/tests/test_intake_u1_defects.py.
+U1_PROMPT_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "2026-08-27_taunu-recast-ins1649273-ins1684340_U1-leptoquark", "inputs",
+    "request_verbatim.txt")
+U1_GRID = [750.0, 1000.0, 1250.0, 1500.0, 2000.0, 2500.0, 3000.0, 4000.0, 5000.0]
+
+
+def _selftest_u1_regression(fails):
+    if not os.path.isfile(U1_PROMPT_FILE):
+        print("  [SKIP] U1: run record absent (distribution tree)")
+        return
+    c = route(open(U1_PROMPT_FILE).read())
+    ok = (c["task_mode"] == "scan" and c["targets"]["masses_gev"] == U1_GRID
+          and not validate(c))
+    print(f"  [{'PASS' if ok else 'FAIL'}] U1: {c['task_mode']:14s} "
+          f"masses={len(c['targets']['masses_gev'])}")
+    if not ok:
+        fails.append(f"U1 (want scan + the 9-mass 750-5000 grid, got {c['task_mode']}/"
+                     f"{c['targets']['masses_gev']})")
+
+
 def selftest():
     fails = []
     for i, (prompt, want_mode, want_plan) in enumerate(P4_EXPECT, 1):
@@ -259,9 +351,29 @@ def selftest():
         if tag == "FAIL":
             fails.append(f"P{i} (want {want_mode}/{want_plan}, got "
                          f"{c['task_mode']}/{c['compute_plan']}, valid={ok_valid}, extra={extra})")
+    _selftest_u1_regression(fails)
     if fails:
         sys.exit("route_prompt selftest FAILED:\n  " + "\n  ".join(fails))
-    print("route_prompt selftest: all 10 charter-P4 prompts route + validate correctly.")
+    print("route_prompt selftest: all 10 charter-P4 prompts (+ the U1 head-to-head "
+          "regression where present) route + validate correctly.")
+
+
+def _init_run_state(out_path, contract):
+    """CR-131 (catalogue N11): EVERY contract write initializes the minimal run_state.json in the
+    rundir — compute=none tracks included — so the open-defect gate (N5/G26) evaluates on every
+    run. Best-effort: a ledger-init failure must never block the contract itself."""
+    try:
+        import workflow_state
+        d = os.path.dirname(os.path.abspath(out_path))
+        rundir = os.path.dirname(d) if os.path.basename(d) == "inputs" else d
+        if os.path.isfile(os.path.join(rundir, "run_state.json")):
+            return
+        state = workflow_state.new_state(rundir, contract, out_path,
+                                         os.environ.get("CLAUDE_SESSION_ID", ""))
+        workflow_state.write_state(rundir, state)
+        print(f"initialized {os.path.join(rundir, 'run_state.json')} (CR-131)")
+    except Exception as e:  # noqa: BLE001 — intake must not die on the ledger side-effect
+        print(f"route_prompt: run_state init skipped ({e})", file=sys.stderr)
 
 
 def main():
@@ -288,6 +400,7 @@ def main():
         os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
         json.dump(contract, open(args.out, "w"), indent=2)
         print(f"wrote {args.out}")
+        _init_run_state(args.out, contract)
     if args.do_print or not args.out:
         print(json.dumps(contract, indent=2))
     print(f"\nROUTED: task_mode={contract['task_mode']}  detector={contract['detector_mode']}  "

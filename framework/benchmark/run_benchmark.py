@@ -32,6 +32,7 @@ TRACKED_OUT = str(BENCH / "results.json")
 CONDA = REPO / "stages/01-event-generation/build/tools/miniforge3/bin/conda"
 INFRA = REPO / "trial-runs/_infrastructure"
 ENV = "rivet"
+USE_CURRENT_PYTHON = False
 
 
 def _py_invoke():
@@ -39,7 +40,7 @@ def _py_invoke():
     (unchanged behavior). Fresh clone / public export / CI (no toolchain on disk): fall back to
     the CURRENT interpreter — the fast gate needs only pyhf+numpy+scipy (requirements-replay.txt),
     which is exactly the REPLAY-MODE contract in the README quickstart."""
-    if CONDA.exists():
+    if CONDA.exists() and not USE_CURRENT_PYTHON:
         return [str(CONDA), "run", "-n", ENV, "python"]
     return [sys.executable]
 EXP_MEDIAN_IDX = 2          # exp_limits = [-2σ, -1σ, median, +1σ, +2σ]
@@ -434,6 +435,10 @@ def build_parser():
                          "refresh it; has no effect if --out was also given explicitly)")
     ap.add_argument("--keep-work", action="store_true",
                     help="do not wipe .work/<case>/ first (debugging)")
+    ap.add_argument("--python-current", action="store_true",
+                    help="use this Python environment for replay even if local conda exists")
+    ap.add_argument("--work-dir", type=Path,
+                    help="scratch directory (use a writable path outside an installed package)")
     return ap
 
 
@@ -442,14 +447,21 @@ def resolve_out(args):
     scratch target to the tracked baseline; an explicit --out is left untouched either way."""
     if args.update_baseline and args.out == DEFAULT_OUT:
         return TRACKED_OUT
+    if args.work_dir is not None and args.out == DEFAULT_OUT:
+        return str(args.work_dir.resolve() / "results.latest.json")
     return args.out
 
 
 def main():
+    global WORK, USE_CURRENT_PYTHON
     args = build_parser().parse_args()
+    USE_CURRENT_PYTHON = args.python_current
+    if args.work_dir is not None:
+        WORK = args.work_dir.resolve()
 
-    if not CONDA.exists():
-        print(f"note: dev toolchain not found ({CONDA}); replay mode — using the current "
+    if USE_CURRENT_PYTHON or not CONDA.exists():
+        reason = "current Python explicitly selected" if USE_CURRENT_PYTHON else f"dev toolchain not found ({CONDA})"
+        print(f"note: {reason}; replay mode — using the current "
               f"interpreter ({sys.executable}) for the statistics layer "
               f"(pip install -r requirements-replay.txt)", file=sys.stderr)
     try:
@@ -498,7 +510,7 @@ def main():
                     # from the TRACKED baseline (results.json, sha-covered by the export gates)
                     # and labeled cached — the LIVE re-validation in replay mode is the pyhf
                     # limit + provenance + gate layers, per the README's replay contract.
-                    if CONDA.exists() or "No module named 'yoda'" not in str(cert_err):
+                    if (CONDA.exists() and not USE_CURRENT_PYTHON) or "No module named 'yoda'" not in str(cert_err):
                         raise
                     axe = _cached_axe(case["case_id"])
                     if axe is None:

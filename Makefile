@@ -7,7 +7,7 @@ replay:
 
 # The claims gate: every number in README.md must match results/manifest.json (+ artifact pins).
 claims:
-	python3 scripts/claims_check.py
+	python3 scripts/check_publication.py
 	python3 framework/check_evidence.py --check
 # The aggregate workflow-adherence green bar (L6): every gate G0-G27 fires + the CR board + agent
 # surface coherence. Run before merging the spine worktree back.

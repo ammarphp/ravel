@@ -579,3 +579,165 @@ behavior evals (dev repo: charter P4).
   loud zero-match FAIL path, and a gate's own output line in the log is the evidence it ran — a
   chain log with no gate line is a skipped gate. The deeper lesson: the conda-stdin trap is worst
   inside guards, where exit-0-on-empty-script masquerades as PASS.
+
+## Appended 2026-08-28 — run 2026-08-27_taunu-recast-ins1649273-ins1684340_U1-leptoquark (head-to-head test B intake; adjudication §II.4 honesty ledger)
+- **N12 — deterministic router classified off keyword hits inside model-DESCRIPTION text; the mass extractor accepted √s and a bin edge as masses.**
+  What happened: the verbatim U1-leptoquark recast prompt (a pasted research note with Lagrangian
+  + glossary + binned-data tables) drew task_mode=projection from the literal word "projection" in
+  "- $P_L$ is the left-handed projection operator.", and masses_gev came back
+  [13000 (=√s), 5000, 3200 (=an mT bin edge)] — the request's actual 9-value 750–5000 GeV grid
+  ("750, 1000, …, 5000 GeV", one trailing unit) was unparsed. How caught: the live run's agent
+  flagged both in the contract (assumption rows + flag F1) and the adjudication recorded them as
+  honesty items; the gates held (no compute was mis-spent), but the front door misread the ask.
+  Where the guard lives: EMBEDDED (CR-133) — route_prompt.py classifies and extracts on a
+  model-prose-masked view (glossary bullets + math dropped; "projection operator" phrase-excluded)
+  with list-aware, plausibility-filtered mass extraction (table rows / binning context / √s-in-
+  collider-context are not masses). Regression: the verbatim prompt in `route_prompt.py --selftest`
+  (dev tree) + `framework/tests/test_intake_u1_defects.py` (both trees).
+- **N13 — no detector_mode existed for "custom Delphes, uncertified"; the route nuance lived in a free-text assumption.**
+  What happened: the run's plan used Delphes (stock ATLAS/CMS cards) driving custom, uncertified
+  selections — no enum value fit, so the contract recorded detector_mode=particle-level with the
+  actual route buried in assumptions[] where no gate reads it. How caught: adjudication §II.4
+  honesty item 6. Where the guard lives: EMBEDDED (CR-134) — `delphes-custom-uncertified` in the
+  contract + result-pack enums and PRODUCT-CONTRACT §2; validate_run_state's route gate WARNs
+  with the no-exclusion-of-record obligation; validate_checkin FAILs a CHECK-IN 1 that hides the
+  uncertified status.
+
+## Appended 2026-08-28 — run 2026-08-28_SMMEAS_hvt-zprime-ww-lowmass (SM-measurement-derived Z'->WW estimates; usage-limit interruption + successor close-out)
+- **N14 — figure annotation text GUESSED from a plan-stage prediction instead of read from the machine artifact the same script had just written.**
+  What happened: the CHECK-IN 2 waypoint figure's annotation said the m=300 GeV signal template
+  "peaks in the 185–360 GeV bins" — pasted from the CHECK-IN 1 waypoint PREDICTION
+  (`inputs/checkin1.json` §iii) — while the renderer's own machine artifact
+  (`outputs/waypoint_m300.json`, written in the same invocation) showed the template actually
+  peaks in the 140–220 GeV bins (endpoint 276.6 GeV analytic). The physics direction (below the
+  resonance mass) was right; the numbers were a guess. How caught: the original session's final
+  self-review of the rendered figure — its literally last act before a usage-limit kill (fix
+  edited + re-rendered at 01:05, session died ~01:06); the successor session then re-rendered
+  through the lint gate (byte-identical) and swept EVERY remaining numeric prose/figure claim
+  against its artifact (28-check audit, `VERIFICATION-LADDER.md`), finding one more instance of
+  the same class (a "~3–5%" gloss of per-bin residuals +3.7/+4.3/+1.8/+5.6/−1.8% in
+  `inputs/checkin2.json`, amended pre-resolution). Where the guard lives: PENDING (CR-136) —
+  annotation strings containing numbers should be composed FROM the artifact dict in code, or an
+  annotation-vs-artifact number-trace should join the render gate; until then the manual
+  annotation audit at close-out is the (procedural) guard. Attack replay for Tier-B: grep every
+  `smart_annotate`/caption numeric literal and demand its artifact field.
+- **N15 — a DEVIATIONS entry overturned a physics reading but the artifact carrying the superseded reading was not touched; two contradictory statements coexisted on disk.**
+  What happened: `outputs/survey.json`'s EWPT candidate said "Model A g_V=1 requires
+  M_V ≳ 1.3–1.5 TeV … the ENTIRE 150–500 GeV window is EWPT-disfavored" (written 00:56); minutes
+  later DEVIATIONS D2 resolved the two-pass source conflict the OTHER way (no robust sub-TeV
+  EWPT bound for Model A g_V=1, the conservative reading) — and the census entry was left
+  stale for the rest of the run. How caught: the successor session's close-out audit
+  cross-reading survey.json against the DEVIATIONS ledger (D4f). Where the guard lives:
+  PENDING (CR-137) — a deviation that resolves/overturns a reading should NAME every artifact
+  carrying the superseded text (like the D15/G17 rule already does for baselined-input edits);
+  procedural until embedded.
+
+## Appended 2026-08-28 — run 2026-08-28_SUSY-2018-16_slepton-fig3-fresh (fresh flagship 52-point scan; the CR-006 clean-room self-drive evidence run)
+- **N16 — `conda run` captures child stdout/stderr until process exit, so the stage-supervisor's log-mtime stall watchdog sees a frozen log and kills healthy long stages.**
+  What happened: the smoke-rung pyhf stage was killed rc=124 'progress-stall' TWICE — first for
+  the real signal-starved-log defect (pyhf_exclude's CLs bracketing scan emits nothing for ~18
+  min), then AGAIN after a flush=True heartbeat was added, because plain `conda run` (conda
+  26.3.2, this host) buffers ALL child output and replays it only at exit: the log stayed 0 bytes
+  for the entire stage and the mtime watchdog cannot distinguish that from a hang. Under capture,
+  EVERY stage longer than its stall budget would be spuriously killed — the primary failure mode
+  for an unattended 12-h scan. How caught: the second kill's 0-byte `pyhf.log` contradicted the
+  in-code heartbeat; a 6-s heartbeat probe run both ways (captured vs `--live-stream`) bracketed
+  the cause (smoke_m150_dm20/logs/pyhf.failure.json ×2 kept as evidence). Where the guard lives:
+  `run-pipeline-native.sh` — `--live-stream` on exactly the 8 supervised stages + the
+  `pyhf_exclude.py` cls_at() heartbeat + `stage_supervisor.py` PYHF_MEASURED_MIN=20 (the 12-min
+  flat budget under-measured the workspace-sized, event-count-independent 17.3-min CLs scan);
+  selftest 3/3 PASS. Tool edits applied in-tree, commit deferred to the orchestrating session
+  (CR-138/CR-139). Attack replay for Tier-B: for any supervised stage, ask whether its log grows
+  DURING the stage on this launcher, not just after.
+- **A4 re-hit (new surface) — the tagged-sample vs inclusive-model σ-basis trap reached `certify_acceptance.py` as a uniform ~2.7× acceptance excess.**
+  What happened: the first waypoint cert FAILed with every SR ~2.7× high — the run's `acceptance`
+  column divides by the generated ISR-TAGGED 6-state σ while the published Fig 32a-f denominator
+  is the inclusive 4-state model σ; exactly the A4 basis class the record scan's rebase fixed at
+  the LIMIT surface, now re-hit at the CERT surface, where no guard or docstring warned. How
+  caught: the uniform (SR-independent) excess pattern pointed at a denominator, not the detector
+  chain; conversion f=σ_tag6/σ_incl4_LO=0.3843 (the same table the rebase uses) turned FAIL into
+  PASS at 1.01–1.06 (outputs/acceff_cert_m150_dm20{,_incl4}.md, both kept). Where the guard
+  lives: PENDING (CR-140) — certify_acceptance should warn (like `_basis_guard` in scan_contour)
+  when the denominator σ source is a generation log rather than a model-σ table; until then the
+  recipe lives in this run's DEVIATIONS entry and the certify skill's known-trap list is the
+  procedural pointer.
+- **N17 — a check-in's verification NUMBER was derived by hand OUTSIDE the assembler's basis path: the k-factor was double-counted and the wrong anchor survived into the proxy go-ahead.**
+  What happened: the fresh flagship's CHECK-IN 2 waypoint anchor computed the UL as
+  mu95_raw x sigma_incl4_LO x k_nlo=1.4 by hand — but mu95_raw already carries the flat k=1.18
+  signal normalization baked into the fit patch, so the derivation applied x1.186 too much and
+  reported "+0.1% exp / -15.1% obs" vs ATLAS Fig 44ab where the assembler's own path
+  (scan.json mu95 x sigma_ref) gives -15.6% / -28.5%. The flattering wrong number fed the
+  physicist-proxy PROCEED and propagated into DEVIATIONS, RESUME, the verification ladder and
+  the RESULT draft. How caught: the step-9 Tier-B fresh-context adversary re-derived the anchor
+  from scan.json + the published UL grid (finding 1, MAJOR); all affected records corrected at
+  close-out (CR-137 discipline: every artifact carrying the superseded number named + fixed).
+  Where the guard lives: PENDING (CR-141) — anchor comparisons quoted at any check-in must be
+  COMPUTED by a tool that reads the assembled artifacts (scan.json/exclusion.json + the
+  reference yaml), never hand math in check-in prose; same class as N14 (guessed annotation),
+  one level up: hand-DERIVED, not hand-copied. Attack replay for Tier-B: re-derive every
+  check-in anchor from the artifacts and diff.
+- **C13 — `pythia_shower` with no event count showers Pythia's default 1000 events of a 20k LHE, exit 0 (silent 1/20 statistics).**
+  What happened (2408.00049 width run, 2026-08-28): the first 20k campaign wave passed no `<N>`
+  arg and no `Main:numberOfEvents` in the cfg; every point showered exactly 1000/20000 events
+  with exit 0 — per-σ normalization unaffected (weights carry σ), statistics silently 1/20 of
+  the approved plan. The 1k smoke masked it (counts matched there by coincidence). How caught:
+  per-point cutflow `all` (=analyzed events) vs the LHE `<event>` count during wave-1 review.
+  Where the guard lives: run driver `build/gen_point.py` passes `<N>` explicitly AND hard-fails
+  on analyzed≠LHE count (the 8b gate); run-stage skill §Shower now marks `<N>` MANDATORY
+  (CR-145). Attack replay for Tier-B: diff every point's analyzed-event count against its
+  banner `nevents`.
+- **C14 — the narrow-state per-event mass gate (±3Γ) false-FAILs a legitimately wide lineshape (bwcutoff tail).**
+  What happened (same run): `lhe_check --expect-mass` rejected the first Γ/m=0.15 point on a
+  tail event at m=42 GeV — a legitimate member of the bwcutoff=15Γ lineshape; the check is
+  calibrated for narrow states and is meaningless by construction at large Γ/m. How caught:
+  stage failure triage read the event against the declared width convention (W4). Where the
+  guard lives: width-aware gating in the run driver — narrow (auto-width) points keep the full
+  gate; wide points run `lhe_check` WITHOUT `--expect-mass` (producer-complete/weights still
+  gated) plus direct banner assertions (MASS exact; DECAY width within 1%); recorded as the
+  W-convention interaction in the run's `inputs/width_conventions.md` (CR-146 owner: lhe_check
+  `--width-aware` mode PENDING).
+- **N18 — a stale-output cleanup glob (`m20_w*.json`) also matched an anchor artifact (`m20_wnarrow.json`) and deleted it AFTER fits had consumed it.**
+  What happened (same run): the wide-point relaunch cleanup glob was written for the five
+  `m20_w{05..30}` width tags but `m20_w*` also matches `m20_wnarrow`; the anchor's per-point
+  provenance JSON (+yoda) vanished after the L2 fits had used it. How caught: the missing file
+  surfaced at the fit-aggregation re-read; the regenerated point (identical seed 101) was
+  diffed at close — template rebuild BIT-IDENTICAL (integral 2949.387674, max per-bin Δ 0.0),
+  so no quoted number was touched. Where the guard lives: procedural — cleanup deletions must
+  enumerate exact tags (never glob a tag prefix that is itself a prefix of another tag), and
+  any deleted-then-regenerated input is diffed against the consuming record before close
+  (this run's DEVIATIONS entries 7/8 are the worked example). Attack replay: ask whether every
+  fit input still exists on disk and matches its consuming record.
+- **N19 — orphan-cleanup `pkill` patterns matched by PROCESS NAME, not rundir, and killed a concurrent session's MadGraph worker.**
+  What happened (same run): `pkill -f madevent|pythia_shower|generate_events` during a
+  campaign relaunch killed at least one madevent worker of the CONCURRENT run
+  (CR005cert_ss_1200_600); MG's survey loop respawned it (self-healing), but the kill crossed
+  session boundaries on a shared machine. How caught: the other session's log showed the pid
+  death; the pkill pattern audit followed. Where the guard lives: procedural rule — kill
+  strictly by rundir-path match (`pkill -f <this-rundir-path>`), never by bare tool name;
+  memory note `concurrent-overnight-sessions.md` carries the shared-machine discipline.
+- **N20 — the plot-lint occupancy sampler counts only data VERTICES, so a legend frame (framealpha 0.85) visibly washed out sparse 6-point curves while the gate passed.**
+  What happened (this run's width figure, 2026-08-29): the 9-entry legend landed on the curve
+  region; its translucent white frame faded line SEGMENTS between widely-spaced markers — only
+  ≤3 sampled vertices sat inside the box, under `tol_points=3`, so `enforce_lint` passed a
+  visibly occluded figure. How caught: human-eye review of the rendered PNG at step 8.5.
+  Where the guard lives: FIXED 2026-09-05 (CR-147) — `_occupancy_points` now samples visible
+  transformed line segments at bounded display-space spacing, preserving NaN breaks, steps,
+  marker-only lines and clipping. Sparse crossings, log axes and off-axes cases are covered
+  in `framework/tests/test_plot_lint_segments.py`; `plot_lint.py --selftest` passes.
+- **N21 — fit artifacts stamped `r5_status: closed` from a SUPERSEDED validation configuration (the as-run density-bug closure numbers), one anchor silently absent; the headline "layered tolerance met" re-labeled layer failures.**
+  What happened (2408.00049 width run, caught 2026-08-29): `inputs/r5_points.json` carried the
+  R5 closure doc's AS-RUN numbers ("obs 0.948/0.891", 2 anchors) while the run's own L1 fits
+  used the CORRECTED counts config whose observed ratios are 0.944/0.534/0.513 — the 0.891 was
+  the doc's own documented accidental cancellation, and m40 was absent from the reference list
+  entirely; RESULT.md then summarized F6 as "MET WITH ONE MARGINAL ELEMENT" though L1(125) obs
+  missed by 28% in g and L2/L1 exceeded its 15% target at 2 of 3 anchors. How caught: the
+  step-9 Tier-B fresh-context adversary recomputed every anchor ratio from the artifacts
+  (round-1 FAIL). Where the guard lives: procedural + the panel itself — R5 reference points
+  must quote the SAME input configuration the run fits (cite the closure table variant), name
+  ALL anchors, and state the closure axis + tolerance (closure-doc rec. 3: expected axis);
+  reproduction verdicts must be stated layer-by-layer against the pre-agreed criteria, never
+  net-envelope-only. Same family as N15 (superseded reading left in an artifact) and A6
+  (ungrounded "consistent with publication"), new surface: the machine-readable r5 stamp.
+  Attack replay for Tier-B: recompute r5_reference_points from the artifacts + the published
+  grid and diff against the stamped basis text; check every pre-agreed tolerance layer
+  separately.

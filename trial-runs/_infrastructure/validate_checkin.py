@@ -40,13 +40,23 @@ SCHEMA = {
 }
 
 
+def _sibling_contract(base_dir):
+    """Best-effort read of the rundir's inputs/task_contract.json (None on any failure)."""
+    try:
+        with open(os.path.join(base_dir, "inputs", "task_contract.json")) as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
 def validate(c, base_dir=None):
     """Return a list of error strings (empty = valid).
 
     base_dir (A6, trial QD.1/QM.1): when given, every path-like image token (.png/.pdf) cited in
     the CHECK-IN 1 gallery section must exist under it (or absolutely), and file:// URIs are
     rejected outright -- the "un-viewable deck" was link-only delivery of files the physicist
-    could not open. base_dir=None keeps the pure-schema mode (back-compat)."""
+    could not open. base_dir also enables the CR-134 route-surfacing rule against the sibling
+    task_contract.json. base_dir=None keeps the pure-schema mode (back-compat)."""
     errs = []
     if not isinstance(c, dict):
         return ["check-in is not a JSON object"]
@@ -89,6 +99,15 @@ def validate(c, base_dir=None):
                 p = tok if os.path.isabs(tok) else os.path.join(base_dir, tok)
                 if not os.path.isfile(p):
                     errs.append(f"gallery (ii) references a missing file: {tok}")
+            # CR-134 (adjudication section II.4 item 6): an uncertified-custom-Delphes route must
+            # be physicist-VISIBLE at CHECK-IN 1, never buried in a contract assumptions note
+            contract = _sibling_contract(base_dir)
+            if (contract or {}).get("detector_mode") == "delphes-custom-uncertified" \
+                    and "uncertified" not in json.dumps(secs).lower():
+                errs.append("contract detector_mode=delphes-custom-uncertified but no CHECK-IN 1 "
+                            "section surfaces the uncertified-Delphes status -- state the "
+                            "proxy/no-exclusion-of-record label in the plan or a numbered flag "
+                            "(CR-134)")
 
     elif kind == "checkin2":
         for k in CHECKIN2_SECTIONS:

@@ -20,6 +20,14 @@ that fell to a second look).
 - Writes `<rundir>/inputs/resource_census.json`; `--markdown` prints the CHECK-IN 1 block.
 - Exit 3 = EVERY rung failed → that is a network/environment finding; do NOT proceed as if the
   sweep ran, and do NOT read it as "nothing exists".
+- **R1 absence vs outage (READ the status — a drop-vs-wait decision hinges on it):**
+  `ABSENT` = the open record-JSON API served a **404** and INSPIRE lists no HEPDATA external id —
+  **definitively no HEPData record exists**; plan around absence (counts as a walked rung, not a
+  failure). `ERROR` + `classification: outage-or-block` (403/5xx/network) = the service is
+  unreachable — **NOT evidence of absence**; retry or use the browser. `ERROR` +
+  `classification: inconsistent` (API 404 but INSPIRE DOES list a HEPDATA id) = re-check manually
+  before concluding anything. (The conflation this kills: a "Cloudflare-blocked/503" diagnosis
+  once masked a genuine no-record for a CMS target.)
 
 ## Then actually LOOK (the sweep finds; you read)
 1. **Likelihood/efficiency-map candidates** (R1): fetch via `hepdata_fetch.py` — a full
@@ -57,3 +65,4 @@ python3 trial-runs/_infrastructure/resource_census.py --debug recipe-search \
   persistent.
 - A rung contradicts the paper (paper says "material on HEPData", R1 shows none) → that mismatch
   is itself a CHECK-IN flag; check the record VERSION and the manual rungs before concluding.
+- R1 `ERROR outage-or-block` → never report "no HEPData record" from it; only `ABSENT` says that.

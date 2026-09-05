@@ -25,13 +25,15 @@ print(m.group(1) if m else "")')"
 case "$tmode" in
   reproduce|reinterpret|scan|summary_plot|projection|anomaly_search|survey|no_routine|unsupported)
     # RECONCILE D-3: route_prompt.py succeeded -> mark the run routed in the ledger (sets
-    # run_state.routed). Best-effort + session-scoped so it never clobbers an unrelated run;
-    # physicist-intake re-asserts once the run scaffold exists. Redirected so the additionalContext
-    # JSON stays the ONLY stdout payload. cmd_record resolves the active rundir via find_active_rundir;
-    # a fresh prompt with no active run self-scopes to a harmless no-op (return 0). p1's record CLI has
-    # NO --session flag, so we pass --project-dir (D-3 / re-verify RR4 fix).
+    # run_state.routed). Best-effort + scoped so it never clobbers an unrelated run (CR-135):
+    # find_active_rundir resolves ONLY a genuinely active run (cwd-inside-rundir, or a live
+    # SESSION.lock with no RESULT.md -- never a closed/stale one), and a contentless route
+    # record is a no-op, so we pass --what "$tmode" to carry the routing content. A prompt
+    # with no active run self-scopes to a harmless no-op (return 0); physicist-intake re-asserts
+    # once the run scaffold exists. Redirected so the additionalContext JSON stays the ONLY
+    # stdout payload. p1's record CLI has NO --session flag, so we pass --project-dir (D-3/RR4).
     python3 "$REPO/trial-runs/_infrastructure/workflow_state.py" record --kind route \
-      --project-dir "$REPO" >/dev/null 2>&1 || true
+      --what "$tmode" --project-dir "$REPO" >/dev/null 2>&1 || true
     # A3 (trial QA.1): leave a session-keyed route-pending marker; the PreToolUse guard blocks
     # Agent/Task fan-out for THIS session until a task_contract.json exists (then consumes it).
     if [ -n "$session" ]; then

@@ -31,6 +31,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 import urllib.parse
 
@@ -373,19 +374,126 @@ def _selftest():
         print(f"[selftest] 8 pre-generate-hook blocks mg5 w/o recipe (2), noop on non-gen (0): "
               f"{'ok' if ok8 else 'FAIL'}")
         if not ok8: fails.append(f"pre-generate-hook wrong: block={rc_block} noop={rc_noop}")
+    v_abs = hepdata_absence_verdict("1684340", 404,
+                                    {"status": "OK", "hepdata_listed": False, "ids": []})
+    v_inc = hepdata_absence_verdict("1649273", 404,
+                                    {"status": "OK", "hepdata_listed": True,
+                                     "ids": [{"schema": "HEPDATA", "value": "ins1649273"}]})
+    v_out = hepdata_absence_verdict("1684340", 503, None)
+    v_net = hepdata_absence_verdict("1684340", None, None)
+    v_unc = hepdata_absence_verdict("1684340", 404, {"status": "ERROR", "reason": "timeout"})
+    ok9 = (v_abs["status"] == "ABSENT" and v_abs["corroborated_by_inspire"] is True
+           and v_inc["status"] == "ERROR" and v_inc["classification"] == "inconsistent"
+           and v_out["classification"] == "outage-or-block"
+           and "NOT evidence" in v_out["meaning"]
+           and v_net["classification"] == "outage-or-block"
+           and v_unc["status"] == "ABSENT" and v_unc["corroborated_by_inspire"] is False)
+    print(f"[selftest] 9 R1 absence-vs-outage verdict (404->ABSENT, 404+inspire-listed->"
+          f"inconsistent, 5xx/net->outage): {'ok' if ok9 else 'FAIL'}")
+    if not ok9: fails.append("hepdata_absence_verdict classification wrong")
+    ok10 = (_rung_ok({"status": "OK"}) and _rung_ok(v_abs) and not _rung_ok(v_out)
+            and "NO HEPDATA RECORD" in _r1_markdown_line(v_abs)
+            and "NOT evidence" in _r1_markdown_line(v_out))
+    print(f"[selftest] 10 ABSENT walks the rung + markdown keeps the distinction: "
+          f"{'ok' if ok10 else 'FAIL'}")
+    if not ok10: fails.append("_rung_ok/_r1_markdown_line wrong")
     if fails:
         for f in fails:
             print(f"SELFTEST FAIL: {f}", file=sys.stderr)
         return 1
-    print("resource_census selftest: PASS (8 case(s))")
+    print("resource_census selftest: PASS (10 case(s))")
     return 0
+
+
+def _inspire_hepdata_xcheck(inspire_id):
+    """Does INSPIRE's literature record list a HEPDATA external id for this paper?
+    Corroboration for the absence verdict -- INSPIRE is the independent registry of which
+    papers have a HEPData record at all."""
+    try:
+        rec = _get_json(f"https://inspirehep.net/api/literature/{inspire_id}"
+                        "?fields=external_system_identifiers")
+        ids = (rec.get("metadata") or {}).get("external_system_identifiers") or []
+        hep = [i for i in ids if str(i.get("schema", "")).upper() == "HEPDATA"]
+        return {"status": "OK", "hepdata_listed": bool(hep), "ids": hep}
+    except Exception as e:
+        return {"status": "ERROR", "reason": f"{type(e).__name__}: {e}"[:200]}
+
+
+def hepdata_absence_verdict(inspire_id, http_status, inspire_xcheck):
+    """Classify an R1 HEPData failure: DEFINITIVE ABSENCE vs OUTAGE/BLOCK (taunu G2, 2026-08-28).
+
+    The physicist decision that hinges on this (drop-the-analysis vs wait-for-the-outage) must
+    never be made on a conflated signal: a served 404 from the open record-JSON API means NO
+    record exists (a Cloudflare block / outage manifests as 403/5xx/network trouble, never a
+    served 404). INSPIRE's external-id list corroborates; if INSPIRE DOES list a HEPDATA id the
+    404 is inconsistent and absence must NOT be concluded."""
+    url = f"https://www.hepdata.net/record/ins{inspire_id}?format=json"
+    if http_status == 404:
+        listed = (inspire_xcheck or {}).get("hepdata_listed")
+        if listed:
+            return {"status": "ERROR", "classification": "inconsistent",
+                    "http_status": 404, "url": url, "inspire_xcheck": inspire_xcheck,
+                    "reason": "open API served 404 but INSPIRE lists a HEPDATA external id -- "
+                              "do NOT conclude absence; re-check manually (browser) before any "
+                              "drop decision."}
+        corroborated = ((inspire_xcheck or {}).get("status") == "OK" and listed is False)
+        return {"status": "ABSENT", "http_status": 404, "url": url,
+                "corroborated_by_inspire": corroborated, "inspire_xcheck": inspire_xcheck,
+                "meaning": f"DEFINITIVE absence: the open record-JSON API served a 404 -- no "
+                           f"HEPData record exists for ins{inspire_id} (a block/outage would be "
+                           "403/5xx/network trouble, never a served 404)"
+                           + ("" if corroborated else "; INSPIRE corroboration unavailable"),
+                "decision_note": "drop-vs-wait may rely on this: absence is a state of the "
+                                 "world, not an outage to wait out."}
+    reason = (f"HTTP {http_status}" if http_status else "network error (no HTTP status)")
+    return {"status": "ERROR", "classification": "outage-or-block",
+            "http_status": http_status, "url": url, "reason": reason,
+            "meaning": "server/network failure (Cloudflare block, 5xx, timeout) -- NOT evidence "
+                       "of absence; retry later or check in a browser. A definitive absence is "
+                       "an API 404 (status ABSENT)."}
+
+
+def _rung_ok(v):
+    """A rung counts as WALKED when it reached a definitive answer: OK (record found) or
+    ABSENT (definitively no record). ERROR/SKIPPED did not answer."""
+    return isinstance(v, dict) and v.get("status") in ("OK", "ABSENT")
+
+
+def _r1_markdown_line(r1):
+    """The CHECK-IN 1 line for R1 -- the absence/outage distinction must survive into the
+    physicist-facing text, not just the JSON."""
+    s = r1.get("status")
+    if s == "ABSENT":
+        cor = (", INSPIRE lists no HEPDATA id" if r1.get("corroborated_by_inspire")
+               else "; INSPIRE corroboration unavailable")
+        return (f"- HEPData: NO HEPDATA RECORD exists (definitive: open-API 404{cor}) -- "
+                f"plan around absence, do not wait for an outage ({r1.get('url', '')})")
+    if s == "ERROR":
+        if r1.get("classification") == "outage-or-block":
+            return ("- HEPData: UNREACHABLE (outage/Cloudflare block -- NOT evidence of "
+                    f"absence; retry or check in a browser): {r1.get('reason', '')}")
+        return f"- HEPData: ERROR ({r1.get('classification', '?')}): {r1.get('reason', '')}"
+    return (f"- HEPData: {r1.get('n_tables', '?')} tables; "
+            f"{len(r1.get('likelihood_candidates', []))} likelihood-like + "
+            f"{len(r1.get('efficiency_map_candidates', []))} efficiency-map-like resources "
+            f"({r1.get('url', '')})")
 
 
 def rung_hepdata(inspire_id):
     """R1: the record's tables + resources tab. Resources are where reinterpretation material
-    lives (full likelihoods, efficiency maps, SLHA cards) -- NOT under 'tables'."""
+    lives (full likelihoods, efficiency maps, SLHA cards) -- NOT under 'tables'.
+    A failure is CLASSIFIED (taunu G2): served 404 -> ABSENT (definitive, INSPIRE-corroborated);
+    403/5xx/network -> ERROR outage-or-block (never evidence of absence)."""
     url = f"https://www.hepdata.net/record/ins{inspire_id}?format=json"
-    data = _get_json(url)
+    try:
+        data = _get_json(url)
+    except urllib.error.HTTPError as e:
+        xcheck = _inspire_hepdata_xcheck(inspire_id) if e.code == 404 else None
+        return hepdata_absence_verdict(inspire_id, e.code, xcheck)
+    except Exception as e:
+        v = hepdata_absence_verdict(inspire_id, None, None)
+        v["reason"] = f"{type(e).__name__}: {e}"[:300]
+        return v
     tables = [t.get("name", "") for t in data.get("data_tables", [])]
     resources = []
     for res in (data.get("record", {}) or {}).get("resources", []) or data.get("resources", []):
@@ -557,7 +665,7 @@ def main(argv=None):
         except Exception as e:
             rungs[name] = {"status": "ERROR", "reason": f"{type(e).__name__}: {e}"[:300]}
 
-    ok = [k for k, v in rungs.items() if v.get("status") == "OK"]
+    ok = [k for k, v in rungs.items() if _rung_ok(v)]
     census = {"schema_version": 1, "analysis_id": args.analysis_id,
               "inspire": args.inspire, "arxiv": args.arxiv,
               "rungs": rungs, "manual_rungs": MANUAL_RUNGS,
@@ -585,10 +693,7 @@ def main(argv=None):
         n_gh = sum(len(v.get("repos", [])) + len(v.get("code", []))
                    for v in gh_hits.values() if isinstance(v, dict))
         print("\n### Resource census (what exists online for this analysis)")
-        print(f"- HEPData: {r1.get('n_tables', '?')} tables; "
-              f"{len(r1.get('likelihood_candidates', []))} likelihood-like + "
-              f"{len(r1.get('efficiency_map_candidates', []))} efficiency-map-like resources "
-              f"({r1.get('url', '')})")
+        print(_r1_markdown_line(r1))
         print(f"- Routines: see R2 report (Rivet/SimpleAnalysis resolver output)")
         print(f"- GitHub: {n_gh} repos across the id searches" +
               (" — LOOK at them before declaring anything unavailable" if n_gh else

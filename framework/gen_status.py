@@ -160,13 +160,16 @@ def build_headline():
     unbuilt_desc = (" (" + ", ".join(unbuilt) + ")") if unbuilt else ""
 
     return (
-        f"**Validation readiness {readiness}%**, and coverage {r9_score:.2f} ({r9_status}) of the "
+        f"**Reference-task coverage {r9_score:.2f} ({r9_status})** on the "
         f"project's benchmark of {total} reference physicist tasks — real requests collected from "
         f"CERN researchers, used as the standing coverage yardstick (internal audit dimension "
         f"\"R9\"). **{len(full)} of {total} fully served** ({full_desc}; {len(refusal)} served by "
         f"a designed refusal), **{len(partial)} partially served** ({partial_desc}), "
         f"**{len(unbuilt)} not yet built**{unbuilt_desc}. Task list, scoring, and definitions: "
-        f"`framework/capability-matrix.json` → `framework/AUDIT.md`."
+        f"`framework/capability-matrix.json` → `framework/AUDIT.md`. "
+        f"These are internal coverage categories, not measured autonomous success rates or "
+        f"a percentage of scientific correctness. The live audit inventory score depends on "
+        f"which development artifacts are installed."
     )
 
 

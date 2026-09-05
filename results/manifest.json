@@ -1,27 +1,27 @@
 {
   "schema_version": 1,
-  "_doc": "README-headline claims manifest (spec Part III E1). Every number the README quotes traces to an entry here; every entry points at committed artifacts. scripts/claims_check.py asserts README<->manifest agreement in CI; framework/check_evidence.py separately pins artifact sha256s for the physics headline claims (evidence_manifest.json). Verified 2026-07-30 against the live tree; 'command' regenerates the number.",
+  "_doc": "Scoped README claims. Statistical baseline summaries are derived and checked against the committed benchmark records; historical evidence is distinguished from fresh replay and physics certification.",
   "claims": [
     {
       "claim": "tests_collected",
       "value": "344",
-      "detail": "pytest-collected test functions across the framework test suite",
+      "detail": "Historical snapshot only; no longer advertised as a current count. pytest-collected test functions across the framework test suite",
       "command": "cd framework && python -m pytest --collect-only -q tests | tail -1",
       "verified": "2026-07-30: '344 tests collected in 0.36s'; full run 344 passed in ~3m15s",
       "artifacts": [
         "framework/tests/"
       ],
-      "status": "VERIFIED"
+      "status": "HISTORICAL"
     },
     {
       "claim": "test_modules",
       "value": "59",
-      "detail": "test modules in framework/tests (test files, not source modules)",
+      "detail": "Historical snapshot only; no longer advertised as a current count. test modules in framework/tests (test files, not source modules)",
       "command": "ls framework/tests/*.py | wc -l",
       "artifacts": [
         "framework/tests/"
       ],
-      "status": "VERIFIED"
+      "status": "HISTORICAL"
     },
     {
       "claim": "adversarial_gate_cases",
@@ -37,14 +37,15 @@
     },
     {
       "claim": "benchmarks_reproduced",
-      "value": "7 within 8.6%",
-      "detail": "published-analysis benchmark cases with full limit reproduction; worst |1 - s95_obs_ratio| = 8.6% (conf2016054 gluino one-step), best 0.2% (squark pair); 9 cases total in the gate, 7 carry the full limit comparison",
-      "command": "python3 framework/benchmark/run_benchmark.py --fast",
+      "value": "7 observed S95 comparisons within 8.6% (statistical layer)",
+      "detail": "Observed model-independent S95 recovery in events at the driving SR. Seven comparisons across four searches; NOT seven end-to-end physics reproductions. See the separate acceptance and mass-plane evidence.",
+      "command": "python3 scripts/validation_summary.py",
       "verified": "2026-07-30 from framework/benchmark/results.json: deltas 8.6, 8.2, 5.9, 5.4, 2.3, 0.2, 0.2 %",
       "artifacts": [
         "framework/benchmark/cases.json",
         "framework/benchmark/results.json",
-        "docs/validation/"
+        "docs/validation/",
+        "results/validation-summary.json"
       ],
       "status": "VERIFIED"
     },
@@ -121,13 +122,13 @@
     {
       "claim": "exclusion_computations",
       "value": "112",
-      "detail": "per-point pyhf CLs exclusion artifacts (exclusion.json) committed across scan points and standalone runs",
+      "detail": "Historical snapshot only; no longer advertised as a current count. per-point pyhf CLs exclusion artifacts (exclusion.json) committed across scan points and standalone runs",
       "command": "ls trial-runs/*/output/exclusion.json trial-runs/*/outputs/*exclusion*.json 2>/dev/null | wc -l",
       "verified": "2026-07-30: 112",
       "artifacts": [
         "trial-runs/"
       ],
-      "status": "VERIFIED"
+      "status": "HISTORICAL"
     },
     {
       "claim": "invariants_18",

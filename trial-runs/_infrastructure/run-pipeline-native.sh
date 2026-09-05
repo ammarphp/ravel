@@ -86,7 +86,13 @@ run_stage() { # <name> <command...>  -> logs to logs/<name>.log, records PASS/FA
 # ---- 1. madgraph (LHE only; native mg5_aMC in mg5 env) -----------------------
 # Uses the same param/run cards mapyde's madgraph.generate_mg5config would build,
 # materialised under output/ by a small helper (mass substitution from the TOML).
-run_stage madgraph "$CONDA" run -n mg5 "$MG5" "output/run.mg5"
+# NB --live-stream on every SUPERVISED stage: plain `conda run` CAPTURES the child's
+# stdout/stderr and replays it only at exit, so the redirected logs/<stage>.log stays
+# 0-byte mid-run and stage_supervisor.py's progress-stall watchdog (mtime-based) kills
+# any stage longer than its stall budget even while it is progressing (first seen:
+# 2026-08-28 fresh-flagship smoke, pyhf rc=124 twice — the pyhf_exclude.py heartbeat
+# alone could not reach the log through conda's capture buffer).
+run_stage madgraph "$CONDA" run --live-stream -n mg5 "$MG5" "output/run.mg5"
 LHE="output/PROC_madgraph/Events/run_01/unweighted_events.lhe"
 [ -s "${LHE}.gz" ] && gunzip -f "${LHE}.gz"
 
@@ -104,19 +110,19 @@ if [ ${#GATE_ARGS[@]} -eq 0 ] && [ -f "output/param_card.dat" ]; then
   GATE_ARGS+=(--expect-from-card "output/param_card.dat")
 fi
 # ${arr[@]+...} idiom: bash 3.2 (this macOS) errors on empty-array expansion under set -u
-run_stage lhe_check "$CONDA" run -n rivet python "$INFRA/lhe_check.py" "$LHE" \
+run_stage lhe_check "$CONDA" run --live-stream -n rivet python "$INFRA/lhe_check.py" "$LHE" \
     ${GATE_ARGS[@]+"${GATE_ARGS[@]}"}
 
 # ---- 2. pythia shower (rivet env -> HepMC3) ----------------------------------
 HEPMC="output/madgraph/tag_1_pythia8_events.hepmc"
 mkdir -p "$(dirname "$HEPMC")"
-run_stage pythia "$CONDA" run -n rivet "$INFRA/pythia_shower" \
+run_stage pythia "$CONDA" run --live-stream -n rivet "$INFRA/pythia_shower" \
     "output/shower.cfg" "$HEPMC" "$NEVENTS"
 
 # ---- 3. delphes (recast env; DelphesHepMC3 reads the HepMC3 from pythia_shower) -
 mkdir -p "output/$(dirname "$DELPHES_OUT")"
 rm -f "output/$DELPHES_OUT"
-run_stage delphes "$CONDA" run -n recast "$RECAST/bin/DelphesHepMC3" \
+run_stage delphes "$CONDA" run --live-stream -n recast "$RECAST/bin/DelphesHepMC3" \
     "$DELPHES_CARD" "output/$DELPHES_OUT" "$HEPMC"
 
 # ---- 4. analysis = Delphes2SA (recast env; bit-identical to container) --------
@@ -131,7 +137,7 @@ for line in open(sys.argv[1], errors="ignore"):
 print(xs * float(sys.argv[2]))
 ' "logs/madgraph.log" "$KFACTOR")
 mkdir -p "output/$(dirname "$ANA_OUT")"
-run_stage analysis "$CONDA" run -n recast python "$INFRA/delphes2sa_native.py" \
+run_stage analysis "$CONDA" run --live-stream -n recast python "$INFRA/delphes2sa_native.py" \
     --input "output/$DELPHES_OUT" --output "output/$ANA_OUT" \
     --lumi "$ANA_LUMI" --XS "$XS"
 
@@ -141,14 +147,14 @@ run_stage analysis "$CONDA" run -n recast python "$INFRA/delphes2sa_native.py" \
 # acc x eff cert, the .root (per-SR eventWeight ntuple + isee/ismm) for sa2json. It
 # computes R_ISR/M_S via the native rjr_resolve (recast env) on its own signalJets --
 # no container values. --ngen is the generated-event denominator for acceptance.
-run_stage simpleanalysis "$CONDA" run -n rivet python "$INFRA/native_simpleanalysis.py" \
+run_stage simpleanalysis "$CONDA" run --live-stream -n rivet python "$INFRA/native_simpleanalysis.py" \
     --input "output/$ANA_OUT" --output "output" --ngen "$NEVENTS"
 
 # ---- 6. sa2json (rivet env; bit-identical to container w/ float() cast) -------
 # Use the float()-cast wrapper sa2json_native.py (numpy>=2 returns float32 which
 # the stock mapyde SAtoJSON cannot JSON-serialise under py3.14).
 PATCH_OUT="output/${SA_NAME}_patch.json"
-run_stage sa2json "$CONDA" run -n rivet python "$INFRA/sa2json_native.py" \
+run_stage sa2json "$CONDA" run --live-stream -n rivet python "$INFRA/sa2json_native.py" \
     -i "output/${SA_NAME}.root" -o "$PATCH_OUT" -n output \
     -b "$BKG_JSON" -l "$ANA_LUMI" -c
 
@@ -156,7 +162,7 @@ run_stage sa2json "$CONDA" run -n rivet python "$INFRA/sa2json_native.py" \
 # The harness uses its OWN pyhf_exclude.py (true CLs=0.05 crossing), not mapyde's
 # fixed-grid muscan.py. result_pack.py then assembles result.json from
 # exclusion.json + sr_yields.json + provenance.json + cert json.
-run_stage pyhf "$CONDA" run -n rivet python "$INFRA/pyhf_exclude.py" likelihood \
+run_stage pyhf "$CONDA" run --live-stream -n rivet python "$INFRA/pyhf_exclude.py" likelihood \
     --bkg "$BKG_JSON" --patch "$PATCH_OUT" --out "output"
 
 echo "ALL_STAGES_COMPLETE $(date '+%F %T')" | tee -a "$STATUS"

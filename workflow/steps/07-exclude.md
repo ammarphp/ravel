@@ -63,6 +63,29 @@ truncation — it brackets µ (doubling until CLs < 0.05) and interpolates the c
 limit is real even when it is large. (For a full-likelihood fit each point is a many-parameter fit;
 expect minutes, not seconds.)
 
+## Optimizer robustness (CR-005/CR-132 — silent-failure guard, automatic)
+Published histosys workspaces can carry **NaN pockets** in −2lnL (interpolation drives bins
+negative); on such a surface pyhf's stock scipy/SLSQP backend can return its **init vector claiming
+success** — a silently wrong limit with obs==exp and no error. `pyhf_exclude.py` therefore runs every
+minimization through its `robust_optimizer`: SLSQP first (bit-identical on clean surfaces), and on
+ANY distrust signal (NaN evaluated mid-fit, reported failure, non-finite minimum, drifted fixed
+parameter) it re-minimizes with NaN-guarded iminuit MIGRAD, **escalates the whole model to
+MIGRAD-first**, recomputes any CLs points already scanned, and raises loudly if no valid minimum
+exists. Nothing to invoke — read the outcome in `exclusion.json` → `"optimizer"` (`escalated`,
+`n_fallback`, `n_nan_flagged`): an escalated Mode-A fit is normal for NaN-pocketed workspaces
+(validated on ATLAS-SUSY-2018-06 (300,100): 0.826/0.584 vs published 0.828/0.587, where stock
+SLSQP shipped 1.192 with obs==exp). A `RuntimeError` from the guard means the surface is sick —
+do NOT fall back to the stock backend to "get a number". Regression: `pyhf_exclude.py selftest`.
+
+## Reading the honesty flags in `exclusion.json`
+- `at_poi_cap` — the doubling bracket reached the µ cap (often mere **granularity**: the +2σ band
+  chased the cap while the median crossed far below). NOT by itself "the limit is capped".
+- `median_at_cap` (CR-124) — the MEDIAN expected CLs never crossed 0.05 in the scan: the reported
+  median limit IS the scan ceiling. Only this flag justifies drawing a ">cap" arrow.
+- `at_mu_floor` (CR-001) — hyper-excluded below the scan floor; the value is a bound, not a limit.
+- `band_degenerate` (CR-132) — the five expected quantiles span < 1.5× (healthy qtilde bands span
+  ~2.5–4×): the band is unusable; quote the result as a bound only.
+
 ## Make the limit trustworthy (intrinsic rigor)
 A µ₉₅ is only as good as its inputs, and there is usually no published result for this model to lean
 on. Ensure rigor at the source:

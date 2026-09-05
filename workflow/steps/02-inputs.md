@@ -14,7 +14,9 @@ Decide the analysis routine and the model. Requires physics judgement.
    ```
    → `<rundir>/inputs/resource_census.json` + the CHECK-IN 1 census block. LOOK at every GitHub
    hit and likelihood/efficiency-map candidate before routing; run the trap-sweep
-   (`checklists/physics-traps.md`) alongside it.
+   (`checklists/physics-traps.md`) alongside it. Read the HEPData rung's STATUS, not just its
+   contents: `ABSENT` = definitively no record (open-API 404, INSPIRE-corroborated — plan around
+   absence); `ERROR outage-or-block` = unreachable, NOT evidence of absence (retry/browser).
 
 1. **Routine.** Resolve the analysis to a routine across **both** ecosystems at once — Rivet (Option A)
    and SimpleAnalysis (Option B) — from a paper code, Inspire id, or keyword:

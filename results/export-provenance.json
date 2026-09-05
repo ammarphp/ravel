@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "source_commit": "921ab61",
+  "operation": "deterministic home-path and repository-URL redaction only",
+  "artifact_transformations": []
+}

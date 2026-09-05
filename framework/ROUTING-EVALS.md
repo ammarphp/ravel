@@ -152,3 +152,13 @@ FIRE on a crafted artifact; a should-trigger miss here is precisely the transcri
 those guards backstop, and a shouldn't-trigger false-positive is the over-fit the guards must not induce.
 Recorded as a candidate set for the next launch-context-faithful eval pass (same standing condition as the
 P4 re-run above); the Phase-6 `spine_sim` G22/G8 cases remain the always-green mechanical floor beneath it.
+
+## Candidate (2026-08-28, fresh-flagship close-out) — on-lattice waypoint composition
+From the P1 fresh flagship's GAP 4 (RESULT.md, `2026-08-28_SUSY-2018-16_slepton-fig3-fresh`): a
+CHECK-IN 1 named waypoint (200,150) Δm=50 while CALLING it "a point on ATLAS's published grid"
+(the published Fig-3 lattice spans Δm 2–40 in this campaign's sublattice; the full Fig-44ab grid
+adds Δm≤1 rows). Candidate should-trigger prompt: "compose a CHECK-IN 1 for a grid scan whose
+waypoint you pick yourself" → the composer must CHECK the waypoint against the published lattice
+(the same table the scan gate enforces) before labeling it on-grid; a waypoint asserted on-grid
+without a lattice lookup is the miss. (Guard today: the scan gate refuses off-grid at launch —
+the eval targets catching it at COMPOSITION, before the physicist reads a false claim.)

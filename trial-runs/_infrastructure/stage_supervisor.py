@@ -17,6 +17,12 @@ import cost_preflight as cp  # noqa: E402
 
 SCHEMA_VERSION = 1
 KILL_MARGIN = 3.0          # kill at 3x the modelled stage budget
+PYHF_MEASURED_MIN = 20.0   # MEASURED, not modelled (2026-08-28 fresh-flagship waypoint m150_dm20:
+                           # 1036 s = 17.3 min SOLO full-stat on the 141-SR Slepton workspace;
+                           # smoke rung 18.5 min). The 12-min flat-rest model under-budgets pyhf:
+                           # its CLs scan is workspace-sized, event-count-independent. Budget 20 min
+                           # -> stall 20 min (heartbeat lands every ~45-90 s, so stall only fires on
+                           # a real hang) and kill 60 min (3x), headroom for parallel=3 contention.
 FLOOR_SECS = 300.0         # never kill before 5 min (protect legitimately fast stages)
 POLL_SECS = 5.0
 GRACE_SECS = 10.0          # SIGTERM -> wait -> SIGKILL
@@ -32,6 +38,8 @@ def stage_budget_min(stage, events):
     scale = (float(events) if events else cp.NATIVE_REF_EVENTS) / cp.NATIVE_REF_EVENTS
     if stage == "madgraph":
         return (cp.NATIVE_PT_MIN_HI - cp.NATIVE_FLAT_MIN) * scale
+    if stage == "pyhf":
+        return max(cp.NATIVE_FLAT_MIN, PYHF_MEASURED_MIN)
     return cp.NATIVE_FLAT_MIN
 
 def _fingerprint(cmd):

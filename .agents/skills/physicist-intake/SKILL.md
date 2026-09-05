@@ -27,6 +27,9 @@ improvising a route, or spending generation budget before the plan is approved (
      --out <rundir>/inputs/task_contract.json        # rundir from new-analysis, or a temp dir pre-scaffold
    python3 trial-runs/_infrastructure/validate_task_contract.py <rundir>/inputs/task_contract.json
    ```
+   `--out` also initializes the rundir's minimal `run_state.json` ledger when absent
+   (CR-131/N11), so the open-defect gate (N5/G26) evaluates on every run — compute=none
+   tracks included.
    The contract's `task_mode`/`detector_mode`/`stat_mode` follow `PRODUCT-CONTRACT.md`; any
    `TBD-judgment` field and every `escalate` line becomes a NUMBERED FLAG in CHECK-IN 1 — the
    physicist decides, you never silently pick. `blocking` entries are named refusals: present

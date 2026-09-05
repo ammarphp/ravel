@@ -616,7 +616,7 @@ def check_route(rundir, contract, facts, level, legacy):
     dm, sm = contract.get("detector_mode"), contract.get("stat_mode")
     escalate = [str(e) for e in (contract.get("escalate") or [])]
     escalate_lower = [e.lower() for e in escalate]
-    checks, ok = [], True
+    checks, ok, warn = [], True, False
     for label, val in (("detector_mode", dm), ("stat_mode", sm)):
         if val == "TBD-judgment":
             synonyms = ROUTE_FIELD_SYNONYMS[label]
@@ -629,6 +629,15 @@ def check_route(rundir, contract, facts, level, legacy):
                                 "msg": f"{label}=TBD-judgment with no escalate[] entry naming the "
                                        "deferred decision"})
                 ok = False
+        elif label == "detector_mode" and val == "delphes-custom-uncertified":
+            # CR-134 (adjudication §II.4 item 6): the route itself declares the fidelity debt —
+            # the gate surfaces it instead of letting it hide in a free-text assumption
+            checks.append({"name": label, "level": "WARN",
+                            "msg": "detector_mode=delphes-custom-uncertified: Delphes drives a "
+                                   "custom selection with NO acc*eff certification — results are "
+                                   "uncertified fast-sim proxy, no exclusion of record until "
+                                   "certify_acceptance closes vs the published anchors (CR-134)"})
+            warn = True
         else:
             checks.append({"name": label, "level": "PASS", "msg": f"{label}={val}"})
     if contract.get("task_mode") == "unsupported":
@@ -641,7 +650,7 @@ def check_route(rundir, contract, facts, level, legacy):
         else:
             checks.append({"name": "unsupported-no-compute", "level": "PASS",
                             "msg": "no compute artifacts present, consistent with the refusal"})
-    return ("PASS" if ok else "FAIL"), None, checks
+    return ("FAIL" if not ok else ("WARN" if warn else "PASS")), None, checks
 
 
 def check_figure_contract(rundir, contract, facts, level, legacy):
@@ -1494,12 +1503,13 @@ def inv_approval_before_compute(rundir, contract, facts, legacy, strict):
             return "waived-legacy", "no approval artifact (pre-epoch run; waived)"
         return "FAIL", ("compute ran with NO recorded CHECK-IN 1 go-ahead -- record it via "
                         "`workflow_state.py approve --rundir <rd> --quote '<the physicist reply>'`")
-    doc, err = load_json_safe(rundir, path)
-    if err or not isinstance(doc, dict) or doc.get("generated_by") != "workflow_state.py approve":
-        sev = "WARN" if legacy else "FAIL"
-        return sev, ("checkin1_approval.json is not the approve tool's output "
-                     "(hand-written approval is no approval)")
-    return "PASS", f"approval recorded (plan={doc.get('approved_plan')})"
+    import workflow_state
+    errors = workflow_state.verify_approval(rundir)
+    if errors:
+        # This historical reporting concession is never used by the live Bash verifier.
+        sev = "WARN" if legacy and not strict else "FAIL"
+        return sev, "; ".join(errors)
+    return "PASS", "v2 approval binds the current task contract, check-in, and cost inputs"
 
 
 def inv_cost_preflight_recorded(rundir, contract, facts, legacy, strict):
@@ -1625,6 +1635,21 @@ INVARIANTS = (
 # --------------------------------------------------------------------------- #
 
 def evaluate(rundir, contract, stage_limit=None, strict=False):
+    # Library callers (workflow_state advance/require) must pass the same strict gate as
+    # the CLI. A task_contract stage must never claim validation just because a file exists.
+    contract_errors = validate_task_contract.validate(contract)
+    if contract_errors:
+        fields = contract if type(contract) is dict else {}
+        return {
+            "rundir": rundir, "task_mode": fields.get("task_mode"),
+            "stat_mode": fields.get("stat_mode"), "compute_plan": fields.get("compute_plan"),
+            "legacy": is_legacy(rundir),
+            "stages": [{"name": "task_contract", "required": "R", "status": "FAIL",
+                        "artifact": None, "checks": [
+                            {"name": "schema", "level": "FAIL", "msg": e}
+                            for e in contract_errors]}],
+            "invariants": [], "verdict": "FAIL", "exit": 3,
+        }
     facts = discover_facts(rundir, contract)
     legacy = is_legacy(rundir)
     task_mode = contract["task_mode"]
@@ -1715,9 +1740,8 @@ def load_contract_for(rundir, contract_override):
             return None, None, "no task_contract.json found under inputs/ or the run root"
         path = os.path.join(rundir, rel)
     try:
-        with open(path) as f:
-            contract = json.load(f)
-    except (OSError, json.JSONDecodeError) as e:
+        contract = validate_task_contract.load_contract(path)
+    except (OSError, ValueError, UnicodeError, RecursionError) as e:
         return None, path, f"cannot read/parse contract: {e}"
     return contract, path, None
 
@@ -1781,6 +1805,7 @@ def _write_text(path, text):
 
 def _base_contract(**over):
     c = {
+        "schema_version": 1,
         "prompt": "selftest fixture", "task_mode": "survey", "detector_mode": "particle-level",
         "stat_mode": "none-survey", "required_user_inputs": [], "assumptions": ["fixture assumption"],
         "compute_plan": "none", "approval_required": True,

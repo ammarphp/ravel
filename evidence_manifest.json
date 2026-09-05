@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated": "",
-  "source_commit": "66ca2fd",
+  "generated": "2026-09-05",
+  "source_commit": "921ab61",
   "claims": [
     {
       "claim_id": "P1_hvt_zprime_ww_summary",
@@ -9,70 +9,63 @@
       "headline": "HVT Z' -> WW low-mass summary plot (survey/summary track)",
       "status": "served",
       "gate": "summary_audit",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.png",
           "sha256": "b474ca313b9cb09d56d8dbedcc9ee065fa841cef7fa9eec3a08132c70e6f93a9",
           "bytes": 220422,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "headline-figure"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.pdf",
           "sha256": "16ce418cf603b13c5b048d7178f521741d1e39e5f3650d1436d56509cbf691a8",
           "bytes": 25642,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "headline-figure"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/survey.json",
           "sha256": "916a90ef75ed4c3a082735d974588bea31b5a4870ca4ed6d252e7f6e96a0973c",
           "bytes": 10173,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "survey-data"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/summary_audit.json",
           "sha256": "c83b9229643e00c2cede83622077507c824f08a0e64d5186469379006f9b67d7",
           "bytes": 1290,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "gate-result"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/inputs/basis_manifest.json",
           "sha256": "13c5fa9658616be19a5eaebaef5e2d7671a0f7c1573c97e18b6c352390f261e9",
           "bytes": 8037,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "basis-manifest"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/VERIFICATION-LADDER.md",
           "sha256": "7714896e5e2faf50607438d43467c4cdf2bfc45360b6dcdd1c91b5e8e4d4aee3",
           "bytes": 5895,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "verification-ladder"
         },
         {
           "path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/qa_1710.01123_digitize_overlay.png",
           "sha256": "e1c217bc096806ea3ee603ab186ff6b25c9ed1f1c7cad6bb33c3b9d7f616904c",
           "bytes": 110072,
-          "shipped": false,
-          "dev_only": true,
-          "role": "qa-plot"
-        },
-        {
-          "path": "framework/capability-matrix.json",
-          "sha256": "e2784efc8a30c228b31ef6d263a5bf8a55df1d0ffc9f69296f67f05aea940d27",
-          "bytes": 10525,
           "shipped": true,
           "dev_only": false,
-          "role": "matrix-entry"
+          "role": "qa-plot"
         }
       ]
     },
@@ -82,6 +75,7 @@
       "headline": "Dijet/diphoton resonance widths via the scoped shape-fit engine",
       "status": "served",
       "gate": "shape_fit_selftest",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/_infrastructure/shape_fit.py",
@@ -104,74 +98,68 @@
     {
       "claim_id": "BENCH_ins1458270_squark_800_100",
       "source": "framework/benchmark/cases.json:cases.ins1458270_squark_800_100",
-      "headline": "Benchmark reproduction: squark-pair (m_sq=800, m_LSP=100), 8 mass-degenerate, q~ -> q chi10, NLO+NNLL (k=0.862) vs published ins1458270",
-      "status": "served",
+      "headline": "Historical benchmark record: squark-pair (m_sq=800, m_LSP=100), 8 mass-degenerate, q~ -> q chi10, NLO+NNLL (k=0.862) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/RESULT.md",
           "sha256": "ac305717f7b018d2d6dddaf102571f0db9ff21d770c906253a8f78c0572bf1c0",
           "bytes": 6202,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "result-record"
         },
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/provenance.json",
           "sha256": "2e97488e0779f34731af261c7d2cced94a864dfa0cc38c2cd09b553522125fe4",
           "bytes": 561,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "provenance"
         },
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/squark.yoda",
           "sha256": "3c2bd87ea5a3017baddf5b5aaf516f2fef2a855c53b5d1ccfbefefdcc9de2ae5",
           "bytes": 58635,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "yoda-output"
         },
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/sr_yields.json",
           "sha256": "781434913f79d2c2f71e9d4b250d15de64e571d420f31cc1e00c8a87171798aa",
           "bytes": 641,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "sr-yields"
         },
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/outputs/pyhf_exclusion/exclusion.json",
           "sha256": "c15bd99a316e4a2e898a36ba3a6fb3975fb08ded73cd9e1c67c5aa791dd80700",
           "bytes": 6452,
-          "shipped": false,
-          "dev_only": true,
+          "shipped": true,
+          "dev_only": false,
           "role": "exclusion-result"
         },
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-pair/plots/ATLAS_2016_I1458270/named/ATLAS_2016_I1458270__d04-x01-y01__meff-incl_SR-2jl.png",
           "sha256": "59d07851660614d31a9894bdb092cd4a1a7d404a8a9a8d7fab36ea4544ba0c46",
           "bytes": 114356,
-          "shipped": false,
-          "dev_only": true,
-          "role": "headline-figure"
-        },
-        {
-          "path": "framework/benchmark/cases.json",
-          "sha256": "ee46be68127cb3286f7891319ca4072ab17a3872bc9d237dca497a3680058225",
-          "bytes": 35013,
           "shipped": true,
           "dev_only": false,
-          "role": "benchmark-registry"
+          "role": "headline-figure"
         }
       ]
     },
     {
       "claim_id": "BENCH_ins1676551_c1n2_300_100",
       "source": "framework/benchmark/cases.json:cases.ins1676551_c1n2_300_100",
-      "headline": "Benchmark reproduction: wino C1N2 (m=300, m_LSP=100) -> WZ + 2x chi10, recursive jigsaw, combined 2l+3l counting, NLO+NLL (k=1.29) vs published ins1676551",
-      "status": "served",
+      "headline": "Historical benchmark record: wino C1N2 (m=300, m_LSP=100) -> WZ + 2x chi10, recursive jigsaw, combined 2l+3l counting, NLO+NLL (k=1.29) vs published ins1676551; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "certify_axe",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-08_ATLAS_2018_I1676551_C1N2-WZ/RESULT.md",
@@ -226,9 +214,10 @@
     {
       "claim_id": "BENCH_ins1458270_gluino_1000_100",
       "source": "framework/benchmark/cases.json:cases.ins1458270_gluino_1000_100",
-      "headline": "Benchmark reproduction: gluino-pair (m_gl=1000, m_LSP=100), g~ -> q qbar chi10, NLO+NLL (k=1.915) vs published ins1458270",
-      "status": "served",
+      "headline": "Historical benchmark record: gluino-pair (m_gl=1000, m_LSP=100), g~ -> q qbar chi10, NLO+NLL (k=1.915) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_gluino-pair/RESULT.md",
@@ -291,9 +280,10 @@
     {
       "claim_id": "BENCH_ins1458270_squark_merged_800_100",
       "source": "framework/benchmark/cases.json:cases.ins1458270_squark_merged_800_100",
-      "headline": "Benchmark reproduction: squark-pair (800,100) MLM-merged (+1j,+2j ME, xqcut=80, qCut=100), matched sigma NLO+NNLL (k=0.855) vs published ins1458270",
-      "status": "served",
+      "headline": "Historical benchmark record: squark-pair (800,100) MLM-merged (+1j,+2j ME, xqcut=80, qCut=100), matched sigma NLO+NNLL (k=0.855) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-08_ATLAS_2016_I1458270_squark-merged/RESULT.md",
@@ -348,9 +338,10 @@
     {
       "claim_id": "BENCH_ins1458270_gluino_merged_1000_100",
       "source": "framework/benchmark/cases.json:cases.ins1458270_gluino_merged_1000_100",
-      "headline": "Benchmark reproduction: gluino-pair MLM-merged (+j,+jj, xqcut=250=m/4 from measured stability scan), matched sigma, NLO+NNLL (k=1.939) vs published ins1458270",
-      "status": "served",
+      "headline": "Historical benchmark record: gluino-pair MLM-merged (+j,+jj, xqcut=250=m/4 from measured stability scan), matched sigma, NLO+NNLL (k=1.939) vs published ins1458270; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "validate_cutflow",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-10_ATLAS_2016_I1458270_gluino-merged/RESULT.md",
@@ -421,9 +412,10 @@
     {
       "claim_id": "BENCH_conf2016054_gluino_onestep_1500_60",
       "source": "framework/benchmark/cases.json:cases.conf2016054_gluino_onestep_1500_60",
-      "headline": "Benchmark reproduction: gluino one-step x=1/2 (m_go=1500, m_C1=780, m_LSP=60), go->qq'C1, C1->W N1, NLO+NNLL (k=1.985) vs published ATLAS-CONF-2016-054",
-      "status": "served",
+      "headline": "Historical benchmark record: gluino one-step x=1/2 (m_go=1500, m_C1=780, m_LSP=60), go->qq'C1, C1->W N1, NLO+NNLL (k=1.985) vs published ATLAS-CONF-2016-054; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_054_gluino-onestep_s3/RESULT.md",
@@ -486,9 +478,10 @@
     {
       "claim_id": "BENCH_ins1452559_dm_axial_850_1",
       "source": "framework/benchmark/cases.json:cases.ins1452559_dm_axial_850_1",
-      "headline": "Benchmark reproduction: DM simplified s-channel axial-vector mediator (m_med=850, m_DM=1), g_q=0.25 g_DM=1, minimal width, LO (no higher-order grid exists) vs published ins1452559",
-      "status": "served",
+      "headline": "Historical benchmark record: DM simplified s-channel axial-vector mediator (m_med=850, m_DM=1), g_q=0.25 g_DM=1, minimal width, LO (no higher-order grid exists) vs published ins1452559; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-11_ATLAS_2016_I1452559_monojet-dm_s3/RESULT.md",
@@ -551,9 +544,10 @@
     {
       "claim_id": "BENCH_conf2016037_gluino_2step_sleptons_1400_60",
       "source": "framework/benchmark/cases.json:cases.conf2016037_gluino_2step_sleptons_1400_60",
-      "headline": "Benchmark reproduction: gluino pair, 2-step slepton-mediated (1400,730,395,60), light flavours, NNLOapprox+NNLL (k=1.975), A14 vs published conf2016037",
-      "status": "served",
+      "headline": "Historical benchmark record: gluino pair, 2-step slepton-mediated (1400,730,395,60), light flavours, NNLOapprox+NNLL (k=1.975), A14 vs published conf2016037; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "none",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-11_ATLAS_2016_CONF_2016_037_gluino-onestep-ss_s3/RESULT.md",
@@ -616,9 +610,10 @@
     {
       "claim_id": "BENCH_ins2182381_gbb_1900_1",
       "source": "framework/benchmark/cases.json:cases.ins2182381_gbb_1900_1",
-      "headline": "Benchmark reproduction: gluino pair production (m_gluino=1900, m_LSP=1), Gbb decay (g~ -> b bbar chi10, BR=1), NLO+NNLL (k=2.059). FIRST published-likelihood (Mode A) case in this registry (task 7.1) -- scored here via the counting-mode reconstruction of the same SR yields (see published.notes: the harness has no pyhf_mode='likelihood' hook yet); the Mode-A pyhf likelihood itself is this run's primary RESULT, not (yet) benchmark-gated. vs published ins2182381",
-      "status": "served",
+      "headline": "Historical benchmark record: gluino pair production (m_gluino=1900, m_LSP=1), Gbb decay (g~ -> b bbar chi10, BR=1), NLO+NNLL (k=2.059). FIRST published-likelihood (Mode A) case in this registry (task 7.1) -- scored here via the counting-mode reconstruction of the same SR yields (see published.notes: the harness has no pyhf_mode='likelihood' hook yet); the Mode-A pyhf likelihood itself is this run's primary RESULT, not (yet) benchmark-gated. vs published ins2182381; see scoped statistical and acceptance verdicts in docs/validation",
+      "status": "historical",
       "gate": "certify_axe",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/RESULT.md",
@@ -627,6 +622,14 @@
           "shipped": false,
           "dev_only": true,
           "role": "result-record"
+        },
+        {
+          "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/analysis.yoda",
+          "sha256": "38b51219d8a1e7111253c162751a6ad4ef2fe05ccca561a87d9856460ac7e0ac",
+          "bytes": 73235,
+          "shipped": false,
+          "dev_only": true,
+          "role": "yoda-output"
         },
         {
           "path": "trial-runs/2026-06-11_ATLAS_2022_I2182381_gluino-gbb_s3/outputs/sr_yields.json",
@@ -732,22 +735,15 @@
       "headline": "Native SimpleAnalysis (EwkCompressed2018) reproduces the container's per-SR yields bit-for-bit: 141/141 SRs",
       "status": "served",
       "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-16_slepton_200-150_native/output/EwkCompressed2018.txt",
           "sha256": "492c889e623ab8d80b7c12f9f3bded929230929d11ea0ae044094088bc58968f",
           "bytes": 3928,
-          "shipped": false,
-          "dev_only": true,
-          "role": "native-sr-yields"
-        },
-        {
-          "path": "workflow/reference/native-pipeline.md",
-          "sha256": "8d1a8b54bd46e91563d27daa705a370ba31f745d1daa54d140b7620fa3a25fea",
-          "bytes": 9384,
           "shipped": true,
           "dev_only": false,
-          "role": "doc-citation"
+          "role": "native-sr-yields"
         }
       ]
     },
@@ -757,22 +753,15 @@
       "headline": "Native slepton 200/150 point's mu95 agrees with the container to 0.51% (6.333 vs 6.366)",
       "status": "served",
       "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/2026-06-16_slepton_200-150_native/output/exclusion.json",
           "sha256": "0866ea324421dd09a9056c5515eff5abd08bda31f51f741fea32c69f74f2a3f8",
           "bytes": 2973,
-          "shipped": false,
-          "dev_only": true,
-          "role": "exclusion-result"
-        },
-        {
-          "path": "workflow/reference/native-pipeline.md",
-          "sha256": "8d1a8b54bd46e91563d27daa705a370ba31f745d1daa54d140b7620fa3a25fea",
-          "bytes": 9384,
           "shipped": true,
           "dev_only": false,
-          "role": "doc-citation"
+          "role": "exclusion-result"
         }
       ]
     },
@@ -782,22 +771,15 @@
       "headline": "Fig-3 52/52-point native slepton-bino scan: ~24-25% median same-basis residual vs the published ATLAS contour",
       "status": "served",
       "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
       "artifacts": [
         {
           "path": "trial-runs/sleptonscan_fig3_SCAN/scan.json",
           "sha256": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
           "bytes": 42776,
-          "shipped": false,
-          "dev_only": true,
-          "role": "scan-aggregate"
-        },
-        {
-          "path": "framework/STATUS.md",
-          "sha256": "995db4a0e5e0fe462150bf9f812f72bce1128246a62083d2fdd66f58fe49d4ed",
-          "bytes": 23345,
           "shipped": true,
           "dev_only": false,
-          "role": "doc-citation"
+          "role": "scan-aggregate"
         }
       ]
     }

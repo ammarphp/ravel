@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "hep-agentic-pipeline: an agentic LLM workflow for LHC new-physics reinterpretation"
+title: "Ravel-HEP: governed collider reinterpretation and validation"
 message: "If you use this software, please cite it and the foundational tools listed under references."
 type: software
 authors:
@@ -9,8 +9,10 @@ authors:
 abstract: >-
   An agentic workflow that reinterprets a published ATLAS/CMS analysis against a user-specified
   new-physics model, running MadGraph -> Pythia8 -> Rivet/SimpleAnalysis -> pyhf to produce the
-  signal-over-data overlay and a 95% CL exclusion limit. Validated against published acceptance x
-  efficiency and exclusion limits with a tiered certification gate.
+  signal-over-data overlay and a 95% CL exclusion limit. Validation records distinguish
+  statistical S95 recovery, selection acceptance and efficiency, and end-to-end mass-plane
+  fidelity. Failed and unscorable cases are retained; governance effectiveness remains an
+  experimental question.
 keywords:
   - high-energy physics
   - LHC reinterpretation
@@ -19,8 +21,8 @@ keywords:
   - agentic workflow
 license: Apache-2.0
 repository-code: "https://github.com/ammarphp/ravel"
-version: 0.1.0
-date-released: "2026-07-30"
+version: 0.2.0
+date-released: "2026-09-05"
 references:
   - type: article
     title: "Reduce, Reuse, Reinterpret: an end-to-end pipeline for recycling particle physics results"

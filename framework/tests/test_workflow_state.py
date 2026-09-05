@@ -15,6 +15,7 @@ REPO = Path(__file__).resolve().parents[2]
 WORKFLOW_STATE_PY = REPO / "trial-runs" / "_infrastructure" / "workflow_state.py"
 
 _SURVEY_CONTRACT = {
+    "schema_version": 1,
     "prompt": "selftest", "task_mode": "survey", "detector_mode": "particle-level",
     "stat_mode": "none-survey", "required_user_inputs": [], "assumptions": ["fixture"],
     "compute_plan": "none", "approval_required": True,
@@ -129,6 +130,7 @@ def test_find_active_rundir_picks_newest(tmp_path):
     (a / "inputs").mkdir(parents=True)
     (a / "inputs" / "task_contract.json").write_text(json.dumps(_SURVEY_CONTRACT))
     assert mod.main(["init", "--rundir", str(a)]) == 0
+    _live_lock(a)                                    # CR-135: resolution requires the ownership mark
     assert mod.find_active_rundir(str(proj)) == str(a)
 
 
@@ -160,8 +162,103 @@ def test_record_route_and_failure_mutate_state(tmp_path):
     assert [a.get("what") for a in st["routes"]] == ["reproduce"]
     # a failure record with no relpath is a usage error (exit 2), never a silent pass
     assert mod.main(["record", "--rundir", str(rd), "--kind", "failure", "--payload", "{}"]) == 2
-    # a bare `record --kind route` (no --payload/--what) is valid -- route's payload is optional
+    # a bare `record --kind route` is a silent NO-OP -- see test_record_route_without_content_is_noop
+
+
+def test_record_route_without_content_is_noop(tmp_path):
+    """CR-135 regression (the {"utc": ""} noise class): a route record whose payload carries no
+    routing content (no route/next/what) must not touch the ledger AT ALL -- no routed flip, no
+    audit row, no rewrite (a rewrite refreshes mtime and feeds the stale-'active' loop)."""
+    mod = _load()
+    rd = _make_run(tmp_path)
+    assert mod.main(["init", "--rundir", str(rd)]) == 0
+    before = (rd / "run_state.json").read_bytes()
     assert mod.main(["record", "--rundir", str(rd), "--kind", "route"]) == 0
+    assert mod.main(["record", "--rundir", str(rd), "--kind", "route", "--payload", "{}"]) == 0
+    after = (rd / "run_state.json").read_bytes()
+    assert after == before                        # byte-identical: nothing recorded, nothing rewritten
+    st = json.loads(after)
+    assert st["routed"] is False and "routes" not in st
+
+
+def _project_with_init_run(tmp_path, name="runA"):
+    proj = tmp_path / "proj"
+    rd = proj / "trial-runs" / name
+    (rd / "inputs").mkdir(parents=True)
+    (rd / "inputs" / "task_contract.json").write_text(json.dumps(_SURVEY_CONTRACT))
+    mod = _load()
+    assert mod.main(["init", "--rundir", str(rd)]) == 0
+    return mod, proj, rd
+
+
+def _live_lock(rd, owner="T"):
+    import datetime as _dt
+    now = _dt.datetime.now().isoformat(timespec="seconds")
+    (rd / "SESSION.lock").write_text(json.dumps(
+        {"owner": owner, "acquired": now, "renewed": now, "history": []}))
+
+
+def test_find_active_rundir_requires_live_lock(tmp_path):
+    """CR-135: --project-dir auto-resolution requires the CR-022 ownership mark -- a run without a
+    live SESSION.lock is never auto-resolved, however fresh its ledger's mtime. (An mtime-freshness
+    rule is unsound: ANY maintenance write to a stale ledger -- even the noise-scrub itself --
+    resurrects it, and each misdirected append then keeps it fresh forever.)"""
+    mod, proj, rd = _project_with_init_run(tmp_path)
+    assert mod.find_active_rundir(str(proj)) is None                 # fresh ledger, no lock -> None
+    before = (rd / "run_state.json").read_bytes()
+    assert mod.main(["record", "--project-dir", str(proj), "--kind", "route",
+                     "--what", "reproduce"]) == 0                    # best-effort no-op, never an error
+    assert (rd / "run_state.json").read_bytes() == before
+    _live_lock(rd)
+    assert mod.find_active_rundir(str(proj)) == str(rd)              # live lock -> resolves
+
+
+def test_find_active_rundir_skips_closed_runs(tmp_path):
+    """CR-135: a rundir with a RESULT.md is CLOSED -- never auto-resolved, even if a live
+    SESSION.lock was left behind (e.g. a close that forgot the release)."""
+    mod, proj, rd = _project_with_init_run(tmp_path)
+    _live_lock(rd)
+    (rd / "RESULT.md").write_text("# closed\n")
+    assert mod.find_active_rundir(str(proj)) is None
+
+
+def test_find_active_rundir_stale_lock_is_dead(tmp_path):
+    """CR-135: a SESSION.lock with no heartbeat past session_lock's staleness window counts as
+    dead (crash-tolerant, same rule as session_lock itself) -- the run is not auto-resolved."""
+    import datetime as _dt
+    mod, proj, rd = _project_with_init_run(tmp_path)
+    old = (_dt.datetime.now() - _dt.timedelta(hours=48)).isoformat(timespec="seconds")
+    (rd / "SESSION.lock").write_text(json.dumps(
+        {"owner": "T", "acquired": old, "renewed": old, "history": []}))
+    assert mod.find_active_rundir(str(proj)) is None
+
+
+def test_find_active_rundir_live_lock_beats_stale_mtime(tmp_path):
+    """CR-135: a live SESSION.lock marks the run active even when the ledger itself is quiet
+    (e.g. a long compute stage with no ledger appends)."""
+    import os as _os
+    import time as _time
+    mod, proj, rd = _project_with_init_run(tmp_path)
+    old = _time.time() - 48 * 3600.0
+    _os.utime(str(rd / "run_state.json"), (old, old))
+    _live_lock(rd)
+    assert mod.find_active_rundir(str(proj)) == str(rd)
+
+
+def test_find_active_rundir_prefers_cwd_rundir(tmp_path, monkeypatch):
+    """CR-135: a session whose cwd is INSIDE a trial-runs rundir means THAT run, even if closed
+    (e.g. backfilling a closed run's records) and even when another run holds a live lock."""
+    mod, proj, rd_a = _project_with_init_run(tmp_path, "runA")
+    (rd_a / "RESULT.md").write_text("# closed\n")
+    rd_b = proj / "trial-runs" / "runB"
+    (rd_b / "inputs").mkdir(parents=True)
+    (rd_b / "inputs" / "task_contract.json").write_text(json.dumps(_SURVEY_CONTRACT))
+    assert mod.main(["init", "--rundir", str(rd_b)]) == 0
+    _live_lock(rd_b)                                                 # runB is the live run
+    sub = rd_a / "outputs"
+    sub.mkdir()
+    monkeypatch.chdir(sub)
+    assert mod.find_active_rundir(str(proj)) == str(rd_a)
 
 
 def test_advance_allows_first_precondition_and_refuses_out_of_order(tmp_path):

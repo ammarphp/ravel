@@ -29,8 +29,11 @@ Usage:
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
+from pathlib import Path, PurePosixPath
+import re
 import subprocess
 import sys
 
@@ -38,6 +41,57 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 MANIFEST_NAME = "evidence_manifest.json"
 SERVED_STATUSES = ("served", "served-with-refusal")
+STATUSES = {*SERVED_STATUSES, "partial", "unbuilt", "blocked", "historical"}
+
+
+def _structure_errors(claim):
+    """Reject malformed metadata before it can weaken an integrity obligation."""
+    if not isinstance(claim, dict):
+        return ["claim must be an object"]
+    errors = []
+    if not isinstance(claim.get("claim_id"), str) or not claim["claim_id"].strip():
+        errors.append("claim_id must be a nonempty string")
+    if not isinstance(claim.get("status"), str) or claim["status"] not in STATUSES:
+        errors.append("unknown or missing claim status")
+    artifacts = claim.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        return errors + ["artifacts must be a nonempty list"]
+    seen = set()
+    for a in artifacts:
+        if not isinstance(a, dict):
+            errors.append("artifact must be an object")
+            continue
+        path = a.get("path")
+        if (not isinstance(path, str) or not path or "\\" in path
+                or "\x00" in path or PurePosixPath(path).is_absolute()
+                or any(p in ("", ".", "..") for p in path.split("/"))):
+            errors.append("artifact path must be a normalized repository-relative path")
+        elif path in seen:
+            errors.append(f"duplicate artifact path {path!r}")
+        else:
+            seen.add(path)
+        if not isinstance(a.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", a["sha256"]):
+            errors.append("artifact sha256 must be 64 lowercase hexadecimal characters")
+        if type(a.get("shipped")) is not bool or type(a.get("dev_only")) is not bool:
+            errors.append("artifact shipped/dev_only must be booleans")
+        elif a["shipped"] == a["dev_only"]:
+            errors.append("artifact shipped/dev_only must be complements")
+        if type(a.get("bytes")) is not int or a["bytes"] < 0:
+            errors.append("artifact bytes must be a nonnegative integer")
+    return errors
+
+
+def _unique_object(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError(f"duplicate JSON key {key!r}")
+        obj[key] = value
+    return obj
+
+
+def _reject_constant(value):
+    raise ValueError(f"nonfinite JSON number {value}")
 
 
 def sha256_of(path):
@@ -51,6 +105,10 @@ def sha256_of(path):
 def _present_matching(artifact, root):
     """Returns (ok: bool, why: str) for one manifest artifact record re-checked under `root`."""
     full = os.path.join(root, artifact["path"])
+    try:
+        Path(full).resolve().relative_to(Path(root).resolve())
+    except (ValueError, OSError, RuntimeError):
+        return False, "path escapes artifact root (including symlinks)"
     if not os.path.isfile(full):
         return False, "missing"
     try:
@@ -60,14 +118,21 @@ def _present_matching(artifact, root):
     if got != artifact.get("sha256"):
         want = str(artifact.get("sha256"))[:12]
         return False, f"sha256 mismatch (manifest {want}, on-disk {got[:12]})"
+    if os.path.getsize(full) != artifact["bytes"]:
+        return False, "byte count mismatch"
     return True, "ok"
 
 
 def check_claim(claim, root):
     """Re-verifies every artifact of one manifest claim against `root`. Returns
     (verdict, detail) with verdict in ('PASS', 'WARN', 'FAIL')."""
-    artifacts = claim.get("artifacts", [])
+    errors = _structure_errors(claim)
+    if errors:
+        return "FAIL", "; ".join(errors)
+    artifacts = claim["artifacts"]
     per_artifact = [(a, *_present_matching(a, root)) for a in artifacts]
+    if any("escapes artifact root" in why for _a, _ok, why in per_artifact):
+        return "FAIL", "artifact path escapes artifact root (including symlinks)"
 
     shipped_fails = [f"shipped artifact {a['path']!r} {why}"
                       for a, ok, why in per_artifact if a.get("shipped") and not ok]
@@ -95,25 +160,81 @@ def check_claim(claim, root):
 
 
 def check_manifest(manifest, root):
-    return [(c.get("claim_id", "?"), *check_claim(c, root)) for c in manifest.get("claims", [])]
+    if not isinstance(manifest, dict) or type(manifest.get("schema_version")) is not int \
+            or manifest["schema_version"] != 1:
+        return [("manifest", "FAIL", "schema_version must be integer 1")]
+    claims = manifest.get("claims")
+    if not isinstance(claims, list) or not claims:
+        return [("manifest", "FAIL", "claims must be a nonempty list")]
+    rows, seen = [], set()
+    for c in claims:
+        cid = c.get("claim_id", "?") if isinstance(c, dict) else "?"
+        if not isinstance(cid, str):
+            cid = "?"
+        if cid in seen:
+            rows.append((cid, "FAIL", "duplicate claim_id"))
+        else:
+            rows.append((cid, *check_claim(c, root)))
+        seen.add(cid)
+    return rows
+
+
+def _source_specs(root):
+    spec = importlib.util.spec_from_file_location("ravel_evidence_sources", os.path.join(HERE, "build_evidence.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with open(os.path.join(root, "framework/capability-matrix.json")) as f:
+        matrix = json.load(f, object_pairs_hook=_unique_object, parse_constant=_reject_constant)
+    with open(os.path.join(root, "framework/benchmark/cases.json")) as f:
+        cases = json.load(f, object_pairs_hook=_unique_object, parse_constant=_reject_constant)
+    specs = module.enumerate_specs(matrix, cases)
+    return [(s, [path for path, _role in s["candidates"] if module.is_shipped(path)]) for s in specs]
+
+
+def check_completeness(manifest, root):
+    """A locally coherent manifest cannot silently drop or downgrade source claims."""
+    try:
+        specs = _source_specs(root)
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
+        return [("sources", "FAIL", f"cannot enumerate authoritative claims: {exc}")]
+    expected = {s["claim_id"]: (s, required) for s, required in specs}
+    actual = {c["claim_id"]: c for c in manifest["claims"]}
+    rows = []
+    if set(expected) != set(actual):
+        rows.append(("sources", "FAIL", f"claim set mismatch: missing={sorted(set(expected)-set(actual))}; "
+                     f"extra={sorted(set(actual)-set(expected))}"))
+    for cid in expected.keys() & actual.keys():
+        source, required = expected[cid]
+        claim = actual[cid]
+        shipped = {a["path"] for a in claim["artifacts"] if a["shipped"]}
+        if claim["status"] != source["status"]:
+            rows.append((cid, "FAIL", "claim status disagrees with authoritative source"))
+        if not set(required) <= shipped:
+            rows.append((cid, "FAIL", f"mandatory shipped evidence omitted: {sorted(set(required)-shipped)}"))
+    return rows
 
 
 def cmd_check(args):
-    manifest_path = os.path.join(ROOT, MANIFEST_NAME)
+    root = os.path.abspath(args.root) if args.root else ROOT
+    # --root selects BOTH the manifest and the artifacts. Checking the source manifest
+    # against staged files could otherwise bless a missing or doctored staged manifest.
+    manifest_path = os.path.join(root, MANIFEST_NAME)
     if not os.path.exists(manifest_path):
         print(f"check_evidence --check: FAIL -- {manifest_path} does not exist "
               f"(run `python3 framework/build_evidence.py --write` first)", file=sys.stderr)
         return 1
     try:
         with open(manifest_path, encoding="utf-8") as f:
-            manifest = json.load(f)
+            manifest = json.load(f, object_pairs_hook=_unique_object,
+                                 parse_constant=_reject_constant)
     except (OSError, ValueError) as e:
         print(f"check_evidence --check: FAIL -- {manifest_path} unreadable/invalid JSON: {e}",
               file=sys.stderr)
         return 1
 
-    root = os.path.abspath(args.root) if args.root else ROOT
     rows = check_manifest(manifest, root)
+    if not any(v == "FAIL" for _, v, _ in rows):
+        rows += check_completeness(manifest, root)
     if not rows:
         print("check_evidence --check: FAIL -- manifest carries zero claims", file=sys.stderr)
         return 1

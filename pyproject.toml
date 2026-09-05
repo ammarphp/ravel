@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ravel-hep"
+version = "0.2.0"
+description = "Artifact-bound validation and cached collider reinterpretation replay"
+readme = "docs/CLI.md"
+requires-python = ">=3.10,<3.13"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = []
+
+[project.optional-dependencies]
+replay = [
+  "pyhf[minuit]==0.7.6",
+  "numpy>=1.26.4,<2",
+  "scipy>=1.13.1,<1.15",
+  "matplotlib>=3.9.4,<3.10",
+  "PyYAML>=6.0.2,<7",
+]
+test = ["pytest>=8.3.5,<9"]
+
+[project.scripts]
+ravel = "ravel.cli:main"
+
+[project.urls]
+Repository = "https://github.com/ammarphp/ravel"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ravel"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ravel", "pyproject.toml", "hatch_build.py", "docs/CLI.md", "LICENSE", "NOTICE", "requirements-replay.txt", "requirements-replay.lock", "framework/tests/test_ravel_cli.py", "framework/tests/test_run_benchmark_out.py"]
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"

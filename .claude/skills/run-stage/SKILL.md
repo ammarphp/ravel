@@ -41,6 +41,11 @@ detached entries).
 
 ## Shower (env `rivet`)
 - Plain: `$CONDA run -n rivet trial-runs/_infrastructure/pythia_shower <cfg> <out.hepmc> <N>`.
+- **`<N>` is MANDATORY (🔴 silent trap, CR-145)**: with no count (arg or cfg
+  `Main:numberOfEvents`), Pythia's default showers exactly **1000** of the LHE's N events with
+  exit 0 — per-σ normalization survives, statistics are silently 1000/N. Pass `<N>` = the LHE
+  event count AND gate downstream: analyzed-event count must equal the LHE count (the
+  campaign-driver hard gate).
 - **Merged (MLM)**: `pythia_shower_merged` with a cfg setting `JetMatching:merge=on scheme=1
   setMad=off qCut≥xqcut nJetMax=2 nQmatch=4` (else qCut defaults to 10 and vetoes everything).
 - cfg essentials: `Beams:frameType=4`, `Beams:LHEF=<lhe>`, `SLHA:useDecayTable=on`, `<LSP>:mayDecay=off`.
