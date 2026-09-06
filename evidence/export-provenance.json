@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "1c3d34abacf584d9137143aafb383518a8eab12e",
+  "source_commit": "4d70b9e5cc35e77cf475654fda22e11bc948b4bc",
   "claim_manifest_source_commit": "b2ce048",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -676,8 +676,8 @@
     {
       "source_path": ".github/workflows/ci.yml",
       "public_path": ".github/workflows/ci.yml",
-      "source_sha256": "227b2ac93e50adafa95492cf4c4ce99c6e996c841f8f5f131490e82dac4937b4",
-      "export_sha256": "227b2ac93e50adafa95492cf4c4ce99c6e996c841f8f5f131490e82dac4937b4"
+      "source_sha256": "c6a797e89e46b2f635f56a2e62061db2f7c7f13463275554fff9bceb7422ca92",
+      "export_sha256": "c6a797e89e46b2f635f56a2e62061db2f7c7f13463275554fff9bceb7422ca92"
     },
     {
       "source_path": ".gitignore",
@@ -958,8 +958,8 @@
     {
       "source_path": "docs/development/history/2026-09-06-rrr-execution-followup.md",
       "public_path": "docs/development/history/2026-09-06-rrr-execution-followup.md",
-      "source_sha256": "fef88ae40746458ce306c59caa955e779a3d1853ac38a9c8c29519d481df4591",
-      "export_sha256": "fef88ae40746458ce306c59caa955e779a3d1853ac38a9c8c29519d481df4591"
+      "source_sha256": "1f73ef7605772a10f61e095d3b9fd9d6ee5af35a492d920d448eb40287efc8d4",
+      "export_sha256": "1f73ef7605772a10f61e095d3b9fd9d6ee5af35a492d920d448eb40287efc8d4"
     },
     {
       "source_path": "docs/development/history/2026-09-06-slepton-origin-accounting.md",

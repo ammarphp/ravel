@@ -122,6 +122,20 @@ stage, its five failures and the corrected second stage remain separate records.
 These are locally verified candidate results; a public push and its remote CI result
 must be recorded separately.
 
+## First remote run and CI setup correction
+
+The engineering update was published as `d1d635134ee80e19b76d344c72954f20ac4fc6cc`.
+Its [first remote CI run](https://github.com/ammarphp/ravel/actions/runs/34019382010)
+passed the replay, claim/evidence, adversarial-board, installed-wheel and both Mac
+prerequisite jobs. The full test job recorded 1,520 passes, 23 skips and two failures.
+Both failures were the same G20 integration check: the job had not installed the Git
+hook. The isolated installer tests no longer supplied that incidental side effect.
+The dedicated adversarial job already installed the hook and passed.
+
+The test job now explicitly installs the actual hook before pytest. The G20 requirement
+and its tests remain unchanged. This corrects CI setup, not physics or the tested Python
+implementation. The failed run is preserved; a new remote run must validate the correction.
+
 These engineering results do not establish full-plane RRR reproduction, acceptance
 closure, detector calibration, nuisance completeness or statistical coverage. The
 frozen public 20k waypoint retains its original scope. Later physics controls require
