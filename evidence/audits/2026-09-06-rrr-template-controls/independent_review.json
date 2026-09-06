@@ -1,0 +1,10 @@
+{
+  "status": "closed_stored_result_arithmetic_and_custody",
+  "passed_controls": 49,
+  "independently_reconciled_final_nesting_summaries": 32,
+  "baseline_full_portfolio_available": false,
+  "scope": "Stored scalar/NLL-summary arithmetic and exact metadata custody; no recomputed objective, global optimum or coverage proof.",
+  "new_raw_traversal": false,
+  "new_optimization": false,
+  "global_optimum_or_coverage_claim": false
+}

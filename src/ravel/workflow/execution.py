@@ -19,6 +19,7 @@ import sys
 import importlib.metadata
 
 from .state_io import atomic_json, file_lock, read_json
+from .validation_io import ValidationSession
 
 STATE_NAME = "execution_state.json"
 VERSION = 1
@@ -154,11 +155,34 @@ def runtime_context():
             "environment_sha256": digest(environment), "packages_sha256": digest(packages)}
 
 
-def stage_errors(rundir, name, state=None, visiting=None):
+def _validation_session(rundir, *tracked):
+    session = ValidationSession(rundir, resolve_path=resolve_path, read_json=read_json,
+                                runtime_context=runtime_context, digest=digest,
+                                state_name=STATE_NAME, tracked=tracked)
+    if session.ledger_existed and tracked and digest(read_json(session.ledger)) != digest(tracked[0]):
+        session.close()
+        raise ValueError("execution ledger differs from supplied validation state")
+    return session
+
+
+def stage_errors(rundir, name, state=None, visiting=None, *, _session=None):
     state = load_execution(rundir) if state is None else state
+    if _session is None:
+        session = None
+        try:
+            session = _validation_session(rundir, state)
+            errors = stage_errors(rundir, name, state, visiting, _session=session)
+            return list(dict.fromkeys([*errors, *session.finish()]))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            return [f"stage {name} evidence unavailable: {exc}"]
+        finally:
+            if session is not None:
+                session.close()
     visiting = set() if visiting is None else set(visiting)
     if name in visiting:
         return [f"dependency cycle at {name}"]
+    if name in _session.stages:
+        return list(_session.stages[name])
     visiting.add(name)
     record = state["stages"].get(name)
     if not isinstance(record, dict):
@@ -171,19 +195,20 @@ def stage_errors(rundir, name, state=None, visiting=None):
                                        ("command", "cwd", "inputs", "outputs", "input_snapshot", "parents", "runtime")})
         if expected_fingerprint != record.get("fingerprint"):
             errors.append(f"stage {name} specification changed")
-        if record["runtime"] != runtime_context():
+        if record["runtime"] != _session.runtime:
             errors.append(f"stage {name} runtime changed")
-        if snapshot(rundir, record["inputs"]) != record["input_snapshot"]:
+        if _session.snapshot(record["inputs"]) != record["input_snapshot"]:
             errors.append(f"stage {name} inputs changed")
-        if snapshot(rundir, record["outputs"], outputs=True) != record["output_snapshot"]:
+        if _session.snapshot(record["outputs"], outputs=True) != record["output_snapshot"]:
             errors.append(f"stage {name} outputs changed")
         expected_receipt = digest({k: record[k] for k in ("fingerprint", "output_snapshot")})
         if record.get("receipt_sha256") != expected_receipt:
             errors.append(f"stage {name} receipt changed")
         for parent, parent_digest in record["parents"].items():
-            errors.extend(stage_errors(rundir, parent, state, visiting))
+            errors.extend(stage_errors(rundir, parent, state, visiting, _session=_session))
             if state["stages"].get(parent, {}).get("receipt_sha256") != parent_digest:
                 errors.append(f"stage {name} parent {parent} changed")
+        _session.stages[name] = tuple(errors)
         return errors
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return [f"stage {name} evidence unavailable: {exc}"]
@@ -191,14 +216,20 @@ def stage_errors(rundir, name, state=None, visiting=None):
 
 def validate_execution(rundir):
     """Return current errors, or [] for legacy absence. Consumers report absence separately."""
+    session = None
     try:
         state = load_execution(rundir)
         if (Path(rundir) / STATE_NAME).exists() and not state["stages"]:
             return ["execution ledger has no stages"]
-        return list(dict.fromkeys(error for name in state["stages"]
-                                  for error in stage_errors(rundir, name, state)))
+        session = _validation_session(rundir, state)
+        errors = [error for name in state["stages"]
+                  for error in stage_errors(rundir, name, state, _session=session)]
+        return list(dict.fromkeys([*errors, *session.finish()]))
     except (OSError, ValueError, TypeError) as exc:
         return [f"execution ledger unavailable: {exc}"]
+    finally:
+        if session is not None:
+            session.close()
 
 
 def validate_completed_execution(rundir, planned_stages):
@@ -210,6 +241,7 @@ def validate_completed_execution(rundir, planned_stages):
     every declared input, output, command and dependency must match the receipt.
     This is a current-runtime validation, with the same semantics as stage_errors.
     """
+    session = None
     try:
         if not isinstance(planned_stages, list) or not planned_stages:
             raise ValueError("completed execution requires a nonempty stage plan")
@@ -234,6 +266,7 @@ def validate_completed_execution(rundir, planned_stages):
         if not (Path(rundir) / STATE_NAME).is_file():
             return ["completed execution requires an execution ledger"]
         state = load_execution(rundir)
+        session = _validation_session(rundir, state, planned_stages)
         errors = [f"planned stage {name} has no receipt" for name in names if name not in state["stages"]]
         errors += [f"unplanned stage {name} is present" for name in state["stages"] if name not in names]
         for item in planned_stages:
@@ -255,10 +288,13 @@ def validate_completed_execution(rundir, planned_stages):
             expected_cwd = Path(item.get("cwd", rundir)).resolve()
             if Path(record.get("cwd", "")).resolve() != expected_cwd:
                 errors.append(f"stage {name} cwd differs from plan")
-            errors.extend(stage_errors(rundir, name, state))
-        return list(dict.fromkeys(errors))
+            errors.extend(stage_errors(rundir, name, state, _session=session))
+        return list(dict.fromkeys([*errors, *session.finish()]))
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return [f"completed execution unavailable: {exc}"]
+    finally:
+        if session is not None:
+            session.close()
 
 
 def plan_stage(rundir, stage, command, inputs, outputs, depends_on, cwd):

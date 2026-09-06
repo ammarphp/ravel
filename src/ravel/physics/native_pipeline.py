@@ -227,6 +227,11 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     event_storage = native.get("event_storage", "plain")
     if event_storage not in ("plain", "gzip"):
         raise ValueError("native event_storage must be plain or gzip")
+    lhe_provenance = native.get("lhe_provenance")
+    if "lhe_provenance" in native and lhe_provenance != "original-v1":
+        raise ValueError("native lhe_provenance must be the explicit original-v1 policy")
+    if lhe_provenance is not None and preparation != "explicit-cards":
+        raise ValueError("original-v1 requires explicit unmerged nominal source cards")
     compressed_signal_model = native.get("compressed_signal_model", "full")
     if compressed_signal_model not in ("full", "sr-only-diagnostic"):
         raise ValueError("compressed_signal_model must be full or sr-only-diagnostic")
@@ -264,6 +269,13 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     else:
         source_paths.append(Path(__file__).with_name("compressed_validation.py"))
     declared_inputs = native.get("inputs", {})
+    linker_policy = native.get("lhapdf_linker")
+    if (linker_policy is None) != ("lhapdf_link_decision" not in declared_inputs):
+        raise ValueError("LHAPDF linker policy and decision must be supplied together")
+    if linker_policy is not None:
+        from .native_lhapdf import GENERATION_POLICY
+        if linker_policy != GENERATION_POLICY or preparation != "explicit-cards":
+            raise ValueError("Unsupported native LHAPDF linker policy/preparation")
     share = native_build_root()/"tools/miniforge3/envs/pipeline/share/mapyde"
     def input_file(key, fallback=None):
         value = declared_inputs.get(key, fallback)
@@ -390,6 +402,24 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
         environment_config = Path(statistics_python).parent.parent / "pyvenv.cfg"
         if environment_config.is_file():
             source_paths.append(environment_config)
+    generation_linker = None
+    if linker_policy is not None:
+        from . import native_lhapdf as link
+        decision_path = input_file("lhapdf_link_decision")
+        decision = link.validate_generation_decision(link.read_decision(decision_path), tools/"miniforge3/envs/mg5")
+        assignments = card_assignments(inputs["run_card"])
+        if assignments.get("pdlabel") != "lhapdf" or assignments.get("lhaid") != str(link.PDF_ID):
+            raise ValueError("The linker policy requires explicit LHAPDF260000 central-member cards")
+        if any(line.split("#", 1)[0].strip().startswith("set ") for line in Path(inputs["process_card"]).read_text().splitlines()):
+            raise ValueError("This linker policy does not accept process-card environment overrides")
+        generation_linker = linker_contract(rundir, decision_path, decision)
+        source_paths.extend(Path(item["path"]) for item in decision["sources"].values())
+        source_paths.append(Path(link.__file__))
+    if lhe_provenance is not None:
+        wrapper_source = Path(__file__).resolve().parents[3]/"native/src/pythia_shower.cc"
+        if not wrapper_source.is_file() or wrapper_source.is_symlink():
+            raise ValueError("original-v1 requires the wrapper source checkout and separately built binary")
+        source_paths += [Path(__file__).with_name("lhe_provenance.py"), wrapper_source]
     source_paths = list(dict.fromkeys(Path(p).resolve() for p in source_paths))
     def python(env, module, *args):
         return module_command(module, *args, python=[conda, "run", "--live-stream", "-p", str(tools/"miniforge3/envs"/env), "python"])
@@ -407,7 +437,8 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     cards = [out/n for n in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")]
     stage("prepare", local("prepare", "--plan", plan_path), [*source_paths, plan_path], cards, [])
     lhe = out/"madgraph/unweighted_events.lhe"
-    stage("madgraph", local("generate", "--plan", plan_path), [plan_path,*cards[:3]], [str(lhe)+".gz"], ["prepare"])
+    stage("madgraph", local("generate", "--plan", plan_path), [plan_path,*cards[:3]],
+          [str(lhe)+".gz", *([generation_linker["execution_record"]] if generation_linker else [])], ["prepare"])
     stage("unpack_lhe", local("unpack", "--input", str(lhe)+".gz", "--output", lhe), [str(lhe)+".gz"], [lhe], ["madgraph"])
     gate = out/"lhe_check.json"
     gate_args = [arg for pdg, mass in expected_masses.items() for arg in ("--expect-mass", f"{pdg}:{mass}")]
@@ -419,7 +450,18 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
                       if event_storage == "gzip" else
                       [conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/rivet"),native_binary("pythia_shower"),cards[3],hepmc,nevents])
     shower_outputs = [hepmc, str(hepmc)+".storage.json"] if event_storage == "gzip" else [hepmc]
-    stage("pythia",shower_command, [lhe,cards[3],gate], shower_outputs, ["lhe_check"])
+    shower_inputs = [lhe, cards[3], gate]
+    if lhe_provenance is not None:
+        sidecar = out/"madgraph/original-lhe.jsonl"
+        provenance_report = out/"madgraph/lhe-provenance.json"
+        shower_command = python("rivet", "ravel.physics.native_event_io", "shower-original",
+            "--binary", native_binary("pythia_shower"), "--card", cards[3],
+            "--output", hepmc, "--events", nevents, "--encoding", event_storage,
+            "--lhe", lhe, "--sidecar", sidecar, "--verification", provenance_report,
+            "--wrapper-source", wrapper_source, "--run-card", cards[1])
+        shower_inputs += [cards[1]]
+        shower_outputs += [sidecar, provenance_report]
+    stage("pythia",shower_command, shower_inputs, shower_outputs, ["lhe_check"])
     normalization = out/"normalization.json"
     logs = [rundir/"logs/madgraph.log",rundir/"logs/pythia.log"]
     stage("normalization",module_command("ravel.physics.native_normalization","--lhe",lhe,"--madgraph-log",logs[0],"--shower-log",logs[1],"--kfactor",kfactor,"--nevents",nevents,"--out",normalization),[lhe,*logs], [normalization],["pythia"])
@@ -472,6 +514,13 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             "generator_command":[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/mg5"),str(tools/"mg5amcnlo/bin/mg5_aMC"),str(cards[2])],
             "stages":stages,"required_tools":required_tools,"required_backend_files":[str(converter)],"compute_authorized":False,
             "limitations":["Unmerged LO MSSM generation only", "Execution registration is not physics certification"]}
+    if generation_linker is not None:
+        plan["generation_linker"] = generation_linker
+        plan["generator_command"] = activated_command(plan)
+    if lhe_provenance is not None:
+        plan["lhe_provenance"] = {"policy": lhe_provenance, "sidecar": str(sidecar),
+            "verification": str(provenance_report), "wrapper_source": str(wrapper_source),
+            "scope": "New-generation original-LHA identity only; no replay byte equality or physics certification"}
     plan["plan_sha256"] = plan_hash(plan)
     return plan
 
@@ -521,9 +570,135 @@ def prepare(plan):
         (out/dirname).mkdir(exist_ok=True)
 
 
+def linker_contract(rundir, decision_path, decision):
+    """Deterministic opt-in extension; no default-plan or toolchain mutation."""
+    from .native_lhapdf import GENERATION_POLICY
+    root = Path(rundir).resolve()
+    return {"policy": GENERATION_POLICY, "decision": fingerprint(decision_path),
+            "prefix": decision["prefix"], "python": decision["python"],
+            "payload_command": [decision["python"], "-O", "-B",
+                                decision["sources"]["madgraph"]["path"], "-s", str(root/"output/run.mg5")],
+            "execution_record": str(root/"output/madgraph/linker_execution.json")}
+
+
+def activated_command(plan):
+    contract = plan["generation_linker"]
+    prefix = Path(contract["prefix"])
+    conda = prefix.parents[1]/"bin/conda"
+    return module_command("ravel.physics.native_pipeline", "generate-activated", "--plan", plan["plan_path"],
+                          python=[str(conda), "run", "--live-stream", "-p", str(prefix),
+                                  str(prefix/"bin/python"), "-B"])
+
+
+def checked_linker(plan):
+    from . import native_lhapdf as link
+    contract = plan.get("generation_linker")
+    if not isinstance(contract, dict):
+        raise ValueError("Activated generation requires an explicit prospective linker contract")
+    decision_path = plan["inputs"].get("lhapdf_link_decision")
+    if not decision_path:
+        raise ValueError("Missing approved linker decision")
+    decision = link.validate_generation_decision(link.read_decision(decision_path), contract.get("prefix"))
+    expected = linker_contract(plan["rundir"], decision_path, decision)
+    if link.canonical(contract) != link.canonical(expected) or plan["generator_command"] != activated_command(plan):
+        raise ValueError("Activated command or contract differs from its pinned decision")
+    sources = {item["path"]: item["sha256"] for item in plan["sources"]}
+    if len(sources) != len(plan["sources"]):
+        raise ValueError("Duplicate native source pins")
+    for item in [expected["decision"], *decision["sources"].values()]:
+        if sources.get(item["path"]) != item["sha256"] or fingerprint(item["path"]) != item:
+            raise ValueError("Linker decision source was omitted or changed")
+    assignments = card_assignments(plan["inputs"]["run_card"])
+    if assignments.get("pdlabel") != "lhapdf" or assignments.get("lhaid") != str(link.PDF_ID):
+        raise ValueError("Activated generation requires the exact declared reference PDF")
+    if any(line.split("#", 1)[0].strip().startswith("set ") for line in Path(plan["inputs"]["process_card"]).read_text().splitlines()):
+        raise ValueError("Process card overrides are outside the activated policy")
+    return expected, decision
+
+
+def write_new_json(path, value):
+    with Path(path).open("x") as stream:
+        json.dump(value, stream, indent=2, allow_nan=False)
+        stream.write("\n")
+
+
+def activated_result(plan, attempt, decision, contract, *, status, returncode=None):
+    return {"schema_version": 1, "status": status, "plan_sha256": plan["plan_sha256"],
+            "decision_input": contract["decision"], "actual_decision": decision,
+            "command": contract["payload_command"], "cwd": str(attempt),
+            "returncode": returncode, "physics_certified": False}
+
+
+def generate_activated(plan):
+    """Run only inside the selected activated environment, under the outer stage.
+
+    This entry does not activate conda again. It reuses original approval and
+    emits an explicit subprocess record; only the supervisor can accept a stage.
+    """
+    verify_execution_approval(plan)
+    contract, expected = checked_linker(plan)
+    root = Path(plan["rundir"]).resolve(); attempt = Path.cwd().resolve()
+    if attempt.parent != (root/"work/madgraph").resolve() or not attempt.name.startswith("attempt-"):
+        raise ValueError("Activated MG must run in the outer stage's retained fresh attempt")
+    from . import native_lhapdf as link
+    actual = None
+    try:
+        effective, actual = link.generation_decision(contract["prefix"])
+        if link.canonical(actual) != link.canonical(expected):
+            raise ValueError("Actual activated environment differs from the approved decision")
+        before = activated_result(plan, attempt, actual, contract, status="preparation_verified")
+        write_new_json(attempt/"linker_preflight.json", before)
+        # Explicit -O matches MG's normal optimized entry, -s avoids its optional
+        # caffeinate child, and inherited bytecode suppression reaches all Python
+        # descendants. No shell expansion or second activation occurs here.
+        result = subprocess.run(contract["payload_command"], cwd=attempt, env=effective)
+        if result.returncode:
+            failed = dict(before, status="madgraph_subprocess_failed", returncode=result.returncode)
+            write_new_json(attempt/"linker_failure.json", failed)
+            return result.returncode
+        load_plan(plan["plan_path"])
+        verify_execution_approval(plan)
+        checked_linker(plan)
+        source = attempt/"PROC_madgraph/Events/run_01/unweighted_events.lhe.gz"
+        if not source.is_file() or not source.stat().st_size:
+            raise ValueError("MadGraph did not produce a complete compressed LHE")
+        completed = activated_result(plan, attempt, actual, contract,
+                                     status="madgraph_subprocess_completed", returncode=0)
+        completed["retained_lhe"] = fingerprint(source)
+        write_new_json(contract["execution_record"], completed)
+        return 0
+    except Exception as exc:
+        failure = {"schema_version": 1, "status": "activated_generation_failed",
+                   "plan_sha256": plan["plan_sha256"], "decision_input": contract["decision"],
+                   "actual_decision": actual, "cwd": str(attempt), "error": str(exc),
+                   "physics_certified": False}
+        path = attempt/"linker_failure.json"
+        if not path.exists():
+            write_new_json(path, failure)
+        raise
+
+
+def verify_activated_result(plan, attempt):
+    from . import native_lhapdf as link
+    contract, decision = checked_linker(plan)
+    record = link.read_decision(contract["execution_record"])
+    expected = activated_result(plan, attempt, decision, contract,
+                                status="madgraph_subprocess_completed", returncode=0)
+    source = attempt/"PROC_madgraph/Events/run_01/unweighted_events.lhe.gz"
+    expected["retained_lhe"] = fingerprint(source)
+    if link.canonical(record) != link.canonical(expected):
+        raise ValueError("Actual MG completion record disagrees with the approved generation")
+    return record
+
+
 def generate(plan):
     """Keep each mutable MadGraph PROC and publish only its completed LHE."""
     verify_execution_approval(plan)
+    linked = "generation_linker" in plan
+    if linked:
+        if os.environ.get("PYTHONDONTWRITEBYTECODE") != "1":
+            raise ValueError("Activated generation requires inherited bytecode suppression")
+        checked_linker(plan)
     root = Path(plan["rundir"])
     attempts = root/"work/madgraph"
     attempts.mkdir(parents=True,exist_ok=True)
@@ -532,6 +707,10 @@ def generate(plan):
     result = subprocess.run(plan["generator_command"],cwd=attempt)
     if result.returncode:
         return result.returncode
+    if linked:
+        load_plan(plan["plan_path"])
+        verify_execution_approval(plan)
+        verify_activated_result(plan, attempt)
     source = attempt/"PROC_madgraph/Events/run_01/unweighted_events.lhe.gz"
     target = root/"output/madgraph/unweighted_events.lhe.gz"
     if not source.is_file() or not source.stat().st_size:
@@ -614,7 +793,7 @@ def main(argv=None):
     for action in ("plan","run"):
         p = subs.add_parser(action);p.add_argument("--rundir");p.add_argument("--config");p.add_argument("--model")
         p.add_argument("--analysis-id");p.add_argument("--pdf");p.add_argument("--plan");p.add_argument("--write",action="store_true")
-    for action in ("prepare","generate","report"):
+    for action in ("prepare","generate","generate-activated","report"):
         p = subs.add_parser(action);p.add_argument("--plan",required=True)
     p=subs.add_parser("unpack");p.add_argument("--input",required=True);p.add_argument("--output",required=True)
     args=parser.parse_args(argv)
@@ -623,10 +802,11 @@ def main(argv=None):
             with gzip.open(args.input,"rb") as source, open(args.output,"wb") as target:
                 shutil.copyfileobj(source,target)
             return 0
-        if args.action in ("prepare","generate","report"):
+        if args.action in ("prepare","generate","generate-activated","report"):
             plan=load_plan(args.plan)
             if args.action == "prepare": prepare(plan)
             elif args.action == "generate": return generate(plan)
+            elif args.action == "generate-activated": return generate_activated(plan)
             else:
                 out=Path(plan["rundir"])/"output"
                 actual=plan["capability"]["routine"]

@@ -1,0 +1,19 @@
+........................................................................ [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 68%]
+........................................................................ [ 91%]
+............................                                             [100%]
+=============================== warnings summary ===============================
+tests/unit/test_native_dispatch.py::test_non_slepton_likelihood_requires_explicit_complete_channel_map
+tests/unit/test_native_dispatch.py::test_non_slepton_likelihood_requires_explicit_complete_channel_map
+tests/unit/test_native_dispatch.py::test_adversarial_preflight_does_not_start_tools[bad_workspace]
+tests/unit/test_native_dispatch.py::test_statistical_adapters_execute_their_declared_subprocess_plan[mapped-likelihood]
+tests/unit/test_native_dispatch.py::test_statistical_adapters_execute_their_declared_subprocess_plan[compressed-likelihood]
+tests/unit/test_native_dispatch.py::test_mapped_signal_uses_declared_workspace_poi_and_rejects_background_owned_poi
+tests/unit/test_native_dispatch.py::test_mapped_signal_uses_declared_workspace_poi_and_rejects_background_owned_poi
+tests/unit/test_native_dispatch.py::test_mapped_signal_uses_declared_workspace_poi_and_rejects_background_owned_poi
+  <locked-python312-env>/lib/python3.12/site-packages/pyhf/schema/validator.py:80: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    resolver = jsonschema.RefResolver(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+316 passed, 8 warnings in 115.96s (0:01:55)

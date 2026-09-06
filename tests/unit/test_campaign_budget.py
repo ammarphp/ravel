@@ -278,3 +278,69 @@ def test_policy_inventory_total_cannot_hide_missing_charge(campaign):
     register_policy(campaign, basis=basis)
     with pytest.raises(ValueError, match='basis total contradicts'):
         cb.native_campaign_budget(campaign)
+
+
+def rebind(root,record):
+    record['fingerprint']=digest({k:record[k]for k in('command','cwd','inputs','outputs','input_snapshot','parents','runtime')})
+    put(root/record['attempt_record'],record);put(root/'execution_state.json',{'stages':{'madgraph':record}})
+
+
+def add_incidental(campaign,root,record,n=99):
+    path=campaign/'inputs/provenance/native_execution_plan.json';put(path,{'nevents':n,'rundir':str(campaign/'original_anchor')})
+    record['inputs'].append(str(path));record['input_snapshot'][str(path)]={'kind':'file','files':[{'name':'.','size':path.stat().st_size,'sha256':file_hash(path)}]}
+    rebind(root,record);return path
+
+
+def test_actual_failure_shape_two_plan_names_charges_only_own(campaign):
+    root=child(campaign);record=attempt(root);incidental=add_incidental(campaign,root,record)
+    result=cb.native_campaign_budget(campaign)
+    assert result['charged_or_reserved_events']==1000
+    assert result['runs'][0]['attempts'][0]['requested_events']==1000
+    assert {'path':str(incidental),'sha256':file_hash(incidental)}in result['sources']
+
+
+def test_incidental_small_or_large_exposure_never_replaces_own(campaign):
+    root=child(campaign);record=attempt(root);other=add_incidental(campaign,root,record,n=1)
+    assert cb.native_campaign_budget(campaign)['charged_or_reserved_events']==1000
+    put(other,{'nevents':99999999});record['input_snapshot'][str(other)]['files'][0]={'name':'.','size':other.stat().st_size,'sha256':file_hash(other)};rebind(root,record)
+    assert cb.native_campaign_budget(campaign)['charged_or_reserved_events']==1000
+
+
+@pytest.mark.parametrize('mutation',['missing_own','undeclared_own','wrong_cwd','other_rundir','alias_own','incidental_changed','incidental_missing','incidental_undeclared','wrong_size','wrong_name','directory_kind'])
+def test_canonical_and_incidental_negative_controls(campaign,mutation):
+    root=child(campaign);record=attempt(root);other=add_incidental(campaign,root,record);own=str(root/'inputs/native_execution_plan.json')
+    if mutation=='missing_own':del record['input_snapshot'][own]
+    elif mutation=='undeclared_own':record['inputs'].remove(own)
+    elif mutation=='wrong_cwd':record['cwd']=str(campaign)
+    elif mutation=='other_rundir':
+        put(Path(own),{'nevents':1000,'rundir':str(campaign/'wrong')});record['input_snapshot'][own]['files'][0]['sha256']=file_hash(own)
+    elif mutation=='alias_own':
+        alias=str(root/'inputs/../inputs/native_execution_plan.json');record['inputs'].append(alias);record['input_snapshot'][alias]=record['input_snapshot'][own]
+    elif mutation=='incidental_changed':put(other,{'nevents':88})
+    elif mutation=='incidental_missing':other.unlink()
+    elif mutation=='incidental_undeclared':record['inputs'].remove(str(other))
+    elif mutation=='wrong_size':record['input_snapshot'][own]['files'][0]['size']=1
+    elif mutation=='wrong_name':record['input_snapshot'][own]['files'][0]['name']='other'
+    else:record['input_snapshot'][own]['kind']='directory'
+    rebind(root,record)
+    with pytest.raises((ValueError,FileNotFoundError)):cb.native_campaign_budget(campaign)
+
+
+def test_historical_own_plan_and_current_incidental_are_both_preserved(campaign):
+    root=child(campaign);record=attempt(root,status='failed');other=add_incidental(campaign,root,record)
+    own=root/'inputs/native_execution_plan.json';archive=root/'archive/old/inputs/native_execution_plan.json';archive.parent.mkdir(parents=True);archive.write_bytes(own.read_bytes())
+    (root/'config.toml').write_text('[madgraph.run]\nnevents = 2000\n');put(own,{'nevents':2000})
+    result=cb.native_campaign_budget(campaign)
+    assert result['charged_or_reserved_events']==3000
+    assert result['runs'][0]['attempts'][0]['requested_events']==1000
+    assert result['runs'][0]['pending_reserved_events']==2000
+    other.write_text('{}')
+    with pytest.raises(ValueError,match='incidental'):cb.native_campaign_budget(campaign)
+
+
+def test_retained_own_plan_change_between_selection_and_read_rejects(campaign):
+    root=child(campaign);record=attempt(root);own=root/'inputs/native_execution_plan.json';pinned=file_hash(own)
+    def changed_load(path):
+        put(path,{'nevents':1});return json.loads(path.read_text())
+    with pytest.raises(ValueError,match='changed during inventory'):
+        cb._generation_plan_binding(root,record,{pinned:own},changed_load)

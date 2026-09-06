@@ -70,6 +70,17 @@ matched official-model nuisance tests, retained failures and an offline verifier
 The [earlier waypoint](evidence/audits/2026-09-06-rrr-waypoint/README.md) preserves its
 likelihood inputs, response figures and physics cards. Large raw events remain local.
 
+The [event-identity study](evidence/audits/2026-09-06-rrr-event-identity/README.md)
+traces the lower-cut contribution back to exact original generated events and
+shows every channel, including sparse and zero-count bins. A fresh second mass
+point gives <!-- claim:rrr_fresh100_limits -->210.00 fb observed and 169.09 fb median expected at 100/98 GeV<!-- /claim -->,
+below the released reference. Its sparse selected population and remaining
+disagreement are reported alongside the successful controls.
+The [controlled signal-model comparison](evidence/audits/2026-09-06-rrr-template-controls/README.md)
+shows that removing signal MC uncertainty or control-region signal strengthens
+these bounds further. These omissions are diagnostic tests and do not improve
+the physics model or repair its disagreement with the reference.
+
 The evidence checks answer different questions:
 
 | Check | Recorded evidence | What it establishes |
@@ -143,6 +154,13 @@ the standard library, without a simulation toolchain:
 
 ```bash
 .venv-replay/bin/python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py
+```
+
+Verify the second mass point and the original-event partition, including all sparse
+bins and complementary weight moments:
+
+```bash
+.venv-replay/bin/python -B evidence/audits/2026-09-06-rrr-event-identity/verify.py
 ```
 
 ## Initiate a physics task

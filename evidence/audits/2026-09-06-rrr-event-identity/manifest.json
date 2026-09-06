@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "files": {
+    "README.md": "95538efce99f7337bc2ffc2b831e4312a3901229e30aab4e13513dc7713bac3f",
+    "data/evidence.json": "ad3fe2896b873962c81ae0a59cf4fba064153cff01cc2051cb91382c8518fe72",
+    "figures/hard-slice-comparison.pdf": "6128e506a81309a1bad038dfe2c118378a90abfdfeec2d83dca7486e9a4973b2",
+    "figures/hard-slice-comparison.png": "33fccf09bce4ec6b2a20f8232bf7ceb2dc2fb75eed0612dd8cef87add5ee8c0d",
+    "source-map.json": "336846614cd0bc0e77cfb65a70d2d06a95c6fb4e2359e5b4c37007015f1ace03",
+    "tables/fresh10098-limits.csv": "784305128678a8e12b15d8cfad3264d136b8c651b22dd3994200b0d165eaeb94",
+    "tables/hard-slice-rates.csv": "b405da10b8465c9a21b7e892e2ebd449feff08dc21161a3ee912a1c21dd754c5",
+    "verify.py": "bd1a39507f5b6362b698cad03f874ebd24c2a23eaf8ab3f405a5293bc51c69cc"
+  },
+  "scope": "Selected evidence projection; raw event files and full private custody do not ship."
+}

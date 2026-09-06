@@ -130,6 +130,75 @@ def _preserve_basis(basis, rows, allocation):
         raise ValueError("budget basis total contradicts its run population")
 
 
+def _generation_plan_binding(child, record, retained_plans, load):
+    """Select this run's canonical plan, not incidental provenance with its name.
+
+    Historical own-plan bytes may live in this run's retained archives. Other
+    named plan inputs remain source-checked but never contribute this attempt's
+    exposure. This does not grant execution or replace full receipt validation.
+    """
+    own_path = child / "inputs/native_execution_plan.json"
+    own_name = str(own_path)
+    if Path(record.get("cwd", "")).resolve() != child:
+        raise ValueError("generation receipt working directory differs from its run")
+    snapshot = record.get("input_snapshot")
+    declared = record.get("inputs")
+    if type(snapshot) is not dict or type(declared) is not list:
+        raise ValueError("generation receipt lacks a declared input snapshot")
+    declared_paths = []
+    for name in declared:
+        if type(name) is not str or not name.strip():
+            raise ValueError("invalid generation input declaration")
+        raw = Path(name)
+        declared_paths.append(str((raw if raw.is_absolute() else child / raw).resolve()))
+    if declared_paths.count(own_name) != 1 or own_name not in snapshot:
+        raise ValueError("generation attempt has no unique canonical run plan")
+
+    def file_binding(value):
+        if (type(value) is not dict or value.get("kind") != "file" or
+                type(value.get("files")) is not list or len(value["files"]) != 1):
+            raise ValueError("generation plan snapshot must name exactly one file")
+        item = value["files"][0]
+        if (type(item) is not dict or item.get("name") != "." or
+                type(item.get("sha256")) is not str or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None):
+            raise ValueError("generation plan snapshot has invalid file identity")
+        if "size" in item and (type(item["size"]) is not int or item["size"] < 0):
+            raise ValueError("generation plan snapshot has invalid file size")
+        return item
+
+    own = file_binding(snapshot[own_name])
+    pinned = own["sha256"]
+    if pinned not in retained_plans:
+        raise ValueError("original generation plan bytes unavailable for " + own_name)
+    retained = retained_plans[pinned]
+    original = load(retained)
+    if file_hash(retained) != pinned:
+        raise ValueError("original generation plan changed during inventory")
+    if "size" in own and retained.stat().st_size != own["size"]:
+        raise ValueError("retained generation plan size differs")
+    if "rundir" in original and original["rundir"] != str(child):
+        raise ValueError("original generation plan belongs to another run")
+    for name, value in snapshot.items():
+        if name == own_name:
+            continue
+        if type(name) is not str:
+            raise ValueError("invalid generation snapshot input name")
+        if Path(name).name != "native_execution_plan.json":
+            continue
+        incidental = Path(name)
+        if (not incidental.is_absolute() or incidental.resolve() == own_path or
+                any(part.is_symlink() for part in (incidental, *incidental.parents))):
+            raise ValueError("incidental generation plan path aliases canonical input")
+        if name not in declared_paths:
+            raise ValueError("incidental generation plan is not a declared input")
+        binding = file_binding(value)
+        load(incidental)
+        if (file_hash(incidental) != binding["sha256"] or
+                ("size" in binding and incidental.stat().st_size != binding["size"])):
+            raise ValueError("incidental generation plan source changed: " + name)
+    return pinned, original
+
+
 def native_campaign_budget(campaign, *, additional_events=0, required_policy_sha256=None):
     """Return a source-pinned reservation inventory or raise on unknown exposure.
 
@@ -207,14 +276,7 @@ def native_campaign_budget(campaign, *, additional_events=0, required_policy_sha
             fingerprint = digest({k: record[k] for k in ("command", "cwd", "inputs", "outputs", "input_snapshot", "parents", "runtime")})
             if record.get("fingerprint") != fingerprint:
                 raise ValueError(f"generation attempt specification changed: {path}")
-            plan_inputs = [value for name, value in record["input_snapshot"].items()
-                           if Path(name).name == "native_execution_plan.json"]
-            if len(plan_inputs) != 1 or plan_inputs[0].get("kind") != "file" or len(plan_inputs[0].get("files", [])) != 1:
-                raise ValueError(f"generation attempt has no unique pinned plan: {path}")
-            pinned = plan_inputs[0]["files"][0]["sha256"]
-            if pinned not in plans:
-                raise ValueError(f"original generation plan bytes unavailable for {path}")
-            original = load(plans[pinned])
+            pinned, original = _generation_plan_binding(child, record, plans, load)
             events = _positive(original.get("nevents"), "attempt original exposure")
             if record.get("status") not in ("running", "succeeded", "failed", "interrupted"):
                 raise ValueError(f"unknown generation attempt status: {path}")

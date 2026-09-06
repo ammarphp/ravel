@@ -1,0 +1,760 @@
+[
+    {
+        "op": "add",
+        "path": "/channels/0/samples/5",
+        "value": {
+            "data": [
+                5.968439486423449
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        2.4366052170693897
+                    ],
+                    "name": "native_signal_mcstat_b396cffffabbefe07ab7",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/1/samples/5",
+        "value": {
+            "data": [
+                0.9947399144039082
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        0.9947399144039082
+                    ],
+                    "name": "native_signal_mcstat_1653498669cdadda59b8",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/2/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/3/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/4/samples/6",
+        "value": {
+            "data": [
+                2.9842197432117246
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.7229400720642851
+                    ],
+                    "name": "native_signal_mcstat_ec7d0c59ca297439bea6",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/5/samples/6",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/6/samples/4",
+        "value": {
+            "data": [
+                1.9894798288078164
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.4067746779838586
+                    ],
+                    "name": "native_signal_mcstat_1a8dbfc41d8e138b9257",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/7/samples/5",
+        "value": {
+            "data": [
+                0.9947399144039082
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        0.9947399144039082
+                    ],
+                    "name": "native_signal_mcstat_11d62d30fa5a88e8e2d0",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/8/samples/5",
+        "value": {
+            "data": [
+                3.9789596576156328
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.9894798288078164
+                    ],
+                    "name": "native_signal_mcstat_f61b781180018823750c",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/9/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/10/samples/5",
+        "value": {
+            "data": [
+                8.952659229635174
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        2.9842197432117246
+                    ],
+                    "name": "native_signal_mcstat_47ee905e79246835bb51",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/11/samples/5",
+        "value": {
+            "data": [
+                1.9894798288078164
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.4067746779838586
+                    ],
+                    "name": "native_signal_mcstat_f585d6c565bdbecdb281",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/12/samples/5",
+        "value": {
+            "data": [
+                1.9894798288078164
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.4067746779838586
+                    ],
+                    "name": "native_signal_mcstat_542f1b246768f1cf3a52",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/13/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/14/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/15/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/16/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/17/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/18/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/19/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/20/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/21/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/22/samples/5",
+        "value": {
+            "data": [
+                3.9789596576156328
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        1.9894798288078164
+                    ],
+                    "name": "native_signal_mcstat_e898736df4f32cc1e7a2",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/23/samples/5",
+        "value": {
+            "data": [
+                0.9947399144039082
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        0.9947399144039082
+                    ],
+                    "name": "native_signal_mcstat_2069ebd6c4f3a1f142d4",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/24/samples/5",
+        "value": {
+            "data": [
+                8.952659229635174
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        2.9842197432117246
+                    ],
+                    "name": "native_signal_mcstat_0e24fe51f58107cd7eb5",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/25/samples/5",
+        "value": {
+            "data": [
+                0.9947399144039082
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        0.9947399144039082
+                    ],
+                    "name": "native_signal_mcstat_1439fdf580908b0e12e8",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/26/samples/5",
+        "value": {
+            "data": [
+                28.847457517713337
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        5.356838379299916
+                    ],
+                    "name": "native_signal_mcstat_4c7ec4c69a221d5eba59",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/27/samples/5",
+        "value": {
+            "data": [
+                4.973699572019541
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        2.224306068539461
+                    ],
+                    "name": "native_signal_mcstat_0b3c74cafd466ec0ef44",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/28/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/29/samples/5",
+        "value": {
+            "data": [
+                0.9947399144039082
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                },
+                {
+                    "data": [
+                        0.9947399144039082
+                    ],
+                    "name": "native_signal_mcstat_50587eba1ecf26adec16",
+                    "type": "shapesys"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/30/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/31/samples/6",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/32/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/33/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/34/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/35/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/36/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    },
+    {
+        "op": "add",
+        "path": "/channels/37/samples/5",
+        "value": {
+            "data": [
+                0.0
+            ],
+            "modifiers": [
+                {
+                    "data": null,
+                    "name": "mu_SIG",
+                    "type": "normfactor"
+                }
+            ],
+            "name": "native_signal"
+        }
+    }
+]

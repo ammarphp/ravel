@@ -142,3 +142,27 @@ explicit counterfactual derivatives: remove signal nuisance modifiers, then remo
 six control-region signal samples. These are diagnostic inputs, not replacement
 physics templates or a new baseline. Source/result hashes, failures and source
 versions are retained in `evidence/audits/2026-09-05-rrr-refits/`.
+
+## 2026-09-06 — mass-specific normalization and original-event partitions
+
+Fresh four-state 100/98 and 50/45 inclusive controls use independently reviewed
+card copies and their own original event exposure. Their rates are not borrowed
+from another mass or process basis. The 100/98 native signal model retains all
+38 channels, including six control regions and per-bin MC moments. Historical
+templates and their missing effective-card evidence remain unchanged.
+
+The lower-cut 150/140 partition reuses the original 20,000-event sample and joins
+each showered event to exact original LHA content. Below/above-threshold subsets
+keep the common original denominator and complementary weight moments. They are
+diagnostics of the generation approximation, not new independent samples or
+replacements selected by agreement with a reference limit.
+
+The separate 100-event implementation exercise copies complete original events
+from the retained smoke sample. Its copied shower configuration changes the LHE
+path and requested event count; the run-card copy changes `nevents`. Original
+files remain untouched. The inherited initialization block is explicitly not a
+new normalization estimate for that subset.
+
+Workflow evidence: [the event-identity bundle](../../../evidence/audits/2026-09-06-rrr-event-identity/README.md).
+Pedagogical explanation: [native provenance and fidelity](2026-09-06-native-provenance-and-fidelity.md)
+and [native normalization](../../workflow/reference/native-pipeline.md).

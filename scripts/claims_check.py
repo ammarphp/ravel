@@ -115,6 +115,17 @@ def check(readme_path, manifest_path, root=ROOT, require_all=True):
                     fails.append(f"RRR control scope/value drift: {name}: expected '{value}'")
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
             fails.append(f"RRR control source invalid: {exc}")
+    if "rrr_fresh100_limits" in claims:
+        try:
+            record = json.loads((Path(root) / "evidence/audits/2026-09-06-rrr-event-identity/data/evidence.json").read_text())["fresh10098"]
+            rows = {row["quantile"]: row for row in record["limits"]}
+            expected = (f"{rows['observed']['inclusive_sigma95_fb']:.2f} fb observed and "
+                        f"{rows['expected_median']['inclusive_sigma95_fb']:.2f} fb median expected "
+                        f"at {record['reference']['parent_GeV']:g}/{record['reference']['lsp_GeV']:g} GeV")
+            if claims["rrr_fresh100_limits"]["value"] != expected:
+                fails.append(f"RRR fresh100 scope/value drift: expected '{expected}'")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            fails.append(f"RRR fresh100 source invalid: {exc}")
     ev_path = os.path.join(root, "evidence/manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
         ev = json.load(open(ev_path))

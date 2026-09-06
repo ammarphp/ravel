@@ -52,6 +52,39 @@ The process card must use one jet multiplicity. Combining separate unmerged zero
 
 The run card must explicitly provide `nevents`, `iseed`, both beam energies, `ickkw = 0`, a PDF choice, and disabled additional systematic weights. Counts, seed, and energies must agree with the TOML. The shower card must declare `Beams:frameType = 4` and `Beams:LHEF`; Ravel binds that path to this run's generated events. Matching and merging settings require a separate adapter. The input cards are preserved unchanged.
 
+For a local Darwin `NNPDF30_nlo_as_0118` central-member study, explicit cards can
+add `lhapdf_linker = "preserve-activated-v1"` and the corresponding
+`lhapdf_link_decision` input. Follow the [metadata capture and linking procedure](../../reference/native-portability.md#lhapdf-linking-for-an-explicit-native-study)
+before planning. This opt-in path preserves the activated compiler flags, checks
+the selected library/PDF sources again inside the generator environment, and
+declares the linker execution record as a MadGraph output. Existing plans keep
+their declared PDF and commands. A metadata decision never grants generation
+approval or validates the resulting physics.
+
+For a new unmerged nominal study that needs exact original-event identity, set
+`lhe_provenance = "original-v1"` in `[ravel.native]` alongside
+`preparation = "explicit-cards"`. Build the updated shower wrapper in a source
+checkout and bind that separately produced binary in the new plan. The policy
+supports both plain and gzip event storage; it keeps the canonical twelve-stage
+sequence and adds `output/madgraph/original-lhe.jsonl` and
+`output/madgraph/lhe-provenance.json` to the shower stage's declared outputs.
+
+The sidecar records Pythia's existing original-LHA fields without replacing its
+reader, changing random-number calls or adding retries. The owned successful
+producer, complete original LHE, exact content/order, full HepMC decoded EOF,
+counts, file descriptors and current input/source bytes must agree before the
+report is published. Ambiguous duplicate original content, auxiliary event XML,
+matching/merging, missing sidecars and source drift reject. Failed outputs remain
+available for diagnosis. File storage and native compilation may temporarily
+use extra disk; include that peak and failed attempts in resource admission.
+
+This is an identity contract. It does not calibrate the shower, prove a compiler
+history from a source file, validate a signed-weight uncertainty estimator or
+claim equality to an earlier HepMC stream. New reports explicitly record that
+replay byte equality was not performed. Existing plans retain their original
+commands and receipts. Wheel-only use without the required wrapper source
+contract is rejected; use the source checkout and a new reviewed build/plan.
+
 For `statistics = "mapped-likelihood"`, add `likelihood` and `channel_map` paths to the inputs table. The likelihood must validate as a pyhf workspace. The channel map must cover every workspace channel with either `null` for zero signal or an object such as `{"region": "SRlow"}`; a supported `flavour` may also be given. Mapped signal channels must be single-bin and name regions present in the selected routine. The signal uses the workspace's declared POI, which must be unambiguous and must not already scale a background sample. The compressed adapter requires its known `mu_SIG` POI. Mapping does not establish that an experimental likelihood is appropriate for the model.
 
 The specific `slepton-bino` preparation renders only the known slepton parameter and process templates. It requires an explicit supported PDF and the complete `[madgraph.run.options]` block. The collision energy comes from the TOML; each beam receives half that energy. Legacy scan TOMLs are accepted only when the manifest explicitly declares `slepton-bino`, the routine is `EwkCompressed2018`, and the named mapyde adapters are `SleptonBino` and `isrslep`. This narrow compatibility route does not infer arbitrary physics from masses.
@@ -99,6 +132,15 @@ The final report does not invent an exclusion for yields-only runs. Statistical 
 Re-running the same `run --plan` command resumes by checking input, code, runtime, dependency, and output receipts in `execution_state.json`. Only a matching successful stage is reused. Original sources are rechecked before every stage; changing a card invalidates the saved plan. After a deliberate input change, build and review a new plan, update its contract pin, record renewed actual approval, then run it. Retries archive prior declared outputs and logs under `logs/execution/<stage>/<attempt>/`. MadGraph gets a new working directory, so it neither prompts to overwrite an old PROC nor deletes an unpacked downstream LHE. Earlier process directories remain available for diagnosis.
 
 There is no unsupervised fallback. A nonzero exit, invalid output, unresolved normalization, or failed dependency stops downstream stages. A quiet log alone is not proof of a stalled job. The supervisor uses process ownership and bounded termination for interrupted attempts. Do not delete `STATUS.txt`, receipt files, or intermediate dependencies to force a retry. The babysitter retains all artifacts for execution-ledger runs; held failures require input/tool repair followed by supervised resume. Disk planning must include retained attempts and receipt dependencies.
+
+Read-only receipt validation reuses freshly computed hashes only within one
+validation call. It checks each expected digest, revisits file identities and
+directory membership before returning, and verifies the final ledger through its
+opened descriptor and pathname. Later calls hash again. This reduces repeated
+work across shared ancestors without treating timestamps as content evidence or
+claiming an atomic filesystem snapshot. Generation accounting identifies the
+run's own canonical plan; another source-bound plan with the same filename stays
+provenance and cannot determine that run's charged event count.
 
 The canonical scan dispatcher supports container commands as dry diagnostics only. Live `--backend container --go` is refused until a container adapter can bind its exact inputs and outputs to approval. It cannot bypass the native approval boundary.
 

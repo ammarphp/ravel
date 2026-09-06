@@ -1,0 +1,40 @@
+{
+  "copied_files": {
+    "figures/hard-slice-comparison.pdf": {
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-hard-slice-actual-independent/hard-slice-comparison.pdf",
+      "sha256": "6128e506a81309a1bad038dfe2c118378a90abfdfeec2d83dca7486e9a4973b2"
+    },
+    "figures/hard-slice-comparison.png": {
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-hard-slice-actual-independent/hard-slice-comparison.png",
+      "sha256": "33fccf09bce4ec6b2a20f8232bf7ceb2dc2fb75eed0612dd8cef87add5ee8c0d"
+    },
+    "tables/hard-slice-rates.csv": {
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-hard-slice-actual-independent/source-data.csv",
+      "sha256": "b405da10b8465c9a21b7e892e2ebd449feff08dc21161a3ee912a1c21dd754c5"
+    }
+  },
+  "projection_inputs": [
+    {
+      "path": "local-runs/rrr-closure/physics-review/fresh10098-normalization-v1/result-v1/comparison.json",
+      "sha256": "e42e81326ab8d70dcf50be90a07b93bd3d0f127278b575c61d20e544b8ea063e"
+    },
+    {
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-hard-slice-v4/result-v1/partition.json",
+      "sha256": "8298bc35d80bec8758465d68e051dc0a126327865e4b31bbdb60134808cbc26c"
+    },
+    {
+      "path": "local-runs/rrr-closure/physics-review/lhe-hepmc-replay-v2/run-v1/COMPLETE.json",
+      "sha256": "1c29bc93f0ede1decfa84dd72d4ad9d16b384cae9872eea9d2ddf12d456225b7"
+    },
+    {
+      "path": "local-runs/rrr-closure/physics-review/lhe-hepmc-replay-v2/run-v1/output/byte-proof.json",
+      "sha256": "8c3f11c95c96ac8d5f5581e511ec5791e7035fa6275d6ee83ef93a316553b844"
+    },
+    {
+      "path": "local-runs/rrr-closure/physics-review/lhe-hepmc-replay-v2/run-v1/output/content-join.json",
+      "sha256": "4c767468bfcbe3b24553e3adcb66b582ced3fa47b0cffe2a4f144c91b6062253"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Selected small result/proof records only. Complete original receipts, compiler/library custody and raw event files remain private; public verification does not replay them."
+}

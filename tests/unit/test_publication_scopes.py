@@ -140,9 +140,12 @@ def test_agreeing_public_text_cannot_override_rrr_point_evidence(tmp_path, alter
     ('rrr_pool_limits', '47.37 fb observed and 57.27 fb median expected from the 80,000-event pool at 150/140 GeV'),
     ('rrr_cut_rate_ratio', 'a high-region rate ratio of 1.000 (conditional 95% interval 0.990–1.010)'),
     ('rrr_cut_rate_ratio', 'a high-region rate ratio of 1.412 (conditional 95% interval 1.146–1.500)'),
+    ('rrr_fresh100_limits', '238.13 fb observed and 203.96 fb median expected at 100/98 GeV'),
+    ('rrr_fresh100_limits', '210.00 fb observed and 169.09 fb median expected at 150/140 GeV'),
 ])
 def test_coordinated_control_headlines_still_need_measured_evidence(tmp_path, claim, altered):
-    relative = Path('evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json')
+    bundle = '2026-09-06-rrr-event-identity' if claim == 'rrr_fresh100_limits' else '2026-09-06-rrr-cut-dependence'
+    relative = Path('evidence/audits') / bundle / 'data/evidence.json'
     source = tmp_path / relative
     source.parent.mkdir(parents=True)
     source.write_bytes((REPO / relative).read_bytes())
@@ -157,5 +160,6 @@ def test_coordinated_control_headlines_still_need_measured_evidence(tmp_path, cl
     assert claims_check.check(page, manifest, tmp_path)[0] == []
     entry['value'] = altered
     write_claim()
-    assert any('RRR control scope/value drift' in error
+    expected_error = 'RRR fresh100 scope/value drift' if claim == 'rrr_fresh100_limits' else 'RRR control scope/value drift'
+    assert any(expected_error in error
                for error in claims_check.check(page, manifest, tmp_path)[0])

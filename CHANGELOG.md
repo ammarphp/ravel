@@ -2,6 +2,21 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Publish the exact original-event identity diagnostic, all 40 hard-parton
+  partitions, and the discrepant fresh 100/98 GeV result with its own inclusive
+  normalization. Preserve sparse/zero bins and the limits of the public projection.
+- Publish exact small models and every expected quantile for two matched 100/98
+  statistical omission controls. These omissions worsen the reference discrepancy;
+  the sparse-template and missing-baseline-portfolio limitations remain explicit.
+- Add opt-in original-LHA provenance for plain/gzip native showers, retaining the
+  original default commands. Bind decoded reads to their opened files and keep
+  newly generated content verification distinct from historical replay equality.
+- Add explicit Darwin LHAPDF linking that preserves the activated compiler flags
+  and checks the selected library/PDF inputs. No existing PDF or toolchain changes.
+- Reuse content hashes within a single receipt-validation call while rechecking
+  file/tree/ledger identities. Charge generation against the run's own canonical
+  plan when unrelated provenance contains another plan with the same filename.
+
 - Publish the independently checked 60,000-event pooled 150/140 GeV result and
   its failed generation-cut equivalence control together. Retain the lower-cut
   rate decomposition, all 38 likelihood channels, three official-model nuisance

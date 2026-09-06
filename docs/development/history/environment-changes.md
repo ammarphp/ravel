@@ -201,3 +201,32 @@ or compilation was performed in this pass. Refit diagnostics use the existing
 native Python 3.14/JAX environment separately from the supported Python 3.12 replay
 lock. See `docs/reference/native-portability.md` and the dated RRR implementation
 record for versions, verification scope and remaining clean-install requirements.
+
+## 2026-09-06 — activated LHAPDF capture and isolated provenance builds
+
+The new optional native LHAPDF path records activated compiler/linker flags, the
+selected architecture and library, and the complete PDF-set inventory. A metadata
+capture succeeded in the existing MadGraph Python 3.10 environment. Installed
+MadGraph, LHAPDF and compiler files remain unchanged. Captures are path- and
+context-bound; a capture for a development worktree cannot be reused as approval
+for a relocated installation. No new-PDF event-generation result is credited.
+
+The production original-LHA exercise completed an isolated build of the updated
+shower wrapper and two 100-event plain/gzip showers, with separately captured
+headers and libraries. Independent review verified all four receipts, complete
+original-event joins and decoded byte equality. Earlier storage-floor and duplicate
+library-input failures remain preserved. The completed historical replay has its
+own separately built wrapper and evidence. Existing frozen scientific runtimes
+and native binaries remain unchanged. Unit tests use the clean Python 3.12 replay
+environment; guarded likelihood controls use their own pinned JAX environment.
+The [implementation record](2026-09-06-native-provenance-and-fidelity.md) and
+[native portability guide](../../reference/native-portability.md) distinguish
+source tests, actual build exercises and full native physics execution.
+
+Three additional inactive installation-test virtual environments were retired
+after recording complete file/link inventories and package metadata and confirming
+that current campaign sources and active processes did not reference them. Their
+test logs and wheels remain available. Active HEP, replay and guarded JAX runtimes,
+shared Python installations and physics products were preserved. The original
+campaign ceiling, storage margin, derivative provision and free-space floor were
+not changed; successful execution passed a fresh admission check.

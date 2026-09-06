@@ -193,6 +193,18 @@
         "evidence/audits/2026-09-06-rrr-cut-dependence/README.md"
       ],
       "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh100_limits",
+      "value": "210.00 fb observed and 169.09 fb median expected at 100/98 GeV",
+      "detail": "Completed20k four-state point and separate1000-event inclusive normalization. Observed/median residuals remain -11.81%/-17.09%; sparse signal populations and22 zero-selected bins do not establish acceptance, precision, coverage or full-plane reproduction.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-event-identity/verify.py",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-event-identity/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-event-identity/source-map.json",
+        "evidence/audits/2026-09-06-rrr-event-identity/manifest.json"
+      ],
+      "status": "VERIFIED"
     }
   ]
 }

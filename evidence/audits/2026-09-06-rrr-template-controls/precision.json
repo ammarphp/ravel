@@ -1,0 +1,553 @@
+{
+  "channels": [
+    {
+      "channel": "CRVV_MT2_hghmet_cuts",
+      "mapping": {
+        "region": "CR_S_VV_high"
+      },
+      "selected_events": 6,
+      "sumw_pb": 4.293841357139172e-05,
+      "sumw2_pb2": 3.072845600046461e-10,
+      "nominal_yield": 5.968439486423449,
+      "histogram_relative_mc": 0.408248290463863,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_b396cffffabbefe07ab7"
+    },
+    {
+      "channel": "CRVV_MT2_lowmet_cuts",
+      "mapping": {
+        "region": "CR_S_VV_low"
+      },
+      "selected_events": 1,
+      "sumw_pb": 7.15640226189862e-06,
+      "sumw2_pb2": 5.1214093334107685e-11,
+      "nominal_yield": 0.9947399144039082,
+      "histogram_relative_mc": 1.0,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_1653498669cdadda59b8"
+    },
+    {
+      "channel": "CRtau_MT2_hghmet_cuts",
+      "mapping": {
+        "region": "CR_S_tau_high"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "CRtau_MT2_lowmet_cuts",
+      "mapping": {
+        "region": "CR_S_tau_low"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "CRtop_MT2_hghmet_cuts",
+      "mapping": {
+        "region": "CR_S_top_high"
+      },
+      "selected_events": 3,
+      "sumw_pb": 2.146920678569586e-05,
+      "sumw2_pb2": 1.5364228000232306e-10,
+      "nominal_yield": 2.9842197432117246,
+      "histogram_relative_mc": 0.5773502691896257,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_ec7d0c59ca297439bea6"
+    },
+    {
+      "channel": "CRtop_MT2_lowmet_cuts",
+      "mapping": {
+        "region": "CR_S_top_low"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2a_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2a"
+      },
+      "selected_events": 2,
+      "sumw_pb": 1.431280452379724e-05,
+      "sumw2_pb2": 1.0242818666821537e-10,
+      "nominal_yield": 1.9894798288078164,
+      "histogram_relative_mc": 0.7071067811865476,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_1a8dbfc41d8e138b9257"
+    },
+    {
+      "channel": "SRee_eMT2a_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2a"
+      },
+      "selected_events": 1,
+      "sumw_pb": 7.15640226189862e-06,
+      "sumw2_pb2": 5.1214093334107685e-11,
+      "nominal_yield": 0.9947399144039082,
+      "histogram_relative_mc": 1.0,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_11d62d30fa5a88e8e2d0"
+    },
+    {
+      "channel": "SRee_eMT2b_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2b"
+      },
+      "selected_events": 4,
+      "sumw_pb": 2.862560904759448e-05,
+      "sumw2_pb2": 2.0485637333643074e-10,
+      "nominal_yield": 3.9789596576156328,
+      "histogram_relative_mc": 0.5,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_f61b781180018823750c"
+    },
+    {
+      "channel": "SRee_eMT2b_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2b"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2c_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2c"
+      },
+      "selected_events": 9,
+      "sumw_pb": 6.440762035708758e-05,
+      "sumw2_pb2": 4.6092684000696917e-10,
+      "nominal_yield": 8.952659229635174,
+      "histogram_relative_mc": 0.3333333333333333,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_47ee905e79246835bb51"
+    },
+    {
+      "channel": "SRee_eMT2c_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2c"
+      },
+      "selected_events": 2,
+      "sumw_pb": 1.431280452379724e-05,
+      "sumw2_pb2": 1.0242818666821537e-10,
+      "nominal_yield": 1.9894798288078164,
+      "histogram_relative_mc": 0.7071067811865476,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_f585d6c565bdbecdb281"
+    },
+    {
+      "channel": "SRee_eMT2d_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2d"
+      },
+      "selected_events": 2,
+      "sumw_pb": 1.431280452379724e-05,
+      "sumw2_pb2": 1.0242818666821537e-10,
+      "nominal_yield": 1.9894798288078164,
+      "histogram_relative_mc": 0.7071067811865476,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_542f1b246768f1cf3a52"
+    },
+    {
+      "channel": "SRee_eMT2d_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2d"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2e_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2e"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2e_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2e"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2f_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2f"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2f_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2f"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2g_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2g"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2g_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2g"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2h_hghmet_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2h"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRee_eMT2h_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2h"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2a_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2a"
+      },
+      "selected_events": 4,
+      "sumw_pb": 2.862560904759448e-05,
+      "sumw2_pb2": 2.0485637333643074e-10,
+      "nominal_yield": 3.9789596576156328,
+      "histogram_relative_mc": 0.5,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_e898736df4f32cc1e7a2"
+    },
+    {
+      "channel": "SRmm_eMT2a_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2a"
+      },
+      "selected_events": 1,
+      "sumw_pb": 7.15640226189862e-06,
+      "sumw2_pb2": 5.1214093334107685e-11,
+      "nominal_yield": 0.9947399144039082,
+      "histogram_relative_mc": 1.0,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_2069ebd6c4f3a1f142d4"
+    },
+    {
+      "channel": "SRmm_eMT2b_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2b"
+      },
+      "selected_events": 9,
+      "sumw_pb": 6.440762035708758e-05,
+      "sumw2_pb2": 4.6092684000696917e-10,
+      "nominal_yield": 8.952659229635174,
+      "histogram_relative_mc": 0.3333333333333333,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_0e24fe51f58107cd7eb5"
+    },
+    {
+      "channel": "SRmm_eMT2b_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2b"
+      },
+      "selected_events": 1,
+      "sumw_pb": 7.15640226189862e-06,
+      "sumw2_pb2": 5.1214093334107685e-11,
+      "nominal_yield": 0.9947399144039082,
+      "histogram_relative_mc": 1.0,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_1439fdf580908b0e12e8"
+    },
+    {
+      "channel": "SRmm_eMT2c_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2c"
+      },
+      "selected_events": 29,
+      "sumw_pb": 0.00020753566559505998,
+      "sumw2_pb2": 1.4852087066891229e-09,
+      "nominal_yield": 28.847457517713337,
+      "histogram_relative_mc": 0.18569533817705186,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_4c7ec4c69a221d5eba59"
+    },
+    {
+      "channel": "SRmm_eMT2c_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2c"
+      },
+      "selected_events": 5,
+      "sumw_pb": 3.57820113094931e-05,
+      "sumw2_pb2": 2.5607046667053843e-10,
+      "nominal_yield": 4.973699572019541,
+      "histogram_relative_mc": 0.4472135954999579,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_0b3c74cafd466ec0ef44"
+    },
+    {
+      "channel": "SRmm_eMT2d_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2d"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2d_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2d"
+      },
+      "selected_events": 1,
+      "sumw_pb": 7.15640226189862e-06,
+      "sumw2_pb2": 5.1214093334107685e-11,
+      "nominal_yield": 0.9947399144039082,
+      "histogram_relative_mc": 1.0,
+      "diagnostic_5percent": "exceeds_target",
+      "likelihood_mc_constraint": "native_signal_mcstat_50587eba1ecf26adec16"
+    },
+    {
+      "channel": "SRmm_eMT2e_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2e"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2e_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2e"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2f_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2f"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2f_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2f"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2g_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2g"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2g_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2g"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2h_hghmet_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2h"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    },
+    {
+      "channel": "SRmm_eMT2h_lowmet_V2_cuts",
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2h"
+      },
+      "selected_events": 0,
+      "sumw_pb": 0.0,
+      "sumw2_pb2": 0.0,
+      "nominal_yield": 0.0,
+      "histogram_relative_mc": null,
+      "diagnostic_5percent": "unresolved",
+      "likelihood_mc_constraint": null
+    }
+  ],
+  "SR_unions": [
+    {
+      "category": "SR_high",
+      "selected_events": 59,
+      "sumw_pb": 0.0004222277334520186,
+      "sumw2_pb2": 3.0216315067123536e-09,
+      "histogram_relative_mc": 0.13018891098082389,
+      "original_denominator": 20000,
+      "diagnostic_target": 0.05,
+      "target_scope": "Analogous histogram-MC diagnostic target. The campaign formal 5% primary checkpoint is at150/140; this does not invent a point-specific publication gate."
+    },
+    {
+      "category": "SR_low",
+      "selected_events": 11,
+      "sumw_pb": 7.872042488088482e-05,
+      "sumw2_pb2": 5.633550266751845e-10,
+      "histogram_relative_mc": 0.30151134457776363,
+      "original_denominator": 20000,
+      "diagnostic_target": 0.05,
+      "target_scope": "Analogous histogram-MC diagnostic target. The campaign formal 5% primary checkpoint is at150/140; this does not invent a point-specific publication gate."
+    }
+  ],
+  "scope": "Original20,000-event conditional histogram moments. No precision improvement from omission. Five-percent point diagnostic is analogous; primary preregistered checkpoint is150/140."
+}

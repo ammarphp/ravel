@@ -143,6 +143,61 @@ then point the RJR build at it. RestFrames archives with traversal or link entri
 are rejected before extraction. The build continues to omit the historical ROOT
 dictionary, as the standalone resolver does not stream RestFrames objects.
 
+## LHAPDF linking for an explicit native study
+
+The optional `preserve-activated-v1` policy supports a local Darwin generation
+decision for `NNPDF30_nlo_as_0118`, LHAPDF ID `260000`, central member `0`.
+It preserves the selected conda compiler flags and inspects the library's actual
+architecture and C++ runtime. When the selected Fortran linker needs libc++, it
+adds only the missing `-lc++` token. Conflicting runtime flags, Rosetta, foreign
+library search paths and changed compiler/PDF inputs are rejected.
+
+This is an explicit study option. It does not change the PDF in existing cards,
+rewrite the installed MadGraph configuration, or make a different PDF a drop-in
+physics replacement. The current implementation checks the selected configuration,
+activation hooks, compiler/library files, SDK metadata and all 101 available PDF
+members. It is not a hermetic operating-system or MadGraph-source lock.
+
+First capture a new metadata record inside the intended MG5 environment. The
+following source-checkout example deliberately excludes separate user include and
+library search overrides; review that environment choice as part of the study.
+Replace the absolute paths with the selected installation and new run directory.
+
+```bash
+env -u CPATH -u LIBRARY_PATH -u PYTHONPATH PYTHONDONTWRITEBYTECODE=1 \
+  /absolute/native-build/tools/miniforge3/bin/conda run --live-stream \
+  -p /absolute/native-build/tools/miniforge3/envs/mg5 \
+  python -B /absolute/checkout/scripts/run.py ravel.physics.native_lhapdf \
+  --generation --prefix /absolute/native-build/tools/miniforge3/envs/mg5 \
+  --out /absolute/run/inputs/lhapdf-link-decision.json
+```
+
+The output path must be new and its parent directory must exist. Capture invokes
+bounded metadata probes and writes the decision; it does not compile or generate
+events. The native planner then validates the recorded bytes without invoking
+those probes. Declare the option alongside the existing explicit-card inputs:
+
+```toml
+[ravel.native]
+lhapdf_linker = "preserve-activated-v1"
+
+[ravel.native.inputs]
+lhapdf_link_decision = "inputs/lhapdf-link-decision.json"
+```
+
+The run card must independently declare `lhapdf` and `lhaid = 260000`. This option
+requires `preparation = "explicit-cards"`; it is not a template or fallback.
+The approved plan binds the decision, source files and actual generator command.
+Execution activates the selected MG5 environment once, checks its current decision
+again, and retains `output/madgraph/linker_execution.json` with the generator output.
+A successful capture or compile does not replace ordinary stage completion.
+
+Changing a prefix, helper, compiler, PDF member or effective environment requires a
+new capture and plan. Cross-section denominators must use the same declared PDF
+and process basis as their signal sample. Signed-weight bookkeeping remains
+separate from the validity of an uncertainty estimator; the positive-uniform
+replica-pooling adapter does not accept signed samples.
+
 ## Remaining provisioning and validation work
 
 The setup scripts cover Miniforge, the MG5 environment/source, and builds against

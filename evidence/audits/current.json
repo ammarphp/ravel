@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "native": "2026-09-06-native-fidelity",
+  "native": "2026-09-06-native-fidelity-v2",
   "scan": "2026-09-05-scan-fidelity",
   "statistical": "2026-09-06-statistical-fidelity"
 }

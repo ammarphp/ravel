@@ -18,6 +18,7 @@ from ravel.workflow.state_io import read_json
 REQUIRED_ADDITIONAL_NATIVE_ENGINES = {
     'src/ravel/physics/native_event_io.py',
     'src/ravel/physics/pool_replicas.py',
+    'src/ravel/physics/lhe_provenance.py',
 }
 
 
@@ -27,14 +28,14 @@ def sha(path):
 
 def audit_paths(audits):
     """Select explicit dated revalidations without rewriting historical evidence."""
-    registry = json.loads((audits / 'current.json').read_text())
+    registry = read_json(audits / 'current.json')
     if (set(registry) != {'schema_version', 'native', 'scan', 'statistical'}
             or type(registry['schema_version']) is not int or registry['schema_version'] != 1):
         raise ValueError('invalid current fidelity audit registry')
     paths = {}
     for kind in ('native', 'scan', 'statistical'):
         name = registry[kind]
-        if not isinstance(name, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}-'+kind+r'-fidelity', name):
+        if not isinstance(name, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}-'+kind+r'-fidelity(?:-v(?:[2-9]|[1-9][0-9]+))?', name):
             raise ValueError(f'invalid dated {kind} audit directory')
         paths[kind] = audits / name
     return paths
@@ -43,7 +44,7 @@ def audit_paths(audits):
 def additional_native_engine_errors(root, pins):
     """Bind the current native audit's additional sources within this repository.
 
-    These two interfaces are part of the current audit's recorded scope. Removing
+    These native interfaces are part of the current audit's recorded scope. Removing
     a pin cannot silently narrow that scope; further declared sources are checked
     too. Historical audit records are preserved but do not waive current bindings.
     """
@@ -105,6 +106,16 @@ def check(root=ROOT, audits=None):
             expected = count / differential['entries']
             if abs(differential['acceptance'][mode][name] - expected) > 1e-12:
                 errors.append(f'native acceptance arithmetic drift: {mode}/{name}')
+    if re.search(r'-v[0-9]+$', native.name):
+        # Execute only the repository's trusted verifier, passing copied audit
+        # records as data. Never execute a script supplied via audits=PATH.
+        try:
+            verifier = resolve(root, 'evidence/audits/' + native.name + '/verify.py')
+            scope = {'__file__': str(verifier), '__name__': '_current_native_audit_verifier'}
+            exec(compile(verifier.read_bytes(), str(verifier), 'exec'), scope)
+            scope['verify'](root=root, audit=native)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            errors.append(f'versioned native audit verification failed: {exc}')
     scan = paths['scan']
     provenance = json.loads((scan / 'provenance.json').read_text())
     for name, expected in provenance['inputs'].items():

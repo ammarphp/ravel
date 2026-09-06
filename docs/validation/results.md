@@ -51,6 +51,25 @@ comparison retains all 38 model channels, both SR aggregates and three matched o
 nuisance arms. All 42 saved roots resolve; detector calibration, acceptance, coverage
 and the full mass plane remain open.
 
+The [event-identity and fresh-point evidence](../../evidence/audits/2026-09-06-rrr-event-identity/README.md)
+contains <!-- claim:rrr_fresh100_limits -->210.00 fb observed and 169.09 fb median expected at 100/98 GeV<!-- /claim -->,
+versus released values of 238.13 and 203.96 fb. All twelve native stages and six
+roots completed, using a separate inclusive control at these masses. The 59/11
+selected high/low events give 13.02%/30.15% histogram MC errors; all 38 channels,
+including 22 zero-selected bins, remain explicit. The same evidence bundle gives
+the original-LHA identity proof and all 40 descriptive hard-parton partitions.
+The upper-slice high/low rate ratios are 1.227/1.016, with conditional intervals
+[0.982, 1.473]/[0.768, 1.265]. Neither establishes equivalence or coverage.
+
+The [matched 100/98 omission controls](../../evidence/audits/2026-09-06-rrr-template-controls/README.md)
+remove signal MC constraints, then additionally control-region signal, while
+preserving the background, observations and retained nominal signal. Both changes
+strengthen the limits further and worsen this point's reference discrepancy.
+The effect differs across expected quantiles. The bundle retains all baseline and
+control roots, exact model patches, sparse-bin context and standalone verification.
+The baseline's full fit portfolio remains unavailable; the new control portfolios
+do not supply that missing evidence or establish coverage.
+
 The [September physics pass](../development/history/2026-09-05-physics-fidelity.md)
 adds a paper-defined eRJR correction, tested on identical retained events, and
 stricter numerical/comparison checks. The

@@ -1,0 +1,57 @@
+{
+  "scope": "Current integrated engineering controls, not an acceptance or fresh event-loop result.",
+  "integrated": {
+    "passed": 316,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 8,
+    "seconds": 115.96,
+    "origin": "local-runs/rrr-closure/verification/native-fidelity-stage-v1-lha-integration-tests.log",
+    "original_sha256": "2188ea53b52fcbc31d9393648515428d9a4a3b05801b9471651307b617a382b2",
+    "sanitized_log_sha256": "ca3915aa2ce64730ca863e28ab42085adb95bbf94489362a0f62c06fabb284e9",
+    "argv": [
+      "env",
+      "-u",
+      "PYTHONPATH",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "<locked-python312-env>/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "<publication-stage>/tests/unit/test_lhe_provenance.py",
+      "<publication-stage>/tests/unit/test_native_event_io.py",
+      "<publication-stage>/tests/unit/test_native_lhapdf.py",
+      "<publication-stage>/tests/unit/test_native_lhapdf_linker.py",
+      "<publication-stage>/tests/unit/test_native_dispatch.py",
+      "-q"
+    ],
+    "working_directory": "parent of <source-repo>",
+    "path_translation_only": true
+  },
+  "independent_source_controls": {
+    "passed": 86,
+    "seconds": 50.77,
+    "warnings": 1,
+    "origin": "local-runs/rrr-closure/physics-review/native-lhe-provenance-independent/verification.json",
+    "original_sha256": "d42b10c19bb552f52d80760b1fb8c60babcf0f773dd4dedf020eefa572c5447f",
+    "scope": "closed_bounded_source_review",
+    "compiled_native_binary": false,
+    "actual_scientific_execution": false
+  },
+  "test_source_sha256": {
+    "tests/unit/test_lhe_provenance.py": "d2839be7871358f95dbb8852e8a016911eb171b2196533cda385c54798ec7aaa",
+    "tests/unit/test_native_event_io.py": "e81e7208527557b60c79e1c326781e5092fcae6767debdb130a085ad0f8cc36c",
+    "tests/unit/test_native_lhapdf.py": "febff2f6c436ff47478690f11d48ca1a2b47b1c9961f35fdee0c90dbaf903936",
+    "tests/unit/test_native_lhapdf_linker.py": "8067fd4fac2e190b6db7e258b5e74805ec2fd9b8bf78e4b6ae3999abd9643636",
+    "tests/unit/test_native_dispatch.py": "f163d4b60fcfef590a90e7ea02fdea017d60739ae6f91149a1705c1654cad88f"
+  },
+  "independent_repaired_issue": "Decoded stream descriptor now remains bound to the pinned encoded file; positive plain/gzip and ordinary parent-directory replacement controls retained in the independent source review.",
+  "engineering_source_sha256": {
+    "src/ravel/physics/native_pipeline.py": "5fe3631c2f07d33cb64d94ba54e9ab16cfca0c9883585b41402bfd72efdd05f8",
+    "src/ravel/physics/native_lhapdf.py": "42938ea753a8407fb88abea874bcca9889ef16090573deba11e4761e31d5cf42",
+    "src/ravel/physics/native_build.py": "1d45bc49d91456b8180f002dcb2c130ab5813fbdd7527b1cfc6e9e47fed18a82",
+    "src/ravel/validation/native_doctor.py": "304a3e058c177e503d3e9997614da7fbb77f1ea82f4d6c52832fba25fa2c51bb",
+    "src/ravel/paths.py": "f16c6399121c5e57427021fe1fc1e5c166594588683a7b905b844f9a695cd89a",
+    "native/src/pythia_shower.cc": "db41c3bff1ae8733881ae3d32f8a7050947de3c27eb3c1c5e486e65a2d996342"
+  }
+}

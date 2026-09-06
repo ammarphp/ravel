@@ -52,12 +52,28 @@ signal and control-region signal are held fixed. These are dimensionless compari
 within the official model, not corrections to native yields or an official-to-native
 cross-section conversion. These results and the cut comparison are retained in the
 [independently checked public evidence bundle](../../evidence/audits/2026-09-06-rrr-cut-dependence/README.md).
-The fresh 100/98 anchor generated 20k events, then stopped before showering
-because the budget reader confused its own pinned plan with an incidental parent-plan pin.
-A separately reviewed reader and once-only continuation preserve the two successful
-stages and add no new generation or reservation. Its remaining stages are active;
-completion and new physics results are not yet credited. The full fresh 52-point grid
-and acceptance certification remain open.
+The fresh 100/98 anchor completed all twelve stages and six roots after a
+reviewed once-only continuation repaired its own-plan accounting ambiguity.
+The original 20,000 generated events were retained and charged once. With a separate
+same-mass four-state inclusive control, its observed/median limits are 210.00/169.09 fb
+versus 238.13/203.96 fb, or −11.81%/−17.09%. High/low selected counts of 59/11 imply
+histogram MC errors of 13.02%/30.15%. All 38 channels and 22 zero-selected bins with
+unresolved precision remain visible in the
+[new evidence](../../evidence/audits/2026-09-06-rrr-event-identity/README.md).
+
+Two [matched statistical controls](../../evidence/audits/2026-09-06-rrr-template-controls/README.md)
+completed after this baseline. Removing signal MC constraints strengthens the
+limits; additionally removing control-region signal makes a smaller further
+change. These omissions worsen the reference discrepancy at this point. Their
+exact patches, all expected quantiles and available fit checks are public, with
+the missing baseline portfolio and unresolved MC precision stated explicitly.
+
+The original-LHA shower replay joins all 20,000 lower-cut events and reproduces the
+complete 4,510,402,635 decoded HepMC bytes. Its descriptive hard-parton partition keeps
+the original 20,000-event denominator. Upper-slice high/low ratios to the nominal pool
+are 1.227/1.016, with intervals [0.982, 1.473]/[0.768, 1.265]. Neither establishes
+equivalence. The full fresh 52-point grid, acceptance calibration, detector/theory
+systematics and coverage remain open.
 
 The independent mT2 and RISR comparisons agree with the installed public analysis on all
 6,928 two-lepton events in this anchor. A physical boundary control did reveal that the
@@ -88,8 +104,8 @@ also pass 50 publication/evidence tests and 32 waypoint integrity tests. The
 evidence and scientific limits. The subsequent [execution and resource follow-up](history/2026-09-06-rrr-execution-followup.md)
 repairs timeout cleanup and allocation enforcement. It also corrects active model-interface
 and merging guidance without changing frozen physics. Its focused supervisor checks passed
-64 cases, and the new complete source suite passes 1,533 tests with 12 optional skips.
-The independently reviewed public candidate passes 1,524 tests with 21 optional skips,
+64 cases, and that source checkpoint passed 1,533 tests with 12 optional skips.
+Its independently reviewed public candidate passed 1,524 tests with 21 optional skips,
 including both installed-wheel checks using its own newly built wheel. Its exact source,
 selected evidence and directory inventory were checked separately. The completed controls
 and fresh work use the stricter registered 1.26-million-event ceiling. Public revision
@@ -97,12 +113,17 @@ and fresh work use the stricter registered 1.26-million-event ceiling. Public re
 [remote CI](https://github.com/ammarphp/ravel/actions/runs/34019905146). An earlier CI attempt
 failed two integration tests because its full-suite job had not installed the repository
 hook; the successor installs that existing hook before testing. Both outcomes remain in
-the verification record. The latest local physics controls described above are subsequent
-work and are not implied by that earlier public tree or its CI result.
+the verification record. The cut-dependence evidence was subsequently published at
+`fcd53f906be26230a68518eeb8d8cb62a17f7304`, with all seven jobs passing in
+[CI 34035406253](https://github.com/ammarphp/ravel/actions/runs/34035406253).
+The 100/98 and original-event partition evidence belongs to the next revision.
+Earlier CI results do not validate that later evidence or implementation.
 
-The [current audit registry](../../evidence/audits/current.json) selects fresh
-[native](../../evidence/audits/2026-09-06-native-fidelity/README.md) and
-[statistical](../../evidence/audits/2026-09-06-statistical-fidelity/README.md) revalidations.
+The [current audit registry](../../evidence/audits/current.json) selects the
+[revised native audit](../../evidence/audits/2026-09-06-native-fidelity-v2/README.md)
+and the [statistical revalidation](../../evidence/audits/2026-09-06-statistical-fidelity/README.md).
+The native revision preserves inherited selection observations and separately checks
+the new event-I/O implementation; it does not claim another 200,000-event reanalysis.
 Their nine-case benchmark retains seven regression passes and two missing generated-YODA
 artifacts. All nine numerical-stability checks pass, while uncached acceptance comparisons
 remain three PASS, three FAIL and three unscorable. Historical audits and baselines remain

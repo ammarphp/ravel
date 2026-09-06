@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "files": {
+    "README.md": "1d459b4882983580407c893341d78c7f632d47b696686ecebeac07fbe2cc6299",
+    "comparisons.json": "08f5364146960fdae210d0ba6157959d0abbed370286983bdfd9f5e4c61e992b",
+    "default-event-io-parity.json": "e20c7a1c74636a01daabe4ca9e71759dd9eca24deb0051ea5b86b3813a5b17b8",
+    "driver-counts.txt": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0",
+    "erjr_differential.json": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "integration-tests.log": "ca3915aa2ce64730ca863e28ab42085adb95bbf94489362a0f62c06fabb284e9",
+    "prior_native_event_io.py": "ad3e897adae8983e01b3758bd8820563009ce79f4cf2c93c727712e6c789eb2c",
+    "reference.json": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+    "test_verify.py": "a4c65b7b9dcdbcc415aaa5efb67a8084a04097249c644b46d699a5155a258c65",
+    "tests.json": "5a1baad7076b42f4f53956fdc640fb5e4bf6888f7c30eff773a1594ed73d27a0",
+    "verification.json": "20810800ca2aa8cac89640f9ebc31a972aae5be6e79723a10b40c0829dac1e38",
+    "verify.py": "84df1355920c37bbcc131eaabea071118bdbb0eb7e0c95d7608e7aa1c3bfd3e0"
+  }
+}
