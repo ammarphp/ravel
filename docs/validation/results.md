@@ -27,6 +27,17 @@ correctness.
 
 ## Fresh fidelity and numerical audits
 
+The [fresh RRR waypoint](../../evidence/audits/2026-09-06-rrr-waypoint/README.md)
+records a completed 20,000-event four-state calculation with
+<!-- claim:rrr_anchor_limits -->48.83 fb observed and 54.69 fb median expected at 150/140 GeV<!-- /claim -->.
+These are conditional on its independently bound inclusive rate and declared K factor;
+the published values are 46.633 and 56.526 fb. All six numerical roots resolve,
+but the primary-region own-MC precision requirement is unmet, the algebraic
+reconstructed-fraction comparison is about 11% low, and the truth acceptance
+definition, detector working-point response and signal systematic variations
+remain unresolved. The bundle provides derived public evidence and an offline
+verifier, with large raw event custody explicitly outside its scope.
+
 The [September physics pass](../development/history/2026-09-05-physics-fidelity.md)
 adds a paper-defined eRJR correction, tested on identical retained events, and
 stricter numerical/comparison checks. The
@@ -66,9 +77,11 @@ limit measurements.
 ![Compressed-slepton scan compared with the published ATLAS contour and per-cell residuals](../../evidence/scans/slepton-bino-figure-3/plots/sleptonbino_fig3_vsATLAS__fig3.png)
 
 The [scan record](../../evidence/scans/slepton-bino-figure-3/RESULT.md) describes the
-comparison basis, exclusions, and unresolved mechanisms. A paired 52-point rescan
-measured a +6.5% PDF-choice contribution; the remaining residual has not been
-fully attributed. The figure is evidence of a particular reproduction study,
+comparison basis, exclusions, and unresolved mechanisms. The later
+[forensic audit](../../evidence/audits/2026-09-05-rrr-diagnosis/README.md) found
+that the PDF rescan also changed the leading-parton cut and retained four
+incomplete detector samples. It does not isolate a PDF-choice contribution.
+The remaining residual has not been fully attributed. The figure is evidence of a particular reproduction study,
 not a general accuracy guarantee for other models or analyses.
 
 ## Native implementation and runtime

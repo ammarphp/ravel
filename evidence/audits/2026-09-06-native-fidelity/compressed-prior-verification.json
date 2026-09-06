@@ -1,0 +1,218 @@
+{
+  "interpretation": "same-event SR regression and CR/moment transport only; no CR acceptance or normalization certification",
+  "interpreter": "<repo>/stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python",
+  "native_source": {
+    "path": "<repo>/src/ravel/physics/native_simpleanalysis.py",
+    "sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+    "bytes": 32247
+  },
+  "converter_source": {
+    "path": "<repo>/src/ravel/physics/sa2json_native.py",
+    "sha256": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c",
+    "bytes": 20165
+  },
+  "cases": [
+    {
+      "label": "m150_dm20",
+      "inputs": [
+        {
+          "path": "<repo>/trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/analysis/Delphes2SA.root",
+          "sha256": "24e719d6ec7fdcf08865f14ff4a995bc378c3e60ee645f9468baff256d7d825c",
+          "bytes": 191885
+        },
+        {
+          "path": "<repo>/trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/EwkCompressed2018.root",
+          "sha256": "72b58ff07cddc05a1f7e3b1e8972c808974b9c6d4192dd151c0814b9269de901",
+          "bytes": 36710
+        },
+        {
+          "path": "<repo>/trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/EwkCompressed2018.txt",
+          "sha256": "851ea5f52d7ee6dd0e427451af1255e09611124c3e57038d973b4b99b72b3511",
+          "bytes": 3489
+        }
+      ],
+      "inputs_preserved": true,
+      "same_events": true,
+      "sr_branches_compared": 141,
+      "current_events_subset_of_original": true,
+      "original_only_rows": 0,
+      "original_only_nonzero_sr_rows": 0,
+      "sr_branches_equal": 141,
+      "sr_branch_event_differences": {},
+      "old_rows": 685,
+      "new_rows": 685,
+      "controls": [
+        {
+          "region": "CR_S_VV_high",
+          "raw_selected": 1,
+          "sumw": 6.11594005022198e-05,
+          "sumw2": 3.740472269790923e-09,
+          "nonzero_weights": 1,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 1,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_VV_low",
+          "raw_selected": 1,
+          "sumw": 6.11594005022198e-05,
+          "sumw2": 3.740472269790923e-09,
+          "nonzero_weights": 1,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 1,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_high",
+          "raw_selected": 0,
+          "sumw": 0.0,
+          "sumw2": 0.0,
+          "nonzero_weights": 0,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_low",
+          "raw_selected": 0,
+          "sumw": 0.0,
+          "sumw2": 0.0,
+          "nonzero_weights": 0,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_high",
+          "raw_selected": 0,
+          "sumw": 0.0,
+          "sumw2": 0.0,
+          "nonzero_weights": 0,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_low",
+          "raw_selected": 0,
+          "sumw": 0.0,
+          "sumw2": 0.0,
+          "nonzero_weights": 0,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 0,
+          "different_flavour": 0
+        }
+      ],
+      "full_patch_operations": 38,
+      "positive_mc_nuisances": 11,
+      "zero_precision_unresolved": 27
+    },
+    {
+      "label": "m200_dm50",
+      "inputs": [
+        {
+          "path": "<repo>/trial-runs/CR005_refactor_smoke/output/analysis/Delphes2SA.root",
+          "sha256": "952bed62160806c775534e53764dff32ebf1b77bbf059268a5f68cff30daaa2f",
+          "bytes": 1899778
+        },
+        {
+          "path": "<repo>/trial-runs/CR005_refactor_smoke/output/EwkCompressed2018.root",
+          "sha256": "0561e63dcede8d7d311949f5ea6d859bbcc447f45b8c89119e297057e4259ead",
+          "bytes": 526861
+        },
+        {
+          "path": "<repo>/trial-runs/CR005_refactor_smoke/output/EwkCompressed2018.txt",
+          "sha256": "50a66bd6c5ffe693820d3bd472840f2a32e7e40e77e60668de717daa1a83415c",
+          "bytes": 3822
+        }
+      ],
+      "inputs_preserved": true,
+      "same_events": false,
+      "sr_branches_compared": 141,
+      "current_events_subset_of_original": true,
+      "original_only_rows": 2836,
+      "original_only_nonzero_sr_rows": 0,
+      "sr_branches_equal": 141,
+      "sr_branch_event_differences": {},
+      "old_rows": 10000,
+      "new_rows": 7164,
+      "controls": [
+        {
+          "region": "CR_S_VV_high",
+          "raw_selected": 13,
+          "sumw": 3.078738109252299e-05,
+          "sumw2": 7.291252573355709e-11,
+          "nonzero_weights": 13,
+          "negative_weights": 0,
+          "ee": 7,
+          "mm": 5,
+          "different_flavour": 1
+        },
+        {
+          "region": "CR_S_VV_low",
+          "raw_selected": 4,
+          "sumw": 9.47304033616092e-06,
+          "sumw2": 2.2434623302632952e-11,
+          "nonzero_weights": 4,
+          "negative_weights": 0,
+          "ee": 2,
+          "mm": 2,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_high",
+          "raw_selected": 1,
+          "sumw": 2.36826008404023e-06,
+          "sumw2": 5.608655825658238e-12,
+          "nonzero_weights": 1,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 1,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_low",
+          "raw_selected": 2,
+          "sumw": 4.73652016808046e-06,
+          "sumw2": 1.1217311651316476e-11,
+          "nonzero_weights": 2,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 2,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_high",
+          "raw_selected": 3,
+          "sumw": 7.10478025212069e-06,
+          "sumw2": 1.6825967476974714e-11,
+          "nonzero_weights": 3,
+          "negative_weights": 0,
+          "ee": 2,
+          "mm": 1,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_low",
+          "raw_selected": 1,
+          "sumw": 2.36826008404023e-06,
+          "sumw2": 5.608655825658238e-12,
+          "nonzero_weights": 1,
+          "negative_weights": 0,
+          "ee": 0,
+          "mm": 1,
+          "different_flavour": 0
+        }
+      ],
+      "full_patch_operations": 38,
+      "positive_mc_nuisances": 24,
+      "zero_precision_unresolved": 14
+    }
+  ]
+}

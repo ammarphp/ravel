@@ -129,6 +129,21 @@ def _infer_role(relpath):
 
 HEADLINE_CLAIMS = [
     {
+        "claim_id": "HEADLINE_rrr_m150_m140_waypoint",
+        "headline": "Completed 20k four-state m150/m140 waypoint: conditional inclusive "
+                    "sigma95 48.83 fb observed and 54.69 fb median expected; "
+                    "not acceptance, coverage or full mass-plane certification",
+        "doc_source": "README.md",
+        "artifacts": [
+            "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
+            "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",
+            "evidence/audits/2026-09-06-rrr-waypoint/fits/anchor20k.json",
+            "evidence/audits/2026-09-06-rrr-waypoint/inclusive-normalization.json",
+            "evidence/audits/2026-09-06-rrr-waypoint/published-limits-52.json",
+        ],
+        "surrogate": "evidence/audits/2026-09-06-rrr-waypoint/README.md",
+    },
+    {
         "claim_id": "HEADLINE_native_141_bitforbit",
         "headline": "Native SimpleAnalysis (EwkCompressed2018) reproduces the container's "
                      "per-SR yields bit-for-bit: 141/141 SRs",

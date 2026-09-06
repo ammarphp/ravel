@@ -1,48 +1,21 @@
 #!/usr/bin/env python3
-"""
-native_simpleanalysis.py -- fully-native, VM-free reimplementation of ATLAS's
-EwkCompressed2018 (ANA-SUSY-2018-16) SimpleAnalysis selection.
+"""Native EwkCompressed2018 signal-region and slepton control-region selection.
 
-It reads a Delphes2SA 'ntuple' directly with uproot (rivet conda env), does the
-COMPLETE object selection (getElectrons/getMuons/getJets, the 5-step overlap
-removal, filterObjects, signalJets/signalBJets/signalLeptons, the soft-track
-machinery, calcMT2/calcMTauTau/calcMT/mll/MET), and reproduces the container's
-per-SR yields.
+Read Delphes2SA objects and nominal weights, reconstruct RestFrames variables
+from the selected jets and leptons, then write per-event region weights and
+weighted cutflows. Object/SR cuts follow public ANA-SUSY-2018-16.cxx. Six nominal
+slepton controls are separately transcribed from arXiv:1911.12606v2 Tables 2,
+5 and 8; there is no public SimpleAnalysis CR implementation in the pinned
+source, and these controls are not an ATLAS acceptance validation.
 
-Single source of truth: object selection lives HERE. The two RestFrames RJR
-variables (R_ISR, M_S) are computed by the native C++ resolver
-(trial-runs/_infrastructure/rjr_resolve, recast env) on the EXACT signalJets +
-summed signal-lepton system this script produces -- NOT on a looser jet
-selection, and NEVER by reading the container's RJR_* branches.
+Object quality masks are applied. The mapyde Delphes converter supplies all
+lepton quality bits, so those particular inputs cannot test real ATLAS lepton
+ID/trigger performance or its uncertainty. No efficiency variations are invented.
 
-Flow:
-  1. object selection (per event) -> for events passing the ProcessEvent RJR
-     gate (baseLeptons>=1 && signalJets>=1), write signalJets (pt,phi,m) + each
-     signalLepton (pt,phi,m) + MET (pt,phi) to an objects file keyed by Event.
-  2. subprocess: <conda> run -n recast rjr_resolve --objects <objfile> <csv>
-  3. read R_ISR/M_S back keyed by Event, run the full SR accept cascade, emit
-     EwkCompressed2018.txt (and optionally .root).
-
-Usage:
-  <conda> run -n rivet python native_simpleanalysis.py \
-      --input  <Delphes2SA.root> \
-      --output <dir> \
-      [--ngen N]   (default: number of entries in the ntuple)
-
-The object-selection code below is the validated prototype (object selection,
-overlap removal, mT2, MTauTau, mT, mll, MET) -- proven boolean-exact against the
-container GIVEN the correct RJR. The ONLY change vs the prototype is that R_ISR
-and M_S now come from the native resolver instead of the container branches.
-
-MAINTAINER WARNING -- lepton-ID cuts are DELIBERATE no-ops (do not "fix" them).
-Delphes2SA writes el_id/mu_id = 0x7FFFFFFF (all quality bits set) for every
-lepton (mapyde share Delphes2SA.py: `def Add(self, obj, objID=0x7FFFFFFF, ...)`),
-because Delphes has no real ID-quality emulation. This script therefore reads
-the id fields but NEVER cuts on them -- exactly like the container chain, which
-is why the per-SR yields are bit-for-bit (141/141 SRs). Implementing "real"
-ID/quality cuts here (e.g. porting them from the ATLAS EwkCompressed2018 source)
-would silently change every yield and break the validated container parity.
-Durable record: docs/workflow/reference/native-pipeline.md (charter 4d-b).
+The default writes SRs and six slepton CRs. --compressed-signal-model
+sr-only-diagnostic retains an explicit SR-only diagnostic. ROOT branches retain
+signed weights, including the information needed to calculate sumw2 downstream.
+Use --input <Delphes2SA.root> --output <directory>; --ngen defaults to all entries.
 """
 
 if not __package__:  # Direct file execution uses the same package implementation.
@@ -62,7 +35,7 @@ from .sa_native_core import (   # noqa: F401  (re-exports are the compat surface
     Lester, _ellipse, _helper, get_mT2,
     Obj, ELECTRON, MUON, ME, MMU,
     NotBit, NOT, LooseBadJet, JVT50Jet, LessThan3Tracks, BTag85MV2c10,
-    filterObjects, countObjects, overlapRemoval,
+    filterObjects, countObjects, overlapRemoval, concat_sorted,
     invmass, pairDeltaPhi_to_met, calcMT, calcMTauTau, calcAMT2, minDphi,
     load_ntuple, write_txt, write_root, _g,
     CONDA)
@@ -72,7 +45,7 @@ RJR_BIN = str(native_binary("rjr_resolve"))
 
 
 # ---------------- per-event object selection (returns the gated objects, or None) ----------------
-def select_objects(arrays, i):
+def select_objects(arrays, i, *, trace=None):
     """Full object selection ported from ANA-SUSY-2018-16.cxx::ProcessEvent
     (prepare-objects block, lines 135-209). Returns a dict with the gated
     quantities needed for (a) the RJR resolver input and (b) the kinematic SR
@@ -96,7 +69,12 @@ def select_objects(arrays, i):
 
     baseElectrons=filterObjects(baseElectrons, 4.5, 2.47, 1<<0)  # EVeryLooseLH
     baseMuons=filterObjects(baseMuons, 3, 2.5, 1<<1)             # MuMedium
-    if countObjects(preJets, 20, 4.5, NOT(LooseBadJet))!=0:
+    bad_jet_veto = countObjects(preJets, 20, 4.5, NOT(LooseBadJet)) == 0
+    if trace is not None:
+        trace['predicates']['bad_jet_veto'] = bool(bad_jet_veto)
+        trace['objects'].update(pre_jets=len(preJets), base_electrons_before_or=len(baseElectrons),
+                                base_muons_before_or=len(baseMuons))
+    if not bad_jet_veto:
         return None
 
     baseJets=overlapRemoval(preJets, baseElectrons, 0.2, NOT(BTag85MV2c10))
@@ -110,8 +88,10 @@ def select_objects(arrays, i):
     signalElectrons=filterObjects(baseElectrons, 4.5, 2.47, (1<<2)|(1<<16)|(1<<17)|(1<<13))  # EMediumLH|ED0Sigma5|EZ05mm|EIsoGradient
     signalMuons=filterObjects(baseMuons, 3, 2.5, (1<<16)|(1<<17)|(1<<10))  # MuD0Sigma3|MuZ05mm|MuIsoFixedCutTightTrackOnly
 
-    baseLeptons=baseElectrons+baseMuons
-    signalLeptons=signalElectrons+signalMuons
+    # AnalysisObjects::operator+ sorts the combined collection by pT. This is
+    # essential for the leading/subleading cuts in opposite-flavour controls.
+    baseLeptons=concat_sorted(baseElectrons, baseMuons)
+    signalLeptons=concat_sorted(signalElectrons, signalMuons)
 
     # tracks
     preElTracks=[]
@@ -133,16 +113,26 @@ def select_objects(arrays, i):
 
     baseElTracks=[t for t in preElTracks if not matches_signal(t, signalElectrons)]
     baseMuTracks=[t for t in preMuTracks if not matches_signal(t, signalMuons)]
-    baseTracks=baseElTracks+baseMuTracks
+    baseTracks=concat_sorted(baseElTracks, baseMuTracks)
     baseElTracks=overlapRemoval(baseElTracks, baseJets, 0.5)
     baseMuTracks=overlapRemoval(baseMuTracks, baseJets, 0.5)
     signalElTracks=overlapRemoval(baseElTracks, baseTracks, 0.3)
     signalMuTracks=overlapRemoval(baseMuTracks, baseTracks, 0.3)
     signalElTracks=filterObjects(signalElTracks, 1, 2.5, (1<<16)|(1<<17))  # ED0Sigma5|EZ05mm
     signalMuTracks=filterObjects(signalMuTracks, 1, 2.5, (1<<16)|(1<<17))  # MuD0Sigma3|MuZ05mm
-    signalTracks=signalElTracks+signalMuTracks
+    signalTracks=concat_sorted(signalElTracks, signalMuTracks)
 
     # ProcessEvent guards BEFORE the RJR helper is invoked
+    if trace is not None:
+        trace['predicates'].update(baseline_lepton=bool(len(baseLeptons)>=1),
+                                   signal_jet=bool(len(signalJets)>=1),
+                                   two_signal_leptons=bool(len(signalLeptons)==2),
+                                   jet_count=bool(len(signalJets)>=1))
+        trace['objects'].update(base_leptons=len(baseLeptons), signal_leptons=len(signalLeptons),
+                                signal_jets=len(signalJets), signal_bjets=len(signalBJets),
+                                signal_tracks=len(signalTracks))
+        trace['leptons'] = [{'pt':float(l.pt), 'eta':float(l.eta), 'phi':float(l.phi),
+                             'flavour':int(l.typ), 'charge':int(l.charge)} for l in signalLeptons]
     if not (len(baseLeptons)>=1): return None
     if not (len(signalJets)>=1): return None
 
@@ -150,8 +140,60 @@ def select_objects(arrays, i):
                 signalLeptons=signalLeptons, signalTracks=signalTracks)
 
 
+# The public SimpleAnalysis implementation contains no control regions. These
+# six selections implement arXiv:1911.12606v2, Tables 2, 5 and 8; they have not
+# been validated against ATLAS event-level CR acceptance. Unchanged cuts use
+# the strict interval boundaries of the existing native SR implementation.
+# Table 2 gives lower mll bounds for ee/mm only: no extra e-mu floor is invented.
+def cr_order():
+    return [f"CR_S_{process}_{met}" for process in ("VV", "tau", "top")
+            for met in ("high", "low")]
+
+
+def select_slepton_controls(*, is2L, isOS, isee, ismm, pt1, pt2, mll, drll,
+                            mtautau, met, njets, nbjets, jet1pt, min_dphi,
+                            lead_dphi, mt, mt2, risr):
+    """Paper-defined nominal slepton controls, with all four lepton flavours.
+
+    Opposite-flavour pairs inherit the global mll upper bound and resonance
+    veto, but no unspecified flavour-dependent lower bound. CR boundaries are
+    open to preserve SR orthogonality with the existing strict SR cuts.
+    """
+    if not all(math.isfinite(value) for value in
+               (pt1, pt2, mll, drll, mtautau, met, jet1pt, min_dphi, lead_dphi,
+                mt, mt2, risr)):
+        raise ValueError("compressed control-region kinematics must be finite")
+    different_flavour = not (isee or ismm)
+    common = (is2L and isOS and pt1 > 5 and 0 <= mll < 60
+              and ((isee and mll > 3 and drll > .3)
+                   or (ismm and mll > 1 and drll > .05)
+                   or (different_flavour and drll > .2))
+              and (mll < 3 or mll > 3.2) and met > 120 and njets >= 1
+              and jet1pt > 100 and min_dphi > .4 and lead_dphi > 2
+              and 100 < mt2 < 140)
+    if not common:
+        return set()
+    high = met > 200 and pt2 > min(20, 2.5 + 2.5*(mt2-100))
+    low = 150 < met < 200 and pt2 > min(15, 7.5 + .75*(mt2-100))
+    tau_veto = mtautau < 0 or mtautau > 160
+    tau_window = 60 < mtautau < 120
+    accepted = set()
+    for band, passes in (("high", high), ("low", low)):
+        if not passes:
+            continue
+        if nbjets >= 1 and tau_veto and (.7 if band == "high" else .8) < risr < 1:
+            accepted.add(f"CR_S_top_{band}")
+        if nbjets == 0 and tau_window and (.7 if band == "high" else .6) < risr < 1:
+            accepted.add(f"CR_S_tau_{band}")
+        if (nbjets == 0 and tau_veto
+                and (.7 if band == "high" else .6) < risr < (.85 if band == "high" else .8)
+                and (band == "high" or (mt > 30 and 1 <= njets <= 2))):
+            accepted.add(f"CR_S_VV_{band}")
+    return accepted
+
+
 # ---------------- per-event SR cascade (given R_ISR/M_S) ----------------
-def select_regions(sel, R_ISR, M_S):
+def select_regions(sel, R_ISR, M_S, *, include_controls=True, trace=None):
     """Apply the kinematic + RJR SR selection (ProcessEvent lines 277-559) and
     return the set of accepted SR names. `sel` is the dict from select_objects;
     R_ISR/M_S come from the native resolver."""
@@ -161,6 +203,9 @@ def select_regions(sel, R_ISR, M_S):
 
     is2L=(len(signalLeptons)==2)
     is1LT=(len(signalLeptons)==1 and len(signalTracks)>=1)
+    if trace is not None:
+        trace['predicates']['two_signal_leptons'] = bool(is2L)
+        trace['rjr_status'] = 'solved'
     if not (is2L or is1LT):
         return set(), False, False
 
@@ -184,21 +229,27 @@ def select_regions(sel, R_ISR, M_S):
     mn=100.0
     mt2=calcAMT2(lep1,lep2,met,mn,mn)
 
-    accepted=set()
+    accepted = (select_slepton_controls(
+        is2L=is2L, isOS=isOS, isee=isee, ismm=ismm, pt1=lep1Pt, pt2=lep2Pt,
+        mll=mll, drll=drll, mtautau=MTauTau, met=metPt, njets=len(signalJets),
+        nbjets=len(signalBJets), jet1pt=jet1Pt, min_dphi=minDPhiAllJetsMet,
+        lead_dphi=dPhiJ1Met, mt=mt, mt2=mt2, risr=R_ISR) if include_controls else set())
 
     pass_pre1LT = (is1LT and lep1Pt<10. and drll>0.05 and drll<1.5 and isOS and isSF
                    and mll>0.5 and mll<5 and (mll<3. or mll>3.2) and metPt>120.
                    and len(signalJets)>=1 and jet1Pt>100. and minDPhiAllJetsMet>0.4 and dPhiJ1Met>2.0)
     keep_SR_E_1LT = (pass_pre1LT and metPt>200. and metOverHtLep>30. and dPhiLepMet<1. and lep2Pt<5.)
 
-    pass_common = (is2L and lep1Pt>5.
-                   and ((drll>0.05 and ismm) or (drll>0.3 and isee))
-                   and isOS and isSF
-                   and ((mll>1. and mll<60. and ismm) or (mll>3. and mll<60. and isee))
-                   and (mll<3. or mll>3.2)
-                   and (MTauTau<0. or MTauTau>160.)
-                   and metPt>120. and len(signalJets)>=1 and len(signalBJets)==0
-                   and jet1Pt>100. and minDPhiAllJetsMet>0.4 and dPhiJ1Met>2.0)
+    common_predicates = dict(
+        two_signal_leptons=is2L, leading_lepton_pt=lep1Pt>5.,
+        lepton_separation=((drll>0.05 and ismm) or (drll>0.3 and isee)),
+        opposite_charge=isOS, same_flavour=isSF,
+        mll_window=((mll>1. and mll<60. and ismm) or (mll>3. and mll<60. and isee)),
+        jpsi_veto=(mll<3. or mll>3.2), mtautau_veto=(MTauTau<0. or MTauTau>160.),
+        met_preselection=metPt>120., jet_count=len(signalJets)>=1, b_veto=len(signalBJets)==0,
+        leading_jet_pt=jet1Pt>100., min_jet_met_dphi=minDPhiAllJetsMet>0.4,
+        leading_jet_met_dphi=dPhiJ1Met>2.0)
+    pass_common = all(common_predicates.values())
 
     keep_SR_E_high = (pass_common and metPt>200. and mt<60.
                       and lep2Pt>min(10., 2+mll/3.) and R_ISR<1.
@@ -213,15 +264,30 @@ def select_regions(sel, R_ISR, M_S):
     keep_iMLLe = mll<10.; keep_iMLLf = mll<20.; keep_iMLLg = mll<30.; keep_iMLLh = mll<40.
     keep_iMLLi = mll<60.
 
-    keep_SR_S_high = (pass_common and metPt>200. and mt2<140. and mt2>100.
-                      and lep2Pt>min(20., 2.5+2.5*(mt2-100.)) and R_ISR<1.
-                      and R_ISR>max(0.85, 0.98-0.02*(mt2-100)))
-    keep_SR_S_low = (pass_common and metPt>150. and metPt<200. and mt2<140. and mt2>100.
-                     and lep2Pt>min(15., 7.5+0.75*(mt2-100.)) and R_ISR<1. and R_ISR>0.8)
+    slepton_predicates = dict(met_high=metPt>200., met_low=150.<metPt<200.,
+        mt2_lt_140=mt2<140., mt2_gt_100=mt2>100.,
+        subleading_pt_high=lep2Pt>min(20., 2.5+2.5*(mt2-100.)),
+        subleading_pt_low=lep2Pt>min(15., 7.5+0.75*(mt2-100.)),
+        risr_high=(R_ISR<1. and R_ISR>max(0.85, 0.98-0.02*(mt2-100))),
+        risr_low=(0.8<R_ISR<1.))
+    keep_SR_S_high = pass_common and all(slepton_predicates[key] for key in
+        ('met_high','mt2_lt_140','mt2_gt_100','subleading_pt_high','risr_high'))
+    keep_SR_S_low = pass_common and all(slepton_predicates[key] for key in
+        ('met_low','mt2_lt_140','mt2_gt_100','subleading_pt_low','risr_low'))
     keep_SR_S = keep_SR_S_high or keep_SR_S_low
 
     keep_iMT2a = mt2<100.5; keep_iMT2b = mt2<101.; keep_iMT2c = mt2<102.; keep_iMT2d = mt2<105.
     keep_iMT2e = mt2<110.; keep_iMT2f = mt2<120.; keep_iMT2g = mt2<130.; keep_iMT2h = mt2<140.
+    if trace is not None:
+        trace['predicates'].update({key:bool(value) for key,value in
+                                   (common_predicates | slepton_predicates).items()})
+        trace['predicates'].update({key:bool(value) for key,value in zip(
+            ('mt2_lt_100p5','mt2_lt_101','mt2_lt_102','mt2_lt_105','mt2_lt_110','mt2_lt_120','mt2_lt_130'),
+            (keep_iMT2a,keep_iMT2b,keep_iMT2c,keep_iMT2d,keep_iMT2e,keep_iMT2f,keep_iMT2g))})
+        trace['kinematics'].update({key:float(value) for key,value in dict(
+            pt1=lep1Pt, pt2=lep2Pt, mll=mll, drll=drll, met=metPt, mtautau=MTauTau,
+            mt=mt, mt2=mt2, mt2_test_mass=mn, risr=R_ISR, ms=M_S,
+            jet1_pt=jet1Pt, min_jet_met_dphi=minDPhiAllJetsMet, leading_jet_met_dphi=dPhiJ1Met).items()})
 
     def acc(name): accepted.add(name)
 
@@ -350,6 +416,8 @@ def select_regions(sel, R_ISR, M_S):
     elif keep_SR_S_low and mt2<130.:  acc("SR_S_low_eMT2g")
     elif keep_SR_S_low and mt2<140.:  acc("SR_S_low_eMT2h")
 
+    if trace is not None:
+        trace['accepted_regions'] = sorted(accepted)
     return accepted, isee, ismm
 
 
@@ -387,6 +455,11 @@ def main():
     ap.add_argument("--rjr-binary", default=RJR_BIN, help="explicit RestFrames helper for EwkCompressed2018")
     ap.add_argument("--recast-env", default=None, help="explicit conda prefix for the RestFrames helper")
     ap.add_argument("--rjr-conda", default=CONDA, help="explicit conda executable for the RestFrames helper")
+    ap.add_argument("--compressed-signal-model", choices=("full", "sr-only-diagnostic"), default="full",
+                    help="full writes six slepton controls; diagnostic retains archival SR-only output")
+    ap.add_argument("--validation-reference-directory", help="optional HEPData v5 m150/140 cutflow directory")
+    ap.add_argument("--validation-masses", nargs=2, type=float, metavar=("PARENT", "LSP"),
+                    help="declared plan masses recorded with the trace; reference cutflows require150/140")
     ap.add_argument("--routine", default="EwkCompressed2018",
                     help="EwkCompressed2018 (this module's RJR two-pass flow) or a ported "
                          "routine from sa_routines.REGISTRY (single-pass counting driver)")
@@ -410,18 +483,30 @@ def main():
     outtxt  = os.path.join(args.output, "EwkCompressed2018.txt")
 
     arrays, events, Nread, w = load_ntuple(args.input, args.ngen)
+    if args.ngen is not None and (args.ngen <= 0 or args.ngen != Nread):
+        raise ValueError("requested event count does not match the loaded ntuple")
+    if len(set(map(int, events))) != len(events):
+        raise ValueError("duplicate Event identifiers cannot be joined to RestFrames safely")
+    include_controls = args.compressed_signal_model == "full"
+    order = sr_order() + (cr_order() if include_controls else [])
+    if include_controls:
+        print("[native] six nominal slepton controls from paper Tables 2/5/8; CR acceptance unvalidated")
+    else:
+        print("[native] DIAGNOSTIC ONLY: slepton control-region signal omitted")
 
     # MC weights: load_ntuple applies the container conventions (w["sumW"/"sumW2"/"absw0"/"Ngen"]).
     # ---- pass 1: object selection + write the RJR-resolver input ----
+    from . import compressed_validation as validation
+    traces = {int(events[i]): validation.new_event(int(events[i]), float(w['w_all'][i])) for i in range(Nread)}
     selected = {}   # Event -> sel dict (only events reaching the RJR helper)
     with open(objfile, "w") as f:
         f.write("# Event met_pt met_phi nJet (jet_pt jet_phi jet_m)* nLep (lep_pt lep_phi lep_m)*\n")
         for i in range(Nread):
-            sel = select_objects(arrays, i)
+            ev = int(events[i])
+            sel = select_objects(arrays, i, trace=traces[ev])
             if sel is None:
                 continue
-            ev = int(events[i])
-            sel['_w'] = float(w['w_all'][i])   # per-event SA eventWeight (mcWeights[0], XS*lumi-normalized)
+            sel['_w'] = float(w['w_all'][i])   # original nominal SA weight, normalized to cross section in pb
             selected[ev] = sel
             met = sel['met']; sj = sel['signalJets']; sl = sel['signalLeptons']
             parts = [str(ev), repr(met.pt), repr(met.phi), str(len(sj))]
@@ -455,16 +540,18 @@ def main():
                 continue
             p = line.split(",")
             ev = int(p[0]); RISR = float(p[3]); MS = float(p[4]); solved = int(p[10])
+            if ev in rjr or ev not in selected or solved not in (0, 1) or not all(map(math.isfinite, (RISR, MS))):
+                raise ValueError("invalid or duplicate RestFrames event result")
             rjr[ev] = (RISR, MS, solved)
 
     n_unsolved = sum(1 for ev in selected if rjr.get(ev, (0,0,0))[2] == 0)
     if n_unsolved:
-        print(f"[native] WARNING: {n_unsolved} gated events did not solve in RestFrames")
+        raise ValueError(f"{n_unsolved} gated events lack a solved RestFrames result")
 
     # ---- pass 2: apply the SR cascade with native RJR ----
-    counts = {sr: 0 for sr in sr_order()}
-    sumw = {sr: 0.0 for sr in sr_order()}
-    sumw2 = {sr: 0.0 for sr in sr_order()}
+    counts = {sr: 0 for sr in order}
+    sumw = {sr: 0.0 for sr in order}
+    sumw2 = {sr: 0.0 for sr in order}
     ntuple_rows = []   # (Event, weight, isee, ismm, accepted-set) per selected event -> the SA .root
     for ev, sel in selected.items():
         r = rjr.get(ev)
@@ -473,7 +560,7 @@ def main():
             RISR, MS = 0.0, 0.0
         else:
             RISR, MS = r[0], r[1]
-        accepted, isee, ismm = select_regions(sel, RISR, MS)
+        accepted, isee, ismm = select_regions(sel, RISR, MS, include_controls=include_controls, trace=traces[ev])
         for sr in accepted:
             counts[sr] += 1
             sumw[sr] += sel['_w']
@@ -481,16 +568,30 @@ def main():
         ntuple_rows.append((ev, sel['_w'], isee, ismm, accepted))
 
     # ---- emit the txt (exact container format + order) ----
-    write_txt(outtxt, counts, sr_order(), w, sumw=sumw, sumw2=sumw2)
+    write_txt(outtxt, counts, order, w, sumw=sumw, sumw2=sumw2)
 
     # diagnostic summary to stdout
     tot = sum(counts.values())
-    print(f"[native] total SR-accept count (sum over SRs): {tot}")
+    print(f"[native] total region-accept count (sum over SRs and requested CRs): {tot}")
     print(f"[native] wrote {outtxt}")
     rootpath = os.path.join(args.output, "EwkCompressed2018.root")
-    write_root(rootpath, ntuple_rows, sr_order())
+    write_root(rootpath, ntuple_rows, order)
     print(f"[native] wrote {rootpath} (ntuple: {len(ntuple_rows)} rows, "
           f"per-SR eventWeight + isee/ismm for sa2json)")
+    from pathlib import Path
+    import json
+    tracepath = Path(args.output)/"compressed_trace.jsonl.gz"
+    validation.write_trace(tracepath, traces.values(), {
+        "input_sha256":validation.file_hash(args.input), "input_events":Nread,
+        "selection_source_sha256":validation.file_hash(__file__),
+        "diagnostic_source_sha256":validation.file_hash(validation.__file__),
+        "rjr_binary_sha256":validation.file_hash(args.rjr_binary),
+        "compressed_signal_model":args.compressed_signal_model,
+        "masses_gev":args.validation_masses,
+        "mass_metadata_source":"declared_command_arguments",
+        "origin_state_status":"unavailable_in_converted_ntuple"})
+    report = validation.summarize_trace(tracepath, args.validation_reference_directory)
+    (Path(args.output)/"compressed_validation.json").write_text(json.dumps(report,indent=2,allow_nan=False)+"\n")
 
 
 if __name__ == "__main__":

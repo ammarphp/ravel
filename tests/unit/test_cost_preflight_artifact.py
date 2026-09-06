@@ -29,6 +29,7 @@ def test_rundir_writes_artifact(tmp_path):
     assert doc["generated_by"] == "cost_preflight.py"
     assert doc["schema_version"] == 1
     assert doc["mode"] == "smoke" and "walltime_h" in doc
+    assert doc["backend"] == "native" and doc["parallel"] == 1
 
 
 def _run_with_gen(tmp_path, vrs, with_cost):

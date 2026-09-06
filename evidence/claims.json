@@ -156,6 +156,17 @@
         "src/ravel/validation/validate_native_parity.py"
       ],
       "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_anchor_limits",
+      "value": "48.83 fb observed and 54.69 fb median expected at 150/140 GeV",
+      "detail": "Completed20k four-state anchor; conditional inclusive cross-section conversion. Onepoint only; no acceptance, coverage or fullRRR reproduction claim. Large raw event artifacts not distributed.",
+      "command": "python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/manifest.json"
+      ],
+      "status": "VERIFIED"
     }
   ]
 }

@@ -77,6 +77,19 @@ def check(readme_path, manifest_path, root=ROOT, require_all=True):
         except (OSError, ValueError, KeyError, TypeError) as exc:
             fails.append(f"benchmark source invalid: {exc}")
     # cross-check the shared physics headline against the sha-pinned evidence manifest
+    if "rrr_anchor_limits" in claims:
+        try:
+            record = json.loads((Path(root) / "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json").read_text())
+            point = record["reference_point"]
+            result = record["results"]["anchor20k"]
+            expected = (
+                f"{result['conditional_observed_sigma95_fb']:.2f} fb observed and "
+                f"{result['conditional_median_expected_sigma95_fb']:.2f} fb median expected "
+                f"at {point['m_parent_GeV']:g}/{point['m_lsp_GeV']:g} GeV")
+            if claims["rrr_anchor_limits"]["value"] != expected:
+                fails.append(f"RRR waypoint scope/value drift: expected '{expected}'")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            fails.append(f"RRR waypoint source invalid: {exc}")
     ev_path = os.path.join(root, "evidence/manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
         ev = json.load(open(ev_path))

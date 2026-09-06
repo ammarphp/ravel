@@ -36,20 +36,18 @@ generation recipe (UFO / restrict card / process syntax) has been fetched and re
    you intend to certify** holds ≥25 raw events (≲20% MC error), or declare those SRs
    **report-only** (the cert's tail tier, `validate_cutflow.py`).
 
-   **Multi-jet merging — required when the SRs count ≥4 jets** ([judgment — proceed-with-flag]: ≥4-jet SRs → merge; EWK/lepton-only/monojet → skip; either way record the choice). A single hard
-   process showered by Pythia produces too few hard jets, so high-jet-multiplicity SRs come out low —
-   a real ~30–40% deficit, not statistics. If the analysis has SRs with ≥4 jets (most 0-lepton
-   squark/gluino searches), add the extra-jet multiplicities and CKKW-L/MLM-merge them;
-   `docs/workflow/checklists/merging.md` is the full recipe. In brief: `add process p p > <parents> j` and `… j j`
-   in the steering script; set `ickkw=1` in the run card; enable Pythia `JetMatching` (MLM) with
-   `qCut = 1.25×xqcut` / `nJetMax`; and fix `xqcut` by the **measured matched-σ stability scan**
-   (start the bracket at ¼·m(parent); accept only |matched/LO − 1| ≤ 5% — worked example in
-   `docs/workflow/checklists/merging.md`) before trusting the yields. EWK / lepton-only / monojet searches do
-   **not** need merging — record that deliberate choice in `RESULT.md`.
+   **Radiation and merging review.** Read the publication's generator, multiplicities, PDF,
+   shower, tune and matching prescription, and identify how recoil enters the selection.
+   A lepton or monojet label does not justify skipping this review. Declare the chosen
+   approximation in `RESULT.md`; test generation-cut dependence and relevant rate/shape
+   changes with their uncertainties. Follow [the merging checklist](../checklists/merging.md)
+   for the separate MLM and CKKW-L requirements. Do not reuse the historical example's scale
+   or its 5% inclusive-rate comparison as a universal gate. The explicit-card native adapter
+   currently rejects merged samples pending audited veto/weight accounting; do not bypass it.
    **Pre-shower guard (always, before any shower time):**
    `$CONDA run -n rivet python scripts/run.py ravel.validation.lhe_check <procdir>/Events/run01/unweighted_events.lhe.gz --expect-mass <PDG>:<mass> …`
    — asserts the generated particle masses (first event + banner MASS block; catches the
-   MSOFT-overrides-MASS trap), checks weight sign + multiweight tags + `MODSEL` presence, and
+   wrong-card/model-interface failures), checks weight sign + multiweight tags + `MODSEL` presence, and
    reports merged-vs-unmerged (ickkw) so the right shower bridge is used. Nonzero exit = fix the
    cards before showering. This is the **mandatory pre-shower gate** for every LHE, merged or not —
    it is also what catches a multiweight (`use_syst=True`) LHE before it leaks into the
@@ -79,7 +77,9 @@ generation recipe (UFO / restrict card / process syntax) has been fetched and re
    ```bash
    $CONDA run -n rivet $RAVEL_NATIVE_BIN/pythia_shower <cfg> <out.hepmc> <nEvents>
    ```
-   The HepMC carries the cross-section (Rivet reads it). It is large — delete after step 4.
+   The HepMC carries the cross-section (Rivet reads it). Budget its retained size before
+   generation. Preserve the original product or a verified lossless compressed copy while
+   validation, recovery or downstream receipts depend on it.
 
 **Verify:** the HepMC begins `HepMC::Version 3`; the printed σ matches MadGraph.
 ## Beyond signal samples — the two recipes prose forgot

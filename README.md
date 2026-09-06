@@ -47,6 +47,17 @@ is unresolved; this figure is not a general accuracy guarantee.
 The [figure, inputs, and per-point JSON](evidence/audits/2026-09-05-scan-fidelity/README.md)
 are available alongside the [original scan record](evidence/scans/slepton-bino-figure-3/RESULT.md).
 
+**Fresh reproduction waypoint.** A new 20,000-event four-state sample completed
+generation through all six numerical limit checks. Its matched inclusive limits are
+<!-- claim:rrr_anchor_limits -->48.83 fb observed and 54.69 fb median expected at 150/140 GeV<!-- /claim -->,
+compared with the published 46.63 and 56.53 fb. This single-point agreement does
+not close the mass-plane study: primary-region MC errors remain about 7–8%,
+the reconstructed-fraction comparison is about 11% low, and detector working-point,
+truth-definition and signal-systematic gaps remain. The
+[waypoint bundle](evidence/audits/2026-09-06-rrr-waypoint/README.md) includes the
+likelihood inputs, channel-level results, response figures, physics cards and
+an offline verifier. Large raw event files are not included.
+
 The evidence checks answer different questions:
 
 | Check | Recorded evidence | What it establishes |
@@ -107,6 +118,13 @@ To regenerate the scan demonstration from the checkout, using the same environme
 This writes PNG/PDF figures, an exact-match comparison JSON, and input/output
 hashes. It re-renders recorded data without changing the original scan or running
 new physics inference.
+
+Verify the fresh waypoint's saved evidence and signal-unit identities without
+rerunning simulation or fitting limits:
+
+```bash
+.venv-replay/bin/python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units
+```
 
 ## Initiate a physics task
 

@@ -201,6 +201,66 @@ def validate_execution(rundir):
         return [f"execution ledger unavailable: {exc}"]
 
 
+def validate_completed_execution(rundir, planned_stages):
+    """Require the exact declared plan and valid terminal receipts for every stage.
+
+    Unlike ``validate_execution``, absent or partial ledgers cannot pass. The caller
+    must independently authenticate the supplied plan (for example its approved
+    contract hash). Supervisor-added executable/source inputs are permitted, but
+    every declared input, output, command and dependency must match the receipt.
+    This is a current-runtime validation, with the same semantics as stage_errors.
+    """
+    try:
+        if not isinstance(planned_stages, list) or not planned_stages:
+            raise ValueError("completed execution requires a nonempty stage plan")
+        names = []
+        for item in planned_stages:
+            if not isinstance(item, dict) or not isinstance(item.get("stage"), str) or not NAME.fullmatch(item["stage"]):
+                raise ValueError("invalid planned stage")
+            names.append(item["stage"])
+            for key in ("command", "inputs", "outputs", "depends_on"):
+                values = item.get(key)
+                if not isinstance(values, list) or any(type(v) is not str or not v for v in values):
+                    raise ValueError(f"invalid planned {key}")
+                if len(values) != len(set(values)) and key != "command":
+                    raise ValueError(f"duplicate planned {key}")
+            if not item["command"]:
+                raise ValueError("empty planned command")
+        if len(names) != len(set(names)):
+            raise ValueError("duplicate planned stage")
+        for item in planned_stages:
+            if item["stage"] in item["depends_on"] or not set(item["depends_on"]) <= set(names):
+                raise ValueError("invalid planned dependency")
+        if not (Path(rundir) / STATE_NAME).is_file():
+            return ["completed execution requires an execution ledger"]
+        state = load_execution(rundir)
+        errors = [f"planned stage {name} has no receipt" for name in names if name not in state["stages"]]
+        errors += [f"unplanned stage {name} is present" for name in state["stages"] if name not in names]
+        for item in planned_stages:
+            name = item["stage"]
+            record = state["stages"].get(name)
+            if not isinstance(record, dict):
+                if name in state["stages"]:
+                    errors.append(f"stage {name} has no valid receipt")
+                continue
+            if record.get("command") != item["command"]:
+                errors.append(f"stage {name} command differs from plan")
+            if set(record.get("parents", {})) != set(item["depends_on"]):
+                errors.append(f"stage {name} dependencies differ from plan")
+            for key in ("inputs", "outputs"):
+                expected = {resolve_path(rundir, p) for p in item[key]}
+                actual = {resolve_path(rundir, p) for p in record.get(key, [])}
+                if not (expected <= actual if key == "inputs" else expected == actual):
+                    errors.append(f"stage {name} {key} differ from plan")
+            expected_cwd = Path(item.get("cwd", rundir)).resolve()
+            if Path(record.get("cwd", "")).resolve() != expected_cwd:
+                errors.append(f"stage {name} cwd differs from plan")
+            errors.extend(stage_errors(rundir, name, state))
+        return list(dict.fromkeys(errors))
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return [f"completed execution unavailable: {exc}"]
+
+
 def plan_stage(rundir, stage, command, inputs, outputs, depends_on, cwd):
     if not NAME.fullmatch(stage):
         raise ValueError("invalid stage name")

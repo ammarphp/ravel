@@ -58,7 +58,7 @@ def card_assignments(path, style="run"):
     return result
 
 
-def validate_process_card(path, model):
+def validate_process_card(path, model, *, with_jet_count=False):
     """Bound command surface and check declared production family, before MG."""
     commands = [x.split("#", 1)[0].strip() for x in Path(path).read_text().splitlines()]
     commands = [x for x in commands if x]
@@ -129,7 +129,8 @@ def validate_process_card(path, model):
             "ta1":1000015,"ta2":2000015,"x1":1000024,"n2":1000023,"go":1000021}
     pdgs.update({q+s:(1000000 if s == "l" else 2000000)+index
                  for q,index in (("d",1),("u",2),("s",3),("c",4)) for s in ("l","r")})
-    return {pdgs[token.rstrip("+-~")] for token in produced}
+    produced_pdgs = {pdgs[token.rstrip("+-~")] for token in produced}
+    return (produced_pdgs, next(iter(jet_multiplicities))) if with_jet_count else produced_pdgs
 
 
 def validate_param_card(path, model, m_parent=None, m_lsp=None, *, produced=None):
@@ -177,7 +178,9 @@ def validate_param_card(path, model, m_parent=None, m_lsp=None, *, produced=None
     for pdg in present:
         positive(widths.get(pdg), "produced-parent width")
         rows = decay.get(pdg, [])
-        if not rows or any(not math.isfinite(br) or br < 0 or br > 1 or child not in daughters for br,daughters in rows):
+        # SLHA templates commonly retain disabled BR=0 modes with other
+        # daughters. Validate topology only for positive-probability decays.
+        if not rows or any(not math.isfinite(br) or br < 0 or br > 1 for br,daughters in rows):
             raise ValueError("declared model requires explicit parent-to-LSP branching rows")
         if any(br>0 and not declared_decay(pdg,daughters) for br,daughters in rows):
             raise ValueError("branching daughters disagree with declared model topology or charge")
@@ -221,6 +224,24 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     analysis = cfg["analysis"]
     lumi = positive(analysis.get("lumi"), "luminosity (pb^-1)")
     kfactor = positive(analysis.get("kfactor"), "explicit kfactor")
+    event_storage = native.get("event_storage", "plain")
+    if event_storage not in ("plain", "gzip"):
+        raise ValueError("native event_storage must be plain or gzip")
+    compressed_signal_model = native.get("compressed_signal_model", "full")
+    if compressed_signal_model not in ("full", "sr-only-diagnostic"):
+        raise ValueError("compressed_signal_model must be full or sr-only-diagnostic")
+    mc_stat = native.get("mc_stat", "none")
+    if mc_stat not in ("none", "shapesys", "staterror"):
+        raise ValueError("native mc_stat must be none, shapesys or staterror")
+    fit_backend = native.get("pyhf_backend", "numpy")
+    if fit_backend not in ("numpy", "jax"):
+        raise ValueError("native pyhf_backend must be numpy or jax")
+    statistics_python = native.get("statistics_python")
+    if statistics_python is not None:
+        if not isinstance(statistics_python, str) or not Path(statistics_python).is_absolute():
+            raise ValueError("native statistics_python must be an absolute interpreter path")
+        if not Path(statistics_python).is_file() or not os.access(statistics_python, os.X_OK):
+            raise ValueError("native statistics_python is not an executable interpreter")
     if analysis.get("XSoverride", -1) != -1:
         raise ValueError("XSoverride is unsupported: normalize to generated LHE rate and one explicit correction")
     run = cfg.get("madgraph", {}).get("run", {})
@@ -229,15 +250,19 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     ecms = positive(run.get("ecms"), "collision energy (GeV)")
     inputs, rendered = {}, {}
     source_paths = [config, Path(__file__)]
+    if statistics_python is not None:
+        source_paths.append(Path(statistics_python))
     source_paths.extend((Path(__file__).parents[1]/"paths.py",Path(__file__).parents[1]/"_bootstrap.py",
                          Path(__file__).parents[1]/"validation/lhe_check.py"))
     source_paths.extend(Path(__file__).with_name(name) for name in
-                        ("native_capabilities.py","native_normalization.py","prepare_native_slepton.py",
+                        ("native_capabilities.py","native_normalization.py","native_event_io.py","prepare_native_slepton.py",
                          "delphes2sa_native.py","native_simpleanalysis.py","sa_native_core.py",
                          "sa2json_native.py","pyhf_exclude.py"))
     if routine != "EwkCompressed2018":
         from .sa_routines import REGISTRY
         source_paths.append(Path(__file__).parent/"sa_routines"/(REGISTRY[routine].rsplit(".",1)[1]+".py"))
+    else:
+        source_paths.append(Path(__file__).with_name("compressed_validation.py"))
     declared_inputs = native.get("inputs", {})
     share = native_build_root()/"tools/miniforge3/envs/pipeline/share/mapyde"
     def input_file(key, fallback=None):
@@ -274,9 +299,18 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     else:
         for key in ("process_card", "param_card", "run_card", "shower_card"):
             input_file(key)
-        produced = validate_process_card(inputs["process_card"], declared_model)
+        produced, matrix_element_jets = validate_process_card(inputs["process_card"], declared_model, with_jet_count=True)
         expected_masses = validate_param_card(inputs["param_card"], declared_model, m_parent, m_lsp,produced=produced)
         assignments = card_assignments(inputs["run_card"])
+        if matrix_element_jets == 0:
+            # MadGraph's cuts.f rejects zero-jet events when either of these
+            # positive cuts requests a jet, even in a 2->2 process. A nominally
+            # inclusive denominator must not inherit the tagged sample's cut.
+            for key in ("ptj1min", "htjmin"):
+                if key in assignments:
+                    value = float(assignments[key])
+                    if not math.isfinite(value) or value > 0:
+                        raise ValueError(f"zero-parton process conflicts with jet-existence cut {key}")
         required = {"nevents": nevents, "iseed": seed, "ebeam1": ecms/2, "ebeam2": ecms/2, "ickkw": 0}
         for key, value in required.items():
             try:
@@ -327,15 +361,12 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             if any(entry is not None and (entry["region"] not in regions or entry.get("flavour") is not None and entry["flavour"] not in flags) for entry in mapping.values()):
                 raise ValueError("channel map names a region or flavour absent from the requested routine")
         else:
-            from .sa2json_native import JSONtoSA
-            from .native_simpleanalysis import sr_order
-            regions = set(sr_order())
-            for channel in channels:
-                try:
-                    region = JSONtoSA(channel["name"],str(background))
-                except (IndexError,KeyError) as exc:
-                    raise ValueError("likelihood is incompatible with the compressed channel adapter") from exc
-                if region is not None and (region not in regions or not any(f in channel["name"] for f in ("ee","mm"))):
+            from .sa2json_native import compressed_channel_map
+            from .native_simpleanalysis import sr_order, cr_order
+            regions = set(sr_order()) | set(cr_order())
+            mapping = compressed_channel_map(workspace, compressed_signal_model)
+            for entry in mapping.values():
+                if entry is not None and entry["region"] not in regions:
                     raise ValueError("compressed likelihood channel is not a supported region/flavour")
     out = rundir/"output"
     plan_path = rundir/"inputs/native_execution_plan.json"
@@ -352,6 +383,14 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     if capability["needs_restframes"]:
         required_tools.append(str(native_binary("rjr_resolve")))
     source_paths.extend(Path(p) for p in required_tools if Path(p).is_file())
+    if statistics_python is not None:
+        # A virtual environment often symlinks Python to an already declared
+        # native interpreter. Its configuration still selects a different
+        # package environment, while the executable is only one input artifact.
+        environment_config = Path(statistics_python).parent.parent / "pyvenv.cfg"
+        if environment_config.is_file():
+            source_paths.append(environment_config)
+    source_paths = list(dict.fromkeys(Path(p).resolve() for p in source_paths))
     def python(env, module, *args):
         return module_command(module, *args, python=[conda, "run", "--live-stream", "-p", str(tools/"miniforge3/envs"/env), "python"])
     def local(*args):
@@ -362,7 +401,7 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     def stage(name, command, ins, outputs, dependencies):
         # Code and source configuration are explicit inputs of every stage, so
         # a changed routine or adapter invalidates existing execution receipts.
-        ins = list(dict.fromkeys(map(str,[*ins,*source_paths,*approval_paths])))
+        ins = list(dict.fromkeys(str(Path(p).resolve()) for p in [*ins,*source_paths,*approval_paths]))
         stages.append({"stage": name, "command": list(map(str, command)), "inputs": ins,
                        "outputs": list(map(str, outputs)), "depends_on": dependencies})
     cards = [out/n for n in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")]
@@ -373,29 +412,61 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
     gate = out/"lhe_check.json"
     gate_args = [arg for pdg, mass in expected_masses.items() for arg in ("--expect-mass", f"{pdg}:{mass}")]
     stage("lhe_check", python("rivet","ravel.validation.lhe_check",lhe,"--expect-from-card",cards[0],"--json-out",gate,*gate_args), [lhe,cards[0]], [gate], ["unpack_lhe"])
-    hepmc = out/"madgraph/events.hepmc"
-    stage("pythia",[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/rivet"),native_binary("pythia_shower"),cards[3],hepmc,nevents], [lhe,cards[3],gate], [hepmc], ["lhe_check"])
+    hepmc = out/("madgraph/events.hepmc.gz" if event_storage == "gzip" else "madgraph/events.hepmc")
+    shower_command = (python("rivet", "ravel.physics.native_event_io", "shower",
+                            "--binary", native_binary("pythia_shower"), "--card", cards[3],
+                            "--output", hepmc, "--events", nevents)
+                      if event_storage == "gzip" else
+                      [conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/rivet"),native_binary("pythia_shower"),cards[3],hepmc,nevents])
+    shower_outputs = [hepmc, str(hepmc)+".storage.json"] if event_storage == "gzip" else [hepmc]
+    stage("pythia",shower_command, [lhe,cards[3],gate], shower_outputs, ["lhe_check"])
     normalization = out/"normalization.json"
     logs = [rundir/"logs/madgraph.log",rundir/"logs/pythia.log"]
     stage("normalization",module_command("ravel.physics.native_normalization","--lhe",lhe,"--madgraph-log",logs[0],"--shower-log",logs[1],"--kfactor",kfactor,"--nevents",nevents,"--out",normalization),[lhe,*logs], [normalization],["pythia"])
     detector_output = out/"delphes/delphes.root"
-    stage("delphes",[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/recast"),str(tools/"miniforge3/envs/recast/bin/DelphesHepMC3"),delphes_card,detector_output,hepmc], [hepmc,delphes_card], [detector_output], ["normalization"])
+    detector_binary = tools/"miniforge3/envs/recast/bin/DelphesHepMC3"
+    detector_command = (python("recast", "ravel.physics.native_event_io", "delphes",
+                              "--binary", detector_binary, "--card", delphes_card,
+                              "--output", detector_output, "--input", hepmc)
+                        if event_storage == "gzip" else
+                        [conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/recast"),str(detector_binary),delphes_card,detector_output,hepmc])
+    stage("delphes",detector_command, [hepmc,delphes_card], [detector_output], ["normalization"])
     sa_input = out/"analysis/Delphes2SA.root"
     stage("analysis",python("recast","ravel.physics.delphes2sa_native","--input",detector_output,"--output",sa_input,"--lumi",lumi,"--normalization",normalization,"--converter-script",converter,"--recast-env",tools/"miniforge3/envs/recast"),[detector_output,normalization,converter], [sa_input,str(sa_input)+".normalization.json"],["delphes"])
     outputs = [out/(routine+".root"),out/(routine+".txt")]
     extra = ["--rjr-binary",native_binary("rjr_resolve"),"--recast-env",tools/"miniforge3/envs/recast","--rjr-conda",conda] if capability["needs_restframes"] else []
     helper_outputs = [out/"native_objects.txt",out/"native_rjr.csv"] if capability["needs_restframes"] else []
+    if routine == "EwkCompressed2018":
+        parents, child_pdg = MODEL_PDGS[declared_model]
+        parent_masses = {float(expected_masses[str(p)]) for p in parents if str(p) in expected_masses}
+        if len(parent_masses) != 1:
+            raise ValueError("compressed validation needs one declared degenerate parent mass")
+        extra += ["--validation-masses", str(next(iter(parent_masses))), str(expected_masses[str(child_pdg)]),
+                  "--compressed-signal-model", compressed_signal_model]
+        helper_outputs += [out/"compressed_trace.jsonl.gz", out/"compressed_validation.json"]
     stage("simpleanalysis",python("rivet","ravel.physics.native_simpleanalysis","--input",sa_input,"--output",out,"--ngen",nevents,*extra,"--routine",routine),[sa_input],[*outputs,*helper_outputs],["analysis"])
     if statistics != "yields":
         patch = out/(routine+"_patch.json")
         args = ["-i",outputs[0],"-o",patch,"-n","native_signal","-b",inputs["likelihood"],"-l",lumi]
         args += ["-c"] if statistics == "compressed-likelihood" else ["--channel-map",inputs["channel_map"]]
-        stage("sa2json",python("rivet","ravel.physics.sa2json_native",*args),[outputs[0],inputs["likelihood"],*([inputs["channel_map"]] if "channel_map" in inputs else [])],[patch],["simpleanalysis"])
-        stage("pyhf",python("rivet","ravel.physics.pyhf_exclude","likelihood","--bkg",inputs["likelihood"],"--patch",patch,"--out",out),[inputs["likelihood"],patch],[out/"exclusion.json"],["sa2json"])
+        signal_metadata = out/"signal_model.json"
+        args += ["--mc-stat", mc_stat, "--signal-metadata", signal_metadata]
+        if statistics == "compressed-likelihood":
+            args += ["--compressed-signal-model", compressed_signal_model]
+        stage("sa2json",python("rivet","ravel.physics.sa2json_native",*args),[outputs[0],inputs["likelihood"],*([inputs["channel_map"]] if "channel_map" in inputs else [])],[patch,signal_metadata],["simpleanalysis"])
+        statistics_env = "recast" if fit_backend == "jax" else "rivet"
+        fit_args = ["likelihood","--bkg",inputs["likelihood"],"--patch",patch,"--out",out,"--backend",fit_backend]
+        fit_command = (module_command("ravel.physics.pyhf_exclude", *fit_args, python=statistics_python)
+                       if statistics_python is not None else
+                       python(statistics_env,"ravel.physics.pyhf_exclude",*fit_args))
+        stage("pyhf",fit_command,[inputs["likelihood"],patch,signal_metadata],[out/"exclusion.json"],["sa2json"])
     stage("native_report",local("report","--plan",plan_path),[plan_path,*outputs,normalization],[out/"native_execution_result.json"],[stages[-1]["stage"]])
     plan = {"schema_version":1,"rundir":str(rundir),"config":str(config),"plan_path":str(plan_path),
             "capability":capability,"nevents":nevents,"seed":seed,"ecms_gev":ecms,
             "luminosity_pb_inverse":lumi,"kfactor":kfactor,"expected_masses_gev":expected_masses,
+            "event_storage":event_storage,"compressed_signal_model":compressed_signal_model,
+            "mc_stat":mc_stat,"pyhf_backend":fit_backend,
+            "statistics_python":statistics_python,
             "campaign_points":campaign_points,"required_compute_plan":("scan" if campaign_points > 1 else "full" if nevents > 1000 else "smoke"),
             "inputs":inputs,"rendered":rendered,"sources":[fingerprint(p) for p in source_paths],
             "generator_command":[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/mg5"),str(tools/"mg5amcnlo/bin/mg5_aMC"),str(cards[2])],

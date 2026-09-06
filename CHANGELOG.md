@@ -1,6 +1,43 @@
 # Changelog
 
-## Unreleased — RRR diagnosis and macOS portability
+## Unreleased — RRR reproduction closure
+
+- Run fresh four-state m150/140 GeV smoke and 20,000-event samples through all twelve
+  native stages and all six likelihood roots. Publish exact small likelihood inputs,
+  cards, signal moments, fit diagnostics and source hashes in a self-checking waypoint
+  bundle. Its single-point limit agreement is conditional on the declared normalization;
+  reconstructed-fraction deficits and MC precision remain visible.
+- Add all-event accounting, six slepton control-region selections, explicit signal MC
+  constraints, strict ancestry/response diagnostics and independent-replica pooling
+  based on original generated exposure. Missing reference definitions and empty-bin
+  precision remain unresolved rather than becoming successful validations.
+- Guard profile optimization with objective, stationarity, bounds and nesting checks;
+  verify all six CLs crossings with a frozen fit-start portfolio. Recover a previously
+  failed retained fit and preserve numerical replay timeouts in its full population.
+- Validate compressed event transport, reject silent shower truncation and malformed
+  normalization, and catch zero-parton cards that still require a jet. Write round-trip
+  RISR CSV precision after a physical boundary test exposed a serialization error.
+- Require exact completed-stage receipts and campaign accounting that includes failed
+  attempts. Enforce every recorded fidelity source pin and public waypoint arithmetic,
+  including malformed-evidence controls, in publication checks and CI.
+- Preserve timeout failure when process cleanup raises, reap the owned child and
+  check for active descendants before escalation. Hold retries while cleanup remains
+  unresolved. Enforce registered reductions in campaign allocation without changing
+  historical approvals or removing failed-event charges.
+- Make Git-hook installation fail on path or write errors and work from nested
+  directories. Isolate hook tests from user configuration and remove an accidental
+  installed-native-binary dependency from the signed-event test fixture.
+
+- Correct model-card guidance and lint wording to inspect the actual UFO mass/mixing
+  dependencies. Remove stale lepton/monojet merging exemptions and universal rate heuristics;
+  preserve supplied cards, declared approximations and generated-product checks.
+
+Additional physics controls and lattice validation remain in progress. This release work does not yet
+establish full-plane reproduction, truth-acceptance closure, detector calibration,
+statistical coverage or an independent detector holdout. Final staged verification and
+publication are pending.
+
+## 2026-09-05 — RRR diagnosis and macOS portability
 
 - Audit all 156 retained records across three slepton campaigns, preserving original results and identifying coarse interpolation, incomplete detector exposure and confounded PDF/preparation comparisons.
 - Retain three resolved native cached-workspace refits and one numerical failure. Recover the official ATLAS 150/130 GeV model within 1% and record controlled signal-nuisance/control-region omissions, without claiming native detector or full reproduction closure.
@@ -13,8 +50,9 @@ No events were generated and no installed toolchain was rebuilt in this follow-u
 Its focused checks do not establish clean-Mac provisioning, Intel HEP execution,
 statistical coverage or end-to-end physics reproduction. Final source verification
 passes 1,155 tests with two release-only skips; a separate 44-test wheel/fidelity
-run enables both skipped cases. Public-export and remote-CI verification remain
-pending.
+run enables both skipped cases. The public export was published at
+`5888f37466a70891a80190bf6671d45f14d89968`; its
+[remote CI run](https://github.com/ammarphp/ravel/actions/runs/33994944474) passed.
 
 ## v0.4.0 — 2026-09-05
 

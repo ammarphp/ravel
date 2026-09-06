@@ -1,0 +1,142 @@
+{
+  "anchor20k": {
+    "checks": {
+      "actual_root_moments_equal_metadata": true,
+      "all38_channels_checked": true,
+      "disjoint_model_channels": true,
+      "nominal_model_background_equal_raw_sum": true,
+      "official_missingness_preserved": true,
+      "patch_yields_equal_actual_root": true,
+      "source_inputs_unchanged": true
+    },
+    "covariance_scope": "weighted-event second moments; Poissonized independent-event approximation, not exact fixed-N multinomial covariance",
+    "groups": {
+      "CR": {
+        "n_bins": 6,
+        "native_yield": 24.095937993706684,
+        "nominal_shape_total_variation": 0.39308103566784475,
+        "official_yield": 32.39997148513794,
+        "raw_yield_ratio": 0.7437024444530649,
+        "selected_nonzero": 85,
+        "uniform_positive_weight_relative_mc_error": 0.10846522890932808,
+        "zero_native_bins": 0
+      },
+      "SR-all": {
+        "n_bins": 32,
+        "native_yield": 101.20293957356807,
+        "nominal_shape_total_variation": 0.10937185033816041,
+        "official_yield": 122.98472449183464,
+        "raw_yield_ratio": 0.8228903222878486,
+        "selected_nonzero": 357,
+        "uniform_positive_weight_relative_mc_error": 0.05292561240249631,
+        "zero_native_bins": 12
+      },
+      "SR-high": {
+        "n_bins": 16,
+        "native_yield": 57.83025118489604,
+        "nominal_shape_total_variation": 0.10338917084636967,
+        "official_yield": 70.70838713645935,
+        "raw_yield_ratio": 0.8178697538849256,
+        "selected_nonzero": 204,
+        "uniform_positive_weight_relative_mc_error": 0.07001400420140048,
+        "zero_native_bins": 6
+      },
+      "SR-low": {
+        "n_bins": 16,
+        "native_yield": 43.37268838867203,
+        "nominal_shape_total_variation": 0.11754486068639612,
+        "official_yield": 52.27633735537529,
+        "raw_yield_ratio": 0.829681086756784,
+        "selected_nonzero": 153,
+        "uniform_positive_weight_relative_mc_error": 0.08084520834544433,
+        "zero_native_bins": 6
+      }
+    },
+    "normalization_basis": {
+      "comparison": "original nominal event yields compared as supplied; no139/140 rescaling and no substitution of inclusive cross section",
+      "correction_applications": 1,
+      "generated_exposure": 20000,
+      "luminosity_warning": "The paper's dataset luminosity is not a verified template-normalization field. At m150/140 the high-region template matches the 140/fb cutflow before rescaling. Do not silently assign 139/fb or 140/fb to every patch.",
+      "native_additional_scale": 1.0,
+      "native_applied_tagged_cross_section_pb": 0.040788724879999995,
+      "native_cross_section_pb": 0.034566716,
+      "native_kfactor": 1.18,
+      "native_luminosity_pb_inverse": 139000.0,
+      "official_inclusive_cross_section_pb": null,
+      "official_status": "nominal events preserved; template luminosity and theory cross section not encoded in patch metadata",
+      "official_template_luminosity_fb_inverse": null,
+      "rate_definition": "four-state one-matrix-element-jet LO sample with original card cuts; not inclusive production"
+    },
+    "official_uncertainty_boundary": "staterror/shapesys errors are recorded constraints; raw selected counts/sumw2 unavailable; implied effective count is not an observed generator event count"
+  },
+  "smoke2": {
+    "checks": {
+      "actual_root_moments_equal_metadata": true,
+      "all38_channels_checked": true,
+      "disjoint_model_channels": true,
+      "nominal_model_background_equal_raw_sum": true,
+      "official_missingness_preserved": true,
+      "patch_yields_equal_actual_root": true,
+      "source_inputs_unchanged": true
+    },
+    "covariance_scope": "weighted-event second moments; Poissonized independent-event approximation, not exact fixed-N multinomial covariance",
+    "groups": {
+      "CR": {
+        "n_bins": 6,
+        "native_yield": 28.5667933167133,
+        "nominal_shape_total_variation": 0.3517064567266587,
+        "official_yield": 32.39997148513794,
+        "raw_yield_ratio": 0.8816919277171914,
+        "selected_nonzero": 5,
+        "uniform_positive_weight_relative_mc_error": 0.4472135954999579,
+        "zero_native_bins": 3
+      },
+      "SR-all": {
+        "n_bins": 32,
+        "native_yield": 119.98053193019587,
+        "nominal_shape_total_variation": 0.3679884660887744,
+        "official_yield": 122.98472449183464,
+        "raw_yield_ratio": 0.9755726365688754,
+        "selected_nonzero": 21,
+        "uniform_positive_weight_relative_mc_error": 0.2182178902359924,
+        "zero_native_bins": 21
+      },
+      "SR-high": {
+        "n_bins": 16,
+        "native_yield": 62.84694529676926,
+        "nominal_shape_total_variation": 0.33077148038034615,
+        "official_yield": 70.70838713645935,
+        "raw_yield_ratio": 0.8888188211036637,
+        "selected_nonzero": 11,
+        "uniform_positive_weight_relative_mc_error": 0.30151134457776363,
+        "zero_native_bins": 10
+      },
+      "SR-low": {
+        "n_bins": 16,
+        "native_yield": 57.1335866334266,
+        "nominal_shape_total_variation": 0.4254282580371015,
+        "official_yield": 52.27633735537529,
+        "raw_yield_ratio": 1.0929148736077599,
+        "selected_nonzero": 10,
+        "uniform_positive_weight_relative_mc_error": 0.31622776601683794,
+        "zero_native_bins": 11
+      }
+    },
+    "normalization_basis": {
+      "comparison": "original nominal event yields compared as supplied; no139/140 rescaling and no substitution of inclusive cross section",
+      "correction_applications": 1,
+      "generated_exposure": 1000,
+      "luminosity_warning": "The paper's dataset luminosity is not a verified template-normalization field. At m150/140 the high-region template matches the 140/fb cutflow before rescaling. Do not silently assign 139/fb or 140/fb to every patch.",
+      "native_additional_scale": 1.0,
+      "native_applied_tagged_cross_section_pb": 0.04110329872,
+      "native_cross_section_pb": 0.034833304,
+      "native_kfactor": 1.18,
+      "native_luminosity_pb_inverse": 139000.0,
+      "official_inclusive_cross_section_pb": null,
+      "official_status": "nominal events preserved; template luminosity and theory cross section not encoded in patch metadata",
+      "official_template_luminosity_fb_inverse": null,
+      "rate_definition": "four-state one-matrix-element-jet LO sample with original card cuts; not inclusive production"
+    },
+    "official_uncertainty_boundary": "staterror/shapesys errors are recorded constraints; raw selected counts/sumw2 unavailable; implied effective count is not an observed generator event count"
+  }
+}

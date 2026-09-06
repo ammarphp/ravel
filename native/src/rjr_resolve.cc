@@ -57,6 +57,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <limits>
 
 using namespace RestFrames;
 
@@ -199,8 +200,8 @@ int main(int argc, char** argv) {
 
     std::ofstream out(outPath);
     out << "Event,nJ,nLep,RISR,MS,PTISR,MISR,dphiISRI,NjV,NjISR,solved\n";
-    out.setf(std::ios::fixed);
-    out.precision(6);
+    // Round-trip doubles: fixed decimal rounding can turn RISR<1 into 1.
+    out.precision(std::numeric_limits<double>::max_digits10);
 
     Long64_t N = 0, nSolved = 0;
     std::string line;
@@ -276,8 +277,7 @@ int main(int argc, char** argv) {
 
   std::ofstream out(outPath);
   out << "Event,nJ,nLep,RISR,MS,PTISR,MISR,dphiISRI,NjV,NjISR,solved\n";
-  out.setf(std::ios::fixed);
-  out.precision(6);
+  out.precision(std::numeric_limits<double>::max_digits10);
 
   const Long64_t N = t->GetEntries();
   Long64_t nSolved = 0, nGated = 0;

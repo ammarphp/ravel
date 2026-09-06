@@ -1,0 +1,492 @@
+{
+  "cases": [
+    {
+      "case_id": "conf2016037_gluino_2step_sleptons_1400_60",
+      "error": null,
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "provenance: deliverable missing/empty: outputs/analysis_patched.yoda"
+        ]
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "SR3l2",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.297012,
+          "mu95_exp": 0.24009,
+          "mu95_obs": 0.296858,
+          "our_excluded_obs": true,
+          "s95_exp": 3.7854,
+          "s95_obs": 4.68044,
+          "s95_ratio_exp": 0.94635,
+          "s95_ratio_obs": 0.917734,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 8.43231,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [
+            "deliverable missing/empty: outputs/analysis_patched.yoda"
+          ],
+          "ok": false
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.297012,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 41.4422,
+        "total_s": 41.4441
+      }
+    },
+    {
+      "case_id": "conf2016054_gluino_onestep_1500_60",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "GG-4j-0lowx",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.223874,
+          "mu95_exp": 0.286503,
+          "mu95_obs": 0.223119,
+          "our_excluded_obs": true,
+          "s95_exp": 6.43328,
+          "s95_obs": 5.01003,
+          "s95_ratio_exp": 0.97474,
+          "s95_ratio_obs": 0.910915,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 3.50248,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.223874,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 50.9244,
+        "total_s": 50.9263
+      }
+    },
+    {
+      "case_id": "ins1452559_dm_axial_850_1",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": null,
+        "limit": {
+          "best_sr": "IM7",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.343173,
+          "mu95_exp": 0.317649,
+          "mu95_obs": 0.341541,
+          "our_excluded_obs": true,
+          "s95_exp": 46.8322,
+          "s95_obs": 59.5311,
+          "s95_ratio_exp": 0.975671,
+          "s95_ratio_obs": 0.97592,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 292.238,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": null,
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.343173,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "pyhf_s": 68.4585,
+        "total_s": 68.4604
+      }
+    },
+    {
+      "case_id": "ins1458270_gluino_1000_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "FAIL",
+          "driving_sr": "5j",
+          "n_attributed": 1,
+          "residual": 0.132428,
+          "tier": "Acceptable",
+          "worst_driving_mu95_impact": 0.253662
+        },
+        "limit": {
+          "best_sr": "5j",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.0523732,
+          "mu95_exp": 0.0857618,
+          "mu95_obs": 0.0493291,
+          "our_excluded_obs": true,
+          "s95_exp": 8.8163,
+          "s95_obs": 5.07103,
+          "s95_ratio_exp": 1.01337,
+          "s95_ratio_obs": 0.939079,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 18.9875,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Acceptable",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.0523732,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 1.47231,
+        "pyhf_s": 64.802,
+        "total_s": 66.2774
+      }
+    },
+    {
+      "case_id": "ins1458270_gluino_merged_1000_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "FAIL",
+          "driving_sr": "5j",
+          "n_attributed": 1,
+          "residual": 0.0807821,
+          "tier": "Good",
+          "worst_driving_mu95_impact": 0.128982
+        },
+        "limit": {
+          "best_sr": "5j",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.055,
+          "mu95_exp": 0.0898379,
+          "mu95_obs": 0.0516722,
+          "our_excluded_obs": true,
+          "s95_exp": 8.8164,
+          "s95_obs": 5.07095,
+          "s95_ratio_exp": 1.01338,
+          "s95_ratio_obs": 0.939065,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 19.8945,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Good",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.055,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 0.893842,
+        "pyhf_s": 44.9071,
+        "total_s": 45.8041
+      }
+    },
+    {
+      "case_id": "ins1458270_squark_800_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "2jl",
+          "n_attributed": 2,
+          "residual": 0.0244824,
+          "tier": "Ideal",
+          "worst_driving_mu95_impact": 0.0244824
+        },
+        "limit": {
+          "best_sr": "2jl",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.222544,
+          "mu95_exp": 0.273947,
+          "mu95_obs": 0.217873,
+          "our_excluded_obs": true,
+          "s95_exp": 54.8858,
+          "s95_obs": 43.6513,
+          "s95_ratio_exp": 1.0164,
+          "s95_ratio_obs": 0.992076,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 57.1684,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Ideal",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.222544,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 0.864332,
+        "pyhf_s": 42.1984,
+        "total_s": 43.0655
+      }
+    },
+    {
+      "case_id": "ins1458270_squark_merged_800_100",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "2jl",
+          "n_attributed": 1,
+          "residual": 0.0393797,
+          "tier": "Ideal",
+          "worst_driving_mu95_impact": 0.050633
+        },
+        "limit": {
+          "best_sr": "2jl",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.225796,
+          "mu95_exp": 0.278098,
+          "mu95_obs": 0.221174,
+          "our_excluded_obs": true,
+          "s95_exp": 54.8858,
+          "s95_obs": 43.6513,
+          "s95_ratio_exp": 1.0164,
+          "s95_ratio_obs": 0.992076,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 58.0549,
+          "sigma_ul_ratio_obs": null,
+          "sigma_ul_tier_info": null,
+          "stability_ok": true,
+          "tier": "Ideal",
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Ideal",
+        "limit_tier": "Ideal",
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.225796,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 0.950678,
+        "pyhf_s": 61.021,
+        "total_s": 61.9747
+      }
+    },
+    {
+      "case_id": "ins1676551_c1n2_300_100",
+      "error": null,
+      "gate": {
+        "ok": false,
+        "reasons": [
+          "provenance: deliverable missing/empty: build/analysis.yoda"
+        ]
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "PASS",
+          "driving_sr": "SR3L_Low",
+          "n_attributed": 1,
+          "residual": 0.064454,
+          "tier": "Good",
+          "worst_driving_mu95_impact": 0.064454
+        },
+        "limit": {
+          "best_sr": "SR3L_Low",
+          "best_sr_matches": true,
+          "mu95_baseline": 2.7123,
+          "mu95_exp": 0.968508,
+          "mu95_obs": 2.71212,
+          "our_excluded_obs": false,
+          "s95_exp": 9.24391,
+          "s95_obs": 18.6083,
+          "s95_ratio_exp": null,
+          "s95_ratio_obs": null,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 1096.47,
+          "sigma_ul_ratio_obs": 4.99641,
+          "sigma_ul_tier_info": "BELOW",
+          "stability_ok": true,
+          "tier": null,
+          "verdict_pipeline_match": false
+        },
+        "provenance": {
+          "failures": [
+            "deliverable missing/empty: build/analysis.yoda"
+          ],
+          "ok": false
+        }
+      },
+      "required": {
+        "axe_tier": "Good",
+        "limit_tier": null,
+        "mu95_stability": {
+          "baseline_mu95_obs": 2.7123,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 0.0636339,
+        "pyhf_s": 28.0746,
+        "total_s": 28.1423
+      }
+    },
+    {
+      "case_id": "ins2182381_gbb_1900_1",
+      "error": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "metrics": {
+        "axe": {
+          "cert_verdict": "FAIL",
+          "driving_sr": "SR_Gbb_0l_B",
+          "n_attributed": 1,
+          "residual": 0.2649,
+          "tier": "Acceptable",
+          "worst_driving_mu95_impact": 0.2649
+        },
+        "limit": {
+          "best_sr": "SR_Gbb_0l_B",
+          "best_sr_matches": true,
+          "mu95_baseline": 0.17694,
+          "mu95_exp": 0.11375,
+          "mu95_obs": 0.176927,
+          "our_excluded_obs": true,
+          "s95_exp": 6.02412,
+          "s95_obs": 9.36997,
+          "s95_ratio_exp": null,
+          "s95_ratio_obs": null,
+          "selfcheck_ok": true,
+          "sigma_ul_ours_fb": 0.302472,
+          "sigma_ul_ratio_obs": 0.732662,
+          "sigma_ul_tier_info": "Acceptable",
+          "stability_ok": true,
+          "tier": null,
+          "verdict_pipeline_match": true
+        },
+        "provenance": {
+          "failures": [],
+          "ok": true
+        }
+      },
+      "required": {
+        "axe_tier": "Acceptable",
+        "limit_tier": null,
+        "mu95_stability": {
+          "baseline_mu95_obs": 0.17694,
+          "rtol": 0.1
+        }
+      },
+      "status": "OK",
+      "timing": {
+        "cert_s": 0.0690498,
+        "pyhf_s": 23.6767,
+        "total_s": 23.7494
+      }
+    }
+  ],
+  "cases_file": "benchmarks/cases.json",
+  "generated": "2026-09-06T01:51:36+00:00",
+  "schema_version": 1,
+  "selection": "full",
+  "summary": {
+    "gate_ok": false,
+    "n_breach": 2,
+    "n_cases": 9
+  }
+}

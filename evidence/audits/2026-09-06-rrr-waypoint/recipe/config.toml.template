@@ -1,0 +1,28 @@
+[madgraph.run]
+nevents = 20000
+seed = 1731
+ecms = 13000
+[analysis]
+script = "Delphes2SA.py"
+lumi = 139000
+kfactor = 1.18
+XSoverride = -1
+[simpleanalysis]
+name = "EwkCompressed2018"
+[ravel.native]
+model = "slepton-bino"
+preparation = "explicit-cards"
+detector = "simpleanalysis-delphes"
+statistics = "compressed-likelihood"
+event_storage = "gzip"
+compressed_signal_model = "full"
+mc_stat = "shapesys"
+pyhf_backend = "jax"
+statistics_python = "/ABSOLUTE/PATH/TO/JAX_PYTHON"
+[ravel.native.inputs]
+process_card = "inputs/cards/process.dat"
+param_card = "inputs/cards/param.dat"
+run_card = "inputs/cards/run.dat"
+shower_card = "inputs/cards/shower.cfg"
+delphes_card = "inputs/cards/detector.tcl"
+likelihood = "inputs/background-official.json"

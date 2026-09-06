@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-06T01:52:39.834563+00:00",
+  "scope": "Fresh numerical inference, actual ROOT conversion and9-case retained-input replay; no event generation, acceptance certification or baseline rewrite",
+  "source_package_version": "0.4.0",
+  "starting_source_commit": "b2ce048a15a45502980c7f27f8949d77e91f17dd",
+  "source_state": "uncommitted integration worktree; engine_sha256 identifies exact tested source bytes",
+  "engine_sha256": {
+    "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+    "src/ravel/physics/sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c",
+    "src/ravel/validation/validate_cutflow.py": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22",
+    "src/ravel/validation/certify_acceptance.py": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120",
+    "tests/unit/test_statistical_fidelity.py": "f0194f8782f21ea3358a4edbceb9741146555c324f07fbd737c5a74f9f31c929",
+    "tests/unit/test_profile_optimization.py": "7928d1f86285bc266621bc81fac1eea4757907d154be205b2b1021dff1d23dea"
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "pyhf": "0.7.6",
+    "numpy": "1.26.4",
+    "scipy": "1.14.1",
+    "iminuit": "2.32.0"
+  },
+  "root_precision_example": {
+    "counting_input": {
+      "n": 10,
+      "b": 10,
+      "db": 2,
+      "s": 5
+    },
+    "plot_grid_points": 5,
+    "level": 0.05,
+    "reference_solver": "pyhf.infer.intervals.upper_limits.toms748_scan; fresh model and standard scipy optimizer",
+    "reference_observed_limit": 1.6587476148447502,
+    "refined_observed_limit": 1.6587461726312438,
+    "reference_expected_limits": [
+      0.8376800406547245,
+      1.1513706140867943,
+      1.6587476148442426,
+      2.4356741596812865,
+      3.4887578583030425
+    ],
+    "refined_expected_limits": [
+      0.8376826013391796,
+      1.1513736758253468,
+      1.6587461726313852,
+      2.4356734337310564,
+      3.488733735507581
+    ],
+    "refined_relative_error": -8.694592796842926e-07,
+    "root_rtol": 0.0001,
+    "limit_status": {
+      "observed": "resolved",
+      "expected": [
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved"
+      ]
+    },
+    "limit_brackets": {
+      "observed": [
+        1.00075,
+        2.0
+      ],
+      "expected": [
+        [
+          0.7071067811865475,
+          1.0
+        ],
+        [
+          1.00075,
+          2.0
+        ],
+        [
+          1.00075,
+          2.0
+        ],
+        [
+          2.0005,
+          3.00025
+        ],
+        [
+          3.00025,
+          4.0
+        ]
+      ]
+    },
+    "fit_diagnostics": {
+      "available": true,
+      "source": "pyhf AsymptoticCalculator free_fit_to_data",
+      "reference_mu": 4.0,
+      "twice_nll": 9.220542488821145,
+      "parameters": [
+        {
+          "name": "mu",
+          "value": 7.361785184203618e-19,
+          "fixed": false,
+          "bounds": [
+            0.0,
+            6.0
+          ],
+          "near_lower_bound": true,
+          "near_upper_bound": false
+        },
+        {
+          "name": "uncorr_bkguncrt[0]",
+          "value": 1.0000000212644162,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        }
+      ],
+      "covariance": null,
+      "nuisance_pull_uncertainties": null,
+      "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+      "signal_strength_units": "supplied-model units",
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 9.220542488821145,
+          "fixed_data": 25.784544036138374,
+          "mu0_data": 9.220542488821128,
+          "free_asimov": 9.220542488821145,
+          "fixed_asimov": 25.784544036138374,
+          "generating_asimov": 9.220542488821128
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    }
+  },
+  "tests": {
+    "focused_passed": 91,
+    "focused_failed": 0,
+    "focused_skipped": 0,
+    "profile_optimization_passed": 26,
+    "statistical_fidelity_passed": 65,
+    "selftest_passed": 5,
+    "real_root_io_passed": 9,
+    "details": [
+      "focused-tests.json",
+      "selftest.json",
+      "root-io-verification.json"
+    ]
+  },
+  "cached_replay": {
+    "population": 9,
+    "aggregate_gate_ok": false,
+    "passed_cases": 7,
+    "breached_cases": 2,
+    "all_statistical_stability_checks_passed": true,
+    "acceptance_baseline_cached_cases": 0,
+    "baseline_rewritten": false,
+    "cases": [
+      {
+        "case_id": "conf2016037_gluino_2step_sleptons_1400_60",
+        "gate_ok": false,
+        "gate_reasons": [
+          "provenance: deliverable missing/empty: outputs/analysis_patched.yoda"
+        ],
+        "status": "OK",
+        "mu95_obs": 0.296858,
+        "mu95_exp": 0.24009,
+        "s95_ratio_obs": 0.917734,
+        "s95_ratio_exp": 0.94635,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "conf2016054_gluino_onestep_1500_60",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.223119,
+        "mu95_exp": 0.286503,
+        "s95_ratio_obs": 0.910915,
+        "s95_ratio_exp": 0.97474,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1452559_dm_axial_850_1",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.341541,
+        "mu95_exp": 0.317649,
+        "s95_ratio_obs": 0.97592,
+        "s95_ratio_exp": 0.975671,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_gluino_1000_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.0493291,
+        "mu95_exp": 0.0857618,
+        "s95_ratio_obs": 0.939079,
+        "s95_ratio_exp": 1.01337,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.132428,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_gluino_merged_1000_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.0516722,
+        "mu95_exp": 0.0898379,
+        "s95_ratio_obs": 0.939065,
+        "s95_ratio_exp": 1.01338,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0807821,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_squark_800_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.217873,
+        "mu95_exp": 0.273947,
+        "s95_ratio_obs": 0.992076,
+        "s95_ratio_exp": 1.0164,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0244824,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_squark_merged_800_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.221174,
+        "mu95_exp": 0.278098,
+        "s95_ratio_obs": 0.992076,
+        "s95_ratio_exp": 1.0164,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0393797,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1676551_c1n2_300_100",
+        "gate_ok": false,
+        "gate_reasons": [
+          "provenance: deliverable missing/empty: build/analysis.yoda"
+        ],
+        "status": "OK",
+        "mu95_obs": 2.71212,
+        "mu95_exp": 0.968508,
+        "s95_ratio_obs": null,
+        "s95_ratio_exp": null,
+        "sigma_ul_ratio_obs": 4.99641,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.064454,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins2182381_gbb_1900_1",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.176927,
+        "mu95_exp": 0.11375,
+        "s95_ratio_obs": null,
+        "s95_ratio_exp": null,
+        "sigma_ul_ratio_obs": 0.732662,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.2649,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      }
+    ]
+  },
+  "retained_likelihood_control": {
+    "artifact": "m150-dm20-jax-refit.json",
+    "scope": "fixed-template statistical diagnosis; no physics certification",
+    "observed": 0.623722403950509,
+    "expected": [
+      0.29974121150230326,
+      0.40367335031481677,
+      0.5667101469300333,
+      0.812434916044663,
+      1.1110338221191507
+    ],
+    "wall_seconds": 877.0892479169997,
+    "inference": {
+      "method": "asymptotic CLs",
+      "test_stat": "qtilde",
+      "level": 0.05,
+      "root_solver": "scipy.brentq",
+      "root_rtol": 0.0001,
+      "root_atol": 1e-10,
+      "omitted_low_mu_nonfinite": [],
+      "root_cls_atol": 0.0005,
+      "root_cls_max_error": 2.8861618371206488e-06,
+      "profile_passes": 1,
+      "fresh_check_evaluations": 16,
+      "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+      "backend": "jax",
+      "precision": "64b",
+      "fit_tolerance": 1e-09,
+      "model_sha256": "f508b18c2f9fc9374920091fc442093c5a15f77b5f5f9b6699ba36b39efdf07f",
+      "data_sha256": "0c29ecf3875ebc5e1a041dbdd5e37d6aa728900463ef8b9677fb53f277f8b352",
+      "coverage_validated": false,
+      "scope": "statistical inversion of the supplied model; no acceptance certification"
+    },
+    "independent_lower_branch_control": "m150-dm20-numpy-lower-branch.json"
+  },
+  "limitations": [
+    "These are numerical checks on supplied models, not asymptotic coverage validation, detector acceptance certification or a global-minimum proof.",
+    "Counting combinations assume exclusive bins and independent background constraints. Correlations absent from counting inputs are not inferred.",
+    "Workspace modifier correlations are preserved. No full covariance, nuisance pull uncertainties, impacts or toy-coverage campaign was computed.",
+    "The retained m150/dm20 patch is unchanged historical signal modeling. Its numerical recovery does not repair historical missing control-region signal, signal nuisance construction, acceptance or generation assumptions.",
+    "The full9 benchmark keeps2 missing-generated-YODA provenance failures. Workspace-wide targeted search found no matching generated replacements; published Rivet reference tables were not substituted.",
+    "C1N2 observed cross-section-limit ratio about4.99641 and its observed verdict mismatch remain scientific discrepancies outside RRR; the established gate treats the ratio informationally.",
+    "Regression floors and fresh acceptance certificate verdicts are different criteria. A regression gate pass can coexist with a failed acceptance certificate.",
+    "Acceptance residuals are point comparisons; MC, published-reference and interpolation uncertainties are not propagated here.",
+    "Signed selected weights survive the converter where net expected yields are nonnegative. This is not general signed-weight end-to-end inference support; all-zero templates do not establish a finite limit.",
+    "The52-point unchanged-template replay was launched separately and is incomplete at audit creation; it is not counted as52 successful fits."
+  ],
+  "primary_sources": [
+    "https://pyhf.readthedocs.io/en/v0.7.6/_generated/pyhf.infer.intervals.upper_limits.toms748_scan.html",
+    "https://pyhf.readthedocs.io/en/v0.7.6/_generated/pyhf.infer.hypotest.html",
+    "https://scikit-hep.org/iminuit/reference.html"
+  ]
+}

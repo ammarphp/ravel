@@ -33,9 +33,13 @@ Common keys: `nevents`, `ebeam1/2` (= ½·√s, so 6500 for 13 TeV), `iseed` (Ma
 each run — re-set to reproduce), `use_syst=False` (single nominal weight).
 
 ## SLHA card invariant — verify masses + decays BEFORE showering (a 🔴 silent trap)
-For `MSSM_SLHA2`, gaugino masses are derived from `MSOFT` (M1/M2/M3) + `HMIX` (μ) and **override** the
-`MASS` block; a card whose `MASS` says 300 but whose `MSOFT` says otherwise silently generates the
-wrong spectrum. Decays (source-verified Session 2 in Pythia's upstream SLHAinterface.cc source,
+Determine which inputs the actual imported model consumes. A UFO may expose physical masses and
+mixing matrices as independent external SLHA parameters; a spectrum calculator may instead derive
+them from soft parameters. `MSOFT/HMIX` presence alone does not establish an override. Pin the UFO,
+restriction/cache inputs and effective cards; inspect their mass and coupling dependencies before
+changing the spectrum. The inspected RRR MSSM_SLHA2 interface reads `Mneu1` from `MASS[1000022]`
+and NMIX independently. This supports its supplied simplified-model interface, not a newly
+diagonalized MSSM spectrum. Decays (source-verified Session 2 in Pythia's upstream SLHAinterface.cc source,
 plus a direct 8.312 shower test):
 MadGraph does **NOT** inject `MODSEL` into the LHE banner — the banner carries exactly what the input
 card had — and Pythia 8.312 imports SLHA `DECAY` tables **regardless of MODSEL** when
@@ -43,16 +47,26 @@ card had — and Pythia 8.312 imports SLHA `DECAY` tables **regardless of MODSEL
 rows — MadGraph's default restrict card): Pythia imports nothing ("ignoring empty DECAY tables"), and
 with internal SUSY off (no MODSEL) it can't compute the channels itself → undecayed sparticles →
 empty SRs, exit 0. Include `MODSEL` (`1 1`) anyway — it is required the moment any particle relies on
-Pythia's internal machinery for its channels. So: set the soft params consistent with the target,
-give every produced sparticle explicit BR rows, then run the automated pre-shower guard
+Pythia's internal machinery for its channels. Preserve the declared spectrum/mixing/decay policy,
+give every produced unstable sparticle explicit BR rows, then run the automated pre-shower guard
 `src/ravel/validation/lhe_check.py <lhe> --expect-mass <PDG>:<mass> …` (first-event + banner
 masses, MODSEL, weight structure, merged-vs-unmerged) and **confirm the shower makes the expected
 decay products**. The EWKino simplified-model recipe is in `docs/workflow/checklists/model-cards.md`.
 
-## Multi-jet merging (≥4-jet SRs need it, or they come out ~30–40% low)
+## ISR and multi-jet merging
+Decide from the published signal simulation and the observables that provide acceptance. A
+two-lepton or monojet label does not establish that shower-only ISR is adequate. In compressed
+SUSY-2018-16, the recoil jet, missing momentum and RISR are central to selection; the ATLAS
+slepton samples include up to two extra partons with CKKW-L and a merging scale of one quarter
+of the slepton mass. Keep this distinct from the RRR unmerged one-parton approximation.
+The current explicit-cards native adapter intentionally rejects merged samples because their
+vetoes and weights require a different normalization contract. Do not bypass that guard.
+
+For a separately supported MLM workflow:
 1. Process: `generate p p > <parents>` + `add process … j` + `… j j`.
-2. Run card: `ickkw=1`; pick `xqcut` from a **measured matched-σ stability scan** (cheap: ~1k events
-   at 2–3 scales post-compile; accept |matched/LO−1| ≤ 5%; ¼·m(parent) is the usual winner). With
+2. Run card: `ickkw=1`; assess `xqcut` with a **measured scale-variation study** including
+   integration and sampling errors, jet rates and analysis-relevant shapes. A small smoke can
+   detect gross failures but cannot establish a precision plateau. With
    `auto_ptj_mjj=T` the applied parton cut is `xqcut`, not the literal `ptj` line. Full recipe + the
    worked example: `docs/workflow/checklists/merging.md`.
 3. **Matched shower** with `$RAVEL_NATIVE_BIN/pythia_shower_merged` (uses the
@@ -61,7 +75,11 @@ decay products**. The EWKino simplified-model recipe is in `docs/workflow/checkl
 4. Pythia cfg (explicit — `setMad=on` often can't parse MG's header and silently defaults `qCut=10`,
    which vetoes **every** event): `JetMatching:merge=on`, `scheme=1`, `setMad=off`, `qCut ≥ xqcut`
    (e.g. 100), `nJetMax=2`, `nQmatch=4`.
-5. Validate: matched σ should ≈ the lowest-multiplicity LO σ (the veto preserves the inclusive rate);
-   high-mult SR yields rise toward published. Scan `xqcut` for σ-stability.
+5. Validate accepted weights, cross sections, differential jet rates and recoil/selection shapes
+   over declared variations. MLM and ordinary CKKW-L do not guarantee exact preservation of the
+   lowest-multiplicity LO inclusive cross section. Do not select a scale just to force that
+   equality or move a result toward a publication. The old 5% comparison was a scoped diagnostic
+   for one retained multijet example, not a universal physical law.
 
-EWK / lepton-only / monojet searches do **not** need merging — record that deliberate choice.
+Record the source-backed prescription, approximation and unresolved uncertainty before running.
+See `docs/workflow/checklists/merging.md` for primary references and the historical example.

@@ -1,0 +1,114 @@
+{
+  "created_utc": "2026-09-06T02:26:50.696463+00:00",
+  "local_delphes_source_checkout": {
+    "commit": "822e31b3c96b47b6bc34cc4118c7e3907a31d692",
+    "describe": "3.5.2pre01",
+    "scope": "source semantics only; actual installed binary is conda Delphes3.5.1, pinned separately"
+  },
+  "local_sources": [
+    {
+      "bytes": 8087,
+      "path": "stages/01-event-generation/build/tools/miniforge3/envs/pipeline/share/mapyde/scripts/Delphes2SA.py",
+      "sha256": "82f3a7742a7ab1d3bd3a52d79b0eca505143c690c6c6a4f05eed89c99c555f4a"
+    },
+    {
+      "bytes": 10037,
+      "path": "stages/01-event-generation/build/tools/simple-analysis-src/SimpleAnalysisFramework/SimpleAnalysisFramework/AnalysisObject.h",
+      "sha256": "937ef816406b9efd739ce02e13107cc9d2249d48d6fb53c37ec6b1b6f0d700de"
+    },
+    {
+      "bytes": 28312,
+      "path": "stages/01-event-generation/build/tools/simple-analysis-src/SimpleAnalysisCodes/src/ANA-SUSY-2018-16.cxx",
+      "sha256": "215298ad34bea06922611f90ac08aafb6c90aebc4803b36ac4a9ddaed378b69d"
+    },
+    {
+      "bytes": 4819,
+      "path": "stages/01-event-generation/build/tools/delphes/modules/BTagging.cc",
+      "sha256": "b3bd47c6d0beb18b5d28f636b4c9e3c5111d193ade5a48084872bd351cd7a3a4"
+    },
+    {
+      "bytes": 88614,
+      "path": "stages/01-event-generation/build/tools/miniforge3/envs/recast/conda-meta/delphes-3.5.1-hed256f0_2.json",
+      "sha256": "c97b4efc5047d1cc8d073bfd2b910e629f03672eb6365ef8a13de64aa64e4bf8"
+    },
+    {
+      "bytes": 99744,
+      "path": "stages/01-event-generation/build/tools/miniforge3/envs/recast/bin/DelphesHepMC3",
+      "sha256": "cf5d80e123d5920afff65418fcbc419239e3e43e25c63107112c14d821f3cb4f"
+    },
+    {
+      "bytes": 7148,
+      "path": "stages/01-event-generation/build/tools/miniforge3/envs/pipeline/lib/python3.11/site-packages/mapyde-0.5.0.dist-info/METADATA",
+      "sha256": "2a49d152c445256fa0da32e0f50788602d309b6e06b0ce1f7d7e6d9274c9bd80"
+    },
+    {
+      "bytes": 32247,
+      "path": "src/ravel/physics/native_simpleanalysis.py",
+      "sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1"
+    },
+    {
+      "bytes": 20501,
+      "path": "src/ravel/physics/sa_native_core.py",
+      "sha256": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3"
+    },
+    {
+      "bytes": 24371,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl",
+      "sha256": "3e21edf3f2fa021e2f6b8534a4287448928e93d5f44d8ea53c93f4653be40a31"
+    },
+    {
+      "bytes": 4688328,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/sources/atlas-1911.12606v2.pdf",
+      "sha256": "d18dccb7c4c035e482f3ea264b1852182117cb6359ba339153241a7402af8ddf"
+    },
+    {
+      "bytes": 2875,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/table_22.yaml",
+      "sha256": "4cf4de341012222aa7d8ba8f1f85ee0c2c77e0b32dfb12ff33fe3be42ef8672b"
+    },
+    {
+      "bytes": 2819,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/table_23.yaml",
+      "sha256": "023466e4c16ab046345906966c539bb3384e4e74acebc2d19b4affbb8365b53e"
+    },
+    {
+      "bytes": 55431,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_validation.json",
+      "sha256": "8930e749cca07f4426d18bf0622a0bc62c532dd86f553977bc876a22cece2dad"
+    }
+  ],
+  "older_card_reference": {
+    "status": "cited by card; web search identifies older MV2c20 performance note; direct PDF fetch did not yield inspectable PDF in browser, no claimed byte pin",
+    "url": "https://cds.cern.ch/record/2037697/files/ATL-PHYS-PUB-2015-022.pdf"
+  },
+  "remote_sources": [
+    {
+      "bytes": 8087,
+      "content_type": "text/plain",
+      "sha256": "82f3a7742a7ab1d3bd3a52d79b0eca505143c690c6c6a4f05eed89c99c555f4a",
+      "storage": "bytes read and hashed; external code not copied",
+      "url": "https://raw.githubusercontent.com/scipp-atlas/mapyde/v0.5.0/scripts/Delphes2SA.py"
+    },
+    {
+      "bytes": 21552,
+      "content_type": "text/plain",
+      "sha256": "b6a97bcd6e2b4f19e218eaa07b3afe1937d66452f0519de0b8c367eff46fe69d",
+      "storage": "bytes read and hashed; external code not copied",
+      "url": "https://raw.githubusercontent.com/delphes/delphes/3.5.1/cards/delphes_card_ATLAS.tcl"
+    },
+    {
+      "bytes": 4864,
+      "content_type": "text/plain",
+      "sha256": "367c02a87193498ed9e1dbb4702c94ad181b0e4f7ba171fc7df3cd3712c16f81",
+      "storage": "bytes read and hashed; external code not copied",
+      "url": "https://raw.githubusercontent.com/delphes/delphes/3.5.1/modules/BTagging.cc"
+    },
+    {
+      "bytes": 1374826,
+      "content_type": "application/pdf",
+      "sha256": "f8549af2164ba1692629ba5b4cd15a3cc786bbc3be0b6cf07ed463147bfbc3c8",
+      "storage": "bytes read and hashed; external code not copied",
+      "url": "https://arxiv.org/pdf/1907.05120v2"
+    }
+  ]
+}

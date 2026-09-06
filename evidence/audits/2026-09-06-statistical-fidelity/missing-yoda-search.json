@@ -1,0 +1,43 @@
+{
+  "search_scope": "DSRLab workspace including ignored files and sibling worktrees/public checkout; no symlink following",
+  "path_inventory_count": 4432,
+  "yoda_path_count": 4385,
+  "nonlibrary_generated_or_copied_yoda_files_content_searched": 41,
+  "content_matches": [],
+  "errors": [],
+  "installed_reference_matches": [
+    {
+      "sha256": "0ea6c3b610425742352f514d23ac2fdbad5d6e553576d02f42641e2622166de9",
+      "classification": "installed published reference table; not generated signal-event deliverable",
+      "first_lines": [
+        "BEGIN YODA_ESTIMATE1D_V3 /REF/ATLAS_2018_I1676551/d01-x01-y01",
+        "IsRef: 1",
+        "Path: /REF/ATLAS_2018_I1676551/d01-x01-y01",
+        "Title: ",
+        "Type: Estimate1D",
+        "---",
+        "Edges(A1): [4.000000e+02, 4.500000e+02, 5.000000e+02, 5.500000e+02, 6.000000e+02, 6.500000e+02, 7.000000e+02]"
+      ],
+      "location_role": "installed package cache"
+    },
+    {
+      "sha256": "0ea6c3b610425742352f514d23ac2fdbad5d6e553576d02f42641e2622166de9",
+      "classification": "installed published reference table; not generated signal-event deliverable",
+      "first_lines": [
+        "BEGIN YODA_ESTIMATE1D_V3 /REF/ATLAS_2018_I1676551/d01-x01-y01",
+        "IsRef: 1",
+        "Path: /REF/ATLAS_2018_I1676551/d01-x01-y01",
+        "Title: ",
+        "Type: Estimate1D",
+        "---",
+        "Edges(A1): [4.000000e+02, 4.500000e+02, 5.000000e+02, 5.500000e+02, 6.000000e+02, 6.500000e+02, 7.000000e+02]"
+      ],
+      "location_role": "installed Rivet environment"
+    }
+  ],
+  "expected_deliverables_found": false,
+  "substitution_performed": false,
+  "qualification": "No same-analysis generated candidate was located; published reference tables cannot replace the missing original run output.",
+  "original_search_record_sha256": "bde9feb5c91331032c34aac8c623a56e1a7d92d3f02db9d68b4649f818d29e04",
+  "transformation": "Machine-local installed-reference paths replaced with location roles; evidence hashes and reference classification unchanged."
+}

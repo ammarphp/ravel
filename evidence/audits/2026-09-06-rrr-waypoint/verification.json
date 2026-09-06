@@ -1,0 +1,70 @@
+{
+  "checks": {
+    "figures": "Both retained PNGs visually inspected, scope/zero-bin/uncertainty labels readable",
+    "fixed_parameter_units": "PASS: 18 points at 3 scales, 54 comparisons; nominal-only negative control discriminates",
+    "original_small_source_pins": "PASS: 86 files",
+    "public_bundle": "PASS",
+    "standalone_temporary_copy_without_PYTHONPATH": "PASS"
+  },
+  "commands": [
+    "python evidence/audits/2026-09-06-rrr-waypoint/curate.py",
+    "python evidence/audits/2026-09-06-rrr-waypoint/curate.py --source-root /path/to/retained-checkout",
+    "python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units",
+    "python -m pytest /path/to/checkout/evidence/audits/2026-09-06-rrr-waypoint/test_curate.py -q"
+  ],
+  "curator_sha256": "6f796ecbac91da3b9b8c72ed5dbfd019c92b351273928b30b6169e18e21253d0",
+  "date": "2026-09-06",
+  "independent_review": {
+    "additional_checks": [
+      "Seven independent semantic tamper controls reject",
+      "All 312 primary Figure32 factors and 156 products verified across 52 points",
+      "Both samples reconstructed fractions and conditional errors recomputed",
+      "Five exact physics cards and only two config path changes verified"
+    ],
+    "proofs": [
+      {
+        "path": "local-runs/rrr-closure/physics-review/waypoint-independent/public-semantic-final.json",
+        "scope": "Retained independent curator-review probe; original is local and not bundled",
+        "sha256": "5862945bf281f808ccd4dda69e7891b190e600c9f195e29de1962a6c08ea306c"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/waypoint-independent/public-units-final-v2.json",
+        "scope": "Retained independent curator-review probe; original is local and not bundled",
+        "sha256": "847000f4268afa2c4a39ad770e8333ae7bd6161d4b2e6a35ad6419ba2ac6907d"
+      }
+    ],
+    "repaired_findings": [
+      "Reject NaN/Inf fixed-parameter evaluations explicitly",
+      "Require six resolved fit and summary statuses and identical limits",
+      "Bind quoted reference to unique complete m150_m140 reference record"
+    ],
+    "status": "closed_no_remaining_material_finding_in_derived_evidence_scope",
+    "test_seconds": 15.55,
+    "tests_passed": 32
+  },
+  "large_raw_event_files_rehashed": false,
+  "physics_certified": false,
+  "runtime": {
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "python": "3.12.13",
+    "versions": {
+      "jsonpatch": "1.33",
+      "numpy": "1.26.4",
+      "pyhf": "0.7.6",
+      "pytest": "8.4.2",
+      "scipy": "1.14.1"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Verification of this derived public evidence bundle. No event generation, large raw-event rehash, limit refit, acceptance/coverage certificate, full-suite or remote-CI claim.",
+  "test_sha256": "b22649e1735d6f8a43d60c998a44b784e81da07fbfea9c38c24bad312183b5ea",
+  "tests": {
+    "cwd": "outside repository to avoid historical py.py",
+    "failed": 0,
+    "passed": 32,
+    "seconds": 15.21,
+    "skipped": 0,
+    "warning_kind": "pyhf use of deprecated jsonschema.RefResolver",
+    "warnings": 39
+  }
+}

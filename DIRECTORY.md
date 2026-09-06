@@ -32,12 +32,12 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 
 | Directory | Contents | Files |
 |---|---|---|
-| `src/ravel/physics/` | Event processing and statistical engines | 24 |
-| `src/ravel/workflow/` | Run lifecycle, approvals, provenance, and scan orchestration | 20 |
+| `src/ravel/physics/` | Event processing and statistical engines | 29 |
+| `src/ravel/workflow/` | Run lifecycle, approvals, provenance, and scan orchestration | 21 |
 | `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 19 |
 | `src/ravel/plotting/` | Figures and comparisons | 12 |
 | `src/ravel/data/` | Templates, fixtures, and reference inputs | 9 |
-| `tests/unit/` | Focused regression tests | 87 |
+| `tests/unit/` | Focused regression tests | 97 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 6 |
 | `benchmarks/` | Benchmark and capability registries | 12 |
@@ -48,10 +48,10 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/workflow/` | Physics workflow instructions | 52 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 10 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 30 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 33 |
 | `docs/research/` | Research and evaluation protocols | 15 |
 | `docs/guides/` | Longer guides and sources | 5 |
-| `evidence/` | Curated historical inputs, measurements, and provenance | 281 |
+| `evidence/` | Curated historical inputs, measurements, and provenance | 346 |
 | `.claude/` | Agent skills, rules, and enforcement hooks | 32 |
 | `.agents/` | Mirrored skills | 16 |
 | `.github/` | Continuous integration | 1 |

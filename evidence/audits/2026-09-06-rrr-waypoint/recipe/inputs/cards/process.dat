@@ -1,0 +1,8 @@
+import model MSSM_SLHA2
+define p = g u c d s u~ c~ d~ s~
+define j = g u c d s u~ c~ d~ s~
+define susystrong = go ul ur dl dr cl cr sl sr t1 t2 b1 b2 ul~ ur~ dl~ dr~ cl~ cr~ sl~ sr~ t1~ t2~ b1~ b2~
+generate p p > el- el+ j / susystrong @1
+add process p p > er- er+ j / susystrong @2
+add process p p > mul- mul+ j / susystrong @3
+add process p p > mur- mur+ j / susystrong @4

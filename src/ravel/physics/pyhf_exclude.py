@@ -19,11 +19,13 @@ above-scan / below-scan statuses. A scan endpoint is a bound, not a measured lim
 This computes the supplied statistical model; it does not establish asymptotic
 coverage, detector fidelity, or the validity of missing background correlations.
 
-Every minimization runs through `robust_optimizer` (CR-005, 2026-08-28): scipy/SLSQP
-first (bit-identical to stock on clean surfaces), with a NaN-guarded iminuit-MIGRAD
-fallback plus sticky per-model escalation the moment a fit is distrusted -- published
-histosys workspaces can carry NaN pockets on which SLSQP silently returns its init
-vector claiming success. `exclusion.json` records the guard's activity under
+Every minimization runs through `robust_optimizer`: scipy/SLSQP plus bounded
+multistart profiling and a NaN-guarded iminuit-MIGRAD fallback. Scalar fits retain
+CR-005 sticky per-model escalation. Analytic fits require a finite original
+objective and projected gradient; transient invalid line-search trials are only
+recoverable inside the multistart, objective-nesting and fresh-root checks.
+Published histosys workspaces can carry NaN pockets and competing local minima,
+so a successful optimizer flag alone is insufficient. `exclusion.json` records the guard's activity under
 "optimizer", and flags `median_at_cap` (CR-124) and `band_degenerate` (CR-132) mark
 a ceiling-pinned median and an unusable expected band. Regressions: `selftest`.
 
@@ -39,7 +41,8 @@ if not __package__:  # Direct file execution uses the same package implementatio
     _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
     __package__ = "ravel.physics"
 
-import argparse, json, os, sys
+import argparse, hashlib, importlib.metadata, json, os, sys, time, uuid
+from pathlib import Path
 import numpy as np
 from ..paths import package_data_path
 from ..limits import attach_limits, read_limits, rescale_artifact
@@ -65,8 +68,7 @@ class robust_optimizer(scipy_optimizer):
 
     Policy (validated against the published 2018-06 point (300,100): mu95 0.826/0.584
     vs ATLAS sigma95/sigma_theory 0.828/0.587; case-9 Gbb Mode-A 0.174 unchanged):
-      1. run SLSQP first, WATCHING the objective -- on a NaN-free surface the result
-         is bit-identical to the stock backend (benchmark baselines cannot move);
+      1. run SLSQP first, watching the objective and any analytic gradient;
       2. distrust it if the minimization raised, reported failure, returned a
          non-finite minimum, drifted a fixed parameter (scipy fixes via equality
          constraints), or the objective EVER evaluated non-finite during the run
@@ -83,6 +85,15 @@ class robust_optimizer(scipy_optimizer):
          so per-fit signals alone leave a corrupt, non-monotonic CLs curve -- trust
          of that surface, once lost, cannot be regained fit-by-fit. compute() resets
          the flag per model and recomputes any CLs points cached before the flip.
+
+    Analytic-gradient exception: inside compute's bounded profile search, finite
+    original-objective results with projected gradient <= 1e-3 may recover from
+    transient invalid line-search trials. Invalid final candidates still require
+    guarded MIGRAD. Observed/Asimov objective nesting, profile starts scored on
+    the current data, and fresh reverse-order root checks must also pass. These
+    are necessary numerical controls, not a proof of the global minimum or of
+    asymptotic coverage. The 1e-3 derivative check is in the supplied parameter
+    coordinates and is independent of SLSQP's stopping tolerance.
     """
 
     n_fits = 0          # minimizations attempted
@@ -92,24 +103,142 @@ class robust_optimizer(scipy_optimizer):
     escalated = False   # sticky: this process' current model surface is distrusted
     _announced = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._profile_enabled = False
+        self._profile_frozen = False
+        self._profile_pool = []
+        self.profile_trials = 0
+        self.profile_improvements = 0
+        self.profile_max_improvement = 0.0
+        self.profile_invalid_trials = 0
+        self.profile_recovered_transients = 0
+        self.profile_rejected_candidates = []
+
+    def begin_model(self):
+        """Scope start vectors to one inference, never reuse another model's results."""
+        self._profile_enabled = True
+        self._profile_frozen = False
+        self._profile_pool = []
+        self.profile_trials = self.profile_improvements = 0
+        self.profile_max_improvement = 0.0
+        self.profile_invalid_trials = 0
+        self.profile_recovered_transients = 0
+        self.profile_rejected_candidates = []
+
     def _minimize(self, minimizer, func, x0, do_grad=False, bounds=None, fixed_vals=None, options={}):
-        if do_grad:
-            result = super()._minimize(minimizer, func, x0, do_grad=do_grad, bounds=bounds,
-                                      fixed_vals=fixed_vals, options=options)
-            if not result.success or not self._valid_result(
-                result.x, result.fun, lambda x: func(x)[0], bounds, fixed_vals
-            ):
-                raise RuntimeError("robust_optimizer: gradient fit failed numerical validation")
-            return result
+        initial = np.asarray(x0, dtype=float).copy()
+
+        def admissible(seed):
+            x = np.asarray(seed, dtype=float).copy()
+            for i, (lo, hi) in enumerate(bounds or []):
+                if lo is not None:
+                    x[i] = max(lo, x[i])
+                if hi is not None:
+                    x[i] = min(hi, x[i])
+            for i, value in fixed_vals or []:
+                x[i] = value
+            return x
+
+        initial = admissible(initial)
+        scalar = (lambda x: func(x)[0]) if do_grad else func
+        seeds = [initial]
+        if self._profile_enabled:
+            # Candidate parameters are only starts: every score and minimization
+            # uses THIS objective/data and reinstates THIS fit's fixed coordinates.
+            # Ranking by the prior fit's NLL would mix different statistical tasks.
+            ranked = []
+            for previous in self._profile_pool:
+                if len(previous) != len(initial):
+                    continue
+                seed = admissible(previous)
+                value = float(np.asarray(scalar(seed)).ravel()[0])
+                if np.isfinite(value):
+                    ranked.append((value, seed))
+            for _, seed in sorted(ranked, key=lambda item: item[0]):
+                if all(np.max(np.abs(seed - other)) > 1e-5 for other in seeds):
+                    seeds.append(seed)
+                if len(seeds) == 3:
+                    break
+
+        results, failures = [], []
+        for seed in seeds:
+            self.profile_trials += 1
+            try:
+                result = self._minimize_once(minimizer, func, seed.copy(), do_grad,
+                                            bounds, fixed_vals, dict(options))
+                results.append(result)
+            except (RuntimeError, ValueError) as exc:
+                failures.append(str(exc))
+        if not results:
+            raise RuntimeError("robust_optimizer: no valid profile start: " + "; ".join(failures))
+        best = min(results, key=lambda result: float(result.fun))
+        improvement = float(results[0].fun) - float(best.fun)
+        if improvement > 1e-5:
+            self.profile_improvements += 1
+            self.profile_max_improvement = max(self.profile_max_improvement, improvement)
+        if self._profile_enabled and not self._profile_frozen:
+            for result in results:
+                candidate = np.asarray(result.x, dtype=float).copy()
+                if all(np.max(np.abs(candidate - old)) > 1e-5 for old in self._profile_pool):
+                    self._profile_pool.append(candidate)
+            # Preserve early bracket solutions and a bounded recent continuation
+            # history. This is a finite search, not a proof of global optimality.
+            if len(self._profile_pool) > 256:
+                self._profile_pool = self._profile_pool[:32] + self._profile_pool[-224:]
+        return best
+
+    @staticmethod
+    def _bound_tolerance(lo, hi):
+        """Roundoff allowance that cannot swallow a narrow physical interval."""
+        finite = [abs(float(value)) for value in (lo, hi) if value is not None and np.isfinite(value)]
+        tolerance = 64 * np.finfo(float).eps * max([1., *finite])
+        if lo is not None and hi is not None and np.isfinite(hi - lo):
+            tolerance = min(tolerance, max(0., hi - lo) * 1e-8)
+        return tolerance
+
+    @staticmethod
+    def projected_gradient(x, gradient, bounds, fixed_vals):
+        """Necessary first-order condition, in the supplied parameter coordinates.
+
+        At a lower (upper) bound only a negative (positive) derivative permits
+        feasible descent. Fixed coordinates have no feasible descent direction.
+        This is not a global-optimum test: the profile portfolio and objective
+        nesting checks are still required.
+        """
+        x, residual = np.asarray(x, dtype=float), np.asarray(gradient, dtype=float).copy()
+        if residual.shape != x.shape or not np.all(np.isfinite(residual)):
+            return float("inf")
+        for i, (lo, hi) in enumerate(bounds or []):
+            tolerance = robust_optimizer._bound_tolerance(lo, hi)
+            if lo is not None and x[i] <= lo + tolerance:
+                residual[i] = min(0., residual[i])
+            elif hi is not None and x[i] >= hi - tolerance:
+                residual[i] = max(0., residual[i])
+        for i, _ in fixed_vals or []:
+            residual[i] = 0.
+        return float(np.max(np.abs(residual), initial=0.))
+
+    def _minimize_once(self, minimizer, func, x0, do_grad=False, bounds=None, fixed_vals=None, options={}):
+        last = [None, None]
+
+        def components(x):
+            if last[0] is None or not np.array_equal(x, last[0]):
+                last[:] = [np.asarray(x).copy(), func(x)]
+            return last[1]
+
+        scalar = (lambda x: components(x)[0]) if do_grad else func
+        gradient = (lambda x: components(x)[1]) if do_grad else None
         robust_optimizer.n_fits += 1
         if robust_optimizer.escalated:
             robust_optimizer.n_escalated += 1
-            return self._migrad(func, x0, bounds, fixed_vals)
+            return self._migrad(scalar, x0, bounds, fixed_vals, gradient=gradient)
         nan_seen = [0]
 
         def watched(x):
             v = func(x)
-            if not np.all(np.isfinite(np.asarray(v, dtype=float))):
+            values = v if do_grad else (v,)
+            if not all(np.all(np.isfinite(np.asarray(item, dtype=float))) for item in values):
                 nan_seen[0] += 1
             return v
 
@@ -120,7 +249,7 @@ class robust_optimizer(scipy_optimizer):
         except Exception as exc:
             why = f"scipy raised {type(exc).__name__}"
         scipy_clean = (result is not None and bool(getattr(result, "success", False))
-                       and self._valid_result(result.x, result.fun, func, bounds, fixed_vals))
+                       and self._valid_result(result.x, result.fun, scalar, bounds, fixed_vals))
         if why is None and not scipy_clean:
             why = "scipy reported failure or a non-finite minimum"
         if why is None and fixed_vals:
@@ -128,22 +257,46 @@ class robust_optimizer(scipy_optimizer):
                 if abs(float(result.x[i]) - float(v)) > 1e-6 * max(1.0, abs(float(v))):
                     why, scipy_clean = f"fixed parameter {i} drifted", False
                     break
+        projected = None
+        if scipy_clean and do_grad:
+            projected = self.projected_gradient(result.x, gradient(result.x), bounds, fixed_vals)
+            if projected > 1e-3:
+                why, scipy_clean = "analytic projected gradient exceeds 0.001", False
+        self.profile_invalid_trials += nan_seen[0]
         if why is None and nan_seen[0]:
-            why = f"objective non-finite {nan_seen[0]}x during the minimization"
+            # A finite stationary final point after an invalid line-search trial
+            # is usable ONLY in the analytic, multistart profile context. compute
+            # additionally checks observed/Asimov nesting and fresh root stability.
+            # The scalar legacy NaN-pocket policy remains sticky: it lacks this
+            # independent derivative check and has a retained false-success case.
+            if do_grad and self._profile_enabled and projected is not None:
+                self.profile_recovered_transients += 1
+            else:
+                why = f"objective non-finite {nan_seen[0]}x during the minimization"
         if why is None:
             return result
 
+        self.profile_rejected_candidates.append({
+            "reason": why, "nonfinite_trials": nan_seen[0],
+            "projected_gradient_max": projected if projected is None or np.isfinite(projected) else None,
+            "objective": float(result.fun) if result is not None and np.isfinite(result.fun) else None,
+            "analytic_gradient": bool(do_grad),
+        })
+        self.profile_rejected_candidates = self.profile_rejected_candidates[-100:]
         if nan_seen[0]:
             robust_optimizer.n_nan_flagged += 1
         robust_optimizer.n_fallback += 1
-        robust_optimizer.escalated = True
+        # Analytic candidates have an independent final derivative check and
+        # profile-level controls. A failed candidate triggers a local fallback,
+        # not permanent rejection of every later fit on this model.
+        robust_optimizer.escalated = not (do_grad and self._profile_enabled)
         if not robust_optimizer._announced:
             robust_optimizer._announced = True
             print(f"  note: SLSQP result untrusted ({why}) -- re-minimizing with NaN-guarded "
-                  "iminuit MIGRAD and ESCALATING: all further fits on this model go straight "
-                  "to MIGRAD (CR-005; totals in exclusion.json 'optimizer')",
+                  "iminuit MIGRAD" + (" with sticky scalar escalation" if robust_optimizer.escalated else
+                  " for this analytic candidate") + " (totals in exclusion.json 'optimizer')",
                   file=sys.stderr, flush=True)
-        fallback = self._migrad(func, x0, bounds, fixed_vals)
+        fallback = self._migrad(scalar, x0, bounds, fixed_vals, gradient=gradient)
         if scipy_clean and float(result.fun) <= float(fallback.fun):
             return result
         return fallback
@@ -157,17 +310,19 @@ class robust_optimizer(scipy_optimizer):
         if bounds is not None and len(x) != len(bounds):
             return False
         if bounds is not None and any(
-            (lo is not None and v < lo - 1e-7) or (hi is not None and v > hi + 1e-7)
+            (lo is not None and v < lo - robust_optimizer._bound_tolerance(lo, hi)) or
+            (hi is not None and v > hi + robust_optimizer._bound_tolerance(lo, hi))
             for v, (lo, hi) in zip(x, bounds)
         ):
             return False
-        if any(abs(x[i] - v) > 1e-6 * max(1.0, abs(v)) for i, v in (fixed_vals or [])):
+        if any(abs(x[i] - v) > robust_optimizer._bound_tolerance(
+            *(bounds[i] if bounds is not None else (v, None))) for i, v in (fixed_vals or [])):
             return False
         actual = float(np.asarray(func(x)).ravel()[0])
         return bool(np.isfinite(actual) and np.isclose(actual, value, rtol=1e-7, atol=1e-7))
 
     @staticmethod
-    def _migrad(func, x0, bounds, fixed_vals):
+    def _migrad(func, x0, bounds, fixed_vals, gradient=None):
         try:
             from iminuit import Minuit
         except ImportError as exc:
@@ -183,30 +338,80 @@ class robust_optimizer(scipy_optimizer):
             v = float(np.asarray(func(np.asarray(z, dtype=float))).ravel()[0])
             return v if np.isfinite(v) else 1e10  # the NaN guard: MIGRAD backs off the cliff
 
-        m = Minuit(f, *x0)
+        def grad(*z):
+            x = np.asarray(z, dtype=float)
+            g = np.asarray(gradient(x), dtype=float)
+            # The penalty plateau has no useful derivative. A final point on it
+            # still fails the original-objective/gradient checks below.
+            if not np.isfinite(float(np.asarray(func(x)).ravel()[0])) or not np.all(np.isfinite(g)):
+                return np.zeros_like(x)
+            return g
+
+        m = Minuit(f, *x0, **({"grad": grad} if gradient is not None else {}))
         if bounds is not None:
             for i, b in enumerate(bounds):
                 m.limits[i] = b
         for i, _v in fixed_vals:
             m.fixed[i] = True
         m.errordef = 1.0  # func is -2lnL
-        m.strategy = 1
-        m.migrad(ncall=200000)
-        if not m.valid:
-            m.strategy = 2
+        # Analytic derivatives avoid repeated numerical derivative checks. A
+        # Minuit valid flag alone does not satisfy the shared stationarity guard.
+        stationary = False
+        for strategy, tolerance in ([(0, 1e-5), (1, 1e-7), (2, 1e-9)] if gradient is not None
+                                    else [(1, .1), (2, .1)]):
+            m.strategy, m.tol = strategy, tolerance
             m.migrad(ncall=200000)
-        if not m.valid:
-            raise RuntimeError("robust_optimizer: guarded MIGRAD found no valid minimum "
-                               f"(fval={m.fval}, edm={m.fmin.edm}) -- the likelihood surface is "
-                               "sick; refusing to report a limit from an unconverged fit (CR-005)")
+            stationary = gradient is None or robust_optimizer.projected_gradient(
+                np.asarray(m.values), gradient(np.asarray(m.values)), bounds, fixed_vals) <= 1e-3
+            if m.valid and stationary:
+                break
+        if not m.valid or not stationary:
+            raise RuntimeError("robust_optimizer: guarded MIGRAD found no valid stationary minimum "
+                               f"(fval={m.fval}, edm={m.fmin.edm}) -- refusing to report a limit "
+                               "from an unconverged fit (CR-005)")
         if not robust_optimizer._valid_result(m.values, m.fval, func, bounds, fixed_vals):
             raise RuntimeError("robust_optimizer: MIGRAD minimum fails original-objective, "
-                               "finite-parameter or bound validation; refusing to report a limit")
+                                 "finite-parameter or bound validation; refusing to report a limit")
+        if gradient is not None and not np.all(np.isfinite(np.asarray(gradient(np.asarray(m.values))))):
+            raise RuntimeError("robust_optimizer: MIGRAD minimum has a nonfinite analytic gradient")
         return so.OptimizeResult(x=np.asarray(m.values, dtype=float), fun=float(m.fval),
                                  success=True, message="migrad-fallback ok", nfev=m.nfcn)
 
 
 pyhf.set_backend("numpy", robust_optimizer(maxiter=200000))
+
+
+def profile_fit_consistency(model, data, fits, tolerance=1e-5):
+    """Check objective nesting, including the exactly known Asimov generating fit.
+
+    These are necessary numerical conditions, not global-optimum or coverage proofs.
+    A successful optimizer flag cannot make a worse unrestricted fit acceptable.
+    """
+    asimov_data = model.expected_data(fits.asimov_pars)
+
+    def nll(parameters, observations):
+        value = float(np.asarray(pyhf.infer.mle.twice_nll(parameters, observations, model)).ravel()[0])
+        if not np.isfinite(value):
+            raise RuntimeError("nonfinite objective in profile-fit consistency check")
+        return value
+
+    values = {
+        "free_data": nll(fits.free_fit_to_data, data),
+        "fixed_data": nll(fits.fixed_poi_fit_to_data, data),
+        "mu0_data": nll(fits.asimov_pars, data),
+        "free_asimov": nll(fits.free_fit_to_asimov, asimov_data),
+        "fixed_asimov": nll(fits.fixed_poi_fit_to_asimov, asimov_data),
+        "generating_asimov": nll(fits.asimov_pars, asimov_data),
+    }
+    issues = []
+    if values["free_data"] > min(values["fixed_data"], values["mu0_data"]) + tolerance:
+        issues.append("unrestricted observed fit is worse than a constrained fit")
+    if abs(values["free_asimov"] - values["generating_asimov"]) > tolerance:
+        issues.append("unrestricted Asimov fit disagrees with the generating optimum")
+    if values["fixed_asimov"] < values["generating_asimov"] - tolerance:
+        issues.append("constrained Asimov fit is below its generating optimum")
+    return {"passed": not issues, "twice_nll": values, "absolute_tolerance": tolerance,
+            "issues": issues, "global_optimum_proven": False}
 
 
 # --------------------------------------------------------------------------- #
@@ -361,7 +566,34 @@ def _cross(mu, cls, level=0.05):
     return float(mu[-1])      # whole curve above level: report the ceiling (at_poi_cap flags it)
 
 
-def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-4):
+def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-4,
+            diagnostic_record=None):
+    """Compute limits with scoped recovery and optional retained failure diagnostics."""
+    _, optimizer = pyhf.get_backend()
+    record = {} if diagnostic_record is None else diagnostic_record
+    record.update(status="running", evaluations=[])
+    started = time.monotonic()
+    try:
+        result = _compute(model, data, level, n_curve, poi_cap, root_rtol=root_rtol,
+                          diagnostic_record=record)
+        record["status"] = "succeeded"
+        return result
+    except Exception as exc:
+        record.update(status="failed", error={"type": type(exc).__name__, "message": str(exc)})
+        raise
+    finally:
+        record["wall_seconds"] = time.monotonic() - started
+        if isinstance(optimizer, robust_optimizer):
+            record["rejected_candidates_last_100"] = list(optimizer.profile_rejected_candidates)
+            record["profile_start_trials"] = optimizer.profile_trials
+            record["profile_improvements"] = optimizer.profile_improvements
+            optimizer._profile_enabled = False
+            optimizer._profile_frozen = False
+            optimizer._profile_pool = []
+
+
+def _compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-4,
+             diagnostic_record=None):
     """Observed+expected 95% CL UL on mu plus a CLs-vs-mu curve, sharing ONE scan.
 
     Shared CLs evaluations bracket all six curves; Brent root refinement gives
@@ -403,6 +635,15 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
     # result can report how many minimizations in THIS computation needed the fallback.
     # Escalation is a property of one model's surface, so it is scoped per compute():
     # a NaN-pocketed SR must not tax later clean models in the same process.
+    tensor_backend, optimizer = pyhf.get_backend()
+    if not isinstance(optimizer, robust_optimizer):
+        raise ValueError("compute requires robust_optimizer for profile validation; configure it explicitly")
+    optimizer.begin_model()
+    diagnostic_record.update(
+        model_sha256=hashlib.sha256(json.dumps(model.spec, sort_keys=True,
+            separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+        data_sha256=hashlib.sha256(json.dumps(data.tolist(),
+            separators=(",", ":"), allow_nan=False).encode()).hexdigest())
     opt0 = (robust_optimizer.n_fits, robust_optimizer.n_fallback,
             robust_optimizer.n_nan_flagged, robust_optimizer.n_escalated)
     robust_optimizer.escalated = False
@@ -419,11 +660,29 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
     def evaluate(mu):
         nonlocal fit_diagnostics
         fit_bounds = par_bounds(max(mu * 1.5, 2.0))
-        returned = hypotest(mu, data, model, par_bounds=fit_bounds, test_stat="qtilde",
-                            return_expected_set=True, return_calculator=True)
-        observed, expected = returned[:2]
-        calculator = returned[2] if len(returned) == 3 else None
-        fits = getattr(calculator, "fitted_pars", None)
+        consistency = None
+        for attempt in range(3):
+            diagnostic = {"mu": float(mu), "attempt": attempt + 1, "status": "running"}
+            diagnostic_record["evaluations"].append(diagnostic)
+            try:
+                returned = hypotest(mu, data, model, par_bounds=fit_bounds, test_stat="qtilde",
+                                    return_expected_set=True, return_calculator=True)
+            except Exception as exc:
+                diagnostic.update(status="failed", error=str(exc))
+                raise
+            observed, expected = returned[:2]
+            diagnostic.update(status="evaluated", cls=[float(v) if np.isfinite(float(v)) else None
+                for v in [observed, *expected]])
+            calculator = returned[2] if len(returned) == 3 else None
+            fits = getattr(calculator, "fitted_pars", None)
+            if fits is None:
+                break
+            consistency = profile_fit_consistency(model, data, fits)
+            diagnostic["profile_consistency"] = consistency
+            if consistency["passed"]:
+                break
+            if attempt == 2:
+                raise RuntimeError("profile-fit nesting failed: " + "; ".join(consistency["issues"]))
         if fits is not None:
             pars = np.asarray(fits.free_fit_to_data, dtype=float)
             fixed = model.config.suggested_fixed()
@@ -440,6 +699,7 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
                 "parameters": parameters, "covariance": None, "nuisance_pull_uncertainties": None,
                 "unavailable_reason": "profile-error and covariance diagnostics were not computed",
                 "signal_strength_units": "supplied-model units",
+                "profile_consistency": consistency,
             }
         return observed, expected
 
@@ -573,13 +833,60 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
             brackets.append([a, b])
         return limits, statuses, brackets
 
-    escalated_before_roots = robust_optimizer.escalated
-    limits, statuses, brackets = limits_from_scan()
-    if robust_optimizer.escalated and not escalated_before_roots:
-        # A new root evaluation can reveal the same optimizer failure as the
-        # initial scan. All roots then need the recomputed, consistently fitted cache.
-        limits, statuses, brackets = limits_from_scan()
-    scan, values, omitted = validated_scan()
+    refresh_evaluations = 0
+
+    def refresh(points, *, reverse=True):
+        nonlocal refresh_evaluations
+        changed = False
+        escalation_before = robust_optimizer.escalated
+        # Reverse order checks the continuation history used during root finding.
+        # It never sorts or smooths CLs values, or accepts the first root on failure.
+        for mu in sorted(set(points), reverse=reverse):
+            previous = np.asarray([cache[mu][0], *cache[mu][1]])
+            cache[mu] = checked_cls(*evaluate(mu))
+            current = np.asarray([cache[mu][0], *cache[mu][1]])
+            changed |= not np.allclose(previous, current, rtol=0, atol=1e-5, equal_nan=True)
+            refresh_evaluations += 1
+            print(f"  [cls check] mu={mu:.6g} CLs_obs={cache[mu][0]:.4g}", file=sys.stderr, flush=True)
+        return changed or robust_optimizer.escalated != escalation_before
+
+    for profile_pass in range(3):
+        try:
+            escalated_before_roots = robust_optimizer.escalated
+            limits, statuses, brackets = limits_from_scan()
+            if robust_optimizer.escalated and not escalated_before_roots:
+                limits, statuses, brackets = limits_from_scan()
+        except RuntimeError as exc:
+            if "monotonically" not in str(exc) or profile_pass == 2:
+                raise
+            refresh(list(cache))
+            continue
+        checks = {min(cache), max(cache), *limits}
+        # Every final check uses the SAME start set. Late discoveries must not
+        # change the context after a root was checked. Both orders also detect
+        # repeat-evaluation drift before the bounded repair loop can accept.
+        optimizer._profile_frozen = True
+        try:
+            changed = refresh(checks)
+            changed = refresh(checks, reverse=False) or changed
+        finally:
+            optimizer._profile_frozen = False
+        root_errors = [abs([cache[value][0], *cache[value][1]][index] - level)
+                       for index, (value, status) in enumerate(zip(limits, statuses))
+                       if status == "resolved"]
+        try:
+            scan, values, omitted = validated_scan()
+        except RuntimeError as exc:
+            if "monotonically" not in str(exc) or profile_pass == 2:
+                raise
+            changed = True
+        if not changed and all(error <= 5e-4 for error in root_errors):
+            break
+        if profile_pass == 2:
+            raise RuntimeError("CLs profile/root checks remain unstable after bounded refitting")
+        refresh(list(cache))
+    else:
+        raise RuntimeError("CLs profile/root checks did not resolve")
     obs = values[:, 0].tolist()
     exp = values[:, 1:].tolist()
     obs_limit, exp_limits = limits[0], limits[1:]
@@ -611,6 +918,15 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
         "inference": {"method": "asymptotic CLs", "test_stat": "qtilde", "level": level,
                       "root_solver": "scipy.brentq", "root_rtol": root_rtol,
                       "root_atol": 1e-10, "omitted_low_mu_nonfinite": omitted,
+                      "root_cls_atol": 5e-4, "root_cls_max_error": max(root_errors, default=None),
+                      "profile_passes": profile_pass + 1, "fresh_check_evaluations": refresh_evaluations,
+                      "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+                      "backend": tensor_backend.name, "precision": tensor_backend.precision,
+                      "fit_tolerance": getattr(optimizer, "tolerance", None),
+                      "model_sha256": hashlib.sha256(json.dumps(model.spec, sort_keys=True,
+                          separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+                      "data_sha256": hashlib.sha256(json.dumps(data.tolist(),
+                          separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
                       "coverage_validated": False,
                       "scope": "statistical inversion of the supplied model; no acceptance certification"},
         "optimizer": {  # CR-005 provenance: which fits needed the guarded-MIGRAD fallback
@@ -621,6 +937,16 @@ def compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e-
             "n_fallback": robust_optimizer.n_fallback - opt0[1],
             "n_nan_flagged": robust_optimizer.n_nan_flagged - opt0[2],
             "n_escalated": robust_optimizer.n_escalated - opt0[3],
+            "profile_start_trials": getattr(optimizer, "profile_trials", None),
+            "profile_improvements": getattr(optimizer, "profile_improvements", None),
+            "profile_max_nll_improvement": getattr(optimizer, "profile_max_improvement", None),
+            "profile_invalid_trial_evaluations": getattr(optimizer, "profile_invalid_trials", None),
+            "profile_recovered_transients": getattr(optimizer, "profile_recovered_transients", None),
+            "rejected_candidates_last_100": getattr(optimizer, "profile_rejected_candidates", None),
+            "analytic_projected_gradient_atol": 1e-3,
+            "analytic_acceptance": "finite original objective and projected gradient; multistart, nesting and fresh-root checks",
+            "profile_search": "nominal start plus two best distinct retained starts scored on each current objective",
+            "global_optimum_proven": False,
         },
     }, source="pyhf")
 
@@ -801,6 +1127,11 @@ def main():
                    help="headline limit from the SIMULTANEOUS multi-channel fit of all SRs "
                         "(valid only for mutually exclusive SRs); per-SR limits + best_sr "
                         "are still computed and reported")
+    for parser in (a, c):
+        parser.add_argument("--backend", choices=["numpy", "jax"], default="numpy",
+                            help="explicit tensor backend; missing dependencies are an error")
+        parser.add_argument("--fit-tolerance", type=float, default=1e-9,
+                            help="SLSQP stopping tolerance (finite and strictly between zero and one)")
 
     args = ap.parse_args()
     if args.mode == "selftest":
@@ -808,14 +1139,52 @@ def main():
         return
     try:
         _number(args.sigma_scale, "sigma_scale", positive=True)
+        _number(args.fit_tolerance, "fit_tolerance", positive=True)
+        if args.fit_tolerance >= 1:
+            raise ValueError("fit_tolerance must be strictly less than one")
     except ValueError as exc:
         ap.error(str(exc))
+    try:
+        pyhf.set_backend(args.backend, robust_optimizer(maxiter=200000, tolerance=args.fit_tolerance),
+                         precision="64b")
+    except Exception as exc:
+        ap.error(f"requested {args.backend} backend could not be configured: {exc}")
+
+    paths = ([Path(args.bkg), Path(args.patch)] if args.mode == "likelihood" else [Path(args.srs)])
+    input_artifacts = [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+                       for path in paths]
+    engine_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     os.makedirs(args.out, exist_ok=True)
+
+    dependencies = {}
+    for name in ("pyhf", "numpy", "scipy", "iminuit", *(["jax", "jaxlib"] if args.backend == "jax" else [])):
+        try:
+            dependencies[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            dependencies[name] = None
+    provenance = {"inputs": input_artifacts, "engine_sha256": engine_sha256,
+                                   "backend": args.backend, "precision": "64b",
+                                   "fit_tolerance": args.fit_tolerance, "dependencies": dependencies}
+
+    def run_compute(model, data, **kwargs):
+        diagnostic = {}
+        try:
+            return compute(model, data, diagnostic_record=diagnostic, **kwargs)
+        except Exception:
+            failure = {"schema_version": 1, "status": "failed", "execution_provenance": provenance,
+                       "diagnostics": diagnostic, "scope": "failed numerical inference; no limit emitted"}
+            destination = Path(args.out) / "inference_failure.json"
+            if destination.exists():
+                destination = Path(args.out) / f"inference_failure-{uuid.uuid4().hex}.json"
+            with destination.open("x") as stream:
+                json.dump(failure, stream, indent=2, allow_nan=False)
+                stream.write("\n")
+            raise
 
     if args.mode == "likelihood":
         model, data = model_from_likelihood(args.bkg, args.patch)
         print(f"likelihood model: {model.config.nmaindata} bins, {len(model.config.par_order)} parameters")
-        res = compute(model, data)
+        res = run_compute(model, data)
         res["mode"] = "likelihood"
         res["model_scope"] = {"correlations": "preserved from the supplied workspace modifier structure",
                               "acceptance_validated": False}
@@ -848,7 +1217,7 @@ def main():
                 print(f"  SR {sr['name']:6s}: s=0 -> SKIPPED (no constraint on mu)")
                 continue
             model, data = model_from_counting(sr)
-            r = compute(model, data, n_curve=25)  # counting fits are instant -> fine grid
+            r = run_compute(model, data, n_curve=25)  # counting fits are instant -> fine grid
             entry.update({"obs_limit": r["obs_limit"], "exp_median": r["exp_limits"][2]})
             entry["exp_limits"] = r["exp_limits"]
             entry["limit_status"] = r["limit_status"]
@@ -872,7 +1241,7 @@ def main():
             # zero-signal channels are inert for mu and omitted from the fit.
             fit_srs = [sr for sr in srs if float(sr["s"]) > 0.0]
             model, data = model_from_counting_combined(fit_srs)
-            res = compute(model, data, n_curve=25)
+            res = run_compute(model, data, n_curve=25)
             res["mode"] = "counting-combined"
             res["combined_channels"] = [sr["name"] for sr in fit_srs]
             res["mode_notes"] = ("simultaneous multi-channel counting fit; background "
@@ -894,6 +1263,12 @@ def main():
         best_label = best
 
     res["label"] = args.label
+    if any(hashlib.sha256(path.read_bytes()).hexdigest() != entry["sha256"]
+           for path, entry in zip(paths, input_artifacts)):
+        raise RuntimeError("inference inputs changed while computing the result")
+    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != engine_sha256:
+        raise RuntimeError("inference engine changed while computing the result")
+    res["execution_provenance"] = provenance
     # apply the NLO+NLL k-factor: a stronger nominal σ scales the signal-strength limit by 1/k.
     k = getattr(args, "sigma_scale", 1.0)
     if k != 1.0:

@@ -51,6 +51,7 @@ def estimate(mode, points, events, backend, parallel):
     if mode == "smoke":
         ev = min(events or 1000, 1000)
         return {"mode": mode, "points": 1, "events_per_point": ev,
+                "backend": backend, "parallel": 1,
                 "walltime_h": [0.1, 0.35], "disk_gb_peak": 1.0,
                 "note": "1 point at smoke statistics — the CHECK-IN 2 waypoint rung"}
     pts = max(1, int(points or 1))

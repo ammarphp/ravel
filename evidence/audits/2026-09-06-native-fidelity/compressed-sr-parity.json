@@ -1,0 +1,2731 @@
+{
+  "schema_version": 1,
+  "checked_utc": "2026-09-06T01:49:24.962616+00:00",
+  "scope": "Read-only recheck of earlier retained-event selection outputs; 141 SR branch parity and CR moment transport, not a new selection replay or physics certificate.",
+  "runtime": {
+    "python": "3.14.5 | packaged by conda-forge | (main, May 20 2026, 00:45:47) [Clang 20.1.8 ]",
+    "numpy": "2.4.6",
+    "uproot": "5.7.4"
+  },
+  "engine_sha256": {
+    "src/ravel/physics/native_simpleanalysis.py": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+    "src/ravel/physics/compressed_validation.py": "4a5bcbacafa655c035306089976bd0abff46fa941325d453f52c6daa5bfdb46c",
+    "src/ravel/physics/sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c"
+  },
+  "cases": [
+    {
+      "label": "m150_dm20",
+      "input_events": 1000,
+      "old_rows": 685,
+      "new_rows": 685,
+      "original_only_rows": 0,
+      "comparison_policy": "Align by unique Event ID; require exact numerical weight equality and identical bytes after lossless float64 promotion on shared rows, and all SR weights zero on original-only rows. Original storage dtypes can differ.",
+      "sr_branches_compared": 141,
+      "sr_branches_equal": 141,
+      "branches": [
+        {
+          "region": "SR_E_lT_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float64",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": true,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        }
+      ],
+      "controls": [
+        {
+          "region": "CR_S_VV_high",
+          "raw_selected": 1,
+          "sumw_pb": 6.11594005022198e-05,
+          "sumw2_pb2": 3.740472269790923e-09,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_VV_low",
+          "raw_selected": 1,
+          "sumw_pb": 6.11594005022198e-05,
+          "sumw2_pb2": 3.740472269790923e-09,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_high",
+          "raw_selected": 0,
+          "sumw_pb": 0.0,
+          "sumw2_pb2": 0.0,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_low",
+          "raw_selected": 0,
+          "sumw_pb": 0.0,
+          "sumw2_pb2": 0.0,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_high",
+          "raw_selected": 0,
+          "sumw_pb": 0.0,
+          "sumw2_pb2": 0.0,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_low",
+          "raw_selected": 0,
+          "sumw_pb": 0.0,
+          "sumw2_pb2": 0.0,
+          "negative_weights": 0,
+          "different_flavour": 0
+        }
+      ],
+      "artifacts_sha256": {
+        "trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/analysis/Delphes2SA.root": "24e719d6ec7fdcf08865f14ff4a995bc378c3e60ee645f9468baff256d7d825c",
+        "trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/EwkCompressed2018.root": "72b58ff07cddc05a1f7e3b1e8972c808974b9c6d4192dd151c0814b9269de901",
+        "trial-runs/2026-08-28_SUSY-2018-16_slepton-fig3-fresh/smoke_m150_dm20/output/EwkCompressed2018.txt": "851ea5f52d7ee6dd0e427451af1255e09611124c3e57038d973b4b99b72b3511",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/EwkCompressed2018.root": "d722b85540b6fe99a1747e2704c5d928820663b268c194270f45baea70aa2764",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/EwkCompressed2018.txt": "90382c2ee1d6e62c59799ca44071afcdb391926d3af6df69fa4a536befef3a88",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/compressed_trace.jsonl.gz": "52a141d805ca45c684ecacda30634c8de8b73355baec32c461631831aae2acf0",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/compressed_validation.json": "c314b5524064e866e391b9e7bd17855dd99eb4b120b6a284d8bc1a2410752cfb",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/full_signal_patch.json": "0af99b71d5e59c1066bce0a7d004379f6328f165cfa7bdcac1d6ef94a541d99e",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/native_objects.txt": "cb88086c8480dc1659f72a56b4d661a485b7f05da32cf74c6843a972b1071ecc",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/native_rjr.csv": "0556a409e299370815e969fb5f8c1631f9a7ae3611eb8630782ac3a91f924ec6",
+        "local-runs/rrr-closure/signal-model/m150_dm20_current/signal_model.json": "3e32b8c578c298df4b97244a8772d1d93b4a4425c360b9660a6e65f213b56ac5"
+      },
+      "inputs_preserved": true,
+      "selection_rerun_in_this_check": false,
+      "selection_source_binding": {
+        "compressed_signal_model": "full",
+        "diagnostic_source_sha256": "4a5bcbacafa655c035306089976bd0abff46fa941325d453f52c6daa5bfdb46c",
+        "input_events": 1000,
+        "input_sha256": "24e719d6ec7fdcf08865f14ff4a995bc378c3e60ee645f9468baff256d7d825c",
+        "mass_metadata_source": "declared_command_arguments",
+        "masses_gev": null,
+        "origin_state_status": "unavailable_in_converted_ntuple",
+        "rjr_binary_sha256": "0eda3e8480c3f1d110c81ffb46f5cf54dae0ef1f13683d55d10c5e365e0438bb",
+        "selection_source_sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1"
+      }
+    },
+    {
+      "label": "m200_dm50",
+      "input_events": 10000,
+      "old_rows": 10000,
+      "new_rows": 7164,
+      "original_only_rows": 2836,
+      "comparison_policy": "Align by unique Event ID; require exact numerical weight equality and identical bytes after lossless float64 promotion on shared rows, and all SR weights zero on original-only rows. Original storage dtypes can differ.",
+      "sr_branches_compared": 141,
+      "sr_branches_equal": 141,
+      "branches": [
+        {
+          "region": "SR_E_lT_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_eMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_eMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_lT_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_high_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_med_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_low_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLh",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_E_iMLLi",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_eMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_eMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_high_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_low_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2a",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2b",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2c",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2d",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2e",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2f",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2g",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_S_iMT2h",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_low_eMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_high_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLa",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLb",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLc",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLd",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLe",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLf",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        },
+        {
+          "region": "SR_VBF_iMLLg",
+          "aligned_values_exactly_equal": true,
+          "historical_dtype": "float32",
+          "current_dtype": "float64",
+          "aligned_storage_bytes_equal": false,
+          "float64_promoted_bytes_equal": true,
+          "original_only_nonzero_rows": 0
+        }
+      ],
+      "controls": [
+        {
+          "region": "CR_S_VV_high",
+          "raw_selected": 13,
+          "sumw_pb": 3.078738109252299e-05,
+          "sumw2_pb2": 7.291252573355709e-11,
+          "negative_weights": 0,
+          "different_flavour": 1
+        },
+        {
+          "region": "CR_S_VV_low",
+          "raw_selected": 4,
+          "sumw_pb": 9.47304033616092e-06,
+          "sumw2_pb2": 2.2434623302632952e-11,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_high",
+          "raw_selected": 1,
+          "sumw_pb": 2.36826008404023e-06,
+          "sumw2_pb2": 5.608655825658238e-12,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_tau_low",
+          "raw_selected": 2,
+          "sumw_pb": 4.73652016808046e-06,
+          "sumw2_pb2": 1.1217311651316476e-11,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_high",
+          "raw_selected": 3,
+          "sumw_pb": 7.10478025212069e-06,
+          "sumw2_pb2": 1.6825967476974714e-11,
+          "negative_weights": 0,
+          "different_flavour": 0
+        },
+        {
+          "region": "CR_S_top_low",
+          "raw_selected": 1,
+          "sumw_pb": 2.36826008404023e-06,
+          "sumw2_pb2": 5.608655825658238e-12,
+          "negative_weights": 0,
+          "different_flavour": 0
+        }
+      ],
+      "artifacts_sha256": {
+        "trial-runs/CR005_refactor_smoke/output/analysis/Delphes2SA.root": "952bed62160806c775534e53764dff32ebf1b77bbf059268a5f68cff30daaa2f",
+        "trial-runs/CR005_refactor_smoke/output/EwkCompressed2018.root": "0561e63dcede8d7d311949f5ea6d859bbcc447f45b8c89119e297057e4259ead",
+        "trial-runs/CR005_refactor_smoke/output/EwkCompressed2018.txt": "50a66bd6c5ffe693820d3bd472840f2a32e7e40e77e60668de717daa1a83415c",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/EwkCompressed2018.root": "4e3c30021f1ba1f05e068baa0cea6a451c2b73cc15e2d484b41ea3fd562a88c6",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/EwkCompressed2018.txt": "b0136c98ab2bdbd4ffc3c59ab14d39060b8037385e75d232203125e59e2d50dc",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/compressed_trace.jsonl.gz": "29a8b671baa87f91afa5d2672e179ba2142a04ffc9ba6cf1a13a35a50e539aed",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/compressed_validation.json": "2c046bb748786527dd1e397ac1be7a6636de412dafcd8ef0f7fa619ebec24e24",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/full_signal_patch.json": "55c5ca6ab4fb2a8fa590ec082740123c3a8ae630a18800b1f53c3c7ddf73a78d",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/native_objects.txt": "c85d412d4ef417dd3291235a8e31e2c06990f23d66b4e6ca6fb6dbbfd994f453",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/native_rjr.csv": "f1272d8540bf7f6aeaf02373cfefabc37b5b02501a8d10dbf2f8583a7cff420b",
+        "local-runs/rrr-closure/signal-model/m200_dm50_current/signal_model.json": "19abe81184ce60931ee20c0724a0bbc896e53525b7d1bcee82e0b9501836c421"
+      },
+      "inputs_preserved": true,
+      "selection_rerun_in_this_check": false,
+      "selection_source_binding": {
+        "compressed_signal_model": "full",
+        "diagnostic_source_sha256": "4a5bcbacafa655c035306089976bd0abff46fa941325d453f52c6daa5bfdb46c",
+        "input_events": 10000,
+        "input_sha256": "952bed62160806c775534e53764dff32ebf1b77bbf059268a5f68cff30daaa2f",
+        "mass_metadata_source": "declared_command_arguments",
+        "masses_gev": null,
+        "origin_state_status": "unavailable_in_converted_ntuple",
+        "rjr_binary_sha256": "0eda3e8480c3f1d110c81ffb46f5cf54dae0ef1f13683d55d10c5e365e0438bb",
+        "selection_source_sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1"
+      }
+    }
+  ]
+}

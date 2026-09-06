@@ -19,7 +19,7 @@ heartbeat (logfile mtime within `DETACH_HEARTBEAT_SECS=600` s) — the Stop disp
 detached entries).
 
 ## Generate (env `mg5`)
-1. Steering `.mg5`: `import model …`, `generate …` (+ `add process … j`/`… j j` if ≥4-jet SRs —
+1. Steering `.mg5`: `import model …`, `generate …` (choose radiation multiplicities from the publication and recoil-sensitive selections —
    `docs/workflow/checklists/merging.md`), `output <procdir> -f -nojpeg`.
 2. `$CONDA run -n mg5 $RAVEL_NATIVE_BUILD/tools/mg5amcnlo/bin/mg5_aMC <steering.mg5>`
    (the absolute binary path — an env-relative `$CONDA_PREFIX/..` idiom does NOT resolve here).
@@ -36,7 +36,7 @@ detached entries).
    ```
    It asserts first-event + banner masses (width-aware: the event tolerance auto-widens to 3Γ
    from the banner DECAY table), MODSEL, decay-table structure, weight structure, merged-flag —
-   the silent killers (MASS/MSOFT override; width-only DECAY → empty SRs). Never hand-read the
+   the silent failures (wrong card/model interface; width-only DECAY → empty SRs). Never hand-read the
    LHE as the check. Note σ from the banner. The gate always leaves a `<lhe>.lhe_check.json`
    sidecar (verdict earned, never defaulted); shower products without a `verdict=PASS` sidecar
    hard-FAIL `validate_run_state.py`'s `lhe-check-before-shower` invariant, so the gate cannot

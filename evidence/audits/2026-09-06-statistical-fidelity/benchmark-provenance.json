@@ -1,0 +1,24 @@
+{
+  "original_sha256": "3378822700755d498d84b336aef0778b07df97980daad6923210f122e956c9f6",
+  "public_sha256": "9eb4cc6f7c59561fcb2f4114fb5eed72489129352dfb0e02fa6554a8b2a609a9",
+  "transformation": "cases_file normalized to repository-relative benchmarks/cases.json; all case metrics, failures and timing unchanged",
+  "registry_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+  "baseline_sha256": "5a7b83b514d6e16f1855e0cb9c610e559ef5be7420b848bc9f30e4dc3d6c30ba",
+  "initial_locked_python_replay_sha256": "6016aaf6987119ce136eb4d6bd17c38cff9730371611ff2ec942630c8f91b5e1",
+  "initial_locked_python_cached_acceptances": 4,
+  "source_engines": {
+    "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+    "src/ravel/validation/benchmark.py": "fbdc5e3b00feba4a5e50f38abf9ef7c8dd761480acf409ce2c524164feb5d607",
+    "src/ravel/validation/certify_acceptance.py": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120",
+    "src/ravel/validation/validate_cutflow.py": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22"
+  },
+  "command": "env -u PYTHONPATH <existing-rivet-python> -B scripts/run.py ravel.validation.benchmark --full --python-current --work-dir <new-dir>/work --out <new-dir>/results.json",
+  "runtime": {
+    "pyhf": "0.7.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "iminuit": "2.32.0",
+    "uproot": "5.7.4",
+    "yoda": "2.1.3"
+  }
+}

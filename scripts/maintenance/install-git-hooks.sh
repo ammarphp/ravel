@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 # D16 (G20): install a git pre-commit hook that blocks a commit leaving the agent surface inconsistent
 # (dead ref / missing DIRECTORY.md row / unmirrored skill). Reproducible across worktrees + clones.
-set -uo pipefail
+set -euo pipefail
+# Resolve both Git paths before any mutation. A non-checkout must not turn empty
+# command output into "/pre-commit" or report success after a failed write.
 REPO="$(git rev-parse --show-toplevel)"
-HOOKS="$(git rev-parse --git-path hooks)"
+HOOKS="$(git -C "$REPO" rev-parse --git-path hooks)"
+if [ -z "$REPO" ] || [ -z "$HOOKS" ]; then
+  echo "cannot install Git hooks: empty repository or hooks path" >&2
+  exit 1
+fi
 case "$HOOKS" in /*) : ;; *) HOOKS="$REPO/$HOOKS" ;; esac
 mkdir -p "$HOOKS"
 cat > "$HOOKS/pre-commit" <<'HOOK'
 #!/usr/bin/env bash
 # D16: mandatory agent-surface gate (mirrors embed-and-commit SKILL.md "run the surface gate").
 set -uo pipefail
-REPO="$(git rev-parse --show-toplevel)"
+REPO="$(git rev-parse --show-toplevel)" || exit $?
 # check_agent_surface transitively imports numpy (audit.py R9 runs shape_fit --selftest). If the
 # host git is an x86_64 binary it spawns this hook — and its python3 — under Rosetta, where the
 # native arm64 numpy .so cannot load and the gate would FALSE-FAIL on an arch mismatch, not real

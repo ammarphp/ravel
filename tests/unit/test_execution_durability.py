@@ -226,3 +226,36 @@ def test_malformed_ledger_never_disappears_into_legacy_mode(tmp_path):
     assert execution.validate_execution(tmp_path)
     with pytest.raises(ValueError):
         run(tmp_path, "fit", "print('not run')")
+
+
+def test_complete_plan_requires_final_stage_and_legacy_absence_stays_distinct(tmp_path):
+    first = {"stage": "fit", "command": [sys.executable, "-c", "open('result.json','w').write('{}')"],
+             "inputs": [], "outputs": ["result.json"], "depends_on": []}
+    last = {"stage": "report", "command": [sys.executable, "-c", "open('report.json','w').write('{}')"],
+            "inputs": ["result.json"], "outputs": ["report.json"], "depends_on": ["fit"]}
+    assert execution.validate_execution(tmp_path) == []
+    assert "requires an execution ledger" in execution.validate_completed_execution(tmp_path, [first, last])[0]
+    assert run(tmp_path, "fit", first["command"][-1], outputs=first["outputs"]) == 0
+    assert execution.validate_execution(tmp_path) == []
+    assert execution.validate_completed_execution(tmp_path, [first, last]) == ["planned stage report has no receipt"]
+    assert run(tmp_path, "report", last["command"][-1], inputs=last["inputs"], outputs=last["outputs"], parents=last["depends_on"]) == 0
+    assert execution.validate_completed_execution(tmp_path, [first, last]) == []
+    assert any("unplanned stage report" in e for e in execution.validate_completed_execution(tmp_path, [first]))
+    assert any("command differs" in e for e in execution.validate_completed_execution(tmp_path, [{**first, "command": ["other"]}, last]))
+    assert any("inputs differ" in e for e in execution.validate_completed_execution(tmp_path, [first, {**last, "inputs": ["unread-source"]}]))
+    (tmp_path / "result.json").write_text('{"changed":true}')
+    assert execution.validate_completed_execution(tmp_path, [first, last])
+
+
+@pytest.mark.parametrize("plan", [[], None, [{"stage": "bad name"}], [{"stage": "fit", "command": [], "inputs": [], "outputs": [], "depends_on": []}]])
+def test_complete_execution_rejects_malformed_plans(tmp_path, plan):
+    assert execution.validate_completed_execution(tmp_path, plan)
+
+
+@pytest.mark.parametrize("record", [None, [], "succeeded", 1])
+def test_complete_execution_rejects_nonrecord_planned_stage(tmp_path, record):
+    (tmp_path / "execution_state.json").write_text(json.dumps(
+        {"schema_version": 1, "revision": 1, "stages": {"fit": record}}))
+    plan = [{"stage": "fit", "command": [sys.executable, "-c", "print(1)"],
+             "inputs": [], "outputs": [], "depends_on": []}]
+    assert execution.validate_completed_execution(tmp_path, plan)

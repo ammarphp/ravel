@@ -14,7 +14,7 @@ improvises. RESOLVE means the two branches run **in parallel, both first-class**
    --payload '{"stage":"<madgraph|pythia|delphes|...>","logfile":"logs/<stage>.log","failure_class":
    "tool_generator_model|other"}'` — this appends to `run_state.open_failure_records`.
 2. **Branch A — local diagnosis (judgment-protocols P: discrepancy-decomposition / anchor-chain).**
-   Read the stage log; check the known traps (SLHA width-only DECAY, `MSOFT` mass override, `xqcut`
+   Read the stage log; check the known traps (SLHA width-only DECAY, model-dependent mass/mixing inputs, `xqcut`
    merging, env-trap generation outside the mg5 env — `.claude/rules/madgraph-pythia.md`).
 3. **Branch B — external recipe search (CO-PRIMARY, run at the SAME time as A):**
    `python3 scripts/run.py ravel.workflow.resource_census --debug recipe-search --tool <tool>

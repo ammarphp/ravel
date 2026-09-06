@@ -1,0 +1,199 @@
+{
+  "analysis": "ATLAS-SUSY-2018-16 / EwkCompressed2018",
+  "as_of": "2026-09-06",
+  "claim_status": {
+    "all_event_local_diagnostics": "1000/1000 and 20000/20000; summaries bound to retained inputs",
+    "atlas_truth_acceptance": "unscorable_definition_and_required_truth_objects_unresolved",
+    "btag_85_mv2c10_response": "generic_boolean_transport_confirmed_target_calibration_unresolved",
+    "five_percent_own_mc_target": "not_met; zero-selected bins precision unresolved",
+    "full_fresh_mass_plane": "not_completed",
+    "official_template_normalization": "luminosity_and_cross_section_not_assigned",
+    "physics_or_coverage_certificate": "none",
+    "public_raw_event_custody": "not_reproducible_from_bundle_raw_events_not_distributed",
+    "recorded_twelve_stage_completion": "both samples",
+    "six_root_numerical_checks": "resolved in both saved fits"
+  },
+  "expected_public_family": "median only; no expected uncertainty bands supplied",
+  "kind": "bounded_completed_anchor_waypoint",
+  "new_mass_points_in_this_bundle": 1,
+  "omitted_work": "Subsequent replicas, unfinished work, raw events, binaries and private authorization records are outside this completed waypoint.",
+  "reference_matched_denominator": 52,
+  "reference_point": {
+    "delta_m_GeV": 10.0,
+    "expected_bands": null,
+    "m_lsp_GeV": 140.0,
+    "m_parent_GeV": 150.0,
+    "median_expected_sigma95_fb": 56.526,
+    "median_expected_sigma95_pb": 0.056526,
+    "observed_sigma95_fb": 46.633,
+    "observed_sigma95_pb": 0.046633,
+    "point_id": "m150_m140",
+    "source_row_index": 22,
+    "source_values": [
+      {
+        "public_uncertainty": null,
+        "public_uncertainty_status": "not supplied in public source",
+        "source_entry": {
+          "value": 0.046633
+        },
+        "value": 0.046633
+      },
+      {
+        "public_uncertainty": null,
+        "public_uncertainty_status": "not supplied in public source",
+        "source_entry": {
+          "value": 0.056526
+        },
+        "value": 0.056526
+      }
+    ]
+  },
+  "results": {
+    "anchor20k": {
+      "conditional_conversion": "mu95 * bound inclusive four-state LO pb * declared K * 1000 fb/pb. No additional luminosity correction, no official-template luminosity assumption.",
+      "conditional_median_expected_sigma95_fb": 54.685742613267365,
+      "conditional_observed_sigma95_fb": 48.825465698668076,
+      "expected_mu95": [
+        0.18139131700105768,
+        0.2448124224549655,
+        0.3431289193688884,
+        0.4853627386720913,
+        0.6673034721633275
+      ],
+      "generated_events": 20000,
+      "inclusive_reference_lo_cross_section_pb": 0.1350625,
+      "inclusive_reference_times_k_fb": 159.37374999999997,
+      "inference": {
+        "backend": "jax",
+        "coverage_validated": false,
+        "data_sha256": "3b100491a6b12538a763d8463062a385211d45b0cec1d9f59512db183115b1ce",
+        "fit_tolerance": 1e-09,
+        "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+        "fresh_check_evaluations": 16,
+        "level": 0.05,
+        "method": "asymptotic CLs",
+        "model_sha256": "2ed4efb21cafad7a4739d76eb929a2718721d4d470a0b7712c0625943fc46f2d",
+        "omitted_low_mu_nonfinite": [],
+        "precision": "64b",
+        "profile_passes": 1,
+        "root_atol": 1e-10,
+        "root_cls_atol": 0.0005,
+        "root_cls_max_error": 8.188914863364871e-06,
+        "root_rtol": 0.0001,
+        "root_solver": "scipy.brentq",
+        "scope": "statistical inversion of the supplied model; no acceptance certification",
+        "test_stat": "qtilde"
+      },
+      "kfactor": 1.18,
+      "limit_status": {
+        "expected": [
+          "resolved",
+          "resolved",
+          "resolved",
+          "resolved",
+          "resolved"
+        ],
+        "observed": "resolved"
+      },
+      "luminosity_pb_inverse": 139000.0,
+      "median_expected_relative_residual": -0.03255594570167075,
+      "model": "four-state selectron-L/R and smuon-L/R, m(parent)=150 GeV, m(LSP)=140 GeV",
+      "native_comparison_status": {
+        "comparison_status": "No exact public-cutflow comparison: generator/trigger/author/truth predicates unavailable",
+        "earliest_unrepresented_reference_stage": "generator_filter",
+        "input_population_status": "verified_count",
+        "truth_acceptance": {
+          "status": "unavailable"
+        },
+        "unknown_reference_predicates": {
+          "author16_veto": "ATLAS lepton author unavailable in Delphes2SA",
+          "generator_filter": "No matching ATLAS generator-filter event population",
+          "trigger": "No measured trigger decision or efficiency in Delphes2SA",
+          "truth_matching": "Delphes2SA mother pointers do not retain truth matches"
+        }
+      },
+      "native_tagged_lo_cross_section_pb": 0.034566716,
+      "observed_mu95": 0.3063582660172587,
+      "observed_relative_residual": 0.04701532602809322,
+      "physics_certified": false,
+      "published_median_expected_sigma95_fb": 56.526,
+      "published_observed_sigma95_fb": 46.633,
+      "recorded_completed_stages": 12,
+      "run": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k"
+    },
+    "smoke2": {
+      "conditional_conversion": "mu95 * bound inclusive four-state LO pb * declared K * 1000 fb/pb. No additional luminosity correction, no official-template luminosity assumption.",
+      "conditional_median_expected_sigma95_fb": 34.152506859948275,
+      "conditional_observed_sigma95_fb": 32.77069814019368,
+      "expected_mu95": [
+        0.10239259125606733,
+        0.14334861620410336,
+        0.21429191984218407,
+        0.3366059721413584,
+        0.5352520501307307
+      ],
+      "generated_events": 1000,
+      "inclusive_reference_lo_cross_section_pb": 0.1350625,
+      "inclusive_reference_times_k_fb": 159.37374999999997,
+      "inference": {
+        "backend": "jax",
+        "coverage_validated": false,
+        "data_sha256": "318a9771b40e7eacde5a86be6da56b6538cc33ea33105fa7fb6bc7bdfe14e9bb",
+        "fit_tolerance": 1e-09,
+        "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+        "fresh_check_evaluations": 16,
+        "level": 0.05,
+        "method": "asymptotic CLs",
+        "model_sha256": "9a1338161c29ab20ccc41d63e2dc9063ffb7ac998dd786bc0b1793d43b7c06ca",
+        "omitted_low_mu_nonfinite": [],
+        "precision": "64b",
+        "profile_passes": 1,
+        "root_atol": 1e-10,
+        "root_cls_atol": 0.0005,
+        "root_cls_max_error": 3.5856242124460147e-06,
+        "root_rtol": 0.0001,
+        "root_solver": "scipy.brentq",
+        "scope": "statistical inversion of the supplied model; no acceptance certification",
+        "test_stat": "qtilde"
+      },
+      "kfactor": 1.18,
+      "limit_status": {
+        "expected": [
+          "resolved",
+          "resolved",
+          "resolved",
+          "resolved",
+          "resolved"
+        ],
+        "observed": "resolved"
+      },
+      "luminosity_pb_inverse": 139000.0,
+      "median_expected_relative_residual": -0.39580888688482696,
+      "model": "four-state selectron-L/R and smuon-L/R, m(parent)=150 GeV, m(LSP)=140 GeV",
+      "native_comparison_status": {
+        "comparison_status": "No exact public-cutflow comparison: generator/trigger/author/truth predicates unavailable",
+        "earliest_unrepresented_reference_stage": "generator_filter",
+        "input_population_status": "verified_count",
+        "truth_acceptance": {
+          "status": "unavailable"
+        },
+        "unknown_reference_predicates": {
+          "author16_veto": "ATLAS lepton author unavailable in Delphes2SA",
+          "generator_filter": "No matching ATLAS generator-filter event population",
+          "trigger": "No measured trigger decision or efficiency in Delphes2SA",
+          "truth_matching": "Delphes2SA mother pointers do not retain truth matches"
+        }
+      },
+      "native_tagged_lo_cross_section_pb": 0.034833304,
+      "observed_mu95": 0.20562167948105434,
+      "observed_relative_residual": -0.29726378015153054,
+      "physics_certified": false,
+      "published_median_expected_sigma95_fb": 56.526,
+      "published_observed_sigma95_fb": 46.633,
+      "recorded_completed_stages": 12,
+      "run": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2"
+    }
+  },
+  "schema_version": 1,
+  "uncertainty_scope": "Generator integration uncertainty is separate from Poissonized independent-event signal MC constraints; no detector/ISR/theory/coverage validation."
+}

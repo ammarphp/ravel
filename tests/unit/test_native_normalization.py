@@ -29,6 +29,42 @@ def test_missing_log_rate_uses_actual_lhe_evidence(tmp_path):
     with pytest.raises(ValueError):norm.resolve_normalization(lhe,mg,shower,1.,3)
 
 
+def test_multichannel_lhe_with_generator_metadata(tmp_path):
+    lhe, mg, shower = sources(tmp_path)
+    text = lhe.read_text().replace('0 0 3 1\n2.0 0.1 1 1',
+        '0 0 -4 4\n0.5 0.01 2 1\n0.5 0.01 2 2\n0.5 0.01 2 3\n0.5 0.01 2 4')
+    text = text.replace('</init>',
+        '<generator name="MadGraph5_aMC@NLO" version="2.9.27">please cite 1405.0301</generator>\n'
+        '<initrwgt>\n<weightgroup name="scale"><weight id="1">nominal</weight></weightgroup>\n</initrwgt>\n</init>')
+    lhe.write_text(text)
+    assert norm.resolve_normalization(lhe, mg, shower, 1.18, 3)['cross_section_pb'] == 2
+
+
+def test_init_metadata_hash_is_not_a_numeric_comment(tmp_path):
+    lhe, _, _ = sources(tmp_path)
+    lhe.write_text(lhe.read_text().replace('</init>',
+        '<generator href="https://example.invalid/spec#fragment">\n'
+        'generator # identifier\n</generator>\n</init>'))
+    assert norm.read_lhe(lhe)['cross_section_pb'] == 2
+
+
+@pytest.mark.parametrize('extra', ['4 0.1 1 2', '<generator>missing close',
+    '<generator/>\n4 0.1 1 2', '<generator name="invalid>text</generator>'])
+def test_init_metadata_never_hides_bad_process_records(tmp_path, extra):
+    lhe, _, _ = sources(tmp_path)
+    lhe.write_text(lhe.read_text().replace('</init>', extra+'\n</init>'))
+    with pytest.raises(ValueError):
+        norm.read_lhe(lhe)
+
+
+def test_duplicate_lhe_subprocess_id_is_rejected(tmp_path):
+    lhe, _, _ = sources(tmp_path)
+    lhe.write_text(lhe.read_text().replace('0 0 3 1\n2.0 0.1 1 1',
+        '0 0 3 2\n1 0.1 1 1\n1 0.1 1 1'))
+    with pytest.raises(ValueError, match='duplicate'):
+        norm.read_lhe(lhe)
+
+
 @pytest.mark.parametrize('failure',['wrong_units','wrong_xs','shower_loss','shower_xs','missing_shower','truncated','wrong_requested_count'])
 def test_normalization_failures_remain_unresolved(tmp_path,failure):
     lhe,mg,shower=sources(tmp_path);n=3

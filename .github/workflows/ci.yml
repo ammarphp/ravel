@@ -69,6 +69,10 @@ jobs:
         run: python3 scripts/check_publication.py
       - name: evidence manifest sha-pins
         run: python3 scripts/check_evidence.py --check
+      - name: RRR waypoint likelihood identities and adversarial evidence checks
+        run: |
+          python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units
+          python -m pytest evidence/audits/2026-09-06-rrr-waypoint/test_curate.py -q
 
   replay:
     name: replay-mode demo (benchmark gate)

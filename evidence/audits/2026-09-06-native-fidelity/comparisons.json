@@ -1,0 +1,623 @@
+{
+  "schema_version": 1,
+  "differential_byte_identical_to_previous": true,
+  "differential_json_value_identical_to_previous": true,
+  "all_top_level_fields": {
+    "schema_version": true,
+    "analysis": true,
+    "input_name": true,
+    "input_sha256": true,
+    "selection_sha256": true,
+    "core_sha256": true,
+    "reference": true,
+    "historical_reference_commit": true,
+    "entries": true,
+    "sum_weights": true,
+    "weights_min": true,
+    "weights_max": true,
+    "counts": true,
+    "acceptance": true,
+    "cutflow_order": true,
+    "cutflow": true,
+    "changed_events": true,
+    "scope": true
+  },
+  "all_region_counts": [
+    {
+      "mode": "historical",
+      "region": "Preselection",
+      "previous": 1055,
+      "current": 1055,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "SRlow",
+      "previous": 43,
+      "current": 43,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "SRISR",
+      "previous": 19,
+      "current": 19,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "CRlow",
+      "previous": 50,
+      "current": 50,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "CRISR",
+      "previous": 16,
+      "current": 16,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "VRlow",
+      "previous": 22,
+      "current": 22,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "VRISR",
+      "previous": 19,
+      "current": 19,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "VRISRsmallPTsoft",
+      "previous": 2,
+      "current": 2,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "region": "VRISRsmallRjetsinv",
+      "previous": 15,
+      "current": 15,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "Preselection",
+      "previous": 1055,
+      "current": 1055,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "SRlow",
+      "previous": 95,
+      "current": 95,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "SRISR",
+      "previous": 19,
+      "current": 19,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "CRlow",
+      "previous": 65,
+      "current": 65,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "CRISR",
+      "previous": 16,
+      "current": 16,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "VRlow",
+      "previous": 28,
+      "current": 28,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "VRISR",
+      "previous": 19,
+      "current": 19,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "VRISRsmallPTsoft",
+      "previous": 2,
+      "current": 2,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "region": "VRISRsmallRjetsinv",
+      "previous": 15,
+      "current": 15,
+      "equal": true
+    }
+  ],
+  "all_cutflow_counts": [
+    {
+      "mode": "historical",
+      "cut": "preselection",
+      "previous": 1055,
+      "current": 1055,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "cut": "lepton_pt_and_jet_veto",
+      "previous": 327,
+      "current": 327,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "cut": "Hboost",
+      "previous": 318,
+      "current": 318,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "cut": "pTratio",
+      "previous": 194,
+      "current": 194,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "cut": "HTratio",
+      "previous": 65,
+      "current": 65,
+      "equal": true
+    },
+    {
+      "mode": "historical",
+      "cut": "mTW",
+      "previous": 43,
+      "current": 43,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "preselection",
+      "previous": 1055,
+      "current": 1055,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "lepton_pt_and_jet_veto",
+      "previous": 327,
+      "current": 327,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "Hboost",
+      "previous": 314,
+      "current": 314,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "pTratio",
+      "previous": 193,
+      "current": 193,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "HTratio",
+      "previous": 149,
+      "current": 149,
+      "equal": true
+    },
+    {
+      "mode": "paper",
+      "cut": "mTW",
+      "previous": 95,
+      "current": 95,
+      "equal": true
+    }
+  ],
+  "all_changed_event_records": [
+    {
+      "entry": 6295,
+      "event": 6295,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 8103,
+      "event": 8103,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 8863,
+      "event": 8863,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 14821,
+      "event": 14821,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 17290,
+      "event": 17290,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 21489,
+      "event": 21489,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 21646,
+      "event": 21646,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 22184,
+      "event": 22184,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 24135,
+      "event": 24135,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 26464,
+      "event": 26464,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 30205,
+      "event": 30205,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 31820,
+      "event": 31820,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 34795,
+      "event": 34795,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 36043,
+      "event": 36043,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 39519,
+      "event": 39519,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 43695,
+      "event": 43695,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 48925,
+      "event": 48925,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 49172,
+      "event": 49172,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 49648,
+      "event": 49648,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 51343,
+      "event": 51343,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 52866,
+      "event": 52866,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 53211,
+      "event": 53211,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 54291,
+      "event": 54291,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 60127,
+      "event": 60127,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 60837,
+      "event": 60837,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 63630,
+      "event": 63630,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 73551,
+      "event": 73551,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 73975,
+      "event": 73975,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 74026,
+      "event": 74026,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 74195,
+      "event": 74195,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 74326,
+      "event": 74326,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 75267,
+      "event": 75267,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 75588,
+      "event": 75588,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 78562,
+      "event": 78562,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 78916,
+      "event": 78916,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 88777,
+      "event": 88777,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 93701,
+      "event": 93701,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 93811,
+      "event": 93811,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 94607,
+      "event": 94607,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 96450,
+      "event": 96450,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 99539,
+      "event": 99539,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 100087,
+      "event": 100087,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 112688,
+      "event": 112688,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 113909,
+      "event": 113909,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 118824,
+      "event": 118824,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 125094,
+      "event": 125094,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 125393,
+      "event": 125393,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 127166,
+      "event": 127166,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 134042,
+      "event": 134042,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 138321,
+      "event": 138321,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 138547,
+      "event": 138547,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 139130,
+      "event": 139130,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 139826,
+      "event": 139826,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 141775,
+      "event": 141775,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 141882,
+      "event": 141882,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 141885,
+      "event": 141885,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 146414,
+      "event": 146414,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 151619,
+      "event": 151619,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 153940,
+      "event": 153940,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 156560,
+      "event": 156560,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 171182,
+      "event": 171182,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 171244,
+      "event": 171244,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 175503,
+      "event": 175503,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 175775,
+      "event": 175775,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 181762,
+      "event": 181762,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 186038,
+      "event": 186038,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 186238,
+      "event": 186238,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 187155,
+      "event": 187155,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 190660,
+      "event": 190660,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 194180,
+      "event": 194180,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 197356,
+      "event": 197356,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 197516,
+      "event": 197516,
+      "all_fields_equal": true
+    },
+    {
+      "entry": 198125,
+      "event": 198125,
+      "all_fields_equal": true
+    }
+  ],
+  "production_driver": {
+    "entries": 200000,
+    "all_paper_counts": {
+      "Preselection": 1055,
+      "SRlow": 95,
+      "SRISR": 19,
+      "CRlow": 65,
+      "CRISR": 16,
+      "VRlow": 28,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    },
+    "all_paper_counts_agree": true,
+    "txt_byte_identical_to_previous_recorded_hash": true,
+    "txt_sha256": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0"
+  }
+}

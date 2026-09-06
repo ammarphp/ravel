@@ -5,8 +5,8 @@ Run this between MadGraph and Pythia — the failure modes it catches are the on
 otherwise fail SILENTLY downstream (exit 0, plausible-but-wrong yields; see
 .claude/rules/madgraph-pythia.md and docs/workflow/checklists/model-cards.md):
 
-  * WRONG GENERATED MASS (--expect-mass PDG:MASS, repeatable): for MSSM_SLHA2 the MASS
-    block is overridden by MSOFT/HMIX, so a card that *says* 300 can generate 181. The
+  * WRONG GENERATED MASS (--expect-mass PDG:MASS, repeatable): the actual model interface,
+    restriction or card loading can differ from the intended spectrum. The
     check reads the FIRST event's particle masses (the ground truth of what was generated)
     and the banner's SLHA MASS block, asserting both within --mass-tol (default 1 GeV).
   * MISSING MODSEL: without `Block MODSEL` (1 1) Pythia keeps internal SUSY off. Measured
@@ -65,9 +65,9 @@ def parse_param_card(path):
       FAIL  width-only DECAY table (total width, ZERO BR rows) for a BSM particle — the C1
             silent killer: Pythia imports nothing, sparticles never decay, SRs empty, exit 0.
       FAIL  unrendered {{placeholder}} anywhere in the card (the {{ecms}} crash class).
-      WARN  MSSM-style MSOFT/HMIX blocks present — the MASS block is OVERRIDDEN for gauginos/
-            higgsinos (T11): the derived spectrum, not MASS, is what generates; the banner-mass
-            cross-check downstream is the real arbiter.
+      WARN  MSSM-style MSOFT/HMIX blocks present — inspect the imported model's mass/mixing
+            dependencies (T11). Block presence alone cannot determine whether the model
+            consumes supplied physical masses or a derived spectrum.
     """
     mass, lint = {}, []
     txt = open(path, errors="replace").read()
@@ -109,9 +109,10 @@ def parse_param_card(path):
     if widthonly:
         lint.append(("WIDTHONLY", widthonly))
     if re.search(r"(?im)^block\s+msoft\b", txt) or re.search(r"(?im)^block\s+hmix\b", txt):
-        lint.append(("WARN", "MSOFT/HMIX present: gaugino/higgsino masses derive from them and "
-                             "OVERRIDE the MASS block (T11) — trust the banner-mass cross-check "
-                             "below, not the card's MASS lines, for those states"))
+        lint.append(("WARN", "MSOFT/HMIX present: inspect the imported model's mass/mixing "
+                             "dependencies (T11); block presence alone does not establish a "
+                             "MASS override. Verify the intended masses against the banner "
+                             "and generated particles"))
     if not mass:
         lint.append(("FAIL", "no parsable Block MASS in the card"))
     return mass, lint
@@ -184,7 +185,7 @@ def main():
                          "itself (never hand-typed — the 181-as-300 near-miss class) for every "
                          "BSM PDG in the first event, AND lint the card: width-only DECAY "
                          "tables (the C1 empty-SR killer), unrendered {{placeholders}}, and the "
-                         "MASS-vs-MSOFT override note for MSSM_SLHA2")
+                         "model-dependent MASS/MSOFT consistency note")
     ap.add_argument("--expect-mass", action="append", default=[], metavar="PDG:MASS",
                     help="assert this PDG's mass (first event + banner MASS block) within "
                          "--mass-tol; repeatable, e.g. --expect-mass 1000021:1000")

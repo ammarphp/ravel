@@ -14,6 +14,7 @@ import json
 import math
 from pathlib import Path
 import re
+import xml.etree.ElementTree as ET
 from decimal import Decimal
 
 
@@ -58,10 +59,14 @@ def read_lhe(path):
     opener = gzip.open if str(path).endswith(".gz") else open
     init, weights, rows = [], [], []
     in_init = in_event = False
+    init_metadata = False
     closed = False
     with opener(path, "rt") as stream:
         for raw in stream:
-            line = raw.split("#", 1)[0].strip()
+            # A hash starts a numeric-record comment, but is legitimate inside
+            # XML metadata (for example a generator URL fragment or text).
+            line = (raw.strip() if in_init and (init_metadata or raw.lstrip().startswith("<"))
+                    else raw.split("#", 1)[0].strip())
             if line == "<init>":
                 if init:
                     raise ValueError("multiple LHE init blocks")
@@ -69,7 +74,8 @@ def read_lhe(path):
             elif line == "</init>":
                 in_init = False
             elif in_init and line:
-                init.append(line.split())
+                init_metadata = init_metadata or line.startswith("<")
+                init.append(line)
             elif line == "<event>":
                 if in_event:
                     raise ValueError("unterminated LHE event")
@@ -93,10 +99,34 @@ def read_lhe(path):
     if in_event or in_init or not closed:
         raise ValueError("truncated LHE document")
     try:
-        nprocess = int(init[0][9])
-        if nprocess < 1 or len(init) != nprocess + 1:
+        header = init[0].split()
+        if len(header) != 10:
+            raise ValueError("invalid LHE init header")
+        nprocess = int(header[9])
+        if nprocess < 1 or len(init) < nprocess + 1:
             raise ValueError("LHE subprocess count does not match init block")
-        rates = [positive(row[0], "LHE subprocess cross section (pb)") for row in init[1:]]
+        process_rows = [row.split() for row in init[1:nprocess+1]]
+        if any(len(row) != 4 for row in process_rows):
+            raise ValueError("invalid LHE subprocess row")
+        process_ids = [int(row[3]) for row in process_rows]
+        if len(set(process_ids)) != nprocess:
+            raise ValueError("duplicate LHE subprocess ID")
+        # LHEF permits XML metadata after the numeric init block. MadGraph's
+        # <generator> element is not another subprocess. Accept well-formed
+        # metadata but never swallow extra numeric rows or malformed tags.
+        metadata = "\n".join(init[nprocess+1:])
+        if metadata:
+            try:
+                tree = ET.fromstring("<metadata>" + metadata + "</metadata>")
+            except ET.ParseError as exc:
+                raise ValueError("malformed LHE init metadata") from exc
+            if (tree.text or "").strip() or any((child.tail or "").strip() for child in tree):
+                raise ValueError("extra numeric or untagged content in LHE init block")
+        rates = [positive(row[0], "LHE subprocess cross section (pb)") for row in process_rows]
+        for row in process_rows:
+            uncertainty, maximum_weight = float(row[1]), float(row[2])
+            if not all(math.isfinite(x) and x >= 0 for x in (uncertainty, maximum_weight)):
+                raise ValueError("invalid LHE subprocess uncertainty or maximum weight")
         sigma = positive(math.fsum(rates), "LHE cross section (pb)")
     except (IndexError, OverflowError) as exc:
         raise ValueError("missing or malformed LHE cross section") from exc

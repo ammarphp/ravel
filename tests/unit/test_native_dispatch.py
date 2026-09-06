@@ -86,6 +86,76 @@ def test_dry_plan_has_actual_non_slepton_commands_without_writes(tmp_path):
     assert all(set(s)=={'stage','command','inputs','outputs','depends_on'} for s in plan['stages'])
 
 
+def test_compressed_storage_is_declared_before_execution(tmp_path):
+    config=configuration(tmp_path)
+    config.write_text(config.read_text().replace('[ravel.native.inputs]', 'event_storage = "gzip"\n[ravel.native.inputs]'))
+    plan=pipeline.build_execution_plan(tmp_path,config)
+    stages={s['stage']:s for s in plan['stages']}
+    compressed=stages['pythia']['outputs'][0]
+    assert compressed.endswith('events.hepmc.gz')
+    assert stages['pythia']['outputs'][1]==compressed+'.storage.json'
+    assert 'ravel.physics.native_event_io' in stages['pythia']['command']
+    assert 'ravel.physics.native_event_io' in stages['delphes']['command']
+    assert compressed in stages['delphes']['inputs']
+    assert compressed in stages['delphes']['command']
+    assert any(p['path'].endswith('native_event_io.py') for p in plan['sources'])
+    assert not (tmp_path/'output').exists()
+
+
+def test_custom_interpreter_alias_has_one_artifact_and_pins_environment(tmp_path, monkeypatch):
+    config = configuration(tmp_path)
+    build = tmp_path/'native-build'
+    interpreter = build/'tools/miniforge3/envs/recast/bin/python'
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_text('#!/bin/sh\nexit 0\n')
+    interpreter.chmod(0o755)
+    alias = tmp_path/'venv/bin/python'
+    alias.parent.mkdir(parents=True)
+    alias.symlink_to(interpreter)
+    environment = alias.parent.parent/'pyvenv.cfg'
+    environment.write_text('include-system-site-packages = true\n')
+    monkeypatch.setattr(pipeline, 'native_build_root', lambda: build)
+    config.write_text(config.read_text().replace('[ravel.native.inputs]',
+        f'statistics_python = "{alias}"\n[ravel.native.inputs]'))
+    plan = pipeline.build_execution_plan(tmp_path, config)
+    for stage in plan['stages']:
+        assert stage['inputs'].count(str(interpreter.resolve())) == 1
+        assert str(environment) in stage['inputs']
+    saved = pipeline.write_plan(plan)
+    environment.write_text('include-system-site-packages = false\n')
+    with pytest.raises(ValueError, match='input changed'):
+        pipeline.load_plan(saved)
+
+
+@pytest.mark.parametrize('field,value',[('event_storage','zip'),('mc_stat','auto'),
+    ('compressed_signal_model','implicit-zero'),('pyhf_backend','automatic')])
+def test_native_uncertainty_and_storage_choices_cannot_silently_default(tmp_path,field,value):
+    config=configuration(tmp_path)
+    config.write_text(config.read_text().replace('[ravel.native.inputs]',f'{field} = "{value}"\n[ravel.native.inputs]'))
+    with pytest.raises(ValueError):pipeline.build_execution_plan(tmp_path,config)
+
+
+def test_zero_branching_modes_do_not_change_active_topology(tmp_path):
+    card=tmp_path/'param.dat'
+    card.write_text('Block MASS\n1000011 150\n1000022 140\nDECAY 1000011 0.2\n1.0 2 1000022 11\n0.0 2 1000023 11\n')
+    result=pipeline.validate_param_card(card,'slepton-bino',150,140,produced={1000011})
+    assert result['1000011']==150
+    card.write_text(card.read_text().replace('1.0 2','0.9 2').replace('0.0 2','0.1 2'))
+    with pytest.raises(ValueError,match='branching daughters'):
+        pipeline.validate_param_card(card,'slepton-bino',150,140,produced={1000011})
+
+
+@pytest.mark.parametrize('cut', ['ptj1min', 'htjmin'])
+def test_inclusive_process_cannot_inherit_a_positive_jet_requirement(tmp_path, cut):
+    config = configuration(tmp_path)
+    card = tmp_path/'cards/run.dat'
+    card.write_text(card.read_text()+f'50 = {cut}\n')
+    with pytest.raises(ValueError, match='jet-existence cut'):
+        pipeline.build_execution_plan(tmp_path, config)
+    card.write_text(card.read_text().replace(f'50 = {cut}', f'0 = {cut}'))
+    assert pipeline.build_execution_plan(tmp_path, config)['capability']['model'] == 'c1n2-wz'
+
+
 @pytest.mark.parametrize('change',['wrong_process','wrong_analysis','wrong_detector','wrong_scan_mass','missing_kfactor','merged','wrong_event_count'])
 def test_unsupported_inputs_fail_before_preparation(tmp_path,change):
     config=configuration(tmp_path);kwargs={}
@@ -216,8 +286,10 @@ elif name=='python':
     elif module=='ravel.physics.native_simpleanalysis':
         for ext in ('.root','.txt'):put(str(pathlib.Path(arg('--output'))/(arg('--routine')+ext)))
         if arg('--routine')=='EwkCompressed2018':
-            for name in ('native_objects.txt','native_rjr.csv'):put(str(pathlib.Path(arg('--output'))/name))
-    elif module=='ravel.physics.sa2json_native':put(arg('-o'),'[]')
+            for name in ('native_objects.txt','native_rjr.csv','compressed_trace.jsonl.gz','compressed_validation.json'):
+                put(str(pathlib.Path(arg('--output'))/name), '{}' if name.endswith('.json') else 'stub physics artifact\n')
+    elif module=='ravel.physics.sa2json_native':
+        put(arg('-o'),'[]');put(arg('--signal-metadata'),'{}')
     elif module=='ravel.physics.pyhf_exclude':put(str(pathlib.Path(arg('--out'))/'exclusion.json'),'{}')
     else:raise RuntimeError('unexpected module '+repr(cmd))
 else:raise RuntimeError('unexpected command '+repr(cmd))
@@ -406,7 +478,7 @@ def test_statistical_adapters_execute_their_declared_subprocess_plan(tmp_path,mo
         config.write_text(config.read_text().replace('c1n2-wz','slepton-bino').replace('EwkThreeLeptonERJR2018','EwkCompressed2018'))
         (tmp_path/'cards/process.dat').write_text('import model MSSM_SLHA2\ngenerate p p > el+ el-\n')
         (tmp_path/'cards/param.dat').write_text('Block MASS\n 1000011 300\n 1000022 100\nDECAY 1000011 1\n 1 2 1000022 11\n')
-        for group in ('channels','observations'):background[group][0]['name']='SR_eMLLa_hghmet_ee'
+        for group in ('channels','observations'):background[group][0]['name']='SRee_eMT2a_hghmet_cuts'
         background['measurements'][0]['config']['poi']='mu_SIG'
     (tmp_path/'background.json').write_text(json.dumps(background))
     config.write_text(config.read_text()+'likelihood = "background.json"\n')

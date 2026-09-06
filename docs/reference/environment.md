@@ -29,6 +29,15 @@ The Python replay environment is separately version- and hash-locked in
 `requirements-replay.lock`; see the [command-line reference](../cli.md). The native HEP stack below is
 ARM64-specific and does not yet have a verified cross-platform lock or OCI reproduction.
 
+The September RRR closure work uses an additional isolated statistics virtual environment
+under ignored `local-runs/rrr-closure/numerics/venv-jax-guarded/`. It inherits the installed
+recast Python 3.14 environment and adds iminuit 2.32.0 for guarded JAX profiling. The original
+conda environments were not modified. This is a recorded local combination, not a portable
+full-stack lock. Native plans pin the chosen Python executable and virtual-environment
+configuration; result artifacts record statistical dependency versions. Frozen per-campaign
+Python snapshots and separately built shower binaries prevent ongoing source edits from
+changing an active run. Original installed binaries remain intact.
+
 ## Provisioning and optional environments
 
 Start with [environment setup](../../environment/README.md) and follow the

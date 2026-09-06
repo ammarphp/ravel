@@ -1,0 +1,138 @@
+{
+  "anchor20k": {
+    "engine_sha256": "d188802d497299ee169d2319bc46fa6b90c0cd2e91ac1d7bbd692bfd61f9a094",
+    "formula": "(sigma_4j_LO / sigma_4inclusive_LO) * selected_weight / total_generated_weight",
+    "generated_four_state_tagged_rate_pb": 0.034566716,
+    "inclusive_four_state_rate_pb": 0.1350625,
+    "inclusive_integration_relative_error": 0.002741693660342434,
+    "inputs": [
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/normalization.json",
+        "sha256": "f7c33116e488ce4b1bbba876e1180218fdca206a8ed077dba7dd1ad9aafb91d2"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_validation.json",
+        "sha256": "8930e749cca07f4426d18bf0622a0bc62c532dd86f553977bc876a22cece2dad"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/native_execution_plan.json",
+        "sha256": "9f308e89d3a5c308a07793d82e4326752bd7a208608ac64d21ce6c090e28d36a"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat",
+        "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json",
+        "sha256": "6c8b76ea1bde50250c48577151c77f87661b2f56c53f33dc68ba107f5482fd05"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/acceptance-efficiency-52.json",
+        "sha256": "19eb8889d503db07e49c841d24a060ad1763adb0988a341d40c8348ab6afc446"
+      }
+    ],
+    "interpretation": "The common K and luminosity cancel. This isolates the rate basis from a raw event-yield comparison. The unmerged one-parton approximation and missing public truth/migration definition prevent a certification claim.",
+    "masses_gev": [
+      150.0,
+      140.0
+    ],
+    "physics_certified": false,
+    "rows": [
+      {
+        "central_relative_difference": -0.11117921327113367,
+        "conditional_fraction_in_generated_sample": 0.0102,
+        "conditional_fraction_mc_standard_error": 0.0007104913792580452,
+        "conditional_sampling_standard_error_on_inclusive_fraction": 0.00018183695494501534,
+        "estimated_inclusive_four_state_reco_fraction": 0.002610498866820916,
+        "public_uncertainty": null,
+        "reference_algebraic_acceptance_efficiency_product": 0.002937036246,
+        "region": "SR-S-high",
+        "selected_events": 204,
+        "status": "diagnostic_only_unmatched_truth_and_migration_definition"
+      },
+      {
+        "central_relative_difference": -0.10618951221919715,
+        "conditional_fraction_in_generated_sample": 0.00765,
+        "conditional_fraction_mc_standard_error": 0.0006160956703305096,
+        "conditional_sampling_standard_error_on_inclusive_fraction": 0.00015767814208343802,
+        "estimated_inclusive_four_state_reco_fraction": 0.001957874150115687,
+        "public_uncertainty": null,
+        "reference_algebraic_acceptance_efficiency_product": 0.0021904801710000005,
+        "region": "SR-S-low",
+        "selected_events": 153,
+        "status": "diagnostic_only_unmatched_truth_and_migration_definition"
+      }
+    ],
+    "schema_version": 1,
+    "tagged_to_inclusive_rate_ratio": 0.25593126145303097,
+    "uncertainty_scope": "Sampling errors use nested-mask covariance conditional on the generated rate. Inclusive integration uncertainty is reported separately. Generator-rate correlation, detector/theory variations and reference uncertainty are not inferred."
+  },
+  "smoke2": {
+    "engine_sha256": "d188802d497299ee169d2319bc46fa6b90c0cd2e91ac1d7bbd692bfd61f9a094",
+    "formula": "(sigma_4j_LO / sigma_4inclusive_LO) * selected_weight / total_generated_weight",
+    "generated_four_state_tagged_rate_pb": 0.034833304,
+    "inclusive_four_state_rate_pb": 0.1350625,
+    "inclusive_integration_relative_error": 0.002741693660342434,
+    "inputs": [
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/normalization.json",
+        "sha256": "606f574fbb2369c22c01893a4c2555c266261a14cea39baa60307368caa4b130"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/compressed_validation.json",
+        "sha256": "0109d7d02ad1cee14f808673c2d0bf6be492e02436c6376fea120154dcfb1d69"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/native_execution_plan.json",
+        "sha256": "59aa356cb8925160843e963db0aaadf6b6d5609e35100e072070ed3f511c93e6"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/cards/process.dat",
+        "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json",
+        "sha256": "6c8b76ea1bde50250c48577151c77f87661b2f56c53f33dc68ba107f5482fd05"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/acceptance-efficiency-52.json",
+        "sha256": "19eb8889d503db07e49c841d24a060ad1763adb0988a341d40c8348ab6afc446"
+      }
+    ],
+    "interpretation": "The common K and luminosity cancel. This isolates the rate basis from a raw event-yield comparison. The unmerged one-parton approximation and missing public truth/migration definition prevent a certification claim.",
+    "masses_gev": [
+      150.0,
+      140.0
+    ],
+    "physics_certified": false,
+    "rows": [
+      {
+        "central_relative_difference": -0.03407531547789955,
+        "conditional_fraction_in_generated_sample": 0.011,
+        "conditional_fraction_mc_standard_error": 0.0032983329122452153,
+        "conditional_sampling_standard_error_on_inclusive_fraction": 0.0008506567924142002,
+        "estimated_inclusive_four_state_reco_fraction": 0.0028369558093475243,
+        "public_uncertainty": null,
+        "reference_algebraic_acceptance_efficiency_product": 0.002937036246,
+        "region": "SR-S-high",
+        "selected_events": 11,
+        "status": "diagnostic_only_unmatched_truth_and_migration_definition"
+      },
+      {
+        "central_relative_difference": 0.1773905876505084,
+        "conditional_fraction_in_generated_sample": 0.01,
+        "conditional_fraction_mc_standard_error": 0.003146426544510455,
+        "conditional_sampling_standard_error_on_inclusive_fraction": 0.0008114793694667447,
+        "estimated_inclusive_four_state_reco_fraction": 0.002579050735770477,
+        "public_uncertainty": null,
+        "reference_algebraic_acceptance_efficiency_product": 0.0021904801710000005,
+        "region": "SR-S-low",
+        "selected_events": 10,
+        "status": "diagnostic_only_unmatched_truth_and_migration_definition"
+      }
+    ],
+    "schema_version": 1,
+    "tagged_to_inclusive_rate_ratio": 0.25790507357704767,
+    "uncertainty_scope": "Sampling errors use nested-mask covariance conditional on the generated rate. Inclusive integration uncertainty is reported separately. Generator-rate correlation, detector/theory variations and reference uncertainty are not inferred."
+  }
+}

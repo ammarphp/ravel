@@ -37,6 +37,7 @@ PYHF_MEASURED_MIN = 20.0   # MEASURED, not modelled (2026-08-28 fresh-flagship w
 FLOOR_SECS = 300.0         # never kill before 5 min (protect legitimately fast stages)
 POLL_SECS = 5.0
 GRACE_SECS = 10.0          # SIGTERM -> wait -> SIGKILL
+CLEANUP_CENSUS_SCOPE = "non-zombie process-group members reported by ps; zombies excluded"
 MUST_PRODUCE = ("madgraph", "pythia", "delphes", "analysis", "simpleanalysis", "sa2json", "pyhf")
 
 def _resolve_timestamp():
@@ -56,7 +57,7 @@ def stage_budget_min(stage, events):
 def _fingerprint(cmd):
     return hashlib.sha256((" ".join(cmd)).encode("utf-8")).hexdigest()
 
-def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel):
+def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel, *, cleanup=None):
     rec = {
         "schema_version": SCHEMA_VERSION, "generated_by": "stage_supervisor.py",
         "generator": "stage_supervisor.py", "generated_utc": _resolve_timestamp(),
@@ -68,6 +69,8 @@ def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel):
                         "and resume the declared pipeline. Earlier attempts are retained; "
                         "deleting a status file is not evidence of recovery."),
     }
+    if cleanup is not None:
+        rec["cleanup"] = cleanup
     path = os.path.join(rundir, "logs", f"{stage}.failure.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     atomic_json(path, rec)
@@ -84,29 +87,125 @@ def write_failure(rundir, stage, reason, elapsed, kill_secs, cmd, logrel):
             pass
     return path
 
+def _cleanup_error(result, operation, exc):
+    result["errors"].append({"operation": operation, "type": type(exc).__name__,
+                             "message": str(exc)})
+
+
+def _observe_group(result):
+    # execution's census excludes zombies. "empty" means no active members in
+    # this group, not proof that every OS process-table entry has disappeared.
+    try:
+        members = execution.process_group_members(result["process_group"])
+    except (Exception, KeyboardInterrupt) as exc:
+        _cleanup_error(result, "query_process_group", exc)
+        members = None
+    result["remaining_group_members"] = members
+    result["group_state"] = "unknown" if members is None else ("active" if members else "empty")
+    result["requires_recovery"] = members is None or bool(members)
+    return members
+
+
+def _terminate_owned_group(pid, grace, proc=None):
+    """Bound cleanup without confusing a signal attempt with observed quiescence.
+
+    Each signal has at most one grace interval, plus a bounded leader wait. Process
+    queries also have their own timeout in execution.process_group_members. A denied
+    signal or failed query is retained and held for explicit recovery, not retried in
+    an exception handler. In particular, a dead wrapper is not proof of dead children.
+    """
+    result = {"process_group": pid, "signals": [], "errors": [],
+              "census_scope": CLEANUP_CENSUS_SCOPE,
+              "remaining_group_members": None, "group_state": "unknown",
+              "leader_returncode": None, "requires_recovery": True}
+    def poll_leader():
+        if proc is not None:
+            try:
+                result["leader_returncode"] = proc.poll()
+            except (Exception, KeyboardInterrupt) as exc:
+                _cleanup_error(result, "poll_leader", exc)
+    # Reap our own exited child before each census, while still inspecting any
+    # surviving descendants. Reaping a wrapper cannot establish an empty group.
+    poll_leader()
+    members = _observe_group(result)
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        if not members:  # Empty is finished; unknown is held without blind escalation.
+            break
+        action = {"signal": sig.name}
+        result["signals"].append(action)
+        try:
+            os.killpg(pid, sig)
+            action["outcome"] = "sent"
+        except ProcessLookupError:
+            action["outcome"] = "not_found"
+        except (Exception, KeyboardInterrupt) as exc:
+            action["outcome"] = "error"
+            _cleanup_error(result, sig.name, exc)
+        if action["outcome"] != "sent":
+            _observe_group(result)
+            break
+        deadline = time.monotonic() + grace
+        while True:
+            poll_leader()
+            members = _observe_group(result)
+            remaining = deadline - time.monotonic()
+            if not members or remaining <= 0:
+                break
+            try:
+                time.sleep(min(0.1, remaining))
+            except (Exception, KeyboardInterrupt) as exc:
+                _cleanup_error(result, "wait_for_group", exc)
+                result["requires_recovery"] = True
+                return result
+    if proc is not None:
+        wait_failed = False
+        try:
+            result["leader_returncode"] = proc.wait(timeout=grace)
+        except (Exception, KeyboardInterrupt) as exc:
+            _cleanup_error(result, "wait_for_leader", exc)
+            wait_failed = True
+        # The bounded wait can change group membership. Report this later observed
+        # state without retroactively claiming that a denied signal succeeded.
+        _observe_group(result)
+        result["requires_recovery"] |= wait_failed
+    return result
+
+
 def _terminate_group(proc, grace):
-    """Terminate the owned process session, including children of a shell/conda wrapper."""
+    return _terminate_owned_group(proc.pid, grace, proc)
+
+
+def _safe_cleanup(proc, grace):
+    # Even an unexpected cleanup implementation failure must not erase the primary
+    # stage failure or leave its durable attempt recorded as running.
     try:
-        os.killpg(proc.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        return
-    try:
-        proc.wait(timeout=grace)
-    except subprocess.TimeoutExpired:
-        pass
-    # The group may contain children even after its leader exits.
-    try:
-        os.killpg(proc.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    proc.wait()
+        return _terminate_group(proc, grace)
+    except (Exception, KeyboardInterrupt) as exc:
+        result = {"process_group": proc.pid, "signals": [], "errors": [],
+                  "census_scope": CLEANUP_CENSUS_SCOPE,
+                  "remaining_group_members": None, "group_state": "unknown",
+                  "leader_returncode": None, "requires_recovery": True}
+        _cleanup_error(result, "cleanup", exc)
+        return result
 
 
 def _recover_orphan(rundir, stage, grace):
     old = execution.load_execution(rundir)["stages"].get(stage, {})
-    if old.get("status") != "running" or not old.get("child_pid"):
+    if not old.get("child_pid"):
         return
     pid = old["child_pid"]
+    if old.get("cleanup", {}).get("requires_recovery"):
+        # A terminal failed record can still own live descendants. Never turn that
+        # status into permission for another launch, or signal a possibly reused PID.
+        try:
+            members = execution.process_group_members(pid)
+        except Exception as exc:
+            raise ValueError(f"previous group {pid} cannot be checked; stage {stage} held") from exc
+        if members:
+            raise ValueError(f"previous group {pid} remains active; stage {stage} held")
+        return
+    if old.get("status") != "running":
+        return
     identity = execution.process_identity(pid)
     if identity is None:
         if not execution.process_group_members(pid):
@@ -115,17 +214,21 @@ def _recover_orphan(rundir, stage, grace):
             raise ValueError(f"cannot establish ownership of previous group {pid}; stage {stage} held")
     elif identity != old.get("child_identity") or os.getpgid(pid) != pid:
         raise ValueError(f"cannot establish ownership of previous process {pid}; stage {stage} held")
-    os.killpg(pid, signal.SIGTERM)
-    deadline = time.monotonic() + grace
-    while execution.process_group_members(pid) and time.monotonic() < deadline:
-        time.sleep(min(0.1, grace))
     try:
-        os.killpg(pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    # Once the owned group is signalled, preserve an explicit interruption record.
+        old["cleanup"] = _terminate_owned_group(pid, grace)
+    except (Exception, KeyboardInterrupt) as exc:
+        old["cleanup"] = {"process_group": pid, "signals": [], "errors": [],
+                          "census_scope": CLEANUP_CENSUS_SCOPE,
+                          "remaining_group_members": None, "group_state": "unknown",
+                          "leader_returncode": None, "requires_recovery": True}
+        _cleanup_error(old["cleanup"], "cleanup", exc)
+    if old["cleanup"]["requires_recovery"]:
+        execution.finish_attempt(rundir, old, 130, "owned orphan cleanup unresolved during resume")
+        raise ValueError(f"previous group {pid} cleanup unresolved; stage {stage} held")
+    # Only an observed absence of active group members establishes this scoped
+    # quiescence. Signal delivery alone does not.
     old.update(status="interrupted", finished_utc=execution.utc_now(),
-               error="owned orphan terminated during resume")
+               error="owned orphan has no active group members after resume cleanup")
     execution._update(rundir, stage, old)
 
 
@@ -164,6 +267,7 @@ def supervise(stage, rundir, events, logrel, cmd, kill_secs=None, stall_secs=Non
         t0 = time.monotonic()
         proc = None
         reason = None
+        code = 2
         previous_handlers = {}
         def interrupted(signum, frame):
             raise KeyboardInterrupt(f"signal {signum}")
@@ -185,30 +289,37 @@ def supervise(stage, rundir, events, logrel, cmd, kill_secs=None, stall_secs=Non
                     elif stall_secs is not None and time.time() - logpath.stat().st_mtime > stall_secs:
                         reason = "progress-stall"
                     if reason:
-                        _terminate_group(proc, grace)
+                        code = 124
                         break
                     time.sleep(poll)
             code = 124 if reason else (proc.returncode if proc.returncode >= 0 else 128 - proc.returncode)
-            if execution.process_group_members(proc.pid):
-                _terminate_group(proc, grace)
+            if code and not reason:
+                reason = f"exit-{code}"
+            if code == 0 and execution.process_group_members(proc.pid):
                 code, reason = 3, "descendants remained active after the stage leader exited"
             if code == 0 and not outputs and stage in MUST_PRODUCE and logpath.stat().st_size == 0:
                 code, reason = 3, "exit-0-implausible"
         except KeyboardInterrupt:
-            if proc:
-                _terminate_group(proc, grace)
-            code, reason = 130, "interrupted"
+            if not reason:
+                code, reason = 130, "interrupted"
         except Exception as exc:
-            if proc:
-                _terminate_group(proc, grace)
-            code, reason = 2, str(exc)
+            if not reason:
+                code, reason = 2, str(exc)
         finally:
+            if proc is not None and code:
+                record["cleanup"] = _safe_cleanup(proc, grace)
             for sig, handler in previous_handlers.items():
-                signal.signal(sig, handler)
+                try:
+                    signal.signal(sig, handler)
+                except (Exception, KeyboardInterrupt) as exc:
+                    record.setdefault("supervision_errors", []).append(str(exc))
+                    if not code:
+                        code, reason = 2, "could not restore supervisor signal handlers"
         code = execution.finish_attempt(root, record, code, reason)
         if code:
             write_failure(str(root), stage, record.get("error") or f"exit-{code}",
-                          time.monotonic() - t0, kill_secs, cmd, logrel)
+                          time.monotonic() - t0, kill_secs, cmd, logrel,
+                          cleanup=record.get("cleanup"))
         else:
             failure = root / "logs" / f"{stage}.failure.json"
             if failure.exists():

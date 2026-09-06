@@ -1,0 +1,735 @@
+{
+  "btag": {
+    "bounded_control": {
+      "input": "same retained upstream events; originals immutable",
+      "nominal": "unchanged current generic response",
+      "optional_endpoint_diagnostic": "force tag decisions off/on by labelled flavour as sensitivity bounds; never call them ATLAS calibrations or uncertainty bands",
+      "outputs": "all SR/six CR bins, original event IDs, sumw/sumw2, tag/flavour/kinematic denominators, paired migrations/covariance",
+      "recompute": "full affected object/overlap-removal selection and changed RJR inputs",
+      "replica_policy": "paired same-input response controls cannot be independently pooled",
+      "response_arm": "only source-backed target response when complete calibration is obtained; no fit to desired signal cutflow",
+      "status": "PROPOSED_ONLY"
+    },
+    "causal_attribution": "Not established: public/native b-veto and top-CR populations differ before tagging and in production/normalization.",
+    "confirmed_finding": "One generic Delphes BTag Boolean is aliased into all 12 named SimpleAnalysis b-tag working-point bits; no differential MV2c10 85% calibration is established.",
+    "created_utc": "2026-09-06T02:31:34.838960+00:00",
+    "engineering_transport": "PASS",
+    "evidence": [
+      {
+        "path": "source-pins.json",
+        "sha256": "b1d4bb32c4d0378a16095d63635554bb23b730de094a00f6fa3c220bac05e87a"
+      },
+      {
+        "path": "check_transfer.py",
+        "sha256": "3e49407c98260e1bd682ecb2c1719f8e4702be4e457b17dc045375313c469e43"
+      },
+      {
+        "path": "check_transfer.json",
+        "sha256": "698954fe9b35cebf00acfa38d483274130259eeaf42b909cd411091d9b8fde1c"
+      },
+      {
+        "path": "review.md",
+        "sha256": "17ffc216df9f73627e63ebfa71572ed6f97310a1e99561268a2b7f4517fce67c"
+      }
+    ],
+    "full_physics_closure": "UNRESOLVED",
+    "no_event_generation": true,
+    "no_production_response_changes": true,
+    "proposed_gates": [
+      "finite probabilities in [0,1] and explicit out-of-support handling",
+      "one-to-one declared named-WP mapping or explicit diagnostic alias",
+      "boundary/flavour/unknown-bit tests",
+      "source-bound detector/converter/analysis/RNG/input receipts",
+      "complete event and jet denominator preservation",
+      "independent calibration closure on matched flavour/kinematic populations with uncertainties",
+      "paired SR/CR migration and covariance when changing response"
+    ],
+    "required_response_contract": {
+      "flavour_definition": "explicit hadron/parton ancestry, matching and precedence",
+      "jet_definition_and_units": "explicit jet reconstruction, pt units, eta support and preselection",
+      "joint_decisions": "nested operating-point behavior and RNG/paired-response policy",
+      "requested_tagger": "MV2c10",
+      "requested_working_point": "85% single-cut operating point in the specified simulated ttbar reference population",
+      "response": "flavour- and kinematics-dependent efficiencies/mistags, support and extrapolation, corrections and uncertainties",
+      "selection_order": "declared tagging and overlap-removal order",
+      "source_calibration": "must be supplied and pinned; missing for present generic card",
+      "transport": "explicit source discriminator/bit to each supported named output bit; unsupported names unresolved"
+    },
+    "schema_version": 1,
+    "target_working_point_calibration": "UNRESOLVED"
+  },
+  "btag_transfer": {
+    "all_12_sa_btag_bits_equal_same_delphes_boolean": true,
+    "all_jet_ids_match_converter_rule": true,
+    "all_jet_kinematics_preserved": true,
+    "by_stored_delphes_flavour": {
+      "0": {
+        "bernoulli_variance_from_card": 1.1787555937227845,
+        "card_mean_probability": 0.0022460323579962275,
+        "expected_tags_from_card": 1.1814130203060156,
+        "jets": 526,
+        "tag_fraction": 0.0038022813688212928,
+        "tag_residual_in_conditional_bernoulli_sd": 0.7539680613374031,
+        "tagged": 2
+      },
+      "1": {
+        "bernoulli_variance_from_card": 14.038109324531383,
+        "card_mean_probability": 0.002696431416297646,
+        "expected_tags_from_card": 14.07806842449001,
+        "jets": 5221,
+        "tag_fraction": 0.0024899444550852325,
+        "tag_residual_in_conditional_bernoulli_sd": -0.2877345518043594,
+        "tagged": 13
+      },
+      "2": {
+        "bernoulli_variance_from_card": 30.64623667887598,
+        "card_mean_probability": 0.0028338934676513648,
+        "expected_tags_from_card": 30.73924244361435,
+        "jets": 10847,
+        "tag_fraction": 0.0029501244583755876,
+        "tag_residual_in_conditional_bernoulli_sd": 0.22774193387612449,
+        "tagged": 32
+      },
+      "21": {
+        "bernoulli_variance_from_card": 29.15202679564466,
+        "card_mean_probability": 0.0025090243419929915,
+        "expected_tags_from_card": 29.227624559876357,
+        "jets": 11649,
+        "tag_fraction": 0.002661172632844021,
+        "tag_residual_in_conditional_bernoulli_sd": 0.3282625554991267,
+        "tagged": 31
+      },
+      "3": {
+        "bernoulli_variance_from_card": 17.085306719656913,
+        "card_mean_probability": 0.0027705781320126865,
+        "expected_tags_from_card": 17.136025746498465,
+        "jets": 6185,
+        "tag_fraction": 0.0025869037995149557,
+        "tag_residual_in_conditional_bernoulli_sd": -0.27483800303206374,
+        "tagged": 16
+      },
+      "4": {
+        "bernoulli_variance_from_card": 317.9508428043323,
+        "card_mean_probability": 0.12423154950089867,
+        "expected_tags_from_card": 364.3711346861358,
+        "jets": 2933,
+        "tag_fraction": 0.12580975110808046,
+        "tag_residual_in_conditional_bernoulli_sd": 0.2595939424054617,
+        "tagged": 369
+      },
+      "5": {
+        "bernoulli_variance_from_card": 188.31519453468545,
+        "card_mean_probability": 0.6697382322290807,
+        "expected_tags_from_card": 578.6538326459257,
+        "jets": 864,
+        "tag_fraction": 0.6747685185185185,
+        "tag_residual_in_conditional_bernoulli_sd": 0.31671144933102996,
+        "tagged": 583
+      }
+    },
+    "delphes_btag_values": {
+      "0": 44928,
+      "1": 1082
+    },
+    "eligible_events": 18982,
+    "eligible_events_with_any_tag": 984,
+    "eligible_jet_definition": "ROOT Jet.PT >20 GeV and abs(Jet.Eta)<2.5, after Delphes UniqueObjectFinder; no additional native SimpleAnalysis overlap removal or analysis/event selection. This is not the public b-veto denominator",
+    "events": 20000,
+    "formula_values": [
+      {
+        "b": 0.528777384080678,
+        "c": 0.07115149105903087,
+        "light": 0.002146,
+        "pt_gev": 20
+      },
+      {
+        "b": 0.6017281659027495,
+        "c": 0.09746816097967972,
+        "light": 0.002219,
+        "pt_gev": 30
+      },
+      {
+        "b": 0.6741963786716286,
+        "c": 0.13018703520611366,
+        "light": 0.002365,
+        "pt_gev": 50
+      },
+      {
+        "b": 0.7282815311289774,
+        "c": 0.1438847134441518,
+        "light": 0.0027300000000000002,
+        "pt_gev": 100
+      },
+      {
+        "b": 0.7081972312062004,
+        "c": 0.11896777377846038,
+        "light": 0.0034600000000000004,
+        "pt_gev": 200
+      },
+      {
+        "b": 0.4937172292608362,
+        "c": 0.07407407376871798,
+        "light": 0.0056500000000000005,
+        "pt_gev": 500
+      }
+    ],
+    "inputs_preserved": true,
+    "jets": 46010,
+    "scope": "Exact transport audit and conditional configured Bernoulli-rate check on retained jets. No ATLAS working-point calibration, response retuning or causal attribution.",
+    "sources": {
+      "src/ravel/physics/native_simpleanalysis.py": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+      "src/ravel/physics/sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+      "stages/01-event-generation/build/tools/miniforge3/envs/pipeline/share/mapyde/scripts/Delphes2SA.py": "82f3a7742a7ab1d3bd3a52d79b0eca505143c690c6c6a4f05eed89c99c555f4a",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl": "3e21edf3f2fa021e2f6b8534a4287448928e93d5f44d8ea53c93f4653be40a31",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/analysis/Delphes2SA.root": "a0f5e82fa0f2ab40b9fe0defb1a9baea92129318c73a9e7e31c51fafd1c210ad",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/delphes/delphes.root": "1a711b3e2fc603766c3a9b96cc16e952078d9e4169a7b233024ac2e28efe3266"
+    },
+    "status": "PASS"
+  },
+  "independent_fixed_parameter_review": {
+    "inclusive_conversion": {
+      "basis": "conditional matching four-state inclusive LO rate times declared K=1.18; no new luminosity factor",
+      "expected_median_fb": 54.68574261326738,
+      "observed_fb": 48.82546569866808,
+      "reference_rate_fb": 159.37374999999997
+    },
+    "inputs_sha256": {
+      "local-runs/rrr-closure/physics-review/check_signal_units.json": "20e66717d3b9344a7308516687b0c6d9267b505a19f1267feb20b4f7a2aa7076",
+      "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.py": "104c57fa915dd354c9f8f08fdcd76e51cc005259d2c67bf60d109409d27c68d9",
+      "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/native_execution_plan.json": "9f308e89d3a5c308a07793d82e4326752bd7a208608ac64d21ce6c090e28d36a",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pyhf/6a769b87e9144ef893cfd617a7ef239c/record.json": "47942fe3f203f68e4fa0bb92f80181365ad5aef7836ccaa2e17ba8f1e1db5f6d",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/pyhf.log": "6bbe35d4cf45e1fae85b817803cf53bdefc4866b699a55cf1b09e30a31b7ca99",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json": "a79cd0141b3a0a8fd05026a157aaa0b9e5a09ae369e777ce8bd558d9239fa4fa",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json": "35442efff5bff6d853fcd93cf7ebdcf0c2c738ab3816faf445953d8faef71227"
+    },
+    "runtime": {
+      "backend": "numpy",
+      "executable": "stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python3.14",
+      "executable_sha256": "53b8c2f03c33d8dfaa117d8c0ec255ee94850f2e075fdb7502c1bd9078c7981d",
+      "platform": "macOS-15.5-arm64-arm-64bit-Mach-O",
+      "precision": "64b",
+      "python": "3.14.5 | packaged by conda-forge | (main, May 20 2026, 00:45:47) [Clang 20.1.8 ]",
+      "versions": {
+        "jsonpatch": "1.33",
+        "numpy": "2.4.6",
+        "pyhf": "0.7.6",
+        "scipy": "1.17.1"
+      }
+    },
+    "saved_profile": {
+      "direct_stage_inputs_unchanged": true,
+      "free_mu": 0.0,
+      "independent_finite_difference_stationarity": [
+        {
+          "max_abs_projected_finite_difference": 9.018776836455798e-05,
+          "parameter": "staterror_CRtop_MT2_hghmet_cuts[0]",
+          "relative_step": 1e-05
+        },
+        {
+          "max_abs_projected_finite_difference": 9.072778084373567e-05,
+          "parameter": "staterror_CRtop_MT2_hghmet_cuts[0]",
+          "relative_step": 3e-05
+        }
+      ],
+      "logged_descending_and_ascending_checks": [
+        1.0,
+        0.667303,
+        0.485363,
+        0.343129,
+        0.306358,
+        0.244812,
+        0.181391,
+        0.001,
+        0.001,
+        0.181391,
+        0.244812,
+        0.306358,
+        0.343129,
+        0.485363,
+        0.667303,
+        1.0
+      ],
+      "pyhf_receipt_sha256": "23b4daba462dd5a002b02e0add811a6664bc72844a9a8f6438c5571e548c0d1e",
+      "root_checks": [
+        {
+          "absolute_error": 3.956249577941051e-09,
+          "curve_index": 0,
+          "mu": 0.3063582660172587,
+          "retained_cls_at_root": 0.05000000395624958
+        },
+        {
+          "absolute_error": 1.3933833905369064e-06,
+          "curve_index": 1,
+          "mu": 0.18139131700105768,
+          "retained_cls_at_root": 0.049998606616609466
+        },
+        {
+          "absolute_error": 1.3855272105317562e-07,
+          "curve_index": 2,
+          "mu": 0.2448124224549655,
+          "retained_cls_at_root": 0.04999986144727895
+        },
+        {
+          "absolute_error": 5.84870338632415e-07,
+          "curve_index": 3,
+          "mu": 0.3431289193688884,
+          "retained_cls_at_root": 0.050000584870338635
+        },
+        {
+          "absolute_error": 5.832976746611429e-07,
+          "curve_index": 4,
+          "mu": 0.4853627386720913,
+          "retained_cls_at_root": 0.04999941670232534
+        },
+        {
+          "absolute_error": 8.188914863364871e-06,
+          "curve_index": 5,
+          "mu": 0.6673034721633275,
+          "retained_cls_at_root": 0.05000818891486337
+        }
+      ],
+      "saved_profile_consistency": {
+        "absolute_tolerance": 1e-05,
+        "global_optimum_proven": false,
+        "issues": [],
+        "passed": true,
+        "twice_nll": {
+          "fixed_asimov": 525.6098149384004,
+          "fixed_data": 546.8775840700066,
+          "free_asimov": 498.4490975180636,
+          "free_data": 517.5525407928772,
+          "generating_asimov": 498.44909751805653,
+          "mu0_data": 517.5525407928772
+        }
+      },
+      "scope_limitations": [
+        "No conditional/root nuisance vectors were saved, so their minima and stationarity were not independently reevaluated here.",
+        "Only the final free-fit vector was independently evaluated, at fixed parameters with NumPy.",
+        "No new CLs fit, global minimization, covariance, coverage or physics certification.",
+        "Direct fit input/output receipt checked; complete large-event ancestor rehash is outside this bounded review."
+      ],
+      "twice_nll_original_numpy": 517.5525407928815,
+      "twice_nll_retained_jax": 517.5525407928772
+    },
+    "schema_version": 1,
+    "scope": "Independent fixed-parameter checks. No minimization or new CLs evaluation.",
+    "status": "PASS",
+    "unit_identity": {
+      "checks": [
+        {
+          "factor": 0.5,
+          "max_expected_data_absolute_error": 0.0,
+          "max_twice_nll_absolute_error": 0.0,
+          "parameter_points": 18
+        },
+        {
+          "factor": 2.0,
+          "max_expected_data_absolute_error": 0.0,
+          "max_twice_nll_absolute_error": 0.0,
+          "parameter_points": 18
+        },
+        {
+          "factor": 3.907,
+          "max_expected_data_absolute_error": 7.105427357601002e-15,
+          "max_twice_nll_absolute_error": 2.2737367544323206e-13,
+          "parameter_points": 18
+        }
+      ],
+      "domain": "Only tested mapped parameter points; unchanged finite POI bounds are not a globally equivalent optimization domain.",
+      "n_channels": 38,
+      "n_parameters": 217,
+      "negative_control_auxdata_difference": 183.00000000000003,
+      "signal_shapesys_modifiers": 26
+    }
+  },
+  "independent_reference_review": {
+    "declared_k": 1.18,
+    "derived_lsp_mass_gev": 140.0,
+    "expected_fb": 54.68574261326738,
+    "expected_relative_residual": -0.03255594570167042,
+    "observed_fb": 48.82546569866808,
+    "observed_relative_residual": 0.04701532602809344,
+    "reference_uncertainties": "not supplied",
+    "reference_values_pb": {
+      "Expected 95% CL Upper Limit": 0.056526,
+      "Observed 95% CL Upper Limit": 0.046633
+    },
+    "reviewer_initial_probe": "Initial scratch assertion incorrectly expected the second independent column to be LSP mass. Actual header and value identify Delta m=10, so LSP=150-10=140. The assertion failed before output; corrected direct-header check passes without changing source data.",
+    "scope": "direct source-row and unit arithmetic; no fit, source regeneration or calibration",
+    "sigma_reference_fb": 159.37374999999997,
+    "source_coordinate_headers": [
+      {
+        "name": "$m(\\tilde{\\ell})$",
+        "units": "GeV"
+      },
+      {
+        "name": "$\\Delta m(\\tilde{\\ell},\\tilde{\\chi}_{1}^{0})$",
+        "units": "GeV"
+      }
+    ],
+    "source_coordinates_gev": [
+      150.0,
+      10.0
+    ],
+    "source_row_index": 22,
+    "source_sha256": {
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/slepton_xsec_UL.yaml": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json": "b2b460fc9ee178a92228409a91aed80a8ed33d6fff5e66d7fbe5b4aeae05e5a2",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json": "6c8b76ea1bde50250c48577151c77f87661b2f56c53f33dc68ba107f5482fd05",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json": "35442efff5bff6d853fcd93cf7ebdcf0c2c738ab3816faf445953d8faef71227"
+    },
+    "status": "PASS"
+  },
+  "independent_smoke_truth_review": {
+    "actual_retained_event_check": {
+      "check_source_sha256": "1e90dbbaf29f2f6e0c033915b7f718edb2aa180915cc38e59527ff48056a1056",
+      "counts": {
+        "direct_truth_leptons": 2000,
+        "events": 1000,
+        "reco_references": 1217
+      },
+      "detector_sha256": "cd6c25e03a626535cdb4a6d4e9cf3442be4d9bc7d165cfbfb0b8be7df3576633",
+      "independent_moments": {
+        "electron": {
+          "independent_cluster_error": 0.014984984970141883,
+          "independent_ratio": 0.4904030710172745,
+          "matched": 511,
+          "truth": 1042
+        },
+        "muon": {
+          "independent_cluster_error": 0.01518238644118056,
+          "independent_ratio": 0.6931106471816284,
+          "matched": 664,
+          "truth": 958
+        }
+      },
+      "response_summary_sha256": "fd746560113fdbba2d432ffbda89a899016cfb7171e9fde9784a32c0e1ca385a",
+      "response_trace_sha256": "d232259551d750a5a0e84322218575d0cdfd32bdc959e1ef27474758ed0190e7",
+      "scope": "All1000 retained smoke events: actual PyROOT TRef target-pointer identity, stored UID/flavour/status, independently enumerated complete direct-lepton denominator, every direct-copy mother chain, actual reco/truth kinematics, and event-cluster response covariance. No ATLAS truth acceptance validation.",
+      "status": "PASS"
+    },
+    "files": {
+      "actual-reference-check-final.json": "28fb27e314eb9fcb0226f6adf4ec3d746b2a7e4e5ac83a3a9dd8581a933e3835",
+      "actual-reference-check-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual-reference-check.json": "12dbe7d4918ebfeb3dee65fbe88bf31d2a5a7d7373f10e3e3cff152624bb1e31",
+      "actual-reference-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "additional-final-controls.json": "7bdc1c9899ef88dfca644bb379e7321216bde3b76e6441c3895c33b135a085f1",
+      "author-tests.log": "0920fa3e8fffd6a917aee56d29e9da73a41a9ba71faa6b5a6de7fe26f4f6cea2",
+      "check_actual_refs.py": "8e366e380f4c41c66a5160f4965dab406ae83a34fe9dc829ea38215fbbc05fea",
+      "check_actual_refs_complete.py": "1e90dbbaf29f2f6e0c033915b7f718edb2aa180915cc38e59527ff48056a1056",
+      "final-tests.log": "ab0b823d59d79e937c3d1569f1456db69a43c9b5e27dd7518f6040aa4cfba911",
+      "probes.json": "8e9f0e76a1309888b97a10626116436bf3ad84d9864eb753356435bdf325095b",
+      "probes.py": "763f71e181f5fcca62180553953a741c90eb31364d668dc584f1e7dd37238944",
+      "probes_final.json": "5471af2a2699d8a362f57fb18f61e8af5849672a00173e7dfb3a6fef0a97a3de",
+      "probes_final.py": "763f71e181f5fcca62180553953a741c90eb31364d668dc584f1e7dd37238944",
+      "probes_repaired.json": "b839ca167605da220bf1079691c4e84249df0c1d11c5af910df7575fe351e64c",
+      "probes_repaired.py": "763f71e181f5fcca62180553953a741c90eb31364d668dc584f1e7dd37238944",
+      "repaired-tests.log": "e3ed2e1aac0f738f7e27fb16a8c05d2539440860450ba2dae8ffb44b4f27f671",
+      "review.md": "367a4786cd1441a9c35a4a4c397aeff86a4bbfab19a1bf2513f86687f144bda8"
+    },
+    "findings_repaired": 5,
+    "independent_final_tests": "55 passed in 0.30s",
+    "limitations": "Bounded engineering and actual1k event/ancestry/reference/covariance verification; no20k rerun, ATLAS truth acceptance, production detector-card authentication or physics certification.",
+    "schema_version": 1,
+    "source_sha256": {
+      "src/ravel/physics/truth_reco_response.py": "94fa9b608986f2bb57099592363c0fcfea9bd4c0afcad158f7ae14fa939e5123",
+      "tests/unit/test_truth_reco_response.py": "d9dea147e801e5a7a51421fee53ef39e945e55b780162d25d0c4af7013b678f5"
+    },
+    "status": "review_closed_with_repaired_findings"
+  },
+  "risr": {
+    "all_input_events": 20000,
+    "assignment_population": [
+      {
+        "events": 7372,
+        "njet_isr": 1,
+        "njet_v": 0
+      },
+      {
+        "events": 2898,
+        "njet_isr": 2,
+        "njet_v": 0
+      },
+      {
+        "events": 638,
+        "njet_isr": 3,
+        "njet_v": 0
+      },
+      {
+        "events": 113,
+        "njet_isr": 4,
+        "njet_v": 0
+      },
+      {
+        "events": 11,
+        "njet_isr": 5,
+        "njet_v": 0
+      },
+      {
+        "events": 2146,
+        "njet_isr": 1,
+        "njet_v": 1
+      },
+      {
+        "events": 1185,
+        "njet_isr": 2,
+        "njet_v": 1
+      },
+      {
+        "events": 301,
+        "njet_isr": 3,
+        "njet_v": 1
+      },
+      {
+        "events": 65,
+        "njet_isr": 4,
+        "njet_v": 1
+      },
+      {
+        "events": 14,
+        "njet_isr": 5,
+        "njet_v": 1
+      },
+      {
+        "events": 2,
+        "njet_isr": 6,
+        "njet_v": 1
+      },
+      {
+        "events": 346,
+        "njet_isr": 1,
+        "njet_v": 2
+      },
+      {
+        "events": 237,
+        "njet_isr": 2,
+        "njet_v": 2
+      },
+      {
+        "events": 77,
+        "njet_isr": 3,
+        "njet_v": 2
+      },
+      {
+        "events": 14,
+        "njet_isr": 4,
+        "njet_v": 2
+      },
+      {
+        "events": 4,
+        "njet_isr": 5,
+        "njet_v": 2
+      },
+      {
+        "events": 53,
+        "njet_isr": 1,
+        "njet_v": 3
+      },
+      {
+        "events": 25,
+        "njet_isr": 2,
+        "njet_v": 3
+      },
+      {
+        "events": 12,
+        "njet_isr": 3,
+        "njet_v": 3
+      },
+      {
+        "events": 2,
+        "njet_isr": 4,
+        "njet_v": 3
+      },
+      {
+        "events": 1,
+        "njet_isr": 5,
+        "njet_v": 3
+      },
+      {
+        "events": 3,
+        "njet_isr": 1,
+        "njet_v": 4
+      },
+      {
+        "events": 4,
+        "njet_isr": 2,
+        "njet_v": 4
+      },
+      {
+        "events": 2,
+        "njet_isr": 3,
+        "njet_v": 4
+      },
+      {
+        "events": 1,
+        "njet_isr": 4,
+        "njet_v": 4
+      }
+    ],
+    "exact_per_jet_native_assignment_not_stored": true,
+    "high_cutflow": {
+      "before_risr": 819,
+      "coded": 473,
+      "fractions": {
+        "coded": 0.5775335775335775,
+        "literal_table": 0.706959706959707,
+        "public_oracle": 0.5775335775335775
+      },
+      "literal_table": 579,
+      "public_oracle": 473,
+      "public_reference_weighted_fraction": 0.6975327444410601
+    },
+    "high_cutflow_by_njet": {
+      "1": {
+        "before": 252,
+        "coded": 195,
+        "literal_table": 219
+      },
+      "2": {
+        "before": 300,
+        "coded": 159,
+        "literal_table": 203
+      },
+      "3plus": {
+        "before": 267,
+        "coded": 119,
+        "literal_table": 157
+      }
+    },
+    "inputs": [
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/native_rjr.csv",
+        "sha256": "a3df3d110ebf765047b641048a29bb8577e427d7937fec9749ccb3e81aa44103"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/native_objects.txt",
+        "sha256": "7690ad6f5715527c42adcd0e91d83eef5a2d45e28cb5b3a699c6cfbc2b9dee20"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_trace.jsonl.gz",
+        "sha256": "6e6213f254990de976bd6a4d57c14af980d33065cdfedd2c48b1881b8c416411"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/reference20k.csv",
+        "sha256": "d8301cf528fdd5206ff2ac717be5776efd6b29ad958098f10ef7ac64b35ff42f"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/reference",
+        "sha256": "51af602914f4e834f0beb4723a1bd9246342eff367cf88ce79672e719d70df3a"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/build-provenance.json",
+        "sha256": "5d9bc513afa9ae6031a6516974341c6ac1b141c3e9da5041a9cc685c9ff5bb3d"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/summarize.py",
+        "sha256": "fdd98b1337933702d9d269fc9edd4b550d61e41be7ed7250b9f958d26b120b0d"
+      }
+    ],
+    "jet_count_assignment_agreement": true,
+    "max_abs_native_csv_vs_public_double_formula": 4.999655384141377e-07,
+    "max_abs_native_csv_vs_public_float": 5.840072632157245e-07,
+    "near_boundaries": [],
+    "predicate_migrations": {
+      "high_after_prior_cuts": 0,
+      "high_all_2l": 0,
+      "literal_table_label_after_prior_cuts": 106,
+      "low_all_2l": 0
+    },
+    "reference_label_ambiguity": "HEPData table22 omits mt2\u2212100 offset. Literal label reduces to RISR>0.85 for mt2>=100. This is only a fixed-event sensitivity control, not evidence that ATLAS used that rule or permission to change the code.",
+    "rjr_events": 15526,
+    "schema_version": 1,
+    "scope": "Installed-public-source graph/formula oracle on the same native preselected transverse objects and same RestFrames library. This localizes transcription/precision/jet-count plumbing; it is not independent object or RestFrames physics validation.",
+    "simpleanalysis_commit": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+    "status": "PASS",
+    "two_signal_lepton_events": 6928,
+    "worst_double_event": 17530,
+    "worst_public_event": 4890
+  },
+  "risr_serialization_candidate": {
+    "active_runtime_and_binary_files_unchanged": 86,
+    "boundary_control": {
+      "candidate_risr": 0.9999998999999998,
+      "old_risr": 1.0,
+      "paired_control": 0.9998999999999999,
+      "public_float": 0.9999998807907104
+    },
+    "high_low_predicate_migrations": 0,
+    "inputs": [
+      {
+        "path": "native/src/rjr_resolve.cc",
+        "sha256": "ce9a652f533b9c97ed2f46fbb088990abce87af4d0d33389d47fb0d279aaa01f"
+      },
+      {
+        "path": "tests/unit/test_rjr_serialization.py",
+        "sha256": "10b66fc7b2bdb3c3469ab8e61ec8f9e805d1f0e95b499cd80102e99608e013f1"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/candidate/rjr_resolve",
+        "sha256": "93e194286c00bb4b67cbc1b0076a7fafd7cba1f890e2d00f85d3c4cf4b6240a1"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/candidate20k.csv",
+        "sha256": "1169d14b0f45783f4dbdc37c6c623bc2e6e7e1691e3f8096439e2176b8252908"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/boundary-candidate.csv",
+        "sha256": "f0e93ef839ff326e49a945adc239a33a62109792703e2a05823d1a670e62efa3"
+      },
+      {
+        "path": "local-runs/rrr-closure/physics-review/risr-differential/compare_candidate.py",
+        "sha256": "5b4e321b33adb56db30feccd6ea4349922c14544c33e6e63cdf905bdda9b2c73"
+      }
+    ],
+    "max_abs_candidate_vs_old_csv": 4.999655384141377e-07,
+    "max_abs_candidate_vs_reference_double": 4.694689081929937e-12,
+    "max_abs_candidate_vs_reference_public_float": 1.2339984567510953e-07,
+    "object_and_partition_count_agreement": true,
+    "rjr_events": 15526,
+    "scope": "Serialization fidelity; same RJR arithmetic. No claim of changed ATLAS fidelity.",
+    "status": "PASS",
+    "two_signal_lepton_events": 6928
+  },
+  "signal_units": {
+    "checks": [
+      {
+        "factor": 0.5,
+        "max_expected_data_absolute_error": 0.0,
+        "max_twice_nll_absolute_error": 0.0,
+        "parameter_points": 18
+      },
+      {
+        "factor": 2.0,
+        "max_expected_data_absolute_error": 0.0,
+        "max_twice_nll_absolute_error": 0.0,
+        "parameter_points": 18
+      },
+      {
+        "factor": 3.907,
+        "max_expected_data_absolute_error": 7.105427357601002e-15,
+        "max_twice_nll_absolute_error": 2.2737367544323206e-13,
+        "parameter_points": 18
+      }
+    ],
+    "likelihood_profile_or_global_optimum_tested": false,
+    "n_channels": 38,
+    "n_parameters": 217,
+    "negative_control": {
+      "change": "nominal signal scaled without its absolute MC errors",
+      "detected_auxdata_absolute_difference": 183.00000000000003
+    },
+    "passed": true,
+    "physics_normalization_certified": false,
+    "schema_version": 1,
+    "scope": "Fixed-parameter check of signal-unit invariance on the actual 20k likelihood.\n\nThis is not a limit fit, optimizer check, or physics normalization certificate.\nAbsolute signal MC errors must scale with nominal yields; relative constraints\nand all background inputs must remain unchanged.",
+    "source_sha256": {
+      "local-runs/rrr-closure/physics-review/check_signal_units.py": "b97ba140bab07390db5d6889b6da3e0bec8f9f24f1232e028afcd6c3da24449d",
+      "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json": "a79cd0141b3a0a8fd05026a157aaa0b9e5a09ae369e777ce8bd558d9239fa4fa",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/signal_model.json": "d73cf3bd4e5eff05e687250c6b10b5df7639adafcc397aae8d6c9ffd575327f8"
+    }
+  }
+}

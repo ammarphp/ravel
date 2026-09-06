@@ -1,0 +1,72 @@
+{
+  "binary_difference": "Frozen anchor used the original six-decimal RISR serializer. Current native source has the separately tested round-trip-precision change; exact anchor binary is not bundled.",
+  "cards": {
+    "recipe/inputs/cards/detector.tcl": {
+      "sha256": "3e21edf3f2fa021e2f6b8534a4287448928e93d5f44d8ea53c93f4653be40a31",
+      "source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl"
+    },
+    "recipe/inputs/cards/param.dat": {
+      "sha256": "d159412f5329c0cb805fc531f1ede05e4d3d52bf662158d5b61eac91ed0a8786",
+      "source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/param.dat"
+    },
+    "recipe/inputs/cards/process.dat": {
+      "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a",
+      "source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat"
+    },
+    "recipe/inputs/cards/run.dat": {
+      "sha256": "f19e158f1a6be405817187d0759ce4c9141ac07d43d38d4e8dc73df88955ed43",
+      "source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/run.dat"
+    },
+    "recipe/inputs/cards/shower.cfg": {
+      "sha256": "ec0265679ac3918452c640e520dba743ea2d80e0cb9c8bec3f36caae22f7b8f0",
+      "source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/shower.cfg"
+    }
+  },
+  "compute_authorized": false,
+  "original_config_except_two_relocated_paths": {
+    "analysis": {
+      "XSoverride": -1,
+      "kfactor": 1.18,
+      "lumi": 139000,
+      "script": "Delphes2SA.py"
+    },
+    "madgraph": {
+      "run": {
+        "ecms": 13000,
+        "nevents": 20000,
+        "seed": 1731
+      }
+    },
+    "ravel": {
+      "native": {
+        "compressed_signal_model": "full",
+        "detector": "simpleanalysis-delphes",
+        "event_storage": "gzip",
+        "inputs": {
+          "delphes_card": "inputs/cards/detector.tcl",
+          "param_card": "inputs/cards/param.dat",
+          "process_card": "inputs/cards/process.dat",
+          "run_card": "inputs/cards/run.dat",
+          "shower_card": "inputs/cards/shower.cfg"
+        },
+        "mc_stat": "shapesys",
+        "model": "slepton-bino",
+        "preparation": "explicit-cards",
+        "pyhf_backend": "jax",
+        "statistics": "compressed-likelihood"
+      }
+    },
+    "simpleanalysis": {
+      "name": "EwkCompressed2018"
+    }
+  },
+  "original_config_sha256": "48bee43b9cd950cd99c4876875f090fa0da6e2f62951bf59c1b425571a212e6d",
+  "original_config_source": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/config.toml",
+  "physics_certified": false,
+  "schema_version": 1,
+  "scope": "Reconstruction of the explicit 20k anchor recipe after separately documented native/JAX setup; not a full environment lock, approval, or bitwise reproduction.",
+  "template_replacements": {
+    "likelihood": "inputs/background-official.json",
+    "statistics_python": "/ABSOLUTE/PATH/TO/JAX_PYTHON"
+  }
+}

@@ -102,3 +102,34 @@ def test_readme_subset_claims_are_checked_without_requiring_every_claim(tmp_path
     assert claims_check.check(page, manifest, tmp_path, require_all=False)[0] == []
     page.write_text('<!-- claim:one -->100<!-- /claim -->')
     assert any('drift' in m for m in claims_check.check(page, manifest, tmp_path, require_all=False)[0])
+
+
+@pytest.mark.parametrize('altered', [
+    '1.00 fb observed and 54.69 fb median expected at 150/140 GeV',
+    '48.83 fb observed and 1.00 fb median expected at 150/140 GeV',
+    '48.83 fb observed and 54.69 fb median expected at 200/150 GeV',
+])
+def test_agreeing_public_text_cannot_override_rrr_point_evidence(tmp_path, altered):
+    # A coordinated edit of both public strings still needs the measured point.
+    source = tmp_path / 'evidence/audits/2026-09-06-rrr-waypoint/waypoint.json'
+    source.parent.mkdir(parents=True)
+    source.write_text(json.dumps({
+        'reference_point': {'m_parent_GeV': 150., 'm_lsp_GeV': 140.},
+        'results': {'anchor20k': {
+            'conditional_observed_sigma95_fb': 48.82546569866808,
+            'conditional_median_expected_sigma95_fb': 54.68574261326738,
+        }},
+    }))
+    page, manifest = tmp_path / 'README.md', tmp_path / 'claims.json'
+    entry = {'claim': 'rrr_anchor_limits', 'status': 'VERIFIED',
+             'value': '48.83 fb observed and 54.69 fb median expected at 150/140 GeV',
+             'artifacts': [str(source.relative_to(tmp_path))]}
+    def write_claim():
+        page.write_text(f'<!-- claim:rrr_anchor_limits -->{entry["value"]}<!-- /claim -->')
+        manifest.write_text(json.dumps({'claims': [entry]}))
+    write_claim()
+    assert claims_check.check(page, manifest, tmp_path)[0] == []
+    entry['value'] = altered
+    write_claim()
+    assert any('RRR waypoint scope/value drift' in error
+               for error in claims_check.check(page, manifest, tmp_path)[0])

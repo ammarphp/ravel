@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated": "",
-  "source_commit": "8d8b4b5",
+  "source_commit": "b2ce048",
   "claims": [
     {
       "claim_id": "P1_hvt_zprime_ww_summary",
@@ -739,6 +739,56 @@
           "shipped": true,
           "dev_only": false,
           "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "HEADLINE_rrr_m150_m140_waypoint",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_rrr_m150_m140_waypoint (stated in README.md)",
+      "headline": "Completed 20k four-state m150/m140 waypoint: conditional inclusive sigma95 48.83 fb observed and 54.69 fb median expected; not acceptance, coverage or full mass-plane certification",
+      "status": "served",
+      "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
+          "sha256": "7855f55235ab1cd9256d0a8985423339d473cf1d9d870f635d2f55613fa95377",
+          "bytes": 8586,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",
+          "sha256": "4b10f2634c3ba8045804945b86c5ae5c937c9bb0d5c7ac83496ec787e3105191",
+          "bytes": 25326,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-06-rrr-waypoint/fits/anchor20k.json",
+          "sha256": "68eebe6fac598b6b4573011a9dab5686b0ed7e3ca9f851d7c37d1a5767fd5c80",
+          "bytes": 85232,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-06-rrr-waypoint/inclusive-normalization.json",
+          "sha256": "a57b5191005d85384919a958469e9cdf6e064b4f404f662426756a3863de8151",
+          "bytes": 4512,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-06-rrr-waypoint/published-limits-52.json",
+          "sha256": "b2b460fc9ee178a92228409a91aed80a8ed33d6fff5e66d7fbe5b4aeae05e5a2",
+          "bytes": 45478,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
         }
       ]
     },

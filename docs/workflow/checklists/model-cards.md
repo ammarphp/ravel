@@ -24,44 +24,46 @@ output <dir> -f -nojpeg
 Keep any supplied original card unmodified; edit a copy.
 
 ## Electroweakino simplified models (the mixing is real judgement, not a default)
-For a chargino/neutralino simplified model (e.g. C1N2→WZ for a recursive-jigsaw EWK search), the
-`MASS` block alone is **not** enough — and worse, **`MASS` is overridden**. `MSSM_SLHA2` derives the
-physical gaugino masses from the **soft** parameters `MSOFT` (M1, M2, M3) + `HMIX` (μ) and rewrites the
-MASS block from them. A card whose MASS block is set to the target but whose MSOFT still holds different
-M1/M2 silently generates **the wrong spectrum** — a wrong-mass gaugino with an off cross-section, exit 0,
-no error — a 🔴 silent corruption (it can be a large effect: a ~½× mass error → a few-× σ error). Set
-**all** of:
-- **Soft masses (the ones that actually bind):** in `MSOFT`, `M1 = m_LSP` (bino → N1), `M2 = m_wino`
-  (wino → N2/C1); push the other gauginos away (`M3` large). In `HMIX`, raise `μ` well above M2
-  (e.g. ≥ 2–3×, or ~2000) so C1/N2 stay **cleanly wino** and N1 cleanly bino — μ near M2 mixes in
-  higgsino and breaks the pure composition your N/U/V matrices assume. Keep the `MASS` block consistent
-  (it will be re-derived, but keep it readable), and decouple `1000025/1000035/1000037` + all
-  sfermions/gluino (4.5e9).
-- **Give every produced sparticle explicit BR rows; include `MODSEL` (`1 1`).** Corrected
+For a chargino/neutralino simplified model, masses, mixing and decay assumptions must describe
+the declared model. Inspect the actual imported UFO and restriction/cache inputs before editing
+the card. Physical MASS entries and mixing matrices can be independent external parameters;
+`MSOFT/HMIX` presence does not prove that MadGraph recomputes or overrides them.
+
+- **Choose and record the model interface.** A supplied simplified-model spectrum uses explicit
+  physical masses, mixing and decays. A self-consistent MSSM spectrum instead needs a declared
+  spectrum calculation with its inputs, output masses/mixing and validity checks. Do not infer
+  the latter from setting M1/M2/μ alone, or replace supplied mixing with guessed pure-state values.
+  Pin the imported model, effective restriction, cards and any spectrum-calculator output.
+- **Give every produced unstable sparticle explicit BR rows; include `MODSEL` (`1 1`).** Corrected
   (source-verified): Pythia 8.312 imports SLHA `DECAY` tables **regardless of MODSEL** when
   `SLHA:useDecayTable=on`. The real silent killer is a **width-only DECAY table** (no BR rows —
   MadGraph's default restrict card): Pythia imports nothing ("ignoring empty DECAY tables"), and with
   internal SUSY off ("No MODSEL found…") it cannot compute the channels itself → undecayed sparticles
   → empty SRs, exit 0. `MODSEL` is still required the moment any particle relies on Pythia's internal
   machinery for its decays — include it always; never rely on it alone.
-- **Mixing:** the N/U/V matrices still matter for σ + decay kinematics. With μ decoupled the pure-wino
-  limit is automatic, but set them explicitly for clarity: `nmix` row 1 (N1) bino `(1,0,0,0)`, row 2
-  (N2) wino `(0,1,0,0)`; `umix`/`vmix` chargino = wino (identity).
+- **Mixing:** the N/U/V matrices affect couplings and decay predictions. Pure bino/wino entries
+  are simplified-model assumptions when supplied independently; changing a soft parameter does
+  not automatically update an external mixing matrix. Check the model's dependencies explicitly.
 - **Forced decays:** one `DECAY 1000024` block `→ 1000022 24` (C1→N1 W) at BR 1.0 and one
   `DECAY 1000023` block `→ 1000022 23` (N2→N1 Z) at BR 1.0; Pythia decays the W/Z.
 - **Production:** `generate p p > x1+ n2` / `add process p p > x1- n2` (wino associated production). EWK
-  final states are lepton-based and **do not** need ME/PS merging (`docs/workflow/checklists/merging.md`). The LO σ is
+  final states can still depend on recoil radiation; assess multiplicities and matching against
+  the publication and selection (`docs/workflow/checklists/merging.md`). The LO σ is
   corrected to NLO+NLL via `nlo_xsec.py --process wino-c1n2` — **note that file is a single charge
   state** (`1000023 -1000024`); compare it to a *single-charge* LO, or sum both charges (see
   `docs/workflow/steps/07-exclude.md`).
 - **VERIFY BEFORE SHOWERING (catches S1 in seconds):** read the first LHE event and confirm the
   generated particle masses equal the intended point (`m(C1)=m(N2)=m_wino`, `m(N1)=m_LSP`), and confirm
   the shower actually produces leptons (C1/N2 decayed). A `pyslha.readSLHAFile` check (one DECAY channel
-  each, MODSEL present, MSOFT consistent) is the pre-flight; the LHE mass is the ground truth.
+  each, model interface recorded) is the pre-flight. Generated masses check the executed point;
+  they do not by themselves validate mixing, widths, branching ratios or all events.
 
 ## Slepton-bino simplified model (the EwkCompressed2018 / RRR Fig-3 case)
-Simpler than the EWKino case — slepton masses are **direct MASS-block entries**, not MSOFT-derived, so no
-mixing-matrix judgement. A ready, parameterized base is bundled — do NOT hand-write it:
+The inspected MSSM_SLHA2 interface exposes the produced slepton masses and bino mass as direct
+MASS entries, with mixing supplied separately. Preserve that declared interface and inspect it
+again when changing the model or restriction. A mass-only scan is not a newly diagonalized MSSM
+spectrum, and inherited widths/decays need a separate check at small splittings. A parameterized
+base is bundled:
 - **Param card:** `…/envs/pipeline/share/mapyde/cards/param/SleptonBino.slha` has `{{MSLEP}}` (all six
   charged sleptons 1000011/13/15 + 2000011/13/15) and `{{MN1}}` (the bino LSP, 1000022) as jinja
   placeholders, with explicit **BR=1 decay rows** (ℓ̃→χ̃₁⁰ + ℓ) — so no width-only decay trap, leptons
@@ -70,7 +72,10 @@ mixing-matrix judgement. A ready, parameterized base is bundled — do NOT hand-
   `shower.cfg`; see `docs/workflow/reference/native-pipeline.md`).
 - **Process:** slepton pair + 1 ISR jet, `p p > chsleptons chsleptons j / susystrong @1` (the mapyde
   `isrslep` proc card; the mass-independent block is `src/ravel/data/templates/slepton_isrslep_generate.mg5`).
-  ISR-tagged, compressed → **no ME/PS merging needed** (record that deliberate choice).
+  This alias includes staus; it is not the four selectron/smuon diagonal channels. Record the
+  actual channel list. The unmerged one-parton recipe is an approximation to be tested for
+  generation-cut and recoil dependence, not an exemption from the merging review. See
+  [the merging checklist](merging.md) for the distinct ATLAS prescription.
 - **σ:** LO MadGraph × a flat k≈1.18 (mapyde's slepton default); NLO+NLL via `nlo_xsec.py --process slepton`.
 - **The grid is the point:** a single (MSLEP, MN1) is ONE scan point — define the full `grid:` in the
   step-8 spec (`benchmarks/specs/slepton-bino-figure-3-coarse.json`), not a single card. On-grid range Δm ≈ 5–40 GeV.

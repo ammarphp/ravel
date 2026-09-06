@@ -3,6 +3,49 @@
 Every change made to the physics-input cards. Originals are kept pristine; edits are applied to
 copies in `inputs/` or inside the generated process directory under `build/`.
 
+## September 2026 RRR closure campaign
+
+**Qualification of historical D4 below.** Its reported wrong-mass observation remains a
+historical result, but the universal MSOFT-overrides-MASS explanation was not established.
+The currently inspected MSSM_SLHA2 UFO exposes `Mneu1` through `MASS[1000022]` and NMIX
+independently. A dependency review bound the installed model, restriction/cache and importer
+inputs; the prospective 100/98 and 50/45 cards change only seven physical mass entries and
+seeds. Those cards preserve inherited mixing/widths and do not claim a freshly diagonalized
+MSSM spectrum or validated low-gap decays. The active [model-card checklist](../../workflow/checklists/model-cards.md)
+now requires the actual interface and generated products to be checked. Pythia 8.312 can
+import explicit branching-ratio rows without MODSEL; missing MODSEL alone does not explain
+every no-decay failure. The older narrative is retained below as history, not current guidance.
+
+The prospective lower-parton control retains the 150/140 four-state physics inputs and
+changes leading-parton `ptj1min` from 50 to 20 GeV, alongside independent seeds. This tests
+cut dependence within the unmerged one-parton approximation. It neither changes the nominal
+recipe nor implements zero/one/two-parton merging.
+
+New dated campaign inputs explicitly generate the four selectron/smuon left/right diagonal
+opposite-charge channels at 150/140 GeV, with one parton, cteq6l1, 13 TeV, ptj=20 GeV and
+ptj1min=50 GeV. They retain the public tuned Delphes response and scalar decay tables,
+declare the Monash tune and shower settings explicitly, and apply the 1.18 recipe factor
+once. The likelihood uses 139/fb; published cutflows remain at their declared 140/fb. These
+are frozen study choices, not an ATLAS simulation prescription or a measured NLO correction.
+
+The first two 1,000-event attempts intentionally share seeds to test the repaired parser.
+Their LHE and compressed HepMC products are byte-identical and must not be pooled as
+independent samples. The subsequent 20,000-event sample uses independent generation,
+shower and detector seeds. Effective cards and receipts are retained in the dated campaign.
+Further precision replicas change only exposure and those seeds, with distinct run records.
+
+The inclusive four-state control removes the matrix-element parton and sets ptj1min=0.
+Its initial copied positive ptj1min required a jet and yielded zero cross section; the
+failed attempt, old cards and revised approval remain intact. The successful LO rate is
+0.1350625 ± 0.0003703 pb. This controls the inclusive reporting basis and does not certify
+the unmerged ISR acceptance. No original workspace card or historical scan was rewritten.
+
+Use the [native normalization and configuration reference](../../workflow/reference/native-pipeline.md)
+for the operational checks and the [merging checklist](../../workflow/checklists/merging.md)
+for the interpretation of fixed-multiplicity, MLM and CKKW-L prescriptions. Generic Delphes
+b-tag flags and inherited all-true lepton ID bits remain detector approximations, explicitly
+distinct from separately calibrated experimental working points.
+
 ---
 
 ## D1 — Process card: name the output directory

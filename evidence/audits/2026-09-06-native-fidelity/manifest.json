@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "scope": "Distributed audit-file integrity, not scientific certification",
+  "files": {
+    "README.md": "6e8b681d0f13920526c500efa0223eeb8214d40787a75755dec9d3b51eecb050",
+    "check_retained_sr_parity.py": "8c89a0358dc4531183b6418ca9ab1e33891891c5ea1571f6a8489fe37108c981",
+    "comparisons.json": "08f5364146960fdae210d0ba6157959d0abbed370286983bdfd9f5e4c61e992b",
+    "compressed-prior-verification.json": "3c441a2ec3367a9c986ca37d427b38d0c211d476b502492d62bae28051015e1a",
+    "compressed-sr-parity.json": "59140655e70dc8789a8ddde43b0b9f99efb4a3eb92c0cb5b8e5b35a2db198f77",
+    "driver-counts.txt": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0",
+    "erjr_differential.json": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "reference.json": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+    "replay-execution.json": "d7cf0b6c886a8cfca91e13ac32d1da909124b2e46afa82c59eff7721a35d3874",
+    "tests.json": "dc1fd21b8423cef850a82bf0f7d7c492c11269df0a9d4d1a40b50b4556245363",
+    "verification.json": "d625c2755766ec89fa8f5335333217a28ab63a327507d35307031f1e83238105"
+  }
+}

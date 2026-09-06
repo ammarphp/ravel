@@ -1,0 +1,738 @@
+{
+  "acceptance_certified": false,
+  "additional_scale": 1.0,
+  "background": {
+    "bytes": 1988103,
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json",
+    "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+  },
+  "channels": [
+    {
+      "channel": "CRVV_MT2_hghmet_cuts",
+      "effective_events": 39.0,
+      "mapping": {
+        "region": "CR_S_VV_high"
+      },
+      "mc_stat_error": 1.7703421710615312,
+      "mc_stat_modifier": "native_signal_mcstat_b396cffffabbefe07ab7",
+      "negative_weights": 0,
+      "nominal_yield": 11.055783314759537,
+      "nonzero_weights": 39,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 7.953800945870171e-05,
+      "sumw2": 1.6221269099109032e-10,
+      "workspace_index": 0
+    },
+    {
+      "channel": "CRVV_MT2_lowmet_cuts",
+      "effective_events": 9.0,
+      "mapping": {
+        "region": "CR_S_VV_low"
+      },
+      "mc_stat_error": 0.8504448703661183,
+      "mc_stat_modifier": "native_signal_mcstat_1653498669cdadda59b8",
+      "negative_weights": 0,
+      "nominal_yield": 2.551334611098355,
+      "nonzero_weights": 9,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 1.8354925259700394e-05,
+      "sumw2": 3.743369792102084e-11,
+      "workspace_index": 1
+    },
+    {
+      "channel": "CRtau_MT2_hghmet_cuts",
+      "effective_events": 6.000000000000001,
+      "mapping": {
+        "region": "CR_S_tau_high"
+      },
+      "mc_stat_error": 0.6943853289214588,
+      "mc_stat_modifier": "native_signal_mcstat_9434df8cff3aac57bd15",
+      "negative_weights": 0,
+      "nominal_yield": 1.7008897407322365,
+      "nonzero_weights": 6,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 1.2236616839800263e-05,
+      "sumw2": 2.4955798614013895e-11,
+      "workspace_index": 2
+    },
+    {
+      "channel": "CRtau_MT2_lowmet_cuts",
+      "effective_events": 9.0,
+      "mapping": {
+        "region": "CR_S_tau_low"
+      },
+      "mc_stat_error": 0.8504448703661183,
+      "mc_stat_modifier": "native_signal_mcstat_873606956d44c6460136",
+      "negative_weights": 0,
+      "nominal_yield": 2.551334611098355,
+      "nonzero_weights": 9,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 1.8354925259700394e-05,
+      "sumw2": 3.743369792102084e-11,
+      "workspace_index": 3
+    },
+    {
+      "channel": "CRtop_MT2_hghmet_cuts",
+      "effective_events": 17.999999999999996,
+      "mapping": {
+        "region": "CR_S_top_high"
+      },
+      "mc_stat_error": 1.202710669722393,
+      "mc_stat_modifier": "native_signal_mcstat_ec7d0c59ca297439bea6",
+      "negative_weights": 0,
+      "nominal_yield": 5.10266922219671,
+      "nonzero_weights": 18,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 3.670985051940079e-05,
+      "sumw2": 7.486739584204169e-11,
+      "workspace_index": 4
+    },
+    {
+      "channel": "CRtop_MT2_lowmet_cuts",
+      "effective_events": 4.0,
+      "mapping": {
+        "region": "CR_S_top_low"
+      },
+      "mc_stat_error": 0.5669632469107455,
+      "mc_stat_modifier": "native_signal_mcstat_a6e9224554a92f6416d1",
+      "negative_weights": 0,
+      "nominal_yield": 1.133926493821491,
+      "nonzero_weights": 4,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.157744559866842e-06,
+      "sumw2": 1.6637199076009263e-11,
+      "workspace_index": 5
+    },
+    {
+      "channel": "SRee_eMT2a_hghmet_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2a"
+      },
+      "mc_stat_error": 0.28348162345537276,
+      "mc_stat_modifier": "native_signal_mcstat_1a8dbfc41d8e138b9257",
+      "negative_weights": 0,
+      "nominal_yield": 0.28348162345537276,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 2.0394361399667105e-06,
+      "sumw2": 4.159299769002316e-12,
+      "workspace_index": 6
+    },
+    {
+      "channel": "SRee_eMT2a_lowmet_V2_cuts",
+      "effective_events": 4.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2a"
+      },
+      "mc_stat_error": 0.5669632469107455,
+      "mc_stat_modifier": "native_signal_mcstat_11d62d30fa5a88e8e2d0",
+      "negative_weights": 0,
+      "nominal_yield": 1.133926493821491,
+      "nonzero_weights": 4,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.157744559866842e-06,
+      "sumw2": 1.6637199076009263e-11,
+      "workspace_index": 7
+    },
+    {
+      "channel": "SRee_eMT2b_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2b"
+      },
+      "mc_stat_error": 0.400903556574131,
+      "mc_stat_modifier": "native_signal_mcstat_f61b781180018823750c",
+      "negative_weights": 0,
+      "nominal_yield": 0.5669632469107455,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.078872279933421e-06,
+      "sumw2": 8.318599538004632e-12,
+      "workspace_index": 8
+    },
+    {
+      "channel": "SRee_eMT2b_lowmet_V2_cuts",
+      "effective_events": 2.9999999999999996,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2b"
+      },
+      "mc_stat_error": 0.49100457483681476,
+      "mc_stat_modifier": "native_signal_mcstat_32df064e4a3b18325a63",
+      "negative_weights": 0,
+      "nominal_yield": 0.8504448703661183,
+      "nonzero_weights": 3,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 6.118308419900131e-06,
+      "sumw2": 1.2477899307006948e-11,
+      "workspace_index": 9
+    },
+    {
+      "channel": "SRee_eMT2c_hghmet_cuts",
+      "effective_events": 11.999999999999998,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2c"
+      },
+      "mc_stat_error": 0.9820091496736295,
+      "mc_stat_modifier": "native_signal_mcstat_47ee905e79246835bb51",
+      "negative_weights": 0,
+      "nominal_yield": 3.401779481464473,
+      "nonzero_weights": 12,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 2.4473233679600526e-05,
+      "sumw2": 4.991159722802779e-11,
+      "workspace_index": 10
+    },
+    {
+      "channel": "SRee_eMT2c_lowmet_V2_cuts",
+      "effective_events": 8.000000000000002,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2c"
+      },
+      "mc_stat_error": 0.801807113148262,
+      "mc_stat_modifier": "native_signal_mcstat_f585d6c565bdbecdb281",
+      "negative_weights": 0,
+      "nominal_yield": 2.267852987642982,
+      "nonzero_weights": 8,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 1.6315489119733684e-05,
+      "sumw2": 3.327439815201853e-11,
+      "workspace_index": 11
+    },
+    {
+      "channel": "SRee_eMT2d_hghmet_cuts",
+      "effective_events": 33.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2d"
+      },
+      "mc_stat_error": 1.6284779450816929,
+      "mc_stat_modifier": "native_signal_mcstat_542f1b246768f1cf3a52",
+      "negative_weights": 0,
+      "nominal_yield": 9.354893574027301,
+      "nonzero_weights": 33,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 6.730139261890145e-05,
+      "sumw2": 1.3725689237707642e-10,
+      "workspace_index": 12
+    },
+    {
+      "channel": "SRee_eMT2d_lowmet_V2_cuts",
+      "effective_events": 27.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2d"
+      },
+      "mc_stat_error": 1.4730137245104444,
+      "mc_stat_modifier": "native_signal_mcstat_29e22767a04695cdb5b3",
+      "negative_weights": 0,
+      "nominal_yield": 7.654003833295064,
+      "nonzero_weights": 27,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 5.506477577910118e-05,
+      "sumw2": 1.1230109376306253e-10,
+      "workspace_index": 13
+    },
+    {
+      "channel": "SRee_eMT2e_hghmet_cuts",
+      "effective_events": 22.999999999999996,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2e"
+      },
+      "mc_stat_error": 1.3595301060471432,
+      "mc_stat_modifier": "native_signal_mcstat_0a8659e64c7814ff8361",
+      "negative_weights": 0,
+      "nominal_yield": 6.520077339473573,
+      "nonzero_weights": 23,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.690703121923434e-05,
+      "sumw2": 9.566389468705326e-11,
+      "workspace_index": 14
+    },
+    {
+      "channel": "SRee_eMT2e_lowmet_V2_cuts",
+      "effective_events": 16.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2e"
+      },
+      "mc_stat_error": 1.133926493821491,
+      "mc_stat_modifier": "native_signal_mcstat_741d2cf1a700210a2371",
+      "negative_weights": 0,
+      "nominal_yield": 4.535705975285964,
+      "nonzero_weights": 16,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 3.263097823946737e-05,
+      "sumw2": 6.654879630403705e-11,
+      "workspace_index": 15
+    },
+    {
+      "channel": "SRee_eMT2f_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 16
+    },
+    {
+      "channel": "SRee_eMT2f_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 17
+    },
+    {
+      "channel": "SRee_eMT2g_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 18
+    },
+    {
+      "channel": "SRee_eMT2g_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 19
+    },
+    {
+      "channel": "SRee_eMT2h_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 20
+    },
+    {
+      "channel": "SRee_eMT2h_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 21
+    },
+    {
+      "channel": "SRmm_eMT2a_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2a"
+      },
+      "mc_stat_error": 0.400903556574131,
+      "mc_stat_modifier": "native_signal_mcstat_e898736df4f32cc1e7a2",
+      "negative_weights": 0,
+      "nominal_yield": 0.5669632469107455,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.078872279933421e-06,
+      "sumw2": 8.318599538004632e-12,
+      "workspace_index": 22
+    },
+    {
+      "channel": "SRmm_eMT2a_lowmet_V2_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2a"
+      },
+      "mc_stat_error": 0.28348162345537276,
+      "mc_stat_modifier": "native_signal_mcstat_2069ebd6c4f3a1f142d4",
+      "negative_weights": 0,
+      "nominal_yield": 0.28348162345537276,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 2.0394361399667105e-06,
+      "sumw2": 4.159299769002316e-12,
+      "workspace_index": 23
+    },
+    {
+      "channel": "SRmm_eMT2b_hghmet_cuts",
+      "effective_events": 9.999999999999998,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2b"
+      },
+      "mc_stat_error": 0.8964476049211897,
+      "mc_stat_modifier": "native_signal_mcstat_0e24fe51f58107cd7eb5",
+      "negative_weights": 0,
+      "nominal_yield": 2.8348162345537276,
+      "nonzero_weights": 10,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 2.0394361399667105e-05,
+      "sumw2": 4.159299769002316e-11,
+      "workspace_index": 24
+    },
+    {
+      "channel": "SRmm_eMT2b_lowmet_V2_cuts",
+      "effective_events": 9.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2b"
+      },
+      "mc_stat_error": 0.8504448703661183,
+      "mc_stat_modifier": "native_signal_mcstat_1439fdf580908b0e12e8",
+      "negative_weights": 0,
+      "nominal_yield": 2.551334611098355,
+      "nonzero_weights": 9,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 1.8354925259700394e-05,
+      "sumw2": 3.743369792102084e-11,
+      "workspace_index": 25
+    },
+    {
+      "channel": "SRmm_eMT2c_hghmet_cuts",
+      "effective_events": 28.000000000000004,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2c"
+      },
+      "mc_stat_error": 1.5000437538395421,
+      "mc_stat_modifier": "native_signal_mcstat_4c7ec4c69a221d5eba59",
+      "negative_weights": 0,
+      "nominal_yield": 7.937485456750437,
+      "nonzero_weights": 28,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 5.710421191906789e-05,
+      "sumw2": 1.1646039353206484e-10,
+      "workspace_index": 26
+    },
+    {
+      "channel": "SRmm_eMT2c_lowmet_V2_cuts",
+      "effective_events": 12.999999999999998,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2c"
+      },
+      "mc_stat_error": 1.0221075290201216,
+      "mc_stat_modifier": "native_signal_mcstat_0b3c74cafd466ec0ef44",
+      "negative_weights": 0,
+      "nominal_yield": 3.685261104919846,
+      "nonzero_weights": 13,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 2.6512669819567236e-05,
+      "sumw2": 5.4070896997030106e-11,
+      "workspace_index": 27
+    },
+    {
+      "channel": "SRmm_eMT2d_hghmet_cuts",
+      "effective_events": 61.00000000000001,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2d"
+      },
+      "mc_stat_error": 2.214062257717817,
+      "mc_stat_modifier": "native_signal_mcstat_0711ef13a2db9e244910",
+      "negative_weights": 0,
+      "nominal_yield": 17.292379030777738,
+      "nonzero_weights": 61,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 0.00012440560453796934,
+      "sumw2": 2.5371728590914127e-10,
+      "workspace_index": 28
+    },
+    {
+      "channel": "SRmm_eMT2d_lowmet_V2_cuts",
+      "effective_events": 49.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2d"
+      },
+      "mc_stat_error": 1.9843713641876093,
+      "mc_stat_modifier": "native_signal_mcstat_50587eba1ecf26adec16",
+      "negative_weights": 0,
+      "nominal_yield": 13.890599549313265,
+      "nonzero_weights": 49,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 9.993237085836881e-05,
+      "sumw2": 2.0380568868111348e-10,
+      "workspace_index": 29
+    },
+    {
+      "channel": "SRmm_eMT2e_hghmet_cuts",
+      "effective_events": 32.00000000000001,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2e"
+      },
+      "mc_stat_error": 1.603614226296524,
+      "mc_stat_modifier": "native_signal_mcstat_f63795eeb8c84626cfa5",
+      "negative_weights": 0,
+      "nominal_yield": 9.071411950571928,
+      "nonzero_weights": 32,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 6.526195647893474e-05,
+      "sumw2": 1.330975926080741e-10,
+      "workspace_index": 30
+    },
+    {
+      "channel": "SRmm_eMT2e_lowmet_V2_cuts",
+      "effective_events": 22.999999999999996,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2e"
+      },
+      "mc_stat_error": 1.3595301060471432,
+      "mc_stat_modifier": "native_signal_mcstat_a207e295dabbb5600764",
+      "negative_weights": 0,
+      "nominal_yield": 6.520077339473573,
+      "nonzero_weights": 23,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.690703121923434e-05,
+      "sumw2": 9.566389468705326e-11,
+      "workspace_index": 31
+    },
+    {
+      "channel": "SRmm_eMT2f_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 32
+    },
+    {
+      "channel": "SRmm_eMT2f_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 33
+    },
+    {
+      "channel": "SRmm_eMT2g_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 34
+    },
+    {
+      "channel": "SRmm_eMT2g_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 35
+    },
+    {
+      "channel": "SRmm_eMT2h_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 36
+    },
+    {
+      "channel": "SRmm_eMT2h_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 37
+    }
+  ],
+  "compressed_signal_model": "full",
+  "control_region_definition": {
+    "acceptance_validated": false,
+    "different_flavour_mass_floor": "none supplied by Table 2; no additional floor invented",
+    "interval_policy": "strict/open, matching native SR convention",
+    "source": "https://arxiv.org/abs/1911.12606v2",
+    "tables": [
+      2,
+      5,
+      8
+    ]
+  },
+  "converter": {
+    "bytes": 20165,
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v4/ravel/physics/sa2json_native.py",
+    "sha256": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c"
+  },
+  "detector_trigger_ISR_theory_variations": "not supplied",
+  "input_combination": "sum-independent-components",
+  "input_combination_note": "Additive independent physical components. Independent seeds of the same process are not pooled.",
+  "inputs": [
+    {
+      "bytes": 169475,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018.root",
+      "sha256": "9c4a4f62e91930621edac69c7ba744781b8ef074a658009f3f30d41d18ed0b70"
+    }
+  ],
+  "luminosity_pb_inverse": 139000.0,
+  "mc_stat_interpretation": "effective-Poisson approximation from selected sumw and sumw2",
+  "mc_stat_policy": "shapesys",
+  "patch": {
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json",
+    "sha256": "a79cd0141b3a0a8fd05026a157aaa0b9e5a09ae369e777ce8bd558d9239fa4fa"
+  },
+  "poi": "mu_SIG",
+  "sample": "native_signal",
+  "schema_version": 1
+}

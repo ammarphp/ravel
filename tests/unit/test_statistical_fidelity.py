@@ -339,6 +339,7 @@ def _conversion_files(tmp_path, channels, branches, monkeypatch):
         "observations": [{"name": channel, "data": [10]} for channel in channels],
         "measurements": [{"name": "measurement", "config": {"poi": "mu_SIG", "parameters": []}}]}))
     root = tmp_path / "signal.root"
+    root.write_bytes(b"inert ROOT fixture; arrays supplied by the test reader")
     class Tree(dict):
         def arrays(self):
             return self
@@ -366,8 +367,8 @@ def test_converter_preserves_signed_weights_and_original_channel_order(tmp_path,
 
 def test_converter_flavour_mask_keeps_negative_selected_weights(tmp_path, monkeypatch):
     import jsonpatch
-    background, root, output = _conversion_files(tmp_path, ["Z_ee_cuts"],
-        {"Z_ee": [2, -0.5, 100], "isee": [1, 1, 0], "ismm": [0, 0, 1]}, monkeypatch)
+    background, root, output = _conversion_files(tmp_path, ["SRee_eMT2a_hghmet_cuts"],
+        {"SR_S_high_eMT2a": [2, -0.5, 100], "isee": [1, 1, 0], "ismm": [0, 0, 1]}, monkeypatch)
     converter.main(["-i", str(root), "-b", str(background), "-o", str(output), "-n", "signal", "-l", "1", "-c"])
     patched = jsonpatch.apply_patch(json.loads(background.read_text()), json.loads(output.read_text()))
     assert patched["channels"][0]["samples"][-1]["data"] == [1.5]

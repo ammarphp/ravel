@@ -1,0 +1,596 @@
+{
+  "anchor20k": {
+    "fit_command": [
+      "local-runs/rrr-closure/numerics/venv-jax-guarded/bin/python",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v4/ravel/_bootstrap.py",
+      "ravel.physics.pyhf_exclude",
+      "likelihood",
+      "--bkg",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json",
+      "--patch",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json",
+      "--out",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output",
+      "--backend",
+      "jax"
+    ],
+    "nonbundled_event_artifacts": [
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/madgraph/unweighted_events.lhe.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "284f8ae5fb9a4872ff044f0f7ca9d616628339e026893107a58e76761bb8a3d3",
+              "size": 3075357
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "madgraph"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/madgraph/unweighted_events.lhe",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "b7aed65bcc558975954b8dc388dd786b46ee64cec53d306739123aed8995aae9",
+              "size": 17149165
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "unpack_lhe"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/madgraph/events.hepmc.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "6dcf9ab69eaab27add33141d99aff930435b8896ba2ff352b21a944f96ccccdc",
+              "size": 1576598608
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "pythia"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/madgraph/events.hepmc.gz.storage.json",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "9ace6b860a39817cdccf059e41ec1038284b8f6e3784d73631540523e938a365",
+              "size": 431
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "pythia"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/delphes/delphes.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "1a711b3e2fc603766c3a9b96cc16e952078d9e4169a7b233024ac2e28efe3266",
+              "size": 1689993999
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "delphes"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/analysis/Delphes2SA.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "a0f5e82fa0f2ab40b9fe0defb1a9baea92129318c73a9e7e31c51fafd1c210ad",
+              "size": 3479697
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "analysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/analysis/Delphes2SA.root.normalization.json",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "2e084e47fe3f71d3208fadf2225b627905d6c1737b5d311e85b135f1ba434d6f",
+              "size": 1606
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "analysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "9c4a4f62e91930621edac69c7ba744781b8ef074a658009f3f30d41d18ed0b70",
+              "size": 169475
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/native_objects.txt",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "7690ad6f5715527c42adcd0e91d83eef5a2d45e28cb5b3a699c6cfbc2b9dee20",
+              "size": 3469137
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/native_rjr.csv",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "a3df3d110ebf765047b641048a29bb8577e427d7937fec9749ccb3e81aa44103",
+              "size": 997967
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_trace.jsonl.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "6e6213f254990de976bd6a4d57c14af980d33065cdfedd2c48b1881b8c416411",
+              "size": 2165730
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      }
+    ],
+    "raw_custody_scope": "Hashes are retained receipt assertions; curation does not rehash large raw ancestors. Public readers cannot replay missing event data.",
+    "run": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k",
+    "stages": [
+      {
+        "attempt_id": "9d6016a28dce41459dd2da76ff1cfd8f",
+        "exit_code": 0,
+        "fingerprint": "68b1937d6faa4d7da1388435da63c8ee55e7263f2b8cfa0876e1b5c129d34500",
+        "finished_utc": "2026-09-06T01:36:22.403624+00:00",
+        "receipt_sha256": "3818fa1725801b02535404a0436ed268da0cce871c3e455b5a1574869bf7647d",
+        "stage": "prepare",
+        "started_utc": "2026-09-06T01:36:17.291710+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "9908ec30feb04c22810faa4e14cf3ef0",
+        "exit_code": 0,
+        "fingerprint": "32fc50eeda4be2b9baaad20c2c6ce5a8ef81c915dd25a0b43f99b434ec1a1787",
+        "finished_utc": "2026-09-06T01:38:03.505354+00:00",
+        "receipt_sha256": "5ab3cf1741e3bd3812247170741baf5b6aba1c08b0424c8756d725f656ffc304",
+        "stage": "madgraph",
+        "started_utc": "2026-09-06T01:36:23.140825+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "8267138a5392494eaa4ce20e514b9ffd",
+        "exit_code": 0,
+        "fingerprint": "258a96c605838e3d78f80386ef13b27d0d6ba565846bdf55f67829273f8c6be8",
+        "finished_utc": "2026-09-06T01:38:09.895012+00:00",
+        "receipt_sha256": "7489c04007f7a32903f524946e31fe3be3bd9682b5ea1cdb354c031209bcd3e7",
+        "stage": "unpack_lhe",
+        "started_utc": "2026-09-06T01:38:04.603037+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "3d4369e2d85b47329a82bb3c09dd0049",
+        "exit_code": 0,
+        "fingerprint": "5d9b04c64a974bf4bb5b56dce70480b45b396e9d36e4c255e1a3896e9b798462",
+        "finished_utc": "2026-09-06T01:38:16.086654+00:00",
+        "receipt_sha256": "eca7e9a512b76d7501d9e6d101e0b92efbd4bfc4e6c25a3349b341921bff6082",
+        "stage": "lhe_check",
+        "started_utc": "2026-09-06T01:38:10.721935+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "f31a6ffe9162451ab009c604c602b205",
+        "exit_code": 0,
+        "fingerprint": "8449369c619e56ce75106ab14decc298f0889f41c4ddd448fd9f797ca44b6852",
+        "finished_utc": "2026-09-06T01:52:39.508658+00:00",
+        "receipt_sha256": "5e21892b02ad54986ba6a99b15c88a43dbf1963ebd3052508a2a04ae4f26aa5d",
+        "stage": "pythia",
+        "started_utc": "2026-09-06T01:38:16.997283+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "cc6ccaa8f1444c4e92bb388d1ff5a441",
+        "exit_code": 0,
+        "fingerprint": "5be69fb342cdfee49b1174772ba614dc80031cfd8024927b1c53500297339ea1",
+        "finished_utc": "2026-09-06T01:52:49.029696+00:00",
+        "receipt_sha256": "03346b013654f70cc4a5f4a8edc827657321a4464b66b7b2c67a610ec24f42aa",
+        "stage": "normalization",
+        "started_utc": "2026-09-06T01:52:42.126447+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "90503525efd9430d9f47d1a0454088db",
+        "exit_code": 0,
+        "fingerprint": "7b3d2c387e3aa0ceaa23c99a87b174544797a7467d3787b0129fbfff72327833",
+        "finished_utc": "2026-09-06T01:57:28.050553+00:00",
+        "receipt_sha256": "c20e38266039487fb19f5ed50086c5360751da529553b0991fdcfb7638b484af",
+        "stage": "delphes",
+        "started_utc": "2026-09-06T01:52:52.797214+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "189449e6dbdd4697a4669158d1d9b343",
+        "exit_code": 0,
+        "fingerprint": "a83af96af6a63c350fa50ddabf1ea7cb2f4f6aa36b4f04832335618fe80fdb6a",
+        "finished_utc": "2026-09-06T01:58:19.919860+00:00",
+        "receipt_sha256": "fb43506e5e5ae745ea875e5009be8b3cd4c645e4a31fbeaf1e817b3514ef29ed",
+        "stage": "analysis",
+        "started_utc": "2026-09-06T01:57:34.305950+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "877559f9c1e647bea3255023705113d5",
+        "exit_code": 0,
+        "fingerprint": "be16c9b6a9250a7fdcdea945f65b163c77cee1011d1c018ea5a913d675ae5602",
+        "finished_utc": "2026-09-06T01:58:47.186549+00:00",
+        "receipt_sha256": "8e54971f04a4f691aa2014d8c7697817b30e0cd5654a7d6a4b93cc5415044852",
+        "stage": "simpleanalysis",
+        "started_utc": "2026-09-06T01:58:26.244584+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "ce88b3e91d3d461b93ec9d97da754ff8",
+        "exit_code": 0,
+        "fingerprint": "b6f923d89beccab6640645012e5481b7d6d81383fb5ddc727faaaa501310489a",
+        "finished_utc": "2026-09-06T01:59:09.363443+00:00",
+        "receipt_sha256": "71842a373f6b89a22ba1a739239d96bad114be961e3175a573a5791278cea127",
+        "stage": "sa2json",
+        "started_utc": "2026-09-06T01:58:53.534948+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "6a769b87e9144ef893cfd617a7ef239c",
+        "exit_code": 0,
+        "fingerprint": "c550f913d9eb08f9274e71dbf30b313bbbf96dd7b46e24a64891df27481a9dbd",
+        "finished_utc": "2026-09-06T02:53:46.081039+00:00",
+        "receipt_sha256": "23b4daba462dd5a002b02e0add811a6664bc72844a9a8f6438c5571e548c0d1e",
+        "stage": "pyhf",
+        "started_utc": "2026-09-06T01:59:15.880990+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "8a008616b0414366ba9dd6995112d97e",
+        "exit_code": 0,
+        "fingerprint": "ac9d41f74df48537dcdc4cce889600e10ab7b638c23fd934cbc310430e12f705",
+        "finished_utc": "2026-09-06T02:54:06.927320+00:00",
+        "receipt_sha256": "07f89678644ad58d58bf5b6a2e438f14cf3c174d0319cf0010f2bea42551ffde",
+        "stage": "native_report",
+        "started_utc": "2026-09-06T02:53:54.423745+00:00",
+        "status": "succeeded"
+      }
+    ],
+    "supervisor_runtime_is_not_fit_interpreter": true
+  },
+  "smoke2": {
+    "fit_command": [
+      "local-runs/rrr-closure/numerics/venv-jax-guarded/bin/python",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v3/ravel/_bootstrap.py",
+      "ravel.physics.pyhf_exclude",
+      "likelihood",
+      "--bkg",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json",
+      "--patch",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018_patch.json",
+      "--out",
+      "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output",
+      "--backend",
+      "jax"
+    ],
+    "nonbundled_event_artifacts": [
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/madgraph/unweighted_events.lhe.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "14755919a7aacdb42d0223752ecc5e417a5e10e7244ac62dfdd9aa0709b6e96d",
+              "size": 162110
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "madgraph"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/madgraph/unweighted_events.lhe",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "8f7e97a2652f9b2404a271fed9e0872ceb9654990269f4ca5eb1eec0ad0769d3",
+              "size": 896064
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "unpack_lhe"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/madgraph/events.hepmc.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "2f46562fe74d4c57cc20cb1a1e3fdaf97e16e84259e8f70f22e979f0a1283d90",
+              "size": 77198395
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "pythia"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/madgraph/events.hepmc.gz.storage.json",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "bf83cd43812ee25006f38b6718449e6c2e000d53dce5287886645a76d28e3b39",
+              "size": 427
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "pythia"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/delphes/delphes.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "cd6c25e03a626535cdb4a6d4e9cf3442be4d9bc7d165cfbfb0b8be7df3576633",
+              "size": 83223116
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "delphes"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/analysis/Delphes2SA.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "f1c4d73c58596b3c77206f1e22986df7edec3e76ba82afcbb85c334a0e0a5c62",
+              "size": 185407
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "analysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/analysis/Delphes2SA.root.normalization.json",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "4b359092fd9cc10b1e84e630bf15c4655857d817d7a1872da7dde54bea166caf",
+              "size": 1607
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "analysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018.root",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "5278dd7d1e802e1d824f214a654c3281d74a0b49087bc278369e315773a0a720",
+              "size": 39568
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/native_objects.txt",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "74f2c60f3620511b2b763f36ea3af0bbbf768d87568f4c452fc73d970b2cd89c",
+              "size": 174306
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/native_rjr.csv",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "787e4eaa035e53b45ee25f634dabd21342c833bc57f58d7db38ee25feb0a2abd",
+              "size": 49591
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      },
+      {
+        "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/compressed_trace.jsonl.gz",
+        "recorded_snapshot": {
+          "files": [
+            {
+              "name": ".",
+              "sha256": "35e7fec29a74e43460decfb4cba6787dc89c10d162433663766a79af11beabf8",
+              "size": 109170
+            }
+          ],
+          "kind": "file"
+        },
+        "stage": "simpleanalysis"
+      }
+    ],
+    "raw_custody_scope": "Hashes are retained receipt assertions; curation does not rehash large raw ancestors. Public readers cannot replay missing event data.",
+    "run": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2",
+    "stages": [
+      {
+        "attempt_id": "e382da915bf2484cb980fd37daf0e305",
+        "exit_code": 0,
+        "fingerprint": "4580c60d8e76bd136828ac074da99791d4b8f32da2f79522cdcb826bec3df118",
+        "finished_utc": "2026-09-06T01:16:41.490704+00:00",
+        "receipt_sha256": "1daf546f519dfae6fd7c844d320cfc0e959b98e0f8936a175c0f48d4d059a9ed",
+        "stage": "prepare",
+        "started_utc": "2026-09-06T01:16:36.390701+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "f7a3c71400c2490c9a332fb7dd4146c8",
+        "exit_code": 0,
+        "fingerprint": "aad3a53a176878c66d4c4a4a5b92192c440fffe8f6dd8d8149a9f36d38599ffc",
+        "finished_utc": "2026-09-06T01:17:22.193849+00:00",
+        "receipt_sha256": "dbff3643117aae1e36417a4a6df281785251e0a892f828266fdda06cbd8c7001",
+        "stage": "madgraph",
+        "started_utc": "2026-09-06T01:16:41.994888+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "15a62e05a9574963b6e05c0518aaffd6",
+        "exit_code": 0,
+        "fingerprint": "cdb0df7db65bf51cdcc0114b379c7940a3ffa793eae2d5c502c2447771f06fec",
+        "finished_utc": "2026-09-06T01:17:27.942829+00:00",
+        "receipt_sha256": "efc80f54a621e9f32df91c2e7d870b3c59fa283670d0140bac94629da1c312e4",
+        "stage": "unpack_lhe",
+        "started_utc": "2026-09-06T01:17:22.726958+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "20066821456545eaa4dbd9c0f776c398",
+        "exit_code": 0,
+        "fingerprint": "835263be85df02b43587d0dd97efce3332df028933413383f0a54d408b0e3800",
+        "finished_utc": "2026-09-06T01:17:33.862779+00:00",
+        "receipt_sha256": "1fa585253c733964fe7fe47f35aaa457cc2dfb4478ce99657b594e6dd713bdfd",
+        "stage": "lhe_check",
+        "started_utc": "2026-09-06T01:17:28.581333+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "341245880080434fbb87920ee53401c4",
+        "exit_code": 0,
+        "fingerprint": "4123c0fb289a5f12f2c47220a133d7e77976c740f80d42ecb412532f5e5b97dc",
+        "finished_utc": "2026-09-06T01:18:19.982299+00:00",
+        "receipt_sha256": "362989ff23fee8d62d3ebbdf886b9e0cb84d1aef253d0648e42655459367109f",
+        "stage": "pythia",
+        "started_utc": "2026-09-06T01:17:34.606607+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "d015618827384d49b4dcde41374e7735",
+        "exit_code": 0,
+        "fingerprint": "d7d67b7358f6513c28386b081f1b3a830354bbb02e9bbe176a1aa01f41b6095f",
+        "finished_utc": "2026-09-06T01:18:26.193809+00:00",
+        "receipt_sha256": "890ea4913895089dc76389e0ebb9508e751cc74f57290e9091464b3a604ce8bf",
+        "stage": "normalization",
+        "started_utc": "2026-09-06T01:18:20.798336+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "c59bac04f48941409020d89275f43cb9",
+        "exit_code": 0,
+        "fingerprint": "cac4857d16f023c6a4cf2db9bc3ac8f26fb0382cd5c908535c1382f4d8ae2b1f",
+        "finished_utc": "2026-09-06T01:18:42.625906+00:00",
+        "receipt_sha256": "6f28c67e102cbaa22301284146bf187d703fb8d6b950355bbb9e6bedf808a12c",
+        "stage": "delphes",
+        "started_utc": "2026-09-06T01:18:27.079601+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "8ae325566dcb4f79a72917e5f2da7510",
+        "exit_code": 0,
+        "fingerprint": "ec49c0a77740892c0e861ef46915c7a6c8df4b0c73e39b493085070c3c258dee",
+        "finished_utc": "2026-09-06T01:18:49.336090+00:00",
+        "receipt_sha256": "d05a097bc252428a6487f39d88682e528d0695494f54e2f3647922f06b23aea9",
+        "stage": "analysis",
+        "started_utc": "2026-09-06T01:18:43.718234+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "5db43e44866243aa8dd6fafbb7ebc39a",
+        "exit_code": 0,
+        "fingerprint": "2c84a5f566a560857624317e5ff9ab00b65e78fe7fe7dfe3a25dfcf0a359a558",
+        "finished_utc": "2026-09-06T01:18:56.534736+00:00",
+        "receipt_sha256": "6917f873963c11977fb148861fd08fae3164c9f6de4be87da65114c883536a2e",
+        "stage": "simpleanalysis",
+        "started_utc": "2026-09-06T01:18:50.367689+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "ad0bb3859c4940689d31f722d1ebc08f",
+        "exit_code": 0,
+        "fingerprint": "412c778d0e49edea112caa6ec30402f624e403a0b8d3c78bf9f0f38bc6ad5a7f",
+        "finished_utc": "2026-09-06T01:19:03.558411+00:00",
+        "receipt_sha256": "ec0b3251e1756f343a587743966596f691d6491d9632202460686f3570689141",
+        "stage": "sa2json",
+        "started_utc": "2026-09-06T01:18:57.868343+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "8d4ad53eb81d4273902696e0ea6b1fac",
+        "exit_code": 0,
+        "fingerprint": "fe2a042600e78e5da0636f64a6d4a69624498e19c060cd38e71c10666c4454b2",
+        "finished_utc": "2026-09-06T01:31:01.080258+00:00",
+        "receipt_sha256": "8561a5c7377c323c07960388ab8413233728e26f5ecb87ad524eed6f38c07dc9",
+        "stage": "pyhf",
+        "started_utc": "2026-09-06T01:19:04.641393+00:00",
+        "status": "succeeded"
+      },
+      {
+        "attempt_id": "f85a619be59c4a18a08e1222f8d3fe64",
+        "exit_code": 0,
+        "fingerprint": "5557c63ac5389a3a39e43bac6b27d4f7ac9f68f09e8aa641444b4da0ea76c48b",
+        "finished_utc": "2026-09-06T01:31:08.170871+00:00",
+        "receipt_sha256": "602ba487b22e3f8cafd7f29238b12082f3263b4335dd4a8623c5d55030bedbc5",
+        "stage": "native_report",
+        "started_utc": "2026-09-06T01:31:02.194275+00:00",
+        "status": "succeeded"
+      }
+    ],
+    "supervisor_runtime_is_not_fit_interpreter": true
+  }
+}

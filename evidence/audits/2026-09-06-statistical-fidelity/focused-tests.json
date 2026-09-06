@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "command": "env -u PYTHONPATH <locked-python> -B -m pytest <repository>/tests/unit/test_profile_optimization.py <repository>/tests/unit/test_statistical_fidelity.py -q --junitxml=<new-path>",
+  "working_directory": "repository parent (avoids local py.py shadowing)",
+  "python": "3.12.13",
+  "passed": 91,
+  "failed": 0,
+  "skipped": 0,
+  "by_module": {
+    "test_profile_optimization": 26,
+    "test_statistical_fidelity": 65
+  },
+  "original_junit_sha256": "deea2e2537a9353ce280caf136dd917bca37e24db6e97ed9d8aacf9ff35c5ce8",
+  "original_log_sha256": "51c8732c2ce3c64251e3c3a9cc1380fb5edb2ac7d19511bd7e972d53eb422430",
+  "engine_sha256": {
+    "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+    "src/ravel/physics/sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c",
+    "src/ravel/validation/validate_cutflow.py": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22",
+    "src/ravel/validation/certify_acceptance.py": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120",
+    "tests/unit/test_statistical_fidelity.py": "f0194f8782f21ea3358a4edbceb9741146555c324f07fbd737c5a74f9f31c929",
+    "tests/unit/test_profile_optimization.py": "7928d1f86285bc266621bc81fac1eea4757907d154be205b2b1021dff1d23dea"
+  },
+  "cases": [
+    {
+      "name": "test_successful_local_minimum_is_improved_from_other_basin[False]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_successful_local_minimum_is_improved_from_other_basin[True]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_prior_start_is_rescored_on_current_objective_and_fixed_coordinates",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_gradient_path_detects_nonfinite_objective_visits",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_inference_start_resets_retained_model_parameters",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_profile_nesting_rejects_false_success_with_positive_controls",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[0]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[-1]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[nan]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[inf]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[1]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_fit_tolerance_before_reading_inputs[2]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_requested_backend_failure_is_not_silently_replaced",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_transient_invalid_gradient_trial_requires_profile_context",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_successful_unchanged_nonstationary_analytic_init_is_rejected[False]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_successful_unchanged_nonstationary_analytic_init_is_rejected[True]",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_projected_gradient_checks_feasible_descent_and_fixed_coordinates",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_monotonic_discontinuous_curve_cannot_be_reported_as_root",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_repeated_root_evaluation_drift_cannot_be_hidden_by_cache",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_smooth_stable_curve_passes_fresh_root_checks",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_analytic_migrad_valid_flag_requires_stationarity",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_narrow_bounds_do_not_mask_interior_gradient_or_out_of_range_fit",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_unguarded_optimizer_is_not_labeled_as_validated_profile",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_success_records_explicit_backend_and_input_hashes",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_failure_preserves_pinned_attempt_without_emitting_limit",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_final_root_checks_use_immutable_portfolio_and_both_orders",
+      "classname": "tests.unit.test_profile_optimization",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[-1-n]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[-1-b]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[-1-db]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[-1-s]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[nan-n]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[nan-b]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[nan-db]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[nan-s]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[inf-n]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[inf-b]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[inf-db]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[inf-s]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[True-n]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[True-b]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[True-db]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[True-s]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[2-n]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[2-b]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[2-db]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_rejects_invalid_measurements[2-s]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_zero_background_uncertainty_is_exactly_preserved",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_counting_uncertainty_on_zero_background_is_not_silently_disabled",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_limit_matches_independent_pyhf_root_with_coarse_plot_grid",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_non_power_of_two_cap_is_respected_and_bound_is_labeled",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_expected_band_cap_does_not_censor_resolved_observed_limit",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_cls_cannot_be_dropped_across_a_limit[nan]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_cls_cannot_be_dropped_across_a_limit[inf]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_cls_cannot_be_dropped_across_a_limit[-0.1]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_invalid_cls_cannot_be_dropped_across_a_limit[1.1]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_nonmonotonic_expected_curve_is_rejected",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_file_rejects_invalid_values[payload0]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_file_rejects_invalid_values[payload1]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_file_rejects_invalid_values[payload2]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_file_rejects_invalid_values[payload3]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_file_rejects_invalid_values[payload4]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_missing_driving_comparison_fails_with_null_residual",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_zero_acceptance_is_measured_complete_deficit",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_worst_driving_residual_includes_all_driving_regions",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_only_publication_cannot_stand_in_for_acceptance_efficiency",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_optimizer_success_flag_cannot_validate_bad_minimum[x0-0-<lambda>-bounds0-fixed0]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_optimizer_success_flag_cannot_validate_bad_minimum[x1-0-<lambda>-bounds1-fixed1]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_optimizer_success_flag_cannot_validate_bad_minimum[x2-0-<lambda>-bounds2-fixed2]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_optimizer_success_flag_cannot_validate_bad_minimum[x3-10000000000.0-<lambda>-bounds3-fixed3]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_optimizer_success_flag_cannot_validate_bad_minimum[x4-0-<lambda>-bounds4-fixed4]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_migrad_penalty_plateau_cannot_be_returned_as_a_valid_fit",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_signal_scale_before_reading_or_fitting[-2]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_signal_scale_before_reading_or_fitting[0]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_signal_scale_before_reading_or_fitting[nan]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_cli_rejects_invalid_signal_scale_before_reading_or_fitting[inf]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_signal_scale_changes_every_signal_strength_coordinate_consistently",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_likelihood_json_rejects_nonfinite_numbers_before_pyhf[NaN]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_likelihood_json_rejects_nonfinite_numbers_before_pyhf[1e999]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_likelihood_json_rejects_nonfinite_numbers_before_pyhf[Infinity]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_preserves_weighted_event_yields",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_acceptance_true_worst_driving_residual_and_zero_ratio",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_nearest_mass_point_is_diagnostic_only_in_cutflow",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_nearest_mass_point_is_diagnostic_only_in_acceptance",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_exact_inverse_signal_shift_is_separate_from_acceptance_proxy",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_full_workspace_preserves_shared_background_nuisance",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_poisson_auxiliary_observations_cannot_be_negative",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_converter_preserves_signed_weights_and_original_channel_order",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_converter_flavour_mask_keeps_negative_selected_weights",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_converter_does_not_turn_invalid_or_absent_signal_into_a_patch[branches0-missing]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_converter_does_not_turn_invalid_or_absent_signal_into_a_patch[branches1-finite]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    },
+    {
+      "name": "test_converter_does_not_turn_invalid_or_absent_signal_into_a_patch[branches2-negative]",
+      "classname": "tests.unit.test_statistical_fidelity",
+      "status": "passed"
+    }
+  ]
+}

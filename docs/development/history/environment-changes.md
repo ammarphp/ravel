@@ -3,7 +3,32 @@
 **Category: changes to the *computing environment*** (software installed, tools configured).
 These are the things a reader of an eventual publication needs in order to reproduce the
 analysis architecture. They do **not** touch the physics inputs (those are in
-`DATA-AND-CARD-CHANGES.md`).
+[the data and card registry](data-and-card-changes.md).
+
+## September 2026 RRR closure additions and qualifications
+
+The subsequent [execution and resource follow-up](2026-09-06-rrr-execution-followup.md)
+records the repaired timeout supervision, exact 95-file v5 runtime, stricter 1.26-million-event
+admission ceiling and retirement of five inactive installation-test environments. All 26
+physics modules and the numerical engine remain unchanged from the preceding frozen runtime.
+The runtime requires inherited no-bytecode settings and rejects unmanifested files; the
+recorded test-cache incident was reconciled before activation.
+
+An isolated Python 3.14 virtual environment inherits the existing recast installation and
+adds iminuit 2.32.0 for the explicitly selected JAX backend. Its installation evidence is
+retained under `local-runs/rrr-closure/numerics/`; the original conda environments are unchanged.
+The campaign builds a separate Pythia shower executable with checked configuration and
+serialization failures, using the installed Pythia 8.312/HepMC3 toolchain. It preserves the
+old executable. Run plans pin frozen Python source snapshots, selected executables and
+virtual-environment configuration. These records do not lock every shared library or prove
+equivalence to the RRR paper's earlier tool versions.
+
+The older E3 claim that all MadGraph 2.9.x patch versions have identical LO physics was not
+established by a controlled version comparison. Its historical wording below is preserved,
+but must not be reused as a current methods claim. Record actual versions and measure
+version sensitivity when it matters. The workflow-level description is the
+[native execution reference](../../workflow/reference/native-pipeline.md); the interpretation
+and limitations are in the [environment manifest](../../reference/environment.md).
 
 > Scope note: the host had **no** Fortran compiler, **no** conda/brew/pyenv, and only a system
 > Python 3.13. Everything below was provisioned **into the project** (`build/tools/`, gitignored)

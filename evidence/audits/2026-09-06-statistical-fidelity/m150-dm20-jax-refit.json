@@ -1,0 +1,3193 @@
+{
+  "schema_version": 1,
+  "scope": "fixed-template statistical diagnosis; no physics certification",
+  "inputs": {
+    "background": {
+      "name": "background.json",
+      "sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7"
+    },
+    "patch": {
+      "name": "m150_dm20-patch.json",
+      "sha256": "375f59c906c94b54090b9c287886faf11e35d49094f6e8e73cff27e8fe2afc66"
+    }
+  },
+  "python": "3.14.5",
+  "backend": "jax",
+  "optimizer": "Ravel robust_optimizer",
+  "fit_tolerance": 1e-09,
+  "dependencies": {
+    "pyhf": "0.7.6",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "jax": "0.10.1",
+    "jaxlib": "0.10.1",
+    "iminuit": "2.32.0",
+    "jsonpatch": "1.33"
+  },
+  "engine": {
+    "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+    "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+    "evidence/audits/2026-09-05-rrr-refits/refit.py": "7277cf114f1be2767f99a187f35a74aaf6862a1793494ab4877e655a300f957b"
+  },
+  "result": {
+    "obs_limit": 0.623722403950509,
+    "exp_limits": [
+      0.29974121150230326,
+      0.40367335031481677,
+      0.5667101469300333,
+      0.812434916044663,
+      1.1110338221191507
+    ],
+    "scan_mu": [
+      0.001,
+      0.125,
+      0.25,
+      0.29818384314554625,
+      0.29972622439172814,
+      0.29974121150230326,
+      0.29985979087256953,
+      0.3137603835487036,
+      0.3535533905932738,
+      0.4035650978988973,
+      0.40365316659730105,
+      0.40367335031481677,
+      0.4078872206179581,
+      0.4249642958067539,
+      0.5,
+      0.566581137652069,
+      0.5666818113726868,
+      0.5667101469300333,
+      0.5732569320232936,
+      0.5965241994077404,
+      0.6186690791468622,
+      0.6236912177803116,
+      0.623722403950509,
+      0.6239974991079856,
+      0.6433000061513677,
+      0.6943784171705616,
+      0.7398313730021744,
+      0.7866000123027355,
+      0.8099155424637892,
+      0.8123942942488608,
+      0.812434916044663,
+      0.8125979583154349,
+      0.8358006802401289,
+      0.9274007830522494,
+      1.0,
+      1.0005,
+      1.1050460538035998,
+      1.1109782703780446,
+      1.1110338221191507,
+      1.1116122727798583,
+      1.1474109075006258,
+      1.2403893628755385,
+      1.483415711964276,
+      2.0
+    ],
+    "scan_cls_obs": [
+      0.9971855567323789,
+      0.7066789038893115,
+      0.4410825230670339,
+      0.3550044447083005,
+      0.3524281860260819,
+      0.3524032088068541,
+      0.35220562467073663,
+      0.32951314854116864,
+      0.269764122814095,
+      0.2056441094679214,
+      0.20554179656633761,
+      0.205518353338911,
+      0.20066604848967684,
+      0.18184970714690643,
+      0.11437351504751381,
+      0.072749825274961,
+      0.07270349461863884,
+      0.07269045871573566,
+      0.06972779549654452,
+      0.05996737443131874,
+      0.05173801040917154,
+      0.05000927467559692,
+      0.04999868844987057,
+      0.049905385411430116,
+      0.043703957569171864,
+      0.03028368100533949,
+      0.021428474317178772,
+      0.014723761514666023,
+      0.012121882518125099,
+      0.011870431878982174,
+      0.011866349346101375,
+      0.011849975795026658,
+      0.009712102321153843,
+      0.004222428168197765,
+      0.002068015598483614,
+      0.0020575375119421604,
+      0.0006775660006108882,
+      0.0006343466225919063,
+      0.0006339542889668443,
+      0.000629882370510187,
+      0.00042034387995611004,
+      0.0001396148625024278,
+      5.555213349706397e-06,
+      1.2428448551381981e-09
+    ],
+    "scan_cls_exp": [
+      [
+        0.9916347620701655,
+        0.9946146128876328,
+        0.9971776132850906,
+        0.9989808604732286,
+        0.999803876744951
+      ],
+      [
+        0.3220791791144033,
+        0.47159053440971044,
+        0.6593563549780328,
+        0.8462484716487987,
+        0.9624204313099917
+      ],
+      [
+        0.08781280720527898,
+        0.19006797219137508,
+        0.3796635778531978,
+        0.6517495082133958,
+        0.8891881271363916
+      ],
+      [
+        0.050909037686341814,
+        0.12833447129390646,
+        0.2953991333910513,
+        0.5723163505048948,
+        0.8491885490330918
+      ],
+      [
+        0.05000810803480715,
+        0.12668156382374252,
+        0.2929304365781479,
+        0.5697759330219833,
+        0.847795323778989
+      ],
+      [
+        0.04999942636340957,
+        0.1266655925423141,
+        0.2929065179265907,
+        0.5697512527067115,
+        0.8477817518186551
+      ],
+      [
+        0.049930785086311144,
+        0.12653928693813662,
+        0.2927173182441306,
+        0.5695559828205377,
+        0.8476743459488355
+      ],
+      [
+        0.04246028834829101,
+        0.11246096140716441,
+        0.2711151431390165,
+        0.5467133836634074,
+        0.8347990888271754
+      ],
+      [
+        0.02640093707489575,
+        0.07936404524449948,
+        0.21549987659705683,
+        0.4822213267619444,
+        0.7948795228883381
+      ],
+      [
+        0.014192535771828456,
+        0.0500504062586143,
+        0.15805981891572463,
+        0.4044791649573907,
+        0.7386637198265521
+      ],
+      [
+        0.01417670579273624,
+        0.05000866366850308,
+        0.15797021253013588,
+        0.4043466345262832,
+        0.7385592549892152
+      ],
+      [
+        0.014173080182501394,
+        0.049999101390229374,
+        0.15794968190596415,
+        0.404316263462118,
+        0.7385353110427266
+      ],
+      [
+        0.0134348435489011,
+        0.048037868859894486,
+        0.15370807164768024,
+        0.3979956798495175,
+        0.7335157107642215
+      ],
+      [
+        0.01079602917925584,
+        0.04077090629797855,
+        0.1374119933724197,
+        0.37280986341211236,
+        0.7127650206028697
+      ],
+      [
+        0.003985209693749648,
+        0.01914544345437821,
+        0.08121092040170444,
+        0.2716224679463851,
+        0.6151336784284795
+      ],
+      [
+        0.0016502049557493511,
+        0.009708738409569831,
+        0.050046043373071766,
+        0.20043600303316658,
+        0.5281400050842839
+      ],
+      [
+        0.0016480406969411419,
+        0.009698867004720968,
+        0.050009390396596166,
+        0.20034223460903092,
+        0.5280121606406465
+      ],
+      [
+        0.0016474320278943623,
+        0.009696090245564695,
+        0.04999907809230043,
+        0.20031584759133644,
+        0.5279761771935869
+      ],
+      [
+        0.001512341048900664,
+        0.009073536511175583,
+        0.04766345434044739,
+        0.19427829339250136,
+        0.5196583075939702
+      ],
+      [
+        0.001112021175446372,
+        0.0071437456478905485,
+        0.04008704281978075,
+        0.1737749870090777,
+        0.4900746259459261
+      ],
+      [
+        0.0008258175553955955,
+        0.005662711620853123,
+        0.03384556226345095,
+        0.15564490948856427,
+        0.4619968909587729
+      ],
+      [
+        0.000771415857461086,
+        0.005368617698877977,
+        0.03255127988771139,
+        0.15172028607300356,
+        0.45565448998273544
+      ],
+      [
+        0.0007710888985322877,
+        0.005366836048869089,
+        0.03254337652164237,
+        0.15169613041437702,
+        0.45561514371557565
+      ],
+      [
+        0.0007682104338560743,
+        0.005351143354864953,
+        0.03247373076738358,
+        0.15148316509117807,
+        0.4552680865341826
+      ],
+      [
+        0.0005898169954326498,
+        0.004349526629492393,
+        0.027894254158839817,
+        0.137052763922016,
+        0.43102710991234766
+      ],
+      [
+        0.00028808338395305984,
+        0.0024715358897152784,
+        0.018359020636212083,
+        0.10362554006933543,
+        0.3684428260732675
+      ],
+      [
+        0.00014911525795394083,
+        0.0014644373553353148,
+        0.012407743456514166,
+        0.07935437320574867,
+        0.3156010993811862
+      ],
+      [
+        7.42081611472885e-05,
+        0.0008378498946941327,
+        0.008133464383482477,
+        0.05922973700524968,
+        0.265013815198544
+      ],
+      [
+        5.2007565489626105e-05,
+        0.0006295437370164177,
+        0.00654165379824183,
+        0.05084500163475951,
+        0.24146565224872718
+      ],
+      [
+        5.006396791592066e-05,
+        0.0006105226735412237,
+        0.006390114273134025,
+        0.050013168339121436,
+        0.23903217822521655
+      ],
+      [
+        5.003270511626211e-05,
+        0.0006102155067012146,
+        0.006387657408075698,
+        0.04999962875392086,
+        0.238992412648705
+      ],
+      [
+        4.9907415537254286e-05,
+        0.0006089841056637248,
+        0.006377804949883009,
+        0.04994531538062357,
+        0.23883284427099527
+      ],
+      [
+        3.4843480431569675e-05,
+        0.0004557131586244409,
+        0.005107725045174563,
+        0.04269079104747778,
+        0.21673985184915323
+      ],
+      [
+        8.042018580622132e-06,
+        0.00013837849615364284,
+        0.0020294667298429545,
+        0.021982046333157992,
+        0.14199514265687274
+      ],
+      [
+        2.385760923567076e-06,
+        5.103426706269116e-05,
+        0.0009270060247349475,
+        0.012354730573882517,
+        0.09700205406591951
+      ],
+      [
+        2.3654989102687133e-06,
+        5.0676760898092554e-05,
+        0.000921870970060632,
+        0.012303911847365899,
+        0.09673402589775949
+      ],
+      [
+        3.79211218042381e-07,
+        1.1113970936325614e-05,
+        0.0002753030595474525,
+        0.004963540694989656,
+        0.05194535637792308
+      ],
+      [
+        3.40845267237572e-07,
+        1.0168644007436719e-05,
+        0.0002563407696960402,
+        0.00470146376583193,
+        0.05001491397408405
+      ],
+      [
+        3.405045057401946e-07,
+        1.0160168409904131e-05,
+        0.0002561691565133209,
+        0.004699069634071863,
+        0.04999711383816288
+      ],
+      [
+        3.3697588328885246e-07,
+        1.0072316723459282e-05,
+        0.0002543886005043826,
+        0.004674205211798257,
+        0.049812068099028044
+      ],
+      [
+        1.7589379268668264e-07,
+        5.852421067805694e-06,
+        0.00016430346495778842,
+        0.003347848506594577,
+        0.03939403290892588
+      ],
+      [
+        3.0933872749306895e-08,
+        1.3590776517300248e-06,
+        5.0215969796007097e-05,
+        0.001339202531878876,
+        0.02042249880999249
+      ],
+      [
+        2.37936783629555e-10,
+        2.152268069589329e-08,
+        1.6262010349703577e-06,
+        8.771869247278333e-05,
+        0.002654842398978512
+      ],
+      [
+        1.81091941015211e-15,
+        7.376336740652287e-13,
+        2.487710801262839e-10,
+        5.909588990136167e-08,
+        7.707561970798083e-06
+      ]
+    ],
+    "n_fits": 44,
+    "at_poi_cap": false,
+    "median_at_cap": false,
+    "at_mu_floor": false,
+    "band_degenerate": false,
+    "cls_monotonic": true,
+    "limit_status": {
+      "observed": "resolved",
+      "expected": [
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved"
+      ]
+    },
+    "limit_brackets": {
+      "observed": [
+        0.5,
+        1.0
+      ],
+      "expected": [
+        [
+          0.25,
+          0.3535533905932738
+        ],
+        [
+          0.3535533905932738,
+          0.5
+        ],
+        [
+          0.5,
+          1.0
+        ],
+        [
+          0.5,
+          1.0
+        ],
+        [
+          1.0005,
+          2.0
+        ]
+      ]
+    },
+    "fit_diagnostics": {
+      "available": true,
+      "source": "pyhf AsymptoticCalculator free_fit_to_data",
+      "reference_mu": 2.0,
+      "twice_nll": 408.6073336169991,
+      "parameters": [
+        {
+          "name": "MET_SoftTrk_ResoPara",
+          "value": -0.0039038541082960948,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_1",
+          "value": 0.06299872746206858,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_Modelling",
+          "value": 0.20937488723638226,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Flavor_Composition",
+          "value": 0.08095806025943471,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Flavor_Response",
+          "value": -0.09179170596614651,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_DataVsMC",
+          "value": 0.20673921894035668,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_10",
+          "value": -0.5914115598859628,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_11",
+          "value": -0.36998396602863204,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_2",
+          "value": -0.14759924057818255,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_3",
+          "value": -0.5021497094695025,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_4",
+          "value": 0.5428786620991347,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_5",
+          "value": 0.46458840436681414,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_9",
+          "value": -0.5215154149666188,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_OffsetNPV",
+          "value": 0.08348207806596543,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_RhoTopology",
+          "value": 0.48061056336419444,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MET_SoftTrk_ResoPerp",
+          "value": 0.7122833157438251,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "ETmissTrigSF_para",
+          "value": -0.009113252411972165,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_BJES_Response",
+          "value": -0.357427419738918,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_2",
+          "value": -0.07244165252661648,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_3",
+          "value": 0.0400642625220084,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_4",
+          "value": -0.018083452241519197,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_5",
+          "value": 0.017644554040044117,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_6",
+          "value": -0.012669730883449937,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_7",
+          "value": -0.013267704359378105,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EffectiveNP_8restTerm",
+          "value": -0.0184890203934227,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_highE",
+          "value": -0.08994630033557725,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_negEta",
+          "value": -0.006371606634188261,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_NonClosure_posEta",
+          "value": -0.023602467471486546,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_EtaIntercalibration_TotalStat",
+          "value": 0.04331389634934328,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_1",
+          "value": 0.6129166355077321,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_12restTerm",
+          "value": -0.12526118394118638,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_6",
+          "value": -0.006699786058295945,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_7",
+          "value": 0.1346377545051259,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_JER_EffectiveNP_8",
+          "value": -0.28993737601446035,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_OffsetMu",
+          "value": 0.06459590820047807,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_Pileup_PtTerm",
+          "value": 0.16216543802603872,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_PunchThrough_MC16",
+          "value": -0.08937740511455504,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JET_SingleParticle_HighPt",
+          "value": 0.07094185141547683,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MET_SoftTrk_Scale",
+          "value": -0.349720392761645,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "pileup",
+          "value": -0.07953070499181449,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_SCALE_ALL",
+          "value": -0.21906664686801727,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_ID",
+          "value": -0.01495067753311134,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_MS",
+          "value": -0.06318488997688691,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_SCALE",
+          "value": 0.009790894086691771,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Eff",
+          "value": 0.1245802446634022,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2a_hghmet",
+          "value": -0.04078713533012454,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2a_lowmet_V2",
+          "value": 0.13627166381684425,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Reco",
+          "value": -0.004096431515444129,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2b_hghmet",
+          "value": -0.029817728028430152,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_RESOLUTION_ALL",
+          "value": -0.11981434497190777,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_BT",
+          "value": -0.4030790584551939,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "EG_Iso",
+          "value": 0.0003955161631877254,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2f_hghmet",
+          "value": 0.0027347788053200353,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2f_lowmet_V2",
+          "value": 0.007757603664358462,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2g_hghmet",
+          "value": 0.033498738128086195,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2g_hghmet",
+          "value": 0.025490872176122233,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2g_lowmet_V2",
+          "value": 0.05986936009775855,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2h_hghmet",
+          "value": -0.020299643052303556,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRee_eMT2h_hghmet",
+          "value": -0.016516968876093184,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRee_eMT2h_lowmet_V2",
+          "value": -0.06495330226088315,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2a_hghmet",
+          "value": -0.015673268936281456,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2g_hghmet",
+          "value": -0.02233576258038326,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2g_lowmet_V2",
+          "value": 0.043060016804701354,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2h_hghmet",
+          "value": 0.007179818641226834,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_zeroEstimate_UL_SRmm_eMT2h_lowmet_V2",
+          "value": 0.0008988874471345093,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "fake_zeroEstimate_UL_SRmm_eMT2h_lowmet_V2",
+          "value": 0.00034839688119793434,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "lumi",
+          "value": 1.0,
+          "fixed": true,
+          "bounds": [
+            0.915,
+            1.085
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_Ztt_hghmet",
+          "value": 0.8380465122901587,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_VV_hghmet",
+          "value": 0.7013242566406456,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_top_hghmet",
+          "value": 1.0390537950335341,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_Ztt_lowmet",
+          "value": 1.055741680198098,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_VV_lowmet",
+          "value": 0.6761366994627943,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_top_lowmet",
+          "value": 1.1050350599625347,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "mu_SIG",
+          "value": 0.06703946451323411,
+          "fixed": false,
+          "bounds": [
+            0.0,
+            3.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_scale_hghmet",
+          "value": -0.010917389297906694,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "VV_scale_hghmet",
+          "value": 0.016339363123002788,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRVV",
+          "value": -0.032720562537601174,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRVV",
+          "value": 0.2551665262577761,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRVV",
+          "value": 0.05601160364924025,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRVV",
+          "value": 0.08382825216870124,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRVV",
+          "value": 0.05511179974946581,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Norm_other",
+          "value": -0.014236430088253045,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "top_scale_hghmet",
+          "value": 0.08482355365093384,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_scale_lowmet",
+          "value": 0.15224574157877943,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "VV_scale_lowmet",
+          "value": 0.017636388541599567,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "top_scale_lowmet",
+          "value": -0.0944466538720183,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRtau",
+          "value": 0.015962088360330286,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRtau",
+          "value": -0.03173422693713224,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRtau",
+          "value": -0.0017949678724951078,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRtau",
+          "value": -0.005421649375575123,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRtau",
+          "value": -0.001492391371455917,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin6",
+          "value": 0.008625088849383346,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin5",
+          "value": -0.01283228916915924,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "ZttLowHT_flatSyst",
+          "value": -0.00673352812509853,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_LightT",
+          "value": -0.002759041164134166,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub_CRtop",
+          "value": 0.046519126841635006,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el_CRtop",
+          "value": -0.0164410479195498,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu_CRtop",
+          "value": -0.012038337933495064,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el_CRtop",
+          "value": -0.06258857277249247,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu_CRtop",
+          "value": -0.025551224428934823,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_pdf_lowmet",
+          "value": 0.04801641428343718,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "btag_CT",
+          "value": -0.0007332677464996177,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el1bjetBin5",
+          "value": -0.026622730076491543,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_el",
+          "value": 0.10786974326274172,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin1",
+          "value": -0.062367511934712905,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin3",
+          "value": -0.02230400241993958,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_el",
+          "value": 0.32696388037260643,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin4",
+          "value": 0.0527181526053987,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_el0bjetBin2",
+          "value": -0.021532818300813657,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "JVT",
+          "value": 0.004628530012371291,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_alpha_S_lowmet",
+          "value": -0.012622739672973025,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "Ztt_pdf_hghmet",
+          "value": -0.003214198686132768,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_antiIDPromptSub",
+          "value": -0.06172041951652355,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_param_mu",
+          "value": -0.3579199664432321,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_closure_mu",
+          "value": 0.019178911067161384,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin5",
+          "value": 0.01238172220693578,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "MUON_Eff_sys_lowpt",
+          "value": 0.002706144818463277,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin4",
+          "value": 0.026440448772249242,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "FF_syst_stat_mu0bjetBin6",
+          "value": 0.016116328705929547,
+          "fixed": false,
+          "bounds": [
+            -5.0,
+            5.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRVV_MT2_hghmet_obs_cuts[0]",
+          "value": 1.0152616536368269,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRVV_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9836249158479199,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtau_MT2_hghmet_obs_cuts[0]",
+          "value": 0.9940552968253075,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtau_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9998797386722159,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtop_MT2_hghmet_obs_cuts[0]",
+          "value": 0.9998828333830675,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_CRtop_MT2_lowmet_obs_cuts[0]",
+          "value": 0.9986644525176901,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2a_hghmet_obs_cuts[0]",
+          "value": 0.8943623730657357,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2a_lowmet_V2_obs_cuts[0]",
+          "value": 1.18182858591062,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2b_hghmet_obs_cuts[0]",
+          "value": 0.9279306522846101,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2b_lowmet_V2_obs_cuts[0]",
+          "value": 0.9670325310834775,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2c_hghmet_obs_cuts[0]",
+          "value": 1.0640266717391302,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2c_lowmet_V2_obs_cuts[0]",
+          "value": 1.1645377018125669,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2d_hghmet_obs_cuts[0]",
+          "value": 0.9922464624625396,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2d_lowmet_V2_obs_cuts[0]",
+          "value": 0.9198399949364641,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2e_hghmet_obs_cuts[0]",
+          "value": 1.0381787003427791,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2e_lowmet_V2_obs_cuts[0]",
+          "value": 0.9685541356036056,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2f_lowmet_V2_obs_cuts[0]",
+          "value": 1.0491151773373564,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2g_lowmet_V2_obs_cuts[0]",
+          "value": 1.202130505825165,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRee_eMT2h_lowmet_V2_obs_cuts[0]",
+          "value": 0.7463087946603846,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2a_hghmet_obs_cuts[0]",
+          "value": 0.948074039269203,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2a_lowmet_V2_obs_cuts[0]",
+          "value": 0.8916552320427023,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2b_hghmet_obs_cuts[0]",
+          "value": 0.7765118809992458,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2b_lowmet_V2_obs_cuts[0]",
+          "value": 1.2886646953942198,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2c_hghmet_obs_cuts[0]",
+          "value": 1.0998734636968164,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2c_lowmet_V2_obs_cuts[0]",
+          "value": 1.049163142641406,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2d_hghmet_obs_cuts[0]",
+          "value": 0.9163381954959089,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2d_lowmet_V2_obs_cuts[0]",
+          "value": 0.9659640231369565,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2e_hghmet_obs_cuts[0]",
+          "value": 0.9263574192523143,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2e_lowmet_V2_obs_cuts[0]",
+          "value": 0.9766219553189408,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2f_hghmet_obs_cuts[0]",
+          "value": 0.9802057525821661,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2f_lowmet_V2_obs_cuts[0]",
+          "value": 1.142993001122623,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2g_hghmet_obs_cuts[0]",
+          "value": 0.9187653576059592,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2g_lowmet_V2_obs_cuts[0]",
+          "value": 1.119486107470039,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "shape_fakes_stat_fakes_SRmm_eMT2h_hghmet_obs_cuts[0]",
+          "value": 1.0449004886622006,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRVV_MT2_hghmet_cuts[0]",
+          "value": 1.0020111837948735,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRVV_MT2_lowmet_cuts[0]",
+          "value": 0.9976900709420901,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtau_MT2_hghmet_cuts[0]",
+          "value": 0.9996137770956068,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtau_MT2_lowmet_cuts[0]",
+          "value": 0.9999894157989412,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtop_MT2_hghmet_cuts[0]",
+          "value": 0.9999792018583745,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_CRtop_MT2_lowmet_cuts[0]",
+          "value": 0.9997816685389991,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2a_hghmet_cuts[0]",
+          "value": 0.9766620847766898,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2a_lowmet_V2_cuts[0]",
+          "value": 1.0685067319353265,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2b_hghmet_cuts[0]",
+          "value": 0.9856378313161193,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2b_lowmet_V2_cuts[0]",
+          "value": 0.9902671446420209,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2c_hghmet_cuts[0]",
+          "value": 1.0057580591529185,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2c_lowmet_V2_cuts[0]",
+          "value": 1.0434123691051491,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2d_hghmet_cuts[0]",
+          "value": 0.9985377577799059,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2d_lowmet_V2_cuts[0]",
+          "value": 0.969453254100769,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2e_hghmet_cuts[0]",
+          "value": 1.0016387555867259,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2e_lowmet_V2_cuts[0]",
+          "value": 0.9918186798613149,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2f_hghmet_cuts[0]",
+          "value": 1.0010487297851738,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2f_lowmet_V2_cuts[0]",
+          "value": 1.004280331036746,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2g_hghmet_cuts[0]",
+          "value": 1.014281968487539,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2g_lowmet_V2_cuts[0]",
+          "value": 1.0201559745553193,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2h_hghmet_cuts[0]",
+          "value": 0.9894350448796505,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRee_eMT2h_lowmet_V2_cuts[0]",
+          "value": 0.970882414584833,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2a_hghmet_cuts[0]",
+          "value": 0.991326647965668,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2a_lowmet_V2_cuts[0]",
+          "value": 0.9682294939688089,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2b_hghmet_cuts[0]",
+          "value": 0.9426995070814226,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2b_lowmet_V2_cuts[0]",
+          "value": 1.0279121365279338,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2c_hghmet_cuts[0]",
+          "value": 1.02809950961024,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2c_lowmet_V2_cuts[0]",
+          "value": 1.0159945965654367,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2d_hghmet_cuts[0]",
+          "value": 0.9846226601951484,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2d_lowmet_V2_cuts[0]",
+          "value": 0.9876478254217905,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2e_hghmet_cuts[0]",
+          "value": 0.9924507682374197,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2e_lowmet_V2_cuts[0]",
+          "value": 0.9941864442144327,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2f_hghmet_cuts[0]",
+          "value": 0.9985048564741814,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2f_lowmet_V2_cuts[0]",
+          "value": 1.0200484608558533,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2g_hghmet_cuts[0]",
+          "value": 0.9888427350118398,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2g_lowmet_V2_cuts[0]",
+          "value": 1.0166405442531683,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2h_hghmet_cuts[0]",
+          "value": 1.002522102740563,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        },
+        {
+          "name": "staterror_SRmm_eMT2h_lowmet_V2_cuts[0]",
+          "value": 1.0004140138926854,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        }
+      ],
+      "covariance": null,
+      "nuisance_pull_uncertainties": null,
+      "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+      "signal_strength_units": "supplied-model units",
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 408.6073336169991,
+          "fixed_data": 445.11275831162766,
+          "mu0_data": 408.6618811427051,
+          "free_asimov": 389.5584396125833,
+          "fixed_asimov": 429.59878631817446,
+          "generating_asimov": 389.55843961258853
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    "inference": {
+      "method": "asymptotic CLs",
+      "test_stat": "qtilde",
+      "level": 0.05,
+      "root_solver": "scipy.brentq",
+      "root_rtol": 0.0001,
+      "root_atol": 1e-10,
+      "omitted_low_mu_nonfinite": [],
+      "root_cls_atol": 0.0005,
+      "root_cls_max_error": 2.8861618371206488e-06,
+      "profile_passes": 1,
+      "fresh_check_evaluations": 16,
+      "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+      "backend": "jax",
+      "precision": "64b",
+      "fit_tolerance": 1e-09,
+      "model_sha256": "f508b18c2f9fc9374920091fc442093c5a15f77b5f5f9b6699ba36b39efdf07f",
+      "data_sha256": "0c29ecf3875ebc5e1a041dbdd5e37d6aa728900463ef8b9677fb53f277f8b352",
+      "coverage_validated": false,
+      "scope": "statistical inversion of the supplied model; no acceptance certification"
+    },
+    "optimizer": {
+      "primary": "scipy.SLSQP",
+      "fallback": "iminuit.MIGRAD nan-guarded",
+      "escalated": false,
+      "n_minimizations": 912,
+      "n_fallback": 67,
+      "n_nan_flagged": 10,
+      "n_escalated": 0,
+      "profile_start_trials": 912,
+      "profile_improvements": 99,
+      "profile_max_nll_improvement": 1.0377601783676482,
+      "profile_invalid_trial_evaluations": 12443,
+      "profile_recovered_transients": 414,
+      "rejected_candidates_last_100": [
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0017123250402143499,
+          "objective": 389.55845213157875,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.001011679107597062,
+          "objective": 389.55845213695676,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 2,
+          "projected_gradient_max": 0.0011328878957739263,
+          "objective": 417.72368141180334,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0014953176624847853,
+          "objective": 394.1280810423898,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004782277605221097,
+          "objective": 412.13918367611575,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0037041707315998984,
+          "objective": 412.13918368218424,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0023668917592563066,
+          "objective": 394.1276650609,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003702400670518413,
+          "objective": 394.1276650626695,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0013423917817345643,
+          "objective": 409.25392724128193,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003307845620115546,
+          "objective": 390.66465319954705,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002148154996928997,
+          "objective": 390.6646531967935,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0015710721729900179,
+          "objective": 409.2538446609025,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0019537889787422102,
+          "objective": 409.2538446655248,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0013422662364283022,
+          "objective": 390.6645435533561,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002446189097286222,
+          "objective": 390.66454356536565,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 26,
+          "projected_gradient_max": 0.001123490626142143,
+          "objective": 409.9495823734376,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002082590575693266,
+          "objective": 409.949582390574,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.001144582692568008,
+          "objective": 409.9495823883953,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003140676744718518,
+          "objective": 391.5521863030375,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.001805043350012303,
+          "objective": 409.94942364593743,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004528331404005326,
+          "objective": 409.94942368816015,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0022513513940682905,
+          "objective": 391.55198940138206,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0032268883239432444,
+          "objective": 391.55198940149364,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 28,
+          "projected_gradient_max": 0.0015268030653106113,
+          "objective": 393.44616701358007,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0015457522195343465,
+          "objective": 411.537481900391,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0014155015530932236,
+          "objective": 411.53748189947805,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.008535740918905965,
+          "objective": 393.3999293655123,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 1,
+          "projected_gradient_max": 0.013581209231195102,
+          "objective": 393.399929369725,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.007363985788696903,
+          "objective": 411.53719788323303,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003504746527424274,
+          "objective": 411.5371978833841,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004601183162237232,
+          "objective": 393.3995835640151,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0016060485936322255,
+          "objective": 393.39958359769383,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 5,
+          "projected_gradient_max": 0.0017638630874992067,
+          "objective": 396.99877371952493,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002307145229822005,
+          "objective": 414.5825520099428,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004178738477227384,
+          "objective": 414.58255201238217,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0017358280232440126,
+          "objective": 396.99599568732424,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0035787622822633924,
+          "objective": 414.58194938133647,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003760023060905837,
+          "objective": 414.5819493770306,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.00487319338919967,
+          "objective": 396.99530362928203,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.003061366477730587,
+          "objective": 396.9953036354063,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 6,
+          "projected_gradient_max": 0.0013345203189247812,
+          "objective": 419.9028560843852,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 6,
+          "projected_gradient_max": 0.0013378154772230033,
+          "objective": 419.9028560842808,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 6,
+          "projected_gradient_max": 0.0018696502559896189,
+          "objective": 402.9379465208127,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0010546625409237897,
+          "objective": 419.89090445908965,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.001074446296037035,
+          "objective": 419.89090445912626,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0011627315134541405,
+          "objective": 402.92486490690186,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0010045521202317609,
+          "objective": 402.9248649066043,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0038863774710335974,
+          "objective": 419.88975702003677,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0037830912163994146,
+          "objective": 419.88975702443213,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.007895494665710157,
+          "objective": 402.92360894072834,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.00360072690660318,
+          "objective": 402.9236089407565,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0010235899145900618,
+          "objective": 396.9959956893395,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0011658067854223297,
+          "objective": 412.1395289279461,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004840832426578734,
+          "objective": 393.39992935761916,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 26,
+          "projected_gradient_max": 0.001123490626142143,
+          "objective": 409.9495823734376,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0022786743250087227,
+          "objective": 409.94958237707624,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002596675490226019,
+          "objective": 409.94958237721926,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0019404323948091218,
+          "objective": 409.25392723543087,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0014106520842019354,
+          "objective": 390.66465318486246,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0019404323948091218,
+          "objective": 409.25392723543087,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0014106520842019354,
+          "objective": 390.66465318486246,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 26,
+          "projected_gradient_max": 0.001123490626142143,
+          "objective": 409.9495823734376,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0022786743250087227,
+          "objective": 409.94958237707624,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.002596675490226019,
+          "objective": 409.94958237721926,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.004840832426578734,
+          "objective": 393.39992935761916,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0011658067854223297,
+          "objective": 412.1395289279461,
+          "analytic_gradient": true
+        },
+        {
+          "reason": "analytic projected gradient exceeds 0.001",
+          "nonfinite_trials": 0,
+          "projected_gradient_max": 0.0010235899145900618,
+          "objective": 396.9959956893395,
+          "analytic_gradient": true
+        }
+      ],
+      "analytic_projected_gradient_atol": 0.001,
+      "analytic_acceptance": "finite original objective and projected gradient; multistart, nesting and fresh-root checks",
+      "profile_search": "nominal start plus two best distinct retained starts scored on each current objective",
+      "global_optimum_proven": false
+    },
+    "limits": {
+      "schema_version": 1,
+      "quantity": "signal_strength",
+      "observed": {
+        "value": 0.623722403950509,
+        "status": "resolved",
+        "bracket": [
+          0.5,
+          1.0
+        ]
+      },
+      "expected": [
+        {
+          "value": 0.29974121150230326,
+          "status": "resolved",
+          "bracket": [
+            0.25,
+            0.3535533905932738
+          ]
+        },
+        {
+          "value": 0.40367335031481677,
+          "status": "resolved",
+          "bracket": [
+            0.3535533905932738,
+            0.5
+          ]
+        },
+        {
+          "value": 0.5667101469300333,
+          "status": "resolved",
+          "bracket": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "value": 0.812434916044663,
+          "status": "resolved",
+          "bracket": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "value": 1.1110338221191507,
+          "status": "resolved",
+          "bracket": [
+            1.0005,
+            2.0
+          ]
+        }
+      ],
+      "origin": "declared",
+      "notes": []
+    },
+    "limit_eligibility": {
+      "observed_root": true,
+      "expected_roots": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "historical_only": false
+    }
+  },
+  "wall_seconds": 877.0892479169997
+}
