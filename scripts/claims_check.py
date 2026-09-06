@@ -90,6 +90,31 @@ def check(readme_path, manifest_path, root=ROOT, require_all=True):
                 fails.append(f"RRR waypoint scope/value drift: expected '{expected}'")
         except (OSError, ValueError, KeyError, TypeError) as exc:
             fails.append(f"RRR waypoint source invalid: {exc}")
+    if any(name in claims for name in ("rrr_pool_limits", "rrr_cut_rate_ratio")):
+        try:
+            record = json.loads((Path(root) / "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json").read_text())
+            pools = [fit for fit in record["native"] if fit["id"] == "pooled_60k"]
+            regions = [row for row in record["lower"]["rows"] if row["category"] == "SR_high"]
+            if len(pools) != 1 or len(regions) != 1:
+                raise ValueError("Unique pooled result and high-region comparison required")
+            fit = pools[0]
+            ratio = regions[0]["lower_over_nominal"]["selected_rate"]
+            interval = ratio["conditional_plus_integration_95pct_interval"]
+            expected = {
+                "rrr_pool_limits": (
+                    f"{fit['sigma95_fb']['observed']:.2f} fb observed and "
+                    f"{fit['sigma95_fb']['expected_median']:.2f} fb median expected from the "
+                    f"{fit['original_events']:,}-event pool at "
+                    f"{record['catalog']['m_parent_GeV']:g}/{record['catalog']['m_lsp_GeV']:g} GeV"),
+                "rrr_cut_rate_ratio": (
+                    f"a high-region rate ratio of {ratio['ratio']:.3f} "
+                    f"(conditional 95% interval {interval[0]:.3f}–{interval[1]:.3f})"),
+            }
+            for name, value in expected.items():
+                if name in claims and claims[name]["value"] != value:
+                    fails.append(f"RRR control scope/value drift: {name}: expected '{value}'")
+        except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
+            fails.append(f"RRR control source invalid: {exc}")
     ev_path = os.path.join(root, "evidence/manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
         ev = json.load(open(ev_path))

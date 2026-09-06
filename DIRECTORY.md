@@ -37,7 +37,7 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 19 |
 | `src/ravel/plotting/` | Figures and comparisons | 12 |
 | `src/ravel/data/` | Templates, fixtures, and reference inputs | 9 |
-| `tests/unit/` | Focused regression tests | 97 |
+| `tests/unit/` | Focused regression tests | 98 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 6 |
 | `benchmarks/` | Benchmark and capability registries | 12 |
@@ -48,10 +48,10 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/workflow/` | Physics workflow instructions | 52 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 10 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 33 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 34 |
 | `docs/research/` | Research and evaluation protocols | 15 |
 | `docs/guides/` | Longer guides and sources | 5 |
-| `evidence/` | Curated historical inputs, measurements, and provenance | 346 |
+| `evidence/` | Curated historical inputs, measurements, and provenance | 360 |
 | `.claude/` | Agent skills, rules, and enforcement hooks | 32 |
 | `.agents/` | Mirrored skills | 16 |
 | `.github/` | Continuous integration | 1 |

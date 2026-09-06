@@ -47,16 +47,28 @@ is unresolved; this figure is not a general accuracy guarantee.
 The [figure, inputs, and per-point JSON](evidence/audits/2026-09-05-scan-fidelity/README.md)
 are available alongside the [original scan record](evidence/scans/slepton-bino-figure-3/RESULT.md).
 
-**Fresh reproduction waypoint.** A new 20,000-event four-state sample completed
-generation through all six numerical limit checks. Its matched inclusive limits are
+**Fresh reproduction controls.** A new 20,000-event four-state sample completed
+generation through all six numerical limit checks. Its matched inclusive limits were
 <!-- claim:rrr_anchor_limits -->48.83 fb observed and 54.69 fb median expected at 150/140 GeV<!-- /claim -->,
-compared with the published 46.63 and 56.53 fb. This single-point agreement does
-not close the mass-plane study: primary-region MC errors remain about 7–8%,
-the reconstructed-fraction comparison is about 11% low, and detector working-point,
-truth-definition and signal-systematic gaps remain. The
-[waypoint bundle](evidence/audits/2026-09-06-rrr-waypoint/README.md) includes the
-likelihood inputs, channel-level results, response figures, physics cards and
-an offline verifier. Large raw event files are not included.
+compared with the published 46.63 and 56.53 fb. Combining it with an independent
+40,000-event replica gives
+<!-- claim:rrr_pool_limits -->47.37 fb observed and 57.27 fb median expected from the 60,000-event pool at 150/140 GeV<!-- /claim -->.
+The pooled primary-region MC errors are 4.03% and 4.53%, meeting the declared 5%
+criterion. The pool reuses its parents; it is one mass point, not a third replica.
+
+Close limit agreement does not establish robust physics. Lowering the leading-parton
+generation cut from 50 to 20 GeV gives
+<!-- claim:rrr_cut_rate_ratio -->a high-region rate ratio of 1.412 (conditional 95% interval 1.146–1.678)<!-- /claim -->.
+The interval includes the reported generator-integration uncertainty under an explicit
+independence assumption. This fails the ±10% equivalence criterion. The 50 GeV cut matches
+the RRR recipe; the control tests its approximation rather than selecting a cut by its
+agreement with the data. Detector response, particle-level acceptance, signal systematics
+and the fresh mass plane remain open.
+The [new control bundle](evidence/audits/2026-09-06-rrr-cut-dependence/README.md)
+contains the comparison figures, all 38 likelihood channels, six control regions,
+matched official-model nuisance tests, retained failures and an offline verifier.
+The [earlier waypoint](evidence/audits/2026-09-06-rrr-waypoint/README.md) preserves its
+likelihood inputs, response figures and physics cards. Large raw events remain local.
 
 The evidence checks answer different questions:
 
@@ -124,6 +136,13 @@ rerunning simulation or fitting limits:
 
 ```bash
 .venv-replay/bin/python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units
+```
+
+Check the newer cut comparison and all 42 saved native/official limit roots using
+the standard library, without a simulation toolchain:
+
+```bash
+.venv-replay/bin/python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py
 ```
 
 ## Initiate a physics task

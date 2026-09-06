@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "source_commit": "4d70b9e5cc35e77cf475654fda22e11bc948b4bc",
-  "claim_manifest_source_commit": "b2ce048",
+  "source_commit": "60b147807eacfcb0d16e5ccc85a0b078bca5c3e9",
+  "claim_manifest_source_commit": "4d70b9e",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
   "artifact_bindings": [
@@ -188,6 +188,46 @@
       "export_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
       "source_bytes": 35016,
       "export_bytes": 35016
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+      "source_sha256": "e4771c36474a006bd4e9ade1afcff05b2166e459cde17fdae276aac89f049c06",
+      "export_sha256": "e4771c36474a006bd4e9ade1afcff05b2166e459cde17fdae276aac89f049c06",
+      "source_bytes": 689464,
+      "export_bytes": 689464
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+      "source_sha256": "7778e2f7cd020822081e0ac30b73bb226a4c30447835e97184b3cd3dfb09b43f",
+      "export_sha256": "7778e2f7cd020822081e0ac30b73bb226a4c30447835e97184b3cd3dfb09b43f",
+      "source_bytes": 1946,
+      "export_bytes": 1946
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
+      "source_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
+      "export_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
+      "source_bytes": 7133,
+      "export_bytes": 7133
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/native-limits.csv",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/native-limits.csv",
+      "source_sha256": "42b832188c88ade20e3051a9515bcfaf5a80714fb8cf0001b8df0f3c7dbc7433",
+      "export_sha256": "42b832188c88ade20e3051a9515bcfaf5a80714fb8cf0001b8df0f3c7dbc7433",
+      "source_bytes": 1474,
+      "export_bytes": 1474
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+      "source_sha256": "e7993547f4697eeafd346db86ee98070788d7649a9eaa2e763627513c274e2cb",
+      "export_sha256": "e7993547f4697eeafd346db86ee98070788d7649a9eaa2e763627513c274e2cb",
+      "source_bytes": 8677,
+      "export_bytes": 8677
     },
     {
       "source_path": "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
@@ -694,8 +734,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "e7f463aced53049bdd2fc14691f02f403da4ed0963879ad17654451b3d159cb9",
-      "export_sha256": "e7f463aced53049bdd2fc14691f02f403da4ed0963879ad17654451b3d159cb9"
+      "source_sha256": "1e277320ec453f7116a279cb56c0c5cebd75241fecb7724ff532e43ffbdcdfc5",
+      "export_sha256": "1e277320ec453f7116a279cb56c0c5cebd75241fecb7724ff532e43ffbdcdfc5"
     },
     {
       "source_path": "CITATION.cff",
@@ -718,8 +758,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "c6dcb998ff4c1ed89c441a31c68203eaa66279cd389cbc946900219caa75fde8",
-      "export_sha256": "b4f63f5651ea3f99a9a4c5e8c5c9ee5e12b589c307e749d7026741dca191b247"
+      "source_sha256": "6e3168bf60e5c7e9d3fa8c55af57b080feec0ba4ee32eb7119066dafc527da35",
+      "export_sha256": "780a468417111a027b3207500fb5831292425eb6997eb106238e27c8d106c99c"
     },
     {
       "source_path": "LICENSE",
@@ -742,8 +782,8 @@
     {
       "source_path": "README.md",
       "public_path": "README.md",
-      "source_sha256": "518a1a7518f60b24aeeaec1568f539143ef8daf1d9b4ddf9644fd4e716a814c0",
-      "export_sha256": "518a1a7518f60b24aeeaec1568f539143ef8daf1d9b4ddf9644fd4e716a814c0"
+      "source_sha256": "12da1044eb077dc55f3b7e4e0480ebaf42e0655bb95307221cecc88242825f51",
+      "export_sha256": "12da1044eb077dc55f3b7e4e0480ebaf42e0655bb95307221cecc88242825f51"
     },
     {
       "source_path": "benchmarks/README.md",
@@ -956,6 +996,12 @@
       "export_sha256": "c695c1af2d79852eee41520d978a37b5ef984071daad57c0f5427087c79321fc"
     },
     {
+      "source_path": "docs/development/history/2026-09-06-rrr-cut-controls.md",
+      "public_path": "docs/development/history/2026-09-06-rrr-cut-controls.md",
+      "source_sha256": "9d5a0267d78944fe07a20c20d1ebabaa559f7c28e74a4ed4c24f02fd18224f5c",
+      "export_sha256": "9d5a0267d78944fe07a20c20d1ebabaa559f7c28e74a4ed4c24f02fd18224f5c"
+    },
+    {
       "source_path": "docs/development/history/2026-09-06-rrr-execution-followup.md",
       "public_path": "docs/development/history/2026-09-06-rrr-execution-followup.md",
       "source_sha256": "1f73ef7605772a10f61e095d3b9fd9d6ee5af35a492d920d448eb40287efc8d4",
@@ -970,14 +1016,14 @@
     {
       "source_path": "docs/development/history/data-and-card-changes.md",
       "public_path": "docs/development/history/data-and-card-changes.md",
-      "source_sha256": "2da774861713a31633ac86f24908ae25d1cb03697bba7b14d37360879dcea557",
-      "export_sha256": "2da774861713a31633ac86f24908ae25d1cb03697bba7b14d37360879dcea557"
+      "source_sha256": "75718fbf916960aaf74c3ca16fb4789fc648a4393827ee526fdf0fc407a6e9be",
+      "export_sha256": "75718fbf916960aaf74c3ca16fb4789fc648a4393827ee526fdf0fc407a6e9be"
     },
     {
       "source_path": "docs/development/history/environment-changes.md",
       "public_path": "docs/development/history/environment-changes.md",
-      "source_sha256": "d451ff03ddec55bbeed275adc2e0eef1441713cb7025c23acddf45dd02382b46",
-      "export_sha256": "d451ff03ddec55bbeed275adc2e0eef1441713cb7025c23acddf45dd02382b46"
+      "source_sha256": "e29717131897146cf0791076ccd3538b75e5b5c1940636b5ff7793ad1b200027",
+      "export_sha256": "e29717131897146cf0791076ccd3538b75e5b5c1940636b5ff7793ad1b200027"
     },
     {
       "source_path": "docs/development/history/mission-and-plan.md",
@@ -1024,8 +1070,8 @@
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "249fdd8c78130b365849040409d8d6f1c7ec390b641bb1feb80b16c66f66fae9",
-      "export_sha256": "249fdd8c78130b365849040409d8d6f1c7ec390b641bb1feb80b16c66f66fae9"
+      "source_sha256": "14fb4c4123e34f57b522a568138d9c46f30c2bab3dd7fefc3dac65ca6ab34cc3",
+      "export_sha256": "14fb4c4123e34f57b522a568138d9c46f30c2bab3dd7fefc3dac65ca6ab34cc3"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -1282,8 +1328,8 @@
     {
       "source_path": "docs/validation/evidence.md",
       "public_path": "docs/validation/evidence.md",
-      "source_sha256": "e27c268e06f028653292eb597a2cec688ed000e205add741365736aa025ca74d",
-      "export_sha256": "e27c268e06f028653292eb597a2cec688ed000e205add741365736aa025ca74d"
+      "source_sha256": "da33d08db9cc1e5653843ca674cfb47ae6a4fed7abb0a15d5966c655a88a4068",
+      "export_sha256": "da33d08db9cc1e5653843ca674cfb47ae6a4fed7abb0a15d5966c655a88a4068"
     },
     {
       "source_path": "docs/validation/native-performance.md",
@@ -1294,8 +1340,8 @@
     {
       "source_path": "docs/validation/results.md",
       "public_path": "docs/validation/results.md",
-      "source_sha256": "39e5aa6d2cbe37c62ae986843486ffc64dfb5fbbda0e64178899c41abc036567",
-      "export_sha256": "39e5aa6d2cbe37c62ae986843486ffc64dfb5fbbda0e64178899c41abc036567"
+      "source_sha256": "ea23a5a4f80cad45c9690ed25886d9b57e8d1da7414d09997780936e32a5a22a",
+      "export_sha256": "ea23a5a4f80cad45c9690ed25886d9b57e8d1da7414d09997780936e32a5a22a"
     },
     {
       "source_path": "docs/validation/studies/atlas-2016-i1458270-fidelity.md",
@@ -2354,6 +2400,90 @@
       "export_sha256": "d625c2755766ec89fa8f5335333217a28ab63a327507d35307031f1e83238105"
     },
     {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/README.md",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/README.md",
+      "source_sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58",
+      "export_sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/curate.py",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/curate.py",
+      "source_sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940",
+      "export_sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+      "source_sha256": "e4771c36474a006bd4e9ade1afcff05b2166e459cde17fdae276aac89f049c06",
+      "export_sha256": "e4771c36474a006bd4e9ade1afcff05b2166e459cde17fdae276aac89f049c06"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-decomposition.pdf",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-decomposition.pdf",
+      "source_sha256": "4556b6ef15680ca4a2bcd5bc306bd81e1a75f78d25dea16dfada1b3d24d2dffe",
+      "export_sha256": "4556b6ef15680ca4a2bcd5bc306bd81e1a75f78d25dea16dfada1b3d24d2dffe"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-decomposition.png",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-decomposition.png",
+      "source_sha256": "6b044ccd807e5543891431ec03ab08240846b15be55b0aa5c895d62cddd5535c",
+      "export_sha256": "6b044ccd807e5543891431ec03ab08240846b15be55b0aa5c895d62cddd5535c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-ratios.pdf",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-ratios.pdf",
+      "source_sha256": "ec5720ec48c699d6061710d4a3af4370c9d04b4f23b825339633d2ec58932f3b",
+      "export_sha256": "ec5720ec48c699d6061710d4a3af4370c9d04b4f23b825339633d2ec58932f3b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-ratios.png",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/figures/lower-ratios.png",
+      "source_sha256": "1d40a955bd105f7d72c7e20d4a1984e22d7d44e8b7c8626be90accdd2c0003d2",
+      "export_sha256": "1d40a955bd105f7d72c7e20d4a1984e22d7d44e8b7c8626be90accdd2c0003d2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+      "source_sha256": "7778e2f7cd020822081e0ac30b73bb226a4c30447835e97184b3cd3dfb09b43f",
+      "export_sha256": "7778e2f7cd020822081e0ac30b73bb226a4c30447835e97184b3cd3dfb09b43f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/source-map.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/source-map.json",
+      "source_sha256": "da93876428f4d31258de679609f20b0c1cfcb7c7763bf596baca18c5a5e10ad7",
+      "export_sha256": "da93876428f4d31258de679609f20b0c1cfcb7c7763bf596baca18c5a5e10ad7"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+      "source_sha256": "e7993547f4697eeafd346db86ee98070788d7649a9eaa2e763627513c274e2cb",
+      "export_sha256": "e7993547f4697eeafd346db86ee98070788d7649a9eaa2e763627513c274e2cb"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/native-limits.csv",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/native-limits.csv",
+      "source_sha256": "42b832188c88ade20e3051a9515bcfaf5a80714fb8cf0001b8df0f3c7dbc7433",
+      "export_sha256": "42b832188c88ade20e3051a9515bcfaf5a80714fb8cf0001b8df0f3c7dbc7433"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/official-limits.csv",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/tables/official-limits.csv",
+      "source_sha256": "54ff4971b9663cdf8b9963e573c705fb0dec21e50bdb172340174ad1e765461b",
+      "export_sha256": "54ff4971b9663cdf8b9963e573c705fb0dec21e50bdb172340174ad1e765461b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
+      "source_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
+      "export_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "source_sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d",
+      "export_sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d"
+    },
+    {
       "source_path": "evidence/audits/2026-09-06-rrr-waypoint/README.md",
       "public_path": "evidence/audits/2026-09-06-rrr-waypoint/README.md",
       "source_sha256": "08aaea0d5ff23de9a4b2f3f7a719be20e1614f078ce543e49c32e846ec6022f1",
@@ -2674,8 +2804,8 @@
     {
       "source_path": "evidence/claims.json",
       "public_path": "evidence/claims.json",
-      "source_sha256": "c0cb24415187f98868f87aeb79899bb59c36c9ca3704ebe848c36ccb820b6a5c",
-      "export_sha256": "c0cb24415187f98868f87aeb79899bb59c36c9ca3704ebe848c36ccb820b6a5c"
+      "source_sha256": "8d6b3754b450ea523ce80e7ac3e705923398126366b6bef69e86498e411f5575",
+      "export_sha256": "8d6b3754b450ea523ce80e7ac3e705923398126366b6bef69e86498e411f5575"
     },
     {
       "source_path": "evidence/collections.json",
@@ -2698,8 +2828,8 @@
     {
       "source_path": "evidence/manifest.json",
       "public_path": "evidence/manifest.json",
-      "source_sha256": "4b0a8b58d8a7163efdd4d2979d457b4e07b65d04a11fc7d47c1b12e62f5ef1e2",
-      "export_sha256": "4b0a8b58d8a7163efdd4d2979d457b4e07b65d04a11fc7d47c1b12e62f5ef1e2"
+      "source_sha256": "34c838e0eefb252e4f7cc7722ee0450cd358d9b4ad6b20db85d2fb4871d83a9f",
+      "export_sha256": "34c838e0eefb252e4f7cc7722ee0450cd358d9b4ad6b20db85d2fb4871d83a9f"
     },
     {
       "source_path": "evidence/validation-summary.json",
@@ -2836,8 +2966,8 @@
     {
       "source_path": "scripts/build_evidence.py",
       "public_path": "scripts/build_evidence.py",
-      "source_sha256": "c4db6a7a0e112dc2f04e3201b16a8c2ebbf57b1a66f898a57d6087236725e5fd",
-      "export_sha256": "c4db6a7a0e112dc2f04e3201b16a8c2ebbf57b1a66f898a57d6087236725e5fd"
+      "source_sha256": "ac043f9c59c55384cb89cd12f258f8b465e3c16f8f6aea0dbe1cce10dc5c8fdc",
+      "export_sha256": "ac043f9c59c55384cb89cd12f258f8b465e3c16f8f6aea0dbe1cce10dc5c8fdc"
     },
     {
       "source_path": "scripts/check_evidence.py",
@@ -2854,8 +2984,8 @@
     {
       "source_path": "scripts/check_publication.py",
       "public_path": "scripts/check_publication.py",
-      "source_sha256": "4f1f2d6525cd6b11d89a928a22d5438bc4cf142ec2960b0b10d1288763115b1e",
-      "export_sha256": "4f1f2d6525cd6b11d89a928a22d5438bc4cf142ec2960b0b10d1288763115b1e"
+      "source_sha256": "8c87e4ab00fcdb1d42d2993411f9ec35ceb3d3311bbb5b5d7f522be019a775a8",
+      "export_sha256": "8c87e4ab00fcdb1d42d2993411f9ec35ceb3d3311bbb5b5d7f522be019a775a8"
     },
     {
       "source_path": "scripts/check_repository.py",
@@ -2872,8 +3002,8 @@
     {
       "source_path": "scripts/claims_check.py",
       "public_path": "scripts/claims_check.py",
-      "source_sha256": "e699e8e16ded44f0a08c5e859575876e719ac06a2ce87bd904001d373245d1cc",
-      "export_sha256": "e699e8e16ded44f0a08c5e859575876e719ac06a2ce87bd904001d373245d1cc"
+      "source_sha256": "23afc4cefb15de7576ea72de85a2497896af8faa5e060cefb8c5ab15d851f635",
+      "export_sha256": "23afc4cefb15de7576ea72de85a2497896af8faa5e060cefb8c5ab15d851f635"
     },
     {
       "source_path": "scripts/export_safety.py",
@@ -4066,8 +4196,8 @@
     {
       "source_path": "tests/unit/test_publication_scopes.py",
       "public_path": "tests/unit/test_publication_scopes.py",
-      "source_sha256": "e270d8eb901961039a0968924f0f76a086e9ad40dcf78afeaa59dddf2f48414e",
-      "export_sha256": "e270d8eb901961039a0968924f0f76a086e9ad40dcf78afeaa59dddf2f48414e"
+      "source_sha256": "835bd61b60b1f580453cc46207d230eba10c11fe9b97276d297b49ba5f9c5a97",
+      "export_sha256": "835bd61b60b1f580453cc46207d230eba10c11fe9b97276d297b49ba5f9c5a97"
     },
     {
       "source_path": "tests/unit/test_ravel_cli.py",
@@ -4122,6 +4252,12 @@
       "public_path": "tests/unit/test_rrr_audit_integrity.py",
       "source_sha256": "63fb9d3b0190ef5a383743fc250768194d92fb2b5bca1e040383c1830aea9071",
       "export_sha256": "63fb9d3b0190ef5a383743fc250768194d92fb2b5bca1e040383c1830aea9071"
+    },
+    {
+      "source_path": "tests/unit/test_rrr_cut_dependence_bundle.py",
+      "public_path": "tests/unit/test_rrr_cut_dependence_bundle.py",
+      "source_sha256": "4f3044af5f4e07ec9d3a6c77b7af1d8ef3e23db17b11860a28a85874d80a73cd",
+      "export_sha256": "4f3044af5f4e07ec9d3a6c77b7af1d8ef3e23db17b11860a28a85874d80a73cd"
     },
     {
       "source_path": "tests/unit/test_run_benchmark_out.py",

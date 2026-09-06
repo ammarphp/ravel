@@ -16,10 +16,25 @@ now requires the actual interface and generated products to be checked. Pythia 8
 import explicit branching-ratio rows without MODSEL; missing MODSEL alone does not explain
 every no-decay failure. The older narrative is retained below as history, not current guidance.
 
-The prospective lower-parton control retains the 150/140 four-state physics inputs and
+The completed lower-parton control retains the 150/140 four-state physics inputs and
 changes leading-parton `ptj1min` from 50 to 20 GeV, alongside independent seeds. This tests
 cut dependence within the unmerged one-parton approximation. It neither changes the nominal
 recipe nor implements zero/one/two-parton merging.
+
+The independent 20k control and the nominal 60k pool retain their full original-event
+denominators. The selected-rate comparison separates generated cross section, selected
+fraction and their product. Its high/low rate ratios are approximately 1.412/1.264;
+neither establishes the predeclared 10% equivalence. This is a measured cut-sensitivity
+diagnostic, not a calibrated ISR uncertainty or a reason to choose a baseline by agreement
+with an exclusion limit. The dated campaign `RESULT.md` is the workflow record; the
+[merging checklist](../../workflow/checklists/merging.md) explains the interpretation.
+
+Three completed official 150/140 likelihood controls preserve nominal predictions,
+backgrounds and observations while removing selected signal modifiers. They report
+dimensionless within-model ratios. The official nuisance responses are not transferred
+to native templates, and the native inclusive normalization is not substituted for the
+official patch's unresolved reporting basis. No generator or detector card changes
+follow from this diagnostic.
 
 New dated campaign inputs explicitly generate the four selectron/smuon left/right diagonal
 opposite-charge channels at 150/140 GeV, with one parton, cteq6l1, 13 TeV, ptj=20 GeV and

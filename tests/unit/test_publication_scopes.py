@@ -133,3 +133,29 @@ def test_agreeing_public_text_cannot_override_rrr_point_evidence(tmp_path, alter
     write_claim()
     assert any('RRR waypoint scope/value drift' in error
                for error in claims_check.check(page, manifest, tmp_path)[0])
+
+
+@pytest.mark.parametrize('claim,altered', [
+    ('rrr_pool_limits', '46.63 fb observed and 56.53 fb median expected from the 60,000-event pool at 150/140 GeV'),
+    ('rrr_pool_limits', '47.37 fb observed and 57.27 fb median expected from the 80,000-event pool at 150/140 GeV'),
+    ('rrr_cut_rate_ratio', 'a high-region rate ratio of 1.000 (conditional 95% interval 0.990–1.010)'),
+    ('rrr_cut_rate_ratio', 'a high-region rate ratio of 1.412 (conditional 95% interval 1.146–1.500)'),
+])
+def test_coordinated_control_headlines_still_need_measured_evidence(tmp_path, claim, altered):
+    relative = Path('evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json')
+    source = tmp_path / relative
+    source.parent.mkdir(parents=True)
+    source.write_bytes((REPO / relative).read_bytes())
+    entry = next(item for item in json.loads((REPO / 'evidence/claims.json').read_text())['claims']
+                 if item['claim'] == claim)
+    entry['artifacts'] = [str(relative)]
+    page, manifest = tmp_path / 'README.md', tmp_path / 'claims.json'
+    def write_claim():
+        page.write_text(f'<!-- claim:{claim} -->{entry["value"]}<!-- /claim -->')
+        manifest.write_text(json.dumps({'claims': [entry]}))
+    write_claim()
+    assert claims_check.check(page, manifest, tmp_path)[0] == []
+    entry['value'] = altered
+    write_claim()
+    assert any('RRR control scope/value drift' in error
+               for error in claims_check.check(page, manifest, tmp_path)[0])

@@ -167,6 +167,32 @@
         "evidence/audits/2026-09-06-rrr-waypoint/manifest.json"
       ],
       "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_pool_limits",
+      "value": "47.37 fb observed and 57.27 fb median expected from the 60,000-event pool at 150/140 GeV",
+      "detail": "One-point four-state inclusive-basis limits from original-exposure pooling of independent 20k/40k parents. The pool adds zero events and is not independent of its parents. All six numerical roots resolve and both primary-region MC floors pass. Acceptance, coverage and the full plane remain open.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "verified": "2026-09-06: independent selected-original/projection, unit arithmetic and standalone checks",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_cut_rate_ratio",
+      "value": "a high-region rate ratio of 1.412 (conditional 95% interval 1.146\u20131.678)",
+      "detail": "Lower leading-parton cut of 20 GeV with 20k events versus the nominal 50 GeV pooled 60k sample at 150/140 GeV. The interval combines fixed-N delta-method selection variance with printed generator-integration variance under explicit independence assumptions. It fails the prespecified \u00b110% equivalence criterion. This is not coverage calibration or proof that the lower cut is correct. The nominal 50 GeV cut matches the pinned RRR recipe.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "verified": "2026-09-06: all 40 categories and 120 ratios/intervals independently checked; failures and sparse missingness retained",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/README.md"
+      ],
+      "status": "VERIFIED"
     }
   ]
 }

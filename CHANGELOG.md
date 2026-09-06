@@ -2,6 +2,14 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Publish the independently checked 60,000-event pooled 150/140 GeV result and
+  its failed generation-cut equivalence control together. Retain the lower-cut
+  rate decomposition, all 38 likelihood channels, three official-model nuisance
+  controls and original failed attempts in a standalone arithmetic-verification
+  bundle. Bind the two new README/result headlines directly to that evidence.
+- Verify public-checkout tests without private source archives or bytecode
+  overrides. Prevent evidence imports from creating unmanifested cache files;
+  require complete source availability whenever any original archive is present.
 - Run fresh four-state m150/140 GeV smoke and 20,000-event samples through all twelve
   native stages and all six likelihood roots. Publish exact small likelihood inputs,
   cards, signal moments, fit diagnostics and source hashes in a self-checking waypoint
@@ -32,10 +40,11 @@
   dependencies. Remove stale lepton/monojet merging exemptions and universal rate heuristics;
   preserve supplied cards, declared approximations and generated-product checks.
 
-Additional physics controls and lattice validation remain in progress. This release work does not yet
+Additional physics controls and mass-plane validation remain in progress. This release work does not yet
 establish full-plane reproduction, truth-acceptance closure, detector calibration,
-statistical coverage or an independent detector holdout. Final staged verification and
-publication are pending.
+statistical coverage or an independent detector holdout. The engineering checkpoint
+has passed public CI; subsequent evidence and software changes have their own
+staged verification and publication records.
 
 ## 2026-09-05 — RRR diagnosis and macOS portability
 

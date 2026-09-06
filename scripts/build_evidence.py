@@ -129,6 +129,22 @@ def _infer_role(relpath):
 
 HEADLINE_CLAIMS = [
     {
+        "claim_id": "HEADLINE_rrr_m150_m140_cut_controls",
+        "headline": "Completed 60k pooled m150/m140 conditional limits: 47.37 fb observed "
+                    "and 57.27 fb median expected; lower-cut high-region rate ratio 1.412 "
+                    "with conditional 95% interval [1.146, 1.678], including printed "
+                    "integration uncertainty; generation-cut equivalence not established",
+        "doc_source": "README.md",
+        "artifacts": [
+            "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+            "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+            "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
+            "evidence/audits/2026-09-06-rrr-cut-dependence/tables/native-limits.csv",
+            "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+        ],
+        "surrogate": "evidence/audits/2026-09-06-rrr-cut-dependence/README.md",
+    },
+    {
         "claim_id": "HEADLINE_rrr_m150_m140_waypoint",
         "headline": "Completed 20k four-state m150/m140 waypoint: conditional inclusive "
                     "sigma95 48.83 fb observed and 54.69 fb median expected; "

@@ -38,6 +38,19 @@ definition, detector working-point response and signal systematic variations
 remain unresolved. The bundle provides derived public evidence and an offline
 verifier, with large raw event custody explicitly outside its scope.
 
+The [subsequent controlled comparison](../../evidence/audits/2026-09-06-rrr-cut-dependence/README.md)
+gives <!-- claim:rrr_pool_limits -->47.37 fb observed and 57.27 fb median expected from the 60,000-event pool at 150/140 GeV<!-- /claim -->.
+The independent 20k/40k parent streams are combined using their original exposure;
+the pool is not independent of those parents. Its high/low own-MC errors meet the
+unchanged 5% criterion at 4.03%/4.53%. The generation-cut control still gives
+<!-- claim:rrr_cut_rate_ratio -->a high-region rate ratio of 1.412 (conditional 95% interval 1.146–1.678)<!-- /claim -->
+when lowering the leading-parton threshold from 50 to 20 GeV. This interval includes
+the independently propagated printed generator-integration error and does not establish
+the declared ±10% equivalence. The 50 GeV cut matches the reference recipe. The full
+comparison retains all 38 model channels, both SR aggregates and three matched official
+nuisance arms. All 42 saved roots resolve; detector calibration, acceptance, coverage
+and the full mass plane remain open.
+
 The [September physics pass](../development/history/2026-09-05-physics-fidelity.md)
 adds a paper-defined eRJR correction, tested on identical retained events, and
 stricter numerical/comparison checks. The

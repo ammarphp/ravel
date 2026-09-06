@@ -20,18 +20,44 @@ agreement does not close its roughly 11% reconstructed-fraction deficits, 7%/8% 
 errors, missing truth definition or detector/systematic approximations. The exact small
 inputs, numerical outputs and limitations are in the
 [public waypoint evidence](../../evidence/audits/2026-09-06-rrr-waypoint/README.md).
-The independent 40,000-event precision replica and 20,000-event six-state composition
-control have also completed all twelve stages and all six roots. The four-state replica
-gives 46.37/57.91 fb observed/median expected on the same inclusive rate basis. Its high/low
-reconstructed-fraction diagnostics remain −10.22%/−2.41%, and the low-region own MC error
-still exceeds 5%. The first 60,000-event pooled fit reached its one-hour cap without a final limit;
-its separately preserved pooled moments meet the 5% high/low MC criterion. A new bounded
-zero-event retry is being prepared. The six-state likelihood is complete. The completed origin
+The independent 40,000-event precision replica, 20,000-event six-state composition
+control and 20,000-event lower leading-parton-cut control have completed all twelve stages
+and all six roots. The four-state replica gives 46.37/57.91 fb observed/median expected on
+the same inclusive rate basis. Its high/low reconstructed-fraction diagnostics remain
+−10.22%/−2.41%, and the low-region own MC error still exceeds 5%. The first 60,000-event
+pooled fit reached its one-hour cap without a final limit. A separately recorded derivative
+reused the unchanged 20k/40k event samples and completed all six roots under its prospective
+90-minute cap. Its limits are 47.37/57.27 fb, about +1.58%/+1.32% relative to the published
+observed/median values. The pooled high/low own MC errors are 4.03%/4.53%, meeting the
+unchanged 5% criterion. This pool contains its two parent samples and is not an independent
+third replica. The six-state likelihood is complete. The completed origin
 reader finds only two stau-containing signal-region selections in the six-state sample;
 its original-exposure SR rate ratio to the four-state 20k control is 0.973 ± 0.082 from
 conditional MC. This does not establish equivalence or justify a 2/3 rescaling.
-The later controls are local research records pending public curation. The full fresh
-52-point physics grid has not launched and no acceptance certificate is claimed.
+The lower leading-parton cut changes the result substantially. Reducing `ptj1min` from
+50 to 20 GeV increases the generated cross section by a factor of 2.230 while lowering the
+selected fractions. The high/low selected-rate ratios to the nominal pool are 1.412/1.264;
+the high-region conditional 95% interval, including the independently propagated printed
+integration error, is [1.146, 1.678]. Neither region establishes the prespecified ±10%
+equivalence. The lower-cut limits are 35.81/39.78 fb, about −23.22%/−29.62% relative to the
+same public reference. The nominal 50 GeV cut matches the pinned RRR recipe; this control
+exposes sensitivity of the approximation, not an incorrectly transcribed reference cut.
+The lower sample still fails the 5% own-MC criterion in both primary regions. No generator
+cut has been selected by agreement with the observed limit.
+
+Three same-workspace official 150/140 nuisance controls also completed all eighteen roots.
+Removing non-MC signal nuisances changes observed/median limits by −4.63%/−5.88%; removing
+all signal nuisances changes them by −6.36%/−6.52%. Their background, observations, nominal
+signal and control-region signal are held fixed. These are dimensionless comparisons
+within the official model, not corrections to native yields or an official-to-native
+cross-section conversion. These results and the cut comparison are retained in the
+[independently checked public evidence bundle](../../evidence/audits/2026-09-06-rrr-cut-dependence/README.md).
+The fresh 100/98 anchor generated 20k events, then stopped before showering
+because the budget reader confused its own pinned plan with an incidental parent-plan pin.
+A separately reviewed reader and once-only continuation preserve the two successful
+stages and add no new generation or reservation. Its remaining stages are active;
+completion and new physics results are not yet credited. The full fresh 52-point grid
+and acceptance certification remain open.
 
 The independent mT2 and RISR comparisons agree with the installed public analysis on all
 6,928 two-lepton events in this anchor. A physical boundary control did reveal that the
@@ -65,9 +91,14 @@ and merging guidance without changing frozen physics. Its focused supervisor che
 64 cases, and the new complete source suite passes 1,533 tests with 12 optional skips.
 The independently reviewed public candidate passes 1,524 tests with 21 optional skips,
 including both installed-wheel checks using its own newly built wheel. Its exact source,
-selected evidence and directory inventory were checked separately. The lower leading-parton
-control is active under the stricter registered 1.26-million-event ceiling. The public
-candidate is verified locally; remote publication and CI remain separate checks.
+selected evidence and directory inventory were checked separately. The completed controls
+and fresh work use the stricter registered 1.26-million-event ceiling. Public revision
+`f1bbd41a4dc91ff053607912e5f7e71cfa7a838a` passed all seven jobs in
+[remote CI](https://github.com/ammarphp/ravel/actions/runs/34019905146). An earlier CI attempt
+failed two integration tests because its full-suite job had not installed the repository
+hook; the successor installs that existing hook before testing. Both outcomes remain in
+the verification record. The latest local physics controls described above are subsequent
+work and are not implied by that earlier public tree or its CI result.
 
 The [current audit registry](../../evidence/audits/current.json) selects fresh
 [native](../../evidence/audits/2026-09-06-native-fidelity/README.md) and
@@ -81,9 +112,9 @@ unchanged. This work is tracked as open CR-155 in the [change registry](change-r
 
 The earlier follow-up audits all 156 campaign-point records from three retained 52-point slepton scans, refits cached likelihoods and corrects expected-versus-observed contour-family selection. Its original three-of-four native-refit success and one numerical failure remain historical records; the later repair is described above. The official ATLAS model at masses 150/130 GeV reproduces the published observed and expected upper limits within 1%. Removing its signal nuisances and control-region signal strengthens the corresponding limits by about 14% observed and 12% expected. This identifies a relevant modeling effect in a controlled template comparison, not the complete cause of the native discrepancy.
 
-The [macOS portability helpers](../reference/native-portability.md) now expose read-only preflight and build dry runs, use explicit native architecture and conda prefixes, and preserve existing toolchains. Fifty-four portability tests and two existing path tests pass; the current Apple Silicon installation passes 33 prerequisite checks. An independent reviewer reproduced and rechecked the repaired compiler-override mismatch. The new Intel/ARM CI matrix has not yet been credited with a completed remote run, and no clean-Mac or Intel HEP installation was tested.
+The [macOS portability helpers](../reference/native-portability.md) expose read-only preflight and build dry runs, use explicit native architecture and conda prefixes, and preserve existing toolchains. Fifty-four portability tests and two existing path tests passed at this earlier checkpoint; the Apple Silicon installation passed 33 prerequisite checks. An independent reviewer reproduced and rechecked the repaired compiler-override mismatch. The later seven-job remote CI result above includes the Intel/ARM helper matrix. That matrix does not establish a clean-Mac or Intel HEP installation, neither of which was tested.
 
-The [public-analysis survey](../research/2026-09-05-public-hep-analysis-landscape.md) records 26 curated candidates and 45 discovery-index entries, with zero new scientific validations. These overlapping counts do not expand the served-capability board. Final source verification passes 1,155 tests with two release-only skips; the separate 44-test wheel/fidelity run enables both skipped cases. The 21 forensic/refit audit tests pass, along with publication, evidence and agent-surface checks. The adversarial board records 29 PASS, zero FAIL and one optional G21 live-agent-attestation SKIP. The fast cached benchmark passes its scoped gate without an acceptance upgrade. That earlier follow-up was published as public revision `5888f37466a70891a80190bf6671d45f14d89968`; its [remote CI run](https://github.com/ammarphp/ravel/actions/runs/33994944474) completed successfully. The active closure work has a local source checkpoint and further reviewed changes; it has not yet been pushed publicly. See the [dated verification/history](history/2026-09-05-rrr-and-portability.md) and [scientific diagnosis and research program](../research/2026-09-05-rrr-diagnosis-and-research-program.md).
+The [public-analysis survey](../research/2026-09-05-public-hep-analysis-landscape.md) records 26 curated candidates and 45 discovery-index entries, with zero new scientific validations. These overlapping counts do not expand the served-capability board. At that earlier checkpoint, source verification passed 1,155 tests with two release-only skips; the separate 44-test wheel/fidelity run enabled both skipped cases. The 21 forensic/refit audit tests passed, along with publication, evidence and agent-surface checks. The adversarial board recorded 29 PASS, zero FAIL and one optional G21 live-agent-attestation SKIP. The fast cached benchmark passed its scoped gate without an acceptance upgrade. That earlier follow-up was published as public revision `5888f37466a70891a80190bf6671d45f14d89968`; its [remote CI run](https://github.com/ammarphp/ravel/actions/runs/33994944474) completed successfully. The active closure engineering has since been published at the revision documented above; the subsequent physics evidence has its own review and publication record. See the [dated verification/history](history/2026-09-05-rrr-and-portability.md) and [scientific diagnosis and research program](../research/2026-09-05-rrr-diagnosis-and-research-program.md).
 
 ## Reference-task evidence
 

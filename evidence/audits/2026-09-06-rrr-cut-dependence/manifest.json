@@ -1,0 +1,58 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 7933,
+      "sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58"
+    },
+    "curate.py": {
+      "bytes": 25467,
+      "sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940"
+    },
+    "data/evidence.json": {
+      "bytes": 689464,
+      "sha256": "e4771c36474a006bd4e9ade1afcff05b2166e459cde17fdae276aac89f049c06"
+    },
+    "figures/lower-decomposition.pdf": {
+      "bytes": 23509,
+      "sha256": "4556b6ef15680ca4a2bcd5bc306bd81e1a75f78d25dea16dfada1b3d24d2dffe"
+    },
+    "figures/lower-decomposition.png": {
+      "bytes": 240284,
+      "sha256": "6b044ccd807e5543891431ec03ab08240846b15be55b0aa5c895d62cddd5535c"
+    },
+    "figures/lower-ratios.pdf": {
+      "bytes": 22087,
+      "sha256": "ec5720ec48c699d6061710d4a3af4370c9d04b4f23b825339633d2ec58932f3b"
+    },
+    "figures/lower-ratios.png": {
+      "bytes": 226310,
+      "sha256": "1d40a955bd105f7d72c7e20d4a1984e22d7d44e8b7c8626be90accdd2c0003d2"
+    },
+    "source-map.json": {
+      "bytes": 33715,
+      "sha256": "da93876428f4d31258de679609f20b0c1cfcb7c7763bf596baca18c5a5e10ad7"
+    },
+    "tables/lower-rates.csv": {
+      "bytes": 8677,
+      "sha256": "e7993547f4697eeafd346db86ee98070788d7649a9eaa2e763627513c274e2cb"
+    },
+    "tables/native-limits.csv": {
+      "bytes": 1474,
+      "sha256": "42b832188c88ade20e3051a9515bcfaf5a80714fb8cf0001b8df0f3c7dbc7433"
+    },
+    "tables/official-limits.csv": {
+      "bytes": 1230,
+      "sha256": "54ff4971b9663cdf8b9963e573c705fb0dec21e50bdb172340174ad1e765461b"
+    },
+    "verification.json": {
+      "bytes": 7133,
+      "sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0"
+    },
+    "verify.py": {
+      "bytes": 29843,
+      "sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d"
+    }
+  },
+  "schema_version": 1,
+  "scope": "offline arithmetic and shipped-byte integrity"
+}

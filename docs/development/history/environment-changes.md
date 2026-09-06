@@ -7,6 +7,21 @@ analysis architecture. They do **not** touch the physics inputs (those are in
 
 ## September 2026 RRR closure additions and qualifications
 
+The later pooled retry uses a separate immutable orchestration snapshot with the
+same 95-file v5 inventory and only the independently reviewed full-completion reader
+replaced. Actual scientific stage commands still run the original v5 sources. This
+avoids authenticating old products against subsequently edited current-source paths;
+the original failed fit and source-drift checks remain in the campaign history.
+The loader checks exact inventory and import precedence and requires inherited
+`PYTHONDONTWRITEBYTECODE=1` together with Python `-B`.
+
+The native receipt context also depends on the invoking shell's PATH. On this host,
+the source checkout working directory reproduces the original native environment
+digest, while the DSRLab parent gives a different digest. Recovery used the recorded
+context and did not weaken runtime comparison or rewrite receipts. These private host
+environment values are excluded from public evidence. A context hash is not a complete
+shared-library environment lock.
+
 The subsequent [execution and resource follow-up](2026-09-06-rrr-execution-followup.md)
 records the repaired timeout supervision, exact 95-file v5 runtime, stricter 1.26-million-event
 admission ceiling and retirement of five inactive installation-test environments. All 26
