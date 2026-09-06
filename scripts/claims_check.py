@@ -18,6 +18,7 @@ Exit 0 = all claims verified. Nonzero = drift; the build fails. Stdlib only.
 import json
 import os
 import re
+import runpy
 import sys
 from pathlib import Path
 
@@ -126,6 +127,30 @@ def check(readme_path, manifest_path, root=ROOT, require_all=True):
                 fails.append(f"RRR fresh100 scope/value drift: expected '{expected}'")
         except (OSError, ValueError, KeyError, TypeError) as exc:
             fails.append(f"RRR fresh100 source invalid: {exc}")
+    fresh_claims = {"rrr_fresh50_limits", "rrr_fresh_anchor_coverage"}
+    if fresh_claims.intersection(claims):
+        try:
+            bundle = Path(root) / "evidence/audits/2026-09-06-rrr-fresh-anchors"
+            verifier = runpy.run_path(str(bundle / "verify.py"))
+            verifier["verify"](bundle)
+            record = verifier["strict"]((bundle / "data/evidence.json").read_bytes())
+            anchors = {a["point_id"]: a for a in record["anchors"]}
+            anchor = anchors["m50_m45"]
+            rows = {row["quantile"]: row for row in anchor["limits"]}
+            expected = {
+                "rrr_fresh50_limits": (
+                    f"{rows['observed']['inclusive_sigma95_fb']:.2f} fb observed and "
+                    f"{rows['expected_median']['inclusive_sigma95_fb']:.2f} fb median expected "
+                    f"at {anchor['parent_GeV']:g}/{anchor['lsp_GeV']:g} GeV"),
+                "rrr_fresh_anchor_coverage": (
+                    f"{len(anchors)} of {record['scope']['nominal_points_total']} nominal mass points "
+                    "with completed fresh native evidence"),
+            }
+            for name, value in expected.items():
+                if name in claims and claims[name]["value"] != value:
+                    fails.append(f"RRR fresh-anchor scope/value drift: {name}: expected '{value}'")
+        except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
+            fails.append(f"RRR fresh-anchor source invalid: {exc}")
     ev_path = os.path.join(root, "evidence/manifest.json")
     if os.path.exists(ev_path) and "fig3_residual" in claims:
         ev = json.load(open(ev_path))

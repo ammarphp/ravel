@@ -205,6 +205,32 @@
         "evidence/audits/2026-09-06-rrr-event-identity/manifest.json"
       ],
       "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh50_limits",
+      "value": "615.63 fb observed and 755.34 fb median expected at 50/45 GeV",
+      "detail": "Completed four-state 20,000-event point with its own 1,000-event inclusive normalization and K=1.18 applied once. Residuals are +16.84%/+6.82%; 24/33 selected SR events remain sparse. No acceptance, coverage or full-plane certification.",
+      "command": "python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py",
+      "verified": "2026-09-06: independent original-model/reference and Decimal arithmetic review; portable checks and selected-source projection",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/manifest.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh_anchor_coverage",
+      "value": "3 of 52 nominal mass points with completed fresh native evidence",
+      "detail": "The nominal points are 50/45,100/98 and150/140 GeV. The 150/140 pool reuses its independent 20k and40k parents; replicas, controls and inclusive prefixes do not increase nominal-plane coverage. Forty-nine points remain uncompleted.",
+      "command": "python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py",
+      "verified": "2026-09-06: independent original-model/reference and Decimal arithmetic review; portable checks and selected-source projection",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/manifest.json"
+      ],
+      "status": "VERIFIED"
     }
   ]
 }

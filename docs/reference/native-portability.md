@@ -152,6 +152,11 @@ architecture and C++ runtime. When the selected Fortran linker needs libc++, it
 adds only the missing `-lc++` token. Conflicting runtime flags, Rosetta, foreign
 library search paths and changed compiler/PDF inputs are rejected.
 
+An unsupported build/import override error lists the offending variable names in
+sorted order and omits their values. Inspect those fields before capturing a new
+decision in an explicitly declared environment; the diagnostic does not relax
+the refusal rule or automatically change the parent process environment.
+
 This is an explicit study option. It does not change the PDF in existing cards,
 rewrite the installed MadGraph configuration, or make a different PDF a drop-in
 physics replacement. The current implementation checks the selected configuration,

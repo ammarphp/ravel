@@ -70,6 +70,19 @@ control roots, exact model patches, sparse-bin context and standalone verificati
 The baseline's full fit portfolio remains unavailable; the new control portfolios
 do not supply that missing evidence or establish coverage.
 
+The [three-anchor comparison](../../evidence/audits/2026-09-06-rrr-fresh-anchors/README.md)
+adds <!-- claim:rrr_fresh50_limits -->615.63 fb observed and 755.34 fb median expected at 50/45 GeV<!-- /claim -->,
+using that mass point's own four-state inclusive normalization. Its observed and
+median residuals are +16.84%/+6.82%; high/low histogram MC errors remain
+20.41%/17.41%. The current population is
+<!-- claim:rrr_fresh_anchor_coverage -->3 of 52 nominal mass points with completed fresh native evidence<!-- /claim -->.
+Replicas and controls add no nominal-plane coverage. All 18 scalar limits, 114
+channel-moment rows and six reconstructed fractions remain explicit. The fraction
+comparison keeps fixed-N MC, histogram MC and inclusive-integration terms separate.
+Missing reference errors, truth denominators and reconstruction migration prevent
+acceptance certification. Central-limit agreement at 150/140 coexists with a
+reconstructed-fraction shortfall and unresolved generator-cut dependence.
+
 The [September physics pass](../development/history/2026-09-05-physics-fidelity.md)
 adds a paper-defined eRJR correction, tested on identical retained events, and
 stricter numerical/comparison checks. The

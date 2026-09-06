@@ -2,6 +2,14 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Publish the fresh 50/45 GeV result and a three-anchor comparison with all 18
+  limits, 114 channel-moment rows and separate reconstructed-fraction diagnostics.
+  Show sparse MC, missing reference errors and the 49 uncompleted nominal points.
+  Bind the new headline values to the portable evidence verifier.
+- Identify refused LHAPDF build/import overrides by variable name without exposing
+  their values. Preserve the refusal rules, frozen physics runtimes and dated audit
+  evidence through a separately scoped current-source bridge.
+
 - Publish the exact original-event identity diagnostic, all 40 hard-parton
   partitions, and the discrepant fresh 100/98 GeV result with its own inclusive
   normalization. Preserve sparse/zero bins and the limits of the public projection.

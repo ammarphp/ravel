@@ -68,6 +68,19 @@ change. These omissions worsen the reference discrepancy at this point. Their
 exact patches, all expected quantiles and available fit checks are public, with
 the missing baseline portfolio and unresolved MC precision stated explicitly.
 
+The fresh 50/45 point now completes all twelve native stages and six roots, with
+615.63/755.34 fb observed/median limits against 526.92/707.14 fb references. Its own
+1,000-event inclusive LO control gives 8.7316 ± 0.02029 pb; K=1.18 is applied once.
+Only 24/33 high/low events are selected from 20,000 generated events, giving
+20.41%/17.41% histogram MC errors and 17 zero-selected model channels. The
+[three-anchor bundle](../../evidence/audits/2026-09-06-rrr-fresh-anchors/README.md)
+retains all 18 limits and 114 channel-moment rows, with separate fixed-N,
+histogram-MC and inclusive-integration terms in its six reconstructed fractions.
+Three nominal points are complete; 49 remain without fresh completed evidence.
+The opposite residual signs do not identify a cause or support a global rescaling.
+The standalone source projection and scalar arithmetic passed independent review;
+raw-event and full-receipt custody are explicitly inherited from dated originals.
+
 The original-LHA shower replay joins all 20,000 lower-cut events and reproduces the
 complete 4,510,402,635 decoded HepMC bytes. Its descriptive hard-parton partition keeps
 the original 20,000-event denominator. Upper-slice high/low ratios to the nominal pool
@@ -116,14 +129,19 @@ hook; the successor installs that existing hook before testing. Both outcomes re
 the verification record. The cut-dependence evidence was subsequently published at
 `fcd53f906be26230a68518eeb8d8cb62a17f7304`, with all seven jobs passing in
 [CI 34035406253](https://github.com/ammarphp/ravel/actions/runs/34035406253).
-The 100/98 and original-event partition evidence belongs to the next revision.
-Earlier CI results do not validate that later evidence or implementation.
+The 100/98 and original-event partition evidence was then published at
+`2a709d5c33e288110b3a6e464fb1768dee69a258`, with all seven jobs passing in
+[CI 34050252139](https://github.com/ammarphp/ravel/actions/runs/34050252139).
+The later three-anchor bundle and environment-diagnostic bridge have their own
+source reviews and publication checks; they do not inherit that earlier CI result.
 
 The [current audit registry](../../evidence/audits/current.json) selects the
-[revised native audit](../../evidence/audits/2026-09-06-native-fidelity-v2/README.md)
+[diagnostic source bridge](../../evidence/audits/2026-09-06-native-fidelity-v3/README.md)
 and the [statistical revalidation](../../evidence/audits/2026-09-06-statistical-fidelity/README.md).
-The native revision preserves inherited selection observations and separately checks
-the new event-I/O implementation; it does not claim another 200,000-event reanalysis.
+The native revision preserves the earlier selection and event-I/O observations.
+It separately checks the current LHAPDF refusal-message change with 180 relevant
+tests and 295 independent early-guard cases, retaining the original source/test
+versions. It does not claim another 200,000-event reanalysis.
 Their nine-case benchmark retains seven regression passes and two missing generated-YODA
 artifacts. All nine numerical-stability checks pass, while uncached acceptance comparisons
 remain three PASS, three FAIL and three unscorable. Historical audits and baselines remain

@@ -50,25 +50,6 @@ def test_exact_capture_and_planner_revalidation_without_probes(fixture):
     assert all(c[0] in ('lipo','otool','sysctl') or c[0].endswith('lhapdf-config') for c in before)
 
 
-@pytest.mark.parametrize('name', sorted(link.FORBIDDEN_ENV))
-def test_forbidden_override_reports_name_without_value_or_probe(tmp_path, name):
-    def forbidden_probe(_):
-        pytest.fail('Unsupported environment must fail before tool probes')
-    with pytest.raises(ValueError) as error:
-        link.generation_decision(tmp_path/'absent-prefix', environment={
-            'PYTHONDONTWRITEBYTECODE':'1', name:'private-value-canary'}, run=forbidden_probe)
-    assert str(error.value) == 'Unsupported build/import environment override: '+name
-    assert 'private-value-canary' not in str(error.value)
-
-
-def test_multiple_overrides_are_named_in_stable_order_without_empty_fields(tmp_path):
-    with pytest.raises(ValueError) as error:
-        link.generation_decision(tmp_path/'absent-prefix', environment={
-            'PYTHONDONTWRITEBYTECODE':'1', 'LIBRARY_PATH':'private-library-canary',
-            'CPATH':'private-include-canary', 'PYTHONHOME':''})
-    assert str(error.value) == 'Unsupported build/import environment override: CPATH, LIBRARY_PATH'
-
-
 def test_repeated_identical_configuration_has_one_pinned_effective_value(fixture):
     path = fixture.mg.parent.parent/'input/mg5_configuration.txt'
     line = 'mg5_path = '+str(fixture.mg.parent.parent)+'\n'

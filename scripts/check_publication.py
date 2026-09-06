@@ -22,6 +22,7 @@ def main():
                          ('evidence/audits/2026-09-06-rrr-cut-dependence/verify.py', []),
                          ('evidence/audits/2026-09-06-rrr-event-identity/verify.py', []),
                          ('evidence/audits/2026-09-06-rrr-template-controls/verify.py', []),
+                         ('evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py', []),
                          ('evidence/audits/2026-09-05-analysis-landscape/validate_catalog.py', []),
                          ('scripts/gen_validation_pages.py', ['--check']),
                          ('scripts/gen_status.py', ['--check'])]:

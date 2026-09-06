@@ -1,0 +1,2143 @@
+{
+  "cases": [
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "BASH_ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "COMPILER_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "CPLUS_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "C_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "DYLD_INSERT_LIBRARIES",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "ENV",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GCC_EXEC_PREFIX",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GFORTRAN_UNBUFFERED_ALL",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "GNUMAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LD_PRELOAD",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "LIBRARY_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MADGRAPH_BASE",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MAKEFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MFLAGS",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5AMC",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "MG5DIR",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "OBJC_INCLUDE_PATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": false,
+      "value_class": "absent"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": false,
+      "value_class": "empty"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "single_field",
+      "field": "PYTHONPATH",
+      "rejected": true,
+      "value_class": "nonempty"
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "OBJC_INCLUDE_PATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MG5DIR",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MG5AMC",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MFLAGS",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MAKEFLAGS",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "PYTHONPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MG5DIR",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MG5AMC",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MFLAGS",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MAKEFLAGS",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "OBJC_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MG5AMC",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MFLAGS",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MAKEFLAGS",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "MG5DIR"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MFLAGS",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MAKEFLAGS",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "MG5AMC"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MAKEFLAGS",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "MFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "MADGRAPH_BASE",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "MAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LIBRARY_PATH",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "MADGRAPH_BASE"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "LD_PRELOAD",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "LIBRARY_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GNUMAKEFLAGS",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "LD_PRELOAD"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GFORTRAN_UNBUFFERED_ALL",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "GNUMAKEFLAGS"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "GCC_EXEC_PREFIX",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "GFORTRAN_UNBUFFERED_ALL"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "ENV",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "GCC_EXEC_PREFIX"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "DYLD_INSERT_LIBRARIES",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "ENV"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "C_INCLUDE_PATH",
+        "DYLD_INSERT_LIBRARIES"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "DYLD_INSERT_LIBRARIES"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "DYLD_INSERT_LIBRARIES"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "DYLD_INSERT_LIBRARIES"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "DYLD_INSERT_LIBRARIES"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPLUS_INCLUDE_PATH",
+        "C_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "C_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "C_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "C_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "CPATH",
+        "CPLUS_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "CPLUS_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "CPLUS_INCLUDE_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "COMPILER_PATH",
+        "CPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "CPATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "pair_fields",
+      "fields": [
+        "BASH_ENV",
+        "COMPILER_PATH"
+      ],
+      "rejected": true
+    },
+    {
+      "case": "bytecode_guard_priority",
+      "rejected": true
+    },
+    {
+      "case": "bytecode_guard_priority",
+      "rejected": true
+    },
+    {
+      "case": "bytecode_guard_priority",
+      "rejected": true
+    },
+    {
+      "case": "all19_fields",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "DYLD_UNKNOWN",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "LD_UNKNOWN",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "GCC_UNKNOWN",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "GFORTRAN_UNKNOWN",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "PYTHONUNKNOWN",
+      "rejected": true
+    },
+    {
+      "case": "unchanged_unknown_prefix",
+      "field": "_PYTHONUNKNOWN",
+      "rejected": true
+    }
+  ],
+  "current_audit_pin_mismatches": [
+    {
+      "category": "test_source_sha256",
+      "current_sha256": "dd750acfac03bd8a4419d1a3ea01e48a66b9f088bc30c33343afe3fc93ca6051",
+      "dated_sha256": "febff2f6c436ff47478690f11d48ca1a2b47b1c9961f35fdee0c90dbaf903936",
+      "path": "tests/unit/test_native_lhapdf.py"
+    },
+    {
+      "category": "engineering_source_sha256",
+      "current_sha256": "91d76171c0a815f5a937a83a5ec09de61430d12ff75ea65de523a7abe488d5b4",
+      "dated_sha256": "42938ea753a8407fb88abea874bcca9889ef16090573deba11e4761e31d5cf42",
+      "path": "src/ravel/physics/native_lhapdf.py"
+    }
+  ],
+  "exact_source_delta": "Only the any-based forbidden-field refusal becomes sorted offending fixed field names in its ValueError; all other bytes unchanged.",
+  "forbidden_field_count": 19,
+  "independent_guard_cases": 295,
+  "independent_tests": {
+    "passed": 180,
+    "seconds": 9.44,
+    "test_log_sha256": "6eb6a751d499460ca0b088f8cbed74117d021a30e9e2ea4702ab83299a6381e8"
+  },
+  "retained_gate_log_sha256": "7be99ed869c7b2f40d1231251749f8186b6bde8954c183dccc1a30ad4e73d676",
+  "scope": {
+    "external_linker_probes_executed": false,
+    "generator_started": false,
+    "old_audits_changed": false,
+    "physics_or_successful_decision_semantics_changed": false,
+    "raw_events_read": false
+  },
+  "source": {
+    "current_sha256": "91d76171c0a815f5a937a83a5ec09de61430d12ff75ea65de523a7abe488d5b4",
+    "old_sha256": "42938ea753a8407fb88abea874bcca9889ef16090573deba11e4761e31d5cf42",
+    "path": "src/ravel/physics/native_lhapdf.py"
+  },
+  "status": "bounded_rejection_privacy_review_passed_current_audit_requires_new_bridge",
+  "test_source": {
+    "current_sha256": "dd750acfac03bd8a4419d1a3ea01e48a66b9f088bc30c33343afe3fc93ca6051",
+    "path": "tests/unit/test_native_lhapdf.py"
+  },
+  "unchanged_top_level_functions": 15
+}

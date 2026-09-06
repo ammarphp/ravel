@@ -81,6 +81,21 @@ shows that removing signal MC uncertainty or control-region signal strengthens
 these bounds further. These omissions are diagnostic tests and do not improve
 the physics model or repair its disagreement with the reference.
 
+The new 50/45 point gives
+<!-- claim:rrr_fresh50_limits -->615.63 fb observed and 755.34 fb median expected at 50/45 GeV<!-- /claim -->,
+above the reference by 16.84% and 6.82%. Together, these are
+<!-- claim:rrr_fresh_anchor_coverage -->3 of 52 nominal mass points with completed fresh native evidence<!-- /claim -->.
+The [three-anchor comparison](evidence/audits/2026-09-06-rrr-fresh-anchors/README.md)
+provides all 18 limits, 114 channel rows, mass-specific normalization and six
+reconstructed-fraction comparisons, with a standalone verifier.
+
+![Fresh limit residuals and separate signal MC precision at three mass points](evidence/audits/2026-09-06-rrr-fresh-anchors/figures/fresh-anchor-diagnostics.png)
+
+The lower panel shows histogram MC precision, not uncertainty bars on the limits.
+The low-mass samples remain sparse. Reconstructed-fraction differences also change
+sign across these points; missing reference errors and truth/migration definitions
+prevent an acceptance certificate or a fitted detector correction.
+
 The evidence checks answer different questions:
 
 | Check | Recorded evidence | What it establishes |

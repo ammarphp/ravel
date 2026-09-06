@@ -74,7 +74,11 @@ jobs:
           python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units
           python -m pytest evidence/audits/2026-09-06-rrr-waypoint/test_curate.py -q
       - name: Native fidelity audit admission checks
-        run: python -B -m pytest evidence/audits/2026-09-06-native-fidelity-v2/test_verify.py -q
+        run: python -B -m pytest evidence/audits/2026-09-06-native-fidelity-v3/test_verify.py -q
+      - name: Fresh RRR anchor scalar and evidence admission
+        run: |
+          python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py
+          python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/test_verify.py
       - name: RRR template omission controls and evidence admission
         run: |
           python -B -S evidence/audits/2026-09-06-rrr-template-controls/verify.py

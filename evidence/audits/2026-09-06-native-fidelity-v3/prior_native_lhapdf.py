@@ -284,9 +284,8 @@ def generation_decision(prefix, *, environment=None, run=probe, system=None,
     env = dict(os.environ if environment is None else environment)
     if env.get('PYTHONDONTWRITEBYTECODE') != '1':
         raise ValueError('Activated decision requires inherited bytecode suppression')
-    blocked = sorted(k for k in FORBIDDEN_ENV if env.get(k) not in (None, ''))
-    if blocked:
-        raise ValueError('Unsupported build/import environment override: ' + ', '.join(blocked))
+    if any(env.get(k) not in (None, '') for k in FORBIDDEN_ENV):
+        raise ValueError('Unsupported build/import environment override')
     for name, value in env.items():
         if (value not in (None, '') and name.startswith(('DYLD_', 'LD_', 'GCC_', 'GFORTRAN_', 'PYTHON', '_PYTHON'))
                 and name not in CONTEXT_KEYS):

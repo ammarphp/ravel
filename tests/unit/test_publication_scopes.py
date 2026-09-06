@@ -2,6 +2,7 @@
 import copy
 import importlib.util
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -162,4 +163,43 @@ def test_coordinated_control_headlines_still_need_measured_evidence(tmp_path, cl
     write_claim()
     expected_error = 'RRR fresh100 scope/value drift' if claim == 'rrr_fresh100_limits' else 'RRR control scope/value drift'
     assert any(expected_error in error
+               for error in claims_check.check(page, manifest, tmp_path)[0])
+
+
+@pytest.mark.parametrize('claim,altered', [
+    ('rrr_fresh50_limits', '526.92 fb observed and 707.14 fb median expected at 50/45 GeV'),
+    ('rrr_fresh50_limits', '615.63 fb observed and 755.34 fb median expected at 50/48 GeV'),
+    ('rrr_fresh_anchor_coverage', '4 of 52 nominal mass points with completed fresh native evidence'),
+    ('rrr_fresh_anchor_coverage', '52 of 52 nominal mass points with completed fresh native evidence'),
+])
+def test_fresh_anchor_headlines_cannot_count_replicas_or_substitute_references(tmp_path, claim, altered):
+    relative = Path('evidence/audits/2026-09-06-rrr-fresh-anchors')
+    shutil.copytree(REPO / relative, tmp_path / relative)
+    entry = next(item for item in json.loads((REPO / 'evidence/claims.json').read_text())['claims']
+                 if item['claim'] == claim)
+    page, manifest = tmp_path / 'README.md', tmp_path / 'claims.json'
+    def write_claim():
+        page.write_text(f'<!-- claim:{claim} -->{entry["value"]}<!-- /claim -->')
+        manifest.write_text(json.dumps({'claims': [entry]}))
+    write_claim()
+    assert claims_check.check(page, manifest, tmp_path)[0] == []
+    entry['value'] = altered
+    write_claim()
+    assert any('RRR fresh-anchor scope/value drift' in error
+               for error in claims_check.check(page, manifest, tmp_path)[0])
+
+
+def test_fresh_anchor_headline_gate_checks_underlying_bundle_integrity(tmp_path):
+    relative = Path('evidence/audits/2026-09-06-rrr-fresh-anchors')
+    shutil.copytree(REPO / relative, tmp_path / relative)
+    entry = next(item for item in json.loads((REPO / 'evidence/claims.json').read_text())['claims']
+                 if item['claim'] == 'rrr_fresh_anchor_coverage')
+    page, manifest = tmp_path / 'README.md', tmp_path / 'claims.json'
+    page.write_text(f'<!-- claim:{entry["claim"]} -->{entry["value"]}<!-- /claim -->')
+    manifest.write_text(json.dumps({'claims': [entry]}))
+    evidence = tmp_path / relative / 'data/evidence.json'
+    data = json.loads(evidence.read_text())
+    data['scope']['physics_certified'] = True
+    evidence.write_text(json.dumps(data))
+    assert any('RRR fresh-anchor source invalid' in error
                for error in claims_check.check(page, manifest, tmp_path)[0])
