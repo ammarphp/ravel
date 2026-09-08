@@ -103,7 +103,9 @@ def validate(c, base_dir=None):
             if "file://" in blob:
                 errs.append("gallery (ii) cites a file:// URI -- embed repo-relative paths and "
                             "attach/render the images, never bare file links (trial QM.1)")
-            for tok in re.findall(r"[\w][\w./-]*\.(?:png|pdf)", blob):
+            # Keep absolute and parent-relative prefixes. Dropping the leading
+            # slash or ../ resolves a different file beneath the run directory.
+            for tok in re.findall(r"[./]*[\w][\w./-]*\.(?:png|pdf)", blob):
                 p = tok if os.path.isabs(tok) else os.path.join(base_dir, tok)
                 if not os.path.isfile(p):
                     errs.append(f"gallery (ii) references a missing file: {tok}")

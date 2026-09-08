@@ -49,9 +49,9 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/reference/` | Capabilities, contracts, and tool reference | 10 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
 | `docs/development/` | Contributor guidance and explicitly labeled history | 36 |
-| `docs/research/` | Research and evaluation protocols | 16 |
+| `docs/research/` | Research and evaluation protocols | 17 |
 | `docs/guides/` | Longer guides and sources | 5 |
-| `evidence/` | Curated historical inputs, measurements, and provenance | 457 |
+| `evidence/` | Curated historical inputs, measurements, and provenance | 468 |
 | `.claude/` | Agent skills, rules, and enforcement hooks | 32 |
 | `.agents/` | Mirrored skills | 16 |
 | `.github/` | Continuous integration | 1 |

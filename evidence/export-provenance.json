@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "c0f860ef98278f8364e84e7bce4e3fab1b8dfb33",
+  "source_commit": "908ed5e297254e68fd2878314c9663ccb6a7e97a",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -846,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "74a6877a2cc5641bfd5dacd71f3df5063006a85947f4e1db92e661fa747b6272",
-      "export_sha256": "4389f68e179ed9b1a42cd63275d78cbd45343b34622bde89f6c69f25a492f227"
+      "source_sha256": "cb4a0ffd8aa3712eafba907000cc667e041d8b0cda0c34db415ab8677656693e",
+      "export_sha256": "0d8725d16213b1b4fa54192cb959daf726e2a3722bad8b09419be0c7189744f7"
     },
     {
       "source_path": "LICENSE",
@@ -1128,8 +1128,8 @@
     {
       "source_path": "docs/development/history/data-and-card-changes.md",
       "public_path": "docs/development/history/data-and-card-changes.md",
-      "source_sha256": "6da054299484e77aa62ab77659edd6cd8163c83a225ba20d6aaaf4f46cb3160f",
-      "export_sha256": "6da054299484e77aa62ab77659edd6cd8163c83a225ba20d6aaaf4f46cb3160f"
+      "source_sha256": "45e854b5846876c275f81cc91ef28ca162f273765d78e45f93512a95c1e60fda",
+      "export_sha256": "45e854b5846876c275f81cc91ef28ca162f273765d78e45f93512a95c1e60fda"
     },
     {
       "source_path": "docs/development/history/environment-changes.md",
@@ -1310,6 +1310,12 @@
       "public_path": "docs/research/2026-09-08-fidelity-transfer.md",
       "source_sha256": "8cd1fc5615b6ba5885f435a5c9b2547653e003fad556630730a0709552e42527",
       "export_sha256": "8cd1fc5615b6ba5885f435a5c9b2547653e003fad556630730a0709552e42527"
+    },
+    {
+      "source_path": "docs/research/2026-09-08-rrr-shape-control.md",
+      "public_path": "docs/research/2026-09-08-rrr-shape-control.md",
+      "source_sha256": "4516e5d4311d1eed3c919103a670bdee7f0f0f2955527f01b1d662deb9f21eba",
+      "export_sha256": "4516e5d4311d1eed3c919103a670bdee7f0f0f2955527f01b1d662deb9f21eba"
     },
     {
       "source_path": "docs/research/README.md",
@@ -1644,8 +1650,8 @@
     {
       "source_path": "docs/workflow/checklists/reproduction-closure.md",
       "public_path": "docs/workflow/checklists/reproduction-closure.md",
-      "source_sha256": "e992fe523aca5524210473499a0f36e1110cce245acb61d44804668db8e0dbfd",
-      "export_sha256": "e992fe523aca5524210473499a0f36e1110cce245acb61d44804668db8e0dbfd"
+      "source_sha256": "7bc2f78cb89c787154280064e1609a1b8f4c2ef2695d0fd7418efb6cfab28543",
+      "export_sha256": "7bc2f78cb89c787154280064e1609a1b8f4c2ef2695d0fd7418efb6cfab28543"
     },
     {
       "source_path": "docs/workflow/checklists/scan-and-contour.md",
@@ -3334,6 +3340,72 @@
       "export_sha256": "02fc6636342219ac8fc43f641739300ec2e8ee61aa7d00cdeb9d76d306908545"
     },
     {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/README.md",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/README.md",
+      "source_sha256": "cf2a29a12a8c66f4e35fb3d81c9f19aca321706560b783259f514faa64e80f94",
+      "export_sha256": "cf2a29a12a8c66f4e35fb3d81c9f19aca321706560b783259f514faa64e80f94"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/artifact-manifest.json",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/artifact-manifest.json",
+      "source_sha256": "9ea711927c00afcbfc8d9ad0ae567c901a27dbef8febffba000b24e268ba4b72",
+      "export_sha256": "9ea711927c00afcbfc8d9ad0ae567c901a27dbef8febffba000b24e268ba4b72"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/measurements.json",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/measurements.json",
+      "source_sha256": "c5bc05efae15f07a5f739f7c364dd8efed95db01b0690f9ec4ef8c6a106e2d29",
+      "export_sha256": "c5bc05efae15f07a5f739f7c364dd8efed95db01b0690f9ec4ef8c6a106e2d29"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/selected-kinematics.pdf",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/selected-kinematics.pdf",
+      "source_sha256": "783127e85ca3df45a27ab46c360af3803b8762e31e12209c052495d9d6068f5b",
+      "export_sha256": "783127e85ca3df45a27ab46c360af3803b8762e31e12209c052495d9d6068f5b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/selected-kinematics.png",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/selected-kinematics.png",
+      "source_sha256": "3b0d17d6d65c1f23fcfc09532589bf675ef34faf225efd7e5cf514f2539eee65",
+      "export_sha256": "3b0d17d6d65c1f23fcfc09532589bf675ef34faf225efd7e5cf514f2539eee65"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/selection-migrations.pdf",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/selection-migrations.pdf",
+      "source_sha256": "99e83e128b06bf0754e6bc2c98dd05e71f59dee0a12902582e80224c9e44223b",
+      "export_sha256": "99e83e128b06bf0754e6bc2c98dd05e71f59dee0a12902582e80224c9e44223b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/selection-migrations.png",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/selection-migrations.png",
+      "source_sha256": "4750a25901bf97528058990ec5524d6089538a4495a0eb6cdcc363c59ae50aaa",
+      "export_sha256": "4750a25901bf97528058990ec5524d6089538a4495a0eb6cdcc363c59ae50aaa"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/signal-shape-comparison.pdf",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/signal-shape-comparison.pdf",
+      "source_sha256": "604356cb82521c2d476493207849bb770721488c7342793f6ae1d5efee3ddc87",
+      "export_sha256": "604356cb82521c2d476493207849bb770721488c7342793f6ae1d5efee3ddc87"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/signal-shape-comparison.png",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/signal-shape-comparison.png",
+      "source_sha256": "6909c4f1703866a986f4bb18a5a28da5fef43a124e4ae23766193972f6250d14",
+      "export_sha256": "6909c4f1703866a986f4bb18a5a28da5fef43a124e4ae23766193972f6250d14"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/verification.json",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/verification.json",
+      "source_sha256": "3880bbb2d053821fe625582d2c7e0ecb4bf96c494ca29769dd58dedc86d9bd8d",
+      "export_sha256": "3880bbb2d053821fe625582d2c7e0ecb4bf96c494ca29769dd58dedc86d9bd8d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-rrr-shape-control/verify.py",
+      "public_path": "evidence/audits/2026-09-08-rrr-shape-control/verify.py",
+      "source_sha256": "4f4a30264b791419cf86f5a4a3b095d7fc5b8d135dee9de27b0f812c385708c7",
+      "export_sha256": "4f4a30264b791419cf86f5a4a3b095d7fc5b8d135dee9de27b0f812c385708c7"
+    },
+    {
       "source_path": "evidence/audits/2026-09-08-scan-fidelity/README.md",
       "public_path": "evidence/audits/2026-09-08-scan-fidelity/README.md",
       "source_sha256": "1828151f4c7b66da1b1ab0b9d08d1bd26ce66e495bb4b37421633039cdab44c9",
@@ -4206,8 +4278,8 @@
     {
       "source_path": "src/ravel/validation/validate_checkin.py",
       "public_path": "src/ravel/validation/validate_checkin.py",
-      "source_sha256": "1d8169125a376c7505f1b7410dbb332f96aed83d8703ef40243add503cb2b77d",
-      "export_sha256": "1d8169125a376c7505f1b7410dbb332f96aed83d8703ef40243add503cb2b77d"
+      "source_sha256": "bb323c0356c369974e02e58f4779298397b1c02281729b7b8be3d5db1a052280",
+      "export_sha256": "bb323c0356c369974e02e58f4779298397b1c02281729b7b8be3d5db1a052280"
     },
     {
       "source_path": "src/ravel/validation/validate_cutflow.py",
@@ -5214,8 +5286,8 @@
     {
       "source_path": "tests/unit/test_validate_checkin.py",
       "public_path": "tests/unit/test_validate_checkin.py",
-      "source_sha256": "b38782ab60a49d4c097e45c24c2a59882e098260f5814d3f5f910629296a0529",
-      "export_sha256": "b38782ab60a49d4c097e45c24c2a59882e098260f5814d3f5f910629296a0529"
+      "source_sha256": "c66e5b03dc196cfaecb03a08bf4499ef2927092b5251d41287b476da4d81b3da",
+      "export_sha256": "c66e5b03dc196cfaecb03a08bf4499ef2927092b5251d41287b476da4d81b3da"
     },
     {
       "source_path": "tests/unit/test_validate_parameters.py",

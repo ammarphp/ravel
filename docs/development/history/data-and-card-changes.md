@@ -3,6 +3,19 @@
 Every change made to the physics-input cards. Originals are kept pristine; edits are applied to
 copies in `inputs/` or inside the generated process directory under `build/`.
 
+## 2026-09-08: bounded 225/220 GeV shape control
+
+The historical six-state process, parameter and run cards were preserved in the
+research archive. The new 20k control changed only explicit random seeds and the
+MadGraph worker count, and used the current native yields/diagnostic path. No
+efficiency, width, generation cut or statistical threshold was tuned. The public
+aggregate evidence is in `evidence/audits/2026-09-08-rrr-shape-control/`; raw events
+remain in the original run. The workflow-level procedure is
+`docs/workflow/checklists/reproduction-closure.md`, and the interpretation is
+`docs/research/2026-09-08-rrr-shape-control.md`. Resource admission prospectively
+reduced the unused campaign ceiling to 1.20M events while preserving prior
+policies and data. This does not authorize a new scan or certify physics closure.
+
 ## September 2026 RRR closure campaign
 
 **Qualification of historical D4 below.** Its reported wrong-mass observation remains a

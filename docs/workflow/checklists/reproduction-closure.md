@@ -102,6 +102,23 @@ with retained-template and retained-event checks. Escalate to fresh generation
 only when the next experiment can distinguish remaining hypotheses. Do not tune
 a global signal scale or a color scale to make the reference map look correct.
 
+For a fresh control of a template-shape discrepancy, use the native `yields`
+adapter when a new likelihood fit cannot yet answer the diagnostic question.
+Declare one driving bin or shape contrast before inspecting the new sample.
+Compare unit-normalized bin fractions with their normalization-induced
+covariance, alongside absolute yields and flavor components. Keep secondary
+scans descriptive. If an old effective seed or implementation cannot be recovered,
+label the run a current-code control rather than an exact historical replica;
+do not pool the samples under a false independence or equivalence claim.
+
+Locate a repeated distortion in the recorded pre/post-cut populations, then
+check the cut against the published implementation. A correct cut can expose
+incorrect input distributions. Do not weaken it because the residual improves.
+Use retained-event process/flavor decomposition to test composition hypotheses
+before purchasing another generation run. The
+[225/220 control](../../research/2026-09-08-rrr-shape-control.md)
+illustrates this sequence and its remaining limits.
+
 Choose scientific tolerances prospectively in the artifact-bound comparison plan.
 Report signed residuals, absolute residuals, tails and regional breakdowns with
 MC precision, rather than only a median that can hide a bias or a red island.

@@ -71,6 +71,29 @@ def test_gallery_existing_ok(tmp_path):
     assert vc.validate(c, base_dir=str(tmp_path)) == []
 
 
+def test_gallery_preserves_absolute_path(tmp_path):
+    reference = tmp_path / "reference.png"
+    reference.write_bytes(b"reference")
+    run = tmp_path / "run"
+    run.mkdir()
+    assert _mod().validate(_valid_checkin1(str(reference)), base_dir=str(run)) == []
+
+
+def test_gallery_preserves_parent_relative_path(tmp_path):
+    (tmp_path / "reference.pdf").write_bytes(b"reference")
+    run = tmp_path / "run"
+    run.mkdir()
+    assert _mod().validate(_valid_checkin1("../reference.pdf"), base_dir=str(run)) == []
+
+
+def test_gallery_does_not_substitute_same_named_local_file(tmp_path):
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "missing.pdf").write_bytes(b"wrong reference")
+    errors = _mod().validate(_valid_checkin1("../missing.pdf"), base_dir=str(run))
+    assert any("../missing.pdf" in error for error in errors)
+
+
 def test_backcompat_no_base_dir():
     vc = _mod()
     c = _valid_checkin1("cites plots/whatever.png but schema-only mode skips existence")

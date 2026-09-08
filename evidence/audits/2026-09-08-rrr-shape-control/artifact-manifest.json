@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "Portable artifact identities; source event files remain local",
+  "files": {
+    "README.md": {
+      "sha256": "cf2a29a12a8c66f4e35fb3d81c9f19aca321706560b783259f514faa64e80f94",
+      "bytes": 1298
+    },
+    "measurements.json": {
+      "sha256": "c5bc05efae15f07a5f739f7c364dd8efed95db01b0690f9ec4ef8c6a106e2d29",
+      "bytes": 100395
+    },
+    "selected-kinematics.pdf": {
+      "sha256": "783127e85ca3df45a27ab46c360af3803b8762e31e12209c052495d9d6068f5b",
+      "bytes": 19891
+    },
+    "selected-kinematics.png": {
+      "sha256": "3b0d17d6d65c1f23fcfc09532589bf675ef34faf225efd7e5cf514f2539eee65",
+      "bytes": 155316
+    },
+    "selection-migrations.pdf": {
+      "sha256": "99e83e128b06bf0754e6bc2c98dd05e71f59dee0a12902582e80224c9e44223b",
+      "bytes": 21408
+    },
+    "selection-migrations.png": {
+      "sha256": "4750a25901bf97528058990ec5524d6089538a4495a0eb6cdcc363c59ae50aaa",
+      "bytes": 149117
+    },
+    "signal-shape-comparison.pdf": {
+      "sha256": "604356cb82521c2d476493207849bb770721488c7342793f6ae1d5efee3ddc87",
+      "bytes": 29135
+    },
+    "signal-shape-comparison.png": {
+      "sha256": "6909c4f1703866a986f4bb18a5a28da5fef43a124e4ae23766193972f6250d14",
+      "bytes": 128319
+    },
+    "verification.json": {
+      "sha256": "3880bbb2d053821fe625582d2c7e0ecb4bf96c494ca29769dd58dedc86d9bd8d",
+      "bytes": 1087
+    },
+    "verify.py": {
+      "sha256": "4f4a30264b791419cf86f5a4a3b095d7fc5b8d135dee9de27b0f812c385708c7",
+      "bytes": 4252
+    }
+  }
+}
