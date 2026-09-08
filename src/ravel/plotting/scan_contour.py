@@ -151,12 +151,18 @@ def resolve_axis(flag, declared, default):
 
 
 def header(ax, hep, args):
-    if hep is not None:
-        explabel = getattr(hep, args.experiment.lower()).label
-        try:
-            explabel(ax=ax, data=True, text="", lumi=args.lumi, com=args.com)
-        except TypeError:
-            explabel(ax=ax, data=True, label="", lumi=args.lumi, com=args.com)
+    # Experiment typography does not make this an experiment-authored result.
+    # Keep the owner and beam/luminosity context visible with either style backend.
+    ax.text(0, 1.015, f"RAVEL · {args.experiment} reinterpretation",
+            transform=ax.transAxes, ha="left", va="bottom", fontsize=12)
+    context = []
+    if args.lumi is not None:
+        context.append(rf"{args.lumi:g} fb$^{{-1}}$")
+    if args.com is not None:
+        context.append(f"({args.com:g} TeV)")
+    if context:
+        ax.text(1, 1.015, " ".join(context), transform=ax.transAxes,
+                ha="right", va="bottom", fontsize=12)
 
 
 LINT_ALLOW = False       # set by --no-lint; save() gates every figure through the house lint
@@ -408,10 +414,11 @@ def _orient_dm(x, y, xn, yn):
 def _supported_triangulation(mpar, dm, z, logy=True):
     """Linear support on the observed rectangular lattice; missing vertices stay holes.
 
-    Infill the lattice from repeated mass/splitting axes before triangulation, then
-    mask triangles touching absent/invalid values. Removing bad points first would
-    bridge holes. One-off refinement coordinates do not create a whole missing row.
-    This does not infer coverage beyond recorded mass and splitting coordinates.
+    Infill interior lattice holes from repeated mass/splitting axes, then mask
+    triangles touching absent/invalid values. Removing bad points first would
+    bridge holes. A rectangular completion outside the recorded convex hull would
+    instead invent missing boundary sites and erase supported boundary triangles.
+    One-off refinement coordinates do not create a whole missing row.
     """
     import matplotlib.tri as mtri
     mpar, dm, z = (np.asarray(v, float) for v in (mpar, dm, z))
@@ -426,7 +433,10 @@ def _supported_triangulation(mpar, dm, z, logy=True):
     yy, ycounts = np.unique(dm, return_counts=True)
     if len(xx) < 2 or len(yy) < 2:
         raise ValueError("contour needs at least two masses and two mass splittings")
-    sites = sorted(set(coords) | {(mass, split) for mass in xx[xcounts >= 2] for split in yy[ycounts >= 2]})
+    domain = mtri.Triangulation(mpar, np.log10(dm) if logy else dm).get_trifinder()
+    interior_lattice = {(mass, split) for mass in xx[xcounts >= 2] for split in yy[ycounts >= 2]
+                        if domain(mass, np.log10(split) if logy else split) >= 0}
+    sites = sorted(set(coords) | interior_lattice)
     lookup = dict(zip(coords, z))
     values = np.array([lookup.get(site, np.nan) for site in sites])
     tri = mtri.Triangulation([site[0] for site in sites],
@@ -684,14 +694,8 @@ def render_fig3(scan, atlas_contours, limit_grid, args, kind="observed"):
         ax.set_xlim(min(mpar.min(), all_m.min()) - 5, max(mpar.max(), all_m.max()) + 5)
     ax.set_xlabel(r"$m_{\tilde{\ell}}$ [GeV]")
     ax.set_ylabel(r"$\Delta m(\tilde{\ell},\tilde{\chi}^0_1)$ [GeV]")
-    # the fill occupies the WHOLE panel, so the experiment label goes ABOVE the axes (mplhep
-    # loc=0) instead of inside top-left, where it would sit on the color map + ATLAS contour
-    if hep is not None:
-        explabel = getattr(hep, args.experiment.lower()).label
-        try:
-            explabel(ax=ax, data=True, text="", lumi=args.lumi, com=args.com, loc=0)
-        except TypeError:
-            header(ax, hep, args)
+    # The fill occupies the panel; keep the provenance header above the axes.
+    header(ax, hep, args)
     # explicit proxy handles need labels too (smart_legend forwards both or neither); the
     # experiment label sits ABOVE the axes here (loc=0), so the inside top-left is a real
     # candidate — and the exclusion contours sweep the TOP of the plane, so the LOWER corners
@@ -850,12 +854,12 @@ def render_diffmap(scan, atlas_contours, limit_grid, args, kind="observed"):
                        color="0.4", s=45, label=f"{label} ({len(items)})", zorder=4)
     ax.set(xlabel="Parent mass [GeV]", ylabel="Mass splitting [GeV]", yscale="log")
     handles, labels = ax.get_legend_handles_labels()
-    from matplotlib.ticker import ScalarFormatter
-    tick_values = sorted({r["dm"] for r in report["records"] if isinstance(r.get("dm"), (int, float))
-                          and np.isfinite(r["dm"]) and r["dm"] > 0})
-    if len(tick_values) <= 10:
-        ax.set_yticks(tick_values)
-        ax.yaxis.set_major_formatter(ScalarFormatter())
+    from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
+    # Close scan coordinates (e.g. 20, 25.7, 30 GeV) are data, not useful
+    # axis labels. Use the same readable 1-2-5 log sequence as the headline.
+    ax.yaxis.set_major_locator(LogLocator(base=10, subs=(1, 2, 5)))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _pos: f"{value:g}"))
+    ax.yaxis.set_minor_formatter(NullFormatter())
     order = np.argsort(residual)
     residual_ax.axhline(0, color="0.4", lw=0.8)
     residual_ax.plot(np.arange(1, len(valid) + 1), 100 * residual[order], "o", ms=4, color="#0072B2")

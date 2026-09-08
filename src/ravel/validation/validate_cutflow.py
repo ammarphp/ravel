@@ -12,7 +12,7 @@ generated sample; otherwise this is conditional acceptance. This tool cannot
 verify that semantic assumption from anonymous bin values. auto chooses by the
 YODA object interface (.val() for counter, otherwise .bins() for cutflow).
 
-Published reference lookup uses a node within 1 GeV, then local 1-D linear
+Published reference lookup uses a 1e-6 GeV numerical tolerance, then local 1-D linear
 interpolation across at most --interp-max-span. Interpolation is an approximation
 without propagated interpolation uncertainty. A NEAREST reference is retained
 for diagnosis but cannot certify a driving region at a different mass point.
@@ -47,6 +47,8 @@ if not __package__:
 
 
 import argparse, glob, json, math, numbers, os, re, sys
+from .reference_grid import NODE_TOLERANCE_GEV, validated_grid, matching_node, aligned_slice
+
 
 
 def finite_nonnegative(value, name, *, positive=False):
@@ -104,12 +106,12 @@ def inverse_signal_shift(ratio):
 
 
 
-def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=1.0, interp_max_span=200.0):
+def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=NODE_TOLERANCE_GEV, interp_max_span=200.0):
     """Find the acc×eff table for <sr> in <grid> and return (value, node_descriptor).
 
     Lookup order (the descriptor records which path was taken — it lands in the output rows):
-      1. EXACT grid node (both coordinates within node_tol, ~1 GeV): identical value and
-         descriptor to the historic nearest-node lookup there (bit-identical certifications).
+      1. Unique grid node within node_tol (default 1e-6 GeV, floating-point tolerance).
+         A physical 1 GeV window can confuse distinct compressed-spectrum nodes.
       2. 1-D linear interpolation when the point is bracketed along ONE axis by two nodes
          sharing the other coordinate: fixed-LSP interpolation along the parent/splitting axis
          preferred (A×ε varies fastest with the mass splitting — the physically correct 1-D
@@ -146,17 +148,18 @@ def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=1.0, interp_ma
     pts = [(finite_nonnegative(pm[i], "published parent mass"),
             finite_nonnegative(lm[i], "published LSP mass"),
             finite_nonnegative(dv[i]["value"], "published A×ε")) for i in range(len(pm))]
-    # 1) exact node — same value + descriptor as the historic nearest-node lookup at a node
-    for a, b, v in pts:
-        if abs(a - m_parent) < node_tol and abs(b - m_lsp) < node_tol:
-            return v, f"grid node (m_parent={a:.0f}, m_lsp={b:.0f})"
+    pts = validated_grid(pts, m_parent, m_lsp, node_tol)
+    node = matching_node(pts, m_parent, m_lsp, node_tol)
+    if node is not None:
+        a, b, v = node
+        return v, f"grid node (m_parent={a:.17g}, m_lsp={b:.17g})"
     # 2) 1-D bracket interpolation, fixed-LSP (splitting axis) first, then fixed-parent
     for axis in ("lsp", "parent"):
         if axis == "lsp":
-            same = sorted((a, v) for a, b, v in pts if abs(b - m_lsp) < node_tol)
+            same = aligned_slice(pts, 1, m_lsp, node_tol)
             x = m_parent
         else:
-            same = sorted((b, v) for a, b, v in pts if abs(a - m_parent) < node_tol)
+            same = aligned_slice(pts, 0, m_parent, node_tol)
             x = m_lsp
         lo = max(((xx, vv) for xx, vv in same if xx <= x), default=None)
         hi = min(((xx, vv) for xx, vv in same if xx >= x), default=None)
@@ -164,17 +167,17 @@ def published_axe(tables_dir, sr, grid, m_parent, m_lsp, node_tol=1.0, interp_ma
             f = (x - lo[0]) / (hi[0] - lo[0])
             val = lo[1] + f * (hi[1] - lo[1])
             if axis == "lsp":
-                return val, f"interp@m_lsp={m_lsp:g}: m_parent {lo[0]:g}->{hi[0]:g}"
-            return val, f"interp@m_parent={m_parent:g}: m_lsp {lo[0]:g}->{hi[0]:g}"
+                return val, f"interp@m_lsp={m_lsp:.17g}: m_parent {lo[0]:.17g}->{hi[0]:.17g}"
+            return val, f"interp@m_parent={m_parent:.17g}: m_lsp {lo[0]:.17g}->{hi[0]:.17g}"
     # 3) legacy nearest-node fallback — flagged, since it can flip the verdict on coarse grids
     best, bd = None, 1e18
     for a, b, v in pts:
         dist = (a - m_parent) ** 2 + (b - m_lsp) ** 2
         if dist < bd:
             bd, best = dist, (a, b, v)
-    return best[2], (f"NEAREST grid node (m_parent={best[0]:.0f}, m_lsp={best[1]:.0f}) — "
-                     f"no exact node or 1-D bracket ≤{interp_max_span:g} GeV at "
-                     f"({m_parent:g},{m_lsp:g}); coarse-grid caution")
+    return best[2], (f"NEAREST grid node (m_parent={best[0]:.17g}, m_lsp={best[1]:.17g}) — "
+                     f"no exact node or 1-D bracket ≤{interp_max_span:.17g} GeV at "
+                     f"({m_parent:.17g},{m_lsp:.17g}); coarse-grid caution")
 
 
 def read_sr_axe(obj, sr_reader, sigma_fb, lumi_fb):

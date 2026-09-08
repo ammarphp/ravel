@@ -10,7 +10,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'src'))
 from ravel.plotting.scan_contour import (
-    _smooth_field, comparison_data, read_limit_grid, excluded_intervals,
+    _smooth_field, _supported_triangulation, comparison_data, read_limit_grid, excluded_intervals,
     atlas_dm_reach, MissingLimitColumn,
 )
 
@@ -33,6 +33,24 @@ def test_missing_or_flagged_interior_point_is_not_bridged():
     _, _, removed = _smooth_field(np.delete(x.ravel(), 4), np.delete(y.ravel(), 4),
                                   np.delete(values, 4), nx=101, ny=101)
     assert removed.mask[50, 50]
+
+
+@pytest.mark.parametrize("logy", [False, True])
+def test_irregular_scan_boundary_keeps_supported_triangles(logy):
+    import matplotlib.tri as mtri
+    # An L-shaped sample has no (300, 20) point. That point lies outside
+    # its convex hull, so it cannot erase the measured boundary triangle.
+    mass = [200, 250, 300, 200, 250]
+    dm = [10, 10, 10, 20, 20]
+    tri, values = _supported_triangulation(mass, dm, [0., 0., 2., 2., 2.], logy=logy)
+    transform = np.log10 if logy else lambda x: x
+    field = mtri.LinearTriInterpolator(tri, values)
+    assert not np.ma.is_masked(field(270, transform(12)))
+    assert np.ma.is_masked(field(300, transform(20)))
+    # A genuinely failed boundary vertex must still poison its triangles.
+    tri, values = _supported_triangulation(mass, dm, [0., 0., np.nan, 2., 2.], logy=logy)
+    field = mtri.LinearTriInterpolator(tri, values)
+    assert np.ma.is_masked(field(270, transform(12)))
 
 
 def test_disconnected_exclusions_and_nan_gaps():

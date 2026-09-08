@@ -1,5 +1,13 @@
 # PLAN-OF-RECORD — the canonical mission, the trial, and the critical path
 
+> Historical planning record, corrected 2026-09-08. The completion statements below
+> describe execution of a restricted 52-point scan, not defensible physics reproduction.
+> The claim below that splittings under 2 GeV have no sensitivity is incorrect:
+> the ATLAS slepton result reaches 550 MeV and its published maps contain sub-GeV
+> points. Use [current state](../status.md) and the
+> [reproduction checklist](../../workflow/checklists/reproduction-closure.md) for
+> active decisions. [ATLAS paper](https://arxiv.org/abs/1911.12606).
+
 <!-- LAST-RECONCILED-AGAINST: capability-matrix.json@2026-07-08 -->
 > Durable handoff (written 2026-06-17 from a full transcript audit of sessions ea023a01 / 64fe01b4 /
 > 72158dee). Read this FIRST if context was compacted or a session restarted. It is the authority on

@@ -17,7 +17,7 @@ alone is not an A×ε reference. --acc-unit-scale applies only to separate accep
 tables; the default 1e-3 convention must match the particular HEPData publication.
 The second grid axis is a splitting: pass --dm or --m-lsp, never both.
 
-Lookup: node within 1 GeV; local 1-D interpolation with a bounded span; otherwise
+Lookup: node within 1e-6 GeV; local 1-D interpolation with a bounded span; otherwise
 NEAREST for diagnosis only. A nearest-node driving comparison cannot pass even
 inside the outer grid boundary. Interpolation uncertainty is not estimated.
 
@@ -51,6 +51,8 @@ if not __package__:
 
 
 import argparse, glob, json, math, os, re, sys
+from .reference_grid import NODE_TOLERANCE_GEV, validated_grid, matching_node, aligned_slice
+
 from .validate_cutflow import (
     finite_nonnegative, comparison_metadata, comparison_ratio, inverse_signal_shift, unique_json_object,
 )
@@ -81,18 +83,19 @@ def _read_grid_table(base, data_file, m_parent, splitting, node_tol, interp_max_
             finite_nonnegative(dv[i]["value"], "published acceptance/efficiency"))
            for i in range(len(pm))]
     x = splitting
-    # 1) exact node
-    for a, b, v in pts:
-        if abs(a - m_parent) < node_tol and abs(b - x) < node_tol:
-            return v, f"grid node (m_parent={a:.0f}, split={b:g})", False
+    pts = validated_grid(pts, m_parent, x, node_tol)
+    node = matching_node(pts, m_parent, x, node_tol)
+    if node is not None:
+        a, b, v = node
+        return v, f"grid node (m_parent={a:.17g}, split={b:.17g})", False
     # 2) 1-D bracket interpolation along the splitting axis at fixed parent mass
-    same = sorted((b, v) for a, b, v in pts if abs(a - m_parent) < node_tol)
+    same = aligned_slice(pts, 0, m_parent, node_tol)
     lo = max(((xx, vv) for xx, vv in same if xx <= x), default=None)
     hi = min(((xx, vv) for xx, vv in same if xx >= x), default=None)
     if lo and hi and lo[0] != hi[0] and (hi[0] - lo[0]) <= interp_max_span:
         f = (x - lo[0]) / (hi[0] - lo[0])
         val = lo[1] + f * (hi[1] - lo[1])
-        return val, f"interp@m_parent={m_parent:g}: split {lo[0]:g}->{hi[0]:g}", False
+        return val, f"interp@m_parent={m_parent:.17g}: split {lo[0]:.17g}->{hi[0]:.17g}", False
     # 3) nearest-node fallback — and decide whether the request is genuinely off the grid
     best, bd = None, 1e18
     for a, b, v in pts:
@@ -107,8 +110,8 @@ def _read_grid_table(base, data_file, m_parent, splitting, node_tol, interp_max_
         smin, smax = (col[0], col[-1]) if col else (x, x)
     off_grid = (x < smin - node_tol) or (x > smax + node_tol)
     tag = ("point outside published acc×eff grid" if off_grid else "no exact node or 1-D bracket")
-    desc = (f"NEAREST grid node (m_parent={best[0]:.0f}, split={best[1]:g}) — {tag} at "
-            f"(m_parent={m_parent:g}, split={x:g}); coarse-grid caution")
+    desc = (f"NEAREST grid node (m_parent={best[0]:.17g}, split={best[1]:.17g}) — {tag} at "
+            f"(m_parent={m_parent:.17g}, split={x:.17g}); coarse-grid caution")
     return best[2], desc, off_grid
 
 
@@ -125,7 +128,7 @@ def _find_table(base, sub_docs, kind_re, region_re, grid_re):
 
 
 def published_acceff(tables_dir, region, grid, m_parent, splitting,
-                     acc_unit_scale=1e-3, node_tol=1.0, interp_max_span=200.0):
+                     acc_unit_scale=1e-3, node_tol=NODE_TOLERANCE_GEV, interp_max_span=200.0):
     """Published A×ε for a signal region = acceptance(scaled) x efficiency at (m_parent, splitting).
 
     `region` is the published signal-region phrase as it appears in the HEPData description, e.g.

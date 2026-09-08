@@ -16,6 +16,7 @@ def test_current_fidelity_demonstrations_are_bound_to_inputs():
 
 
 @pytest.mark.parametrize('mutation', ['scan_population', 'native_population', 'native_code_pin',
+                                     'statistical_inheritance', 'reference_grid_artifact', 'missing_grid_pin',
                                      'native_event_io.py', 'pool_replicas.py', 'lhe_provenance.py'])
 def test_tampered_demonstration_is_rejected(tmp_path, mutation):
     source = ROOT / 'evidence/audits'
@@ -23,7 +24,18 @@ def test_tampered_demonstration_is_rejected(tmp_path, mutation):
     shutil.copy2(source / 'current.json', tmp_path / 'current.json')
     for path in selected.values():
         shutil.copytree(path, tmp_path / path.name)
-    if mutation == 'scan_population':
+    if mutation in ('statistical_inheritance', 'missing_grid_pin'):
+        path = tmp_path / selected['statistical'].name / 'audit.json'
+        data = json.loads(path.read_text())
+        if mutation == 'statistical_inheritance':
+            data['cached_replay']['cases'][0]['mu95_obs'] *= 2
+        else:
+            del data['artifacts_sha256']['reference/figure_32a.yaml']
+    elif mutation == 'reference_grid_artifact':
+        path = tmp_path / selected['statistical'].name / 'reference-grid.json'
+        data = json.loads(path.read_text())
+        data['queries'] -= 1
+    elif mutation == 'scan_population':
         path = tmp_path / selected['scan'].name / 'scan__reldiff.json'
         data = json.loads(path.read_text())
         data['planned'] -= 2

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "source_commit": "3507b8f3edbbf53925dd2e7ac9b3653a01504871",
-  "claim_manifest_source_commit": "4d70b9e",
+  "source_commit": "c0f860ef98278f8364e84e7bce4e3fab1b8dfb33",
+  "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
   "artifact_bindings": [
@@ -188,6 +188,94 @@
       "export_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
       "source_bytes": 35016,
       "export_bytes": 35016
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+      "source_sha256": "7dba9acd9a94e9e357c74b6b0f021de67cada6c1b736098ad12436090d89cc54",
+      "export_sha256": "7dba9acd9a94e9e357c74b6b0f021de67cada6c1b736098ad12436090d89cc54",
+      "source_bytes": 10761,
+      "export_bytes": 10761
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+      "source_sha256": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c",
+      "export_sha256": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c",
+      "source_bytes": 43413,
+      "export_bytes": 43413
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+      "source_sha256": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f",
+      "export_sha256": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f",
+      "source_bytes": 18444,
+      "export_bytes": 18444
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+      "source_sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d",
+      "export_sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d",
+      "source_bytes": 3791,
+      "export_bytes": 3791
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+      "source_sha256": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+      "export_sha256": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+      "source_bytes": 742,
+      "export_bytes": 742
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32a.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32a.yaml",
+      "source_sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+      "export_sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+      "source_bytes": 4515,
+      "export_bytes": 4515
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32b.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32b.yaml",
+      "source_sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+      "export_sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+      "source_bytes": 4507,
+      "export_bytes": 4507
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32c.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32c.yaml",
+      "source_sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+      "export_sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+      "source_bytes": 4522,
+      "export_bytes": 4522
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32d.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32d.yaml",
+      "source_sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+      "export_sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+      "source_bytes": 4510,
+      "export_bytes": 4510
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32e.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32e.yaml",
+      "source_sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+      "export_sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+      "source_bytes": 4529,
+      "export_bytes": 4529
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32f.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32f.yaml",
+      "source_sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+      "export_sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+      "source_bytes": 4487,
+      "export_bytes": 4487
     },
     {
       "source_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
@@ -734,8 +822,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "7c32557a553c12c3514be2906c7a1025cceb18b7cbfb0e7ae8d63c26a3b8704b",
-      "export_sha256": "7c32557a553c12c3514be2906c7a1025cceb18b7cbfb0e7ae8d63c26a3b8704b"
+      "source_sha256": "0f39d9116104de5915f0d0c4e52cb4603bb3224137a9d85c52c5204f89abd5b8",
+      "export_sha256": "0f39d9116104de5915f0d0c4e52cb4603bb3224137a9d85c52c5204f89abd5b8"
     },
     {
       "source_path": "CITATION.cff",
@@ -758,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "14fa1f012780b73d45768599b843d30f146fedeb57ad27ad44693ab4a9886088",
-      "export_sha256": "06a59a9d7427cabf6aecfdcf3b3a4389bf0fa94145e0076051a50335b61ad945"
+      "source_sha256": "74a6877a2cc5641bfd5dacd71f3df5063006a85947f4e1db92e661fa747b6272",
+      "export_sha256": "4389f68e179ed9b1a42cd63275d78cbd45343b34622bde89f6c69f25a492f227"
     },
     {
       "source_path": "LICENSE",
@@ -782,8 +870,8 @@
     {
       "source_path": "README.md",
       "public_path": "README.md",
-      "source_sha256": "9875dd0f16103958fa16066fbcbda986d31dbaa22f9b8e15d9b8472e1962e603",
-      "export_sha256": "9875dd0f16103958fa16066fbcbda986d31dbaa22f9b8e15d9b8472e1962e603"
+      "source_sha256": "c336a3ac22a5a3f9121b6df0a43f9bb19b6888786332c165adca7b1a468a4c78",
+      "export_sha256": "c336a3ac22a5a3f9121b6df0a43f9bb19b6888786332c165adca7b1a468a4c78"
     },
     {
       "source_path": "benchmarks/README.md",
@@ -802,6 +890,18 @@
       "public_path": "benchmarks/cases.json",
       "source_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
       "export_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c"
+    },
+    {
+      "source_path": "benchmarks/check_atlas_likelihood_controls.py",
+      "public_path": "benchmarks/check_atlas_likelihood_controls.py",
+      "source_sha256": "d90febc917e659a9d3dbee96cc9f555ce4a6e8ce149a3f78069158975ae55274",
+      "export_sha256": "d90febc917e659a9d3dbee96cc9f555ce4a6e8ce149a3f78069158975ae55274"
+    },
+    {
+      "source_path": "benchmarks/check_reference_grid.py",
+      "public_path": "benchmarks/check_reference_grid.py",
+      "source_sha256": "eb71630c492b01d63451f8a12ee4f04f42b43cd7c2fdb3eee4fa4af2ab1078ce",
+      "export_sha256": "eb71630c492b01d63451f8a12ee4f04f42b43cd7c2fdb3eee4fa4af2ab1078ce"
     },
     {
       "source_path": "benchmarks/governance/README.md",
@@ -908,8 +1008,8 @@
     {
       "source_path": "docs/development/distribution.md",
       "public_path": "docs/development/distribution.md",
-      "source_sha256": "46dd0fca9e01dd896dc0aa420a1de6e1d096a03730569992e8a3cc1b96374706",
-      "export_sha256": "46dd0fca9e01dd896dc0aa420a1de6e1d096a03730569992e8a3cc1b96374706"
+      "source_sha256": "e556d8b1fdf348429ddaf938ab515735bf316bd778e42c62af0f4385e99341ee",
+      "export_sha256": "e556d8b1fdf348429ddaf938ab515735bf316bd778e42c62af0f4385e99341ee"
     },
     {
       "source_path": "docs/development/documentation.md",
@@ -1020,6 +1120,12 @@
       "export_sha256": "3f0336a0077f02039d629c5f242a4030b71f1b4854c8f484d61642b9ca56da04"
     },
     {
+      "source_path": "docs/development/history/2026-09-08-fidelity-transfer-verification.md",
+      "public_path": "docs/development/history/2026-09-08-fidelity-transfer-verification.md",
+      "source_sha256": "2afb8a07db332891ad3203295450c6a3ba1011733bf9f87e5e6e5806e01c575e",
+      "export_sha256": "2afb8a07db332891ad3203295450c6a3ba1011733bf9f87e5e6e5806e01c575e"
+    },
+    {
       "source_path": "docs/development/history/data-and-card-changes.md",
       "public_path": "docs/development/history/data-and-card-changes.md",
       "source_sha256": "6da054299484e77aa62ab77659edd6cd8163c83a225ba20d6aaaf4f46cb3160f",
@@ -1034,8 +1140,8 @@
     {
       "source_path": "docs/development/history/mission-and-plan.md",
       "public_path": "docs/development/history/mission-and-plan.md",
-      "source_sha256": "1487ec0770cacda28144aebdc2810e9569040bffb3424412406a36e813d8d54e",
-      "export_sha256": "1487ec0770cacda28144aebdc2810e9569040bffb3424412406a36e813d8d54e"
+      "source_sha256": "50b0904923d6058d7de1d98d6ad372e47033702adfc4c5a0114f68da16fc1504",
+      "export_sha256": "50b0904923d6058d7de1d98d6ad372e47033702adfc4c5a0114f68da16fc1504"
     },
     {
       "source_path": "docs/development/history/operability-audit.md",
@@ -1076,8 +1182,8 @@
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "2ca96e5aa60569c1cc5c444d37fff61c57a7c446ddb070ccaa048aa2056504e1",
-      "export_sha256": "2ca96e5aa60569c1cc5c444d37fff61c57a7c446ddb070ccaa048aa2056504e1"
+      "source_sha256": "71d1d254a426b2aa1131d043963e29de2ab881d7895c59f31240f25c02a6aa1a",
+      "export_sha256": "71d1d254a426b2aa1131d043963e29de2ab881d7895c59f31240f25c02a6aa1a"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -1198,6 +1304,12 @@
       "public_path": "docs/research/2026-09-05-rrr-diagnosis-and-research-program.md",
       "source_sha256": "06b32599041d704708aab4bd3ca4c7a94ac3eebd239de51c25471569485f02ef",
       "export_sha256": "06b32599041d704708aab4bd3ca4c7a94ac3eebd239de51c25471569485f02ef"
+    },
+    {
+      "source_path": "docs/research/2026-09-08-fidelity-transfer.md",
+      "public_path": "docs/research/2026-09-08-fidelity-transfer.md",
+      "source_sha256": "8cd1fc5615b6ba5885f435a5c9b2547653e003fad556630730a0709552e42527",
+      "export_sha256": "8cd1fc5615b6ba5885f435a5c9b2547653e003fad556630730a0709552e42527"
     },
     {
       "source_path": "docs/research/README.md",
@@ -1334,8 +1446,8 @@
     {
       "source_path": "docs/validation/evidence.md",
       "public_path": "docs/validation/evidence.md",
-      "source_sha256": "da33d08db9cc1e5653843ca674cfb47ae6a4fed7abb0a15d5966c655a88a4068",
-      "export_sha256": "da33d08db9cc1e5653843ca674cfb47ae6a4fed7abb0a15d5966c655a88a4068"
+      "source_sha256": "b8d7fd0c1774bc6da5b7f70adcd45238e2b67ad1ac19f83e79ca1ad1627cd8af",
+      "export_sha256": "b8d7fd0c1774bc6da5b7f70adcd45238e2b67ad1ac19f83e79ca1ad1627cd8af"
     },
     {
       "source_path": "docs/validation/native-performance.md",
@@ -1346,8 +1458,8 @@
     {
       "source_path": "docs/validation/results.md",
       "public_path": "docs/validation/results.md",
-      "source_sha256": "7872bbf52bf6e37a2778e282694e05ecc778f41383deca7bfe929a09a5271704",
-      "export_sha256": "7872bbf52bf6e37a2778e282694e05ecc778f41383deca7bfe929a09a5271704"
+      "source_sha256": "8de8cf7054b8c64628a8cd70ace68a92d8afa0dc17959ef5b8745123388347f7",
+      "export_sha256": "8de8cf7054b8c64628a8cd70ace68a92d8afa0dc17959ef5b8745123388347f7"
     },
     {
       "source_path": "docs/validation/studies/atlas-2016-i1458270-fidelity.md",
@@ -1532,8 +1644,8 @@
     {
       "source_path": "docs/workflow/checklists/reproduction-closure.md",
       "public_path": "docs/workflow/checklists/reproduction-closure.md",
-      "source_sha256": "0f9c87c952c8030df55314a58ce4b7aad1feb56846398ab46001e6a8f2bd60ee",
-      "export_sha256": "0f9c87c952c8030df55314a58ce4b7aad1feb56846398ab46001e6a8f2bd60ee"
+      "source_sha256": "e992fe523aca5524210473499a0f36e1110cce245acb61d44804668db8e0dbfd",
+      "export_sha256": "e992fe523aca5524210473499a0f36e1110cce245acb61d44804668db8e0dbfd"
     },
     {
       "source_path": "docs/workflow/checklists/scan-and-contour.md",
@@ -3222,10 +3334,172 @@
       "export_sha256": "02fc6636342219ac8fc43f641739300ec2e8ee61aa7d00cdeb9d76d306908545"
     },
     {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/README.md",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/README.md",
+      "source_sha256": "1828151f4c7b66da1b1ab0b9d08d1bd26ce66e495bb4b37421633039cdab44c9",
+      "export_sha256": "1828151f4c7b66da1b1ab0b9d08d1bd26ce66e495bb4b37421633039cdab44c9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-expected-contour.yaml",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-expected-contour.yaml",
+      "source_sha256": "71cb1d3923157c9ed2fdbde86ec9aa561615d27a521c0f412988313a5c345dbc",
+      "export_sha256": "71cb1d3923157c9ed2fdbde86ec9aa561615d27a521c0f412988313a5c345dbc"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-limit-grid.yaml",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-limit-grid.yaml",
+      "source_sha256": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
+      "export_sha256": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-observed-contour.yaml",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/atlas-observed-contour.yaml",
+      "source_sha256": "221b61e2aa3d7846847a5139363a3f2bcf1c4ded6d35b7780ecc1dc047813755",
+      "export_sha256": "221b61e2aa3d7846847a5139363a3f2bcf1c4ded6d35b7780ecc1dc047813755"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/provenance.json",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/provenance.json",
+      "source_sha256": "ae3de5a7d899d4d21732124549776f69c518e956401afa02295713a44feaeb1d",
+      "export_sha256": "ae3de5a7d899d4d21732124549776f69c518e956401afa02295713a44feaeb1d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/render.log",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/render.log",
+      "source_sha256": "9522e6cc9953c10d8f5e0e6630c01d5e23ac7456e5a239f94b5c85d66db98a6e",
+      "export_sha256": "9522e6cc9953c10d8f5e0e6630c01d5e23ac7456e5a239f94b5c85d66db98a6e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan.pdf",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan.pdf",
+      "source_sha256": "df4119a5f2a9c2c29fdbb7faec78e0ec08177007a5cc04658a05a630da14076a",
+      "export_sha256": "df4119a5f2a9c2c29fdbb7faec78e0ec08177007a5cc04658a05a630da14076a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan.png",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan.png",
+      "source_sha256": "e756f7ef462c520616663afcc3ceda320b983293dcc2e05f2cdac374606e56d6",
+      "export_sha256": "e756f7ef462c520616663afcc3ceda320b983293dcc2e05f2cdac374606e56d6"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3.pdf",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3.pdf",
+      "source_sha256": "21a50f4f2f92557f9fe9263b981d9a069b288b803bb9b5b21ac7cf821fb99912",
+      "export_sha256": "21a50f4f2f92557f9fe9263b981d9a069b288b803bb9b5b21ac7cf821fb99912"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3.png",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3.png",
+      "source_sha256": "da0698142c1ae01eb0bfbc31ba1ba524cedf6231848d123b3d5f90ab903da6a3",
+      "export_sha256": "da0698142c1ae01eb0bfbc31ba1ba524cedf6231848d123b3d5f90ab903da6a3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3_expected.pdf",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3_expected.pdf",
+      "source_sha256": "9f7d087a1de30e19f72024aed36c30cbf15400dd8fb1e9fc7006cd50e27e8b97",
+      "export_sha256": "9f7d087a1de30e19f72024aed36c30cbf15400dd8fb1e9fc7006cd50e27e8b97"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3_expected.png",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__fig3_expected.png",
+      "source_sha256": "21bf212c3c0c3cfcdbf739c8958dc5003a61e95aad0c87dab17ec79a6283f3ff",
+      "export_sha256": "21bf212c3c0c3cfcdbf739c8958dc5003a61e95aad0c87dab17ec79a6283f3ff"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.json",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.json",
+      "source_sha256": "c2ba06f394a4d6e94a7285e7622c63e4dc245aba2b5eb2b51128a1c93780cb6b",
+      "export_sha256": "c2ba06f394a4d6e94a7285e7622c63e4dc245aba2b5eb2b51128a1c93780cb6b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.pdf",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.pdf",
+      "source_sha256": "e38e8ab8c6eea2d95528da6e75cf494a59a69f7596956c8726d61612c66b5ee3",
+      "export_sha256": "e38e8ab8c6eea2d95528da6e75cf494a59a69f7596956c8726d61612c66b5ee3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.png",
+      "public_path": "evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.png",
+      "source_sha256": "3266cd5a133130a2ecc1f26bb332643f4d98ade4ba560eec9eb6f12a19a73189",
+      "export_sha256": "3266cd5a133130a2ecc1f26bb332643f4d98ade4ba560eec9eb6f12a19a73189"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/README.md",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/README.md",
+      "source_sha256": "5ddb855f1b13751fad6f221d4db0435e45bb6bfd5ac443293cdb1f552c31a35f",
+      "export_sha256": "5ddb855f1b13751fad6f221d4db0435e45bb6bfd5ac443293cdb1f552c31a35f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+      "source_sha256": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f",
+      "export_sha256": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+      "source_sha256": "7dba9acd9a94e9e357c74b6b0f021de67cada6c1b736098ad12436090d89cc54",
+      "export_sha256": "7dba9acd9a94e9e357c74b6b0f021de67cada6c1b736098ad12436090d89cc54"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+      "source_sha256": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c",
+      "export_sha256": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32a.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32a.yaml",
+      "source_sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+      "export_sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32b.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32b.yaml",
+      "source_sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+      "export_sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32c.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32c.yaml",
+      "source_sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+      "export_sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32d.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32d.yaml",
+      "source_sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+      "export_sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32e.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32e.yaml",
+      "source_sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+      "export_sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32f.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32f.yaml",
+      "source_sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+      "export_sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+      "source_sha256": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+      "export_sha256": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+      "public_path": "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+      "source_sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d",
+      "export_sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d"
+    },
+    {
       "source_path": "evidence/audits/current.json",
       "public_path": "evidence/audits/current.json",
-      "source_sha256": "89ffcfe9184fa92cc10fc32b70b3b807fb049767aa9985704b05f50edb09ec23",
-      "export_sha256": "89ffcfe9184fa92cc10fc32b70b3b807fb049767aa9985704b05f50edb09ec23"
+      "source_sha256": "0501df0b70c37f238dfa20a17c639160cfe11df52dc95257a333f077deb81d48",
+      "export_sha256": "0501df0b70c37f238dfa20a17c639160cfe11df52dc95257a333f077deb81d48"
     },
     {
       "source_path": "evidence/claims.json",
@@ -3254,8 +3528,8 @@
     {
       "source_path": "evidence/manifest.json",
       "public_path": "evidence/manifest.json",
-      "source_sha256": "34c838e0eefb252e4f7cc7722ee0450cd358d9b4ad6b20db85d2fb4871d83a9f",
-      "export_sha256": "34c838e0eefb252e4f7cc7722ee0450cd358d9b4ad6b20db85d2fb4871d83a9f"
+      "source_sha256": "ce95c16b878f7bb9efd1e8657eec5b335de58fa7877de2390f3769a7540974ae",
+      "export_sha256": "ce95c16b878f7bb9efd1e8657eec5b335de58fa7877de2390f3769a7540974ae"
     },
     {
       "source_path": "evidence/validation-summary.json",
@@ -3392,8 +3666,8 @@
     {
       "source_path": "scripts/build_evidence.py",
       "public_path": "scripts/build_evidence.py",
-      "source_sha256": "ac043f9c59c55384cb89cd12f258f8b465e3c16f8f6aea0dbe1cce10dc5c8fdc",
-      "export_sha256": "ac043f9c59c55384cb89cd12f258f8b465e3c16f8f6aea0dbe1cce10dc5c8fdc"
+      "source_sha256": "72ab3666395b77ba1925028d65e77fb67108a72b6610c28d5edbe30bb6615be7",
+      "export_sha256": "72ab3666395b77ba1925028d65e77fb67108a72b6610c28d5edbe30bb6615be7"
     },
     {
       "source_path": "scripts/check_evidence.py",
@@ -3404,8 +3678,8 @@
     {
       "source_path": "scripts/check_fidelity_audits.py",
       "public_path": "scripts/check_fidelity_audits.py",
-      "source_sha256": "9360f358a5eb7ce29781561b4d8b72851b0053ef921d9d4c0330f01adac3bd8c",
-      "export_sha256": "9360f358a5eb7ce29781561b4d8b72851b0053ef921d9d4c0330f01adac3bd8c"
+      "source_sha256": "1118c907f01a7f5566455dc7f930aa56675dafa736e41a42aa1883d84693145c",
+      "export_sha256": "1118c907f01a7f5566455dc7f930aa56675dafa736e41a42aa1883d84693145c"
     },
     {
       "source_path": "scripts/check_publication.py",
@@ -3842,8 +4116,8 @@
     {
       "source_path": "src/ravel/plotting/scan_contour.py",
       "public_path": "src/ravel/plotting/scan_contour.py",
-      "source_sha256": "9396bd9771a825eef1e8b7b2b916eae5030e12717be1a4c4ee7a349dfd8bf4d3",
-      "export_sha256": "9396bd9771a825eef1e8b7b2b916eae5030e12717be1a4c4ee7a349dfd8bf4d3"
+      "source_sha256": "735d3b694dcf5af92f0e620e448f6f12740cb76d235b5879636443de973de730",
+      "export_sha256": "735d3b694dcf5af92f0e620e448f6f12740cb76d235b5879636443de973de730"
     },
     {
       "source_path": "src/ravel/plotting/summary_overlay.py",
@@ -3878,8 +4152,8 @@
     {
       "source_path": "src/ravel/validation/certify_acceptance.py",
       "public_path": "src/ravel/validation/certify_acceptance.py",
-      "source_sha256": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120",
-      "export_sha256": "c2d1cc76a1cdbdc2a0a33d22f03a5dcb12331c2b11bcca90bd499ed430198120"
+      "source_sha256": "a6dd783e28838f623826333696639056c153ebb3d05e28ad8e3dbe56a7ba10c8",
+      "export_sha256": "a6dd783e28838f623826333696639056c153ebb3d05e28ad8e3dbe56a7ba10c8"
     },
     {
       "source_path": "src/ravel/validation/check_agent_surface.py",
@@ -3912,6 +4186,12 @@
       "export_sha256": "1e5b7f59c97b59ac0ecdeac18b38b3a19ba523aa4801a7cbc498240dd1f87475"
     },
     {
+      "source_path": "src/ravel/validation/reference_grid.py",
+      "public_path": "src/ravel/validation/reference_grid.py",
+      "source_sha256": "420565c3252bb937ceaf0e026d08397c0bcd0eec8e3a93b8ac61d9395b32f077",
+      "export_sha256": "420565c3252bb937ceaf0e026d08397c0bcd0eec8e3a93b8ac61d9395b32f077"
+    },
+    {
       "source_path": "src/ravel/validation/sr_plausibility.py",
       "public_path": "src/ravel/validation/sr_plausibility.py",
       "source_sha256": "252742cff538b6afc8f3cf762f051c8d8e0d5a7f5f8f6fd17ae3d6677266f291",
@@ -3932,8 +4212,8 @@
     {
       "source_path": "src/ravel/validation/validate_cutflow.py",
       "public_path": "src/ravel/validation/validate_cutflow.py",
-      "source_sha256": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22",
-      "export_sha256": "80fd26a1e695c48acab396adaeb0004c1881a6860aaa633f21ce427357b5fc22"
+      "source_sha256": "3396fd9043897fd36fc0b2a8089e5e08e633447a495b8a22a61c2cbd029917f2",
+      "export_sha256": "3396fd9043897fd36fc0b2a8089e5e08e633447a495b8a22a61c2cbd029917f2"
     },
     {
       "source_path": "src/ravel/validation/validate_native_parity.py",
@@ -4490,8 +4770,8 @@
     {
       "source_path": "tests/unit/test_fidelity_audit_integrity.py",
       "public_path": "tests/unit/test_fidelity_audit_integrity.py",
-      "source_sha256": "ad9c8abb953effe78889d3d0cafb935fe7cb188e9458849fa1da640dffc8180f",
-      "export_sha256": "ad9c8abb953effe78889d3d0cafb935fe7cb188e9458849fa1da640dffc8180f"
+      "source_sha256": "8bc054680ff3fac5d221d31a7da7050aa12fad763e7ee7b9ae4868142e187561",
+      "export_sha256": "8bc054680ff3fac5d221d31a7da7050aa12fad763e7ee7b9ae4868142e187561"
     },
     {
       "source_path": "tests/unit/test_figure_target_primary.py",
@@ -4680,6 +4960,12 @@
       "export_sha256": "61f5a10f57129c2681bdc724917c8ea27c1585f43fbe5c95c363e787e814853a"
     },
     {
+      "source_path": "tests/unit/test_reference_grid.py",
+      "public_path": "tests/unit/test_reference_grid.py",
+      "source_sha256": "dfbe2e9219c3b38ae48a4b8ee152bc118f78f96057d37cad6cc1d646c3004b66",
+      "export_sha256": "dfbe2e9219c3b38ae48a4b8ee152bc118f78f96057d37cad6cc1d646c3004b66"
+    },
+    {
       "source_path": "tests/unit/test_replica_pooling.py",
       "public_path": "tests/unit/test_replica_pooling.py",
       "source_sha256": "b895be5c00af3216257d14f8690b322e4bd2da6dcb67f2e26def34bdc4a750a6",
@@ -4748,8 +5034,8 @@
     {
       "source_path": "tests/unit/test_scan_fidelity.py",
       "public_path": "tests/unit/test_scan_fidelity.py",
-      "source_sha256": "248f01bc391d806cdec3dc9e307f06f9582ecd6fec80c91b5ca3bb18feeac642",
-      "export_sha256": "248f01bc391d806cdec3dc9e307f06f9582ecd6fec80c91b5ca3bb18feeac642"
+      "source_sha256": "3307c9a6c8a948c3bc8f947fc5655b2fc057c02cea00e8f81df14a257e101a13",
+      "export_sha256": "3307c9a6c8a948c3bc8f947fc5655b2fc057c02cea00e8f81df14a257e101a13"
     },
     {
       "source_path": "tests/unit/test_scan_rendering.py",

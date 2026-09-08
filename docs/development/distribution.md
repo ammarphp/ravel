@@ -51,6 +51,15 @@ with an old source path does not make that old path a valid browser link.
 
 ## Export checks
 
+Before editing or exporting, compare the public branch revision with its export
+provenance and locate the corresponding source commit (`git worktree list` helps).
+Develop from that source commit or a verified descendant. A historical simulation
+checkout may intentionally retain an older revision because completed-stage
+receipts bind its implementation bytes. Do not update it in place or export it
+over a newer release. Use a separate source worktree and keep the original run
+paths intact. Review the staged diff against the latest public branch before
+pushing, including unexpected deletions or reversions of previously published fixes.
+
 Use a new or empty staging directory outside the source checkout:
 
 ```bash

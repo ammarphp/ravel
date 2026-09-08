@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated": "",
-  "source_commit": "4d70b9e",
+  "source_commit": "3507b8f",
   "claims": [
     {
       "claim_id": "P1_hvt_zprime_ww_summary",
@@ -739,6 +739,104 @@
           "shipped": true,
           "dev_only": false,
           "role": "benchmark-registry"
+        }
+      ]
+    },
+    {
+      "claim_id": "HEADLINE_reference_grid_transfer",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_reference_grid_transfer (stated in docs/research/2026-09-08-fidelity-transfer.md)",
+      "headline": "1,350 successful published-grid lookup queries across six ATLAS maps and their acceptance-efficiency products in two row orders; two fresh cached ATLAS numerical controls, not full physics reproductions",
+      "status": "served",
+      "gate": "curated",
+      "evidence_scope": "artifact integrity; this does not certify scientific correctness",
+      "artifacts": [
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+          "sha256": "7dba9acd9a94e9e357c74b6b0f021de67cada6c1b736098ad12436090d89cc54",
+          "bytes": 10761,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+          "sha256": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c",
+          "bytes": 43413,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+          "sha256": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f",
+          "bytes": 18444,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+          "sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d",
+          "bytes": 3791,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+          "sha256": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+          "bytes": 742,
+          "shipped": true,
+          "dev_only": false,
+          "role": "provenance"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32a.yaml",
+          "sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+          "bytes": 4515,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32b.yaml",
+          "sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+          "bytes": 4507,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32c.yaml",
+          "sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+          "bytes": 4522,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32d.yaml",
+          "sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+          "bytes": 4510,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32e.yaml",
+          "sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+          "bytes": 4529,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
+        },
+        {
+          "path": "evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32f.yaml",
+          "sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+          "bytes": 4487,
+          "shipped": true,
+          "dev_only": false,
+          "role": "artifact"
         }
       ]
     },

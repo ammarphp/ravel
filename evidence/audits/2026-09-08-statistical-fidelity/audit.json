@@ -1,0 +1,309 @@
+{
+  "schema_version": 2,
+  "scope": "Fresh reference-grid and two cached ATLAS numerical controls. Inherited root example and nine-case replay remain historical; no events generated and no acceptance campaign rerun.",
+  "source_package_version": "0.4.0",
+  "starting_source_commit": "3507b8f3edbbf53925dd2e7ac9b3653a01504871",
+  "source_state": "Implementation identified by exact engine hashes.",
+  "engine_sha256": {
+    "src/ravel/physics/pyhf_exclude.py": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+    "src/ravel/physics/sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c",
+    "src/ravel/validation/reference_grid.py": "420565c3252bb937ceaf0e026d08397c0bcd0eec8e3a93b8ac61d9395b32f077",
+    "src/ravel/validation/validate_cutflow.py": "3396fd9043897fd36fc0b2a8089e5e08e633447a495b8a22a61c2cbd029917f2",
+    "src/ravel/validation/certify_acceptance.py": "a6dd783e28838f623826333696639056c153ebb3d05e28ad8e3dbe56a7ba10c8",
+    "tests/unit/test_reference_grid.py": "dfbe2e9219c3b38ae48a4b8ee152bc118f78f96057d37cad6cc1d646c3004b66",
+    "benchmarks/check_reference_grid.py": "eb71630c492b01d63451f8a12ee4f04f42b43cd7c2fdb3eee4fa4af2ab1078ce",
+    "benchmarks/check_atlas_likelihood_controls.py": "d90febc917e659a9d3dbee96cc9f555ce4a6e8ce149a3f78069158975ae55274"
+  },
+  "inherited_evidence": {
+    "audit": "evidence/audits/2026-09-06-statistical-fidelity/audit.json",
+    "audit_sha256": "1f6458edf6437107bb285de24789c0bfe3dcab367fb4ff1f7f38f919d8373f59",
+    "fields": [
+      "root_precision_example",
+      "cached_replay"
+    ],
+    "reason": "Unchanged numerical engine and historical nine-case record. The new acceptance reader has NOT been applied to the entire historical benchmark campaign."
+  },
+  "root_precision_example": {
+    "counting_input": {
+      "n": 10,
+      "b": 10,
+      "db": 2,
+      "s": 5
+    },
+    "plot_grid_points": 5,
+    "level": 0.05,
+    "reference_solver": "pyhf.infer.intervals.upper_limits.toms748_scan; fresh model and standard scipy optimizer",
+    "reference_observed_limit": 1.6587476148447502,
+    "refined_observed_limit": 1.6587461726312438,
+    "reference_expected_limits": [
+      0.8376800406547245,
+      1.1513706140867943,
+      1.6587476148442426,
+      2.4356741596812865,
+      3.4887578583030425
+    ],
+    "refined_expected_limits": [
+      0.8376826013391796,
+      1.1513736758253468,
+      1.6587461726313852,
+      2.4356734337310564,
+      3.488733735507581
+    ],
+    "refined_relative_error": -8.694592796842926e-07,
+    "root_rtol": 0.0001,
+    "limit_status": {
+      "observed": "resolved",
+      "expected": [
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved",
+        "resolved"
+      ]
+    },
+    "limit_brackets": {
+      "observed": [
+        1.00075,
+        2.0
+      ],
+      "expected": [
+        [
+          0.7071067811865475,
+          1.0
+        ],
+        [
+          1.00075,
+          2.0
+        ],
+        [
+          1.00075,
+          2.0
+        ],
+        [
+          2.0005,
+          3.00025
+        ],
+        [
+          3.00025,
+          4.0
+        ]
+      ]
+    },
+    "fit_diagnostics": {
+      "available": true,
+      "source": "pyhf AsymptoticCalculator free_fit_to_data",
+      "reference_mu": 4.0,
+      "twice_nll": 9.220542488821145,
+      "parameters": [
+        {
+          "name": "mu",
+          "value": 7.361785184203618e-19,
+          "fixed": false,
+          "bounds": [
+            0.0,
+            6.0
+          ],
+          "near_lower_bound": true,
+          "near_upper_bound": false
+        },
+        {
+          "name": "uncorr_bkguncrt[0]",
+          "value": 1.0000000212644162,
+          "fixed": false,
+          "bounds": [
+            1e-10,
+            10.0
+          ],
+          "near_lower_bound": false,
+          "near_upper_bound": false
+        }
+      ],
+      "covariance": null,
+      "nuisance_pull_uncertainties": null,
+      "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+      "signal_strength_units": "supplied-model units",
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 9.220542488821145,
+          "fixed_data": 25.784544036138374,
+          "mu0_data": 9.220542488821128,
+          "free_asimov": 9.220542488821145,
+          "fixed_asimov": 25.784544036138374,
+          "generating_asimov": 9.220542488821128
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    }
+  },
+  "cached_replay": {
+    "population": 9,
+    "aggregate_gate_ok": false,
+    "passed_cases": 7,
+    "breached_cases": 2,
+    "all_statistical_stability_checks_passed": true,
+    "acceptance_baseline_cached_cases": 0,
+    "baseline_rewritten": false,
+    "cases": [
+      {
+        "case_id": "conf2016037_gluino_2step_sleptons_1400_60",
+        "gate_ok": false,
+        "gate_reasons": [
+          "provenance: deliverable missing/empty: outputs/analysis_patched.yoda"
+        ],
+        "status": "OK",
+        "mu95_obs": 0.296858,
+        "mu95_exp": 0.24009,
+        "s95_ratio_obs": 0.917734,
+        "s95_ratio_exp": 0.94635,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "conf2016054_gluino_onestep_1500_60",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.223119,
+        "mu95_exp": 0.286503,
+        "s95_ratio_obs": 0.910915,
+        "s95_ratio_exp": 0.97474,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1452559_dm_axial_850_1",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.341541,
+        "mu95_exp": 0.317649,
+        "s95_ratio_obs": 0.97592,
+        "s95_ratio_exp": 0.975671,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": null,
+        "acceptance_verdict": null,
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_gluino_1000_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.0493291,
+        "mu95_exp": 0.0857618,
+        "s95_ratio_obs": 0.939079,
+        "s95_ratio_exp": 1.01337,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.132428,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_gluino_merged_1000_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.0516722,
+        "mu95_exp": 0.0898379,
+        "s95_ratio_obs": 0.939065,
+        "s95_ratio_exp": 1.01338,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0807821,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_squark_800_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.217873,
+        "mu95_exp": 0.273947,
+        "s95_ratio_obs": 0.992076,
+        "s95_ratio_exp": 1.0164,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0244824,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1458270_squark_merged_800_100",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.221174,
+        "mu95_exp": 0.278098,
+        "s95_ratio_obs": 0.992076,
+        "s95_ratio_exp": 1.0164,
+        "sigma_ul_ratio_obs": null,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.0393797,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins1676551_c1n2_300_100",
+        "gate_ok": false,
+        "gate_reasons": [
+          "provenance: deliverable missing/empty: build/analysis.yoda"
+        ],
+        "status": "OK",
+        "mu95_obs": 2.71212,
+        "mu95_exp": 0.968508,
+        "s95_ratio_obs": null,
+        "s95_ratio_exp": null,
+        "sigma_ul_ratio_obs": 4.99641,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.064454,
+        "acceptance_verdict": "PASS",
+        "acceptance_from_baseline_cache": false
+      },
+      {
+        "case_id": "ins2182381_gbb_1900_1",
+        "gate_ok": true,
+        "gate_reasons": [],
+        "status": "OK",
+        "mu95_obs": 0.176927,
+        "mu95_exp": 0.11375,
+        "s95_ratio_obs": null,
+        "s95_ratio_exp": null,
+        "sigma_ul_ratio_obs": 0.732662,
+        "statistical_stability_ok": true,
+        "acceptance_residual": 0.2649,
+        "acceptance_verdict": "FAIL",
+        "acceptance_from_baseline_cache": false
+      }
+    ]
+  },
+  "artifacts_sha256": {
+    "reference-grid.json": "e4e9b94eca134a72c781adc9970175b35c0847445be7dc78c900a57218120e6c",
+    "atlas-controls.json": "85aa786deee10dae92f3e03cff190bf8704aeb9b50c4b9e3af96cecc1485105f",
+    "reference/figure_32a.yaml": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+    "reference/figure_32b.yaml": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+    "reference/figure_32c.yaml": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+    "reference/figure_32d.yaml": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+    "reference/figure_32e.yaml": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+    "reference/figure_32f.yaml": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+    "reference/provenance.json": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+    "reference/submission.yaml": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d"
+  },
+  "limitations": [
+    "Reference identity is validated; physical acceptance and detector fidelity are not.",
+    "The 2016 counting control is a fitted-background approximation. The 2018-06 control checks only the released likelihood free fit.",
+    "The old nine-case replay and numerical example are inherited, not fresh fits.",
+    "The sub-GeV lookup defect does not explain the RRR 5 GeV shape discrepancy."
+  ]
+}

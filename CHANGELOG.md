@@ -2,6 +2,18 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Share precise reference-node matching across both acceptance validators. Reject
+  ambiguous nodes, duplicate coordinates and interpolation across distinct fixed
+  masses; retain fractional identity when combining acceptance and efficiency.
+  Check all six ATLAS compressed maps in both row orders and add small numerical
+  controls from two other ATLAS analyses without generating events.
+- Repair contour support at irregular grid boundaries without filling missing
+  interior points. Use legible logarithmic ticks and a RAVEL reinterpretation
+  label. Re-render the unchanged historical scan with explicit provenance.
+- Distinguish fresh adapter checks from inherited numerical evidence, preserve
+  historical source checkouts, and require separate rate/shape/precision review
+  at the first reproduction waypoint. Full RRR physics closure remains open.
+
 - Publish the fresh 50/45 GeV result and a three-anchor comparison with all 18
   limits, 114 channel-moment rows and separate reconstructed-fraction diagnostics.
   Show sparse MC, missing reference errors and the 49 uncompleted nominal points.

@@ -140,6 +140,59 @@ def check(root=ROOT, audits=None):
     relative = example['refined_observed_limit'] / example['reference_observed_limit'] - 1
     if abs(relative - example['refined_relative_error']) > 1e-12:
         errors.append('statistical root-error arithmetic drift')
+    if statistical.get('schema_version') == 2:
+        errors.extend(check_statistical_transfer(root, paths['statistical'], statistical))
+    elif statistical.get('schema_version') != 1:
+        errors.append('unsupported statistical fidelity schema')
+    return errors
+
+
+def check_statistical_transfer(root, audit, record):
+    """Keep fresh adapter checks separate from unchanged-engine inherited fits."""
+    errors = []
+    origin = root / 'evidence/audits/2026-09-06-statistical-fidelity/audit.json'
+    inherited = record['inherited_evidence']
+    if inherited['audit_sha256'] != sha(origin):
+        errors.append('inherited statistical evidence changed')
+    source = read_json(origin)
+    for field in ('root_precision_example', 'cached_replay'):
+        if record[field] != source[field]:
+            errors.append('inherited statistical field changed: ' + field)
+    required = {'reference-grid.json', 'atlas-controls.json', 'reference/submission.yaml',
+                'reference/provenance.json', *('reference/figure_32'+c+'.yaml' for c in 'abcdef')}
+    pins = record['artifacts_sha256']
+    if set(pins) != required:
+        errors.append('statistical transfer artifact population changed')
+    for name in required:
+        if name not in pins or sha(audit / name) != pins[name]:
+            errors.append('statistical transfer artifact changed: ' + name)
+    grid = read_json(audit / 'reference-grid.json')
+    if (not grid['passed'] or grid['failures'] or len(grid['tables']) != 6
+            or len(grid['products']) != 6
+            or grid['queries'] != 2*sum(t['nodes'] for t in grid['tables'])
+                                    + sum(t['nodes'] for t in grid['products'])
+            or any(t['current_failures'] for t in grid['tables'])
+            or any(t['failures'] for t in grid['products'])):
+        errors.append('reference-grid control failed or population drifted')
+    for name in required - {'reference-grid.json', 'atlas-controls.json'}:
+        if grid['inputs_sha256'].get(name.removeprefix('reference/')) != sha(audit / name):
+            errors.append('reference-grid input binding changed: ' + name)
+    controls = read_json(audit / 'atlas-controls.json')
+    if not controls['passed'] or not controls['published_workspace_free_fit']['passed']:
+        errors.append('ATLAS numerical control failed')
+    for name, expected in controls['inputs_sha256'].items():
+        path = PurePosixPath(name)
+        if (path.is_absolute() or '..' in path.parts or '\\' in name
+                or not (root / name).resolve().is_relative_to(root.resolve())):
+            errors.append('ATLAS control input path is not repository-relative')
+        elif sha(root / name) != expected:
+            errors.append('ATLAS control input changed: ' + name)
+    counting = controls['counting']
+    for key, limit in [('observed', counting['result']['obs_limit']),
+                       ('median_expected', counting['result']['exp_limits'][2])]:
+        reference = counting['reference_observed' if key == 'observed' else 'reference_expected']
+        if abs(counting[key + '_ratio'] - limit/reference) > 1e-12:
+            errors.append('ATLAS counting control arithmetic drift')
     return errors
 
 

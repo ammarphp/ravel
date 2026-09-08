@@ -1,0 +1,2042 @@
+{
+  "scope": "published-reference identity and units; no detector or limit certification",
+  "tables": [
+    {
+      "table": "figure_32a.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.129,
+            "legacy_value": 0.49473
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.023779,
+            "legacy_value": 0.49473
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.11678,
+            "legacy_value": 0.52475
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.016869,
+            "legacy_value": 0.52475
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.019355,
+            "legacy_value": 0.40287
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.075144,
+            "legacy_value": 0.16397
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.033866,
+            "legacy_value": 0.16397
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.0043208,
+            "legacy_value": 0.16397
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.11184,
+            "legacy_value": 0.25424
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.042907,
+            "legacy_value": 0.25424
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.0045609,
+            "legacy_value": 0.25424
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.13242,
+            "legacy_value": 0.33329
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.038224,
+            "legacy_value": 0.33329
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.49473,
+            "legacy_value": 0.023779
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.129,
+            "legacy_value": 0.023779
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.52475,
+            "legacy_value": 0.016869
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.11678,
+            "legacy_value": 0.016869
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.40287,
+            "legacy_value": 0.019355
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.16397,
+            "legacy_value": 0.0043208
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.075144,
+            "legacy_value": 0.0043208
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.033866,
+            "legacy_value": 0.0043208
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.25424,
+            "legacy_value": 0.0045609
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.11184,
+            "legacy_value": 0.0045609
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.042907,
+            "legacy_value": 0.0045609
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.33329,
+            "legacy_value": 0.038224
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.13242,
+            "legacy_value": 0.038224
+          }
+        ]
+      },
+      "current_failures": 0
+    },
+    {
+      "table": "figure_32b.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.46,
+            "legacy_value": 0.3881
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.5728,
+            "legacy_value": 0.3881
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.3509,
+            "legacy_value": 0.42306
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.30265,
+            "legacy_value": 0.42306
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.42158,
+            "legacy_value": 0.34691
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.33922,
+            "legacy_value": 0.35994
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.37392,
+            "legacy_value": 0.35994
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.37584,
+            "legacy_value": 0.35994
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.33226,
+            "legacy_value": 0.34703
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.38574,
+            "legacy_value": 0.34703
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.28989,
+            "legacy_value": 0.34703
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.34729,
+            "legacy_value": 0.38249
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.37026,
+            "legacy_value": 0.38249
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.3881,
+            "legacy_value": 0.5728
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.46,
+            "legacy_value": 0.5728
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.42306,
+            "legacy_value": 0.30265
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.3509,
+            "legacy_value": 0.30265
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.34691,
+            "legacy_value": 0.42158
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.35994,
+            "legacy_value": 0.37584
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.33922,
+            "legacy_value": 0.37584
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.37392,
+            "legacy_value": 0.37584
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.34703,
+            "legacy_value": 0.28989
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.33226,
+            "legacy_value": 0.28989
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.38574,
+            "legacy_value": 0.28989
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.38249,
+            "legacy_value": 0.37026
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.34729,
+            "legacy_value": 0.37026
+          }
+        ]
+      },
+      "current_failures": 0
+    },
+    {
+      "table": "figure_32c.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.12431,
+            "legacy_value": 0.44549
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.023779,
+            "legacy_value": 0.44549
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.11253,
+            "legacy_value": 0.491
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.016869,
+            "legacy_value": 0.491
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.019355,
+            "legacy_value": 0.39287
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.067932,
+            "legacy_value": 0.13177
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.031939,
+            "legacy_value": 0.13177
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.0042579,
+            "legacy_value": 0.13177
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.10456,
+            "legacy_value": 0.21612
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.041059,
+            "legacy_value": 0.21612
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.004501,
+            "legacy_value": 0.21612
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.12321,
+            "legacy_value": 0.29427
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.037834,
+            "legacy_value": 0.29427
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.44549,
+            "legacy_value": 0.023779
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.12431,
+            "legacy_value": 0.023779
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.491,
+            "legacy_value": 0.016869
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.11253,
+            "legacy_value": 0.016869
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.39287,
+            "legacy_value": 0.019355
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.13177,
+            "legacy_value": 0.0042579
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.067932,
+            "legacy_value": 0.0042579
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.031939,
+            "legacy_value": 0.0042579
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.21612,
+            "legacy_value": 0.004501
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.10456,
+            "legacy_value": 0.004501
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.041059,
+            "legacy_value": 0.004501
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.29427,
+            "legacy_value": 0.037834
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.12321,
+            "legacy_value": 0.037834
+          }
+        ]
+      },
+      "current_failures": 0
+    },
+    {
+      "table": "figure_32d.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.45962,
+            "legacy_value": 0.40744
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.5617,
+            "legacy_value": 0.40744
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.34474,
+            "legacy_value": 0.44326
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.30265,
+            "legacy_value": 0.44326
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.42158,
+            "legacy_value": 0.33608
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.35733,
+            "legacy_value": 0.39325
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.38818,
+            "legacy_value": 0.39325
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.37416,
+            "legacy_value": 0.39325
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.34343,
+            "legacy_value": 0.36693
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.39578,
+            "legacy_value": 0.36693
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.2913,
+            "legacy_value": 0.36693
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.36839,
+            "legacy_value": 0.40202
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.37407,
+            "legacy_value": 0.40202
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.40744,
+            "legacy_value": 0.5617
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.45962,
+            "legacy_value": 0.5617
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.44326,
+            "legacy_value": 0.30265
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.34474,
+            "legacy_value": 0.30265
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.33608,
+            "legacy_value": 0.42158
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.39325,
+            "legacy_value": 0.37416
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.35733,
+            "legacy_value": 0.37416
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.38818,
+            "legacy_value": 0.37416
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.36693,
+            "legacy_value": 0.2913
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.34343,
+            "legacy_value": 0.2913
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.39578,
+            "legacy_value": 0.2913
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.40202,
+            "legacy_value": 0.37407
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.36839,
+            "legacy_value": 0.37407
+          }
+        ]
+      },
+      "current_failures": 0
+    },
+    {
+      "table": "figure_32e.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.0046834,
+            "legacy_value": 0.049236
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.049236
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.0042419,
+            "legacy_value": 0.033752
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.033752
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.010007
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.0072123,
+            "legacy_value": 0.0322
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.001927,
+            "legacy_value": 0.0322
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 6.2892e-05,
+            "legacy_value": 0.0322
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.0072813,
+            "legacy_value": 0.038124
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.001848,
+            "legacy_value": 0.038124
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 5.9889e-05,
+            "legacy_value": 0.038124
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.0092088,
+            "legacy_value": 0.039019
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.00039027,
+            "legacy_value": 0.039019
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.049236,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.0046834,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.033752,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.0042419,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.010007,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.0322,
+            "legacy_value": 6.2892e-05
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.0072123,
+            "legacy_value": 6.2892e-05
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.001927,
+            "legacy_value": 6.2892e-05
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.038124,
+            "legacy_value": 5.9889e-05
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.0072813,
+            "legacy_value": 5.9889e-05
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.001848,
+            "legacy_value": 5.9889e-05
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.039019,
+            "legacy_value": 0.00039027
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.0092088,
+            "legacy_value": 0.00039027
+          }
+        ]
+      },
+      "current_failures": 0
+    },
+    {
+      "table": "figure_32f.yaml",
+      "nodes": 75,
+      "legacy_wrong_coordinates": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_wrong_values": {
+        "original": 13,
+        "reversed": 13
+      },
+      "legacy_mismatches": {
+        "original": [
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.47004,
+            "legacy_value": 0.21316
+          },
+          {
+            "requested": [
+              100.0,
+              0.5
+            ],
+            "selected": [
+              100.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.21316
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.51442,
+            "legacy_value": 0.1293
+          },
+          {
+            "requested": [
+              125.0,
+              0.5
+            ],
+            "selected": [
+              125.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.1293
+          },
+          {
+            "requested": [
+              150.0,
+              0.5
+            ],
+            "selected": [
+              150.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.77219
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.16862,
+            "legacy_value": 0.22362
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.13745,
+            "legacy_value": 0.22362
+          },
+          {
+            "requested": [
+              50.0,
+              0.3
+            ],
+            "selected": [
+              50.0,
+              1.0
+            ],
+            "expected": 0.48982,
+            "legacy_value": 0.22362
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.17198,
+            "legacy_value": 0.23419
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.16253,
+            "legacy_value": 0.23419
+          },
+          {
+            "requested": [
+              60.0,
+              0.3
+            ],
+            "selected": [
+              60.0,
+              1.0
+            ],
+            "expected": 0.18394,
+            "legacy_value": 0.23419
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.064862,
+            "legacy_value": 0.23513
+          },
+          {
+            "requested": [
+              70.0,
+              0.5
+            ],
+            "selected": [
+              70.0,
+              1.0
+            ],
+            "expected": 0.0,
+            "legacy_value": 0.23513
+          }
+        ],
+        "reversed": [
+          {
+            "requested": [
+              100.0,
+              1.0
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.21316,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              100.0,
+              0.7
+            ],
+            "selected": [
+              100.0,
+              0.5
+            ],
+            "expected": 0.47004,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              125.0,
+              1.0
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.1293,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              125.0,
+              0.7
+            ],
+            "selected": [
+              125.0,
+              0.5
+            ],
+            "expected": 0.51442,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              150.0,
+              1.0
+            ],
+            "selected": [
+              150.0,
+              0.5
+            ],
+            "expected": 0.77219,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              50.0,
+              1.0
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.22362,
+            "legacy_value": 0.48982
+          },
+          {
+            "requested": [
+              50.0,
+              0.7
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.16862,
+            "legacy_value": 0.48982
+          },
+          {
+            "requested": [
+              50.0,
+              0.5
+            ],
+            "selected": [
+              50.0,
+              0.3
+            ],
+            "expected": 0.13745,
+            "legacy_value": 0.48982
+          },
+          {
+            "requested": [
+              60.0,
+              1.0
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.23419,
+            "legacy_value": 0.18394
+          },
+          {
+            "requested": [
+              60.0,
+              0.7
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.17198,
+            "legacy_value": 0.18394
+          },
+          {
+            "requested": [
+              60.0,
+              0.5
+            ],
+            "selected": [
+              60.0,
+              0.3
+            ],
+            "expected": 0.16253,
+            "legacy_value": 0.18394
+          },
+          {
+            "requested": [
+              70.0,
+              1.0
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.23513,
+            "legacy_value": 0.0
+          },
+          {
+            "requested": [
+              70.0,
+              0.7
+            ],
+            "selected": [
+              70.0,
+              0.5
+            ],
+            "expected": 0.064862,
+            "legacy_value": 0.0
+          }
+        ]
+      },
+      "current_failures": 0
+    }
+  ],
+  "products": [
+    {
+      "region": "SR-S",
+      "reversed": false,
+      "nodes": 75,
+      "failures": 0
+    },
+    {
+      "region": "SR-S-high",
+      "reversed": false,
+      "nodes": 75,
+      "failures": 0
+    },
+    {
+      "region": "SR-S-low",
+      "reversed": false,
+      "nodes": 75,
+      "failures": 0
+    },
+    {
+      "region": "SR-S",
+      "reversed": true,
+      "nodes": 75,
+      "failures": 0
+    },
+    {
+      "region": "SR-S-high",
+      "reversed": true,
+      "nodes": 75,
+      "failures": 0
+    },
+    {
+      "region": "SR-S-low",
+      "reversed": true,
+      "nodes": 75,
+      "failures": 0
+    }
+  ],
+  "queries": 1350,
+  "failures": [],
+  "inputs_sha256": {
+    "figure_32a.yaml": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a",
+    "figure_32b.yaml": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534",
+    "figure_32c.yaml": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473",
+    "figure_32d.yaml": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b",
+    "figure_32e.yaml": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5",
+    "figure_32f.yaml": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4",
+    "provenance.json": "d92fbbd43d848e3e616d7e338fe8eda80128bce46c6d4d04cef5843ea0f0989c",
+    "submission.yaml": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d"
+  },
+  "passed": true
+}

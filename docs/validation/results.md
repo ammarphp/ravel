@@ -89,7 +89,7 @@ stricter numerical/comparison checks. The
 [native differential](../../evidence/audits/2026-09-05-native-fidelity/README.md)
 improves one selection residual while retaining its FAIL verdict. These new
 measurements do not overwrite the historical table above or its parity records.
-The [scan re-render](../../evidence/audits/2026-09-05-scan-fidelity/README.md)
+The [scan re-render](../../evidence/audits/2026-09-08-scan-fidelity/README.md)
 keeps the original pointwise limits and residuals and improves coverage accounting.
 
 ## Statistical recovery and selection fidelity

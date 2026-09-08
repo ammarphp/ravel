@@ -15,6 +15,12 @@ missing outputs, numerical bounds, and failed comparisons. Use exact published
 grid points for quantitative comparison. A residual in an upper limit is not an
 observed event excess.
 
+Exact means coordinate identity within floating-point precision, not proximity
+within a physical 1 GeV bin. Preserve fractional masses and splittings. Reject
+duplicate or ambiguous nodes and keep interpolation distinct from a published
+node. Separate acceptance and efficiency maps must use the same reference
+coordinates and truth-selection definition before multiplying their values.
+
 Archive the effective generator, shower and detector cards, the executed commands,
 versions, random seeds, normalization report, signal-region sums of weights and
 squared weights, channel-level patch, and statistical model. A requested TOML is
@@ -71,6 +77,22 @@ diagnostic artifacts when deleting large event intermediates.
    cutflows and object efficiencies where available.
 
 ## Design the next campaign
+
+At the first inexpensive validation waypoint, record separate findings for rate,
+fitted-bin shape, per-bin MC precision, numerical validity and contour support.
+Include a figure on the same axes and color scale as the reference and inspect
+its contour, holes and isolated cells. A scalar limit or inclusive acceptance
+cannot establish shape agreement. If differential reference data or its
+covariance is unavailable, record that missing evidence and limit the claim;
+do not invent an uncertainty or substitute agreement in one scalar statistic.
+This is a procedural review requirement, not a new automatic shape certificate.
+
+Before changing shared inference or reference adapters, run small controls from
+other ATLAS analyses that exercise the affected mechanism. The cached commands
+and their deliberately limited scopes are in the
+[transfer audit](../../../evidence/audits/2026-09-08-statistical-fidelity/README.md).
+Full event generation in a new analysis is warranted only after a cheaper
+reference, likelihood or retained-event control leaves a discriminating question.
 
 Before new simulation, choose diagnostic anchors from the actual failure pattern:
 isolated outliers, low-efficiency bins, boundary crossings, and a well-populated

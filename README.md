@@ -30,7 +30,7 @@ reuse outputs only while their recorded dependencies remain current. See the
 [result contracts](docs/reference/scientific-results.md) and
 [execution and recovery guide](docs/workflow/reference/durable-execution.md).
 
-![Recorded compressed-slepton scan: exact reference comparisons and signed residuals](evidence/audits/2026-09-05-scan-fidelity/scan__reldiff.png)
+![Recorded compressed-slepton scan: exact reference comparisons and signed residuals](evidence/audits/2026-09-08-scan-fidelity/scan__reldiff.png)
 
 **Compressed-slepton example.** This figure freshly re-renders a recorded
 52-point scan against the published ATLAS upper-limit grid. Fifty points have
@@ -44,7 +44,7 @@ samples in a rescan, and confounded generator comparisons. A [fixed-template
 refit](evidence/audits/2026-09-05-rrr-refits/README.md) removes the prominent low-mass
 red cell's numerical excess without retuning physics. The remaining disagreement
 is unresolved; this figure is not a general accuracy guarantee.
-The [figure, inputs, and per-point JSON](evidence/audits/2026-09-05-scan-fidelity/README.md)
+The [figure, inputs, and per-point JSON](evidence/audits/2026-09-08-scan-fidelity/README.md)
 are available alongside the [original scan record](evidence/scans/slepton-bino-figure-3/RESULT.md).
 
 **Fresh reproduction controls.** A new 20,000-event four-state sample completed

@@ -129,6 +129,23 @@ def _infer_role(relpath):
 
 HEADLINE_CLAIMS = [
     {
+        "claim_id": "HEADLINE_reference_grid_transfer",
+        "headline": "1,350 successful published-grid lookup queries across six ATLAS maps "
+                    "and their acceptance-efficiency products in two row orders; two fresh "
+                    "cached ATLAS numerical controls, not full physics reproductions",
+        "doc_source": "docs/research/2026-09-08-fidelity-transfer.md",
+        "artifacts": [
+            "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+            "evidence/audits/2026-09-08-statistical-fidelity/reference-grid.json",
+            "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+            "evidence/audits/2026-09-08-statistical-fidelity/reference/submission.yaml",
+            "evidence/audits/2026-09-08-statistical-fidelity/reference/provenance.json",
+            *("evidence/audits/2026-09-08-statistical-fidelity/reference/figure_32"+c+".yaml"
+              for c in "abcdef"),
+        ],
+        "surrogate": "evidence/audits/2026-09-08-statistical-fidelity/README.md",
+    },
+    {
         "claim_id": "HEADLINE_rrr_m150_m140_cut_controls",
         "headline": "Completed 60k pooled m150/m140 conditional limits: 47.37 fb observed "
                     "and 57.27 fb median expected; lower-cut high-region rate ratio 1.412 "

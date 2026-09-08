@@ -1,0 +1,14 @@
+{
+  "scope": "Six original ATLAS SUSY-2018-16 Figure 32 tables; submission metadata restricted to these six entries",
+  "original_submission_sha256": "48c5e10a4886f655d6b370eb120b1f0fc6157a6f139373a4cfd3522353b4d05a",
+  "paper": "https://arxiv.org/abs/1911.12606",
+  "source": "https://www.hepdata.net/record/ins1767649",
+  "map_bytes": "unchanged copies of retained HEPData YAML",
+  "acceptance_scale": 0.001,
+  "efficiency_scale": 1,
+  "truth_selection": "Truth stransverse mass constrained to [100,140] GeV; not an unrestricted detector-efficiency measurement",
+  "publication_doi": "10.17182/hepdata.91374.v5",
+  "credit": "ATLAS Collaboration",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/"
+}

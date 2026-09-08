@@ -10,6 +10,20 @@ Use [scientific result contracts](../reference/scientific-results.md), [durable 
 
 ## Active RRR closure work
 
+The September 8 [transfer assessment](../research/2026-09-08-fidelity-transfer.md)
+separates reusable safeguards from missing signal-model validation. Both acceptance
+readers now reject ambiguous mass nodes with a shared numerical tolerance; the
+fresh audit exercises all six published compressed maps in both row orders.
+Two small controls on other ATLAS analyses check common inference without event
+generation. The [current statistical audit](../../evidence/audits/2026-09-08-statistical-fidelity/README.md)
+explicitly inherits the older nine-case record rather than claiming another
+replay. The [new historical rendering](../../evidence/audits/2026-09-08-scan-fidelity/README.md)
+repairs irregular-boundary contour support without changing the old signal
+templates or residuals. These changes do not explain or close the 5 GeV physics
+discrepancy. Rate, shape, precision and generator-cut stability remain separate
+reproduction requirements. Development continues from the latest released source
+in a separate worktree, preserving historical run/source identities.
+
 The current work adds a source-bound four-state m150/140 experiment with all-event traces,
 six slepton control regions, explicit per-bin signal MC constraints, independent-replica
 pooling and direct-lepton response diagnostics. A 1,000-event smoke and an independent

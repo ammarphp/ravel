@@ -34,13 +34,13 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 |---|---|---|
 | `src/ravel/physics/` | Event processing and statistical engines | 31 |
 | `src/ravel/workflow/` | Run lifecycle, approvals, provenance, and scan orchestration | 22 |
-| `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 19 |
+| `src/ravel/validation/` | Task validation, scientific checks, and benchmark replay | 20 |
 | `src/ravel/plotting/` | Figures and comparisons | 12 |
 | `src/ravel/data/` | Templates, fixtures, and reference inputs | 9 |
-| `tests/unit/` | Focused regression tests | 103 |
+| `tests/unit/` | Focused regression tests | 104 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 7 |
-| `benchmarks/` | Benchmark and capability registries | 12 |
+| `benchmarks/` | Benchmark and capability registries | 14 |
 | `native/src/` | Native C++ source | 3 |
 | `native/scripts/` | Native build and execution scripts | 9 |
 | `environment/` | Simulation environment setup | 6 |
@@ -48,10 +48,10 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/workflow/` | Physics workflow instructions | 52 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 10 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 35 |
-| `docs/research/` | Research and evaluation protocols | 15 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 36 |
+| `docs/research/` | Research and evaluation protocols | 16 |
 | `docs/guides/` | Longer guides and sources | 5 |
-| `evidence/` | Curated historical inputs, measurements, and provenance | 430 |
+| `evidence/` | Curated historical inputs, measurements, and provenance | 457 |
 | `.claude/` | Agent skills, rules, and enforcement hooks | 32 |
 | `.agents/` | Mirrored skills | 16 |
 | `.github/` | Continuous integration | 1 |
