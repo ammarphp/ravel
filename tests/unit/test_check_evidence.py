@@ -160,11 +160,20 @@ def test_materialize_claim_skips_surrogate_when_a_real_artifact_already_ships(tm
 # build_evidence: served prompt with no evidence_artifacts -> loud failure
 # --------------------------------------------------------------------------- #
 
-def test_prompt_specs_requires_evidence_artifacts_on_served_prompts():
+@pytest.mark.parametrize("status", ["served", "served-with-refusal", "refused"])
+def test_prompt_specs_requires_evidence_artifacts_on_served_or_refusal_claims(status):
     be = _load_build_evidence()
-    matrix = {"prompts": {"PX_served_but_bare": {"status": "served", "gate": {}}}}
+    matrix = {"prompts": {"PX_served_but_bare": {"status": status, "gate": {}}}}
     with pytest.raises(be.BuildError, match="evidence_artifacts"):
         be.prompt_specs(matrix)
+
+
+def test_evidence_headline_does_not_count_refusals_as_served():
+    be = _load_build_evidence()
+    claims = [{"claim_id": str(i), "status": status, "headline": "test", "gate": "artifact", "artifacts": []}
+              for i, status in enumerate(("served", "served-with-refusal", "refused"))]
+    page = be.render_evidence_md({"claims": claims})
+    assert "1 labeled served; 2 refusals remain unmet requests" in page
 
 
 def test_prompt_specs_skips_non_served_prompts():
@@ -244,9 +253,10 @@ def test_check_claim_absent_shipped_artifact_fails(tmp_path):
     assert "missing" in detail
 
 
-def test_check_claim_served_claim_with_zero_present_artifacts_fails(tmp_path):
+@pytest.mark.parametrize("status", ["served", "served-with-refusal", "refused"])
+def test_check_claim_served_or_refusal_claim_with_zero_present_artifacts_fails(tmp_path, status):
     ce = _load_check_evidence()
-    claim = {"claim_id": "C1", "status": "served",
+    claim = {"claim_id": "C1", "status": status,
              "artifacts": [_artifact("gone.txt", "x", shipped=False)]}
     verdict, detail = ce.check_claim(claim, tmp_path)
     assert verdict == "FAIL"

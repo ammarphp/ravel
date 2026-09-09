@@ -26,4 +26,4 @@ Source commit: `3507b8f`
 | `HEADLINE_native_mu95_0p51pct` | Native slepton 200/150 point's mu95 agrees with the container to 0.51% (6.333 vs 6.366) | served | curated | `evidence/native-validation/slepton-200-150/output/exclusion.json` (`0866ea324421`) | — |
 | `HEADLINE_fig3_scan_same_basis_residual` | Fig-3 52/52-point native slepton-bino scan: ~24-25% median same-basis residual vs the published ATLAS contour | served | curated | `evidence/scans/slepton-bino-figure-3/scan.json` (`95137f98baca`) | — |
 
-**17 claim(s)** (6 served/served-with-refusal), **101 artifact(s)** sha256-checksummed. Every claim above carries >=1 present, sha256-verified artifact as of the last `build_evidence.py --write` (verify freshness with `scripts/check_evidence.py --check`).
+**17 claim(s)** (6 labeled served; 0 refusals remain unmet requests), **101 artifact(s)** sha256-checksummed. Every claim above carries >=1 present, sha256-verified artifact as of the last `build_evidence.py --write` (verify freshness with `scripts/check_evidence.py --check`).

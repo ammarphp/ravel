@@ -13,15 +13,15 @@ Per-claim verdict (PASS / WARN / FAIL), evaluated over every artifact recorded f
   FAIL  1. any artifact recorded `shipped: true` is missing, or its sha256 no longer matches,
            under --root -- a `shipped:true` label is a hard promise regardless of dev-tree vs.
            stage root.
-        2. a claim whose status is `served`/`served-with-refusal` has ZERO present+sha-matching
+        2. a served or refusal claim has ZERO present+sha-matching
            artifacts under --root (a `dev_only:true` artifact absent under a stage root is fine
            exactly when rule 1's shipped artifact/surrogate is intact -- THAT is the required
            >=1 present+matching artifact).
   WARN  a `partial`-status claim whose artifact list is ALL dev_only (no shipped artifact at
         all) -- structurally under-evidenced for public audit, but a partial claim is not held
         to the served bar.
-  PASS  everything else (including any claim status outside served/served-with-refusal/partial,
-        which is not held to any bar here).
+  PASS  other structurally valid claims. A custody PASS for a refusal is not
+        delivery credit; capability scoring assesses that separately.
 
 Usage:
     python3 scripts/check_evidence.py [--check] [--root DIR]
@@ -43,8 +43,8 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from ravel import evidence_layout
 
 MANIFEST_NAME = "evidence/manifest.json"
-SERVED_STATUSES = ("served", "served-with-refusal")
-STATUSES = {*SERVED_STATUSES, "partial", "unbuilt", "blocked", "historical"}
+EVIDENCE_REQUIRED_STATUSES = ("served", "served-with-refusal", "refused")
+STATUSES = {*EVIDENCE_REQUIRED_STATUSES, "partial", "unbuilt", "blocked", "historical"}
 
 
 def _structure_errors(claim):
@@ -151,7 +151,7 @@ def check_claim(claim, root):
     stale_note = f"; {len(stale)} dev-only artifact(s) not present+matching (not fatal): {stale}" \
         if stale else ""
 
-    if status in SERVED_STATUSES:
+    if status in EVIDENCE_REQUIRED_STATUSES:
         if ok_count == 0:
             return "FAIL", f"'{status}' claim has no present+sha-matching artifact under {root}"
         return "PASS", f"{ok_count}/{len(artifacts)} artifact(s) present+matching{stale_note}"

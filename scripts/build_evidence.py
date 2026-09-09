@@ -209,7 +209,9 @@ PROMPT_HEADLINES = {
     "P4_dijet_photon_widths": "Dijet/diphoton resonance widths via the scoped shape-fit engine",
 }
 
-SERVED_STATUSES = ("served", "served-with-refusal")
+SERVED_STATUSES = ("served",)
+REFUSAL_STATUSES = ("served-with-refusal", "refused")
+EVIDENCE_REQUIRED_STATUSES = SERVED_STATUSES + REFUSAL_STATUSES
 
 
 def _matrix_gate_label(gate):
@@ -235,11 +237,11 @@ def prompt_specs(matrix):
     for key, v in sorted(matrix.get("prompts", {}).items()):
         artifacts = v.get("evidence_artifacts")
         if not artifacts:
-            if v.get("status") not in SERVED_STATUSES:
+            if v.get("status") not in EVIDENCE_REQUIRED_STATUSES:
                 continue
             raise BuildError(
                 f"{key}: status={v.get('status')!r} but capability-matrix.json carries no "
-                f"'evidence_artifacts' list for it -- a served prompt needs a named artifact "
+                f"'evidence_artifacts' list for it -- a served or refusal claim needs a named artifact "
                 f"list (add one to benchmarks/capabilities.json, see this script's module "
                 f"docstring source 1)")
         specs.append({
@@ -426,9 +428,10 @@ def render_evidence_md(manifest):
         lines.append(f"| `{c['claim_id']}` | {headline} | {c['status']} | {c['gate']} | "
                      f"{'<br>'.join(shipped) or '—'} | {'<br>'.join(dev_only) or '—'} |")
     n_served = sum(1 for c in manifest["claims"] if c["status"] in SERVED_STATUSES)
+    n_refused = sum(1 for c in manifest["claims"] if c["status"] in REFUSAL_STATUSES)
     n_artifacts = sum(len(c["artifacts"]) for c in manifest["claims"])
-    lines += ["", f"**{len(manifest['claims'])} claim(s)** ({n_served} served/served-with-"
-              f"refusal), **{n_artifacts} artifact(s)** sha256-checksummed. Every claim above "
+    lines += ["", f"**{len(manifest['claims'])} claim(s)** ({n_served} labeled served; "
+              f"{n_refused} refusals remain unmet requests), **{n_artifacts} artifact(s)** sha256-checksummed. Every claim above "
               f"carries >=1 present, sha256-verified artifact as of the last "
               f"`build_evidence.py --write` (verify freshness with "
               f"`scripts/check_evidence.py --check`)."]

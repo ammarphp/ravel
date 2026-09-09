@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "8a9c4d86c11864c42bb0e5df0564fd6cd8a16774",
+  "source_commit": "df858b23744a89ab209d305c1ff1308b52f3a2f4",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -996,8 +996,8 @@
     {
       "source_path": "docs/development/audit.md",
       "public_path": "docs/development/audit.md",
-      "source_sha256": "4bbbb19712dfa7c101ca4d604276a2dc3a58e48cea66d9acc7520fc720fbcb77",
-      "export_sha256": "4bbbb19712dfa7c101ca4d604276a2dc3a58e48cea66d9acc7520fc720fbcb77"
+      "source_sha256": "efd2249e7a8209df472c8c565ab05429e709cbac2567a6c45e29f218a1d9ccfd",
+      "export_sha256": "efd2249e7a8209df472c8c565ab05429e709cbac2567a6c45e29f218a1d9ccfd"
     },
     {
       "source_path": "docs/development/change-registry.md",
@@ -1470,8 +1470,8 @@
     {
       "source_path": "docs/validation/evidence.md",
       "public_path": "docs/validation/evidence.md",
-      "source_sha256": "b8d7fd0c1774bc6da5b7f70adcd45238e2b67ad1ac19f83e79ca1ad1627cd8af",
-      "export_sha256": "b8d7fd0c1774bc6da5b7f70adcd45238e2b67ad1ac19f83e79ca1ad1627cd8af"
+      "source_sha256": "738f85315ee42f1cf9512e44c0ee88b557ad84117929565b0fb77ea3a38a4ca2",
+      "export_sha256": "738f85315ee42f1cf9512e44c0ee88b557ad84117929565b0fb77ea3a38a4ca2"
     },
     {
       "source_path": "docs/validation/native-performance.md",
@@ -3972,14 +3972,14 @@
     {
       "source_path": "scripts/build_evidence.py",
       "public_path": "scripts/build_evidence.py",
-      "source_sha256": "72ab3666395b77ba1925028d65e77fb67108a72b6610c28d5edbe30bb6615be7",
-      "export_sha256": "72ab3666395b77ba1925028d65e77fb67108a72b6610c28d5edbe30bb6615be7"
+      "source_sha256": "9c7384f0094b2086cbb7d19a59e4f82cbed9e92070abcd9675837d49e488145d",
+      "export_sha256": "9c7384f0094b2086cbb7d19a59e4f82cbed9e92070abcd9675837d49e488145d"
     },
     {
       "source_path": "scripts/check_evidence.py",
       "public_path": "scripts/check_evidence.py",
-      "source_sha256": "54a557276d931c22a874923d3697cb90ad1bd10f195d15b1677cdf0803d13878",
-      "export_sha256": "54a557276d931c22a874923d3697cb90ad1bd10f195d15b1677cdf0803d13878"
+      "source_sha256": "ff9153f2a0956df30a4011c14986fbfec26743d71eaacaa13fb00986e255b22c",
+      "export_sha256": "ff9153f2a0956df30a4011c14986fbfec26743d71eaacaa13fb00986e255b22c"
     },
     {
       "source_path": "scripts/check_fidelity_audits.py",
@@ -4998,8 +4998,8 @@
     {
       "source_path": "tests/unit/test_check_evidence.py",
       "public_path": "tests/unit/test_check_evidence.py",
-      "source_sha256": "21941652668e648cfaa3110910c0f34ace576b951ac5bcb5d703ddf5733b1b71",
-      "export_sha256": "21941652668e648cfaa3110910c0f34ace576b951ac5bcb5d703ddf5733b1b71"
+      "source_sha256": "cd390d8ac050550edc825dcedee3d80d848c683bf576148748c58262a5759bd8",
+      "export_sha256": "cd390d8ac050550edc825dcedee3d80d848c683bf576148748c58262a5759bd8"
     },
     {
       "source_path": "tests/unit/test_clean_room.py",
