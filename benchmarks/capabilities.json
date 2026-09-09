@@ -1,8 +1,8 @@
 {
- "schema_version": 2,
- "updated": "2026-09-05",
+ "schema_version": 3,
+ "updated": "2026-09-08",
  "source": "docs/research/reviews/capability-census.md (C8) + CAPABILITY-ROADMAP.md section 1",
- "note": "Consumed by audit.py's capability dimension (audit v2, CR-019). status vocabulary: served | served-with-refusal | partial | unbuilt | decision-pending. A prompt is SERVED only when its full deliverable chain exists and was exercised; refusals per PRODUCT-CONTRACT section 6 count as served-with-refusal (the honest product). schema_version 2 (Task 5, PRODUCT-CONTRACT section 5 / CR-035): every prompt carries a 'gate' object binding its claimed status to a machine-checkable ground truth -- {kind: artifact, artifact: <path>, green_when: '<field>==<value>'} reads a JSON artifact's field; {kind: selftest, ref: <script>, green_when: 'exit==0'} runs '<script> --selftest' and checks the exit code; {kind: decision|deferred, flip_when: <text>} documents what would move a partial prompt to served and can NEVER itself credit a served status (audit.py::c_capability enforces this -- a served/served-with-refusal prompt earns its 1.0 R9 credit only when its named gate is actually green; a red or illegitimate gate downgrades the claim to 0.5 partial credit and emits a FAIL line).",
+ "note": "Capability inventory, not a measured autonomous success rate. served requires the complete requested deliverable chain and a currently green evidence gate. partial is component coverage (0.5 inventory credit), never successful task delivery. refused and the legacy served-with-refusal spelling receive zero delivery credit: a justified refusal is still an unmet product request. Refusal validity and unsupported-claim avoidance are assessed separately. A missing, red, decision or deferred gate cannot establish complete delivery.",
  "prompts": {
   "P1_hvt_zprime_ww_summary": {
    "task_mode": "summary_plot",
@@ -97,7 +97,7 @@
    "status": "partial",
    "gate": {
     "kind": "decision",
-    "flip_when": "Option-C productized + panel-green; then served-with-refusal (sensitivity-only)"
+    "flip_when": "Reproduce the requested analysis with validated selection and statistical interpretation; a sensitivity-only fallback remains partial even when its refusal is justified."
    },
    "evidence": "trial completed (method-ordering reproduced, sensitivity-only labels); eval #5 PASS ran the missing panel; ladder retrofit C7 attributes its gaps; 'partial' because the deliverable is sensitivity-only by design caps",
    "blocking": []

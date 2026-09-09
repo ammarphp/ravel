@@ -95,7 +95,7 @@ _CAP_HINT = {
     "G6_ladder": "ladder",
 }
 
-FULL_STATUSES = ("served", "served-with-refusal")
+FULL_STATUSES = ("served",)
 PARTIAL_STATUSES = ("partial",)
 UNBUILT_STATUSES = ("unbuilt", "decision-pending")
 
@@ -143,9 +143,13 @@ def build_headline():
     prompts = matrix["prompts"]
     total = len(board)
 
-    full = _bucket(board, FULL_STATUSES)
-    refusal = _bucket(board, ("served-with-refusal",))
-    partial = _bucket(board, PARTIAL_STATUSES)
+    full = [label for label, _key, value in board
+            if value.get("status") == "served" and value.get("gate") is not None
+            and audit._gate_verdict(value["gate"])[0]]
+    refusal = _bucket(board, ("served-with-refusal", "refused"))
+    partial = [label for label, _key, value in board
+               if value.get("status") == "partial"
+               or (value.get("status") == "served" and label not in full)]
     unbuilt = _bucket(board, UNBUILT_STATUSES)
 
     def hinted(label):
@@ -163,8 +167,8 @@ def build_headline():
         f"**Reference-task coverage {r9_score:.2f} ({r9_status})** on the "
         f"project's benchmark of {total} reference physicist tasks — real requests collected from "
         f"CERN researchers, used as the standing coverage yardstick (internal audit dimension "
-        f"\"R9\"). **{len(full)} of {total} fully served** ({full_desc}; {len(refusal)} served by "
-        f"a designed refusal), **{len(partial)} partially served** ({partial_desc}), "
+        f"\"R9\"). **{len(full)} of {total} fully served** ({full_desc}; "
+        f"{len(refusal)} refusals remain unmet requests), **{len(partial)} partially served** ({partial_desc}), "
         f"**{len(unbuilt)} not yet built**{unbuilt_desc}. Task list, scoring, and definitions: "
         f"`benchmarks/capabilities.json` → `docs/development/audit.md`. "
         f"These are internal coverage categories, not measured autonomous success rates or "

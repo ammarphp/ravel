@@ -5,7 +5,7 @@ The current scope is an agentic scientific computing pipeline whose outputs rema
 
 ## Seven architecture priorities
 
-The September implementation addresses these priorities together. All seven are implemented and have passed independent finding verification and final source/package checks. Exact results and scientific boundaries are in the [architecture record](history/2026-09-05-architecture-hardening.md).
+The September implementation addresses these priorities together. The scoped September 5 implementations passed their recorded finding verification and source/package checks. This does not establish complete architecture or product coverage: the comparative pilot subsequently exposed missing generation/control routes and a routing defect. Exact results and scientific boundaries are in the [architecture record](history/2026-09-05-architecture-hardening.md).
 
 1. Preserve typed limits, one-sided bounds, missing values and expected/observed roles from engines through final figures.
 2. Bind live comparison certificates to approved reference populations, policies, dependencies, identities and actual served values.
@@ -17,7 +17,7 @@ The September implementation addresses these priorities together. All seven are 
 
 The [current board](status.md) records implementation and evidence. The [scientific result contract](../reference/scientific-results.md) and [durable execution procedure](../workflow/reference/durable-execution.md) define the operating boundaries.
 
-## Scientific work after architecture closure
+## Scientific and architecture work still open
 
 The current concrete sequence is the [RRR diagnosis and research
 program](../research/2026-09-05-rrr-diagnosis-and-research-program.md). Its priorities
@@ -32,3 +32,7 @@ full-plane reproduction, then admission of additional analyses from the
 - Build a bounded method-research loop only after defining data access, train/development/final-evaluation separation, baseline methods, statistical calibration and compute limits. Current method-study intake produces a zero-compute proposal; it does not implement autonomous model training.
 
 The native registry is intentionally narrower than all available HEP software. Extend it by implementing and testing a real preparation, detector, analysis and statistical adapter, including its failure cases. Do not relabel a nearest supported analysis as the requested one. Source/public comparisons, independent review and exact-release verification remain part of publication.
+
+## Comparative capability work
+
+The [comparative pilot](../research/2026-09-09-comparative-pilot.md) treats scope refusals as unmet requests and separates scripted affirmative check-ins from active physicist correction. First admit bounded generation-only and statistics-only controls through real typed execution routes, with correct not-requested detector/statistics stages. Validate request preservation before estimating scans. Then test a published fiducial analysis on fixed events and an independently validated detector-response control. Broader FeynRules, EFT, LLP and custom-analysis capabilities need their own adapters and acceptance references. Source availability and a plausible agent-generated plan do not establish these capabilities.

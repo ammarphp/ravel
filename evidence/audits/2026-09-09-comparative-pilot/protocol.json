@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "bounded_exploratory_pilot",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "physics_workers": 1,
+  "max_active_consultants": "1 requested by instruction; not mechanically enforced",
+  "seconds_per_run": 600,
+  "events_per_generation": 100,
+  "random_seed": 1729,
+  "memory": "no prior run history; MadAgents none pack; packaged knowledge retained",
+  "approval_policy": "scripted_affirmative; never substantive expert review",
+  "scope_refusal": "unmet product request; zero delivery success",
+  "ranking_claim_permitted": false,
+  "tasks": [
+    "drell-yan",
+    "atlas-2jl-counting-control"
+  ],
+  "baseline_ravel_public_commit": "6f445b9d759463a609016c2b27a6810f6ec1655e",
+  "native_mg5": "2.9.27",
+  "native_environment": "Existing native MadGraph conda environment; exact private host path in archived receipt",
+  "harness_corrections": [
+    "Ephemeral sessions disabled after consultant-parent lookup failure",
+    "Retained-consultant-thread cap removed for ColliderAgent statistics task; Ravel statistics already started with the earlier cap. Serial active-consultant policy remains requested."
+  ],
+  "madagents_classification": "Completed timed attempt is confounded by earlier consultant-thread admission failure and native linker failure; no general performance ranking.",
+  "prompt_hashes": {
+    "atlas-2jl-counting-control.txt": "dc85183c5e41a74966b4800a5ee5ffabe7e4b7b72341ca537df587fc524ed957",
+    "drell-yan.txt": "318d0ce30130d56cdb51f27f8745751098d1f0b347b5fea012490ef2e2190805",
+    "experimental-policy.txt": "cbf3e263441b84c102eff1312d5b2b58907dc1ca0f4fd1db54042590b50f958d"
+  }
+}

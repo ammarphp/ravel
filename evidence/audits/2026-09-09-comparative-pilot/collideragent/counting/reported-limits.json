@@ -1,0 +1,10 @@
+{
+  "observed": {
+    "signal_events": 43.651291973105806,
+    "visible_cross_section_fb": 13.641028741595564
+  },
+  "median_expected": {
+    "signal_events": 54.88575351303451,
+    "visible_cross_section_fb": 17.15179797282328
+  }
+}

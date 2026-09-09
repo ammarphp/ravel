@@ -1,0 +1,157 @@
+{
+  "scope": "Scripted affirmative policy only; records do not constitute expert scientific review. Four Ravel counting records also appear in a copied component ledger; duplicates are not additional check-ins.",
+  "ledger_rows": 15,
+  "distinct_proposal_hashes": 11,
+  "records": [
+    {
+      "ledger": "runs/collideragent-2jl/experimental-checkins.jsonl",
+      "checkin": "component-statistical-control-execution",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "d7f257ccf32c51f997a59adb9b1fed5c0e98b0403bc8b188c4768fb597f01ac6",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/heptapod-dy/experimental-checkins.jsonl",
+      "checkin": null,
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "88c039534c86445dfb67c1f03dc491a096fc794321d25b0a42967473d535f14c",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/heptapod-dy/experimental-checkins.jsonl",
+      "checkin": null,
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "9db23891682ac9d2f7887a68afa31f57235e841c75b8041dd783b425df52d90f",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/madagents-dy/experimental-checkins.jsonl",
+      "checkin": "mg-setup-pre-execution",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "348e8f65aee8f18d3367fb8278adcf321336878246ce3658336a405b09de9a06",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/madagents-dy/experimental-checkins.jsonl",
+      "checkin": "mg-probe-execution",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "a85dcf55574de210d1dfd8b9d0bf271fc1c115eb36ae24ec11f960b475815cbe",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/evidence/statistical-control-2jl-component/experimental-checkins.jsonl",
+      "checkin": "CHECK-IN 1 \u2014 PLAN",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "8b591075dc5c7c02619bfc1496676b951065034e7a2a92319f150334f68186ce",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/evidence/statistical-control-2jl-component/experimental-checkins.jsonl",
+      "checkin": "CHECK-IN 2 \u2014 EARLY VERIFICATION",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "0c4d376c5af7c56a8cfb1c0eeac39d2ecdae378f1cac300b496cd17e585168be",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/evidence/statistical-control-2jl-component/experimental-checkins.jsonl",
+      "checkin": "DEVIATION",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "9d067278a69f97079c5eee8e4395b82c2879f4aed85f5ccc5a60e14f996723ea",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/evidence/statistical-control-2jl-component/experimental-checkins.jsonl",
+      "checkin": "FINAL \u2014 COMPONENT RESULTS; FRAMEWORK UNMET",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "006565d61785dce330fe9305edb3cf4145e9f99ff57ed4612a1fdc4eeae00378",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/experimental-checkins.jsonl",
+      "checkin": "CHECK-IN 1 \u2014 PLAN",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "8b591075dc5c7c02619bfc1496676b951065034e7a2a92319f150334f68186ce",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/experimental-checkins.jsonl",
+      "checkin": "CHECK-IN 2 \u2014 EARLY VERIFICATION",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "0c4d376c5af7c56a8cfb1c0eeac39d2ecdae378f1cac300b496cd17e585168be",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/experimental-checkins.jsonl",
+      "checkin": "DEVIATION",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "9d067278a69f97079c5eee8e4395b82c2879f4aed85f5ccc5a60e14f996723ea",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-2jl/experimental-checkins.jsonl",
+      "checkin": "FINAL \u2014 COMPONENT RESULTS; FRAMEWORK UNMET",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "006565d61785dce330fe9305edb3cf4145e9f99ff57ed4612a1fdc4eeae00378",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-dy/runs/dy-control/experimental-checkins.jsonl",
+      "checkin": "CHECK-IN 1 \u2014 PLAN",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "962b76fd3a036515564e0467ecd738d0354d8094bc37cf83ad769474548f3a3b",
+      "proposal_hash_matches": true
+    },
+    {
+      "ledger": "runs/ravel-dy/runs/dy-control/experimental-checkins.jsonl",
+      "checkin": "FINAL \u2014 unmet-request closeout",
+      "decision": "yes",
+      "authority": "standing-user-instruction",
+      "reviewer_kind": "scripted_affirmative",
+      "substantive_expert_review": false,
+      "proposal_sha256": "4bf16a8a060a1133b1c891cb5f437491fc1d92a2b4cbf4424419083408f6d3f1",
+      "proposal_hash_matches": true
+    }
+  ]
+}

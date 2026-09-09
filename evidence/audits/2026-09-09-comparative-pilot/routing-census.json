@@ -1,0 +1,368 @@
+{
+  "note": "Routing probes only. A routed contract does not establish executable capability. No performance successes awarded. Captured before any routing repair.",
+  "rows": [
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "no supported task mode matched (PRODUCT-CONTRACT section 1) \u2014 if this IS a reproduction/reinterpretation/survey ask, name the analysis and the deliverable, or provide a grounded --interpretation file"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "sm_drell_yan",
+      "prompt": "Generate 100 parton-level Standard Model p p > e+ e- events at the 13 TeV LHC and plot the dilepton invariant mass. No shower or detector simulation.",
+      "prompt_sha256": "636be6594ce5ef7e7b5dfcc489f0aa7b9bf9363a62d194b24ca4054b5ace8af6",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "no supported task mode matched (PRODUCT-CONTRACT section 1) \u2014 if this IS a reproduction/reinterpretation/survey ask, name the analysis and the deliverable, or provide a grounded --interpretation file"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "sm_top_pair",
+      "prompt": "Generate 100 Standard Model p p > t t~ events at the 13 TeV LHC, shower with Pythia8 and report the cross section.",
+      "prompt_sha256": "810d0af0136a234d41347a47939e2d3faba8a5902bd7c722397aa57da49b0482",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "no supported task mode matched (PRODUCT-CONTRACT section 1) \u2014 if this IS a reproduction/reinterpretation/survey ask, name the analysis and the deliverable, or provide a grounded --interpretation file"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "atlas_counting_control",
+      "prompt": "Compute the observed and expected 95% CLs upper signal yield for the ATLAS 2016 2jl region using n=263, b=283 and db=24. No new events.",
+      "prompt_sha256": "45d73c7ab7a64bdaf06e55d7417da45bd838b590a52a156a821a65afa0c54d97",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "reproduce",
+      "detector_mode": "simpleanalysis-delphes-native",
+      "stat_mode": "published-likelihood",
+      "compute_plan": "scan",
+      "blocking": [],
+      "required_user_inputs": [],
+      "escalate": [
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": "SUSY",
+        "process": null,
+        "analysis": [
+          "ATLAS-SUSY-2018-16"
+        ],
+        "arxiv": [
+          "1911.12606"
+        ],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "atlas_published_recast",
+      "prompt": "Reproduce the ATLAS SUSY-2018-16 slepton analysis arXiv:1911.12606 from public data and compare acceptance, cutflow, limits and figures.",
+      "prompt_sha256": "2d4562645fbf3c1b9a62c81a555be11482e14dc7aa4a8bba8da015e9f02b8d72",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "reproduce",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "scan",
+      "blocking": [],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [
+          "1605.03814"
+        ],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "atlas_unimplemented_analysis",
+      "prompt": "Reproduce ATLAS arXiv:1605.03814 for a squark model with a complete cutflow, normalization audit and exclusion.",
+      "prompt_sha256": "79f7ba9f237c660eb8530ac50143cc44604f5065d9f647fb743a2bc4a8941ade",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "no supported task mode matched (PRODUCT-CONTRACT section 1) \u2014 if this IS a reproduction/reinterpretation/survey ask, name the analysis and the deliverable, or provide a grounded --interpretation file"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "lhc_eft",
+      "prompt": "Generate pp > h j with a SMEFT UFO and compare operator interference at order 1/Lambda^2.",
+      "prompt_sha256": "d0bec33c0d901fbe8a23b26ab6df6a7b658c5e8c07ed6eb76542da487280be81",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "reinterpret",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "scan",
+      "blocking": [],
+      "required_user_inputs": [
+        "analysis identifier (arXiv id, Inspire id, or analysis code)",
+        "model definition (spectrum/cards or the mass-plane ranges)"
+      ],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "llp_recast",
+      "prompt": "Reinterpret the ATLAS disappearing-track analysis for a long-lived chargino using public efficiency maps.",
+      "prompt_sha256": "7d3b9c03db3fbce1dcf5daa11480830ea3c6d38bbace64b1e677a86316e35f0e",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "no supported task mode matched (PRODUCT-CONTRACT section 1) \u2014 if this IS a reproduction/reinterpretation/survey ask, name the analysis and the deliverable, or provide a grounded --interpretation file"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "model_building",
+      "prompt": "Build a gauge-consistent vector-like lepton extension with FeynRules, validate the UFO and generate a benchmark sample.",
+      "prompt_sha256": "8f0718490229adcb5c5585b4bbd1b1c7484c58d76b288cee9498b9a1ea457bd9",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "projection",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "sensitivity-expected-only",
+      "compute_plan": "scan",
+      "blocking": [],
+      "required_user_inputs": [
+        "analysis identifier (arXiv id, Inspire id, or analysis code)",
+        "target luminosity for the projection"
+      ],
+      "escalate": [
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "summary_plot",
+      "prompt": "Survey ATLAS searches for a Zprime decaying to WW and plot published observed and expected limits.",
+      "prompt_sha256": "c0df1c2ab42f7e39004b5a460fa31ce0e29faac63ec7dac447999a103565ab84",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "projection",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "sensitivity-expected-only",
+      "compute_plan": "scan",
+      "blocking": [],
+      "required_user_inputs": [
+        "analysis identifier (arXiv id, Inspire id, or analysis code)",
+        "target luminosity for the projection"
+      ],
+      "escalate": [
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "likelihood_input_only",
+      "prompt": "Fit the supplied pyhf likelihood JSON and reproduce the observed and expected 95 percent limits without generating events.",
+      "prompt_sha256": "5d9528b163bfb27f13fd13398964b47c78f16e3301c3c558077ee0514431d4c8",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "survey",
+      "detector_mode": "particle-level",
+      "stat_mode": "none-survey",
+      "compute_plan": "none",
+      "blocking": [],
+      "required_user_inputs": [
+        "dataset and permitted data access",
+        "training, development and protected final evaluation splits",
+        "baseline methods and statistical calibration protocol",
+        "compute budget and method-training executor"
+      ],
+      "escalate": [
+        "survey scope (which scenario class / mass range / experiments) is confirmed at CHECK-IN 1 before any candidate list is deep-read",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "method_study",
+      "prompt": "Design and train a CWoLa anomaly detection method on public collider data and validate false positive calibration.",
+      "prompt_sha256": "8e2e169d42361f4de64f6b83696eec36be8de0a684497c92599110794754c9c9",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    },
+    {
+      "task_mode": "unsupported",
+      "detector_mode": "TBD-judgment",
+      "stat_mode": "TBD-judgment",
+      "compute_plan": "none",
+      "blocking": [
+        "discovery-language: this tool sets 95% CLs exclusion limits, never a 5-sigma/discovery claim (PRODUCT-CONTRACT section 6.2) \u2014 re-phrase as an exclusion question"
+      ],
+      "required_user_inputs": [],
+      "escalate": [
+        "stat_mode: published likelihood vs counting is a per-analysis fact \u2014 resolve from HEPData at step 2 (docs/workflow/steps/06-acquire-data.md), confirm at CHECK-IN 1",
+        "detector_mode: Rivet-smearing vs SA/Delphes is a per-analysis fact \u2014 resolve the routine at step 2 (routine_fetch.py), confirm at CHECK-IN 1",
+        "figure target + early-verification waypoint: [judgment] picks at CHECK-IN 1 (checklists/check-ins.md) \u2014 never auto-selected"
+      ],
+      "targets": {
+        "model": null,
+        "process": null,
+        "analysis": [],
+        "arxiv": [],
+        "inspire": [],
+        "figures": [],
+        "masses_gev": [],
+        "lumi_fb": null
+      },
+      "id": "unphysical_claim",
+      "prompt": "Discover a new particle at 5 sigma from a simulated signal-only sample.",
+      "prompt_sha256": "6a432e4835e5113b3ca3f5d4b1f759b7e40e3f5011f85c11172c1dd911b09420",
+      "evidence_kind": "deterministic_router_probe",
+      "delivery_success": null
+    }
+  ]
+}

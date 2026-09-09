@@ -446,7 +446,7 @@ def _score_capability(m):
     partial prompt hand-flipped to 'served') without touching the file on disk — the anti-
     gaming property under test is a property of THIS function, not of file I/O.
 
-    A served / served-with-refusal prompt earns its 1.0 credit ONLY while its named gate is
+    A served prompt earns its 1.0 credit ONLY while its named gate is
     actually green (an artifact's verdict field, or a selftest's exit code); a red or
     illegitimate (decision/deferred) gate demotes that prompt to 0.5 credit — as if it had
     self-reported partial — and a FAIL line names the discrepancy. partial keeps its 0.5
@@ -454,23 +454,28 @@ def _score_capability(m):
     stay 0.0. This is what makes R9 non-gameable: editing one JSON string from 'partial' to
     'served' no longer moves the needle unless the underlying evidence is actually green."""
     prompts = m.get("prompts", {})
-    served_statuses = ("served", "served-with-refusal")
-    base_credit = {"served": 1.0, "served-with-refusal": 1.0, "partial": 0.5,
+    # Refusal quality belongs to a separate judgment metric. A refusal does not
+    # deliver the requested capability, even when a refusal validator is green.
+    # Keep the historical spelling readable without preserving its old credit.
+    refused_statuses = ("served-with-refusal", "refused")
+    base_credit = {"served": 1.0, "served-with-refusal": 0.0, "refused": 0.0, "partial": 0.5,
                    "unbuilt": 0.0, "decision-pending": 0.0}
 
-    derived, ev, fails, warns = {}, [], [], []
+    derived, ev, fails = {}, [], []
     for key, v in sorted(prompts.items()):
         status = v.get("status")
         gate = v.get("gate")
-        if status in served_statuses:
+        if status in refused_statuses:
+            derived[key] = 0.0
+            ev.append(f"{key}: {status} [unmet product request — no delivery credit; "
+                      "assess refusal validity separately]")
+        elif status == "served":
             if gate is None:
-                # migration-safe: a served prompt with no gate at all is a WARN, not a hard
-                # red, during rollout — credit it as claimed but flag it loudly. After Part A
-                # every prompt in the matrix carries a gate, so this branch should not fire.
-                derived[key] = base_credit[status]
-                warns.append(f"R9 WARN: prompt {key} claims '{status}' but has no gate field "
-                              f"(migration) — credited as claimed; add a gate")
-                ev.append(f"{key}: {status} [NO GATE — migration WARN, credited {derived[key]:.1f}]")
+                derived[key] = 0.5
+                fail_line = (f"R9: prompt {key} claims 'served' but has NO GATE — "
+                             "credited as partial; complete delivery is unverified")
+                fails.append(fail_line)
+                ev.append(fail_line)
             else:
                 green, why = _gate_verdict(gate)
                 if green:
@@ -489,16 +494,16 @@ def _score_capability(m):
 
     score = (sum(derived.values()) / len(prompts)) if prompts else 0.0
     n = {s: sum(1 for v in prompts.values() if v.get("status") == s)
-         for s in ("served", "served-with-refusal", "partial", "unbuilt", "decision-pending")}
-    full = n["served"] + n["served-with-refusal"]
+         for s in ("served", "served-with-refusal", "refused", "partial", "unbuilt", "decision-pending")}
+    full = sum(credit == 1.0 for credit in derived.values())
+    refused = sum(n[s] for s in refused_statuses)
+    partial = sum(credit == 0.5 for credit in derived.values())
     detail = (f"{full}/{len(prompts)} prompts fully served "
-              f"({n['served-with-refusal']} as designed refusals); {n['partial']} partial; "
+              f"({refused} refusals remain unmet requests); {partial} partial; "
               f"{n['unbuilt']} unbuilt — the capability layer is the open half "
-              f"(CAPABILITY-ROADMAP W3); credits gate-RATIFIED (schema_version 2)")
+              f"(CAPABILITY-ROADMAP W3); complete delivery requires a green gate; refusals credit zero")
     if fails:
         detail += f"; {len(fails)} claimed-served-but-gate-RED (downgraded to partial credit)"
-    if warns:
-        detail += f"; {len(warns)} gate-missing WARN(s)"
     st = "PASS" if score >= 0.99 else ("WARN" if score >= 0.5 else "FAIL")
     if fails and st == "PASS":
         st = "WARN"   # a red-gated served claim can never look fully clean, even if score rounds high

@@ -1,0 +1,6 @@
+{
+  "observed": "Codex 0.153.4 ephemeral mode: collab spawn failed: no thread with id",
+  "classification": "evaluator harness failure, not subject performance",
+  "correction": "omit --ephemeral; disable memory injection/generation; preserve local session state for supported consultant dispatch",
+  "affected_subject": "MadAgents first attempt; inspect Ravel independent-review evidence separately"
+}

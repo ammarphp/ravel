@@ -230,3 +230,9 @@ test logs and wheels remain available. Active HEP, replay and guarded JAX runtim
 shared Python installations and physics products were preserved. The original
 campaign ceiling, storage margin, derivative provision and free-space floor were
 not changed; successful execution passed a fresh admission check.
+
+## 2026-09-09 — isolated comparative pilot
+
+Provisioned external public framework checkouts outside the physics source tree, pinned to commits recorded in the comparative evidence. Used Codex 0.153.4 with gpt-6-astra and the existing ChatGPT login. Installed magnus-sdk 0.8.2, toolbase 0.15.0 and AgentRivet 0.2.0 in separate experimental Python environments. Toolbase installed HEPTAPOD 2.3.0 mg5/analysis bundles in its normal isolated cache and was connected only in the benchmark project. The existing MadGraph 2.9.27 installation was copied for experimental use; its original tree and original cards were preserved. No global agent skills, cloud credentials or Docker deployment were installed. Magnus local startup reported missing Docker. AgentRivet required the README editable installation; its model provider still needs OPENAI_API_KEY, which was absent.
+
+The first MadAgents attempt exposed a Codex ephemeral-session consultant failure. The attempt was retained and excluded as a harness failure; the corrected runner preserves session records while disabling memory injection and generation. Its cold installation passed shipped integrity checks and a fresh-context installation review. The public benchmark notes record the integration and model comparability limits.

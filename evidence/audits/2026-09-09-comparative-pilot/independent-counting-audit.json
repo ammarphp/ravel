@@ -1,0 +1,74 @@
+{
+  "scope": "input transport, units and numerical roots in the declared single-bin approximation; no coverage or detector validation",
+  "pyhf_version": "0.7.6",
+  "delta_signal_events": 0.01,
+  "results": {
+    "ravel": {
+      "passed": true,
+      "checks": {
+        "specified_channels": true,
+        "specified_observations": true,
+        "poi_is_signal_events": true,
+        "observed_interior": true,
+        "observed_crossing": true,
+        "observed_root_residual": true,
+        "observed_units": true,
+        "median_expected_interior": true,
+        "median_expected_crossing": true,
+        "median_expected_root_residual": true,
+        "median_expected_units": true
+      },
+      "roots": {
+        "observed": {
+          "signal_events": 43.6512884112728,
+          "cls_minus_delta": 0.05004706339815088,
+          "cls_at_root": 0.050000016814137696,
+          "cls_plus_delta": 0.049953008275809015,
+          "residual": 1.681413769327733e-08
+        },
+        "median_expected": {
+          "signal_events": 54.88574304233567,
+          "cls_minus_delta": 0.050042596966884414,
+          "cls_at_root": 0.05000004003131482,
+          "cls_plus_delta": 0.049957513182975394,
+          "residual": 4.003131481855604e-08
+        }
+      },
+      "workspace_sha256": "a71efb4039f379eca6c0a68ea895091eef18b446650d3d422a6de2c5bdcb6b60"
+    },
+    "collideragent": {
+      "passed": true,
+      "checks": {
+        "specified_channels": true,
+        "specified_observations": true,
+        "poi_is_signal_events": true,
+        "observed_interior": true,
+        "observed_crossing": true,
+        "observed_root_residual": true,
+        "observed_units": true,
+        "median_expected_interior": true,
+        "median_expected_crossing": true,
+        "median_expected_root_residual": true,
+        "median_expected_units": true
+      },
+      "roots": {
+        "observed": {
+          "signal_events": 43.651291973105806,
+          "cls_minus_delta": 0.050047046634164705,
+          "cls_at_root": 0.050000000063702005,
+          "cls_plus_delta": 0.049952991538928584,
+          "residual": 6.370200200667142e-11
+        },
+        "median_expected": {
+          "signal_events": 54.88575351303451,
+          "cls_minus_delta": 0.05004255239103807,
+          "cls_at_root": 0.04999999548702023,
+          "cls_plus_delta": 0.04995746867014185,
+          "residual": -4.512979774606851e-09
+        }
+      },
+      "workspace_sha256": "dd680276afeda90430e835615bafc18d49465be8168c195586a8b12071fb8e47"
+    }
+  },
+  "passed": true
+}

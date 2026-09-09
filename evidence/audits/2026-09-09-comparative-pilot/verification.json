@@ -1,0 +1,64 @@
+{
+  "scope": "Focused source checks and independent artifact checks; not a full repository test rerun, external expert review, physics coverage validation or RRR closure.",
+  "final_focused_tests": {
+    "passed": 72,
+    "deselected": 1,
+    "seconds": 0.27,
+    "files": [
+      "tests/unit/test_comparative_lhe_audit.py",
+      "tests/unit/test_capability_gate.py",
+      "tests/unit/test_semantic_intake.py"
+    ],
+    "excluded": "test_live_matrix broad integration/selftest audit"
+  },
+  "earlier_broader_focused_tests": {
+    "passed": 106,
+    "skipped": 1,
+    "deselected": 1,
+    "seconds": 0.68,
+    "skip_reason": "installed wheel-specific CLI check requires RAVEL_TEST_WHEEL; not claimed as executed"
+  },
+  "serialized_counting_checks": {
+    "passed": 22,
+    "frameworks": 2,
+    "implementation": "fresh invocation of pyhf 0.7.6, same library as producers"
+  },
+  "generated_event_checks": {
+    "samples_passed": 3,
+    "events_total": 300,
+    "scope": "complete event framing, beams, banner seed/PDF, process census, finite positive constant weights, requested final state and cuts"
+  },
+  "approval_checks": {
+    "ledger_rows": 15,
+    "unique_proposal_hashes": 11,
+    "all_hashes_match": true,
+    "all_decisions_yes": true,
+    "substantive_expert_review": false
+  },
+  "visual_qa": {
+    "original_figures_inspected": 4,
+    "stats_roots_labels_units": "checked against numerical outputs",
+    "generation_labels_and_visible_shapes": "checked; no cross-section accuracy comparison",
+    "gallery_static_links": "all local targets resolve",
+    "gallery_browser_preview": "blocked by browser URL policy; no rendered-gallery QA claim"
+  },
+  "publication_checks": {
+    "source_evidence_check": "17 PASS, 0 WARN, 0 FAIL before final evidence curation",
+    "source_publication_check": "PASS after final evidence curation, Python 3.12; exact log retained locally",
+    "final_export_check": "Recorded by export validation and public CI, outside this non-self-referential bundle."
+  },
+  "adversarial_review": {
+    "reviewer": "implementation agent, direct hostile fixtures and actual-file verification; not an additional independent reviewer",
+    "additional_failure_found": "extra truncated event could be ignored after 100 good events",
+    "repair": "event framing census and required document terminator; regression fixtures pass"
+  },
+  "not_established": [
+    "native Magnus operation",
+    "MadAgents unconstrained performance",
+    "matched generation recipe equivalence",
+    "physics accuracy ranking",
+    "detector or acceptance closure",
+    "new generation-only or statistics-only Ravel execution routes",
+    "full RRR reproduction"
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "repair": "Expected limits alone do not imply future luminosity/detector projection. Execution scope was not expanded.",
+  "rows": [
+    {
+      "id": "sm_drell_yan",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "sm_top_pair",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "atlas_counting_control",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "atlas_published_recast",
+      "before_mode": "reproduce",
+      "after_mode": "reproduce",
+      "before_compute_plan": "scan",
+      "after_compute_plan": "scan",
+      "compute_authorized": false
+    },
+    {
+      "id": "atlas_unimplemented_analysis",
+      "before_mode": "reproduce",
+      "after_mode": "reproduce",
+      "before_compute_plan": "scan",
+      "after_compute_plan": "scan",
+      "compute_authorized": false
+    },
+    {
+      "id": "lhc_eft",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "llp_recast",
+      "before_mode": "reinterpret",
+      "after_mode": "reinterpret",
+      "before_compute_plan": "scan",
+      "after_compute_plan": "scan",
+      "compute_authorized": false
+    },
+    {
+      "id": "model_building",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "summary_plot",
+      "before_mode": "projection",
+      "after_mode": "survey",
+      "before_compute_plan": "scan",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "likelihood_input_only",
+      "before_mode": "projection",
+      "after_mode": "reproduce",
+      "before_compute_plan": "scan",
+      "after_compute_plan": "scan",
+      "compute_authorized": false
+    },
+    {
+      "id": "method_study",
+      "before_mode": "survey",
+      "after_mode": "survey",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    },
+    {
+      "id": "unphysical_claim",
+      "before_mode": "unsupported",
+      "after_mode": "unsupported",
+      "before_compute_plan": "none",
+      "after_compute_plan": "none",
+      "compute_authorized": false
+    }
+  ]
+}

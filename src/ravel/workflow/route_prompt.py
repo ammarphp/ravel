@@ -119,7 +119,7 @@ NATIVE_SA = re.compile(r"ewkcompressed|1767649|slepton|SUSY-2018-16", re.I)
 
 # ---------------------------------------------------------------- classification rules
 # Ordered: the FIRST matching rule sets task_mode. Keep summary/anomaly ahead of the generic
-# verbs; projection ahead of reproduce so "expected Run-3 contour ... reinterpret Fig 3" routes
+# verbs; projection ahead of reproduce so "Run-3 contour ... reinterpret Fig 3" routes
 # to the projection deliverable with the reinterpretation recorded as its second half.
 RULES = (
     ("summary_plot", re.compile(r"summary.?plot|summary of (the )?(search|limit|analys)|"
@@ -128,7 +128,6 @@ RULES = (
                                   r"unusual topolog|CWoLa|weakly.?supervised", re.I)),
     # "projection operator" is the Dirac-algebra object, never a task ask (CR-133)
     ("projection", re.compile(r"projection(?!\s+operator)|extrapolat|hl.?lhc|run.?[34]\b|future (run|lumi)|"
-                              r"expected .{0,40}(limit|contour|exclusion|reach|sensitivit)|"
                               r"hypothetical .{0,30}(tagger|detector|trigger)", re.I)),
     ("reproduce", re.compile(r"\breproduc|re.?deriv|\bmatch (fig|the published)|validate against", re.I)),
     ("scan", re.compile(r"\bscan\b|mass.?plane|\bgrid\b|exclusion contour|contour in the", re.I)),

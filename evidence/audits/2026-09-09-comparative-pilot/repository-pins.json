@@ -1,0 +1,65 @@
+[
+  {
+    "name": "collideragent",
+    "url": "https://github.com/HET-AGI/ColliderAgent.git",
+    "returncode": 0,
+    "elapsed_seconds": 1.63,
+    "log": "",
+    "commit": "1140f39e8730889422a64a141fbd3ca10529e13b"
+  },
+  {
+    "name": "madagents",
+    "url": "https://github.com/MadGraphTeam/MadAgents.git",
+    "returncode": 0,
+    "elapsed_seconds": 1.28,
+    "log": "",
+    "commit": "df241214d1e4a66b1f9964aa33dd2342b7084b9a"
+  },
+  {
+    "name": "heptapod",
+    "url": "https://github.com/tonymenzo/heptapod.git",
+    "returncode": 0,
+    "elapsed_seconds": 0.94,
+    "log": "",
+    "commit": "865d3f0350e953237cf0f558386905e255997e43"
+  },
+  {
+    "name": "agentrivet",
+    "url": "https://gitlab.com/hepcedar/AgentRivet.git",
+    "returncode": 0,
+    "elapsed_seconds": 1.16,
+    "log": "",
+    "commit": "e4d12eccb6aee546d993481c75576c0df4e2b037"
+  },
+  {
+    "name": "sfitteragents",
+    "url": "https://github.com/heidelberg-hepml/SFitterAgents.git",
+    "returncode": 0,
+    "elapsed_seconds": 0.54,
+    "log": "",
+    "commit": "c52ce2ba90e5ee089429d8cdce5762498a401573"
+  },
+  {
+    "name": "collider-bench",
+    "url": "https://github.com/dfaroughy/Collider-Bench.git",
+    "returncode": 0,
+    "elapsed_seconds": 2.21,
+    "log": "",
+    "commit": "2986d8b270ae49e0d6e8c95bbf95ef1159f16d7c"
+  },
+  {
+    "name": "lewron",
+    "url": "https://github.com/quarkquartet/LeWRON.git",
+    "returncode": 0,
+    "elapsed_seconds": 0.92,
+    "log": "",
+    "commit": "2cce628c3ab97797d0a4c334a36795cbf0fa7ad5"
+  },
+  {
+    "name": "heplocalagent",
+    "url": "https://github.com/AadarshSingh0/HEPLocalAgent.git",
+    "returncode": 0,
+    "log": "",
+    "commit": "a2d604aee3222f3d5b86bb0eb51e80e7decc83cd"
+  }
+]

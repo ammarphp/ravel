@@ -1,0 +1,70 @@
+[
+  {
+    "name": "lewron",
+    "tracked_files": 260,
+    "source_status": "public checkout acquired",
+    "commit": "2cce628c3ab97797d0a4c334a36795cbf0fa7ad5",
+    "test_status": "Inventory only",
+    "scope": "Electroweak phase transitions and gravitational waves; not a collider-analysis comparator for these tasks"
+  },
+  {
+    "name": "sfitteragents",
+    "tracked_files": 2,
+    "source_status": "release placeholder",
+    "commit": "c52ce2ba90e5ee089429d8cdce5762498a401573"
+  },
+  {
+    "name": "heptapod",
+    "tracked_files": 424,
+    "source_status": "public checkout acquired",
+    "commit": "865d3f0350e953237cf0f558386905e255997e43",
+    "installation": "toolbase 0.15.0, HEPTAPOD 2.3.0 mg5+analysis bundles installed, project-scoped MCP connection",
+    "pilot": "Codex/Astra driving toolbase MCP"
+  },
+  {
+    "name": "madagents",
+    "tracked_files": 2878,
+    "source_status": "public checkout acquired",
+    "commit": "df241214d1e4a66b1f9964aa33dd2342b7084b9a",
+    "installation": "Shipped Codex folder install with 46 roles, 8 skills, memory pack none; mechanical verification and fresh install review",
+    "pilot": "Persistent Codex runtime after invalid ephemeral attempt"
+  },
+  {
+    "name": "heplocalagent",
+    "tracked_files": 269,
+    "source_status": "public checkout acquired",
+    "commit": "a2d604aee3222f3d5b86bb0eb51e80e7decc83cd",
+    "test_status": "Public source reviewed; no compatible Astra provider configured; managed stack not installed",
+    "scope": "Ollama and a clone-managed native HEP stack; do not substitute local models in an Astra-matched pilot"
+  },
+  {
+    "name": "agentrivet",
+    "tracked_files": 27,
+    "source_status": "public checkout acquired",
+    "commit": "e4d12eccb6aee546d993481c75576c0df4e2b037",
+    "test_status": "Installed using README editable method; existing-routine lookup succeeds for 1605.03814; model constructor blocked by missing OPENAI_API_KEY",
+    "scope": "Paper-to-Rivet implementation, not a complete event-to-limit pipeline"
+  },
+  {
+    "name": "collideragent",
+    "tracked_files": 518,
+    "source_status": "public checkout acquired",
+    "commit": "1140f39e8730889422a64a141fbd3ca10529e13b",
+    "installation": "magnus-sdk 0.8.2 installed; local start failed because Docker is missing",
+    "pilot": "Documented native local execution path; Magnus backend untested"
+  },
+  {
+    "name": "collider-bench",
+    "tracked_files": 413,
+    "source_status": "public checkout acquired",
+    "commit": "2986d8b270ae49e0d6e8c95bbf95ef1159f16d7c",
+    "test_status": "Inventory and protocol review only; full benchmark not executed on this machine",
+    "scope": "Benchmark suite, not an agent system"
+  },
+  {
+    "name": "fermiacc",
+    "source_status": "No runnable public repository located in official paper links and targeted repository searches",
+    "paper": "https://arxiv.org/abs/2603.22538",
+    "test_status": "not run; availability unresolved"
+  }
+]

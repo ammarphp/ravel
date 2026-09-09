@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "908ed5e297254e68fd2878314c9663ccb6a7e97a",
+  "source_commit": "8a9c4d86c11864c42bb0e5df0564fd6cd8a16774",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -822,8 +822,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "0f39d9116104de5915f0d0c4e52cb4603bb3224137a9d85c52c5204f89abd5b8",
-      "export_sha256": "0f39d9116104de5915f0d0c4e52cb4603bb3224137a9d85c52c5204f89abd5b8"
+      "source_sha256": "2fbad278be3d5af6c0853208af328eddf2698c1ed1e2b8b4db1c75830d08d020",
+      "export_sha256": "2fbad278be3d5af6c0853208af328eddf2698c1ed1e2b8b4db1c75830d08d020"
     },
     {
       "source_path": "CITATION.cff",
@@ -846,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "cb4a0ffd8aa3712eafba907000cc667e041d8b0cda0c34db415ab8677656693e",
-      "export_sha256": "0d8725d16213b1b4fa54192cb959daf726e2a3722bad8b09419be0c7189744f7"
+      "source_sha256": "b975ffce9ce486d2f54445756a06753f9fcd6c2a2b2daa360c219a0b47a2df3f",
+      "export_sha256": "b5099f21de3d4012772e1f683c8096deb0934a5eb5197231ac7ed70c7a089ee6"
     },
     {
       "source_path": "LICENSE",
@@ -882,8 +882,8 @@
     {
       "source_path": "benchmarks/capabilities.json",
       "public_path": "benchmarks/capabilities.json",
-      "source_sha256": "ff49a580d8e484021fa9f4bc5b47adfde89d0c416b50ba580f1da122fb26b3e2",
-      "export_sha256": "ff49a580d8e484021fa9f4bc5b47adfde89d0c416b50ba580f1da122fb26b3e2"
+      "source_sha256": "6722e51a8a5ea9f1e4d6e914925f72733bf4f371f409bce29dfb122f1aeb3d2c",
+      "export_sha256": "6722e51a8a5ea9f1e4d6e914925f72733bf4f371f409bce29dfb122f1aeb3d2c"
     },
     {
       "source_path": "benchmarks/cases.json",
@@ -902,6 +902,18 @@
       "public_path": "benchmarks/check_reference_grid.py",
       "source_sha256": "eb71630c492b01d63451f8a12ee4f04f42b43cd7c2fdb3eee4fa4af2ab1078ce",
       "export_sha256": "eb71630c492b01d63451f8a12ee4f04f42b43cd7c2fdb3eee4fa4af2ab1078ce"
+    },
+    {
+      "source_path": "benchmarks/comparative/README.md",
+      "public_path": "benchmarks/comparative/README.md",
+      "source_sha256": "86e116a486142e0314be4a287abf864f20a0dc823db5aee0068aaff82c7aeb87",
+      "export_sha256": "86e116a486142e0314be4a287abf864f20a0dc823db5aee0068aaff82c7aeb87"
+    },
+    {
+      "source_path": "benchmarks/comparative/audit_drell_yan.py",
+      "public_path": "benchmarks/comparative/audit_drell_yan.py",
+      "source_sha256": "02e5ede9e4c3b813382c0b09b92818ee940ec472764428ad7c07a174284646fd",
+      "export_sha256": "02e5ede9e4c3b813382c0b09b92818ee940ec472764428ad7c07a174284646fd"
     },
     {
       "source_path": "benchmarks/governance/README.md",
@@ -1128,14 +1140,14 @@
     {
       "source_path": "docs/development/history/data-and-card-changes.md",
       "public_path": "docs/development/history/data-and-card-changes.md",
-      "source_sha256": "45e854b5846876c275f81cc91ef28ca162f273765d78e45f93512a95c1e60fda",
-      "export_sha256": "45e854b5846876c275f81cc91ef28ca162f273765d78e45f93512a95c1e60fda"
+      "source_sha256": "fc10ba7fe5a258a5364f4915b9be3d9362b44dde8d42cff0522e0dd95ef5c84c",
+      "export_sha256": "fc10ba7fe5a258a5364f4915b9be3d9362b44dde8d42cff0522e0dd95ef5c84c"
     },
     {
       "source_path": "docs/development/history/environment-changes.md",
       "public_path": "docs/development/history/environment-changes.md",
-      "source_sha256": "6bbe1a28ae6c6f900fe9b34ad1fb1bd7fe7841624718b94f267e5a1a50e34aff",
-      "export_sha256": "6bbe1a28ae6c6f900fe9b34ad1fb1bd7fe7841624718b94f267e5a1a50e34aff"
+      "source_sha256": "cebb53fbf71946aad6efa3130bcff21a09b307ab0cc41337f56da95fef08180c",
+      "export_sha256": "cebb53fbf71946aad6efa3130bcff21a09b307ab0cc41337f56da95fef08180c"
     },
     {
       "source_path": "docs/development/history/mission-and-plan.md",
@@ -1176,14 +1188,14 @@
     {
       "source_path": "docs/development/roadmap.md",
       "public_path": "docs/development/roadmap.md",
-      "source_sha256": "59b50bc85328909a49f27694b78e7784dca5592cf8cd9fec3727603363e7e286",
-      "export_sha256": "59b50bc85328909a49f27694b78e7784dca5592cf8cd9fec3727603363e7e286"
+      "source_sha256": "3d9803cdea670c76b8558e864fdcd0fdb42b7e2c67355b5de550ae422e031ed0",
+      "export_sha256": "3d9803cdea670c76b8558e864fdcd0fdb42b7e2c67355b5de550ae422e031ed0"
     },
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "71d1d254a426b2aa1131d043963e29de2ab881d7895c59f31240f25c02a6aa1a",
-      "export_sha256": "71d1d254a426b2aa1131d043963e29de2ab881d7895c59f31240f25c02a6aa1a"
+      "source_sha256": "8ef19a1a97a690514724f04b4ee0cdba3205a6ed1d65b30ab0c99a9ed57b297e",
+      "export_sha256": "8ef19a1a97a690514724f04b4ee0cdba3205a6ed1d65b30ab0c99a9ed57b297e"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -1224,8 +1236,8 @@
     {
       "source_path": "docs/reference/capabilities.md",
       "public_path": "docs/reference/capabilities.md",
-      "source_sha256": "5469e45d38bf9297a39ebd26681c2813824af8e36fddce3fc793f2f873c6591a",
-      "export_sha256": "5469e45d38bf9297a39ebd26681c2813824af8e36fddce3fc793f2f873c6591a"
+      "source_sha256": "68f9d4a79d26887bb859ea1e675f7ce7d86246573b5db39d7e5a88a459062f0b",
+      "export_sha256": "68f9d4a79d26887bb859ea1e675f7ce7d86246573b5db39d7e5a88a459062f0b"
     },
     {
       "source_path": "docs/reference/environment.md",
@@ -1266,8 +1278,8 @@
     {
       "source_path": "docs/reference/scope.md",
       "public_path": "docs/reference/scope.md",
-      "source_sha256": "2d5bfe966b0ce80a89149f60cbd2c6195773d74d227e779ad10ae7a0cc1fe114",
-      "export_sha256": "2d5bfe966b0ce80a89149f60cbd2c6195773d74d227e779ad10ae7a0cc1fe114"
+      "source_sha256": "3e1510e84249808441a6e8e28acef010cec6a42e3e435264c2db694338e8e56a",
+      "export_sha256": "3e1510e84249808441a6e8e28acef010cec6a42e3e435264c2db694338e8e56a"
     },
     {
       "source_path": "docs/reference/task-contract.md",
@@ -1316,6 +1328,12 @@
       "public_path": "docs/research/2026-09-08-rrr-shape-control.md",
       "source_sha256": "4516e5d4311d1eed3c919103a670bdee7f0f0f2955527f01b1d662deb9f21eba",
       "export_sha256": "4516e5d4311d1eed3c919103a670bdee7f0f0f2955527f01b1d662deb9f21eba"
+    },
+    {
+      "source_path": "docs/research/2026-09-09-comparative-pilot.md",
+      "public_path": "docs/research/2026-09-09-comparative-pilot.md",
+      "source_sha256": "dbedac7f74c546c832b2993457272cafbd7339eb02e6721435d97748df96b899",
+      "export_sha256": "dbedac7f74c546c832b2993457272cafbd7339eb02e6721435d97748df96b899"
     },
     {
       "source_path": "docs/research/README.md",
@@ -3568,6 +3586,222 @@
       "export_sha256": "e95618ed09d0213b02513a9dd8a5a80399abe29ba5d61ff58942ddcb6468b13d"
     },
     {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/README.md",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/README.md",
+      "source_sha256": "43c6acba91e64baac41cad492e771e8837cbc6a63775cddf9354e45de1d443a8",
+      "export_sha256": "43c6acba91e64baac41cad492e771e8837cbc6a63775cddf9354e45de1d443a8"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/approval-audit.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/approval-audit.json",
+      "source_sha256": "2dad0d51f54d7758ec4ff76b4ab31730e1f4cb99b7443c597c1b5656dc45fed9",
+      "export_sha256": "2dad0d51f54d7758ec4ff76b4ab31730e1f4cb99b7443c597c1b5656dc45fed9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/checksums.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/checksums.json",
+      "source_sha256": "f3d3dfaf059b6bdf6ad28dc35607d18a22f0b93aca77086c1aa656a7ebeafe11",
+      "export_sha256": "f3d3dfaf059b6bdf6ad28dc35607d18a22f0b93aca77086c1aa656a7ebeafe11"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-curves.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-curves.json",
+      "source_sha256": "da7dcf74904223827c9d72b271e8ab7effd57c442c1afd57fcdd32c1fc8b605c",
+      "export_sha256": "da7dcf74904223827c9d72b271e8ab7effd57c442c1afd57fcdd32c1fc8b605c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-vs-signal.pdf",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-vs-signal.pdf",
+      "source_sha256": "e0bb254c3f4d3a64eb64a9fbbebcf8be4230690d935ba6176d546071927ecdd2",
+      "export_sha256": "e0bb254c3f4d3a64eb64a9fbbebcf8be4230690d935ba6176d546071927ecdd2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-vs-signal.png",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/cls-vs-signal.png",
+      "source_sha256": "f32d1ed0256fba2425dc829ebd68632b7a05ded6b1b98b572fbd213b1de941fd",
+      "export_sha256": "f32d1ed0256fba2425dc829ebd68632b7a05ded6b1b98b572fbd213b1de941fd"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/likelihood.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/likelihood.json",
+      "source_sha256": "dd680276afeda90430e835615bafc18d49465be8168c195586a8b12071fb8e47",
+      "export_sha256": "dd680276afeda90430e835615bafc18d49465be8168c195586a8b12071fb8e47"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/reported-limits.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/counting/reported-limits.json",
+      "source_sha256": "35a7eba839d89da4ce6d6b0287588fa65aea1eff5b10c39eb43df7da38df76bf",
+      "export_sha256": "35a7eba839d89da4ce6d6b0287588fa65aea1eff5b10c39eb43df7da38df76bf"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/dilepton-mass.pdf",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/dilepton-mass.pdf",
+      "source_sha256": "a681a883e0dd4bd679abf5286c3f04fab89bf7be8a99851b2ed44d2f99a2aaa4",
+      "export_sha256": "a681a883e0dd4bd679abf5286c3f04fab89bf7be8a99851b2ed44d2f99a2aaa4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/dilepton-mass.png",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/dilepton-mass.png",
+      "source_sha256": "50bd106f7a2c59b1e1091aa4fe84f0534bc86f4f44b25486de7617ce365e4f2e",
+      "export_sha256": "50bd106f7a2c59b1e1091aa4fe84f0534bc86f4f44b25486de7617ce365e4f2e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/lhe-audit.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/collideragent/drell-yan/lhe-audit.json",
+      "source_sha256": "a577bbccf315de8813c2ab1c12d818a5e42ff8678fae1e4574c57c54613f4e7a",
+      "export_sha256": "a577bbccf315de8813c2ab1c12d818a5e42ff8678fae1e4574c57c54613f4e7a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/effective-recipes.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/effective-recipes.json",
+      "source_sha256": "886aa87cf127d51b625742a4d92b5fde07e3704bb3767391bbb6d2536cbec70e",
+      "export_sha256": "886aa87cf127d51b625742a4d92b5fde07e3704bb3767391bbb6d2536cbec70e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/harness-correction.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/harness-correction.json",
+      "source_sha256": "e535f1f8f4243ddb87e2ba16a2c2b00c5f92e15af4d8ac7aff42832108f6c51f",
+      "export_sha256": "e535f1f8f4243ddb87e2ba16a2c2b00c5f92e15af4d8ac7aff42832108f6c51f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/dilepton-mass.pdf",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/dilepton-mass.pdf",
+      "source_sha256": "1ac8a60272c23781d13d247363e2ffec135db5f7f1023532f4a07b84e83ae24d",
+      "export_sha256": "1ac8a60272c23781d13d247363e2ffec135db5f7f1023532f4a07b84e83ae24d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/dilepton-mass.png",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/dilepton-mass.png",
+      "source_sha256": "f44c85a22c0d833b3057e6efbfe07f93660e2c76bb062737936abb457eff121b",
+      "export_sha256": "f44c85a22c0d833b3057e6efbfe07f93660e2c76bb062737936abb457eff121b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/lhe-audit.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/heptapod/drell-yan/lhe-audit.json",
+      "source_sha256": "0d7757023fd80b8cf0bc14fbf56b3bcb15bdb99ce54a5f304bf9a0f1aaf61679",
+      "export_sha256": "0d7757023fd80b8cf0bc14fbf56b3bcb15bdb99ce54a5f304bf9a0f1aaf61679"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/independent-counting-audit.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/independent-counting-audit.json",
+      "source_sha256": "0ba12fd45cb44e0f30393763e26297ef3c99f9a5785babdd5476d338c42d316c",
+      "export_sha256": "0ba12fd45cb44e0f30393763e26297ef3c99f9a5785babdd5476d338c42d316c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/index.html",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/index.html",
+      "source_sha256": "2ce593611a198a063eabb6361da945b76c50d3c890b1ebfe69efb4109522bb97",
+      "export_sha256": "2ce593611a198a063eabb6361da945b76c50d3c890b1ebfe69efb4109522bb97"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/madagents-operator-control/drell-yan/lhe-audit.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/madagents-operator-control/drell-yan/lhe-audit.json",
+      "source_sha256": "a1950b991ef307102954dc6214caa4251e6e8044a37f589391ddde6429606b45",
+      "export_sha256": "a1950b991ef307102954dc6214caa4251e6e8044a37f589391ddde6429606b45"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/outcomes.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/outcomes.json",
+      "source_sha256": "08e260ac6b19e7c539926b0ce169f985524e5ff36d9d657ef9301b993e8d5a3e",
+      "export_sha256": "08e260ac6b19e7c539926b0ce169f985524e5ff36d9d657ef9301b993e8d5a3e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/private-record-manifest.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/private-record-manifest.json",
+      "source_sha256": "a958a7d05a574a48aad201de5d1029abd7b0b8e70af759bf661623a8580bcc8f",
+      "export_sha256": "a958a7d05a574a48aad201de5d1029abd7b0b8e70af759bf661623a8580bcc8f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/atlas-2jl-counting-control.txt",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/atlas-2jl-counting-control.txt",
+      "source_sha256": "dc85183c5e41a74966b4800a5ee5ffabe7e4b7b72341ca537df587fc524ed957",
+      "export_sha256": "dc85183c5e41a74966b4800a5ee5ffabe7e4b7b72341ca537df587fc524ed957"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/drell-yan.txt",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/drell-yan.txt",
+      "source_sha256": "318d0ce30130d56cdb51f27f8745751098d1f0b347b5fea012490ef2e2190805",
+      "export_sha256": "318d0ce30130d56cdb51f27f8745751098d1f0b347b5fea012490ef2e2190805"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/experimental-policy.txt",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/prompts/experimental-policy.txt",
+      "source_sha256": "cbf3e263441b84c102eff1312d5b2b58907dc1ca0f4fd1db54042590b50f958d",
+      "export_sha256": "cbf3e263441b84c102eff1312d5b2b58907dc1ca0f4fd1db54042590b50f958d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/protocol.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/protocol.json",
+      "source_sha256": "d99b312697a7195031986794ef4a6bc9fa8de20b005118462c8e92207d76be04",
+      "export_sha256": "d99b312697a7195031986794ef4a6bc9fa8de20b005118462c8e92207d76be04"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-curves.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-curves.json",
+      "source_sha256": "a5cea420a15d2172a95fcf100b2cd5f581333223772126ed23ce4ca865ce82b0",
+      "export_sha256": "a5cea420a15d2172a95fcf100b2cd5f581333223772126ed23ce4ca865ce82b0"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-vs-signal.pdf",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-vs-signal.pdf",
+      "source_sha256": "dd57d820fff6d1a08b5c6e039c53a0c2ba65d22da051e88e55b9c06621051ae0",
+      "export_sha256": "dd57d820fff6d1a08b5c6e039c53a0c2ba65d22da051e88e55b9c06621051ae0"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-vs-signal.png",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/cls-vs-signal.png",
+      "source_sha256": "7398742f5fb47ac324a974f73302bcc28b5c17bcc0706021d91e1fbedc0b62f7",
+      "export_sha256": "7398742f5fb47ac324a974f73302bcc28b5c17bcc0706021d91e1fbedc0b62f7"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/likelihood.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/likelihood.json",
+      "source_sha256": "a71efb4039f379eca6c0a68ea895091eef18b446650d3d422a6de2c5bdcb6b60",
+      "export_sha256": "a71efb4039f379eca6c0a68ea895091eef18b446650d3d422a6de2c5bdcb6b60"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/reported-limits.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/ravel/counting/reported-limits.json",
+      "source_sha256": "66e2e190e24d2adfedf55d3458a1dbc31f4549436265b88949da35ff61805a5a",
+      "export_sha256": "66e2e190e24d2adfedf55d3458a1dbc31f4549436265b88949da35ff61805a5a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/repository-pins.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/repository-pins.json",
+      "source_sha256": "99b671c297b939cd3e9e970bba917874f35362111eabe92dc6d3af391eae0b85",
+      "export_sha256": "99b671c297b939cd3e9e970bba917874f35362111eabe92dc6d3af391eae0b85"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/routing-census.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/routing-census.json",
+      "source_sha256": "4afe036428ccc3e155437686430be38c11b31f2034f2672d6cf70ba2f778b28b",
+      "export_sha256": "4afe036428ccc3e155437686430be38c11b31f2034f2672d6cf70ba2f778b28b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/routing-repair-check.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/routing-repair-check.json",
+      "source_sha256": "d024e82ba57f4abe2cb1f0f33d7b10bafae56d51bdda8e816fad548c4a32e30e",
+      "export_sha256": "d024e82ba57f4abe2cb1f0f33d7b10bafae56d51bdda8e816fad548c4a32e30e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/source-availability.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/source-availability.json",
+      "source_sha256": "ef8608c9e87a83c76f22330b3d287f8df8a877fd258450d099dbb571a6d700aa",
+      "export_sha256": "ef8608c9e87a83c76f22330b3d287f8df8a877fd258450d099dbb571a6d700aa"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/verification.json",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/verification.json",
+      "source_sha256": "a2d9e0a8698d0186082795f323d171449f8288d18388334c639ed746de00d51d",
+      "export_sha256": "a2d9e0a8698d0186082795f323d171449f8288d18388334c639ed746de00d51d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-comparative-pilot/verify_counting.py",
+      "public_path": "evidence/audits/2026-09-09-comparative-pilot/verify_counting.py",
+      "source_sha256": "fb63dcd12564184873d1ec4e56d409cea3856033d9c42320f7cb850c751c2525",
+      "export_sha256": "fb63dcd12564184873d1ec4e56d409cea3856033d9c42320f7cb850c751c2525"
+    },
+    {
       "source_path": "evidence/audits/current.json",
       "public_path": "evidence/audits/current.json",
       "source_sha256": "0501df0b70c37f238dfa20a17c639160cfe11df52dc95257a333f077deb81d48",
@@ -3732,8 +3966,8 @@
     {
       "source_path": "scripts/audit.py",
       "public_path": "scripts/audit.py",
-      "source_sha256": "ceb268dc777726fd97f53cb2bced6caa2359c552eab0ddcec962e5dd8d3afe87",
-      "export_sha256": "ceb268dc777726fd97f53cb2bced6caa2359c552eab0ddcec962e5dd8d3afe87"
+      "source_sha256": "6153b97fd83ed00046b3e358364f72d3fb8b1018a6a142f5a05798af0f180488",
+      "export_sha256": "6153b97fd83ed00046b3e358364f72d3fb8b1018a6a142f5a05798af0f180488"
     },
     {
       "source_path": "scripts/build_evidence.py",
@@ -3786,8 +4020,8 @@
     {
       "source_path": "scripts/gen_status.py",
       "public_path": "scripts/gen_status.py",
-      "source_sha256": "761dd72f698e853ad489ca703fde6163cde7ef350e14b57e767646acf2e2789d",
-      "export_sha256": "761dd72f698e853ad489ca703fde6163cde7ef350e14b57e767646acf2e2789d"
+      "source_sha256": "11ae6608e9d02ecb7f008a0340faf03942a18d5dda99ae7062120c4c389934b7",
+      "export_sha256": "11ae6608e9d02ecb7f008a0340faf03942a18d5dda99ae7062120c4c389934b7"
     },
     {
       "source_path": "scripts/gen_validation_pages.py",
@@ -4398,8 +4632,8 @@
     {
       "source_path": "src/ravel/workflow/route_prompt.py",
       "public_path": "src/ravel/workflow/route_prompt.py",
-      "source_sha256": "a6fa0bca512ea808a9d46af6369239d11e46646c3b77b0e09599a0ebe8d3d712",
-      "export_sha256": "a6fa0bca512ea808a9d46af6369239d11e46646c3b77b0e09599a0ebe8d3d712"
+      "source_sha256": "946c903f967a9b1bde19454d9cb4903c285d80c889f771c29ab89e248c4c8d32",
+      "export_sha256": "946c903f967a9b1bde19454d9cb4903c285d80c889f771c29ab89e248c4c8d32"
     },
     {
       "source_path": "src/ravel/workflow/routine_fetch.py",
@@ -4752,8 +4986,8 @@
     {
       "source_path": "tests/unit/test_capability_gate.py",
       "public_path": "tests/unit/test_capability_gate.py",
-      "source_sha256": "0a67b6a46573ca4aa338f6760ef109b76a4ec70b085474753cad947a9f35eaad",
-      "export_sha256": "0a67b6a46573ca4aa338f6760ef109b76a4ec70b085474753cad947a9f35eaad"
+      "source_sha256": "426c659322ebe40f60bb985fa7ee025f555f8a85d96bb2c1ffa2f0e0eca88762",
+      "export_sha256": "426c659322ebe40f60bb985fa7ee025f555f8a85d96bb2c1ffa2f0e0eca88762"
     },
     {
       "source_path": "tests/unit/test_certificates.py",
@@ -4778,6 +5012,12 @@
       "public_path": "tests/unit/test_cli_initiate.py",
       "source_sha256": "5e0548143c1b461c9cf72374fed215801272656c7630afb0dc914130e812634d",
       "export_sha256": "5e0548143c1b461c9cf72374fed215801272656c7630afb0dc914130e812634d"
+    },
+    {
+      "source_path": "tests/unit/test_comparative_lhe_audit.py",
+      "public_path": "tests/unit/test_comparative_lhe_audit.py",
+      "source_sha256": "043cb5795f910ed46deef86c66862f5a30dc8785480c9ede08b021d37d1a7ec9",
+      "export_sha256": "043cb5795f910ed46deef86c66862f5a30dc8785480c9ede08b021d37d1a7ec9"
     },
     {
       "source_path": "tests/unit/test_compressed_signal_model.py",
@@ -5118,8 +5358,8 @@
     {
       "source_path": "tests/unit/test_semantic_intake.py",
       "public_path": "tests/unit/test_semantic_intake.py",
-      "source_sha256": "1d876fe8023935909eb91a90a3789de50761be8ae5f463c132994120528a11d0",
-      "export_sha256": "1d876fe8023935909eb91a90a3789de50761be8ae5f463c132994120528a11d0"
+      "source_sha256": "4d12b59bebcfbf9c289047175a8dda1183dcbbee4015ab1dd47b03decefd1a0d",
+      "export_sha256": "4d12b59bebcfbf9c289047175a8dda1183dcbbee4015ab1dd47b03decefd1a0d"
     },
     {
       "source_path": "tests/unit/test_sessionstart_orient.py",

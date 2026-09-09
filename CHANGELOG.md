@@ -2,6 +2,15 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Count scope refusals as unmet product requests, separate from refusal validity.
+  Require a green gate for complete-delivery headlines and keep generated status
+  pages consistent with the audit.
+- Stop interpreting ordinary expected-limit terminology as a future projection.
+  Add a bounded cross-framework pilot, explicit scripted check-in policy, public
+  source availability records, and an independent LHE delivery auditor. The pilot
+  identifies missing generation-only and statistics-only lifecycle routes; it
+  does not claim complete RRR reproduction or a competitor accuracy ranking.
+
 - Share precise reference-node matching across both acceptance validators. Reject
   ambiguous nodes, duplicate coordinates and interpolation across distinct fixed
   masses; retain fractional identity when combining acceptance and efficiency.

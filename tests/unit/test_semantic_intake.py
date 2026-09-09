@@ -10,6 +10,20 @@ from ravel.validation.validate_task_contract import validate
 
 
 @pytest.mark.parametrize("prompt,mode", [
+    ("Survey ATLAS searches and plot published observed and expected limits.", "survey"),
+    ("Reproduce the observed and expected limits for ATLAS SUSY-2018-16.", "reproduce"),
+    ("Fit the supplied pyhf likelihood and compute expected limits without generating events.", "unsupported"),
+    ("Project expected limits to the HL-LHC at 3000 fb^-1.", "projection"),
+])
+def test_expected_statistic_is_not_itself_a_future_projection(prompt, mode):
+    contract = route_prompt.route(prompt)
+    assert contract["task_mode"] == mode
+    assert contract["approval_required"] is True
+    if mode in {"survey", "unsupported"}:
+        assert contract["compute_plan"] == "none"
+
+
+@pytest.mark.parametrize("prompt,mode", [
     ("Do not claim discovery; reproduce ATLAS SUSY-2018-16.", "reproduce"),
     ("Reproduce ATLAS SUSY-2018-16 without a 5 sigma discovery claim.", "reproduce"),
     ("Never discover a new particle. Reproduce ATLAS SUSY-2018-16.", "reproduce"),

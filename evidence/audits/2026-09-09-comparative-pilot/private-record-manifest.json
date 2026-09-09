@@ -1,0 +1,261 @@
+{
+  "note": "Full local records archived with original bytes at this snapshot. Paths are relative to the local pilot archive. Custody hashes do not make private contents publicly inspectable.",
+  "files": {
+    "records/agentrivet-install-0.log": {
+      "sha256": "2ef5858e9d539ecf54be537852f06216593e14a74fadef3480113259ead84bbf",
+      "bytes": 190
+    },
+    "records/agentrivet-install-1.log": {
+      "sha256": "6e7887f47deb76892d9b2ea2b7b37e8ab8fa02b027adade92a60d903b5164774",
+      "bytes": 1243
+    },
+    "records/agentrivet-model-preflight.json": {
+      "sha256": "585f62f92b977cf7032d7a299d6cf933940b2bd5f9c5837e5556df0579c0cc94",
+      "bytes": 379
+    },
+    "records/agentrivet-model-preflight.log": {
+      "sha256": "99e2a0b497b80e149dc38aa91628c48108b341ad2be81ec54ec1f6cd82253b14",
+      "bytes": 321
+    },
+    "records/agentrivet-preflight.json": {
+      "sha256": "5072417589b6e23578e39d8cda55064479f34655eaa2061d5204ca63b9225992",
+      "bytes": 237
+    },
+    "records/agentrivet-preflight.log": {
+      "sha256": "b231aaf9fac40b62bb4936381acb0c6b2e1488a5bf1f8fb93e2d4bc7175f9820",
+      "bytes": 239
+    },
+    "records/agentrivet-wheel-packaging-preflight.log": {
+      "sha256": "10f13ab486a8e3320030bf661b9a4bd69736eddff8f8d23f01e0fd8c726f9c4c",
+      "bytes": 134
+    },
+    "records/collideragent-2jl/events.jsonl": {
+      "sha256": "57e0b4a01c0447ff32724f7e9e365655a0a346cbd2f47e343e246d3aecf60a2e",
+      "bytes": 96795
+    },
+    "records/collideragent-2jl/final.txt": {
+      "sha256": "0c0b54bfc6328e410208fdc19ee87bdc68834ff0563758d560f2f781263a73e6",
+      "bytes": 1488
+    },
+    "records/collideragent-2jl/prompt.txt": {
+      "sha256": "eec3f196dbccf4707f2cbd08bab50dc828e9d26bfd28e7f5260e5611b80c3f73",
+      "bytes": 4212
+    },
+    "records/collideragent-2jl/receipt.json": {
+      "sha256": "a3448171824540b438226c8d25f213a9a496dc753555a1bf554095701d2eddb1",
+      "bytes": 1220
+    },
+    "records/collideragent-2jl/stderr.log": {
+      "sha256": "259503696f3bbf043a67ee480ca487e35e70a8ec8be70b71afe323f786d14f22",
+      "bytes": 166
+    },
+    "records/collideragent-dy/events.jsonl": {
+      "sha256": "0d0db4c366f1fc94f1e34dba070cb0778d6dc4302e4b0d41479da3e130801f2f",
+      "bytes": 116697
+    },
+    "records/collideragent-dy/final.txt": {
+      "sha256": "9bc952ad5bb76999277c1e11552d55230d370d93eb5eaa2a856b33bc1f8a0d8b",
+      "bytes": 1480
+    },
+    "records/collideragent-dy/independent-lhe-audit.json": {
+      "sha256": "a577bbccf315de8813c2ab1c12d818a5e42ff8678fae1e4574c57c54613f4e7a",
+      "bytes": 3081
+    },
+    "records/collideragent-dy/prompt.txt": {
+      "sha256": "dfb896aa75f02f08d1b40951df711a332f1bebf6bd0af30d27d8eb791a77fa4c",
+      "bytes": 3548
+    },
+    "records/collideragent-dy/receipt.json": {
+      "sha256": "9f9ce3603a99857200189a3a167afcf7fa263eeadf1e05885e768d5cfb17e43c",
+      "bytes": 1261
+    },
+    "records/collideragent-dy/stderr.log": {
+      "sha256": "c992777b557c02563d8dc3b72b67e7a1ce4e410913b32d23cae2821802409577",
+      "bytes": 498
+    },
+    "records/collideragent-install-0.log": {
+      "sha256": "2ab018ec5930a539fb22e178b4b763bafde2016d2a840f4af2de14e12792798c",
+      "bytes": 196
+    },
+    "records/collideragent-install-1.log": {
+      "sha256": "799f18e82a51d541238c649def0cebcc86a413569190ca24ef642b0e597d167d",
+      "bytes": 667
+    },
+    "records/effective-recipes.json": {
+      "sha256": "389e5e983d49feea4c20927e9fab7a7a043de099789cf7726c00d8183b1671e0",
+      "bytes": 6257
+    },
+    "records/final-focused-tests.log": {
+      "sha256": "4cabb56a02058c6f79f4dc3d768a1bf7678ee664b14444234459770e60a79fcf",
+      "bytes": 113
+    },
+    "records/final-publication-check.log": {
+      "sha256": "e73dd49e36a405f2032e993718f66a2e6b8a031a7ed1189479cf749752fdf1ba",
+      "bytes": 2295
+    },
+    "records/focused-tests.log": {
+      "sha256": "843cf5ba66738abe326b96ada9d848e13e8c705360c0f9c5f41dbc4af815c8b4",
+      "bytes": 205
+    },
+    "records/harness-correction.json": {
+      "sha256": "e535f1f8f4243ddb87e2ba16a2c2b00c5f92e15af4d8ac7aff42832108f6c51f",
+      "bytes": 403
+    },
+    "records/heptapod-dy/events.jsonl": {
+      "sha256": "6b61a699c4a7908b1d5f35a7b6f9c33c0885ae74fa9c012b3d2007e1b26de7f8",
+      "bytes": 193141
+    },
+    "records/heptapod-dy/final.txt": {
+      "sha256": "3a16d5efe403b7ee628cebfec972fcb8c29940550b9a2245bbee0834f1597c15",
+      "bytes": 1159
+    },
+    "records/heptapod-dy/independent-lhe-audit.json": {
+      "sha256": "0d7757023fd80b8cf0bc14fbf56b3bcb15bdb99ce54a5f304bf9a0f1aaf61679",
+      "bytes": 3085
+    },
+    "records/heptapod-dy/prompt.txt": {
+      "sha256": "dfb896aa75f02f08d1b40951df711a332f1bebf6bd0af30d27d8eb791a77fa4c",
+      "bytes": 3548
+    },
+    "records/heptapod-dy/receipt.json": {
+      "sha256": "7171028b6b9414f4522115a0c0ae73b6a11da1cba8371cde1b59668311065216",
+      "bytes": 1241
+    },
+    "records/heptapod-dy/stderr.log": {
+      "sha256": "7b29a108bd846a7187571e743fb019cd5e417e4ed96d7cc0cac44480ed8b875f",
+      "bytes": 166
+    },
+    "records/heptapod-install-0.log": {
+      "sha256": "ad2e7c0c03b505854ddb9a885427ca9110491b2607a793c8af81640ff2048c21",
+      "bytes": 186
+    },
+    "records/heptapod-install-1.log": {
+      "sha256": "42eca92a709a97247d397af090f8a0472bcae09b9d25d65f88ade5e21896be35",
+      "bytes": 1412
+    },
+    "records/madagents-dy/events.jsonl": {
+      "sha256": "998a4c1d9920ccbf56e70f4847727d486f308d3724c967c2f6a8baa394c853af",
+      "bytes": 224554
+    },
+    "records/madagents-dy/prompt.txt": {
+      "sha256": "dfb896aa75f02f08d1b40951df711a332f1bebf6bd0af30d27d8eb791a77fa4c",
+      "bytes": 3548
+    },
+    "records/madagents-dy/receipt.json": {
+      "sha256": "afc60e736d632c12646660510cae435fff1a1870c48d4c71886c01b6e837e225",
+      "bytes": 1265
+    },
+    "records/madagents-dy/stderr.log": {
+      "sha256": "45ae2a1468b6cc7f115211f9b9efcbe7339971913b81a47c882faf4cbff45194",
+      "bytes": 115
+    },
+    "records/madagents-dy-invalid-ephemeral/events.jsonl": {
+      "sha256": "59e9b64e7c3a28f50b8e83beadee4ef65e18c203b8af106f67ba0541c6a9e131",
+      "bytes": 158546
+    },
+    "records/madagents-dy-invalid-ephemeral/prompt.txt": {
+      "sha256": "dfb896aa75f02f08d1b40951df711a332f1bebf6bd0af30d27d8eb791a77fa4c",
+      "bytes": 3548
+    },
+    "records/madagents-dy-invalid-ephemeral/receipt.json": {
+      "sha256": "e029cbe799c77d58024ce5d668a5063d86a4575c6a32cec56128cfcd496a5aab",
+      "bytes": 1273
+    },
+    "records/madagents-dy-invalid-ephemeral/stderr.log": {
+      "sha256": "d7ddf53b5f04bd2b574321f07935137dc2afbf60884062806f49398f9db09088",
+      "bytes": 555
+    },
+    "records/madagents-install-verification.log": {
+      "sha256": "6ec06d988a5bf22899c3de5e377aceb2473048e5ea0ca324278acc6d0226d831",
+      "bytes": 709
+    },
+    "records/madagents-native-control-lhe-audit.json": {
+      "sha256": "a1950b991ef307102954dc6214caa4251e6e8044a37f589391ddde6429606b45",
+      "bytes": 3075
+    },
+    "records/madagents-native-control.json": {
+      "sha256": "bfb76d633369b250dad89295fb9e2df389418279833c08f1908aab597ed8a2a9",
+      "bytes": 1074
+    },
+    "records/protocol.json": {
+      "sha256": "8aed11420c61dc4cf2cd20ee047f12fc8451233274634153d3b381688b34fe9d",
+      "bytes": 1309
+    },
+    "records/publication-check.log": {
+      "sha256": "dd5b2262d113539f67e46c9f6976ed8db331e7cdf1e3ab7a3e2cd96e624d9a42",
+      "bytes": 2294
+    },
+    "records/ravel-2jl/events.jsonl": {
+      "sha256": "3b78ce3f0f166f1fe1492b7fc37c88e006a75ff656122e332ef587fe543149ad",
+      "bytes": 272350
+    },
+    "records/ravel-2jl/final.txt": {
+      "sha256": "cf8c11ead7a6eae2ab1971195827abcd494b0f2969582946932d8c7a7593acf0",
+      "bytes": 2477
+    },
+    "records/ravel-2jl/prompt.txt": {
+      "sha256": "eec3f196dbccf4707f2cbd08bab50dc828e9d26bfd28e7f5260e5611b80c3f73",
+      "bytes": 4212
+    },
+    "records/ravel-2jl/receipt.json": {
+      "sha256": "c0d28391652b5ef2806ac1df58736403e8d64a1bab0cc341ed54d595aaa2b130",
+      "bytes": 1249
+    },
+    "records/ravel-2jl/stderr.log": {
+      "sha256": "3877f0ea09cffcba544b8e30f4569fce1748dbb341996b6901ec408e8fe624b2",
+      "bytes": 332
+    },
+    "records/ravel-dy/events.jsonl": {
+      "sha256": "ea4339c8cb59943cefdd067825117ca570926bc91af142e48fd229fafc1acc98",
+      "bytes": 257484
+    },
+    "records/ravel-dy/final.txt": {
+      "sha256": "2c1f2669f803c73fa50817282d2f60bd356bc24fadad6bbd59ad83b39a17665c",
+      "bytes": 1073
+    },
+    "records/ravel-dy/prompt.txt": {
+      "sha256": "dfb896aa75f02f08d1b40951df711a332f1bebf6bd0af30d27d8eb791a77fa4c",
+      "bytes": 3548
+    },
+    "records/ravel-dy/receipt.json": {
+      "sha256": "eac0a7a9ebfe43fee4f6ffea4d584647c04d2d6cbb38be93416c930417585445",
+      "bytes": 1231
+    },
+    "records/ravel-dy/stderr.log": {
+      "sha256": "dbbc53e44115e18c720f78387aadfd3b1f10a2a4126825dbda2e23a8bc94e203",
+      "bytes": 743
+    },
+    "records/repository-pins.json": {
+      "sha256": "99b671c297b939cd3e9e970bba917874f35362111eabe92dc6d3af391eae0b85",
+      "bytes": 1720
+    },
+    "records/routing-census.json": {
+      "sha256": "4afe036428ccc3e155437686430be38c11b31f2034f2672d6cf70ba2f778b28b",
+      "bytes": 16601
+    },
+    "records/routing-repair-check.json": {
+      "sha256": "d024e82ba57f4abe2cb1f0f33d7b10bafae56d51bdda8e816fad548c4a32e30e",
+      "bytes": 2786
+    },
+    "records/runtime-session-evidence-private.json": {
+      "sha256": "8a88a327912c907c09dabf60c4a61efb55a0bb2fc8b945f2d4ee31c629ccdbda",
+      "bytes": 68775
+    },
+    "records/source-availability.json": {
+      "sha256": "ef8608c9e87a83c76f22330b3d287f8df8a877fd258450d099dbb571a6d700aa",
+      "bytes": 2948
+    },
+    "tasks/atlas-2jl-counting-control.txt": {
+      "sha256": "dc85183c5e41a74966b4800a5ee5ffabe7e4b7b72341ca537df587fc524ed957",
+      "bytes": 1596
+    },
+    "tasks/drell-yan.txt": {
+      "sha256": "318d0ce30130d56cdb51f27f8745751098d1f0b347b5fea012490ef2e2190805",
+      "bytes": 932
+    },
+    "tasks/experimental-policy.txt": {
+      "sha256": "cbf3e263441b84c102eff1312d5b2b58907dc1ca0f4fd1db54042590b50f958d",
+      "bytes": 1763
+    }
+  }
+}

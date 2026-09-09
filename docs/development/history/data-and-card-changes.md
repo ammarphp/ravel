@@ -3,6 +3,19 @@
 Every change made to the physics-input cards. Originals are kept pristine; edits are applied to
 copies in `inputs/` or inside the generated process directory under `build/`.
 
+## 2026-09-09 UTC: comparative execution controls
+
+New isolated workspaces generated three 100-event Drell-Yan samples and two
+single-bin statistical controls. Parent pristine cards and RRR samples were
+unchanged. The generation agents chose different model restrictions/scales;
+`evidence/audits/2026-09-09-comparative-pilot/effective-recipes.json` preserves
+their executed settings. The MadAgents operator-assisted control changed only
+launch/output paths and compiler environment after its timed attempt failed.
+It is not counted as an autonomous success. Raw cards, events and logs remain
+in the local comparative archive, with original hashes in the public evidence.
+Workflow-level policy: `benchmarks/comparative/README.md`. Pedagogical
+interpretation: `docs/research/2026-09-09-comparative-pilot.md`.
+
 ## 2026-09-08: bounded 225/220 GeV shape control
 
 The historical six-state process, parameter and run cards were preserved in the

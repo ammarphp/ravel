@@ -1,5 +1,5 @@
 """audit.py::c_capability as a status-RATIFYING reconciler (Task 5, PRODUCT-CONTRACT section 5 /
-CR-035): a `served`/`served-with-refusal` prompt in capability-matrix.json only earns its 1.0 R9
+CR-035): a `served` prompt in capability-matrix.json only earns its 1.0 R9
 credit while its named `gate` is actually GREEN (an artifact's verdict field, or a selftest's
 exit code); a `decision`/`deferred` gate can NEVER credit a prompt as served. This is the
 anti-gaming property -- editing one JSON status string from 'partial' to 'served' must NOT move
@@ -12,8 +12,8 @@ Pins:
     keeping its decision gate does not raise the matrix's overall score at all
   - served + missing artifact / nonzero-exit selftest -> credited 0.5 + a FAIL line
   - a selftest gate that can't even run (bad ref) does not crash the reconciler -- treated red
-  - a served prompt with no gate field at all -> migration WARN, credited as claimed (not a
-    hard red), so mid-rollout matrices don't spuriously tank R9
+  - a served prompt with no gate field -> partial credit and no complete-delivery claim
+  - any refusal -> zero delivery credit even if a refusal-validity gate is green
   - the live benchmarks/capabilities.json + scripts/audit.py integration: readiness stays
     inventory-dependent readiness; R9 is 0.50 because component passes do not establish complete task delivery
 
@@ -217,13 +217,55 @@ def test_selftest_that_cannot_run_does_not_crash_and_is_red():
 #  migration safety + unchanged non-served credit
 # --------------------------------------------------------------------------- #
 
-def test_served_with_no_gate_field_is_migration_warn_not_hard_red():
+def test_served_with_no_gate_cannot_claim_verified_delivery():
     audit = _load_audit()
     m = {"prompts": {"PX_fake": {"status": "served"}}}
     row = audit._score_capability(m)
-    assert row[2] == 1.0   # credited as claimed during migration
+    assert row[2] == 0.5
     ev = row[5]
-    assert any("NO GATE" in l and "migration WARN" in l for l in ev)
+    assert any("NO GATE" in l for l in ev)
+    assert "0/1 prompts fully served" in row[4]
+
+
+def test_refusal_has_no_delivery_credit_even_with_green_gate(tmp_path):
+    artifact = tmp_path / "refusal.json"
+    artifact.write_text('{"verdict": "PASS"}')
+    gate = {"kind": "artifact", "artifact": str(artifact), "green_when": "verdict==PASS"}
+    audit = _load_audit()
+    for spelling in ("served-with-refusal", "refused"):
+        row = audit._score_capability({"prompts": {"unsupported": {"status": spelling, "gate": gate}}})
+        assert row[2] == 0.0
+        assert "0/1 prompts fully served" in row[4]
+        assert "1 refusals remain unmet requests" in row[4]
+        assert any("unmet product request" in line for line in row[5])
+
+
+def test_red_gate_is_not_counted_as_fully_served_in_headline():
+    row = _load_audit()._score_capability({"prompts": {
+        "unverified": {"status": "served", "gate": {"kind": "decision", "flip_when": "run"}}
+    }})
+    assert row[2] == 0.5
+    assert "0/1 prompts fully served" in row[4]
+    assert "1 partial" in row[4]
+
+
+def test_generated_status_does_not_restore_refusal_or_unverified_delivery_credit(monkeypatch):
+    import sys
+    scripts = str(REPO / "scripts")
+    monkeypatch.syspath_prepend(scripts)
+    spec = importlib.util.spec_from_file_location("status_generator_under_test", REPO / "scripts/gen_status.py")
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    matrix = _matrix()
+    first, second = list(matrix["prompts"])[:2]
+    matrix["prompts"][first] = {"status": "served-with-refusal", "gate": {"kind": "decision"}}
+    matrix["prompts"][second] = {"status": "served"}
+    monkeypatch.setattr(generator, "load_matrix", lambda: matrix)
+    monkeypatch.setattr(generator, "_readiness_and_r9", lambda: (0, 0.0, "FAIL"))
+    headline = generator.build_headline()
+    assert "0 of 7 fully served" in headline
+    assert "1 refusals remain unmet requests" in headline
+    assert "6 partially served" in headline
 
 
 def test_partial_and_unbuilt_credit_unchanged():
