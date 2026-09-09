@@ -69,6 +69,8 @@ TRAP_IDS = tuple(f"T{i}" for i in range(1, 13))
 
 # STAGE_MATRIX[task_mode][stage] -> R | O | N/A | C2 | C6 | C9  (conditional footnotes below)
 STAGE_MATRIX = {
+    "generate":      dict(zip(STAGE_ORDER, ["R", "R", "R", "R", "R", "R", "R", "N/A", "N/A", "R", "R"])),
+    "likelihood":    dict(zip(STAGE_ORDER, ["R", "R", "R", "R", "R", "R", "N/A", "N/A", "R", "R", "R"])),
     "survey":         dict(zip(STAGE_ORDER, ["R", "R", "R", "R", "O", "R", "N/A", "N/A", "N/A", "R", "R"])),
     # figure_contract=O (not R): a none-survey summary synthesizes MANY published limits into one
     # overlay -- it does not reproduce a single published figure, so figure_target.json is
@@ -1711,6 +1713,9 @@ def evaluate(rundir, contract, stage_limit=None, strict=False):
                             for e in contract_errors]}],
             "invariants": [], "verdict": "FAIL", "exit": 3,
         }
+    if contract["task_mode"] in ("generate", "likelihood"):
+        from ravel.workflow.scoped import evaluate
+        return evaluate(rundir, contract, stage_limit=stage_limit)
     facts = discover_facts(rundir, contract)
     legacy = is_legacy(rundir)
     task_mode = contract["task_mode"]

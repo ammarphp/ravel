@@ -1,0 +1,37 @@
+{
+  "different-scale": {
+    "original_file_sha256": "11c7ba6e99e39a5021d728f80a97f6bf48057183f72ac36359a7913b4af3c47b",
+    "public_file_sha256": "7797070149ee53539003412a1bead320112ccc44dcf2922d85122ca86a939c13",
+    "event_blocks_sha256": "cc7acf6c48c2b1d7414426552ab38f8c38cf556baddce77cde79a099d401b43e",
+    "event_bytes_unchanged": true,
+    "redaction": "local home-directory prefix in header only"
+  },
+  "dimuon": {
+    "original_file_sha256": "303e8608f10b4a689e7c9d0e63ad73ef28f62df0ee2bbb82f21a11d29d894cb1",
+    "public_file_sha256": "ced1abc79bf7966d4401692facc3b678b0b6aaeaced74ed565e297b808e965e9",
+    "event_blocks_sha256": "1bce94efd98c0145b9c82fbd75b70a5be4f2bdc3545f62336b624e8d0e10a7ca",
+    "event_bytes_unchanged": true,
+    "redaction": "local home-directory prefix in header only"
+  },
+  "drell-yan": {
+    "original_file_sha256": "35b300067e9e72b76ae8a3882cb488b551e3c02f704920e78be4d9ab0543330c",
+    "public_file_sha256": "875f06a5e8752ae754dddb7765ba980009ab61388ea14f653f43a07fa8519276",
+    "event_blocks_sha256": "ebc9245d302f6fb53a50bf13b8c89e6fd3322f32eda7cdb295c6c0b29b0bb6b3",
+    "event_bytes_unchanged": true,
+    "redaction": "local home-directory prefix in header only"
+  },
+  "drell-yan-replica": {
+    "original_file_sha256": "70ebe1d39206cad6fc6710081a43d4f6de483d9b93d6e93f3b843ec64fd9a0fd",
+    "public_file_sha256": "c8c7330fa387e5b4c864c771b6374fcbad9dbea6cffb6f104ad9275ffff4109a",
+    "event_blocks_sha256": "f7e3cb2344735872ecee737d7e4671252dbe21eadcaf2a296d074ffa4f37fa08",
+    "event_bytes_unchanged": true,
+    "redaction": "local home-directory prefix in header only"
+  },
+  "supplied-card": {
+    "original_file_sha256": "9eabcc0a25374d2932fbfe2d0d585c29c535e7469005fdebfc6f88e18be4ce72",
+    "public_file_sha256": "14db841958f796e31c57972cabbdc76e00bdc41351963c3b108a4776efdbfa8a",
+    "event_blocks_sha256": "ebc9245d302f6fb53a50bf13b8c89e6fd3322f32eda7cdb295c6c0b29b0bb6b3",
+    "event_bytes_unchanged": true,
+    "redaction": "local home-directory prefix in header only"
+  }
+}

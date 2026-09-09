@@ -10,6 +10,17 @@ Use [scientific result contracts](../reference/scientific-results.md), [durable 
 
 ## Active RRR closure work
 
+Priority 1 from the comparative pilot now has implemented generation-only and
+supplied-likelihood CLI routes, using shared approval, supervision and custody machinery.
+The [scoped workflow guide](../workflow/reference/scoped-workflows.md) states the exact
+supported physics domain and remaining product gaps. Its controls test completed workflows,
+not merely the statistical component. These changes do not close RRR acceptance, shape,
+generator-cut stability or publication readiness.
+The [completed scoped controls](../../evidence/audits/2026-09-09-scoped-workflows/README.md)
+include 56 main CLI checks, a supplied-card check, 500 retained native event records,
+18 independently reevaluated roots and 413 distinct focused/wheel test passes. Refused
+comparisons, unresolved roots and the initial installed-bootstrap failure remain visible.
+
 The September 8 [transfer assessment](../research/2026-09-08-fidelity-transfer.md)
 separates reusable safeguards from missing signal-model validation. Both acceptance
 readers now reject ambiguous mass nodes with a shared numerical tolerance; the

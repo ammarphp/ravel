@@ -14,7 +14,7 @@ try: print(json.load(sys.stdin).get("session_id") or "")
 except Exception: print("")')"
 [ -z "$prompt" ] && exit 0
 # Conservative physics-prompt pre-gate (never nag a dev/ops prompt).
-if ! printf '%s' "$prompt" | grep -qiE 'initiate:|reproduc|reinterpret|exclud|arxiv|atlas|cms|figure [0-9]|mass.?plane|scan|limit on|summary.?plot|is .* excluded|sensitiv'; then
+if ! printf '%s' "$prompt" | grep -qiE 'initiate:|reproduc|reinterpret|exclud|arxiv|atlas|cms|figure [0-9]|mass.?plane|scan|limit on|summary.?plot|is .* excluded|sensitiv|parton.?level|generation.?only|likelihood|statistics.?only'; then
   exit 0
 fi
 routed="$(python3 "$REPO/src/ravel/workflow/route_prompt.py" --prompt "$prompt" --print 2>&1)"
@@ -23,7 +23,7 @@ t=sys.stdin.read()
 m=re.search(r"task_mode=(\S+)",t) or re.search(r"\"task_mode\":\s*\"([^\"]+)\"",t)
 print(m.group(1) if m else "")')"
 case "$tmode" in
-  reproduce|reinterpret|scan|summary_plot|projection|anomaly_search|survey|no_routine|unsupported)
+  reproduce|reinterpret|scan|summary_plot|projection|anomaly_search|survey|no_routine|generate|likelihood|unsupported)
     # RECONCILE D-3: route_prompt.py succeeded -> mark the run routed in the ledger (sets
     # run_state.routed). Best-effort + scoped so it never clobbers an unrelated run (CR-135):
     # find_active_rundir resolves ONLY a genuinely active run (cwd-inside-rundir, or a live

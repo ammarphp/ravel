@@ -31,6 +31,11 @@ the active run rather than any contract found elsewhere in the repository.
    a survey contract with compute=`none`: specify candidate mechanisms, baselines, falsification
    tests, protected evaluation, data access and budget before designing an execution plan. No
    automatic novel-method training or physics closure is implied.
+   For `generate` or `likelihood`, follow `docs/workflow/reference/scoped-workflows.md` and
+   `ravel plan/approve/run`. Prepare the typed specification and CHECK-IN 1 before compute.
+   These routes require scoped verification, not detector certification. Scripted YES needs
+   explicit user authorization and remains distinct from expert review. Continue with their
+   result check-in instead of the full-analysis scaffolding below.
 4. Complete needed run scaffolding with **new-analysis**, preserving the existing intake files.
    Compose CHECK-IN 1 per `docs/workflow/checklists/check-ins.md`: request, relevant figure gallery,
    verification waypoint, plan/budget, numbered assumptions, and all three response modes. Save

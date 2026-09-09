@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "mode": "generate",
+  "source": "Explicit SM Drell-Yan parton control, 13 TeV; comparative pilot prescription with dynamic scale choice 4",
+  "assumptions": [
+    "LO sm-no_b_mass with cteq6l1, unmerged, no shower, detector or reweighting.",
+    "100 events can test delivery and gross kinematics, not precision theory or detector acceptance.",
+    "All upstream defaults are preserved in the executed recipe. Compare recipes before interpreting rate/shape differences."
+  ],
+  "max_seconds": 120,
+  "approval_mode": "physicist",
+  "generation": {
+    "runtime": {
+      "madgraph": "/path/to/MG5_aMC",
+      "python": "/path/to/compatible/python",
+      "compiler": "/path/to/gfortran"
+    },
+    "model": "sm-no_b_mass",
+    "definitions": {"p": "g u c d s b u~ c~ d~ s~ b~"},
+    "process": "p p > e+ e-",
+    "events": 100,
+    "seed": 1729,
+    "beam_pdg": [2212, 2212],
+    "run_settings": {
+      "lpp1": 1, "lpp2": 1, "ebeam1": 6500, "ebeam2": 6500,
+      "pdlabel": "cteq6l1", "lhaid": 10042,
+      "fixed_ren_scale": false, "fixed_fac_scale": false,
+      "fixed_fac_scale1": false, "fixed_fac_scale2": false,
+      "dynamical_scale_choice": 4, "scalefact": 1,
+      "ptl": 10, "etal": 2.5, "mmll": 40, "drll": 0,
+      "ptlmax": -1, "elmax": -1, "drllmax": -1,
+      "mmllmax": -1, "ptllmax": -1, "el": 0, "etalmin": 0,
+      "ptllmin": 0, "xptl": 0, "ptl1min": 0, "ptl2min": 0,
+      "ptl3min": 0, "ptl4min": 0, "ptl1max": -1, "ptl2max": -1,
+      "ptl3max": -1, "ptl4max": -1, "mmnl": 0, "mmnlmax": -1
+    },
+    "observable": {
+      "kind": "final_state_mass", "final_state_pdg": [-11, 11],
+      "bin_edges_gev": [40, 50, 60, 70, 80, 90, 100, 110, 120, 140, 160, 200],
+      "min_pt_gev": 10, "max_abs_eta": 2.5, "min_mass_gev": 40
+    }
+  }
+}

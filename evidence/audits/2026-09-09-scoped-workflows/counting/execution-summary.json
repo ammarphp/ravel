@@ -1,0 +1,18 @@
+{
+  "stage": "likelihood",
+  "attempt_id": "0590283dcc294f43aa4e68dfd209ad44",
+  "status": "succeeded",
+  "started_utc": "2026-09-09T04:08:40.488683+00:00",
+  "finished_utc": "2026-09-09T04:08:43.471250+00:00",
+  "exit_code": 0,
+  "error": null,
+  "fingerprint": "f7202ad058f2f110b0bb089ece583686efb018efb510c04d360722380cfdc286",
+  "receipt_sha256": "46700bd9851fedf8093f72decb84d265d9e2b9d2ff38a651ae7e892af0ea2fb8",
+  "runtime": {
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "python": "3.12.13 (main, Jun 11 2026, 03:55:21) [Clang 22.1.3 ]",
+    "environment_sha256": "95c6b2456d76419768196a1ac01cffea3db353030f4b10090b8772ecb45bc05e",
+    "packages_sha256": "c21ef1cb01641237c2d53e8ed511620206d8e05e22be8e9d84c60bb2e6b60d12"
+  },
+  "source_record_sha256": "b3c334d145537b859fbcbd586ed69740475e0d99b82dc372b408b4ffd3c18dbb"
+}

@@ -114,6 +114,13 @@ python3.12 /path/to/ravel/scripts/run.py ravel.__main__ initiate \
 
 ## Resume and inspect current state
 
+For generation-only or supplied-likelihood calculations, the supported sequence is
+`initiate` → `plan --spec` → `approve` → `run` → `status`. Use
+`compare-recipes --left --right` before treating two controls as the same physics calculation.
+See the [scoped workflow guide](workflow/reference/scoped-workflows.md) for exact specifications,
+scripted experimental approval, output artifacts, one-attempt budgets and capability gaps.
+The commands work from an installed wheel; generation needs a supplied native MadGraph runtime.
+
 ```sh
 ravel status --rundir /path/to/existing-run
 ravel status --rundir /path/to/existing-run --write

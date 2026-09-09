@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "comparable": false,
+  "errors": [],
+  "differences": [
+    {
+      "field": "recipe.run_settings.dynamical_scale_choice",
+      "left": 4.0,
+      "right": 3.0
+    }
+  ],
+  "left": "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+  "right": "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+  "scope": "effective recipe equivalence only; not agreement, accuracy ranking, uncertainty closure or expert review"
+}

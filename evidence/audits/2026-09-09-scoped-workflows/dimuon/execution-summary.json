@@ -1,0 +1,18 @@
+{
+  "stage": "parton",
+  "attempt_id": "c6b1263887124cae884e2ee5851ff94d",
+  "status": "succeeded",
+  "started_utc": "2026-09-09T04:10:54.974228+00:00",
+  "finished_utc": "2026-09-09T04:11:10.771264+00:00",
+  "exit_code": 0,
+  "error": null,
+  "fingerprint": "4a162272537cf2fc60f29271659f565b6814f9824152213324b3410cf5f60f5d",
+  "receipt_sha256": "7dcfa11a44258dc4f922ee5d71204da4e40a9793969914490cccfb0d802f6be3",
+  "runtime": {
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "python": "3.12.13 (main, Jun 11 2026, 03:55:21) [Clang 22.1.3 ]",
+    "environment_sha256": "95c6b2456d76419768196a1ac01cffea3db353030f4b10090b8772ecb45bc05e",
+    "packages_sha256": "c21ef1cb01641237c2d53e8ed511620206d8e05e22be8e9d84c60bb2e6b60d12"
+  },
+  "source_record_sha256": "696c62df982b9515c66ebece0e6d46e37cd771f11f6c25bc598f5e089fe8ad08"
+}

@@ -1,0 +1,375 @@
+{
+  "obs_limit": 10.0,
+  "exp_limits": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0
+  ],
+  "scan_mu": [
+    0.001,
+    1.0,
+    1.0009,
+    2.0,
+    2.0008,
+    3.0006999999999997,
+    4.0,
+    4.0006,
+    5.000500000000001,
+    6.0004,
+    7.0003,
+    8.0,
+    8.0002,
+    9.0001,
+    10.0
+  ],
+  "scan_cls_obs": [
+    0.9999549114167915,
+    0.9554431156351753,
+    0.9554034999112208,
+    0.9119736556177134,
+    0.9119393228150431,
+    0.8695894173371594,
+    0.8284018447389058,
+    0.8283774605362695,
+    0.7883237580389634,
+    0.7494452511507619,
+    0.711755540319776,
+    0.6752721028683548,
+    0.6752649244362964,
+    0.6399804552967416,
+    0.6059060065707357
+  ],
+  "scan_cls_exp": [
+    [
+      0.9999170453141172,
+      0.9999466886478428,
+      0.999972109327667,
+      0.9999899465447203,
+      0.9999980687006925
+    ],
+    [
+      0.919854572855769,
+      0.9475944866473291,
+      0.9721015559746493,
+      0.9897660255456837,
+      0.9979990750366731
+    ],
+    [
+      0.9197849367273688,
+      0.9475481418417385,
+      0.9720764470552296,
+      0.9897566526871444,
+      0.9979972104010826
+    ],
+    [
+      0.845153691462957,
+      0.8970100285699293,
+      0.9442138158806734,
+      0.9791717573926493,
+      0.9958539589377486
+    ],
+    [
+      0.8450960350802259,
+      0.8969702898132734,
+      0.9441915191253252,
+      0.9791631378118791,
+      0.9958521830787266
+    ],
+    [
+      0.7755702257196935,
+      0.84821129619369,
+      0.9163515772973585,
+      0.9682098777943018,
+      0.9935552902117819
+    ],
+    [
+      0.7109714872111129,
+      0.8012926687714966,
+      0.8886074230238852,
+      0.9569051740055329,
+      0.9911001902913759
+    ],
+    [
+      0.7109341142868401,
+      0.8012650399120468,
+      0.8885907954324651,
+      0.9568982793461952,
+      0.9910986666802037
+    ],
+    [
+      0.6509215313335063,
+      0.7561212747534475,
+      0.8609431408822794,
+      0.9452307086129869,
+      0.9884742970325172
+    ],
+    [
+      0.5952739750181846,
+      0.7127658068358365,
+      0.8334422483518389,
+      0.9332105165989784,
+      0.9856740360365486
+    ],
+    [
+      0.5437409885055092,
+      0.6711806851756049,
+      0.8061212953002321,
+      0.9208420604908614,
+      0.9826896314228603
+    ],
+    [
+      0.4960896357446419,
+      0.6313521985655354,
+      0.7790182785039008,
+      0.9081332969932623,
+      0.9795134040797091
+    ],
+    [
+      0.4960804741887678,
+      0.6313444037762915,
+      0.7790128796691991,
+      0.908130720596377,
+      0.9795127488352342
+    ],
+    [
+      0.45205894703948635,
+      0.5932321135373777,
+      0.7521489006424575,
+      0.8950829126041333,
+      0.9761349989775702
+    ],
+    [
+      0.41145172991527457,
+      0.5568158424722758,
+      0.7255604432545149,
+      0.8817060949594743,
+      0.9725479669439004
+    ]
+  ],
+  "n_fits": 15,
+  "at_poi_cap": true,
+  "median_at_cap": true,
+  "at_mu_floor": false,
+  "band_degenerate": true,
+  "cls_monotonic": true,
+  "limit_status": {
+    "observed": "above_scan",
+    "expected": [
+      "above_scan",
+      "above_scan",
+      "above_scan",
+      "above_scan",
+      "above_scan"
+    ]
+  },
+  "limit_brackets": {
+    "observed": [
+      10.0,
+      null
+    ],
+    "expected": [
+      [
+        10.0,
+        null
+      ],
+      [
+        10.0,
+        null
+      ],
+      [
+        10.0,
+        null
+      ],
+      [
+        10.0,
+        null
+      ],
+      [
+        10.0,
+        null
+      ]
+    ]
+  },
+  "fit_diagnostics": {
+    "available": true,
+    "source": "pyhf AsymptoticCalculator free_fit_to_data",
+    "reference_mu": 10.0,
+    "twice_nll": 14.669373349491934,
+    "parameters": [
+      {
+        "name": "mu",
+        "value": 3.937730783483542e-15,
+        "fixed": false,
+        "bounds": [
+          0.0,
+          15.0
+        ],
+        "near_lower_bound": true,
+        "near_upper_bound": false
+      },
+      {
+        "name": "uncorr_bkguncrt[0]",
+        "value": 0.9526114676361773,
+        "fixed": false,
+        "bounds": [
+          1e-10,
+          10.0
+        ],
+        "near_lower_bound": false,
+        "near_upper_bound": false
+      }
+    ],
+    "covariance": null,
+    "nuisance_pull_uncertainties": null,
+    "unavailable_reason": "profile-error and covariance diagnostics were not computed",
+    "signal_strength_units": "supplied-model units",
+    "profile_consistency": {
+      "passed": true,
+      "twice_nll": {
+        "free_data": 14.669373349491934,
+        "fixed_data": 15.284287442921823,
+        "mu0_data": 14.669373349491934,
+        "free_asimov": 14.1607673776723,
+        "fixed_asimov": 14.283994490862142,
+        "generating_asimov": 14.1607673776723
+      },
+      "absolute_tolerance": 1e-05,
+      "issues": [],
+      "global_optimum_proven": false
+    }
+  },
+  "inference": {
+    "method": "asymptotic CLs",
+    "test_stat": "qtilde",
+    "level": 0.05,
+    "root_solver": "scipy.brentq",
+    "root_rtol": 0.0001,
+    "root_atol": 1e-10,
+    "omitted_low_mu_nonfinite": [],
+    "root_cls_atol": 0.0005,
+    "root_cls_max_error": null,
+    "profile_passes": 1,
+    "fresh_check_evaluations": 4,
+    "fresh_check_context": "frozen start portfolio, descending then ascending root/bound checks",
+    "backend": "numpy",
+    "precision": "64b",
+    "fit_tolerance": 1e-09,
+    "model_sha256": "e0c93064f2235c868a8ca2795d4c73cf96f92fd8e1e6d70aeccea45475433173",
+    "data_sha256": "c71af6040450881b66e78b7feb2d3f37eafbb467676b642da21d87850f0585df",
+    "coverage_validated": false,
+    "scope": "statistical inversion of the supplied model; no acceptance certification"
+  },
+  "optimizer": {
+    "primary": "scipy.SLSQP",
+    "fallback": "iminuit.MIGRAD nan-guarded",
+    "escalated": false,
+    "n_minimizations": 282,
+    "n_fallback": 0,
+    "n_nan_flagged": 0,
+    "n_escalated": 0,
+    "profile_start_trials": 282,
+    "profile_improvements": 0,
+    "profile_max_nll_improvement": 0.0,
+    "profile_invalid_trial_evaluations": 0,
+    "profile_recovered_transients": 0,
+    "rejected_candidates_last_100": [],
+    "analytic_projected_gradient_atol": 0.001,
+    "analytic_acceptance": "finite original objective and projected gradient; multistart, nesting and fresh-root checks",
+    "profile_search": "nominal start plus two best distinct retained starts scored on each current objective",
+    "global_optimum_proven": false
+  },
+  "limits": {
+    "schema_version": 1,
+    "quantity": "signal_strength",
+    "observed": {
+      "value": 10.0,
+      "status": "above_scan",
+      "bracket": [
+        10.0,
+        null
+      ]
+    },
+    "expected": [
+      {
+        "value": 10.0,
+        "status": "above_scan",
+        "bracket": [
+          10.0,
+          null
+        ]
+      },
+      {
+        "value": 10.0,
+        "status": "above_scan",
+        "bracket": [
+          10.0,
+          null
+        ]
+      },
+      {
+        "value": 10.0,
+        "status": "above_scan",
+        "bracket": [
+          10.0,
+          null
+        ]
+      },
+      {
+        "value": 10.0,
+        "status": "above_scan",
+        "bracket": [
+          10.0,
+          null
+        ]
+      },
+      {
+        "value": 10.0,
+        "status": "above_scan",
+        "bracket": [
+          10.0,
+          null
+        ]
+      }
+    ],
+    "origin": "declared",
+    "notes": []
+  },
+  "limit_eligibility": {
+    "observed_root": false,
+    "expected_roots": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "historical_only": false
+  },
+  "scope": "95% asymptotic CLs for the supplied model; no detector certification or coverage validation",
+  "normalization": {
+    "kind": "signal_events",
+    "luminosity_fb": 3.2
+  },
+  "visible_cross_section_fb": {
+    "observed": null,
+    "expected": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "limit_status": {
+      "observed": "above_scan",
+      "expected": [
+        "above_scan",
+        "above_scan",
+        "above_scan",
+        "above_scan",
+        "above_scan"
+      ]
+    }
+  }
+}

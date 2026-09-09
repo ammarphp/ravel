@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "recipe": {
+    "kind": "supplied_likelihood",
+    "workspace": {
+      "version": "1.0.0",
+      "channels": [
+        {
+          "name": "singlechannel",
+          "samples": [
+            {
+              "name": "signal",
+              "data": [
+                5.0,
+                10.0
+              ],
+              "modifiers": [
+                {
+                  "name": "mu",
+                  "type": "normfactor",
+                  "data": null
+                },
+                {
+                  "name": "luminosity",
+                  "type": "normsys",
+                  "data": {
+                    "lo": 0.97,
+                    "hi": 1.03
+                  }
+                }
+              ]
+            },
+            {
+              "name": "background",
+              "data": [
+                20.0,
+                40.0
+              ],
+              "modifiers": [
+                {
+                  "name": "uncorr_bkguncrt",
+                  "type": "shapesys",
+                  "data": [
+                    4.0,
+                    6.0
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "name": "singlechannel",
+          "data": [
+            21.0,
+            38.0
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "name": "control",
+          "config": {
+            "poi": "mu",
+            "parameters": [
+              {
+                "name": "mu",
+                "bounds": [
+                  [
+                    0,
+                    32
+                  ]
+                ],
+                "inits": [
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "measurement": "control",
+    "normalization": {
+      "kind": "signal_strength"
+    },
+    "test_statistic": "qtilde",
+    "calculation": "asymptotic_cls",
+    "level": 0.05,
+    "pyhf_version": "0.7.6",
+    "poi_cap": 32,
+    "optimizer": "ravel robust_optimizer",
+    "coverage_validated": false
+  },
+  "sha256": "afc2c258b755690cc9659a1d177e86e155269aafcf6672573d02bf259fab36a6",
+  "provenance": "executed serialized workspace"
+}

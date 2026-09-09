@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "recipe": {
+    "kind": "supplied_likelihood",
+    "workspace": {
+      "version": "1.0.0",
+      "channels": [
+        {
+          "name": "singlechannel",
+          "samples": [
+            {
+              "name": "signal",
+              "data": [
+                1
+              ],
+              "modifiers": [
+                {
+                  "name": "mu",
+                  "type": "normfactor",
+                  "data": null
+                }
+              ]
+            },
+            {
+              "name": "background",
+              "data": [
+                283
+              ],
+              "modifiers": [
+                {
+                  "name": "uncorr_bkguncrt",
+                  "type": "shapesys",
+                  "data": [
+                    24
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "name": "singlechannel",
+          "data": [
+            263
+          ]
+        }
+      ],
+      "measurements": [
+        {
+          "name": "counting",
+          "config": {
+            "poi": "mu",
+            "parameters": [
+              {
+                "name": "mu",
+                "bounds": [
+                  [
+                    0,
+                    256
+                  ]
+                ],
+                "inits": [
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "measurement": "counting",
+    "normalization": {
+      "kind": "signal_events",
+      "luminosity_fb": 3.2
+    },
+    "test_statistic": "qtilde",
+    "calculation": "asymptotic_cls",
+    "level": 0.05,
+    "pyhf_version": "0.7.6",
+    "poi_cap": 256,
+    "optimizer": "ravel robust_optimizer",
+    "coverage_validated": false
+  },
+  "sha256": "42187f516570410dd14fcfd395e9026ee0421b3395cca7bce86240327ee48526",
+  "provenance": "executed serialized workspace"
+}

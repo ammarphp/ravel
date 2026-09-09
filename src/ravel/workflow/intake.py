@@ -84,6 +84,18 @@ def infer_kind(text):
     active = actionable_text(text)
     if method_request(active):
         return "method_study"
+    # Narrow routes require an explicit scoped request. Mentioning a generator or
+    # likelihood inside an end-to-end reproduction must not truncate that request.
+    broader = re.search(r"\b(?:reproduce|reinterpret|scan|detector|shower)\b", active, re.I)
+    if not broader:
+        if re.search(r"\b(?:generation[- ]only|parton[- ]level)\b", active, re.I) and re.search(
+                r"\b(?:generate|simulate|produce|generation)\b", active, re.I):
+            return "generate"
+        if re.search(r"\b(?:likelihood[- ]only|statistics[- ]only|statistical[- ]only)\b", active, re.I):
+            return "likelihood"
+        if re.search(r"\b(?:fit|compute|calculate|evaluate)\b", active, re.I) and re.search(
+                r"\b(?:supplied|provided|given)\b.{0,60}\b(?:workspace|likelihood|counting model)\b", active, re.I):
+            return "likelihood"
     if re.search(r"\b(?:recreate|replicate|repeat|reconstruct|recover)\b.{0,80}(?:analysis|published|result|figure|limit|cutflow)", active, re.I):
         return "reproduce"
     if re.search(r"\b(?:list|map|catalogue|catalog|compare|collect)\b.{0,70}(?:published\s+)?(?:searches|analyses|constraints)", active, re.I):

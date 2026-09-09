@@ -2,6 +2,15 @@
 
 ## Unreleased — RRR reproduction closure
 
+- Implement generation-only and supplied-likelihood workflows with concrete check-ins,
+  bound approvals, supervised single-attempt budgets, effective recipe comparison and
+  figures. Require complete event records or all six numerical crossings for delivery.
+  Preserve scripted experimental assent separately from expert review. Retain unsupported
+  adapters as product gaps; this capability work does not close RRR physics fidelity.
+- Enforce declared numeric upper bounds in the shared schema validator. Avoid duplicate
+  package discovery when an installed worker bootstraps its module; reject stale evidence
+  without confusing an invocation-path difference with an environment change.
+
 - Count scope refusals as unmet product requests, separate from refusal validity.
   Require a green gate for complete-delivery headlines and keep generated status
   pages consistent with the audit.

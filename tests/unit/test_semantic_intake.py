@@ -12,7 +12,7 @@ from ravel.validation.validate_task_contract import validate
 @pytest.mark.parametrize("prompt,mode", [
     ("Survey ATLAS searches and plot published observed and expected limits.", "survey"),
     ("Reproduce the observed and expected limits for ATLAS SUSY-2018-16.", "reproduce"),
-    ("Fit the supplied pyhf likelihood and compute expected limits without generating events.", "unsupported"),
+    ("Fit the supplied pyhf likelihood and compute expected limits without generating events.", "likelihood"),
     ("Project expected limits to the HL-LHC at 3000 fb^-1.", "projection"),
 ])
 def test_expected_statistic_is_not_itself_a_future_projection(prompt, mode):

@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "comparable": false,
+  "errors": [],
+  "differences": [
+    {
+      "field": "recipe.measurement",
+      "left": "counting",
+      "right": "control"
+    },
+    {
+      "field": "recipe.normalization.kind",
+      "left": "signal_events",
+      "right": "signal_strength"
+    },
+    {
+      "field": "recipe.normalization.luminosity_fb",
+      "left": 3.2,
+      "right": null
+    },
+    {
+      "field": "recipe.poi_cap",
+      "left": 256,
+      "right": 32
+    },
+    {
+      "field": "recipe.workspace.channels",
+      "left": [
+        {
+          "name": "singlechannel",
+          "samples": [
+            {
+              "name": "signal",
+              "data": [
+                1
+              ],
+              "modifiers": [
+                {
+                  "name": "mu",
+                  "type": "normfactor",
+                  "data": null
+                }
+              ]
+            },
+            {
+              "name": "background",
+              "data": [
+                283
+              ],
+              "modifiers": [
+                {
+                  "name": "uncorr_bkguncrt",
+                  "type": "shapesys",
+                  "data": [
+                    24
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "right": [
+        {
+          "name": "singlechannel",
+          "samples": [
+            {
+              "name": "signal",
+              "data": [
+                5.0,
+                10.0
+              ],
+              "modifiers": [
+                {
+                  "name": "mu",
+                  "type": "normfactor",
+                  "data": null
+                },
+                {
+                  "name": "luminosity",
+                  "type": "normsys",
+                  "data": {
+                    "lo": 0.97,
+                    "hi": 1.03
+                  }
+                }
+              ]
+            },
+            {
+              "name": "background",
+              "data": [
+                20.0,
+                40.0
+              ],
+              "modifiers": [
+                {
+                  "name": "uncorr_bkguncrt",
+                  "type": "shapesys",
+                  "data": [
+                    4.0,
+                    6.0
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "field": "recipe.workspace.measurements",
+      "left": [
+        {
+          "name": "counting",
+          "config": {
+            "poi": "mu",
+            "parameters": [
+              {
+                "name": "mu",
+                "bounds": [
+                  [
+                    0,
+                    256
+                  ]
+                ],
+                "inits": [
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "right": [
+        {
+          "name": "control",
+          "config": {
+            "poi": "mu",
+            "parameters": [
+              {
+                "name": "mu",
+                "bounds": [
+                  [
+                    0,
+                    32
+                  ]
+                ],
+                "inits": [
+                  1
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "field": "recipe.workspace.observations",
+      "left": [
+        {
+          "name": "singlechannel",
+          "data": [
+            263
+          ]
+        }
+      ],
+      "right": [
+        {
+          "name": "singlechannel",
+          "data": [
+            21.0,
+            38.0
+          ]
+        }
+      ]
+    }
+  ],
+  "left": "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+  "right": "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+  "scope": "effective recipe equivalence only; not agreement, accuracy ranking, uncertainty closure or expert review"
+}

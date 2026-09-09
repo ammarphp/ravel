@@ -1,0 +1,1685 @@
+{
+  "status": "succeeded",
+  "evaluations": [
+    {
+      "mu": 1.0,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.14379379895415187,
+        0.014344865788802782,
+        0.050451444111728486,
+        0.15891931927114977,
+        0.405748347654088,
+        0.7396625241156736
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.988437973095742,
+          "fixed_data": 25.235552613213144,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781936903,
+          "fixed_asimov": 24.89039305162515,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.0,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.004609852479282741,
+        4.132477057937014e-05,
+        0.0005230265412487095,
+        0.005676898140383616,
+        0.0460070382253361,
+        0.2270382529946676
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.988437973095742,
+          "fixed_data": 31.14342194599068,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781936903,
+          "fixed_asimov": 30.55601991572108,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 4.0,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        9.80512793544098e-08,
+        8.678142877660356e-12,
+        1.2343398080867415e-09,
+        1.4617608466053144e-07,
+        1.2295755309653599e-05,
+        0.0005754550586566937
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.988437973095742,
+          "fixed_data": 51.5303464320564,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781936903,
+          "fixed_asimov": 50.54524478974702,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.5,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.4562589938961044,
+        0.1483670957517691,
+        0.27566104290911203,
+        0.4783887828075122,
+        0.73039496335875,
+        0.9226566871918622
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.623884667422878,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.40844785699565,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.001,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.998777665156804,
+        0.996625985153257,
+        0.9978301624389616,
+        0.9988640269176999,
+        0.9995902433477275,
+        0.9999212298040125
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 22.988707343312825,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 22.905915808953516,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.25,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.7061218015136532,
+        0.4067665628145535,
+        0.5525296346128947,
+        0.7223682987820981,
+        0.8800681112181253,
+        0.9721000317786878
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.181374530836184,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.032148605525222,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.2871745887492587,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.6655372227115972,
+        0.3525320638477842,
+        0.5015020964176191,
+        0.6832756953676549,
+        0.8594284692677762,
+        0.9662912094216944
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.231485914410396,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.072375536266126,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.32987697769322355,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.6202668059182604,
+        0.2982084471498515,
+        0.44742300413893177,
+        0.6394364596136745,
+        0.8349352406883829,
+        0.9589959731928375
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.295843524267553,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.125393727666985,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.37892914162759955,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.5701887803726526,
+        0.24509506725095917,
+        0.39101240217064215,
+        0.5906440460651659,
+        0.8058458051108057,
+        0.94974961952705
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.378707166565313,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.195253374346507,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.40090000000000003,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.5484642387324274,
+        0.22417722313411723,
+        0.3676363677314767,
+        0.5693763624567899,
+        0.7925129993119681,
+        0.9452947425809978
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.418911174014987,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.229640872075116,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.43527528164806206,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.5153888511934817,
+        0.19464651084931914,
+        0.3333031100618086,
+        0.5368749694073853,
+        0.771310287848851,
+        0.9379217451343235
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.485636252277736,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.28727624556663,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.5743491774985175,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.3936124729300032,
+        0.1076561927589901,
+        0.2197625501156629,
+        0.4158504660035155,
+        0.6821439849782072,
+        0.9027984449107116
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 23.802911688892735,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.56792596089322,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.6597539553864472,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.32879837406192847,
+        0.07361608110597806,
+        0.1675042531218648,
+        0.3504621704073366,
+        0.6257045226337135,
+        0.8768049383052711
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.035040046722436,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 23.777696785530424,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.7578582832551991,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.26378039027663874,
+        0.04685446746757154,
+        0.12082373571865253,
+        0.2840724437187486,
+        0.5605467157089663,
+        0.8426704160738623
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.336298535553055,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.053416906253773,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.8008000000000001,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.23842642180335358,
+        0.03825225227793917,
+        0.10420848150774933,
+        0.2579391220585028,
+        0.5322178086805485,
+        0.8262994834859739
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.479706042350983,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.18569820479659,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.8705505632961241,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.20112100224890347,
+        0.027335601864285016,
+        0.08142642834639136,
+        0.21920452405211444,
+        0.4868063874083482,
+        0.7979038218784755
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.72749276443067,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.41548501504814,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.2006999999999999,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.08124848950973182,
+        0.005004260831597054,
+        0.02278090191601957,
+        0.09177186410785203,
+        0.29276627850904885,
+        0.6377000437996655
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.14477094461663,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 25.74892887347402,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.6006,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.02172933811975527,
+        0.0005097731469928398,
+        0.003878316658496468,
+        0.02563585514302276,
+        0.12959440712990583,
+        0.4178989849097546
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 28.380205720625845,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 27.886327279166096,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.0005,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0046002649321375925,
+        4.118936471299683e-05,
+        0.0005216431029947718,
+        0.005665391657198611,
+        0.04594109919884719,
+        0.226836871139147
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 31.147196399884557,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.55968020142069,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.4004,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0007811077151187466,
+        2.6925648652896817e-06,
+        5.638292224604589e-05,
+        0.0010029173232427655,
+        0.013097070753107225,
+        0.10087102111070291
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 34.404514916725795,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 33.728086384333174,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.8003,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00010802748091739003,
+        1.452701243511041e-07,
+        4.986646158295972e-06,
+        0.0001443760634832603,
+        0.003031802123746865,
+        0.0367224647702839
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 38.11060025311242,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 37.35008388475276,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 3.2002,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        1.2368594118507603e-05,
+        6.594034916362278e-09,
+        3.674314292916398e-07,
+        1.7175401417610338e-05,
+        0.0005771229051311524,
+        0.011009672100383469
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 42.22513002922436,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 41.38527706527561,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 3.6001000000000003,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        1.1914312672288136e-06,
+        2.563706198573092e-10,
+        2.2947284555789213e-08,
+        1.715827695155134e-06,
+        9.160378695717114e-05,
+        0.0027445952015763006
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 46.71008583141885,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 45.79545684755047,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.4106537823223435,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04188372788706208,
+        0.0015545450147643957,
+        0.009269400817897847,
+        0.04840343334667641,
+        0.196204496726863,
+        0.5223304788056289
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.24966799062151,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.801836852307513,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.349932770557097,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0510781408504702,
+        0.0021951372155775846,
+        0.01210671658563736,
+        0.05863971600964284,
+        0.22166356036743134,
+        0.5560956668415484
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.914268857299067,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.481359332393076,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3570529427232303,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04991748677007893,
+        0.0021087008469975617,
+        0.011736913115828859,
+        0.057351735201197324,
+        0.21857277880090706,
+        0.552142833239884
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.952936310810607,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.518272159516574,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3565467553820167,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04999924773193159,
+        0.002114737177854151,
+        0.011762856277129046,
+        0.05744250330944748,
+        0.2187915855788836,
+        0.5524239366683967
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.950181541845858,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.515642087674635,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3564789279942477,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.05001021213126872,
+        0.0021155472747743788,
+        0.011766336575608763,
+        0.057454675157262526,
+        0.2188209156838461,
+        0.5524616025891481
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.94981247982755,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.515289735146396,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.746327201495603,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.27090657178379873,
+        0.049451435062300965,
+        0.1256557854303367,
+        0.29139168724681375,
+        0.5681855574480211,
+        0.8469193123096204
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.298982325508767,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.019093980751002,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.743946752063765,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.27239461008720645,
+        0.05000382849069746,
+        0.12667369104244552,
+        0.2929186464268557,
+        0.56976376758677,
+        0.8477886339688893
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.291341888609566,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.01207175935518,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.7439839494513683,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.27237131304971784,
+        0.04999515305007916,
+        0.12665773081374682,
+        0.2928947437142422,
+        0.5697391030847762,
+        0.8477750703562145
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.291461113626507,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.012181323260545,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.0032744148120798,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.14253113376757023,
+        0.014107804829860068,
+        0.0498268282119582,
+        0.1575795583945886,
+        0.40376837416109995,
+        0.7381030790685043
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 25.249208666427926,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.903215033544782,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.002366598875907,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.14288032158966707,
+        0.014173158186698606,
+        0.049999307127536155,
+        0.15795012364791028,
+        0.4043169169556764,
+        0.7385358262617018
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 25.245418637283276,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.899656223747705,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.0023164804959632,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.1428996190654738,
+        0.014176774444753999,
+        0.05000884472668015,
+        0.15797060125604867,
+        0.4043472095502174,
+        0.7385597083106124
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 25.2452094871362,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.89945983918674,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.4532790219003602,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0363171019803466,
+        0.0012160805838778508,
+        0.007659193374976388,
+        0.042165611244655746,
+        0.17955031980811542,
+        0.49862693692861365
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.49270644985142,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 27.034457920898724,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3944826267540924,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04418080496974578,
+        0.001705101540523275,
+        0.009958106406617111,
+        0.05096818755941977,
+        0.2027855073326201,
+        0.5313303213467337
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.159098714557715,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.71523216999485,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.400949590093435,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04324947466787708,
+        0.0016432958275967259,
+        0.009677214330265327,
+        0.04992895274870143,
+        0.2001363498125185,
+        0.5277313153946571
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.195209803983367,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.74975697294774,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.4005074763720986,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.043312601380183696,
+        0.0016474522034521041,
+        0.00969618229074799,
+        0.049999419943490005,
+        0.20031672235393347,
+        0.5279773701406778
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.192736474268,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.747392055035288,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.40043745094828,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.043322607168960775,
+        0.0016481114418233841,
+        0.00969918972825968,
+        0.05001058886549679,
+        0.20034530108789775,
+        0.5280163421305311
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.192344790855756,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.74701754320349,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.9809206946731208,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.004989733057566167,
+        4.682658188298765e-05,
+        0.0005785020300539813,
+        0.006132284665404715,
+        0.0485827625562912,
+        0.2348028611111522
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 30.999967556278875,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.416927562559927,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.970606367596528,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.005206881012946558,
+        5.008986781093997e-05,
+        0.0006107771186462212,
+        0.006392149208915376,
+        0.05002438140562266,
+        0.23906510702907013
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 30.922882156067992,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.34220478101115,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.9707808088451948,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.005203137448806025,
+        5.003288903144864e-05,
+        0.0006102173138397516,
+        0.006387671863332567,
+        0.049999708420700305,
+        0.23899264664370415
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 30.924183137275598,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.34346577821698,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.7175282800849576,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00016532362737046056,
+        2.698065293263679e-07,
+        8.367431333355289e-06,
+        0.00021915702923451473,
+        0.004172511978907553,
+        0.04600426317395137
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 37.308687050193626,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.56518083059255,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.6844907264827125,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0001954794004528303,
+        3.447137980496377e-07,
+        1.0264762497453991e-05,
+        0.0002582849138592745,
+        0.004728557396682508,
+        0.050216139910037504
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 36.993572953533786,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.25691339282533,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.6861861070246618,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00019381206783580047,
+        3.404168560434161e-07,
+        1.0157988105503512e-05,
+        0.0002561250051258802,
+        0.00469845362279679,
+        0.04999253335981712
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 37.009674048516175,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.27266234281625,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.6860517976693106,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00019394365953632887,
+        3.4075534051321655e-07,
+        1.016640744448274e-05,
+        0.00025629548682119205,
+        0.004700832075927715,
+        0.050010217718239686
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 37.00839823225209,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.271414420609226,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 4.0,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        9.805127935530749e-08,
+        8.678142877690403e-12,
+        1.2343398080904476e-09,
+        1.4617608466090432e-07,
+        1.2295755309679362e-05,
+        0.0005754550586576444
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 51.5303464320564,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 50.54524478974702,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.6861861070246618,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00019381206783580047,
+        3.404168560434161e-07,
+        1.0157988105503512e-05,
+        0.0002561250051258802,
+        0.00469845362279679,
+        0.04999253335981712
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 37.009674048516175,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.27266234281625,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.9707808088451948,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0052031374488440765,
+        5.003288903175841e-05,
+        0.0006102173138427951,
+        0.006387671863356914,
+        0.04999970842083451,
+        0.23899264664409825
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 30.924183137260307,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.34346577821012,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.4005074763720986,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04331260138018696,
+        0.001647452203456947,
+        0.009696182290770084,
+        0.04999941994357212,
+        0.2003167223541435,
+        0.5279773701409644
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.192736474269193,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.747392055032535,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3565467553820167,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04999924773188781,
+        0.0021147371778387093,
+        0.011762856277062726,
+        0.057442503309215506,
+        0.21879158557832468,
+        0.552423936667679
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.95018154184457,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.51564208768135,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.002366598875907,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.14288032159007943,
+        0.014173158186800509,
+        0.049999307127804954,
+        0.15795012364848715,
+        0.4043169169565301,
+        0.7385358262623748
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 25.245418637279776,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.89965622374217,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.743946752063765,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.27239461008720645,
+        0.05000382849069746,
+        0.12667369104244552,
+        0.2929186464268557,
+        0.56976376758677,
+        0.8477886339688893
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.291341888609566,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.01207175935518,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.001,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.9987776651479475,
+        0.996625985153257,
+        0.9978301624389616,
+        0.9988640269176999,
+        0.9995902433477275,
+        0.9999212298040125
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 22.98870734333983,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 22.905915808953516,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.001,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.9987776651479475,
+        0.996625985153257,
+        0.9978301624389616,
+        0.9988640269176999,
+        0.9995902433477275,
+        0.9999212298040125
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 22.98870734333983,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 22.905915808953516,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 0.743946752063765,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.27239461008720645,
+        0.05000382849069746,
+        0.12667369104244552,
+        0.2929186464268557,
+        0.56976376758677,
+        0.8477886339688893
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 24.291341888609566,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.01207175935518,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.002366598875907,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.14288032159007943,
+        0.014173158186800509,
+        0.049999307127804954,
+        0.15795012364848715,
+        0.4043169169565301,
+        0.7385358262623748
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 25.245418637279776,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 24.89965622374217,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.3565467553820167,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04999924773188781,
+        0.0021147371778387093,
+        0.011762856277062726,
+        0.057442503309215506,
+        0.21879158557832468,
+        0.552423936667679
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 26.95018154184457,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.51564208768135,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.4005074763720986,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.04331260138018696,
+        0.001647452203456947,
+        0.009696182290770084,
+        0.04999941994357212,
+        0.2003167223541435,
+        0.5279773701409644
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 27.192736474269193,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 26.747392055032535,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 1.9707808088451948,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.0052031374488440765,
+        5.003288903175841e-05,
+        0.0006102173138427951,
+        0.006387671863356914,
+        0.04999970842083451,
+        0.23899264664409825
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 30.924183137260307,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 30.34346577821012,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 2.6861861070246618,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        0.00019381206783580047,
+        3.404168560434161e-07,
+        1.0157988105503512e-05,
+        0.0002561250051258802,
+        0.00469845362279679,
+        0.04999253335981712
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 37.009674048516175,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 36.27266234281625,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    },
+    {
+      "mu": 4.0,
+      "attempt": 1,
+      "status": "evaluated",
+      "cls": [
+        9.805127935530749e-08,
+        8.678142877690403e-12,
+        1.2343398080904476e-09,
+        1.4617608466090432e-07,
+        1.2295755309679362e-05,
+        0.0005754550586576444
+      ],
+      "profile_consistency": {
+        "passed": true,
+        "twice_nll": {
+          "free_data": 22.98843797311556,
+          "fixed_data": 51.5303464320564,
+          "mu0_data": 22.9884379730954,
+          "free_asimov": 22.905913781941834,
+          "fixed_asimov": 50.54524478974702,
+          "generating_asimov": 22.90591378191989
+        },
+        "absolute_tolerance": 1e-05,
+        "issues": [],
+        "global_optimum_proven": false
+      }
+    }
+  ],
+  "model_sha256": "e50e127d351d4307f9b9bf7832b57a54711cfb6580f9ab129b0b32afbd0601f8",
+  "data_sha256": "5c3bfb119cd3ada8e0ba6ca65fd42e593c7d7309b78f11e0a2ea989648ed9c26",
+  "wall_seconds": 4.154826082987711,
+  "rejected_candidates_last_100": [],
+  "profile_start_trials": 927,
+  "profile_improvements": 0
+}

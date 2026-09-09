@@ -1,0 +1,77 @@
+{
+  "drell-yan/param_card.dat": {
+    "original_sha256": "fe6c38d7971e63446b8c2d33c2c1970aa3e2f70944f45e3ba570df8cbc16d90c",
+    "public_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "drell-yan/proc_card.dat": {
+    "original_sha256": "7d308d2682ec550e18d34dcd53cefd890d93579d8b89fa361ece362fa8115187",
+    "public_sha256": "0c18cb3526019f846a7f39ad1395b516cec8ac8d073bb160f87327f6f6ca8ba4",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "drell-yan/run_card.dat": {
+    "original_sha256": "b84fe315765f52718ba28edc096f8d99b1deb72f1975b1504cd75ff2944da52b",
+    "public_sha256": "177c32f6a4ed9cc3a3a5abf4c1f9c2d23c25df12d7dbc5ca1bd48c26363b8512",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "different-scale/param_card.dat": {
+    "original_sha256": "fe6c38d7971e63446b8c2d33c2c1970aa3e2f70944f45e3ba570df8cbc16d90c",
+    "public_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "different-scale/proc_card.dat": {
+    "original_sha256": "9924b4c2a344bc6e6cbb43970074ca15706f8e5d377d637ddb0fc9e10042ae68",
+    "public_sha256": "d170103ce433473749586665bfc3669c950682c36c1cb3b7a4b48d056c73fa7f",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "different-scale/run_card.dat": {
+    "original_sha256": "d7447d1c55036def9dcd0d1b0743b8e781bcd5d97ac37c332b9a38d5ba67f2a7",
+    "public_sha256": "a728a188e3400295843c909f1de5a67465300562c8df7f552233423a27ae83ca",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "dimuon/param_card.dat": {
+    "original_sha256": "fe6c38d7971e63446b8c2d33c2c1970aa3e2f70944f45e3ba570df8cbc16d90c",
+    "public_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "dimuon/proc_card.dat": {
+    "original_sha256": "a89368aee65116458bef0449905884dec7449630f5eb6b6314a50c7eeed94003",
+    "public_sha256": "e5bda62fc422c653537a1f6e8b574151b9bc90e1059a08381e6d525206037aac",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "dimuon/run_card.dat": {
+    "original_sha256": "b57914adf1f7c2e727b9654b0e07155e16ffe39b097ab802c80d579e3f5a5795",
+    "public_sha256": "b1c479b89311bf811e43cdd60ae22a0b92e0e68f03518effaf1dfb3e7fdac7d2",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "supplied-card/param_card.dat": {
+    "original_sha256": "fe6c38d7971e63446b8c2d33c2c1970aa3e2f70944f45e3ba570df8cbc16d90c",
+    "public_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "supplied-card/proc_card.dat": {
+    "original_sha256": "df28b883a4ba890b7d4c4b0914c51c082f08346433d4619d977ec74740364ee9",
+    "public_sha256": "287b8653d4fedfc3f74bde4c146df1b32a058c4d3790bed2b1d9731948622b75",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "supplied-card/run_card.dat": {
+    "original_sha256": "9c9da4393915a8cb15c118b2531dae87dc0cb91806e2c081aaaadf9bef8a6295",
+    "public_sha256": "25df80e7acec04396ad891293c6057f02bd5949b7af80d782644f7b8cbf9bbb0",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "drell-yan-replica/param_card.dat": {
+    "original_sha256": "fe6c38d7971e63446b8c2d33c2c1970aa3e2f70944f45e3ba570df8cbc16d90c",
+    "public_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "drell-yan-replica/proc_card.dat": {
+    "original_sha256": "9f63921840d921a1a738a1ad74bd9549c3353cf41916a72fe6072ed8b7a23da4",
+    "public_sha256": "617e8b53d4894439e48e7bb50cb9aabaab48572f95883e51f00e501049a17d1a",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  },
+  "drell-yan-replica/run_card.dat": {
+    "original_sha256": "c526f0d088dce1c9d307e0cf9ef1ecc7d550ab4acfb4043f20bfcff7740d9453",
+    "public_sha256": "05424472580fbdf3156f6b1a137e33cc15c367670b252213e481133e9db32ca2",
+    "transformation": "trim whitespace and replace local home prefix in header paths; scientific tokens unchanged"
+  }
+}

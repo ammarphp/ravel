@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "generated_utc": "",
+  "approved_plan": "full",
+  "quote": "YES to the concrete supplied-card 100-event one-attempt plan under the authorized experimental policy; not expert review.",
+  "task_contract": "inputs/task_contract.json",
+  "checkin1": "inputs/checkin1.json",
+  "cost_preflight": "inputs/cost_preflight.json",
+  "generated_by": "workflow_state.py approve",
+  "input_fingerprint": "d0daf3bbd8b2feecda3c10e1734558b098b087a06568c38af6a78d85edd01835"
+}

@@ -1,0 +1,994 @@
+[
+  {
+    "label": "counting-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Compute a likelihood-only control from the explicit supplied model.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting"
+    ],
+    "returncode": 0,
+    "seconds": 0.1485313749872148,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting.json"
+    ],
+    "returncode": 0,
+    "seconds": 1.1046128330053762,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 4857ac6a622ef4f9f4c67ee8aa515672c20f955f985dfd88c3388cfab06af4e1"
+    ],
+    "returncode": 0,
+    "seconds": 0.3589476249762811,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting"
+    ],
+    "returncode": 0,
+    "seconds": 4.4745647920062765,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 0.48216758301714435,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 0.7586236250353977,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Compute a likelihood-only control from the explicit supplied model.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica"
+    ],
+    "returncode": 0,
+    "seconds": 0.11581933399429545,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica.json"
+    ],
+    "returncode": 0,
+    "seconds": 1.0835702499607578,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 7112114d8fb5774df353d3be13f8a6d89e63724b872995ba0ed6119233e8e0fd"
+    ],
+    "returncode": 0,
+    "seconds": 0.38820337504148483,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica"
+    ],
+    "returncode": 0,
+    "seconds": 4.257680666982196,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 0.48337816598359495,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "counting-replica-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 0.7535066249547526,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "same-likelihood",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/same-likelihood.json"
+    ],
+    "returncode": 0,
+    "seconds": 1.2965946250478737,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Compute a likelihood-only control from the explicit supplied model.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin"
+    ],
+    "returncode": 0,
+    "seconds": 0.11447545798728243,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin.json"
+    ],
+    "returncode": 0,
+    "seconds": 1.0769565419759601,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 26bc168d2259470d332766f195f3e3e0099b1b974809e8cd5c6f78910ab2d849"
+    ],
+    "returncode": 0,
+    "seconds": 0.32835174998035654,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin"
+    ],
+    "returncode": 0,
+    "seconds": 6.952237916004378,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 0.5050769580411725,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "two-bin-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 0.769159666961059,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-likelihood",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/two-bin",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-likelihood.json"
+    ],
+    "returncode": 1,
+    "seconds": 1.3643851659726351,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Compute a likelihood-only control from the explicit supplied model.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound"
+    ],
+    "returncode": 0,
+    "seconds": 0.12039358401671052,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound.json"
+    ],
+    "returncode": 0,
+    "seconds": 1.0703762500197627,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 48f7a88e7f72da4f60b85c334804efe50ac9683e68eefa9f26909bc11f9d8cf2"
+    ],
+    "returncode": 0,
+    "seconds": 0.5169603329850361,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound"
+    ],
+    "returncode": 1,
+    "seconds": 2.3968564170063473,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound",
+      "--write"
+    ],
+    "returncode": 1,
+    "seconds": 0.43356704199686646,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "unresolved-bound-retry-refused",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/unresolved-bound",
+      "--resume"
+    ],
+    "returncode": 2,
+    "seconds": 0.38279079197673127,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Generate a generation-only parton-level control using the explicit supplied specification.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan"
+    ],
+    "returncode": 0,
+    "seconds": 0.116061249980703,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan.json"
+    ],
+    "returncode": 0,
+    "seconds": 2.565255292051006,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 f91dc67866a9de5d1f07e6e56f93bf660dd3970935a5eac498627f98db78048e"
+    ],
+    "returncode": 0,
+    "seconds": 0.6654425830347463,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan"
+    ],
+    "returncode": 0,
+    "seconds": 22.333276957971975,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 2.3708227499737404,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 3.2080400830018334,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Generate a generation-only parton-level control using the explicit supplied specification.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica"
+    ],
+    "returncode": 0,
+    "seconds": 0.12789475003955886,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica.json"
+    ],
+    "returncode": 0,
+    "seconds": 2.2419373330194503,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 6cacdb15e70d241163ade4cdfc9a0ee28fb601ea54b4e1ab4a881fb215fcd24e"
+    ],
+    "returncode": 0,
+    "seconds": 0.6895870830048807,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica"
+    ],
+    "returncode": 0,
+    "seconds": 21.89220437500626,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 2.3446423749555834,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "drell-yan-replica-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 2.9324887500260957,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "same-physics-new-seed",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan-replica",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/same-physics-new-seed.json"
+    ],
+    "returncode": 0,
+    "seconds": 4.261878583987709,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Generate a generation-only parton-level control using the explicit supplied specification.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale"
+    ],
+    "returncode": 0,
+    "seconds": 0.11690870800521225,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale.json"
+    ],
+    "returncode": 0,
+    "seconds": 2.2097316249855794,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 8771cbdd88679079eb820750ebbf6d85a54a6391ceefb401cfade41b538290ac"
+    ],
+    "returncode": 0,
+    "seconds": 0.6744397500297055,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale"
+    ],
+    "returncode": 0,
+    "seconds": 22.090134791040327,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 2.3141419169842266,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "different-scale-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 2.990632082975935,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "scale-mismatch",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/different-scale",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/scale-mismatch.json"
+    ],
+    "returncode": 1,
+    "seconds": 4.190391292038839,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "dimuon-intake",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "initiate",
+      "--prompt",
+      "Generate a generation-only parton-level control using the explicit supplied specification.",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon"
+    ],
+    "returncode": 0,
+    "seconds": 0.11562383401906118,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "dimuon-plan",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "plan",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon",
+      "--spec",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon.json"
+    ],
+    "returncode": 0,
+    "seconds": 2.1544492910034023,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "dimuon-approve",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "approve",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon",
+      "--scripted",
+      "--quote",
+      "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 dda6af974d0db94ce1c7a9fb701676e51a397e7ef00d4b3ada688f9b4b1f22ff"
+    ],
+    "returncode": 0,
+    "seconds": 0.6570936660282314,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "dimuon-run",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon"
+    ],
+    "returncode": 0,
+    "seconds": 21.560853125003632,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "dimuon-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon",
+      "--write"
+    ],
+    "returncode": 0,
+    "seconds": 2.3186612499994226,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "dimuon-resume",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "run",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon",
+      "--resume"
+    ],
+    "returncode": 0,
+    "seconds": 2.8744034580304287,
+    "expected_success": true,
+    "passed": true
+  },
+  {
+    "label": "process-mismatch",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/drell-yan",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/dimuon",
+      "--out",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/process-mismatch.json"
+    ],
+    "returncode": 1,
+    "seconds": 4.156005249998998,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "tampered-status",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "status",
+      "--rundir",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica"
+    ],
+    "returncode": 1,
+    "seconds": 0.4830904580303468,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "tampered-comparison",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica"
+    ],
+    "returncode": 1,
+    "seconds": 1.3193042500060983,
+    "expected_success": false,
+    "passed": true
+  },
+  {
+    "label": "restored-comparison",
+    "command": [
+      "/private/tmp/ravel-cli-clean-env/bin/python",
+      "-B",
+      "-m",
+      "ravel",
+      "compare-recipes",
+      "--left",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting",
+      "--right",
+      "$DSRLAB_ROOT/ravel-development/local-runs/scoped-controls/2026-09-09-verified/counting-replica"
+    ],
+    "returncode": 0,
+    "seconds": 1.3326769580016844,
+    "expected_success": true,
+    "passed": true
+  }
+]

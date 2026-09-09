@@ -1,0 +1,5 @@
+{
+  "passed": false,
+  "type": "ValueError",
+  "error": "not all six CLs crossings resolved; numerical bounds retained, delivery incomplete"
+}

@@ -28,7 +28,7 @@ import warnings
 
 TASK_MODES = (
     "survey", "reproduce", "reinterpret", "projection", "scan",
-    "summary_plot", "anomaly_search", "no_routine", "unsupported",
+    "summary_plot", "anomaly_search", "no_routine", "generate", "likelihood", "unsupported",
 )
 DETECTOR_MODES = (
     "particle-level", "rivet-smearing", "simpleanalysis-delphes-native", "container",
@@ -38,11 +38,12 @@ DETECTOR_MODES = (
     # until per-SR acc*eff certification vs published anchors closes
     "delphes-custom-uncertified",
     "TBD-judgment",   # a weak model may leave the choice to the physicist/CHECK-IN 1
+    "parton-level", "none",
 )
 STAT_MODES = (  # canonical source: result_pack.py STAT_MODES + the routing placeholder
     "published-likelihood", "simplified-likelihood", "best-sr-counting", "combined-counting",
     "stability-only", "shape-fit", "blocked-shape-fit", "sensitivity-expected-only", "none-survey",
-    "TBD-judgment",
+    "TBD-judgment", "none-generation", "provided-likelihood",
 )
 COMPUTE_PLANS = ("none", "dry", "smoke", "full", "scan")
 
@@ -240,6 +241,10 @@ def _schema_errors(value, schema, path):
             errs.append(f"{path} must be >= {schema['minimum']}")
         if "exclusiveMinimum" in schema and value <= schema["exclusiveMinimum"]:
             errs.append(f"{path} must be > {schema['exclusiveMinimum']}")
+        if "maximum" in schema and value > schema["maximum"]:
+            errs.append(f"{path} must be <= {schema['maximum']}")
+        if "exclusiveMaximum" in schema and value >= schema["exclusiveMaximum"]:
+            errs.append(f"{path} must be < {schema['exclusiveMaximum']}")
     return errs
 
 
@@ -256,6 +261,15 @@ def validate(c, *, legacy=False):
     if errs:
         return errs  # malformed structures must never reach type-assuming cross-field logic
     tm, sm, cp = c["task_mode"], c["stat_mode"], c["compute_plan"]
+    if tm in ("generate", "likelihood"):
+        detector, statistic = (("parton-level", "none-generation") if tm == "generate"
+                               else ("none", "provided-likelihood"))
+        if c["detector_mode"] != detector or sm != statistic:
+            errs.append(f"{tm} requires detector_mode={detector} and stat_mode={statistic}")
+        if cp not in ("none", "full"):
+            errs.append(f"{tm} uses none for intake or full for its bounded scoped plan")
+        if cp == "full" and "execution_plan" not in c:
+            errs.append(f"{tm} compute requires a bound execution_plan")
     if "execution_plan" in c:
         path = c["execution_plan"]["path"]
         if path.startswith("/") or "\\" in path or any(p in ("", ".", "..") for p in path.split("/")):

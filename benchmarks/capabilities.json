@@ -1,6 +1,6 @@
 {
  "schema_version": 3,
- "updated": "2026-09-08",
+ "updated": "2026-09-09",
  "source": "docs/research/reviews/capability-census.md (C8) + CAPABILITY-ROADMAP.md section 1",
  "note": "Capability inventory, not a measured autonomous success rate. served requires the complete requested deliverable chain and a currently green evidence gate. partial is component coverage (0.5 inventory credit), never successful task delivery. refused and the legacy served-with-refusal spelling receive zero delivery credit: a justified refusal is still an unmet product request. Refusal validity and unsupported-claim avoidance are assessed separately. A missing, red, decision or deferred gate cannot establish complete delivery.",
  "prompts": {
@@ -194,5 +194,24 @@
    "wave": "C1 (CR-016, selftest + live-verified)",
    "gate": ""
   }
+ },
+ "scoped_workflows": {
+  "status": "implemented_bounded",
+  "note": "Separate from the historical prompt census and its denominator. Scripted experiment assent is not expert review; these controls are not RRR or detector certification.",
+  "modes": [
+   "generate",
+   "likelihood"
+  ],
+  "guide": "docs/workflow/reference/scoped-workflows.md",
+  "evidence": "evidence/audits/2026-09-09-scoped-workflows/verification.json",
+  "comparison": "verified executed recipe equivalence; external receipt import remains unimplemented",
+  "remaining_gaps": [
+   "NLO and signed or variable nominal weights",
+   "merging and shower/detector adapters within the scoped route",
+   "other PDF provisioning and lepton beams",
+   "arbitrary observables and spectrum generation",
+   "external-framework receipt import",
+   "RRR acceptance, shape and generator-cut closure"
+  ]
  }
 }

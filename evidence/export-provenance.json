@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "df858b23744a89ab209d305c1ff1308b52f3a2f4",
+  "source_commit": "89273dfc928917fa43c64d236666679ab3b5efcb",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -564,8 +564,8 @@
     {
       "source_path": ".agents/skills/physicist-intake/SKILL.md",
       "public_path": ".agents/skills/physicist-intake/SKILL.md",
-      "source_sha256": "e9f562784059f5aab5fcc8c6f782f247ce932f41791139900aa523b4a5d097d2",
-      "export_sha256": "e9f562784059f5aab5fcc8c6f782f247ce932f41791139900aa523b4a5d097d2"
+      "source_sha256": "067d5020992de68b2da5662d2806dae422c73fd245086346b1fcb5f7dd68292f",
+      "export_sha256": "067d5020992de68b2da5662d2806dae422c73fd245086346b1fcb5f7dd68292f"
     },
     {
       "source_path": ".agents/skills/postmortem-capture/SKILL.md",
@@ -678,8 +678,8 @@
     {
       "source_path": ".claude/hooks/userpromptsubmit-router.sh",
       "public_path": ".claude/hooks/userpromptsubmit-router.sh",
-      "source_sha256": "4f2645f899c4f76bc6386183d0f167f66e38e43ef35fa81223d96e29bd342e47",
-      "export_sha256": "4f2645f899c4f76bc6386183d0f167f66e38e43ef35fa81223d96e29bd342e47"
+      "source_sha256": "b3ecae1c8d9f246dc55e372c8827fe00788f6d7645f61410040376b2a0edec48",
+      "export_sha256": "b3ecae1c8d9f246dc55e372c8827fe00788f6d7645f61410040376b2a0edec48"
     },
     {
       "source_path": ".claude/rules/madgraph-pythia.md",
@@ -756,8 +756,8 @@
     {
       "source_path": ".claude/skills/physicist-intake/SKILL.md",
       "public_path": ".claude/skills/physicist-intake/SKILL.md",
-      "source_sha256": "e9f562784059f5aab5fcc8c6f782f247ce932f41791139900aa523b4a5d097d2",
-      "export_sha256": "e9f562784059f5aab5fcc8c6f782f247ce932f41791139900aa523b4a5d097d2"
+      "source_sha256": "067d5020992de68b2da5662d2806dae422c73fd245086346b1fcb5f7dd68292f",
+      "export_sha256": "067d5020992de68b2da5662d2806dae422c73fd245086346b1fcb5f7dd68292f"
     },
     {
       "source_path": ".claude/skills/postmortem-capture/SKILL.md",
@@ -822,8 +822,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "2fbad278be3d5af6c0853208af328eddf2698c1ed1e2b8b4db1c75830d08d020",
-      "export_sha256": "2fbad278be3d5af6c0853208af328eddf2698c1ed1e2b8b4db1c75830d08d020"
+      "source_sha256": "b2cb2ce11fb13a77221126467cb5ad7beae0701001331656b4893f788f5a20f3",
+      "export_sha256": "b2cb2ce11fb13a77221126467cb5ad7beae0701001331656b4893f788f5a20f3"
     },
     {
       "source_path": "CITATION.cff",
@@ -846,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "b975ffce9ce486d2f54445756a06753f9fcd6c2a2b2daa360c219a0b47a2df3f",
-      "export_sha256": "b5099f21de3d4012772e1f683c8096deb0934a5eb5197231ac7ed70c7a089ee6"
+      "source_sha256": "b3fe055b79529664d1a64d114593dd85c835a2b1529b311b817190f0174b90f1",
+      "export_sha256": "1edcb2615314f16d2b3ece24164e011b8c81c015a3504f37f3bcbc14ae5ca96b"
     },
     {
       "source_path": "LICENSE",
@@ -870,8 +870,8 @@
     {
       "source_path": "README.md",
       "public_path": "README.md",
-      "source_sha256": "c336a3ac22a5a3f9121b6df0a43f9bb19b6888786332c165adca7b1a468a4c78",
-      "export_sha256": "c336a3ac22a5a3f9121b6df0a43f9bb19b6888786332c165adca7b1a468a4c78"
+      "source_sha256": "fea5d539d03fb437a90756dd1c681ba3f5bf062bd028a4656ef1f5285e00139b",
+      "export_sha256": "fea5d539d03fb437a90756dd1c681ba3f5bf062bd028a4656ef1f5285e00139b"
     },
     {
       "source_path": "benchmarks/README.md",
@@ -882,8 +882,8 @@
     {
       "source_path": "benchmarks/capabilities.json",
       "public_path": "benchmarks/capabilities.json",
-      "source_sha256": "6722e51a8a5ea9f1e4d6e914925f72733bf4f371f409bce29dfb122f1aeb3d2c",
-      "export_sha256": "6722e51a8a5ea9f1e4d6e914925f72733bf4f371f409bce29dfb122f1aeb3d2c"
+      "source_sha256": "c68b8302a51707128ebcee84c33faa41242ba1e4268430419ff1aae85d8e16a1",
+      "export_sha256": "c68b8302a51707128ebcee84c33faa41242ba1e4268430419ff1aae85d8e16a1"
     },
     {
       "source_path": "benchmarks/cases.json",
@@ -940,6 +940,36 @@
       "export_sha256": "8af2a29d73ca7b39eb3e59e0f0e29c5fc11b8ba0e4ce51459ef093160c84c7cb"
     },
     {
+      "source_path": "benchmarks/scoped/README.md",
+      "public_path": "benchmarks/scoped/README.md",
+      "source_sha256": "063f22a4a657aa20c89e14b7e40ae0653c00f0652e210a548bd3696f4c585f7f",
+      "export_sha256": "063f22a4a657aa20c89e14b7e40ae0653c00f0652e210a548bd3696f4c585f7f"
+    },
+    {
+      "source_path": "benchmarks/scoped/atlas-2jl-counting.json",
+      "public_path": "benchmarks/scoped/atlas-2jl-counting.json",
+      "source_sha256": "58ae5a739d9d4801dfccb01b16fa5ff1e566be439d7181ed8fdf4442d433d209",
+      "export_sha256": "58ae5a739d9d4801dfccb01b16fa5ff1e566be439d7181ed8fdf4442d433d209"
+    },
+    {
+      "source_path": "benchmarks/scoped/changes/data-and-card-changes.md",
+      "public_path": "benchmarks/scoped/changes/data-and-card-changes.md",
+      "source_sha256": "72a2f4038b79011a8661fb4b466f4b273a0ba394c8d675af3e03ea93f2671d7f",
+      "export_sha256": "72a2f4038b79011a8661fb4b466f4b273a0ba394c8d675af3e03ea93f2671d7f"
+    },
+    {
+      "source_path": "benchmarks/scoped/drell-yan.json",
+      "public_path": "benchmarks/scoped/drell-yan.json",
+      "source_sha256": "6926edb84aec6252363829e3276ffc3e8c81a248a1e0a4db3697bac406ab8d64",
+      "export_sha256": "6926edb84aec6252363829e3276ffc3e8c81a248a1e0a4db3697bac406ab8d64"
+    },
+    {
+      "source_path": "benchmarks/scoped/run_controls.py",
+      "public_path": "benchmarks/scoped/run_controls.py",
+      "source_sha256": "8fdadb2181a7ae68a7613a9e71a8aa00eeabde8a5becd8f2d05849d9cf80c7e6",
+      "export_sha256": "8fdadb2181a7ae68a7613a9e71a8aa00eeabde8a5becd8f2d05849d9cf80c7e6"
+    },
+    {
       "source_path": "benchmarks/specs/cr004-rescan-full.json",
       "public_path": "benchmarks/specs/cr004-rescan-full.json",
       "source_sha256": "834873cd316ef5026fce5d54842c61bea3eca1273ed46e3727128d15197600a5",
@@ -978,8 +1008,8 @@
     {
       "source_path": "docs/cli.md",
       "public_path": "docs/cli.md",
-      "source_sha256": "d144994968e5c082ce39f2b6affcb587b1baa5b3ea7a9d46683228fc0d5fe28f",
-      "export_sha256": "d144994968e5c082ce39f2b6affcb587b1baa5b3ea7a9d46683228fc0d5fe28f"
+      "source_sha256": "f28b56f785e9c5b6b7b0c3652b2016a00098c3d3769aa722e49e3077c1eaaed3",
+      "export_sha256": "f28b56f785e9c5b6b7b0c3652b2016a00098c3d3769aa722e49e3077c1eaaed3"
     },
     {
       "source_path": "docs/development/README.md",
@@ -1194,8 +1224,8 @@
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "8ef19a1a97a690514724f04b4ee0cdba3205a6ed1d65b30ab0c99a9ed57b297e",
-      "export_sha256": "8ef19a1a97a690514724f04b4ee0cdba3205a6ed1d65b30ab0c99a9ed57b297e"
+      "source_sha256": "1005abd07f90639e2be3c0e4fb3a39f05f47ad6c318667f4ebfa9044e3e62d92",
+      "export_sha256": "1005abd07f90639e2be3c0e4fb3a39f05f47ad6c318667f4ebfa9044e3e62d92"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -1278,8 +1308,8 @@
     {
       "source_path": "docs/reference/scope.md",
       "public_path": "docs/reference/scope.md",
-      "source_sha256": "3e1510e84249808441a6e8e28acef010cec6a42e3e435264c2db694338e8e56a",
-      "export_sha256": "3e1510e84249808441a6e8e28acef010cec6a42e3e435264c2db694338e8e56a"
+      "source_sha256": "23def81b35eb75bcd983b7a9d40b7f5dd5a99e0bcfaccd51cf16f1ceb19acdd5",
+      "export_sha256": "23def81b35eb75bcd983b7a9d40b7f5dd5a99e0bcfaccd51cf16f1ceb19acdd5"
     },
     {
       "source_path": "docs/reference/task-contract.md",
@@ -1756,6 +1786,12 @@
       "export_sha256": "8e32019475dfb06fb26658850c90d118436e58c8d93939c7c5521683c10af9bd"
     },
     {
+      "source_path": "docs/workflow/reference/scoped-workflows.md",
+      "public_path": "docs/workflow/reference/scoped-workflows.md",
+      "source_sha256": "3147f2e9639429e46af3ab392e89dd15a1aaade2e6fb221ea0d9026b8268370f",
+      "export_sha256": "3147f2e9639429e46af3ab392e89dd15a1aaade2e6fb221ea0d9026b8268370f"
+    },
+    {
       "source_path": "docs/workflow/reference/shower-config-template.cfg",
       "public_path": "docs/workflow/reference/shower-config-template.cfg",
       "source_sha256": "d95c76ef9cb45b64baf7de885ebb079306aac11d7c509589bed8a94856274603",
@@ -1776,8 +1812,8 @@
     {
       "source_path": "docs/workflow/start.md",
       "public_path": "docs/workflow/start.md",
-      "source_sha256": "76002922e41571209660c1a8bc4a8416c7218d64e8b13569b4414f83743f9062",
-      "export_sha256": "76002922e41571209660c1a8bc4a8416c7218d64e8b13569b4414f83743f9062"
+      "source_sha256": "8c82d08d5a98be2e7173f1c7e2e32ae1e869fb3ed0e69c5834161bbab064560d",
+      "export_sha256": "8c82d08d5a98be2e7173f1c7e2e32ae1e869fb3ed0e69c5834161bbab064560d"
     },
     {
       "source_path": "docs/workflow/steps/01-environment.md",
@@ -1838,6 +1874,12 @@
       "public_path": "environment/README.md",
       "source_sha256": "6f34b291cd2f99ee0d0242e64babc355879338df8b667d906a167df8dfa7ae81",
       "export_sha256": "6f34b291cd2f99ee0d0242e64babc355879338df8b667d906a167df8dfa7ae81"
+    },
+    {
+      "source_path": "environment/changes/environment-changes.md",
+      "public_path": "environment/changes/environment-changes.md",
+      "source_sha256": "978814676bd96f9f1c6a91f46145cee62b40d82c47dce8a6e038000319402a90",
+      "export_sha256": "978814676bd96f9f1c6a91f46145cee62b40d82c47dce8a6e038000319402a90"
     },
     {
       "source_path": "environment/scripts/00-install-miniforge.sh",
@@ -3802,6 +3844,792 @@
       "export_sha256": "fb63dcd12564184873d1ec4e56d409cea3856033d9c42320f7cb850c751c2525"
     },
     {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/README.md",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/README.md",
+      "source_sha256": "52b3822a4696b18357557a602c21fc30f2f458ae4ae534401e7844f08b212eb7",
+      "export_sha256": "52b3822a4696b18357557a602c21fc30f2f458ae4ae534401e7844f08b212eb7"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/card-projection.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/card-projection.json",
+      "source_sha256": "14f12cc9c7c47b0a19a54e043e7e24cc95534d45f8f4527967138d19be4a7d6b",
+      "export_sha256": "14f12cc9c7c47b0a19a54e043e7e24cc95534d45f8f4527967138d19be4a7d6b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/commands.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/commands.json",
+      "source_sha256": "e188f429648dd591e4bb4d7e875e760977f07c8d6f52a560d5511436bc9c2eca",
+      "export_sha256": "4f96189df0f2de5007e93157719ec8a39454a5d4f1b8aabfe450673e2339497d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/approval.json",
+      "source_sha256": "1ac343143f84973d46e51c7d8947c58ddcb05e087cb18554211032098763e18f",
+      "export_sha256": "1ac343143f84973d46e51c7d8947c58ddcb05e087cb18554211032098763e18f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/attempt.json",
+      "source_sha256": "dccb22a1bc3291e3d9b2f2607f01675e175396b713d08735d83c1e691fad2cdc",
+      "export_sha256": "dccb22a1bc3291e3d9b2f2607f01675e175396b713d08735d83c1e691fad2cdc"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/execution-summary.json",
+      "source_sha256": "cf3fe5841600877d02701df45dc1ee3eec52ce42334138a9a0ba4eb3b0979021",
+      "export_sha256": "cf3fe5841600877d02701df45dc1ee3eec52ce42334138a9a0ba4eb3b0979021"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.json",
+      "source_sha256": "07b2d6db90525a483af588f0eb8182709daaab44b9d32d219a781fe4bc37f8ff",
+      "export_sha256": "07b2d6db90525a483af588f0eb8182709daaab44b9d32d219a781fe4bc37f8ff"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.pdf",
+      "source_sha256": "36b71af6d85b2501278ee49d8be697ab36adecee6fa6f97ec7d52ddfe61dde40",
+      "export_sha256": "36b71af6d85b2501278ee49d8be697ab36adecee6fa6f97ec7d52ddfe61dde40"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/figure.png",
+      "source_sha256": "1ef7b809b154d91561f0da38d1221b48060311ea8644e43f1fb070932699d8fd",
+      "export_sha256": "1ef7b809b154d91561f0da38d1221b48060311ea8644e43f1fb070932699d8fd"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/fit-diagnostics.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/fit-diagnostics.json",
+      "source_sha256": "998a8494a1aad96d7eb50f6b1c368150336ae445638571b671cac8b956a2c6f3",
+      "export_sha256": "998a8494a1aad96d7eb50f6b1c368150336ae445638571b671cac8b956a2c6f3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/recipe.json",
+      "source_sha256": "22ebb35775271ba813450dcb58dc751ac0660ff2cf482ab461be9e929f7a351a",
+      "export_sha256": "22ebb35775271ba813450dcb58dc751ac0660ff2cf482ab461be9e929f7a351a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/result.json",
+      "source_sha256": "1a582b301a537d16828905b601a8ae51438f1cdc10d50cbaa3e9894184bc54e8",
+      "export_sha256": "1a582b301a537d16828905b601a8ae51438f1cdc10d50cbaa3e9894184bc54e8"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/spec.json",
+      "source_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e",
+      "export_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/verification.json",
+      "source_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351",
+      "export_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/workspace.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting-replica/workspace.json",
+      "source_sha256": "373d2ceafc39455b1101a9ba2b02a46eec44645421adc3cb00e03e3d5cc7aca5",
+      "export_sha256": "373d2ceafc39455b1101a9ba2b02a46eec44645421adc3cb00e03e3d5cc7aca5"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/approval.json",
+      "source_sha256": "eeb295d3f5b0f31dd70e95037865530539e1e6d33f4211e9288567443268983e",
+      "export_sha256": "eeb295d3f5b0f31dd70e95037865530539e1e6d33f4211e9288567443268983e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/attempt.json",
+      "source_sha256": "dab55be7766aa44cf7d2893d3073171f818d021b9a7199e0c0d260d33eb369a9",
+      "export_sha256": "dab55be7766aa44cf7d2893d3073171f818d021b9a7199e0c0d260d33eb369a9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/execution-summary.json",
+      "source_sha256": "eb6cc4f0d0b0986be507ab5c672de7fbdec6ae02fd3370f7d1c2364f1ba2e79a",
+      "export_sha256": "eb6cc4f0d0b0986be507ab5c672de7fbdec6ae02fd3370f7d1c2364f1ba2e79a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.json",
+      "source_sha256": "07b2d6db90525a483af588f0eb8182709daaab44b9d32d219a781fe4bc37f8ff",
+      "export_sha256": "07b2d6db90525a483af588f0eb8182709daaab44b9d32d219a781fe4bc37f8ff"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.pdf",
+      "source_sha256": "218f3a9c2817c71d074d696eef18d2fb6be54ad24495494971b6647b7abc5b8f",
+      "export_sha256": "218f3a9c2817c71d074d696eef18d2fb6be54ad24495494971b6647b7abc5b8f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/figure.png",
+      "source_sha256": "1ef7b809b154d91561f0da38d1221b48060311ea8644e43f1fb070932699d8fd",
+      "export_sha256": "1ef7b809b154d91561f0da38d1221b48060311ea8644e43f1fb070932699d8fd"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/fit-diagnostics.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/fit-diagnostics.json",
+      "source_sha256": "a1df8d942e29a3ea416f462a095fe4ebc4105dd0cdfd67c3096fd9cc241cbb0e",
+      "export_sha256": "a1df8d942e29a3ea416f462a095fe4ebc4105dd0cdfd67c3096fd9cc241cbb0e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/recipe.json",
+      "source_sha256": "22ebb35775271ba813450dcb58dc751ac0660ff2cf482ab461be9e929f7a351a",
+      "export_sha256": "22ebb35775271ba813450dcb58dc751ac0660ff2cf482ab461be9e929f7a351a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/result.json",
+      "source_sha256": "1a582b301a537d16828905b601a8ae51438f1cdc10d50cbaa3e9894184bc54e8",
+      "export_sha256": "1a582b301a537d16828905b601a8ae51438f1cdc10d50cbaa3e9894184bc54e8"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/spec.json",
+      "source_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e",
+      "export_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/verification.json",
+      "source_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351",
+      "export_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/counting/workspace.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/counting/workspace.json",
+      "source_sha256": "373d2ceafc39455b1101a9ba2b02a46eec44645421adc3cb00e03e3d5cc7aca5",
+      "export_sha256": "373d2ceafc39455b1101a9ba2b02a46eec44645421adc3cb00e03e3d5cc7aca5"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-likelihood.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-likelihood.json",
+      "source_sha256": "bd387a07b68f8d37dd734753ac8745d79e87d702c88a4f1ade7bf2b0dfc61542",
+      "export_sha256": "90a8620e6a37814469988383f3fcb20cb37501904ce643bcfd893acec6edb0c3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/approval.json",
+      "source_sha256": "0e84d4f397aae603b8f4687769961d19d7f451f23b4cfa18495c42d4c117dc0f",
+      "export_sha256": "0e84d4f397aae603b8f4687769961d19d7f451f23b4cfa18495c42d4c117dc0f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/attempt.json",
+      "source_sha256": "af946f50d7b325da0b16af1239e7baa9d3075f7bab1eef27b8cb9abeb9c6c5e1",
+      "export_sha256": "af946f50d7b325da0b16af1239e7baa9d3075f7bab1eef27b8cb9abeb9c6c5e1"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/events.lhe.gz",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/events.lhe.gz",
+      "source_sha256": "7797070149ee53539003412a1bead320112ccc44dcf2922d85122ca86a939c13",
+      "export_sha256": "7797070149ee53539003412a1bead320112ccc44dcf2922d85122ca86a939c13"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/execution-summary.json",
+      "source_sha256": "94eee811d61d4a2ed3e4cfce656393bc1d29346d8ae252e6bbe959708270b2b1",
+      "export_sha256": "94eee811d61d4a2ed3e4cfce656393bc1d29346d8ae252e6bbe959708270b2b1"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.json",
+      "source_sha256": "d0d47206a56df451b707fc0334f1f729c45fcf8ed33663d1e3021f67147af630",
+      "export_sha256": "d0d47206a56df451b707fc0334f1f729c45fcf8ed33663d1e3021f67147af630"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.pdf",
+      "source_sha256": "5b1ae42e444c14a915def3f6a8ab8c12dad634758246d25b56d80a75a254a799",
+      "export_sha256": "5b1ae42e444c14a915def3f6a8ab8c12dad634758246d25b56d80a75a254a799"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/figure.png",
+      "source_sha256": "370a0ea3ddb7db9aec5fdc44d9f2949787ff149e3e0377bffd3d72c19ede0f42",
+      "export_sha256": "370a0ea3ddb7db9aec5fdc44d9f2949787ff149e3e0377bffd3d72c19ede0f42"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/param_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/param_card.dat",
+      "source_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+      "export_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/proc_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/proc_card.dat",
+      "source_sha256": "d170103ce433473749586665bfc3669c950682c36c1cb3b7a4b48d056c73fa7f",
+      "export_sha256": "d170103ce433473749586665bfc3669c950682c36c1cb3b7a4b48d056c73fa7f"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/recipe.json",
+      "source_sha256": "4c32cb1607e16cb22be761f45ede934c193ac78cf7a4acbd3fbf9a89b84fc8c9",
+      "export_sha256": "4c32cb1607e16cb22be761f45ede934c193ac78cf7a4acbd3fbf9a89b84fc8c9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/result.json",
+      "source_sha256": "433fbd491bbcba078d2904fe435ff592b6129b6dc18b532e58a1e012edb4bcb8",
+      "export_sha256": "433fbd491bbcba078d2904fe435ff592b6129b6dc18b532e58a1e012edb4bcb8"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/run_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/run_card.dat",
+      "source_sha256": "a728a188e3400295843c909f1de5a67465300562c8df7f552233423a27ae83ca",
+      "export_sha256": "a728a188e3400295843c909f1de5a67465300562c8df7f552233423a27ae83ca"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/spec.json",
+      "source_sha256": "5d13d971a2145fefa83e6390cf2ab6e6b6a1a89c44ad46ca86d0eeebbf835ae3",
+      "export_sha256": "09e0ac1c9ee57b5fac2e81a00d305d05bbeec74fa8bada0b9868a2f62d5a9f72"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/different-scale/verification.json",
+      "source_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b",
+      "export_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/approval.json",
+      "source_sha256": "d595ce240d2e07d064e3806876fd059381de2cda3330311fc7433a1509514255",
+      "export_sha256": "d595ce240d2e07d064e3806876fd059381de2cda3330311fc7433a1509514255"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/attempt.json",
+      "source_sha256": "298f3919e4364f921a226899a88e4b7eda0d41771e80e612b5efc99965acd2a9",
+      "export_sha256": "298f3919e4364f921a226899a88e4b7eda0d41771e80e612b5efc99965acd2a9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/events.lhe.gz",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/events.lhe.gz",
+      "source_sha256": "ced1abc79bf7966d4401692facc3b678b0b6aaeaced74ed565e297b808e965e9",
+      "export_sha256": "ced1abc79bf7966d4401692facc3b678b0b6aaeaced74ed565e297b808e965e9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/execution-summary.json",
+      "source_sha256": "f25c45c9b45d6da81f7e70cc6ca9bc3b0eb051b944c71b019a3dccdcd093c442",
+      "export_sha256": "f25c45c9b45d6da81f7e70cc6ca9bc3b0eb051b944c71b019a3dccdcd093c442"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.json",
+      "source_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b",
+      "export_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.pdf",
+      "source_sha256": "45fa8a8b6343d78ba0f236faa91c23e21def92bee8b16678bb7ff9baa289bb35",
+      "export_sha256": "45fa8a8b6343d78ba0f236faa91c23e21def92bee8b16678bb7ff9baa289bb35"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/figure.png",
+      "source_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a",
+      "export_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/param_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/param_card.dat",
+      "source_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+      "export_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/proc_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/proc_card.dat",
+      "source_sha256": "e5bda62fc422c653537a1f6e8b574151b9bc90e1059a08381e6d525206037aac",
+      "export_sha256": "e5bda62fc422c653537a1f6e8b574151b9bc90e1059a08381e6d525206037aac"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/recipe.json",
+      "source_sha256": "4e8e598233e7bd0513803a06bf80578537e6680d7f9152df4ea5155c24f0ee91",
+      "export_sha256": "4e8e598233e7bd0513803a06bf80578537e6680d7f9152df4ea5155c24f0ee91"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/result.json",
+      "source_sha256": "bfd3df7d0616bde3447735e013652f691fd186fdfc2ea1037f142b04cd4ec258",
+      "export_sha256": "bfd3df7d0616bde3447735e013652f691fd186fdfc2ea1037f142b04cd4ec258"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/run_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/run_card.dat",
+      "source_sha256": "b1c479b89311bf811e43cdd60ae22a0b92e0e68f03518effaf1dfb3e7fdac7d2",
+      "export_sha256": "b1c479b89311bf811e43cdd60ae22a0b92e0e68f03518effaf1dfb3e7fdac7d2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/spec.json",
+      "source_sha256": "0170b8105518224ebfb6cb30ca3c4a2a3d105c7878914add274b9c4791a6d6f3",
+      "export_sha256": "d30ab66c6a2dea60a716e48e5b8205535c1346915f307b2e00b837c69feafd2b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/dimuon/verification.json",
+      "source_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b",
+      "export_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/approval.json",
+      "source_sha256": "1d3ecdb4b3f32ef3b649bfb785fb2e0b87ce43deb195b6f9eb639afdb7cd8ec4",
+      "export_sha256": "1d3ecdb4b3f32ef3b649bfb785fb2e0b87ce43deb195b6f9eb639afdb7cd8ec4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/attempt.json",
+      "source_sha256": "b0c1af17c6cf3b52366772c4fa7e70a32f34f200edad82907e3fa1be5141d04d",
+      "export_sha256": "b0c1af17c6cf3b52366772c4fa7e70a32f34f200edad82907e3fa1be5141d04d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/events.lhe.gz",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/events.lhe.gz",
+      "source_sha256": "c8c7330fa387e5b4c864c771b6374fcbad9dbea6cffb6f104ad9275ffff4109a",
+      "export_sha256": "c8c7330fa387e5b4c864c771b6374fcbad9dbea6cffb6f104ad9275ffff4109a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/execution-summary.json",
+      "source_sha256": "11e5365ef2754fe29f6bb404646801108622cc6833ca396488427a01ef0e0432",
+      "export_sha256": "11e5365ef2754fe29f6bb404646801108622cc6833ca396488427a01ef0e0432"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.json",
+      "source_sha256": "5d531e2bcd1e300ecb0d89537ca0bbc1b66f901825256362b3dbb29f5efada6d",
+      "export_sha256": "5d531e2bcd1e300ecb0d89537ca0bbc1b66f901825256362b3dbb29f5efada6d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.pdf",
+      "source_sha256": "12fc75822bb327fc272a38bcc20f56b8470f8cf620375e495208a27bbb1a4205",
+      "export_sha256": "12fc75822bb327fc272a38bcc20f56b8470f8cf620375e495208a27bbb1a4205"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/figure.png",
+      "source_sha256": "e75851964cdd83b32f7effa46bdd231cfde7bcc61e7af44c1ab6a09809fcbe85",
+      "export_sha256": "e75851964cdd83b32f7effa46bdd231cfde7bcc61e7af44c1ab6a09809fcbe85"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/param_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/param_card.dat",
+      "source_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+      "export_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/proc_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/proc_card.dat",
+      "source_sha256": "617e8b53d4894439e48e7bb50cb9aabaab48572f95883e51f00e501049a17d1a",
+      "export_sha256": "617e8b53d4894439e48e7bb50cb9aabaab48572f95883e51f00e501049a17d1a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/recipe.json",
+      "source_sha256": "439390637971fae1da0b226e534ad234fb5983a08950d86667ee019de60e3370",
+      "export_sha256": "439390637971fae1da0b226e534ad234fb5983a08950d86667ee019de60e3370"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/result.json",
+      "source_sha256": "544682fac5772b2f732e19b333813f83352aac455a0f48a1dbb899754e93c4ff",
+      "export_sha256": "544682fac5772b2f732e19b333813f83352aac455a0f48a1dbb899754e93c4ff"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/run_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/run_card.dat",
+      "source_sha256": "05424472580fbdf3156f6b1a137e33cc15c367670b252213e481133e9db32ca2",
+      "export_sha256": "05424472580fbdf3156f6b1a137e33cc15c367670b252213e481133e9db32ca2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/spec.json",
+      "source_sha256": "18d32024595feb7662a54e903dbdda0e16ab72d9a1889db5be7fa44f5a6aa5fa",
+      "export_sha256": "c8a63eaa3a54b44ee72a986bb9357847677925cc13b9c668b142adb35f016da0"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/verification.json",
+      "source_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b",
+      "export_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/approval.json",
+      "source_sha256": "60510357dd179433542a9f9a9f48ac1072a3f4205b472adde2f8fd536adf9c10",
+      "export_sha256": "60510357dd179433542a9f9a9f48ac1072a3f4205b472adde2f8fd536adf9c10"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/attempt.json",
+      "source_sha256": "2463d74b0be1b56e85de579274f7a60758a9d5291e04654ecaba87217ed75136",
+      "export_sha256": "2463d74b0be1b56e85de579274f7a60758a9d5291e04654ecaba87217ed75136"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/events.lhe.gz",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/events.lhe.gz",
+      "source_sha256": "875f06a5e8752ae754dddb7765ba980009ab61388ea14f653f43a07fa8519276",
+      "export_sha256": "875f06a5e8752ae754dddb7765ba980009ab61388ea14f653f43a07fa8519276"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/execution-summary.json",
+      "source_sha256": "3bd9b2ee1680d427ad425291c799be000a329e7e8fe6be2ac09797ce53c2dca9",
+      "export_sha256": "3bd9b2ee1680d427ad425291c799be000a329e7e8fe6be2ac09797ce53c2dca9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.json",
+      "source_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b",
+      "export_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.pdf",
+      "source_sha256": "6ac3560e12af215dfeee42fa4ce662da212b5002140cedb042723e0ba0b1ae68",
+      "export_sha256": "6ac3560e12af215dfeee42fa4ce662da212b5002140cedb042723e0ba0b1ae68"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/figure.png",
+      "source_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a",
+      "export_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/param_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/param_card.dat",
+      "source_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+      "export_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/proc_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/proc_card.dat",
+      "source_sha256": "0c18cb3526019f846a7f39ad1395b516cec8ac8d073bb160f87327f6f6ca8ba4",
+      "export_sha256": "0c18cb3526019f846a7f39ad1395b516cec8ac8d073bb160f87327f6f6ca8ba4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/recipe.json",
+      "source_sha256": "8e3b52d07264fc395d12942f40838b55a80aa385dc62c5d141bb70b40c41c5fb",
+      "export_sha256": "8e3b52d07264fc395d12942f40838b55a80aa385dc62c5d141bb70b40c41c5fb"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/result.json",
+      "source_sha256": "186a8824f9f0ade7dcc88053258588cc9293e914392fc7806307236d8fbd2513",
+      "export_sha256": "186a8824f9f0ade7dcc88053258588cc9293e914392fc7806307236d8fbd2513"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/run_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/run_card.dat",
+      "source_sha256": "177c32f6a4ed9cc3a3a5abf4c1f9c2d23c25df12d7dbc5ca1bd48c26363b8512",
+      "export_sha256": "177c32f6a4ed9cc3a3a5abf4c1f9c2d23c25df12d7dbc5ca1bd48c26363b8512"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/spec.json",
+      "source_sha256": "f7534db5010a4104e7d94a55052b666dc58fc1763c926809642803001a0bd8f6",
+      "export_sha256": "65615d71e7e98f04f55e35889dddcc142e5aea15195d7cd58eb2299746ad92e4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/verification.json",
+      "source_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b",
+      "export_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/event-projection.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/event-projection.json",
+      "source_sha256": "57a5c642ead6d5b56d150ef07adce5b75f7d501fd21364207328771526cff783",
+      "export_sha256": "57a5c642ead6d5b56d150ef07adce5b75f7d501fd21364207328771526cff783"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/independent-verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/independent-verification.json",
+      "source_sha256": "cb719c6f934e55ebd24dfc8281a1b7c2c8ca1375af613cadeb559414ea414909",
+      "export_sha256": "cb719c6f934e55ebd24dfc8281a1b7c2c8ca1375af613cadeb559414ea414909"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/initial-wheel-failure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/initial-wheel-failure.json",
+      "source_sha256": "0b125aa1dbf18af0eed116ed85d89c603ecd11bbea48c1de8de831f1000eeffc",
+      "export_sha256": "0b125aa1dbf18af0eed116ed85d89c603ecd11bbea48c1de8de831f1000eeffc"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/initial-wheel-failure.log",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/initial-wheel-failure.log",
+      "source_sha256": "4b6f5cef4c0f12a1f978273d2ede0d04aa2f3acc29ffa29a8e3b94fe94427a9a",
+      "export_sha256": "4b6f5cef4c0f12a1f978273d2ede0d04aa2f3acc29ffa29a8e3b94fe94427a9a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json",
+      "source_sha256": "631c889caa3a0708e2ca738ace97590551a34184cc55eb0bbfaa0e8425ac85da",
+      "export_sha256": "631c889caa3a0708e2ca738ace97590551a34184cc55eb0bbfaa0e8425ac85da"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/process-mismatch.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/process-mismatch.json",
+      "source_sha256": "f336564cf4f23d697117ac0e980f5c50cacd17ddee7825a5f06f2a31c9e320da",
+      "export_sha256": "ab0b73ee64a82d380ed6655ad533222617cfe674f4371d792c8db46ae7dc1061"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/same-likelihood.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/same-likelihood.json",
+      "source_sha256": "7a0a0ce59d003616da7c274a95287856ac4ce65cb6faf4abb7a6fa74ca75d383",
+      "export_sha256": "24f9d588e60d5328cc627c4d19d0b1bbf8fb43d3d54ad97f5f8ba535a24943e3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/same-physics-new-seed.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/same-physics-new-seed.json",
+      "source_sha256": "221ae4ea1205d45b39dae30d15f7d6f3bec72f9c41a6b54eea2aa633868e4cc3",
+      "export_sha256": "5565a2e5542d7cd9e0b6c92e1563924b7d156414acd23cb7de2b8eda98187eac"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/scale-mismatch.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/scale-mismatch.json",
+      "source_sha256": "b2d3d24c51907e7fcfa48f222f364438acfe76f00c8307b40693d991eea76d32",
+      "export_sha256": "db3cc153404d50bf89af8dadd0ca80ad27d747a8488e196f93d3ecd602141ccd"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/summary.json",
+      "source_sha256": "8c2586ecda1fcec0370b2497e0f58357c691ef8a94dcfd06424d52f21dec6d61",
+      "export_sha256": "8c2586ecda1fcec0370b2497e0f58357c691ef8a94dcfd06424d52f21dec6d61"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card-comparison.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card-comparison.json",
+      "source_sha256": "9e532a3898418d35bcab74cd81740747373bfdfcd7e4c0fea9130a20214c5900",
+      "export_sha256": "4d8dad15ec267bbe9afca15b0aa21a13aba1de4c09b1a0648be739aee9a3e3a7"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/approval.json",
+      "source_sha256": "3ddbfd04e76245432d11c66e7a112905ff0546579032d16ac333df18dc4846c3",
+      "export_sha256": "3ddbfd04e76245432d11c66e7a112905ff0546579032d16ac333df18dc4846c3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/attempt.json",
+      "source_sha256": "ef25e815d36b1847e13205bba568cb817651e3b0a1fe4149fbe0a41ca81ed312",
+      "export_sha256": "ef25e815d36b1847e13205bba568cb817651e3b0a1fe4149fbe0a41ca81ed312"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/events.lhe.gz",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/events.lhe.gz",
+      "source_sha256": "14db841958f796e31c57972cabbdc76e00bdc41351963c3b108a4776efdbfa8a",
+      "export_sha256": "14db841958f796e31c57972cabbdc76e00bdc41351963c3b108a4776efdbfa8a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/execution-summary.json",
+      "source_sha256": "98b0b3a9f788c83726b44fbdd23d7c420ee9fe94bb5f7a5924ece94da9769ff4",
+      "export_sha256": "98b0b3a9f788c83726b44fbdd23d7c420ee9fe94bb5f7a5924ece94da9769ff4"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.json",
+      "source_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b",
+      "export_sha256": "ba3805bb12cc8a78796d0bffa80f8afc6e97c70195c91f7b1d4ef5cb75bc034b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.pdf",
+      "source_sha256": "bb9a77f11a364e7c809d8649fc8fb957b2117ec4264fab829c9fa79d486221af",
+      "export_sha256": "bb9a77f11a364e7c809d8649fc8fb957b2117ec4264fab829c9fa79d486221af"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/figure.png",
+      "source_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a",
+      "export_sha256": "1ef144acc1d9faaf2ffe0e4064e985530a31355392724d5b1f5a405347c3d65a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/param_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/param_card.dat",
+      "source_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c",
+      "export_sha256": "c2c3237f21ff5f5bc9e66d2fc89ccc9bd5d516fd5f70d476d29db205d3b7b90c"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/proc_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/proc_card.dat",
+      "source_sha256": "287b8653d4fedfc3f74bde4c146df1b32a058c4d3790bed2b1d9731948622b75",
+      "export_sha256": "287b8653d4fedfc3f74bde4c146df1b32a058c4d3790bed2b1d9731948622b75"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/recipe.json",
+      "source_sha256": "5776706d94a5ff815678017098182b0201cd217f520fa8d69932ec47f44c9b89",
+      "export_sha256": "5776706d94a5ff815678017098182b0201cd217f520fa8d69932ec47f44c9b89"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/result.json",
+      "source_sha256": "c4a14e37db6b94b15e737e50778d793b5de74ba4b8ff6de5c7192831de7a7cf9",
+      "export_sha256": "c4a14e37db6b94b15e737e50778d793b5de74ba4b8ff6de5c7192831de7a7cf9"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/run_card.dat",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/run_card.dat",
+      "source_sha256": "25df80e7acec04396ad891293c6057f02bd5949b7af80d782644f7b8cbf9bbb0",
+      "export_sha256": "25df80e7acec04396ad891293c6057f02bd5949b7af80d782644f7b8cbf9bbb0"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/spec.json",
+      "source_sha256": "efc9af5c11d182ae2f1ea2ebbb38f4c901ca2ca8ec35b6c855968e4261261565",
+      "export_sha256": "4a61e9efdd2dbc1a9cd53f95fc59b4726d7fc6de743745d0bb08431fc77c265e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/supplied-card/verification.json",
+      "source_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b",
+      "export_sha256": "2a8650440131e50d0a4ca82c0752cbaba6b0f8045142f1a3af87a8733d839e9b"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/approval.json",
+      "source_sha256": "5851d2e789cc797ef5d13a4d3cbd9215b2750634f926cc055b79543ff38d49fa",
+      "export_sha256": "5851d2e789cc797ef5d13a4d3cbd9215b2750634f926cc055b79543ff38d49fa"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/attempt.json",
+      "source_sha256": "22e40f2467c87eac5ffe83466a6b2d148cdda29e427966ca1fe56eb918ebb265",
+      "export_sha256": "22e40f2467c87eac5ffe83466a6b2d148cdda29e427966ca1fe56eb918ebb265"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/execution-summary.json",
+      "source_sha256": "e14a25301f897eb85c0a61a7c38bb3d78bf178562e42f7d64ca8f055194961fe",
+      "export_sha256": "e14a25301f897eb85c0a61a7c38bb3d78bf178562e42f7d64ca8f055194961fe"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.json",
+      "source_sha256": "2628ed9a32034f6cce914572c861af333de999f70aa423af09951616344b9110",
+      "export_sha256": "2628ed9a32034f6cce914572c861af333de999f70aa423af09951616344b9110"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.pdf",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.pdf",
+      "source_sha256": "7f128b9a887ad51dfdf0da207726c902822a7e172e3d3520e13061c3b101d1d5",
+      "export_sha256": "7f128b9a887ad51dfdf0da207726c902822a7e172e3d3520e13061c3b101d1d5"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.png",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/figure.png",
+      "source_sha256": "f66afbf5b43550d1d1bfd5f4bc21e42161001946168b17886ebac262acc6eb98",
+      "export_sha256": "f66afbf5b43550d1d1bfd5f4bc21e42161001946168b17886ebac262acc6eb98"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/fit-diagnostics.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/fit-diagnostics.json",
+      "source_sha256": "9af26f5a6c505533cc10090e862acdfc91c16cc92e5fba835103dd1499606d6d",
+      "export_sha256": "9af26f5a6c505533cc10090e862acdfc91c16cc92e5fba835103dd1499606d6d"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/recipe.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/recipe.json",
+      "source_sha256": "df06ad9a042e5907a9b5cd08e51e12fe9e0a03a1b6bd2c4903d290866235c69e",
+      "export_sha256": "df06ad9a042e5907a9b5cd08e51e12fe9e0a03a1b6bd2c4903d290866235c69e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/result.json",
+      "source_sha256": "0c641288ad7aad0a8392738479aa8d206e637d49699b7dca7f458da1000148a7",
+      "export_sha256": "0c641288ad7aad0a8392738479aa8d206e637d49699b7dca7f458da1000148a7"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/spec.json",
+      "source_sha256": "875c208b85d34cb3b5dce13ab6dad7f41247ad7077d4e7c76bb60277fb9f2064",
+      "export_sha256": "875c208b85d34cb3b5dce13ab6dad7f41247ad7077d4e7c76bb60277fb9f2064"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/verification.json",
+      "source_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351",
+      "export_sha256": "22d151a8ff03be7494c87f611b486275ffa28b23bd04b57a10b66a90f3969351"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/workspace.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/two-bin/workspace.json",
+      "source_sha256": "cbda39593dda7ffbe7f6f4ccf8e2f49f34715458c7a2a43d19a1731d83c85b35",
+      "export_sha256": "cbda39593dda7ffbe7f6f4ccf8e2f49f34715458c7a2a43d19a1731d83c85b35"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/approval.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/approval.json",
+      "source_sha256": "807611259db30b7160e6d903e98ac19469318e47b61322c57379fcd5fe680c68",
+      "export_sha256": "807611259db30b7160e6d903e98ac19469318e47b61322c57379fcd5fe680c68"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/attempt.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/attempt.json",
+      "source_sha256": "d24c1d7c85b79f9ab2078dd1778413787bdae721df43c764eaad4d035741dbb2",
+      "export_sha256": "d24c1d7c85b79f9ab2078dd1778413787bdae721df43c764eaad4d035741dbb2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/execution-summary.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/execution-summary.json",
+      "source_sha256": "984ae2d16c62388aff44090c0bce44997c2b36095cf06ce750d91bea1edcc931",
+      "export_sha256": "984ae2d16c62388aff44090c0bce44997c2b36095cf06ce750d91bea1edcc931"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/failure.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/failure.json",
+      "source_sha256": "a6b1b727750a101693223be439a06d537a2b11543bc201d84e7a6e234677d21e",
+      "export_sha256": "a6b1b727750a101693223be439a06d537a2b11543bc201d84e7a6e234677d21e"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/fit-diagnostics.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/fit-diagnostics.json",
+      "source_sha256": "5c30e896c4836eb3210af5c37fa10cc4b21c5856759fcd1f61f6da305d479034",
+      "export_sha256": "5c30e896c4836eb3210af5c37fa10cc4b21c5856759fcd1f61f6da305d479034"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/result.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/result.json",
+      "source_sha256": "bb0e419442fa606a420800d196d3f82cf484892801ce7734e9d682c424baebee",
+      "export_sha256": "bb0e419442fa606a420800d196d3f82cf484892801ce7734e9d682c424baebee"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/spec.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/spec.json",
+      "source_sha256": "5c73b825c2698a0095d3fa9ba2536e8b1f16c4869e8c4eaf9a57847cd4fa5c04",
+      "export_sha256": "5c73b825c2698a0095d3fa9ba2536e8b1f16c4869e8c4eaf9a57847cd4fa5c04"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/workspace.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/workspace.json",
+      "source_sha256": "ee0e6a58ac1ea8222974c2cf42d2897c7162b98c88a910dbe8b2e1a2c1f53383",
+      "export_sha256": "ee0e6a58ac1ea8222974c2cf42d2897c7162b98c88a910dbe8b2e1a2c1f53383"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/verification.json",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/verification.json",
+      "source_sha256": "efe762c2b5d4035bd912d9a44faae7ffcb1f39db27a42257421d89a84aebc708",
+      "export_sha256": "efe762c2b5d4035bd912d9a44faae7ffcb1f39db27a42257421d89a84aebc708"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-09-scoped-workflows/verify.py",
+      "public_path": "evidence/audits/2026-09-09-scoped-workflows/verify.py",
+      "source_sha256": "86670b37e83c001ebcc13e9370a649b473b1fd04440390447393a8c5cd42d658",
+      "export_sha256": "86670b37e83c001ebcc13e9370a649b473b1fd04440390447393a8c5cd42d658"
+    },
+    {
       "source_path": "evidence/audits/current.json",
       "public_path": "evidence/audits/current.json",
       "source_sha256": "0501df0b70c37f238dfa20a17c639160cfe11df52dc95257a333f077deb81d48",
@@ -4092,14 +4920,14 @@
     {
       "source_path": "src/ravel/_bootstrap.py",
       "public_path": "src/ravel/_bootstrap.py",
-      "source_sha256": "161a21eab0c16dd21dbcbc72294bb5e76245318ee924b916fa8467fd08f6b555",
-      "export_sha256": "161a21eab0c16dd21dbcbc72294bb5e76245318ee924b916fa8467fd08f6b555"
+      "source_sha256": "f3111fbf4fd401d74c9d0e7879a15f3d1db269e1479ddbceeddd0dab2a20531e",
+      "export_sha256": "f3111fbf4fd401d74c9d0e7879a15f3d1db269e1479ddbceeddd0dab2a20531e"
     },
     {
       "source_path": "src/ravel/cli.py",
       "public_path": "src/ravel/cli.py",
-      "source_sha256": "ed5ee1a6f0058e22a155be1c2f07d3c35a05ec98b473ca1094f192ca90884145",
-      "export_sha256": "ed5ee1a6f0058e22a155be1c2f07d3c35a05ec98b473ca1094f192ca90884145"
+      "source_sha256": "09f594ae0a1810ed2d45bb0281624c5ffb9fbed702421f944c17271a4f748339",
+      "export_sha256": "09f594ae0a1810ed2d45bb0281624c5ffb9fbed702421f944c17271a4f748339"
     },
     {
       "source_path": "src/ravel/data/cross_sections/slepton_flavLR_nlonll_pdf4lhc15.json",
@@ -4330,6 +5158,12 @@
       "export_sha256": "f3db14fecdce0941d6f46a5779c09bb919be014dce5521557a5443edaf974672"
     },
     {
+      "source_path": "src/ravel/physics/scoped.py",
+      "public_path": "src/ravel/physics/scoped.py",
+      "source_sha256": "e6329d78e589dd4e92d4312170e1bc94a613f5d616bf8a443f004a958ce4ea84",
+      "export_sha256": "e6329d78e589dd4e92d4312170e1bc94a613f5d616bf8a443f004a958ce4ea84"
+    },
+    {
       "source_path": "src/ravel/physics/shape_fit.py",
       "public_path": "src/ravel/physics/shape_fit.py",
       "source_sha256": "f2c41ca548ea710f120854c3398cfe01ddea1b5d2ce768c3df0df06aff570c59",
@@ -4536,14 +5370,14 @@
     {
       "source_path": "src/ravel/validation/validate_run_state.py",
       "public_path": "src/ravel/validation/validate_run_state.py",
-      "source_sha256": "5a51fd0942867d192e1868acca66d3587df28826f3a420a1eb18e78ce29ae73b",
-      "export_sha256": "5a51fd0942867d192e1868acca66d3587df28826f3a420a1eb18e78ce29ae73b"
+      "source_sha256": "3e951c6de97cbd2b44962fe56f065259de47cf0c8af234dfc00328ec3bc61011",
+      "export_sha256": "3e951c6de97cbd2b44962fe56f065259de47cf0c8af234dfc00328ec3bc61011"
     },
     {
       "source_path": "src/ravel/validation/validate_task_contract.py",
       "public_path": "src/ravel/validation/validate_task_contract.py",
-      "source_sha256": "24123e7fc6eb39d8b33c18c2213a477dfda842cda41fecebb96efd49db88dd2e",
-      "export_sha256": "24123e7fc6eb39d8b33c18c2213a477dfda842cda41fecebb96efd49db88dd2e"
+      "source_sha256": "100464f9b22ccffc34307490fcbb0508f4c95203f8a9d6bd74beb2b23eb4f1d4",
+      "export_sha256": "100464f9b22ccffc34307490fcbb0508f4c95203f8a9d6bd74beb2b23eb4f1d4"
     },
     {
       "source_path": "src/ravel/validation/verify_pack.py",
@@ -4596,8 +5430,8 @@
     {
       "source_path": "src/ravel/workflow/intake.py",
       "public_path": "src/ravel/workflow/intake.py",
-      "source_sha256": "67ae32113861294bc4661ce7db3c82d9085de0db8c1b74346111160bcea7b57b",
-      "export_sha256": "67ae32113861294bc4661ce7db3c82d9085de0db8c1b74346111160bcea7b57b"
+      "source_sha256": "07aedfb80994c947a3f6516808e7772c062b15c322bd6ad0068de8dab8ce75c1",
+      "export_sha256": "07aedfb80994c947a3f6516808e7772c062b15c322bd6ad0068de8dab8ce75c1"
     },
     {
       "source_path": "src/ravel/workflow/preflight_watcher.py",
@@ -4632,8 +5466,8 @@
     {
       "source_path": "src/ravel/workflow/route_prompt.py",
       "public_path": "src/ravel/workflow/route_prompt.py",
-      "source_sha256": "946c903f967a9b1bde19454d9cb4903c285d80c889f771c29ab89e248c4c8d32",
-      "export_sha256": "946c903f967a9b1bde19454d9cb4903c285d80c889f771c29ab89e248c4c8d32"
+      "source_sha256": "dc3a3449dabfab382b1bb4485531beaca3375f00a7ad85181c68c8cad9a21469",
+      "export_sha256": "dc3a3449dabfab382b1bb4485531beaca3375f00a7ad85181c68c8cad9a21469"
     },
     {
       "source_path": "src/ravel/workflow/routine_fetch.py",
@@ -4652,6 +5486,18 @@
       "public_path": "src/ravel/workflow/scan_orchestrator.py",
       "source_sha256": "16ea96140671cee96a70bd80a53ff614f79a3eb27483a34174fc13620f0740e8",
       "export_sha256": "16ea96140671cee96a70bd80a53ff614f79a3eb27483a34174fc13620f0740e8"
+    },
+    {
+      "source_path": "src/ravel/workflow/scoped.py",
+      "public_path": "src/ravel/workflow/scoped.py",
+      "source_sha256": "5b7e752a03048844cd3059e1f58646163b0762c5e9a72d8e70cd962068aa4bef",
+      "export_sha256": "5b7e752a03048844cd3059e1f58646163b0762c5e9a72d8e70cd962068aa4bef"
+    },
+    {
+      "source_path": "src/ravel/workflow/scoped_spec.py",
+      "public_path": "src/ravel/workflow/scoped_spec.py",
+      "source_sha256": "f5930253a2933dc75d4831c8e0603a8c8099c997cc111c2b01de017f9359cad1",
+      "export_sha256": "f5930253a2933dc75d4831c8e0603a8c8099c997cc111c2b01de017f9359cad1"
     },
     {
       "source_path": "src/ravel/workflow/session_lock.py",
@@ -5356,10 +6202,22 @@
       "export_sha256": "89f19b4deb5066388499a17e8c2bc81996fc90fb435e09e29c7077ebd9717fcc"
     },
     {
+      "source_path": "tests/unit/test_scoped_lhe.py",
+      "public_path": "tests/unit/test_scoped_lhe.py",
+      "source_sha256": "39d8aefca4cc23559da2086bbe0cf9cb2bfcb05db03c6ef5c9b20c6af441ab91",
+      "export_sha256": "39d8aefca4cc23559da2086bbe0cf9cb2bfcb05db03c6ef5c9b20c6af441ab91"
+    },
+    {
+      "source_path": "tests/unit/test_scoped_workflows.py",
+      "public_path": "tests/unit/test_scoped_workflows.py",
+      "source_sha256": "7e1296d99388aa683e857394ad6ac435fbddd3e8ca29d962b087f2fe941e31f5",
+      "export_sha256": "7e1296d99388aa683e857394ad6ac435fbddd3e8ca29d962b087f2fe941e31f5"
+    },
+    {
       "source_path": "tests/unit/test_semantic_intake.py",
       "public_path": "tests/unit/test_semantic_intake.py",
-      "source_sha256": "4d12b59bebcfbf9c289047175a8dda1183dcbbee4015ab1dd47b03decefd1a0d",
-      "export_sha256": "4d12b59bebcfbf9c289047175a8dda1183dcbbee4015ab1dd47b03decefd1a0d"
+      "source_sha256": "0ae4befcfae38f47229e151e8a679057ae1b5e776174b105e7a98e510ec07f53",
+      "export_sha256": "0ae4befcfae38f47229e151e8a679057ae1b5e776174b105e7a98e510ec07f53"
     },
     {
       "source_path": "tests/unit/test_sessionstart_orient.py",

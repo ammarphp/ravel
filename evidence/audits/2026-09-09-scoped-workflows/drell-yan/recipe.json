@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "recipe": {
+    "kind": "parton_lo",
+    "process_card": [
+      "set group_subprocesses Auto",
+      "set ignore_six_quark_processes False",
+      "set low_mem_multicore_nlo_generation False",
+      "set complex_mass_scheme False",
+      "set gauge unitary",
+      "set loop_optimized_output True",
+      "set loop_color_flows False",
+      "set max_npoint_for_channel 0",
+      "set default_unset_couplings 99",
+      "set max_t_for_channel 99",
+      "set zerowidth_tchannel True",
+      "import model sm-no_b_mass",
+      "define p = g u c d s u~ c~ d~ s~",
+      "define j = g u c d s u~ c~ d~ s~",
+      "define l+ = e+ mu+",
+      "define l- = e- mu-",
+      "define vl = ve vm vt",
+      "define vl~ = ve~ vm~ vt~",
+      "define p = 21 2 4 1 3 -2 -4 -1 -3 5 -5",
+      "define j = p",
+      "define p = g u c d s b u~ c~ d~ s~ b~",
+      "generate p p > e+ e-"
+    ],
+    "parameters": [
+      [
+        "block",
+        "mass"
+      ],
+      [
+        6.0,
+        173.0
+      ],
+      [
+        15.0,
+        1.777
+      ],
+      [
+        23.0,
+        91.188
+      ],
+      [
+        25.0,
+        125.0
+      ],
+      [
+        1.0,
+        0.0
+      ],
+      [
+        2.0,
+        0.0
+      ],
+      [
+        3.0,
+        0.0
+      ],
+      [
+        4.0,
+        0.0
+      ],
+      [
+        5.0,
+        0.0
+      ],
+      [
+        11.0,
+        0.0
+      ],
+      [
+        12.0,
+        0.0
+      ],
+      [
+        13.0,
+        0.0
+      ],
+      [
+        14.0,
+        0.0
+      ],
+      [
+        16.0,
+        0.0
+      ],
+      [
+        21.0,
+        0.0
+      ],
+      [
+        22.0,
+        0.0
+      ],
+      [
+        24.0,
+        80.419
+      ],
+      [
+        "block",
+        "sminputs"
+      ],
+      [
+        1.0,
+        132.507
+      ],
+      [
+        2.0,
+        1.16639e-05
+      ],
+      [
+        3.0,
+        0.118
+      ],
+      [
+        "block",
+        "yukawa"
+      ],
+      [
+        6.0,
+        173.0
+      ],
+      [
+        15.0,
+        1.777
+      ],
+      [
+        "decay",
+        6.0,
+        1.4915
+      ],
+      [
+        "decay",
+        23.0,
+        2.441404
+      ],
+      [
+        "decay",
+        24.0,
+        2.0476
+      ],
+      [
+        "decay",
+        25.0,
+        0.006382339
+      ],
+      [
+        "decay",
+        1.0,
+        0.0
+      ],
+      [
+        "decay",
+        2.0,
+        0.0
+      ],
+      [
+        "decay",
+        3.0,
+        0.0
+      ],
+      [
+        "decay",
+        4.0,
+        0.0
+      ],
+      [
+        "decay",
+        5.0,
+        0.0
+      ],
+      [
+        "decay",
+        11.0,
+        0.0
+      ],
+      [
+        "decay",
+        12.0,
+        0.0
+      ],
+      [
+        "decay",
+        13.0,
+        0.0
+      ],
+      [
+        "decay",
+        14.0,
+        0.0
+      ],
+      [
+        "decay",
+        15.0,
+        0.0
+      ],
+      [
+        "decay",
+        16.0,
+        0.0
+      ],
+      [
+        "decay",
+        21.0,
+        0.0
+      ],
+      [
+        "decay",
+        22.0,
+        0.0
+      ]
+    ],
+    "run_settings": {
+      "lpp1": 1.0,
+      "lpp2": 1.0,
+      "ebeam1": 6500.0,
+      "ebeam2": 6500.0,
+      "pdlabel": "cteq6l1",
+      "lhaid": 10042.0,
+      "fixed_ren_scale": false,
+      "fixed_fac_scale": false,
+      "scale": 91.188,
+      "dsqrt_q2fact1": 91.188,
+      "dsqrt_q2fact2": 91.188,
+      "dynamical_scale_choice": 4.0,
+      "scalefact": 1.0,
+      "gridpack": false,
+      "time_of_flight": -1.0,
+      "event_norm": "average",
+      "ickkw": 0.0,
+      "alpsfact": 1.0,
+      "chcluster": false,
+      "asrwgtflavor": 5.0,
+      "auto_ptj_mjj": true,
+      "xqcut": 0.0,
+      "nhel": 0.0,
+      "sde_strategy": 1.0,
+      "bias_module": "none",
+      "bias_parameters": "{}",
+      "bwcutoff": 15.0,
+      "ptl": 10.0,
+      "ptlmax": -1.0,
+      "pt_min_pdg": "{}",
+      "pt_max_pdg": "{}",
+      "ej": 0.0,
+      "eb": 0.0,
+      "ea": 0.0,
+      "el": 0.0,
+      "ejmax": -1.0,
+      "ebmax": -1.0,
+      "eamax": -1.0,
+      "elmax": -1.0,
+      "e_min_pdg": "{}",
+      "e_max_pdg": "{}",
+      "etal": 2.5,
+      "etalmin": 0.0,
+      "eta_min_pdg": "{}",
+      "eta_max_pdg": "{}",
+      "drll": 0.0,
+      "drllmax": -1.0,
+      "mmll": 40.0,
+      "mmllmax": -1.0,
+      "mxx_min_pdg": "{}",
+      "mxx_only_part_antipart": "{'default': false}",
+      "mmnl": 0.0,
+      "mmnlmax": -1.0,
+      "ptllmin": 0.0,
+      "ptllmax": -1.0,
+      "xptl": 0.0,
+      "ptl1min": 0.0,
+      "ptl2min": 0.0,
+      "ptl1max": -1.0,
+      "ptl2max": -1.0,
+      "maxjetflavor": 5.0,
+      "use_syst": false,
+      "systematics_program": "none",
+      "systematics_arguments": "['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset']",
+      "fixed_fac_scale2": false,
+      "ptl4max": -1.0,
+      "fixed_fac_scale1": false,
+      "ptl4min": 0.0,
+      "ptl3min": 0.0,
+      "ptl3max": -1.0
+    },
+    "beam_pdg": [
+      2212,
+      2212
+    ],
+    "pdf_ids": [
+      10042,
+      10042
+    ],
+    "weight_convention": -4,
+    "shower": "OFF",
+    "detector": "OFF",
+    "observable": {
+      "kind": "final_state_mass",
+      "final_state_pdg": [
+        -11,
+        11
+      ],
+      "bin_edges_gev": [
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        140,
+        160,
+        200
+      ],
+      "min_pt_gev": 10,
+      "max_abs_eta": 2.5,
+      "min_mass_gev": 40
+    },
+    "model_source_sha256": "007e3fc14a61e7ff5e7d810a36dba17e3f435ec4a8150e5c41408d34e9ca53d1",
+    "generator_source_sha256": "40c6e7f6bbbd63a1f9cc2abd9662cba88555ff0abf5f89baaf5d2a37ab7bafa4",
+    "generator_version": "version = 2.9.27\ndate = 2026-01-05"
+  },
+  "sha256": "7b2ac840ef05afe90b6a3a07e03777d7b61274858717e1801757f4e224e8d863",
+  "provenance": "extracted from completed LHE banner"
+}

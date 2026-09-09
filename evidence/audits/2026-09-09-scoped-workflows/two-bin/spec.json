@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "mode": "likelihood",
+  "source": "Declared synthetic two-bin workspace; architecture control, not an experimental reproduction.",
+  "assumptions": [
+    "Two binwise gamma/Poisson background constraints and one shared 3% signal normalization nuisance."
+  ],
+  "max_seconds": 120,
+  "approval_mode": "scripted_yes",
+  "likelihood": {
+    "workspace": "inputs/workspace.json",
+    "measurement": "control",
+    "poi_cap": 32,
+    "normalization": {
+      "kind": "signal_strength"
+    }
+  }
+}

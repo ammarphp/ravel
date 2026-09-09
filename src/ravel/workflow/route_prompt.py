@@ -189,6 +189,21 @@ def route(prompt, interpretation=None):
                         "IS a reproduction/reinterpretation/survey ask, name the analysis and "
                         "the deliverable, or provide a grounded --interpretation file")
 
+    if task_mode in ("generate", "likelihood"):
+        contract = {
+            "schema_version": 1, "prompt": prompt, "task_mode": task_mode,
+            "targets": targets,
+            "detector_mode": "parton-level" if task_mode == "generate" else "none",
+            "stat_mode": "none-generation" if task_mode == "generate" else "provided-likelihood",
+            "required_user_inputs": ["explicit scoped specification for ravel plan --spec"],
+            "assumptions": ["Scoped delivery does not certify detector acceptance or reproduce a paper."],
+            "compute_plan": "none", "approval_required": True, "blocking": [],
+            "escalate": ["Review the concrete recipe, observable, approximation and budget at CHECK-IN 1."],
+        }
+        if semantic:
+            contract["intake"] = semantic
+        return contract
+
     # ---- stat mode
     stat_mode = "TBD-judgment"
     blocked_ids = [a for a in targets["arxiv"] if a in SHAPE_FIT_BLOCKLIST]

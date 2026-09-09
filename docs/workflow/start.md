@@ -33,6 +33,10 @@ certification. The requested deliverable controls whether a point, figure, or sc
    the relevant resource-sweep/route-analysis procedure and `docs/workflow/steps/02-inputs.md`.
    A `method_study` intent creates a zero-compute survey contract plus `<run>/method_proposal.md`;
    develop that proposal before choosing an executable research plan.
+   For `task_mode=generate` or `likelihood`, follow the
+   [scoped workflow](reference/scoped-workflows.md): prepare a typed specification with
+   `ravel plan`, review CHECK-IN 1, record approval and use `ravel run`. Its required stages
+   reflect the requested scope; do not initialize a detector analysis for a statistical fit.
 3. Present CHECK-IN 1 using `docs/workflow/checklists/check-ins.md`; validate its JSON and record
    the actual approval through the workflow. Never fabricate an approval quotation. Follow the
    next required step, retaining provenance and deviations. Load environment setup only when

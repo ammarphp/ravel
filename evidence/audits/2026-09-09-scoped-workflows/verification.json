@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scope": "scoped engineering delivery and record/numerical checks; not RRR or physics certification",
+  "source_tests": {
+    "passed": 411,
+    "skipped": 2,
+    "seconds": 45.92,
+    "selection": "scoped workflow/LHE, strict contracts, CLI, intake, state, execution durability, supervision and cleanup",
+    "optional_wheel_checks": {
+      "passed": 2,
+      "note": "Both initially skipped wheel tests then ran against the freshly built wheel, including exact packaged engine bytes and dependency-free intake."
+    },
+    "total_distinct_passed": 413
+  },
+  "installed_cli": {
+    "main_commands": 56,
+    "all_expected_outcomes": true,
+    "positive_workflows": 8,
+    "intentional_incomplete_workflows": 1,
+    "main_native_events": 400,
+    "additional_supplied_card_events": 100,
+    "workers": 1,
+    "per_attempt_ceiling_seconds": 120
+  },
+  "independent_checks": {
+    "event_records": 500,
+    "resolved_roots": 18,
+    "maximum_cls_crossing_residual": 7.4666383223925825e-06,
+    "tolerance": 0.0005,
+    "passed": true
+  },
+  "adversarial_review": "targeted falsification tests and primary-agent code/artifact review; no independent human or subagent review claimed",
+  "visual_review": {
+    "final_png_inspected": [
+      "drell-yan",
+      "two-bin"
+    ],
+    "all_figures_plot_lint": "PASS",
+    "png_dpi": 220,
+    "pdf_fonttype_requested": 42
+  },
+  "initial_installed_failure": "retained, no physics executed; duplicate discovery repaired",
+  "rrr_changed": false,
+  "expert_review": false,
+  "wheel_sha256": "4b11ba8a9101b8531c77dc1fde3adc3f3f64392efdf70983072cfb6bf19916ee",
+  "python": "3.12.13 (main, Jun 11 2026, 03:55:21) [Clang 22.1.3 ]"
+}

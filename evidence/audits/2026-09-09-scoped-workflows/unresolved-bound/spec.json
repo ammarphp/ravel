@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "mode": "likelihood",
+  "source": "ATLAS arXiv:1605.03814, SR 2jl counting control, n=263, b=283 +/-24, luminosity 3.2 fb^-1; inputs retained in evidence/audits/2026-09-09-comparative-pilot",
+  "assumptions": [
+    "Single-bin approximation with a gamma/Poisson background constraint; not the full experimental likelihood.",
+    "Unit signal means the POI counts signal events. Divide by 3.2 fb^-1 only for visible cross section.",
+    "Asymptotic qtilde CLs; expected bands use the conditional background-only Asimov convention. Toy coverage remains unvalidated."
+  ],
+  "max_seconds": 120,
+  "approval_mode": "scripted_yes",
+  "likelihood": {
+    "counting": {
+      "observed": 263,
+      "background": 283,
+      "background_uncertainty": 24,
+      "signal": 1
+    },
+    "poi_cap": 10,
+    "normalization": {
+      "kind": "signal_events",
+      "luminosity_fb": 3.2
+    }
+  }
+}

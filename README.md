@@ -9,13 +9,18 @@ the analysis, compute exclusion limits, and check the artifacts behind the resul
 
 It connects MadGraph, Pythia, Delphes, Rivet or SimpleAnalysis, and pyhf through
 explicit task contracts, run state, provenance checks, and validation. Use the
-Python CLI for initiation, contract validation, and cached statistical replay.
+Python CLI for initiation, contract validation, cached statistical replay, and
+[generation-only or supplied-likelihood calculations](docs/workflow/reference/scoped-workflows.md).
 Full simulations use the separately installed native HEP toolchain and the
 [physics workflow](docs/workflow/start.md).
 
 [Installation](docs/installation.md) · [CLI reference](docs/cli.md) ·
 [Supported analyses](docs/reference/capabilities.md) ·
 [Validation results](docs/validation/results.md) · [Documentation](docs/README.md)
+
+For a small end-to-end example, the [scoped workflow controls](evidence/audits/2026-09-09-scoped-workflows/README.md)
+show fresh parton generation and supplied-likelihood inference through the installed CLI,
+including figures, explicit approvals, failed controls and executed-recipe comparisons.
 
 ## What a result looks like
 

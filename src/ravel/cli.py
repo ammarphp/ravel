@@ -31,6 +31,20 @@ def parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="derive a compact current-state packet from live artifacts")
     status.add_argument("--rundir", type=Path, required=True)
     status.add_argument("--write", action="store_true", help="also refresh current_state.json")
+    plan = sub.add_parser("plan", help="prepare an explicit generation-only or likelihood-only CHECK-IN 1; no compute")
+    plan.add_argument("--rundir", type=Path, required=True)
+    plan.add_argument("--spec", type=Path, required=True, help="strict scoped specification JSON")
+    approve = sub.add_parser("approve", help="record assent bound to a concrete scoped CHECK-IN 1")
+    approve.add_argument("--rundir", type=Path, required=True)
+    approve.add_argument("--quote", required=True, help="actual assent, or the authorized experimental YES policy")
+    approve.add_argument("--scripted", action="store_true", help="record experimental scripted assent, never expert review")
+    run = sub.add_parser("run", help="execute one approved scoped attempt with scientific postconditions")
+    run.add_argument("--rundir", type=Path, required=True)
+    run.add_argument("--resume", action="store_true", help="verify/reuse a valid completed attempt without additional compute")
+    compare = sub.add_parser("compare-recipes", help="gate comparisons on verified executed physics recipes")
+    compare.add_argument("--left", type=Path, required=True)
+    compare.add_argument("--right", type=Path, required=True)
+    compare.add_argument("--out", type=Path, help="new comparison receipt, never overwrite an existing file")
     validate = sub.add_parser("validate", help="validate a task contract; never authorizes compute")
     choice = validate.add_mutually_exclusive_group(required=True)
     choice.add_argument("contract", type=Path, nargs="?", help="task_contract.json")
@@ -138,6 +152,34 @@ def _validate(args) -> int:
     return code
 
 
+def _plan(args) -> int:
+    from .workflow.scoped import plan
+    result = plan(args.rundir, args.spec)
+    print(f"Concrete {result['mode']} CHECK-IN 1: {args.rundir / 'inputs/checkin1.json'}")
+    print("Review the recipe, assumptions and hard ceiling, then record approval. No compute launched.")
+    return 0
+
+
+def _approve(args) -> int:
+    from .workflow.scoped import approve
+    return approve(args.rundir, args.quote, scripted=args.scripted)
+
+
+def _run(args) -> int:
+    from .workflow.scoped import run
+    return run(args.rundir, resume=args.resume)
+
+
+def _compare_recipes(args) -> int:
+    from .workflow.scoped import compare
+    result = compare(args.left, args.right)
+    if args.out:
+        with args.out.expanduser().open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(result, indent=2, allow_nan=False) + "\n")
+    print(json.dumps(result, indent=2, allow_nan=False))
+    return 0 if result["comparable"] else 1
+
+
 def _replay(args) -> int:
     # Check before creating output so an incomplete installation leaves no stub directory.
     versions = {}
@@ -198,7 +240,8 @@ def main(argv=None) -> int:
     args = parser().parse_args(argv)
     try:
         return {"initiate": _initiate, "status": _status, "validate": _validate,
-                "replay": _replay, "audit": _audit}[args.command](args)
+                "replay": _replay, "audit": _audit, "plan": _plan, "approve": _approve,
+                "run": _run, "compare-recipes": _compare_recipes}[args.command](args)
     except (OSError, ValueError) as exc:
         print(f"ravel: {exc}", file=sys.stderr)
         return 2

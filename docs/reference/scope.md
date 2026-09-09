@@ -19,6 +19,8 @@
 | `summary_plot` | combine several analyses' PUBLISHED limits on one canvas | overlay of published limits (+ ours where run) | none-to-point |
 | `anomaly_search` | model-agnostic / "strange topologies" | AD-style sensitivity study, expected-only | point-to-scan |
 | `no_routine` | no Rivet/SimpleAnalysis routine exists | custom particle-level analysis (Option-C path) | point-to-scan |
+| `generate` | generation-only parton control | complete audited LHE, effective recipe, figure and check-in | one bounded approved attempt |
+| `likelihood` | supplied workspace or counting approximation | verified observed/expected CLs roots, units, recipe and figure | one bounded approved attempt |
 | `unsupported` | outside every row above or across a refusal line | **refusal with the named reason + nearest supported alternative** | none |
 
 **The deliverable of `reproduce`/`reinterpret`/`scan` is a CONTOUR over a grid** (steps
@@ -34,6 +36,8 @@ a run** (step 8's reuse rule).
 | `simpleanalysis-delphes-native` | Delphes → native SimpleAnalysis (VM-free; **the default** for SA analyses) | SA routine with a native port (today: EwkCompressed2018/slepton — CR-005 tracks generalization) | bit-for-bit vs container (141/141 SRs) |
 | `container` | Delphes → SA in the ATLAS x86 container (podman, emulated) | SA analyses with no native port | = native, ~9 h/point, sequential (legacy fallback) |
 | `particle-level` | none (truth-level objects, no detector) | `no_routine` / `anomaly_search` / quick sensitivity | proxy only — labeled, never a claimed exclusion of record |
+| `parton-level` | none; no shower/hadronization | `generate` | scoped LO generation, no acceptance claim |
+| `none` | no detector operation requested | `likelihood` | supplied statistical model only |
 | `effmap-folded` | published per-object / per-SR efficiency maps folded over truth objects (no detector sim of our own) | LLP/displaced (trap T2) via D2, or no-routine SUSY via D1 | map's documented accuracy (e.g. ~25%); R5-gated per analysis; out-of-envelope → conservative under-coverage (CR-034) |
 | `delphes-custom-uncertified` | Delphes fast-sim (stock ATLAS/CMS card) feeding a CUSTOM selection with no certified routine (the Option-C detector variant) | no Rivet/SA routine exists but a Delphes card is warranted (e.g. τ_h+MET recasts; CR-134, the 2026-08-27 U1 head-to-head) | uncertified fast-sim: labeled proxy, **never an exclusion of record** until per-SR acc×eff certification vs published anchors (T10) closes — the route gate WARNs and CHECK-IN 1 must surface it |
 
@@ -50,6 +54,8 @@ a run** (step 8's reuse rule).
 | `blocked-shape-fit` | **REFUSAL** fallback: the shape-fit engine cannot represent this fit, or its R5 will not close | see §6.1 |
 | `sensitivity-expected-only` | expected-only sensitivity (S/√B, expected CLs) — no observed-data claim | projections, AD studies, tagger what-ifs |
 | `none-survey` | no per-run statistics — quotes OTHER analyses' published limits | `survey` / `summary_plot` |
+| `none-generation` | no exclusion inference | `generate` |
+| `provided-likelihood` | supplied pyhf model or explicit counting approximation | `likelihood`; see [scoped contract](../workflow/reference/scoped-workflows.md) |
 
 Every limit is **95% CL CLs exclusion** (≈1.64σ one-sided). This tool **never** produces a 5σ
 discovery claim, a p-value for an excess, or an "observation" — re-phrase or refuse.
