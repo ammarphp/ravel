@@ -201,7 +201,13 @@ def test_portfolio_and_browser_data_are_bound_to_catalogue(catalog):
     embedded=json.loads(content)
     assert len(embedded)==633
     for item in embedded:
-        assert item['packet']==ac.adaptation_packet(catalog,ac.resolve(catalog,item['id']))
+        current=ac.adaptation_packet(catalog,ac.resolve(catalog,item['id']))
+        # This immutable survey predates the supplied-event executor. Compare
+        # its discovery facts and check the newly added operational route apart.
+        route=current.pop('supplied_event_route')
+        assert route['backend'] in ('rivet','simpleanalysis')
+        assert route['guide']=='docs/workflow/reference/scientific-studies.md'
+        assert item['packet']==current
     assert '<script src=' not in page and 'fetch(' not in page
 
 

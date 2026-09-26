@@ -12,6 +12,18 @@ the active run rather than any contract found elsewhere in the repository.
 
 ## New request
 
+For a request limited to supplied-event analysis, quantity transport, supplied
+measurement inference or the bounded domain operations, use
+`docs/workflow/reference/scientific-studies.md` before creating a run. Preserve the
+original request, check that the typed study covers its entire requested scope,
+state input provenance and numbered assumptions, and use `ravel plan` with a new
+directory as its explicit intake. Then use its `approve/run/status` lifecycle and
+CHECK-IN 2. Do not initialize a reproduction contract and silently change its mode.
+The host agent selects this route; the intent parser does not automatically draft
+these new specifications. Scripted assent still needs explicit experimental
+authorization and does not establish expert scientific review. A larger paper
+reproduction request remains subject to the full procedure below.
+
 1. Preserve the original request and choose a **new** run directory. Use the installed CLI:
    ```sh
    ravel initiate --prompt-file request.txt --out <new-run>

@@ -21,6 +21,9 @@ replay = [
   "PyYAML>=6.0.2,<7",
 ]
 test = ["pytest>=8.3.5,<9"]
+measurement = ["numpy>=1.26.4,<2", "scipy>=1.13.1,<1.15", "spey==0.2.6"]
+classifier = ["numpy>=1.26.4,<2", "onnx==1.23.0", "onnxruntime==1.30.0"]
+science = ["numpy>=1.26.4,<2", "scipy>=1.13.1,<1.15", "matplotlib>=3.9.4,<3.10", "mplhep>=0.3.59,<1", "uproot>=5.3,<6"]
 
 [project.scripts]
 ravel = "ravel.cli:main"

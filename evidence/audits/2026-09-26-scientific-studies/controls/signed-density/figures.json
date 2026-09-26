@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "figures": [
+    {
+      "stem": "quantities",
+      "files": [
+        "quantities.pdf",
+        "quantities.png"
+      ],
+      "plot_lint": "PASS",
+      "png_dpi": 220,
+      "normalization": "No plot-time normalization or clipping; values and uncertainties read from artifacts"
+    }
+  ],
+  "scope": "Quantity diagnostics, not a published-reference closure figure; full covariance remains in machine artifacts"
+}

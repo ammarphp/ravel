@@ -1,0 +1,124 @@
+{
+  "yoda_version": "2.1.3",
+  "all_object_paths": [
+    "/ATLAS_2016_I1494075/d02-x01-y01",
+    "/ATLAS_2016_I1494075/d03-x01-y01",
+    "/ATLAS_2016_I1494075/d04-x01-y01",
+    "/ATLAS_2016_I1494075/d05-x01-y01",
+    "/ATLAS_2016_I1494075/d06-x01-y01",
+    "/ATLAS_2016_I1494075/d07-x01-y01",
+    "/ATLAS_2016_I1494075/d08-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d02-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d03-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d04-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d05-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d06-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d07-x01-y01",
+    "/RAW/ATLAS_2016_I1494075/d08-x01-y01",
+    "/RAW/_EVTCOUNT",
+    "/RAW/_XSEC",
+    "/TMP/_BEAMPZ",
+    "/_EVTCOUNT",
+    "/_XSEC"
+  ],
+  "observables": {
+    "/ATLAS_2016_I1494075/d02-x01-y01": {
+      "contract": {
+        "path": "/ATLAS_2016_I1494075/d02-x01-y01",
+        "axes": [
+          {
+            "name": "transverse momentum",
+            "unit": "GeV"
+          }
+        ],
+        "representation": "differential",
+        "normalization": "absolute",
+        "unit": "fb/GeV"
+      },
+      "bins": [
+        {
+          "low": [
+            0.0
+          ],
+          "high": [
+            30.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            30.0
+          ],
+          "high": [
+            60.0
+          ],
+          "value": 7360.818,
+          "error_low": 5204.884,
+          "error_high": 5204.884,
+          "variance": 27090817.453456,
+          "integrated_sumw": 220824.54,
+          "entries": 2.0
+        },
+        {
+          "low": [
+            60.0
+          ],
+          "high": [
+            100.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            100.0
+          ],
+          "high": [
+            200.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            200.0
+          ],
+          "high": [
+            1500.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        }
+      ],
+      "storage_semantics": "Rivet finalized density with matching RAW histogram",
+      "flow_sumw": null,
+      "flow_sumw2": null,
+      "raw_flow_sumw": 0.0,
+      "covariance_scope": "upstream marginal moments; cross-bin covariance is not supplied by this histogram"
+    }
+  },
+  "event_counters": {
+    "/RAW/_EVTCOUNT": {
+      "sumw": 2.0,
+      "sumw2": 2.0,
+      "entries": 2.0
+    }
+  }
+}

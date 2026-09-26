@@ -14,6 +14,12 @@ Python CLI for initiation, contract validation, cached statistical replay, and
 Full simulations use the separately installed native HEP toolchain and the
 [physics workflow](docs/workflow/start.md).
 
+For existing events and supplied scientific models, the [scientific-study workflow](docs/workflow/reference/scientific-studies.md)
+adds unmodified Rivet execution, reconstructed-object selections, signed/grouped
+quantities, covariance-aware measurement inference and bounded EFT, ONNX and
+lifetime operations. Its [control report](evidence/audits/2026-09-26-scientific-studies/README.md)
+separates executed checks, retained failures and capabilities needing further physics validation.
+
 [Installation](docs/installation.md) · [CLI reference](docs/cli.md) ·
 [Supported analyses](docs/reference/capabilities.md) ·
 [Validation results](docs/validation/results.md) · [Documentation](docs/README.md)

@@ -1,0 +1,675 @@
+{
+  "controls": [
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "quantities",
+      "name": "signed-density",
+      "original_approval_sha256": "64de00e3bfafda221debe98c07cf9de598a8d0ebc4deea2496dfaa6624ea4262",
+      "original_attempt_sha256": "bbfb8ff166e8570b1e59ca973eba04b50ecbb0c372eaa92cb02f0d0e6e4589d8",
+      "original_output_files": [
+        "controls/signed-density/result.md",
+        "controls/signed-density/checkin2.json",
+        "controls/signed-density/figures.json",
+        "controls/signed-density/quantities.json",
+        "controls/signed-density/quantities.pdf",
+        "controls/signed-density/quantities.png",
+        "controls/signed-density/result.json",
+        "controls/signed-density/verification.json"
+      ],
+      "original_plan_sha256": "b904e501f39fcbd3effea21e89a09ace214878593e4d7bab5544cabfba4a50a5",
+      "physics_validated": false,
+      "stage_fingerprint": "e83c0a56832e57d35c67a20b80c4b4195059fa3d198d2d26b4186302eebb53b4"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "measurement",
+      "name": "correlated-measurement",
+      "original_approval_sha256": "92b6f99022954a51611b5f6e80fd8232140e2c1355fff4c65bec447f8d8ab45e",
+      "original_attempt_sha256": "402ed272e2c1d874e76b3f281781b64001e91879ba1063c796394ed31fc35f46",
+      "original_output_files": [
+        "controls/correlated-measurement/result.md",
+        "controls/correlated-measurement/checkin2.json",
+        "controls/correlated-measurement/figures.json",
+        "controls/correlated-measurement/measurement/measurement.json",
+        "controls/correlated-measurement/measurement.pdf",
+        "controls/correlated-measurement/measurement.png",
+        "controls/correlated-measurement/result.json",
+        "controls/correlated-measurement/verification.json"
+      ],
+      "original_plan_sha256": "f23402ebefacd1b3ae09b2ea39837077c90ab9e33898e7b6aab9d9565b456460",
+      "physics_validated": false,
+      "stage_fingerprint": "f36bc6cc8e5f503e3c880c7b97b98d38578bb4732df7215c3cf1ef983ea9d2bd"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "measurement",
+      "name": "normalized-measurement",
+      "original_approval_sha256": "6f068bedcbf0820d1291821bfc67c12c9e2a9e8d95784cea5fe45a982d40692f",
+      "original_attempt_sha256": "4ae7986aeaba9e6c2666839a7c9732873f77736d137c44527c0d12d125f3674b",
+      "original_output_files": [
+        "controls/normalized-measurement/result.md",
+        "controls/normalized-measurement/checkin2.json",
+        "controls/normalized-measurement/figures.json",
+        "controls/normalized-measurement/measurement/measurement.json",
+        "controls/normalized-measurement/measurement.pdf",
+        "controls/normalized-measurement/measurement.png",
+        "controls/normalized-measurement/result.json",
+        "controls/normalized-measurement/verification.json"
+      ],
+      "original_plan_sha256": "f9e2fe4c04f6edeb97b4eaaa629e94972dddb22f54aeafce02ffe0fa3b2330c3",
+      "physics_validated": false,
+      "stage_fingerprint": "11255903dc9156b69be2bdd7b4fefd79ce55f2f14cf5a43eb6b171c8842fbcfc"
+    },
+    {
+      "actual": "failed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 3,
+      "expected": "failed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "measurement",
+      "name": "bounded-measurement",
+      "original_approval_sha256": "de992cdb7fa9025c4470f50bc1464bd3fecfbd7a1e20f28d28b2fa2ce0073cb3",
+      "original_attempt_sha256": "cd3248170b591dba2016d68b399df8cbea607f04e485b0c158963f5ac06fdd32",
+      "original_output_files": [
+        "controls/bounded-measurement/result.md",
+        "controls/bounded-measurement/checkin2.json",
+        "controls/bounded-measurement/figures.json",
+        "controls/bounded-measurement/measurement/measurement.json",
+        "controls/bounded-measurement/measurement.pdf",
+        "controls/bounded-measurement/measurement.png",
+        "controls/bounded-measurement/result.json",
+        "controls/bounded-measurement/verification.json"
+      ],
+      "original_plan_sha256": "8b2859587fb290d312cd46f121da0b811685beffb1c5dfd4761f7cffc98d7744",
+      "physics_validated": false,
+      "stage_fingerprint": "72832a441d5e4b62d990e49d814cbb5e8236f4d458a12c0f3f3f0298383e5341"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "eft-interference",
+      "original_approval_sha256": "add1782658dcf12996a4969bd8a8022b94b4c6365c8091a74650f06a3a04664f",
+      "original_attempt_sha256": "2452a64ef43f8a6105987805ea3c94f4fd58391604f5e1cd8b7bf3ce1a2495f8",
+      "original_output_files": [
+        "controls/eft-interference/result.md",
+        "controls/eft-interference/checkin2.json",
+        "controls/eft-interference/domain-result.json",
+        "controls/eft-interference/figures.json",
+        "controls/eft-interference/result.json",
+        "controls/eft-interference/verification.json"
+      ],
+      "original_plan_sha256": "c8ed8cd1e87989f6592b1656f7de70571ca541bb7fae793cc764c32cbb3e66c2",
+      "physics_validated": false,
+      "stage_fingerprint": "308f5dfbecc0850e5be2bfbbc1de2292f60eb4061d18bea3cf20017a5e1d2f8a"
+    },
+    {
+      "actual": "failed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 3,
+      "expected": "failed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "eft-failed-control",
+      "original_approval_sha256": "4a8eedf35d913923e67c8508d037b23210a35fa2a6d5a6d93c75259b58304a79",
+      "original_attempt_sha256": "208df7ddf8c63409a4772b805b7265c031c4abdf97c1bc19afcb6a33e2f4db4c",
+      "original_output_files": [
+        "controls/eft-failed-control/result.md",
+        "controls/eft-failed-control/checkin2.json",
+        "controls/eft-failed-control/domain-result.json",
+        "controls/eft-failed-control/figures.json",
+        "controls/eft-failed-control/result.json",
+        "controls/eft-failed-control/verification.json"
+      ],
+      "original_plan_sha256": "2c8774c6ac7b90073ef5e13ff5eea43d2def0e23e1e70d1184093a01a980be0c",
+      "physics_validated": false,
+      "stage_fingerprint": "b7834047e7bd7e00bc0fda14ec973e4c2f6052b6b48245a02c851b74a0b7efd9"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "model-structure",
+      "original_approval_sha256": "1fe2f8526b37c0a004baa28dffaae35cede5dfb2480ef9b913fcc171347b6e4a",
+      "original_attempt_sha256": "059245674043d7cb0887dfa5bdb1611089c0aeb282dd42c80a56330ef2431924",
+      "original_output_files": [
+        "controls/model-structure/result.md",
+        "controls/model-structure/checkin2.json",
+        "controls/model-structure/domain-result.json",
+        "controls/model-structure/figures.json",
+        "controls/model-structure/result.json",
+        "controls/model-structure/verification.json"
+      ],
+      "original_plan_sha256": "bff8c16704b236870290ae26bb6cc21dc65d410642206e8e122e1b7145ce9f79",
+      "physics_validated": false,
+      "stage_fingerprint": "6bb1e0ea7bf244eabf45bf59e1a13cd939155406d70e778301a30b91ffa39ca4"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "classifier",
+      "original_approval_sha256": "9d9d1b9f0a3783a6b2d3c7413e88c85734b013ee100592575a7d01d709123e11",
+      "original_attempt_sha256": "f56f3488ae618530eec5d1358f9c05e676b28ecd87a5aa173e08fe60d15fab6b",
+      "original_output_files": [
+        "controls/classifier/result.md",
+        "controls/classifier/checkin2.json",
+        "controls/classifier/domain-result.json",
+        "controls/classifier/figures.json",
+        "controls/classifier/result.json",
+        "controls/classifier/verification.json"
+      ],
+      "original_plan_sha256": "93d922a2c90633f60429514ececab436716a0ff41c1d2e7a3da48e9a2f229582",
+      "physics_validated": false,
+      "stage_fingerprint": "6c0c192eb62632e181d7583fc29e25444f17cf25c3785eed4d9a97d5f6733e86"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "llp-decay",
+      "original_approval_sha256": "7f2660aa3ea65a5dc8a1737472cb254e9d5ae5a039f8c2d546575e3336503d30",
+      "original_attempt_sha256": "155b7f29a0c7e289e6db3a2485933683c695d8b0f78bf9c750d10edbb257665b",
+      "original_output_files": [
+        "controls/llp-decay/result.md",
+        "controls/llp-decay/checkin2.json",
+        "controls/llp-decay/domain-result.json",
+        "controls/llp-decay/figures.json",
+        "controls/llp-decay/result.json",
+        "controls/llp-decay/verification.json"
+      ],
+      "original_plan_sha256": "f1e54c3f3cc0c4ac6b499de9b75761cbbfa12f23bd0197b7fe77544212ab731b",
+      "physics_validated": false,
+      "stage_fingerprint": "100f7e1a3729479fd14b736d5d48a7431b760949d6700de8adbb6d9f0321de2a"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "llp-reweight",
+      "original_approval_sha256": "4a95580fa1e824434eab732cd745ce005cec8292e28d20112bf37a75a58f6ebb",
+      "original_attempt_sha256": "e6a61664d006962c2f518fa30c4640b5947b386ef49f9ff9b88f06818648ae3b",
+      "original_output_files": [
+        "controls/llp-reweight/result.md",
+        "controls/llp-reweight/checkin2.json",
+        "controls/llp-reweight/domain-result.json",
+        "controls/llp-reweight/figures.json",
+        "controls/llp-reweight/result.json",
+        "controls/llp-reweight/verification.json"
+      ],
+      "original_plan_sha256": "b218ff7cbe1d647afef3d6b18aba5ef75fe79b73669cdd55128e7fb1349a2f18",
+      "physics_validated": false,
+      "stage_fingerprint": "7430bd7fc6554c300a1dbe471de05b0dcaf07e88a69a57d188e48fc96c7113d3"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "efficiency-map",
+      "original_approval_sha256": "9ec932c815daf31a0dfe62a6c7811ef4a5a8e3ddbffc4ab347aaed12c2892e05",
+      "original_attempt_sha256": "25e95f984ea1cb7a046bbe1b24cd9160b6832bcc5ff9057c6da96831584c3c5f",
+      "original_output_files": [
+        "controls/efficiency-map/result.md",
+        "controls/efficiency-map/checkin2.json",
+        "controls/efficiency-map/domain-result.json",
+        "controls/efficiency-map/figures.json",
+        "controls/efficiency-map/result.json",
+        "controls/efficiency-map/verification.json"
+      ],
+      "original_plan_sha256": "9a6d3afcab123c25c7dfe8050e62c63e68b81a7874f371dac70182d6a977bd11",
+      "physics_validated": false,
+      "stage_fingerprint": "e21955b4112de1169ddb6b0278c1e257d318aad712019ed6e242dc39cbedd287"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "nuclear-normalization",
+      "original_approval_sha256": "3da7608db54e2b70ea3fb15bd099d72a53c18e47578bb20ad69945c8cd8d0056",
+      "original_attempt_sha256": "4877c91cd674a2809d1e0be05e6a10d550d33370c0a62b7a4b692873df8cebd1",
+      "original_output_files": [
+        "controls/nuclear-normalization/result.md",
+        "controls/nuclear-normalization/checkin2.json",
+        "controls/nuclear-normalization/domain-result.json",
+        "controls/nuclear-normalization/figures.json",
+        "controls/nuclear-normalization/result.json",
+        "controls/nuclear-normalization/verification.json"
+      ],
+      "original_plan_sha256": "dddbc592dd6607d7835659d2d2bfe223e35b3e3ef845660bb8eed815cf29a405",
+      "physics_validated": false,
+      "stage_fingerprint": "2507964081071c14c027023c10f62a2c30af001679fbee2d3d5a185513db52ff"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "forward-acceptance",
+      "original_approval_sha256": "974d9f624082018ae56481728ee9fc352c4653e3c64906eefde4ac4006f3373c",
+      "original_attempt_sha256": "17e1ea35e6a92b6e3ce5cbcfe0802b26943e67f6041003a0ef183803397f46de",
+      "original_output_files": [
+        "controls/forward-acceptance/result.md",
+        "controls/forward-acceptance/checkin2.json",
+        "controls/forward-acceptance/domain-result.json",
+        "controls/forward-acceptance/figures.json",
+        "controls/forward-acceptance/result.json",
+        "controls/forward-acceptance/verification.json"
+      ],
+      "original_plan_sha256": "55e01d57a7d755a25ff8bf3c6acb7b81a3d495275ec8055a3fb7c9c7ef36f9f8",
+      "physics_validated": false,
+      "stage_fingerprint": "66b86b1d0f526966966bb3a4c72c65fecfaf4622de36fa1ec70bc719855392c9"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "domain",
+      "name": "neutrino-fold",
+      "original_approval_sha256": "0e8fa15d917122cbf2a853fed55dbdefe99b48042cf68a7b054a6f96c8bb7bdb",
+      "original_attempt_sha256": "717196b6db7b7e5b0fc8f8278d08341e767648a736cdaf89b701d5c716058302",
+      "original_output_files": [
+        "controls/neutrino-fold/result.md",
+        "controls/neutrino-fold/checkin2.json",
+        "controls/neutrino-fold/domain-result.json",
+        "controls/neutrino-fold/figures.json",
+        "controls/neutrino-fold/result.json",
+        "controls/neutrino-fold/verification.json"
+      ],
+      "original_plan_sha256": "2e848c29d6b324e063a16be7247067828f6f3bee8c8171c2d59bb4178e438548",
+      "physics_validated": false,
+      "stage_fingerprint": "19688d4fcb9473eeb840858ed158742b335f6c426df6d5430454f919f7293ea5"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "Synthetic analytic or boundary input. Agreement tests only the declared operation.",
+        "Scripted assent is experimental consent, not expert scientific review."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "analytic",
+      "max_seconds": 45,
+      "mode": "analyze",
+      "name": "reconstructed-selection",
+      "original_approval_sha256": "e181884a945757dfa10f29ab0391fae3f27df21fae69cf31523c35abacd695ce",
+      "original_attempt_sha256": "bf9f70a72a3670c3c6a2fd66ffaf3662553d26a135967aa70ee2b1e7c405d7b6",
+      "original_output_files": [
+        "controls/reconstructed-selection/result.md",
+        "controls/reconstructed-selection/checkin2.json",
+        "controls/reconstructed-selection/decisions.json",
+        "controls/reconstructed-selection/figures.json",
+        "controls/reconstructed-selection/regions.pdf",
+        "controls/reconstructed-selection/regions.png",
+        "controls/reconstructed-selection/result.json",
+        "controls/reconstructed-selection/verification.json"
+      ],
+      "original_plan_sha256": "4e3f92d2b6fa5313ab018c9de5a30e056d8439d00421ce1e51c05d60a6a3b6ee",
+      "physics_validated": false,
+      "stage_fingerprint": "588172ffd06d7c29743dd6d7918cbefbb2b72884d0e3ff7b1b0283a297b06ca2"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "ATLAS_2013_I1234228",
+      "normalization_oracle": {
+        "actual": 1.0,
+        "basis": "Synthetic 1 pb exposure; explicit branching-ratio and rapidity-width factors in pinned routine. Not a measured cross section.",
+        "expected": 1.0,
+        "relative_tolerance": 2e-06
+      },
+      "original_approval_sha256": "8d33d049a89f399fff4985a6f2c403c1ac884cb3d919cd8f0f4ba2b33712c3ee",
+      "original_attempt_sha256": "3d73c16dd64a6bbabf1f747f3770ad7913ffd8d0687eec336ce637252c88b232",
+      "original_output_files": [
+        "controls/ATLAS_2013_I1234228/result.md",
+        "controls/ATLAS_2013_I1234228/build.log",
+        "controls/ATLAS_2013_I1234228/checkin2.json",
+        "controls/ATLAS_2013_I1234228/event-census.json",
+        "controls/ATLAS_2013_I1234228/export.log",
+        "controls/ATLAS_2013_I1234228/figures.json",
+        "controls/ATLAS_2013_I1234228/histograms.yoda",
+        "controls/ATLAS_2013_I1234228/observable-1.pdf",
+        "controls/ATLAS_2013_I1234228/observable-1.png",
+        "controls/ATLAS_2013_I1234228/observables.json",
+        "controls/ATLAS_2013_I1234228/requested-observables.json",
+        "controls/ATLAS_2013_I1234228/result.json",
+        "controls/ATLAS_2013_I1234228/rivet.log",
+        "controls/ATLAS_2013_I1234228/verification.json"
+      ],
+      "original_plan_sha256": "2fe073fb3409131baac231783a91fafda2b78f68bd64ca56e179a695d65bc586",
+      "physics_validated": false,
+      "stage_fingerprint": "b6a8b2af5651843b78ec7632466375622ad3caa94a6f6b7e8a13aabf7532204f"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "CMS_2018_I1711625",
+      "normalization_oracle": {
+        "actual": 1.0000000500000001,
+        "basis": "Synthetic 1 pb exposure; explicit branching-ratio and rapidity-width factors in pinned routine. Not a measured cross section.",
+        "expected": 1.0,
+        "relative_tolerance": 2e-06
+      },
+      "original_approval_sha256": "628c3b4a3ba08e9345c08896e90cf73c1f5cb8e96cfcae4b33c11d16f51a62e2",
+      "original_attempt_sha256": "cabc3b924bfe90c2e27cfc0b747affb15fa27987e9458c7fcebcb9bd17fb602a",
+      "original_output_files": [
+        "controls/CMS_2018_I1711625/result.md",
+        "controls/CMS_2018_I1711625/build.log",
+        "controls/CMS_2018_I1711625/checkin2.json",
+        "controls/CMS_2018_I1711625/event-census.json",
+        "controls/CMS_2018_I1711625/export.log",
+        "controls/CMS_2018_I1711625/figures.json",
+        "controls/CMS_2018_I1711625/histograms.yoda",
+        "controls/CMS_2018_I1711625/observable-1.pdf",
+        "controls/CMS_2018_I1711625/observable-1.png",
+        "controls/CMS_2018_I1711625/observables.json",
+        "controls/CMS_2018_I1711625/requested-observables.json",
+        "controls/CMS_2018_I1711625/result.json",
+        "controls/CMS_2018_I1711625/rivet.log",
+        "controls/CMS_2018_I1711625/verification.json"
+      ],
+      "original_plan_sha256": "b618ba32a4afd77940eb49dd0943c5d64e00216b153a0ac7f4d80610d7bf8d4a",
+      "physics_validated": false,
+      "stage_fingerprint": "c974004df4925741ea96ed7d600d2ef71e13bb39e4f436362c3b119f6ddb172a"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "ATLAS_2016_I1494075",
+      "normalization_oracle": {
+        "actual": 220824.54,
+        "basis": "Synthetic 1 pb exposure; explicit branching-ratio and rapidity-width factors in pinned routine. Not a measured cross section.",
+        "expected": 220824.5287759795,
+        "relative_tolerance": 2e-06
+      },
+      "original_approval_sha256": "fcdc452b879fb328a8ad1fc1c78b396f045daf63c55cbb26d7866eb6ff9647d1",
+      "original_attempt_sha256": "03705d04d7ea6b081e62c68036b5f9a45ad03a5190666618aac359b146c17055",
+      "original_output_files": [
+        "controls/ATLAS_2016_I1494075/result.md",
+        "controls/ATLAS_2016_I1494075/build.log",
+        "controls/ATLAS_2016_I1494075/checkin2.json",
+        "controls/ATLAS_2016_I1494075/event-census.json",
+        "controls/ATLAS_2016_I1494075/export.log",
+        "controls/ATLAS_2016_I1494075/figures.json",
+        "controls/ATLAS_2016_I1494075/histograms.yoda",
+        "controls/ATLAS_2016_I1494075/observable-1.pdf",
+        "controls/ATLAS_2016_I1494075/observable-1.png",
+        "controls/ATLAS_2016_I1494075/observables.json",
+        "controls/ATLAS_2016_I1494075/requested-observables.json",
+        "controls/ATLAS_2016_I1494075/result.json",
+        "controls/ATLAS_2016_I1494075/rivet.log",
+        "controls/ATLAS_2016_I1494075/verification.json"
+      ],
+      "original_plan_sha256": "608f70174f2fe1fc2fdb64aa0f019a0663fec522a2f12bf7af2f064c9d43cb06",
+      "physics_validated": false,
+      "stage_fingerprint": "35064f44aa2ea5677dea0caa398ecea822b8f1555c15912384588acc0fdfe38b"
+    },
+    {
+      "actual": "normalization_failure",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 2,
+      "expected": "normalization_failure",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "CMS_2012_I1298807",
+      "original_approval_sha256": "bb0e93d2b1e617c5589f03a865448e9a5cbf00dd19584e291a0fc833e41a1598",
+      "original_attempt_sha256": "4728bd1772c139f2265478de91e38a9065703cfdff79d6c9f9ae23c304c0cc97",
+      "original_output_files": [
+        "controls/CMS_2012_I1298807/build.log",
+        "controls/CMS_2012_I1298807/event-census.json",
+        "controls/CMS_2012_I1298807/export.log",
+        "controls/CMS_2012_I1298807/histograms.yoda",
+        "controls/CMS_2012_I1298807/requested-observables.json",
+        "controls/CMS_2012_I1298807/rivet.log"
+      ],
+      "original_plan_sha256": "c2356a34909ead333a14b6f6395a1c2de30ad0ca3def415019cc2d551bcc7fa4",
+      "physics_validated": false,
+      "stage_fingerprint": "3076f1a2e68efb3ecf20832991fdaafacdad9aac8a8322cb350e84c9df0a2467"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "ATLAS_2010_I871366",
+      "normalization_oracle": {
+        "actual": 3.3333334999999997,
+        "basis": "Synthetic 1 pb exposure; explicit branching-ratio and rapidity-width factors in pinned routine. Not a measured cross section.",
+        "expected": 3.3333333333333335,
+        "relative_tolerance": 2e-06
+      },
+      "original_approval_sha256": "7930167158790c8fa0bef459104de939c47130fe323b4957553a41a9464d7ba1",
+      "original_attempt_sha256": "4419581dbb600c420d613b8ae2641c2fcdcd276dc94ee961fa4f440d136e4416",
+      "original_output_files": [
+        "controls/ATLAS_2010_I871366/result.md",
+        "controls/ATLAS_2010_I871366/build.log",
+        "controls/ATLAS_2010_I871366/checkin2.json",
+        "controls/ATLAS_2010_I871366/event-census.json",
+        "controls/ATLAS_2010_I871366/export.log",
+        "controls/ATLAS_2010_I871366/figures.json",
+        "controls/ATLAS_2010_I871366/histograms.yoda",
+        "controls/ATLAS_2010_I871366/observable-1.pdf",
+        "controls/ATLAS_2010_I871366/observable-1.png",
+        "controls/ATLAS_2010_I871366/observables.json",
+        "controls/ATLAS_2010_I871366/requested-observables.json",
+        "controls/ATLAS_2010_I871366/result.json",
+        "controls/ATLAS_2010_I871366/rivet.log",
+        "controls/ATLAS_2010_I871366/verification.json"
+      ],
+      "original_plan_sha256": "c465a518a0e2911817be4b85e6bc61f10ecdc919a49b1063bbfd52a32192ae19",
+      "physics_validated": false,
+      "stage_fingerprint": "1d7766e5f4286b807ebf93f444416d19a3fe72e3de322212d71afe4229a85cd2"
+    },
+    {
+      "actual": "passed",
+      "approval_mode": "scripted_yes",
+      "assumptions": [
+        "The events and cross section are synthetic, not a physical prediction.",
+        "The pinned routine is compiled against the explicitly declared runtime; no equivalence with another runtime is assumed."
+      ],
+      "exit": 0,
+      "expected": "passed",
+      "expert_review": false,
+      "family": "rivet",
+      "max_seconds": 120,
+      "mode": "analyze",
+      "name": "CMS_2016_I1459051",
+      "normalization_oracle": {
+        "actual": 2.00000018,
+        "basis": "Synthetic 1 pb exposure; explicit branching-ratio and rapidity-width factors in pinned routine. Not a measured cross section.",
+        "expected": 2.0,
+        "relative_tolerance": 2e-06
+      },
+      "original_approval_sha256": "427381f8564f4487253bd2e85fbde395fb3e61dcea1da694ab2e12e9e265d2f6",
+      "original_attempt_sha256": "cdc23a8aa6ce9fc17ef3fd29b4cfe2ab7f7b98580bc14ac941f09dd644a5e104",
+      "original_output_files": [
+        "controls/CMS_2016_I1459051/result.md",
+        "controls/CMS_2016_I1459051/build.log",
+        "controls/CMS_2016_I1459051/checkin2.json",
+        "controls/CMS_2016_I1459051/event-census.json",
+        "controls/CMS_2016_I1459051/export.log",
+        "controls/CMS_2016_I1459051/figures.json",
+        "controls/CMS_2016_I1459051/histograms.yoda",
+        "controls/CMS_2016_I1459051/observable-1.pdf",
+        "controls/CMS_2016_I1459051/observable-1.png",
+        "controls/CMS_2016_I1459051/observables.json",
+        "controls/CMS_2016_I1459051/requested-observables.json",
+        "controls/CMS_2016_I1459051/result.json",
+        "controls/CMS_2016_I1459051/rivet.log",
+        "controls/CMS_2016_I1459051/verification.json"
+      ],
+      "original_plan_sha256": "a742b6ed2e3a13de594e60e788438011b061eb837d4cd94e4f11b59e4de444a8",
+      "physics_validated": false,
+      "stage_fingerprint": "f1c6b0ec90ca6aead701fea8d8e4d4a2ba1db90986587f19ac8657142e9da4be"
+    }
+  ],
+  "physics_validated": false,
+  "schema_version": 1,
+  "scope": "Frozen synthetic adapter controls, not a fresh replay or paper reproduction"
+}

@@ -1,0 +1,92 @@
+[
+  {
+    "event_id": "1",
+    "group_id": "1",
+    "regions": [
+      "dilepton"
+    ],
+    "variables": {
+      "nEl": 2,
+      "nMu": 0,
+      "nLep": 2,
+      "nJet": 0,
+      "nBjet": 0,
+      "MET": 30.0,
+      "HT": 0,
+      "meff": 30.0,
+      "jet1pt": null,
+      "jet2pt": null,
+      "jet3pt": null,
+      "jet4pt": null,
+      "lep1pt": 20.0,
+      "lep2pt": 20.0,
+      "dphiMin": null,
+      "mTlep": 23.486958784785916,
+      "mll": 40.0,
+      "mjj": null
+    },
+    "weights": {
+      "nominal": 1
+    }
+  },
+  {
+    "event_id": "2",
+    "group_id": "2",
+    "regions": [
+      "zero_lepton"
+    ],
+    "variables": {
+      "nEl": 0,
+      "nMu": 0,
+      "nLep": 0,
+      "nJet": 0,
+      "nBjet": 0,
+      "MET": 30.0,
+      "HT": 0,
+      "meff": 30.0,
+      "jet1pt": null,
+      "jet2pt": null,
+      "jet3pt": null,
+      "jet4pt": null,
+      "lep1pt": null,
+      "lep2pt": null,
+      "dphiMin": null,
+      "mTlep": null,
+      "mll": null,
+      "mjj": null
+    },
+    "weights": {
+      "nominal": 1
+    }
+  },
+  {
+    "event_id": "3",
+    "group_id": "3",
+    "regions": [
+      "zero_lepton"
+    ],
+    "variables": {
+      "nEl": 0,
+      "nMu": 0,
+      "nLep": 0,
+      "nJet": 0,
+      "nBjet": 0,
+      "MET": 30.0,
+      "HT": 0,
+      "meff": 30.0,
+      "jet1pt": null,
+      "jet2pt": null,
+      "jet3pt": null,
+      "jet4pt": null,
+      "lep1pt": null,
+      "lep2pt": null,
+      "dphiMin": null,
+      "mTlep": null,
+      "mll": null,
+      "mjj": null
+    },
+    "weights": {
+      "nominal": -0.5
+    }
+  }
+]

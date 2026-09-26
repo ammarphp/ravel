@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/CMS_2016_I1459051/d08-x01-y01",
+    "axes": [
+      {
+        "name": "transverse momentum",
+        "unit": "GeV"
+      }
+    ],
+    "representation": "differential",
+    "normalization": "absolute",
+    "unit": "pb/GeV"
+  }
+]

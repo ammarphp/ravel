@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "kind": "supplied_gaussian_measurement",
+  "analysis_id": "synthetic-gaussian-control",
+  "input": {
+    "path": "$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/analytic-release/inputs/normalized-measurement.json",
+    "sha256": "5c76a494954824849cd7f347e1395bdfdd834e0a8cac94ff77f4abf27b8c01dc"
+  },
+  "task": {
+    "schema_version": 1,
+    "input": "normalized-measurement.json",
+    "inference": "spey_cls",
+    "signal_strength": 1.0,
+    "poi_max": 10
+  },
+  "quantity": {
+    "axes": [
+      {
+        "name": "mass",
+        "unit": "GeV"
+      }
+    ],
+    "bins": [
+      {
+        "id": "a",
+        "low": [
+          0
+        ],
+        "high": [
+          1
+        ]
+      },
+      {
+        "id": "b",
+        "low": [
+          1
+        ],
+        "high": [
+          3
+        ]
+      }
+    ],
+    "representation": "differential",
+    "normalization": "normalized",
+    "unit": "1/(GeV)"
+  },
+  "bin_ids": [
+    "a",
+    "b"
+  ],
+  "unit": "1/(GeV)",
+  "goodness_of_fit": {
+    "sm": {
+      "chi2": 0.9999999999999992,
+      "degrees_of_freedom": 1,
+      "p_value": 0.3173105078629114
+    },
+    "tested_model": {
+      "chi2": 3.9999999999999987,
+      "degrees_of_freedom": 1,
+      "p_value": 0.0455002638963585
+    }
+  },
+  "fit": {
+    "unconstrained_signal_strength": -0.9999999999999993,
+    "standard_error": 0.9999999999999998,
+    "chi2": 1.5407439555097887e-32,
+    "degrees_of_freedom": 0
+  },
+  "covariance_policy": "experimental_only",
+  "overlap": {
+    "policy": "single_measurement"
+  },
+  "covariance_condition_number": 1.0,
+  "constraint_projection": [
+    [
+      -0.894427190999916,
+      0.4472135954999578
+    ]
+  ],
+  "constraints": [
+    {
+      "coefficients": [
+        1,
+        2
+      ],
+      "value": 1
+    }
+  ],
+  "inference": {
+    "backend": "spey.default.multivariate_normal",
+    "backend_version": "0.2.6",
+    "confidence_level": 0.95,
+    "unit": "dimensionless_signal_strength",
+    "limits": {
+      "schema_version": 1,
+      "quantity": "signal_strength",
+      "observed": {
+        "value": 1.411994395787256,
+        "status": "resolved",
+        "bracket": [
+          0.0,
+          10
+        ]
+      },
+      "expected": [
+        {
+          "value": 1.0517634360377355,
+          "status": "resolved",
+          "bracket": [
+            0.0,
+            10
+          ]
+        },
+        {
+          "value": 1.4119943957872554,
+          "status": "resolved",
+          "bracket": [
+            0.0,
+            10
+          ]
+        },
+        {
+          "value": 1.9599639845401609,
+          "status": "resolved",
+          "bracket": [
+            0.0,
+            10
+          ]
+        },
+        {
+          "value": 2.727184828821438,
+          "status": "resolved",
+          "bracket": [
+            0.0,
+            10
+          ]
+        },
+        {
+          "value": 3.655984356713815,
+          "status": "resolved",
+          "bracket": [
+            0.0,
+            10
+          ]
+        }
+      ],
+      "origin": "spey.default.multivariate_normal",
+      "notes": [
+        "Supplied fixed-covariance Gaussian measurement; asymptotic qtilde; apriori expected bands."
+      ]
+    },
+    "numerical_evidence": [
+      {
+        "status": "resolved",
+        "cls": 0.049999999999992495,
+        "independent_gaussian_cls": 0.04999999999999243,
+        "residual": -7.507883204027621e-15,
+        "bracket_cls": [
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "status": "resolved",
+        "cls": 0.04999999999999272,
+        "independent_gaussian_cls": 0.0499999999999927,
+        "residual": -7.28583859910259e-15,
+        "bracket_cls": [
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "status": "resolved",
+        "cls": 0.049999999999992606,
+        "independent_gaussian_cls": 0.04999999999999248,
+        "residual": -7.396860901565105e-15,
+        "bracket_cls": [
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "status": "resolved",
+        "cls": 0.0499999999999875,
+        "independent_gaussian_cls": 0.049999999999987485,
+        "residual": -1.2503886814840826e-14,
+        "bracket_cls": [
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "status": "resolved",
+        "cls": 0.04999999999999993,
+        "independent_gaussian_cls": 0.04999999999999998,
+        "residual": -6.938893903907228e-17,
+        "bracket_cls": [
+          1.0,
+          0.0
+        ]
+      },
+      {
+        "status": "resolved",
+        "cls": 0.050000000000001266,
+        "independent_gaussian_cls": 0.05000000000000123,
+        "residual": 1.2628786905111156e-15,
+        "bracket_cls": [
+          1.0,
+          6.661338147750939e-16
+        ]
+      }
+    ],
+    "poi_cap": 10,
+    "fit_poi_cap": 20.999999999999996,
+    "sufficient_statistic": {
+      "standardized_measurement": -0.9999999999999997,
+      "signal_per_unit_strength": 1.0000000000000002,
+      "variance": 1.0,
+      "exact_for": "linear signal with fixed supplied Gaussian covariance"
+    },
+    "excluded_at_test_strength": false,
+    "expected_prescription": "apriori",
+    "test_statistic": "qtilde"
+  },
+  "status": "passed",
+  "status_scope": "numerical evaluation of the supplied model; not physics validation",
+  "versions": {
+    "numpy": "1.26.4",
+    "scipy": "1.14.1"
+  },
+  "physics_validated": false,
+  "limitations": [
+    "Inference is conditional on the supplied Gaussian measurement and fixed covariance, not an experimental-likelihood reconstruction.",
+    "Goodness-of-fit p-values are not CLs exclusion limits or discovery claims.",
+    "The supplied theory covariance is independent of experimental covariance and fixed with signal strength when that policy is declared.",
+    "Input provenance, Gaussian approximation, overlap evidence, unfolding/model dependence and theory coverage require separate scientific validation."
+  ]
+}

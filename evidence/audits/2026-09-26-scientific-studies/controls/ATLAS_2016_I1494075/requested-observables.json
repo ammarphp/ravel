@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/ATLAS_2016_I1494075/d02-x01-y01",
+    "axes": [
+      {
+        "name": "transverse momentum",
+        "unit": "GeV"
+      }
+    ],
+    "representation": "differential",
+    "normalization": "absolute",
+    "unit": "fb/GeV"
+  }
+]

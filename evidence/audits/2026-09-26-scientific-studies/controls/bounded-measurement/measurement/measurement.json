@@ -1,0 +1,201 @@
+{
+  "analysis_id": "synthetic-gaussian-control",
+  "bin_ids": [
+    "a",
+    "b"
+  ],
+  "constraint_projection": [
+    [
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0
+    ]
+  ],
+  "constraints": [],
+  "covariance_condition_number": 2.4143877498964077,
+  "covariance_policy": "experimental_only",
+  "failure_reason": "One or more CLs crossings remain beyond the declared signal-strength cap.",
+  "fit": {
+    "chi2": 0.25000000000000006,
+    "degrees_of_freedom": 1,
+    "standard_error": 0.9860132971832694,
+    "unconstrained_signal_strength": 0.4166666666666667
+  },
+  "goodness_of_fit": {
+    "sm": {
+      "chi2": 0.42857142857142855,
+      "degrees_of_freedom": 2,
+      "p_value": 0.8071177470053893
+    },
+    "tested_model": {
+      "chi2": 0.6000000000000001,
+      "degrees_of_freedom": 2,
+      "p_value": 0.7408182206817179
+    }
+  },
+  "inference": {
+    "backend": "spey.default.multivariate_normal",
+    "backend_version": "0.2.6",
+    "confidence_level": 0.95,
+    "excluded_at_test_strength": null,
+    "expected_prescription": "apriori",
+    "fit_poi_cap": 20.136932610332057,
+    "limits": {
+      "expected": [
+        {
+          "bracket": [
+            0.01,
+            null
+          ],
+          "status": "above_scan",
+          "value": 0.01
+        },
+        {
+          "bracket": [
+            0.01,
+            null
+          ],
+          "status": "above_scan",
+          "value": 0.01
+        },
+        {
+          "bracket": [
+            0.01,
+            null
+          ],
+          "status": "above_scan",
+          "value": 0.01
+        },
+        {
+          "bracket": [
+            0.01,
+            null
+          ],
+          "status": "above_scan",
+          "value": 0.01
+        },
+        {
+          "bracket": [
+            0.01,
+            null
+          ],
+          "status": "above_scan",
+          "value": 0.01
+        }
+      ],
+      "notes": [
+        "Supplied fixed-covariance Gaussian measurement; asymptotic qtilde; apriori expected bands."
+      ],
+      "observed": {
+        "bracket": [
+          0.01,
+          null
+        ],
+        "status": "above_scan",
+        "value": 0.01
+      },
+      "origin": "spey.default.multivariate_normal",
+      "quantity": "signal_strength",
+      "schema_version": 1
+    },
+    "numerical_evidence": [
+      {
+        "cls_at_cap": 0.9919730653952321,
+        "status": "above_scan"
+      },
+      {
+        "cls_at_cap": 0.9761740679885782,
+        "status": "above_scan"
+      },
+      {
+        "cls_at_cap": 0.984610739374409,
+        "status": "above_scan"
+      },
+      {
+        "cls_at_cap": 0.9919081123421736,
+        "status": "above_scan"
+      },
+      {
+        "cls_at_cap": 0.9970684133292318,
+        "status": "above_scan"
+      },
+      {
+        "cls_at_cap": 0.9994339729035118,
+        "status": "above_scan"
+      }
+    ],
+    "poi_cap": 0.01,
+    "sufficient_statistic": {
+      "exact_for": "linear signal with fixed supplied Gaussian covariance",
+      "signal_per_unit_strength": 1.01418510567422,
+      "standardized_measurement": 0.4225771273642583,
+      "variance": 1.0
+    },
+    "test_statistic": "qtilde",
+    "unit": "dimensionless_signal_strength"
+  },
+  "input": {
+    "path": "$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/analytic-release/inputs/bounded-measurement.json",
+    "sha256": "ea848742f9beb952e1b4213312cbc7e2524aa417fbea5c31e0f7b0a039288afe"
+  },
+  "kind": "supplied_gaussian_measurement",
+  "limitations": [
+    "Inference is conditional on the supplied Gaussian measurement and fixed covariance, not an experimental-likelihood reconstruction.",
+    "Goodness-of-fit p-values are not CLs exclusion limits or discovery claims.",
+    "The supplied theory covariance is independent of experimental covariance and fixed with signal strength when that policy is declared.",
+    "Input provenance, Gaussian approximation, overlap evidence, unfolding/model dependence and theory coverage require separate scientific validation."
+  ],
+  "overlap": {
+    "policy": "single_measurement"
+  },
+  "physics_validated": false,
+  "quantity": {
+    "axes": [
+      {
+        "name": "mass",
+        "unit": "GeV"
+      }
+    ],
+    "bins": [
+      {
+        "high": [
+          1
+        ],
+        "id": "a",
+        "low": [
+          0
+        ]
+      },
+      {
+        "high": [
+          3
+        ],
+        "id": "b",
+        "low": [
+          1
+        ]
+      }
+    ],
+    "normalization": "absolute",
+    "representation": "integrated",
+    "unit": "pb"
+  },
+  "schema_version": 1,
+  "status": "failed",
+  "status_scope": "numerical evaluation of the supplied model; not physics validation",
+  "task": {
+    "inference": "spey_cls",
+    "input": "bounded-measurement.json",
+    "poi_max": 0.01,
+    "schema_version": 1,
+    "signal_strength": 1.0
+  },
+  "unit": "pb",
+  "versions": {
+    "numpy": "1.26.4",
+    "scipy": "1.14.1"
+  }
+}

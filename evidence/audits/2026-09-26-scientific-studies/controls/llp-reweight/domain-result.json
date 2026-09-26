@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "domain": "llp",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "events": [
+      {
+        "event_id": "one",
+        "factor": 0.8243606353500641,
+        "weighted_contribution": 0.8243606353500641,
+        "per_particle_probabilities": [],
+        "log_reweight": -0.1931471805599453
+      }
+    ],
+    "sumw": 0.8243606353500641,
+    "sumw2": 0.6795704571147614,
+    "checks_passed": true
+  },
+  "limitations": [
+    "Prompt production at the cylinder origin, straight-line vacuum propagation and independent exponential decays are assumed for geometry.",
+    "Reweighting assumes identical production and independent, untruncated exponential proper lengths; right-censoring uses survival ratios.",
+    "No detector efficiency, branching fraction, absolute exposure normalization or validity of a new lifetime point is inferred."
+  ],
+  "inputs": [
+    {
+      "path": "$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/analytic-release/inputs/lifetime/llp.json",
+      "size": 99,
+      "sha256": "faf9c8c65f4fe7077f03dfc3fdd1e8358d2e518058e592d351260455c34d258f"
+    }
+  ]
+}

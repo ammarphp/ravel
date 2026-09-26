@@ -1,0 +1,168 @@
+{
+  "status": "passed",
+  "physics_validated": false,
+  "quantities": {
+    "schema_version": 1,
+    "kind": "weighted_quantities",
+    "contract": {
+      "schema_version": 1,
+      "axes": [
+        {
+          "name": "pt",
+          "unit": "GeV"
+        }
+      ],
+      "bins": [
+        {
+          "id": "low",
+          "low": [
+            0.0
+          ],
+          "high": [
+            1.0
+          ]
+        },
+        {
+          "id": "high",
+          "low": [
+            1.0
+          ],
+          "high": [
+            3.0
+          ]
+        }
+      ],
+      "weight_names": [
+        "nominal"
+      ],
+      "input_weight_unit": "pb",
+      "representation": "differential",
+      "normalization": {
+        "kind": "normalized",
+        "scope": "all_events"
+      }
+    },
+    "contract_sha256": "78a3ef198304d1822aac49ca4d2095567b8366e6dafa233f4d289bcda8aae688",
+    "state": {
+      "sumw": [
+        2.0,
+        3.0,
+        0.0,
+        4.0
+      ],
+      "second_moment": [
+        [
+          4.0,
+          0.0,
+          0.0,
+          4.0
+        ],
+        [
+          0.0,
+          9.0,
+          0.0,
+          9.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          4.0,
+          9.0,
+          0.0,
+          14.0
+        ]
+      ],
+      "event_ids": [
+        "a",
+        "b",
+        "c"
+      ],
+      "group_ids": [
+        "a",
+        "b",
+        "c"
+      ],
+      "shard_ids": [
+        "b",
+        "sample-a"
+      ],
+      "counts": {
+        "records": 3,
+        "fills": 2,
+        "in_range": 2,
+        "flow": 0,
+        "empty_records": 1
+      },
+      "negative_weight_records": {
+        "nominal": 1
+      }
+    },
+    "state_sha256": "f8064df8ad88924454763d22ad7981041e88059f8242fd647281126365809aeb",
+    "finalization_pending": false,
+    "bin_ids": [
+      "low",
+      "high"
+    ],
+    "bin_volumes": [
+      1.0,
+      2.0
+    ],
+    "unit": "1/(GeV)",
+    "values": {
+      "nominal": [
+        0.5,
+        0.375
+      ]
+    },
+    "covariance_order": [
+      {
+        "weight": "nominal",
+        "bin_id": "low"
+      },
+      {
+        "weight": "nominal",
+        "bin_id": "high"
+      }
+    ],
+    "covariance": [
+      [
+        0.21875,
+        -0.0703125
+      ],
+      [
+        -0.0703125,
+        0.052734375
+      ]
+    ],
+    "covariance_unit": "(1/(GeV))^2",
+    "denominators": {
+      "nominal": {
+        "sumw": 4.0,
+        "sumw2": 14.0,
+        "relative_standard_error": 0.9354143466934853
+      }
+    },
+    "flow": {
+      "nominal": {
+        "sumw": 0.0,
+        "sumw2": 0.0,
+        "unit": "pb"
+      }
+    },
+    "uncertainty_scope": "Poissonized independent-group moments; normalized quantities use first-order shared-denominator propagation",
+    "limitations": [
+      "No fixed-N, integration, detector, theory, luminosity or scale uncertainty is inferred.",
+      "Weight variations retain covariance but are not automatically a systematic uncertainty envelope.",
+      "Normalized uncertainty can be unreliable when its supplied signed denominator is poorly determined."
+    ],
+    "physics_validated": false
+  },
+  "scope": "Declared weighted bin quantities and conditional group MC covariance",
+  "limitations": [
+    "Weight semantics and fills are supplied; this does not validate an event generator."
+  ]
+}

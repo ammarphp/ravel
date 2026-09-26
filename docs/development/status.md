@@ -2,15 +2,25 @@
 
 This board separates implemented software, historical scientific evidence and completed physicist deliverables. Read it for current state; earlier session records are preserved in the [state-board archive](history/2026-09-05-status-archive.md). The operational entry is [start a physics workflow](../workflow/start.md).
 
+## September 26 scientific adapter implementation
+
+All five development stages now have executable components behind the common
+`plan/approve/run/status` lifecycle. See the [implementation and control report](../../evidence/audits/2026-09-26-scientific-studies/README.md)
+and [operating instructions](../workflow/reference/scientific-studies.md).
+Unmodified Rivet has executed bounded frozen-event controls; the SimpleAnalysis
+adapter has ROOT protocol controls but lacks a local upstream AnalysisBase build.
+Signed quantities, supplied Gaussian inference and domain operations have analytic
+and adversarial checks. These components do not upgrade the legacy prompt
+scoreboard, certify detector response or close the remaining RRR reproduction.
+
 ## September 26 analysis landscape
 
 The [expanded survey](../research/2026-09-26-analysis-landscape.md) inventories 633
 entries from pinned Rivet/SimpleAnalysis sources and defines per-routine adaptation
 work. The installed `ravel analyses` commands provide offline lookup, unambiguous
-selection, adaptation packets and selected-source verification. No new scientific
-validation or general routine executor is claimed. The [competitor refresh](../research/2026-09-26-competitor-capability-map.md)
-tracks twelve systems; SFitterAgents now has public implementation. The next
-capability is fixed-event scientific admission, followed by reference closure.
+selection, adaptation packets and selected-source verification. The survey itself established source coverage, not physics validation. The [competitor refresh](../research/2026-09-26-competitor-capability-map.md)
+tracks twelve systems; SFitterAgents now has public implementation. Fixed-event scientific admission is now implemented above; published-reference
+closure remains the next scientific task.
 
 ## Architecture hardening
 

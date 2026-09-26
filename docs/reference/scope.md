@@ -214,3 +214,14 @@ and its bar are stated here like any other:
 | scope item | verification mechanism | this cycle's bar (and its non-goal) |
 |---|---|---|
 | Verification of the enforcement spine | the spine_sim per-gate harness (framework/spine_sim, one case per G0a-G27) + the clean-room self-drive (clean_room.py --live) + make green | this cycle's bar is "harness + self-drive green", NOT a physicist-vetted full-physics run (spec §2 non-goal) |
+
+## Supplied-data scientific operations
+
+The [scientific-study contract](../workflow/reference/scientific-studies.md) adds
+`analyze`, `quantities`, `measurement` and `domain` proposals alongside the task
+routes above. These admit existing event/object records and explicitly supplied
+models; they do not relax generation, detector or reproduction gates. In particular,
+UFO inspection is not model generation, lifetime geometry is not a displaced-track
+efficiency, and a supplied Gaussian measurement likelihood is not an experimental
+full likelihood. Requested paths and methods outside those adapters remain unmet
+product requests.

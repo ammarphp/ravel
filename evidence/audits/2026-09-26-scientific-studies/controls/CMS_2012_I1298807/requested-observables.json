@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/CMS_2012_I1298807/d01-x01-y04",
+    "axes": [
+      {
+        "name": "mass",
+        "unit": "GeV"
+      }
+    ],
+    "representation": "differential",
+    "normalization": "normalized",
+    "unit": "1/GeV"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "format": "HepMC3",
+  "events": 2,
+  "independent_groups": 1,
+  "weight_names": [
+    "nominal",
+    "scale"
+  ],
+  "sumw": [
+    1.0,
+    2.0
+  ],
+  "group_weight_second_moments": [
+    [
+      1.0,
+      2.0
+    ],
+    [
+      2.0,
+      4.0
+    ]
+  ],
+  "negative_nominal_subevents": 1,
+  "beams_checked": true,
+  "physics_validated": false
+}

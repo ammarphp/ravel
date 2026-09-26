@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "checkin2",
+  "sections": {
+    "waypoint": {
+      "scope": "measurement",
+      "status": "failed",
+      "result": "outputs/result.json"
+    },
+    "expectation": "Review the declared quantities and comparisons. Adapter checks do not establish detector fidelity, paper closure or expert review.",
+    "ask": {
+      "options": [
+        "GO",
+        "ADJUST"
+      ],
+      "scope": "Any follow-up calculation requires its own concrete plan and approval."
+    }
+  }
+}

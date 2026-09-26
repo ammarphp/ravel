@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased — supplied-data scientific studies
+
+- Add approved, bounded `analyze`, `quantities`, `measurement` and `domain` studies
+  with exact input/source/runtime custody, explicit failures and CHECK-IN 2.
+- Execute unmodified pinned Rivet routines on frozen HepMC; reconcile grouped,
+  signed and variation-weight exposure and preserve continuous YODA quantities.
+  Match RAW/final bin geometry and avoid applying density bin widths twice.
+- Add explicit reconstructed-object selection, complete event-decision comparison,
+  overlap/covariance-aware likelihood injection and an upstream SimpleAnalysis
+  slim ROOT adapter. The latter still needs an external AnalysisBase build.
+- Add ND quantity transport/merge, correlated Gaussian GOF and Spey CLs, bounded
+  UFO/EFT/ONNX/lifetime and nuclear/forward/neutrino operations. Publish exact
+  schemas, small end-to-end controls and retained failure evidence.
+- Preserve the distinction between adapter delivery and physics fidelity. No
+  new RRR mass-plane closure or comparative agent success rate is asserted.
+
 ## Unreleased — public analysis discovery
 
 - Add a pinned census of 554 Rivet LHC entries and 79 SimpleAnalysis routines,

@@ -10,6 +10,7 @@ workflow when you have an analysis question and a configured native toolchain.
 | Install Ravel and run the first example | [Installation](installation.md) |
 | Validate a contract or replay cached inputs | [Command-line reference](cli.md) |
 | Reproduce or reinterpret a published analysis | [Start a physics workflow](workflow/start.md) |
+| Analyze supplied events or models | [Scientific studies](workflow/reference/scientific-studies.md), [quantity and measurement contracts](reference/quantities-and-measurements.md), [domain adapters](reference/domain-adapters.md) |
 | Follow an existing run | [Session guide](workflow/session-guide.md) |
 | Understand what is supported | [Capabilities](reference/capabilities.md), [scope](reference/scope.md), and [limitations](reference/limitations.md) |
 

@@ -1,0 +1,235 @@
+{
+  "yoda_version": "2.1.3",
+  "all_object_paths": [
+    "/ATLAS_2013_I1234228/d01-x01-y02",
+    "/ATLAS_2013_I1234228/d01-x01-y02[scale]",
+    "/RAW/ATLAS_2013_I1234228/d01-x01-y02",
+    "/RAW/ATLAS_2013_I1234228/d01-x01-y02[scale]",
+    "/RAW/_EVTCOUNT",
+    "/RAW/_EVTCOUNT[scale]",
+    "/RAW/_XSEC",
+    "/RAW/_XSEC[scale]",
+    "/TMP/_BEAMPZ",
+    "/_EVTCOUNT",
+    "/_EVTCOUNT[scale]",
+    "/_XSEC",
+    "/_XSEC[scale]"
+  ],
+  "observables": {
+    "/ATLAS_2013_I1234228/d01-x01-y02": {
+      "contract": {
+        "path": "/ATLAS_2013_I1234228/d01-x01-y02",
+        "axes": [
+          {
+            "name": "mass",
+            "unit": "GeV"
+          }
+        ],
+        "representation": "differential",
+        "normalization": "absolute",
+        "unit": "pb/GeV"
+      },
+      "bins": [
+        {
+          "low": [
+            116.0
+          ],
+          "high": [
+            130.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            130.0
+          ],
+          "high": [
+            150.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            150.0
+          ],
+          "high": [
+            170.0
+          ],
+          "value": 0.05,
+          "error_low": 0.05,
+          "error_high": 0.05,
+          "variance": 0.0025000000000000005,
+          "integrated_sumw": 1.0,
+          "entries": 1.0
+        },
+        {
+          "low": [
+            170.0
+          ],
+          "high": [
+            190.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            190.0
+          ],
+          "high": [
+            210.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            210.0
+          ],
+          "high": [
+            230.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            230.0
+          ],
+          "high": [
+            250.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            250.0
+          ],
+          "high": [
+            300.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            300.0
+          ],
+          "high": [
+            400.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            400.0
+          ],
+          "high": [
+            500.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            500.0
+          ],
+          "high": [
+            700.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            700.0
+          ],
+          "high": [
+            1000.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        },
+        {
+          "low": [
+            1000.0
+          ],
+          "high": [
+            1500.0
+          ],
+          "value": 0.0,
+          "error_low": 0.0,
+          "error_high": 0.0,
+          "variance": 0.0,
+          "integrated_sumw": 0.0,
+          "entries": 0.0
+        }
+      ],
+      "storage_semantics": "Rivet finalized density with matching RAW histogram",
+      "flow_sumw": null,
+      "flow_sumw2": null,
+      "raw_flow_sumw": 0.0,
+      "covariance_scope": "upstream marginal moments; cross-bin covariance is not supplied by this histogram"
+    }
+  },
+  "event_counters": {
+    "/RAW/_EVTCOUNT": {
+      "sumw": 1.0,
+      "sumw2": 1.0,
+      "entries": 1.0
+    },
+    "/RAW/_EVTCOUNT[scale]": {
+      "sumw": 2.0,
+      "sumw2": 4.0,
+      "entries": 1.0
+    }
+  }
+}

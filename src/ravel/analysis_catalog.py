@@ -262,6 +262,8 @@ def adaptation_packet(catalog,row):
             'upstream_status':row['upstream_status'],'reference_files_present':len(row['reference_files']),
             'reference_content_verified':False,'probability_model_index_matches':row['model_index_matches'],
             'registered_native_adapter':registered, 'requirements':requirements,'blockers':blockers,
+            'supplied_event_route':{'backend':row['framework'], 'guide':'docs/workflow/reference/scientific-studies.md',
+                                    'status':'adapter available; routine-specific dependencies and scientific admission still required'},
             'compute_authorized':False,'physics_validated':False,
             'next_action':'Resolve this adaptation plan against source and published references, then propose a bounded fixed-event validation with a concrete check-in.'}
 

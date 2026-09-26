@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "domain": "eft",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "basis_terms": [
+      "SM",
+      "a",
+      "b",
+      "a*a",
+      "a*b",
+      "b*b"
+    ],
+    "bin_names": [
+      "one",
+      "two"
+    ],
+    "prediction_unit": "pb",
+    "coefficients_by_term": [
+      [
+        10.000000000000007,
+        -0.9999999999999973
+      ],
+      [
+        1.9999999999999964,
+        3.0
+      ],
+      [
+        -4.000000000000004,
+        -1.885703314458183e-15
+      ],
+      [
+        2.9999999999999885,
+        -6.388340195537146e-15
+      ],
+      [
+        5.000000000000026,
+        1.1492484132274953e-14
+      ],
+      [
+        5.999999999999989,
+        -2.0000000000000036
+      ]
+    ],
+    "condition_number": 8.069014147384399,
+    "fit_residual_max": 7.105427357601002e-15,
+    "control_predictions": [
+      [
+        13.999999999999993,
+        -1.7763568394002505e-15
+      ]
+    ],
+    "control_references": [
+      [
+        14.0,
+        0.0
+      ]
+    ],
+    "fit_passed": true,
+    "control_passed": true,
+    "checks_passed": true,
+    "predictions": [
+      {
+        "point": {
+          "a": 0.5,
+          "b": -0.5
+        },
+        "sm": [
+          10.000000000000007,
+          -0.9999999999999973
+        ],
+        "linear_interference": [
+          3.0000000000000004,
+          1.5000000000000009
+        ],
+        "quadratic_and_mixed": [
+          0.999999999999988,
+          -0.5000000000000053
+        ],
+        "total": [
+          13.999999999999993,
+          -1.7763568394002505e-15
+        ],
+        "nonnegative_for_poisson": false
+      }
+    ],
+    "clipping_applied": false
+  },
+  "limitations": [
+    "Exact quadratic dependence is assumed; truncation, scale validity and missing higher operators require physics review.",
+    "Signed interference and negative totals are retained; negative totals cannot become Poisson means.",
+    "No Monte Carlo covariance or coefficient uncertainty is inferred from central-value samples."
+  ],
+  "inputs": [
+    {
+      "path": "$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/analytic-release/inputs/eft/basis.json",
+      "size": 526,
+      "sha256": "6a3646fe3cf34f762531da091b493170b6fae234f56f653e43d1ac2360ca3003"
+    }
+  ]
+}

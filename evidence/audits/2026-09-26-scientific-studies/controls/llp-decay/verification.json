@@ -1,0 +1,9 @@
+{
+  "expert_review": false,
+  "original_result_sha256": "e63263ab89dc4da60c3c043af6309d6fbc49ed155c834cd580047fafd2866c90",
+  "passed": true,
+  "physics_validated": false,
+  "public_transformation": "Only operator-home and DSRLab-root path redaction; original result hash retained.",
+  "result_sha256": "1b343e2d76277b4034e898e311a9b3661a033536b69d9525bc734644b09a5165",
+  "scope": "domain"
+}

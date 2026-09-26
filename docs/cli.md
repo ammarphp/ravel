@@ -216,3 +216,13 @@ cached. The existing five numerical selftests also passed, including the NaN-poc
 optimizer and published 2018-06 free-fit regressions. These are scoped checks, not a fresh
 generation trial. Package portability checks also covered wheel payload parity and protection of existing output
 evidence; consult the release evidence for the tested revision and complete test counts.
+
+## Supplied-data scientific studies
+
+`plan --spec` also accepts `analyze`, `quantities`, `measurement` and `domain`.
+These use the explicit [scientific-study specification](workflow/reference/scientific-studies.md),
+not a reinterpreted generation or reproduction contract. `approve`, `run` and
+`status --write` share the bounded lifecycle; `run --resume` verifies completed
+outputs without relaunching computation. Requested inputs and code must still
+match their approved hashes. A successful study requires CHECK-IN 2 review before
+any follow-up and does not mark an analysis as physics-validated.

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "domain": "applicability",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "family": "neutrino",
+    "bins": [
+      {
+        "energy_low_GeV": 10,
+        "energy_high_GeV": 20,
+        "flux": 10000000.0,
+        "cross_section": 1e-36,
+        "efficiency": 0.5,
+        "expected_events": 5.0
+      }
+    ],
+    "expected_events": 5.0,
+    "checks_passed": true
+  },
+  "limitations": [
+    "Supplied thin-target integrated flux and flux-weighted cross-section fold only; no flux generation, oscillation, nuclear model, energy migration or uncertainty propagation."
+  ],
+  "inputs": [
+    {
+      "path": "$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/analytic-release/inputs/neutrino-fold.json",
+      "size": 451,
+      "sha256": "0670d393fdf9d18f1289f4a6ac3a5e324b337e06c0a97a5de0296d5379f3d749"
+    }
+  ]
+}

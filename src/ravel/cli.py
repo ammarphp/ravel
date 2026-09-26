@@ -31,7 +31,7 @@ def parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="derive a compact current-state packet from live artifacts")
     status.add_argument("--rundir", type=Path, required=True)
     status.add_argument("--write", action="store_true", help="also refresh current_state.json")
-    plan = sub.add_parser("plan", help="prepare an explicit generation-only or likelihood-only CHECK-IN 1; no compute")
+    plan = sub.add_parser("plan", help="prepare a concrete scoped or supplied-data scientific CHECK-IN 1; no compute")
     plan.add_argument("--rundir", type=Path, required=True)
     plan.add_argument("--spec", type=Path, required=True, help="strict scoped specification JSON")
     approve = sub.add_parser("approve", help="record assent bound to a concrete scoped CHECK-IN 1")
@@ -163,6 +163,11 @@ def _initiate(args) -> int:
 
 
 def _status(args) -> int:
+    if (args.rundir / "inputs/science-plan.json").exists():
+        from .workflow.science import packet
+        result = packet(args.rundir, write=args.write)
+        print(json.dumps(result, indent=2, allow_nan=False))
+        return 1 if result["execution"]["status"] in ("invalid", "failed") else 0
     from .workflow.current_state import build_packet, write_packet
     packet = (write_packet if args.write else build_packet)(args.rundir)
     print(json.dumps(packet, indent=2, allow_nan=False))
@@ -192,7 +197,12 @@ def _validate(args) -> int:
 
 
 def _plan(args) -> int:
-    from .workflow.scoped import plan
+    from .workflow.state_io import read_json
+    from .workflow.science import MODES
+    if read_json(args.spec).get("mode") in MODES:
+        from .workflow.science import plan
+    else:
+        from .workflow.scoped import plan
     result = plan(args.rundir, args.spec)
     print(f"Concrete {result['mode']} CHECK-IN 1: {args.rundir / 'inputs/checkin1.json'}")
     print("Review the recipe, assumptions and hard ceiling, then record approval. No compute launched.")
@@ -200,12 +210,18 @@ def _plan(args) -> int:
 
 
 def _approve(args) -> int:
-    from .workflow.scoped import approve
+    if (args.rundir / "inputs/science-plan.json").exists():
+        from .workflow.science import approve
+    else:
+        from .workflow.scoped import approve
     return approve(args.rundir, args.quote, scripted=args.scripted)
 
 
 def _run(args) -> int:
-    from .workflow.scoped import run
+    if (args.rundir / "inputs/science-plan.json").exists():
+        from .workflow.science import run
+    else:
+        from .workflow.scoped import run
     return run(args.rundir, resume=args.resume)
 
 

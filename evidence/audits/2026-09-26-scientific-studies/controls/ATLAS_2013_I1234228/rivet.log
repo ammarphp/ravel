@@ -1,0 +1,15 @@
+User-supplied cross-section = 1.000000e+00 pb
+Rivet 4.1.3 running on machine Ammars-Laptop.local (arm64) at 2026-09-26 03:11:11
+
+Reading events from '$DSRLAB_ROOT/ravel-landscape/local-runs/science-development/rivet-release/inputs/ATLAS_2013_I1234228.hepmc'
+
+Finished event loop at 2026-09-26 03:11:11
+Cross-section = 1.000000e+00 pb
+
+Rivet run completed at 2026-09-26 03:11:11, time elapsed = 0:00:00
+Histograms written to $DSRLAB_ROOT/ravel-landscape/local-runs/science-development/rivet-release/runs/ATLAS_2013_I1234228/outputs/histograms.yoda
+Rivet.AnalysisHandler: WARN  Correlated subevents detected. Grouped fills will be collapsed, but bin-edge migration may affect uncertainties.
+
+
+The MCnet usage guidelines apply to Rivet: see http://www.montecarlonet.org/GUIDELINES
+Please acknowledge Rivet in results made using it, and cite https://arxiv.org/abs/2404.15984 and https://arxiv.org/abs/2312.15070

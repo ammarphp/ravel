@@ -19,6 +19,18 @@ certification. The requested deliverable controls whether a point, figure, or sc
 
 ## Agent procedure: a new request
 
+For a request whose complete scope is an operation on **supplied events or models**,
+first consider the [scientific-study route](reference/scientific-studies.md):
+`analyze`, `quantities`, `measurement` or `domain`. Preserve the original request,
+identify the supplied input meaning and missing scientific evidence, then draft its
+typed specification and numbered assumptions. Use `ravel plan` with a new directory
+as the explicit intake and CHECK-IN 1; do not first create an incompatible
+reproduction contract with `initiate`. This is host-agent routing, not a claim that
+the bounded natural-language parser recognizes these new modes automatically.
+Approval, one-attempt execution, CHECK-IN 2 and evidence limits follow that guide.
+Requests for new generation or paper reproduction continue through the procedure
+below; a supplied-data operation must not silently substitute for their full scope.
+
 1. Read `.claude/skills/physicist-intake/SKILL.md` (or its generated Codex mirror). Use the original
    request and a **new** run directory:
    ```sh

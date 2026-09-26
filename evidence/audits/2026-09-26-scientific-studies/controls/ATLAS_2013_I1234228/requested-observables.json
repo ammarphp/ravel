@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/ATLAS_2013_I1234228/d01-x01-y02",
+    "axes": [
+      {
+        "name": "mass",
+        "unit": "GeV"
+      }
+    ],
+    "representation": "differential",
+    "normalization": "absolute",
+    "unit": "pb/GeV"
+  }
+]

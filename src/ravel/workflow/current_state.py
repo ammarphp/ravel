@@ -8,6 +8,9 @@ from .state_io import atomic_json
 
 def build_packet(rundir):
     root = Path(rundir).resolve()
+    if (root / "inputs/science-plan.json").exists():
+        from ravel.workflow.science import packet
+        return packet(rundir)
     contract, contract_path, error = validate_run_state.load_contract_for(str(root), None)
     if error:
         raise ValueError(error)

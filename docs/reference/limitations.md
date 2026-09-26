@@ -198,3 +198,12 @@ See the [RRR diagnosis and research program](../research/2026-09-05-rrr-diagnosi
 - Full HEPData tables ARE programmatically retrievable: `hepdata-cli download <inspire> -i inspire -f yaml`
   pulls the complete table set past the Cloudflare `/download/` 403; the likelihood downloads via the
   open `/record/resource/<id>?view=true` endpoint. The browser is not required for either.
+
+## Supplied-data adapter boundary
+
+The new [scientific-study route](../workflow/reference/scientific-studies.md)
+transports signed/multiple weights on existing Rivet inputs and explicit quantity
+records. This does not change the historical generation path's multiweight
+restrictions. Its component controls, missing native SimpleAnalysis execution,
+conditional covariance assumptions and unvalidated domain extensions are recorded
+in the [implementation report](../../evidence/audits/2026-09-26-scientific-studies/README.md).

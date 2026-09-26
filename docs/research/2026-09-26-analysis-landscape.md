@@ -224,3 +224,10 @@ engineering test counts establish it.
 RRR low-splitting shape, acceptance, generator-cut dependence and full-plane
 closure remain publication requirements. The broader landscape makes Ravel's
 expansion plan more rational; it does not remove those failures from the paper.
+
+## Implementation follow-through
+
+The sequence above now has [executable components and a control report](../../evidence/audits/2026-09-26-scientific-studies/README.md).
+The census remains a discovery denominator, not a claim that all 633 entries
+execute successfully or reproduce their papers. Use the [scientific-study guide](../workflow/reference/scientific-studies.md)
+for current admission rules and the report for actual executed coverage.

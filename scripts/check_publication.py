@@ -25,6 +25,7 @@ def main():
                          ('evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py', []),
                          ('evidence/audits/2026-09-05-analysis-landscape/validate_catalog.py', []),
                          ('evidence/audits/2026-09-26-analysis-landscape/verify.py', []),
+                         ('evidence/audits/2026-09-26-scientific-studies/verify.py', []),
                          ('scripts/gen_validation_pages.py', ['--check']),
                          ('scripts/gen_status.py', ['--check'])]:
         result = subprocess.run([sys.executable, str(ROOT / script), *args], cwd=ROOT)
