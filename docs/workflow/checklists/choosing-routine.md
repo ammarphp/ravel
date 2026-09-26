@@ -2,15 +2,36 @@
 
 Goal: an analysis routine matching the target paper that this pipeline can run.
 
+## Discover first, then assess admission
+
+Use the installed offline census before assuming that a missing native adapter means
+no public routine exists:
+
+```sh
+ravel analyses list --query "<paper identifier or topic>"
+ravel analyses show <framework:routine>
+ravel analyses check-source <framework:routine> --source <upstream-checkout>
+```
+
+The [landscape guide](../../research/2026-09-26-analysis-landscape.md) gives snapshot
+coverage and the adaptation plan. A paper can map to multiple routine variants;
+select explicitly. Source-byte verification does not establish compilation,
+detector fidelity, a usable likelihood, or compute approval. Compare the snapshot
+with the actual installed routine/runtime before proposing execution.
+
 ## Routine type (Rivet or SimpleAnalysis)
-- **Rivet** — native, fast, ATLAS + CMS, ships reference data, gives plots-vs-data for free. The
-  default when the analysis has a Rivet routine. Steps 4A, 5, 6 (bundled REF), 7.
-- **SimpleAnalysis** — the SR-yield framework many ATLAS/CMS SUSY searches publish a routine for; its
-  yields map onto a published pyhf likelihood for the strongest limit. **Native (VM-free) by default
-  for EwkCompressed2018/slepton** (`docs/workflow/steps/04-analyze.md` Option B); else the container fallback
-  (podman+mapyde, `docs/workflow/analysis-simpleanalysis/`). Steps 4B, 5 (yield/kinematics plots), 7.
-- Some analyses ship **both**; either is valid — prefer the one whose published exclusion input
-  (likelihood vs distributions) you can reproduce, and record which you used.
+
+- **Rivet** preserves particle-level measurements and selected searches across several
+  experiments. Use the public routine when its objects and output match the task.
+  Reference data, covariance and likelihood availability require separate checks.
+- **SimpleAnalysis** is the public ATLAS framework for truth/reconstructed-object
+  selections and region yields. Ravel's registered native adapters have explicit
+  routine/model/statistics restrictions. For other routines, assess an external
+  native interface and dependencies; do not promise container or declarative-engine
+  compatibility without checking it.
+- Some papers have multiple routines or frameworks. Choose by the required observable,
+  input event level, validated response and published inference input. Record the
+  selection and its limitations in CHECK-IN 1.
 
 The rest of this checklist finds a **Rivet** routine; for SimpleAnalysis see
 `docs/workflow/analysis-simpleanalysis/config-decisions.md`.

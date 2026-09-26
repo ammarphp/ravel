@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — public analysis discovery
+
+- Add a pinned census of 554 Rivet LHC entries and 79 SimpleAnalysis routines,
+  with source/asset identities, dependency signals and adaptation requirements.
+- Add offline `ravel analyses list/show/summary/check-source`, including explicit
+  paper-to-routine ambiguity and selected-source mutation checks.
+- Publish the broader landscape, concrete validation targets and a refreshed
+  twelve-system competitor map. No new physics closure or general executor is claimed.
+
+
 ## Unreleased — RRR reproduction closure
 
 - Implement generation-only and supplied-likelihood workflows with concrete check-ins,

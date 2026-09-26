@@ -49,6 +49,24 @@ The wheel includes the engines and the small explicit input allowlist in
 producing an apparently usable wheel. Engine code is packaged from its existing source files;
 there is no separately maintained copy of the physics or contract logic.
 
+## Discover public analysis routines
+
+The dependency-free package includes a pinned LHC routine census. These commands
+only inspect metadata and adaptation requirements:
+
+```sh
+ravel analyses summary
+ravel analyses list --experiment CMS --query "Drell"
+ravel analyses list --framework simpleanalysis --family long-lived --json
+ravel analyses show rivet:ATLAS_2019_I1734263
+ravel analyses check-source EwkCompressed2018 --source /path/to/simple-analysis
+```
+
+`show` also accepts an unambiguous exact paper/INSPIRE identifier. Multiple matching
+routines require an explicit choice. `check-source` requires Git and an existing
+pinned upstream checkout; it checks selected source/asset bytes without executing
+upstream code. PASS means source agreement only. See the [survey and scope](research/2026-09-26-analysis-landscape.md).
+
 ## Start a draft intake
 
 ```sh

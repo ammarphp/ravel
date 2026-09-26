@@ -1,0 +1,634 @@
+{
+  "schema_version": 1,
+  "survey_date": "2026-09-26",
+  "scope": "Twelve selected relevant systems: seven agent frameworks, four established reinterpretation tools, one benchmark. Not an exhaustive census of all agentic HEP projects.",
+  "ravel_baseline": {
+    "source_commit": "89273dfc928917fa43c64d236666679ab3b5efcb",
+    "public_commit": "79c7aabb37fef3809d0a8e57882baedfdaa3dced",
+    "capability_inventory": "benchmarks/capabilities.json"
+  },
+  "method": {
+    "remote_pins": "git ls-remote HEAD, plus shallow verified clones for GitLab sources",
+    "github_trees": "GitHub REST git/trees API at immutable commit",
+    "source_inspection": "Documentation and selected public interfaces, outside the Ravel tree. No competitor implementation copied into Ravel.",
+    "execution": "No new installations, framework trials, event generation, or fits; earlier outcomes are separately labeled.",
+    "comparison_limits": [
+      "Source availability is not execution success.",
+      "Code presence is not physics fidelity.",
+      "Matched prompts do not imply matched executed physics.",
+      "Refusals are unmet product requests, not delivery credit.",
+      "No statistical superiority or uniqueness established."
+    ]
+  },
+  "systems": [
+    {
+      "id": "collideragent",
+      "name": "ColliderAgent",
+      "kind": "agent_framework",
+      "repository": "https://github.com/HET-AGI/ColliderAgent",
+      "revision": "1140f39e8730889422a64a141fbd3ca10529e13b",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "FeynRules validation and UFO export",
+        "MG5 plus Pythia and Delphes orchestration",
+        "MadAnalysis5 normal-mode analysis"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 581
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/HET-AGI/ColliderAgent/blob/1140f39e8730889422a64a141fbd3ca10529e13b/README.md",
+          "sha256": "cbd1bb08d93ffbab9a49239074cd4d14ecd93a1ceb2f3dee347d623473d09eda",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "python-agent/tools/feynrules_validation.py",
+          "url": "https://github.com/HET-AGI/ColliderAgent/blob/1140f39e8730889422a64a141fbd3ca10529e13b/python-agent/tools/feynrules_validation.py",
+          "sha256": "55a1b14c4fb7ae92c31a3c4b3862d77030d1a0bdcfe8d1c0bc2478fbca019a6a",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "python-agent/tools/madgraph_tools.py",
+          "url": "https://github.com/HET-AGI/ColliderAgent/blob/1140f39e8730889422a64a141fbd3ca10529e13b/python-agent/tools/madgraph_tools.py",
+          "sha256": "694f5aecc5b18fe9540c2fdcb85687398884e29590aa974eb337a7ead1ea34c5",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "scripts/README.md",
+          "url": "https://github.com/HET-AGI/ColliderAgent/blob/1140f39e8730889422a64a141fbd3ca10529e13b/scripts/README.md",
+          "sha256": "330ac4f53ad5dca6c7ce72a3a92a084e33fb6292c99c50a2c378a814fcbc4735",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Native Drell-Yan delivered after setup repair; Magnus and model generation not validated.",
+      "ravel_adaptation_gaps": [
+        "Model construction and admission",
+        "Flexible analysis adapter interface"
+      ]
+    },
+    {
+      "id": "madagents",
+      "name": "MadAgents",
+      "kind": "agent_framework",
+      "repository": "https://github.com/MadGraphTeam/MadAgents",
+      "revision": "df241214d1e4a66b1f9964aa33dd2342b7084b9a",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "MadGraph source-grounded setup",
+        "LO/NLO, EFT and decay-chain regime guidance",
+        "Target-derived probes and persistent learning"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 3432
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/MadGraphTeam/MadAgents/blob/df241214d1e4a66b1f9964aa33dd2342b7084b9a/README.md",
+          "sha256": "19d177a15bb26b09a8c64220fd5f8457b7b09d0e8f387fd99ddd784cba0801b6",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "madagents/.claude/skills/mg-setup/SKILL.md",
+          "url": "https://github.com/MadGraphTeam/MadAgents/blob/df241214d1e4a66b1f9964aa33dd2342b7084b9a/madagents/.claude/skills/mg-setup/SKILL.md",
+          "sha256": "2b0e26b0043a21a7c839f3a334900068ce6b07fa5a27526d6d6ad7c711672e17",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "madagents/.claude/skills/mg-probe/SKILL.md",
+          "url": "https://github.com/MadGraphTeam/MadAgents/blob/df241214d1e4a66b1f9964aa33dd2342b7084b9a/madagents/.claude/skills/mg-probe/SKILL.md",
+          "sha256": "42dd635a9bd898b7d30fe7f6d5098b4a54ce884687bc8a681955b6d3f14c1b06",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Timed autonomous attempt confounded by harness and linker; separate operator-assisted generation completed.",
+      "ravel_adaptation_gaps": [
+        "Physics-request preservation",
+        "Broader generation regimes"
+      ]
+    },
+    {
+      "id": "heptapod",
+      "name": "HEPTAPOD",
+      "kind": "agent_framework",
+      "repository": "https://github.com/tonymenzo/heptapod",
+      "revision": "865d3f0350e953237cf0f558386905e255997e43",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Toolbase/MCP modular tool bundles",
+        "Generation and analysis tools",
+        "BSM and symbolic interfaces",
+        "Recast linter"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 519
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/tonymenzo/heptapod/blob/865d3f0350e953237cf0f558386905e255997e43/README.md",
+          "sha256": "0a41716745f1f3ce508246f52f844916e1294ca6a6cdbfe82873c88acf6c997d",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "toolkit.yaml",
+          "url": "https://github.com/tonymenzo/heptapod/blob/865d3f0350e953237cf0f558386905e255997e43/toolkit.yaml",
+          "sha256": "b705a420a321f0401b8bfcdae17ff4c6ce8e511255bb345b5616cddbd372ced0",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "tools/analysis/recast_linter.py",
+          "url": "https://github.com/tonymenzo/heptapod/blob/865d3f0350e953237cf0f558386905e255997e43/tools/analysis/recast_linter.py",
+          "sha256": "1b6b9044173f973c0bc03495ea432db097cce68757425090ba220a6d6b63ecfa",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Drell-Yan artifacts delivered with backend/native workarounds; no clean integration pass.",
+      "ravel_adaptation_gaps": [
+        "Stage-scoped general observables",
+        "Explicit bundle/dependency capability admission"
+      ]
+    },
+    {
+      "id": "agentrivet",
+      "name": "AgentRivet",
+      "kind": "agent_framework",
+      "repository": "https://gitlab.com/hepcedar/AgentRivet",
+      "revision": "e4d12eccb6aee546d993481c75576c0df4e2b037",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Paper and existing-routine lookup",
+        "Structured analysis summary",
+        "Rivet code generation and iterative code/physics reviews"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "method": "shallow clone at verified HEAD",
+        "truncated": false,
+        "tracked_file_count": 27
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://gitlab.com/hepcedar/AgentRivet/-/blob/e4d12eccb6aee546d993481c75576c0df4e2b037/README.md",
+          "sha256": "f1bfb773c1d1d26b20e2081da875d5e6dabfa84ff34d5267893cae00f3ced1ec",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "agentrivet/analyst_agent.py",
+          "url": "https://gitlab.com/hepcedar/AgentRivet/-/blob/e4d12eccb6aee546d993481c75576c0df4e2b037/agentrivet/analyst_agent.py",
+          "sha256": "4407fa28a3e77d178fcd66ecd41e39d0948c4fcb57f3ecbe284c054c96dbdcf7",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "agentrivet/cli.py",
+          "url": "https://gitlab.com/hepcedar/AgentRivet/-/blob/e4d12eccb6aee546d993481c75576c0df4e2b037/agentrivet/cli.py",
+          "sha256": "6a8371184854900cdd079f55a24f5f2ac4fc93afdb2d5333025df3b1a73c76ad",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Installed and existing-routine lookup worked; provider authentication blocked generation.",
+      "ravel_adaptation_gaps": [
+        "Routine-admission contract",
+        "Fixed-event quantity/normalization validation"
+      ]
+    },
+    {
+      "id": "heplocalagent",
+      "name": "HEPLocalAgent",
+      "kind": "agent_framework",
+      "repository": "https://github.com/AadarshSingh0/HEPLocalAgent",
+      "revision": "a2d604aee3222f3d5b86bb0eb51e80e7decc83cd",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Deterministic request validation",
+        "Bounded repair and local model routing",
+        "Clone-owned native toolchain",
+        "Replay fixtures and published evaluation evidence"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 300
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/AadarshSingh0/HEPLocalAgent/blob/a2d604aee3222f3d5b86bb0eb51e80e7decc83cd/README.md",
+          "sha256": "f5dc47ff6181b5bcd7371354c2c625d0d6679c5d9ea4acf6220d57d45bc691d1",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "src/hep_agent/validation/FOLDER_GUIDE.md",
+          "url": "https://github.com/AadarshSingh0/HEPLocalAgent/blob/a2d604aee3222f3d5b86bb0eb51e80e7decc83cd/src/hep_agent/validation/FOLDER_GUIDE.md",
+          "sha256": "2289a64e1a4898c5d4b7bf5aa4f8d0baeb7be5fab56b759820c5e678d4cb8a89",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "src/hep_agent/validation/workflow_request.py",
+          "url": "https://github.com/AadarshSingh0/HEPLocalAgent/blob/a2d604aee3222f3d5b86bb0eb51e80e7decc83cd/src/hep_agent/validation/workflow_request.py",
+          "sha256": "1206abf566bb47cbb769c458cbabf71c6e40666b347dc5a44d596c137130c408",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Source acquisition only; no matched live-model trial.",
+      "ravel_adaptation_gaps": [
+        "Complete request-preservation checks",
+        "Runtime ownership/portability comparisons"
+      ]
+    },
+    {
+      "id": "sfitteragents",
+      "name": "SFitterAgents",
+      "kind": "agent_framework",
+      "repository": "https://github.com/heidelberg-hepml/SFitterAgents",
+      "revision": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Measurement extraction",
+        "SM templates and theory uncertainty budgets",
+        "SMEFT parameterization with interference",
+        "SFitter datacards and fits"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 280
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/heidelberg-hepml/SFitterAgents/blob/6072a79e0f132d61a927f11ed482a401b34f6e3f/README.md",
+          "sha256": "9171f6798d512c84fe9296b5cc36727e8581d01298f12a8e2de0a05bb2255cd0",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "sfitter/README.md",
+          "url": "https://github.com/heidelberg-hepml/SFitterAgents/blob/6072a79e0f132d61a927f11ed482a401b34f6e3f/sfitter/README.md",
+          "sha256": "979c1a6e83abb81a38496afb287e75febb2557ee88685649b1242fa99f948f1b",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "sfitter/sfitter/likelihood/datacard.py",
+          "url": "https://github.com/heidelberg-hepml/SFitterAgents/blob/6072a79e0f132d61a927f11ed482a401b34f6e3f/sfitter/sfitter/likelihood/datacard.py",
+          "sha256": "a713917945b980afd4759ef7d637d7c9aa891e28cec6fdc7612e52d36544d6fa",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "sfitteragents/.claude/skills/sf-extract/SKILL.md",
+          "url": "https://github.com/heidelberg-hepml/SFitterAgents/blob/6072a79e0f132d61a927f11ed482a401b34f6e3f/sfitteragents/.claude/skills/sf-extract/SKILL.md",
+          "sha256": "50fad88b53694e36e56b754303167c1a3a25832ee3027bb163ba0e49d1cdfad8",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "sfitteragents/.claude/skills/sf-parameterize/SKILL.md",
+          "url": "https://github.com/heidelberg-hepml/SFitterAgents/blob/6072a79e0f132d61a927f11ed482a401b34f6e3f/sfitteragents/.claude/skills/sf-parameterize/SKILL.md",
+          "sha256": "645cf61a8cba3b2279b06a5f28eda8a53f9fcec04fe8328b3cfba43aee00af22",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "September 9 source was README/license only; this is superseded by September 26 public implementation availability. No new runtime test.",
+      "ravel_adaptation_gaps": [
+        "Covariance-bearing measurement route",
+        "EFT parameter and uncertainty convention transport"
+      ]
+    },
+    {
+      "id": "contur",
+      "name": "Contur",
+      "kind": "established_reinterpretation_tool",
+      "repository": "https://gitlab.com/hepcedar/contur",
+      "revision": "0ff261c691cfc138e5855164250ab82e094c7353",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Rivet/YODA measurement reinterpretation",
+        "SM prediction and covariance handling",
+        "Optional Spey signal-strength fits"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "method": "shallow clone at verified HEAD",
+        "truncated": false,
+        "tracked_file_count": 3168
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://gitlab.com/hepcedar/contur/-/blob/0ff261c691cfc138e5855164250ab82e094c7353/README.md",
+          "sha256": "f6f923966f1890de3a3a3140f6f65ff5de1d1625aebbce3176cfec1a3b13d805",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "README.md",
+          "url": "https://gitlab.com/hepcedar/contur/-/blob/0ff261c691cfc138e5855164250ab82e094c7353/README.md",
+          "sha256": "f6f923966f1890de3a3a3140f6f65ff5de1d1625aebbce3176cfec1a3b13d805",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "src/contur/factories/yoda_factories.py",
+          "url": "https://gitlab.com/hepcedar/contur/-/blob/0ff261c691cfc138e5855164250ab82e094c7353/src/contur/factories/yoda_factories.py",
+          "sha256": "bcf95f63128eba31ff0e2852acdb5f686c627b38b9b92c347b5d67105e88accb",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "No runtime test in this audit or reported comparative pilot.",
+      "ravel_adaptation_gaps": [
+        "Particle-level measurement backend",
+        "Correlation and overlap policy"
+      ]
+    },
+    {
+      "id": "madanalysis5",
+      "name": "MadAnalysis 5",
+      "kind": "established_reinterpretation_tool",
+      "repository": "https://github.com/MadAnalysis/madanalysis5",
+      "revision": "c2275a7967e75d7b78c4c385be9f232ef0fb2cc0",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Event analysis",
+        "Expert and normal modes",
+        "Recasting and pyhf integration"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 1055
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/MadAnalysis/madanalysis5/blob/c2275a7967e75d7b78c4c385be9f232ef0fb2cc0/README.md",
+          "sha256": "bea31a10cc3c80aa0ab142ed1e63e5cf643d8bc94e9d4a4e49d601a0cd32a98a",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "madanalysis/misc/run_recast.py",
+          "url": "https://github.com/MadAnalysis/madanalysis5/blob/c2275a7967e75d7b78c4c385be9f232ef0fb2cc0/madanalysis/misc/run_recast.py",
+          "sha256": "3f56e64a50a1a666a8e25c403965fcf1fe543c74a9e28f7c8db344b504a43520",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "No runtime test of this pinned version in this audit.",
+      "ravel_adaptation_gaps": [
+        "External recast analysis adapter",
+        "Reference and detector-card admission"
+      ]
+    },
+    {
+      "id": "checkmate",
+      "name": "CheckMATE",
+      "kind": "established_reinterpretation_tool",
+      "repository": "https://github.com/CheckMATE2/checkmate2",
+      "revision": "ab96d9352320591166cceec659d858b6eb17e8ed",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "ATLAS/CMS recast routines",
+        "Multibin likelihoods",
+        "Selected ONNX/TMVA analyses"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 826
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/CheckMATE2/checkmate2/blob/ab96d9352320591166cceec659d858b6eb17e8ed/README.md",
+          "sha256": "f6790842766d2e6ce71cc95d2f0e2712eed77c8674e8ad59c7098ffa12786794",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "tools/python/multibin_limit.py",
+          "url": "https://github.com/CheckMATE2/checkmate2/blob/ab96d9352320591166cceec659d858b6eb17e8ed/tools/python/multibin_limit.py",
+          "sha256": "824f09b016d08d3f846d0278cfcd5e6c55d49e1cb879edb5668267aa1f517a52",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "No runtime test of this pinned version in this audit.",
+      "ravel_adaptation_gaps": [
+        "Fixed-event cross-engine diagnostics",
+        "Region-to-likelihood transport"
+      ]
+    },
+    {
+      "id": "smodels",
+      "name": "SModelS",
+      "kind": "established_reinterpretation_tool",
+      "repository": "https://github.com/SModelS/smodels",
+      "revision": "ef008e1628d0bf6a801db52542dae106016f59e6",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Spectrum-to-topology decomposition",
+        "Efficiency/upper-limit database matching",
+        "pyhf and neural-surrogate inference interfaces"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 645
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/SModelS/smodels/blob/ef008e1628d0bf6a801db52542dae106016f59e6/README.md",
+          "sha256": "974ccf2baffb0e7fc910ff63f38369e0f686a03cbe8f41ebe5cecc2598098649",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "smodels/README.md",
+          "url": "https://github.com/SModelS/smodels/blob/ef008e1628d0bf6a801db52542dae106016f59e6/smodels/README.md",
+          "sha256": "526c39f5edc98cd6c06e4d70d759bd22e7fac05413e3faf2e3755c5e93051eec",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "smodels/statistics/pyhfInterface.py",
+          "url": "https://github.com/SModelS/smodels/blob/ef008e1628d0bf6a801db52542dae106016f59e6/smodels/statistics/pyhfInterface.py",
+          "sha256": "73ffb40f43e90e6c789b936288682ce290f8303b9a4ec0f091822225335a1045",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        },
+        {
+          "path": "smodels/statistics/nnInterface.py",
+          "url": "https://github.com/SModelS/smodels/blob/ef008e1628d0bf6a801db52542dae106016f59e6/smodels/statistics/nnInterface.py",
+          "sha256": "e9a21ddb312d8c19fb21cca0c41888df129f59841616ac545dcf27b671e2266f",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "No runtime test of this pinned version in this audit.",
+      "ravel_adaptation_gaps": [
+        "Fast spectrum/map branch",
+        "Domain-validated optional statistical surrogates"
+      ]
+    },
+    {
+      "id": "collider-bench",
+      "name": "Collider-Bench",
+      "kind": "benchmark",
+      "repository": "https://github.com/dfaroughy/Collider-Bench",
+      "revision": "2986d8b270ae49e0d6e8c95bbf95ef1159f16d7c",
+      "revision_kind": "default branch HEAD observed 2026-09-26; not a claim of latest stable release",
+      "availability": "public_source_acquired",
+      "upstream_capabilities": [
+        "Task definitions",
+        "Agent runtime/evaluation tooling",
+        "Public data and physics tool interfaces"
+      ],
+      "capability_evidence": "public documentation and selected source/interfaces present; no new runtime certification",
+      "source_tree": {
+        "retrieved": true,
+        "truncated": false,
+        "entry_count": 639
+      },
+      "inspected_files": [
+        {
+          "path": "README.md",
+          "url": "https://github.com/dfaroughy/Collider-Bench/blob/2986d8b270ae49e0d6e8c95bbf95ef1159f16d7c/README.md",
+          "sha256": "ce043e757e335b807367293c149b91c4ae854e839733feae3ccf550c01fe0964",
+          "inspection": "selected documentation/interface content; not a full implementation audit"
+        }
+      ],
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Source inspected in prior pilot; full benchmark not run.",
+      "ravel_adaptation_gaps": [
+        "Held-out endpoint scoring",
+        "All-attempt denominators and intervention accounting"
+      ]
+    },
+    {
+      "id": "fermiacc",
+      "name": "FERMIACC",
+      "kind": "agent_framework",
+      "repository": null,
+      "revision": null,
+      "availability": "paper_available_no_matching_runnable_repository_located",
+      "primary_sources": [
+        "https://arxiv.org/html/2603.22538v1",
+        "https://arxiv.org/abs/2603.22538"
+      ],
+      "upstream_capabilities": [
+        "Typed hypotheses and adversarial proposal refinement",
+        "Theory-to-executable-model contract",
+        "Generated analysis implementation"
+      ],
+      "capability_evidence": "paper claims only; no public implementation acquired",
+      "author_stated_limit": "Comparison of simulated signal efficiencies to published efficiencies remains future work in section 2.3.",
+      "search_evidence": {
+        "date": "2026-09-26",
+        "official_paper_links_checked": true,
+        "github_repository_search": "https://api.github.com/search/repositories?q=FERMIACC&per_page=20",
+        "total_results": 2,
+        "matching_project_results": 0,
+        "unrelated_results": [
+          "efremovT/FermiAcceleration",
+          "mbeach42/FermiAccelerationInBilliards"
+        ],
+        "web_queries": [
+          "FERMIACC agent collider github 2603.22538",
+          "\"FERMIACC\" \"github\""
+        ],
+        "limit": "Bounded search; not proof that no differently named, unindexed, or private repository exists."
+      },
+      "execution_this_refresh": {
+        "framework_runs": 0,
+        "events_generated": 0
+      },
+      "historical_execution_summary": "Not available for the prior matched pilot.",
+      "ravel_adaptation_gaps": [
+        "Theory-to-executable-model contract",
+        "Selection representation with explicit unresolved definitions"
+      ]
+    }
+  ],
+  "priority_proposals": [
+    {
+      "priority": 1,
+      "id": "scientific-routine-admission",
+      "status": "proposal_not_implemented_by_this_audit",
+      "summary": "Versioned routine applicability and quantity contracts, fixed-event differential validation, reference closure."
+    },
+    {
+      "priority": 2,
+      "id": "external-executed-recipes",
+      "status": "proposal_not_implemented_by_this_audit",
+      "summary": "Read-only external artifact import and independent recipe/request-preservation checks on retained pilot samples."
+    },
+    {
+      "priority": 3,
+      "id": "scientific-adapter-expansion",
+      "status": "proposal_not_implemented_by_this_audit",
+      "summary": "Measurement backend, signed-weight transport, model/EFT gates, with optional separately validated spectrum/surrogate branches."
+    }
+  ],
+  "report": "docs/research/2026-09-26-competitor-capability-map.md"
+}

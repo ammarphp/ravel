@@ -262,3 +262,7 @@ Ravel is research software; consult the [limitations](docs/reference/limitations
 before applying it to a new analysis. Citation metadata is in [CITATION.cff](CITATION.cff),
 with [upstream acknowledgements](docs/reference/third-party.md). Licensed under
 [Apache-2.0](LICENSE).
+
+For supported-analysis expansion, use the [public routine landscape](docs/research/2026-09-26-analysis-landscape.md)
+and `ravel analyses summary`. The census distinguishes public availability,
+adaptation requirements and demonstrated scientific support.

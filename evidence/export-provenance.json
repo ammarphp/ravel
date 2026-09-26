@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "89273dfc928917fa43c64d236666679ab3b5efcb",
+  "source_commit": "2a69787ff33e30d93af33b463530dba420962638",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "979100c6abec3ccbcedd44522216b6e8e6b21b45d001295ba76c01b52adf378a",
@@ -822,8 +822,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "b2cb2ce11fb13a77221126467cb5ad7beae0701001331656b4893f788f5a20f3",
-      "export_sha256": "b2cb2ce11fb13a77221126467cb5ad7beae0701001331656b4893f788f5a20f3"
+      "source_sha256": "e23e1306b6f57afd5a55357efd279038cecd7f7dd6c01c71ad6cefd18648f510",
+      "export_sha256": "e23e1306b6f57afd5a55357efd279038cecd7f7dd6c01c71ad6cefd18648f510"
     },
     {
       "source_path": "CITATION.cff",
@@ -846,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "b3fe055b79529664d1a64d114593dd85c835a2b1529b311b817190f0174b90f1",
-      "export_sha256": "1edcb2615314f16d2b3ece24164e011b8c81c015a3504f37f3bcbc14ae5ca96b"
+      "source_sha256": "6041803651b4c73c1ff1f1c0c113e734eae6c03df384e1e2386f2580310182de",
+      "export_sha256": "351159816bbd2fb8a492fd9bc66155693242524575a1dc9bd90c9a73b6c63d60"
     },
     {
       "source_path": "LICENSE",
@@ -864,14 +864,14 @@
     {
       "source_path": "NOTICE",
       "public_path": "NOTICE",
-      "source_sha256": "0b288cd030e2ad4a2c83138661d2618880301a23154a416afbe3a546e88788d8",
-      "export_sha256": "0b288cd030e2ad4a2c83138661d2618880301a23154a416afbe3a546e88788d8"
+      "source_sha256": "65c0b42f3925fbd37960cdce55211d612bba363e3ab7775f3b53ef9cc09490a1",
+      "export_sha256": "65c0b42f3925fbd37960cdce55211d612bba363e3ab7775f3b53ef9cc09490a1"
     },
     {
       "source_path": "README.md",
       "public_path": "README.md",
-      "source_sha256": "fea5d539d03fb437a90756dd1c681ba3f5bf062bd028a4656ef1f5285e00139b",
-      "export_sha256": "fea5d539d03fb437a90756dd1c681ba3f5bf062bd028a4656ef1f5285e00139b"
+      "source_sha256": "86c55df3522ed3b4c962bc8a051caee26a4fb02916e7b41963ad2578db380841",
+      "export_sha256": "86c55df3522ed3b4c962bc8a051caee26a4fb02916e7b41963ad2578db380841"
     },
     {
       "source_path": "benchmarks/README.md",
@@ -1002,14 +1002,14 @@
     {
       "source_path": "docs/README.md",
       "public_path": "docs/README.md",
-      "source_sha256": "23676545468a3bae6103002b7e6ade6e9f91e4f34aebfa6530ff52d371f1a89f",
-      "export_sha256": "23676545468a3bae6103002b7e6ade6e9f91e4f34aebfa6530ff52d371f1a89f"
+      "source_sha256": "586570d2e78e12d40a05cd8d40284aca52bb78734917ed6f36eb8594ca283e2c",
+      "export_sha256": "586570d2e78e12d40a05cd8d40284aca52bb78734917ed6f36eb8594ca283e2c"
     },
     {
       "source_path": "docs/cli.md",
       "public_path": "docs/cli.md",
-      "source_sha256": "f28b56f785e9c5b6b7b0c3652b2016a00098c3d3769aa722e49e3077c1eaaed3",
-      "export_sha256": "f28b56f785e9c5b6b7b0c3652b2016a00098c3d3769aa722e49e3077c1eaaed3"
+      "source_sha256": "f936f5e0cdeb2602d44e920e2e3d4c6a041eea188c16cdae39fdfc1ed37d05d5",
+      "export_sha256": "f936f5e0cdeb2602d44e920e2e3d4c6a041eea188c16cdae39fdfc1ed37d05d5"
     },
     {
       "source_path": "docs/development/README.md",
@@ -1224,8 +1224,8 @@
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "1005abd07f90639e2be3c0e4fb3a39f05f47ad6c318667f4ebfa9044e3e62d92",
-      "export_sha256": "1005abd07f90639e2be3c0e4fb3a39f05f47ad6c318667f4ebfa9044e3e62d92"
+      "source_sha256": "a1b85f95a2b9a10d06847a76923b2eead688e04d50150ec711a4fb5a75d6539c",
+      "export_sha256": "a1b85f95a2b9a10d06847a76923b2eead688e04d50150ec711a4fb5a75d6539c"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -1364,6 +1364,24 @@
       "public_path": "docs/research/2026-09-09-comparative-pilot.md",
       "source_sha256": "dbedac7f74c546c832b2993457272cafbd7339eb02e6721435d97748df96b899",
       "export_sha256": "dbedac7f74c546c832b2993457272cafbd7339eb02e6721435d97748df96b899"
+    },
+    {
+      "source_path": "docs/research/2026-09-26-analysis-landscape.md",
+      "public_path": "docs/research/2026-09-26-analysis-landscape.md",
+      "source_sha256": "cf6397ca2d4a0581e4af9e24219a63a470647efc2e2514c280b28a176384bc60",
+      "export_sha256": "cf6397ca2d4a0581e4af9e24219a63a470647efc2e2514c280b28a176384bc60"
+    },
+    {
+      "source_path": "docs/research/2026-09-26-competitor-capability-map.md",
+      "public_path": "docs/research/2026-09-26-competitor-capability-map.md",
+      "source_sha256": "1c44b688a85e7733ffde9453225d7f839aba1402d40ba7880964b095f75eb7fa",
+      "export_sha256": "1c44b688a85e7733ffde9453225d7f839aba1402d40ba7880964b095f75eb7fa"
+    },
+    {
+      "source_path": "docs/research/2026-09-26-validation-targets.md",
+      "public_path": "docs/research/2026-09-26-validation-targets.md",
+      "source_sha256": "80b62d6b99f6992702ac17d7de072d5ed11047449bdbcbf33d515f48c9bd1099",
+      "export_sha256": "80b62d6b99f6992702ac17d7de072d5ed11047449bdbcbf33d515f48c9bd1099"
     },
     {
       "source_path": "docs/research/README.md",
@@ -1608,8 +1626,8 @@
     {
       "source_path": "docs/workflow/checklists/choosing-routine.md",
       "public_path": "docs/workflow/checklists/choosing-routine.md",
-      "source_sha256": "ee3185df036610d195013ccad23c442aeede87a2bf4c614339d56628d6c9921e",
-      "export_sha256": "ee3185df036610d195013ccad23c442aeede87a2bf4c614339d56628d6c9921e"
+      "source_sha256": "087b440da59fb33efcb5f7a2e5ed27fd230f2be824b51128fd08550e009050e6",
+      "export_sha256": "087b440da59fb33efcb5f7a2e5ed27fd230f2be824b51128fd08550e009050e6"
     },
     {
       "source_path": "docs/workflow/checklists/complex-analysis.md",
@@ -4630,6 +4648,84 @@
       "export_sha256": "86670b37e83c001ebcc13e9370a649b473b1fd04440390447393a8c5cd42d658"
     },
     {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/README.md",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/README.md",
+      "source_sha256": "0b9e2523de79a62e16ebe359d218cce5119dd3b08bb9491317e9a60f36869920",
+      "export_sha256": "0b9e2523de79a62e16ebe359d218cce5119dd3b08bb9491317e9a60f36869920"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/catalog.json.gz",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/catalog.json.gz",
+      "source_sha256": "916cdedb2ac66e086c3c8f2f9739494cd2fe04b0f9c090d3d9c5b27fe47957f2",
+      "export_sha256": "916cdedb2ac66e086c3c8f2f9739494cd2fe04b0f9c090d3d9c5b27fe47957f2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/changes/data-and-card-changes.md",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/changes/data-and-card-changes.md",
+      "source_sha256": "da399d4040504ce042f3c7019f80beda2cf207e72a41eab69efff8892a81a5dd",
+      "export_sha256": "da399d4040504ce042f3c7019f80beda2cf207e72a41eab69efff8892a81a5dd"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/changes/environment-changes.md",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/changes/environment-changes.md",
+      "source_sha256": "7d7f8e311ddcce81fd7b543cdeb974b5f7e8ff64003946cbe19eb0fab3dfa5f3",
+      "export_sha256": "7d7f8e311ddcce81fd7b543cdeb974b5f7e8ff64003946cbe19eb0fab3dfa5f3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/competitors.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/competitors.json",
+      "source_sha256": "77d30f1aed660f9127077955acef0deefb42bfe8ea906f44b6912fd34f71f2e3",
+      "export_sha256": "77d30f1aed660f9127077955acef0deefb42bfe8ea906f44b6912fd34f71f2e3"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/index.html",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/index.html",
+      "source_sha256": "bd3914a4c907a4e8e6048014c63748965253562f5f702240b20ae55dcaa7bef5",
+      "export_sha256": "bd3914a4c907a4e8e6048014c63748965253562f5f702240b20ae55dcaa7bef5"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/installed-cli-checks.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/installed-cli-checks.json",
+      "source_sha256": "1cc4d789e351384948896014d5b518caa370234cca6559b81223f20e418fa0a2",
+      "export_sha256": "1cc4d789e351384948896014d5b518caa370234cca6559b81223f20e418fa0a2"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/manifest.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/manifest.json",
+      "source_sha256": "444895485d7218607620d1e5385087653cea3311b4ae5d372e2d13fd321f2d5a",
+      "export_sha256": "444895485d7218607620d1e5385087653cea3311b4ae5d372e2d13fd321f2d5a"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/probability-models.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/probability-models.json",
+      "source_sha256": "1e941e8d60bf276ca435f1984e823db3a6ef355aa9d1185798e60780e9d70c15",
+      "export_sha256": "1e941e8d60bf276ca435f1984e823db3a6ef355aa9d1185798e60780e9d70c15"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/retrieval.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/retrieval.json",
+      "source_sha256": "0791a362eee0a6480a9dab71f108660315a96c00101831b7f3ed12d756b08c54",
+      "export_sha256": "0791a362eee0a6480a9dab71f108660315a96c00101831b7f3ed12d756b08c54"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/routines.csv",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/routines.csv",
+      "source_sha256": "1fd928546998d295b99618913354eb9a866bd737242fbe77cd073c72d43ada58",
+      "export_sha256": "1fd928546998d295b99618913354eb9a866bd737242fbe77cd073c72d43ada58"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/validation-targets.json",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/validation-targets.json",
+      "source_sha256": "5beac48a6a249481bcde5724d619f7529b6d5cf48b2a29e2cd523043820f3960",
+      "export_sha256": "5beac48a6a249481bcde5724d619f7529b6d5cf48b2a29e2cd523043820f3960"
+    },
+    {
+      "source_path": "evidence/audits/2026-09-26-analysis-landscape/verify.py",
+      "public_path": "evidence/audits/2026-09-26-analysis-landscape/verify.py",
+      "source_sha256": "8279df0c64cba0bc4a001cdc3aceedb3cd5f97a060c9b3c17eb938c276a56b89",
+      "export_sha256": "8279df0c64cba0bc4a001cdc3aceedb3cd5f97a060c9b3c17eb938c276a56b89"
+    },
+    {
       "source_path": "evidence/audits/current.json",
       "public_path": "evidence/audits/current.json",
       "source_sha256": "0501df0b70c37f238dfa20a17c639160cfe11df52dc95257a333f077deb81d48",
@@ -4818,8 +4914,8 @@
     {
       "source_path": "scripts/check_publication.py",
       "public_path": "scripts/check_publication.py",
-      "source_sha256": "d791adf6286a24bbc8ed60dcc7ade77f28ffa3c90f2be1b1cf9034de841f401b",
-      "export_sha256": "d791adf6286a24bbc8ed60dcc7ade77f28ffa3c90f2be1b1cf9034de841f401b"
+      "source_sha256": "095e72786480bec4ec09737524e3492b8c3bcbb50d125e8d47998b04d70c9e91",
+      "export_sha256": "095e72786480bec4ec09737524e3492b8c3bcbb50d125e8d47998b04d70c9e91"
     },
     {
       "source_path": "scripts/check_repository.py",
@@ -4888,6 +4984,18 @@
       "export_sha256": "61f826ba70395f70afb7fba122f9a99ff53df75e0c28ef5bb8faee793288fb76"
     },
     {
+      "source_path": "scripts/research/build_analysis_catalog.py",
+      "public_path": "scripts/research/build_analysis_catalog.py",
+      "source_sha256": "18dd572ac8f94727837f614ddc90216b940daaf873fb386446c7a3f619cb5dd5",
+      "export_sha256": "18dd572ac8f94727837f614ddc90216b940daaf873fb386446c7a3f619cb5dd5"
+    },
+    {
+      "source_path": "scripts/research/render_analysis_landscape.py",
+      "public_path": "scripts/research/render_analysis_landscape.py",
+      "source_sha256": "7765387644938f8b6636c3aa83e4cae0f4a8f8bc80cff4ee7b8bfa2ad427caed",
+      "export_sha256": "7765387644938f8b6636c3aa83e4cae0f4a8f8bc80cff4ee7b8bfa2ad427caed"
+    },
+    {
       "source_path": "scripts/run.py",
       "public_path": "scripts/run.py",
       "source_sha256": "29710edc1b89334f3c1b7f7485e7a938864c48f5b0a7fb03d20b86209fd4db91",
@@ -4924,10 +5032,22 @@
       "export_sha256": "f3111fbf4fd401d74c9d0e7879a15f3d1db269e1479ddbceeddd0dab2a20531e"
     },
     {
+      "source_path": "src/ravel/analysis_catalog.py",
+      "public_path": "src/ravel/analysis_catalog.py",
+      "source_sha256": "c1835fe322fdb1592f13be1c65aeeb9fce74b11f5c56c2c816992f36c425456e",
+      "export_sha256": "c1835fe322fdb1592f13be1c65aeeb9fce74b11f5c56c2c816992f36c425456e"
+    },
+    {
       "source_path": "src/ravel/cli.py",
       "public_path": "src/ravel/cli.py",
-      "source_sha256": "09f594ae0a1810ed2d45bb0281624c5ffb9fbed702421f944c17271a4f748339",
-      "export_sha256": "09f594ae0a1810ed2d45bb0281624c5ffb9fbed702421f944c17271a4f748339"
+      "source_sha256": "877758e356b1680d7100c18e0d40f110ed09ee1715a8f69dbebd31ca5bb514e8",
+      "export_sha256": "877758e356b1680d7100c18e0d40f110ed09ee1715a8f69dbebd31ca5bb514e8"
+    },
+    {
+      "source_path": "src/ravel/data/analysis-catalog.json",
+      "public_path": "src/ravel/data/analysis-catalog.json",
+      "source_sha256": "baef65b1c0083b0a84cb5af5b768cbb69877204f88ba4f99b1717aacf6b7360d",
+      "export_sha256": "baef65b1c0083b0a84cb5af5b768cbb69877204f88ba4f99b1717aacf6b7360d"
     },
     {
       "source_path": "src/ravel/data/cross_sections/slepton_flavLR_nlonll_pdf4lhc15.json",
@@ -5810,6 +5930,12 @@
       "public_path": "tests/unit/conftest.py",
       "source_sha256": "63deb8da85c1fc86835d4b3c755462374a115850125d88f0aef9cdcd83c43567",
       "export_sha256": "63deb8da85c1fc86835d4b3c755462374a115850125d88f0aef9cdcd83c43567"
+    },
+    {
+      "source_path": "tests/unit/test_analysis_catalog.py",
+      "public_path": "tests/unit/test_analysis_catalog.py",
+      "source_sha256": "f5bc2ef2dc3576abf857fc4088ea9beca685d18f427d463a6c3039a951afbe4a",
+      "export_sha256": "f5bc2ef2dc3576abf857fc4088ea9beca685d18f427d463a6c3039a951afbe4a"
     },
     {
       "source_path": "tests/unit/test_approval_chain.py",

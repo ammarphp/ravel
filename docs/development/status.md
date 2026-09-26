@@ -2,6 +2,16 @@
 
 This board separates implemented software, historical scientific evidence and completed physicist deliverables. Read it for current state; earlier session records are preserved in the [state-board archive](history/2026-09-05-status-archive.md). The operational entry is [start a physics workflow](../workflow/start.md).
 
+## September 26 analysis landscape
+
+The [expanded survey](../research/2026-09-26-analysis-landscape.md) inventories 633
+entries from pinned Rivet/SimpleAnalysis sources and defines per-routine adaptation
+work. The installed `ravel analyses` commands provide offline lookup, unambiguous
+selection, adaptation packets and selected-source verification. No new scientific
+validation or general routine executor is claimed. The [competitor refresh](../research/2026-09-26-competitor-capability-map.md)
+tracks twelve systems; SFitterAgents now has public implementation. The next
+capability is fixed-event scientific admission, followed by reference closure.
+
 ## Architecture hardening
 
 The completed v0.4.0 architecture release covers typed limit transport, artifact-bound comparisons, explicit native normalization, capability dispatch, grounded draft intake, compact current-state handoff and durable dependency-aware execution. All twelve independent consistency, approval and lifecycle findings were repaired and rechecked. Its recorded verification was 1,089 source passes, a separate 40-test wheel run, and 1,081 public-export passes with ten development-artifact skips. These are the prior release's results, not full-suite results for the follow-up below. This engineering work does not close the scientific items below.
@@ -238,4 +248,4 @@ See the [fidelity implementation report](history/2026-09-05-physics-fidelity.md)
 
 ## September 8–9 comparative pilot
 
-The [comparative assessment](../research/2026-09-09-comparative-pilot.md) and [evidence](../../evidence/audits/2026-09-09-comparative-pilot/README.md) distinguish scope refusals, component calculations, runtime setup failures and documented native alternatives. Ravel still needs supported generation-only and statistics-only lifecycles. Its numerical 2jl component control succeeds without establishing end-to-end framework delivery. Expected-limit routing and refusal scoring are repaired in this update. These are engineering and product findings; acceptance fidelity and the full RRR result remain open.
+The [comparative assessment](../research/2026-09-09-comparative-pilot.md) and [evidence](../../evidence/audits/2026-09-09-comparative-pilot/README.md) distinguish scope refusals, component calculations, runtime setup failures and documented native alternatives. The pilot exposed missing generation-only and statistics-only lifecycles; the September 9 scoped-workflow update above implements those bounded routes. Its numerical 2jl component control succeeds without establishing end-to-end framework delivery. Expected-limit routing and refusal scoring are repaired in this update. These are engineering and product findings; acceptance fidelity and the full RRR result remain open.

@@ -1,0 +1,1427 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-26",
+  "kind": "proposed-validation-targets",
+  "scope": "Forty routine/component candidates selected from the pinned catalogue, not forty distinct papers or forty supported analyses.",
+  "catalogue": "src/ravel/data/analysis-catalog.json",
+  "upstream_revisions": {
+    "rivet": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+    "simpleanalysis": "5a33033d788619bb1039a5b8116fdf43c46fc72a"
+  },
+  "selection_basis": "Manual engineering prioritization using catalogue identity, public metadata, literal dependency signals and known Ravel gaps; not full paper-by-paper scientific review.",
+  "effort_definition": {
+    "bounded": "Relatively constrained adapter/control work after a compatible runtime and frozen sample exist; no claim of easy paper closure.",
+    "substantial": "New response, category, statistical mapping or nontrivial dependency validation.",
+    "new-domain": "New scientific modeling assumptions, event types or response infrastructure; requires separate physicist-approved scope."
+  },
+  "wave_definition": {
+    "1": "Frozen-event ATLAS/CMS and ordinary SimpleAnalysis controls first.",
+    "2": "Detector, object, tagger, shape and compressed-search validation.",
+    "3": "Lifetime, nuclear, flavor, forward and neutrino domain admission."
+  },
+  "interpretation_limits": [
+    "Experiments are proposed and have not been run.",
+    "Effort labels are relative engineering judgments, not time estimates or physics-validation scores.",
+    "A frozen-event match to an upstream routine establishes implementation agreement only.",
+    "Paper-level reproduction also requires matched simulation, normalization, uncertainties and reference agreement.",
+    "Publication links are inherited metadata, not proof that every paper or likelihood was read.",
+    "No likelihood bytes were acquired or verified in this target-selection task.",
+    "The three disappearing-track variants and centrality helper are components, not independent paper reproductions."
+  ],
+  "unfilled_domains": [
+    {
+      "domain": "LHCb fixed-target",
+      "status": "No routine confidently identified from this snapshot metadata; additional official source discovery required.",
+      "needed": "Locate the public routine/reference and establish target species, laboratory-to-CM transform and fixed-target event input before assigning a validation target.",
+      "non_substitution": "LHCb pPb collider and decay analyses in this list do not cover fixed-target physics."
+    }
+  ],
+  "entries": [
+    {
+      "order": 1,
+      "routine_id": "rivet:ATLAS_2013_I1234228",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Drell-Yan baseline",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "High-mass Drell-Yan at 7 TeV",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2013_I1234228.cc",
+          "git_blob": "fc4baf6ca41b965e41fbedde7fb1def5f0145488",
+          "git_mode": "100644",
+          "sha256": "0b29027b852b52ab788fa91aeaafe62e1a8d3f8b8a38b06b6bf96fd7cb33a082",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2013_I1234228.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1305.4192",
+        "https://inspirehep.net/literature/1234228"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "STDM-2012-10"
+      ],
+      "discriminating_experiment": "Freeze dilepton events; compare lepton construction, pair selection and every mass-bin contribution to the pinned routine, including events on either side of each boundary.",
+      "missing_input_or_adapter": "General Rivet event-input adapter, frozen reference outputs and confirmed particle-level definition.",
+      "transfer_question": "Separates object selection and bin normalization from detector effects.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 2,
+      "routine_id": "rivet:CMS_2018_I1711625",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Drell-Yan transfer",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Measurement of the differential Drell-Yan cross section in proton-proton collisions at $\\sqrt{s} = 13\\,TeV$",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2018_I1711625.cc",
+          "git_blob": "a03056ec357cd3355b32a7f89b5aedf9990c7aa1",
+          "git_mode": "100644",
+          "sha256": "0163c527eab0d983f1f451c2f9afd4a651bd9081fd8744f92e190be0b6e16563",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2018_I1711625.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1812.10529",
+        "https://inspirehep.net/literature/1711625"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Reuse a suitable frozen dilepton sample; compare the CMS-defined observables independently, then test unequal mass-bin widths and channel combination.",
+      "missing_input_or_adapter": "CMS reference booking and exact per-channel normalization; do not presume ATLAS and CMS fiducial definitions coincide.",
+      "transfer_question": "Detects experiment-specific assumptions hidden in a supposedly generic adapter.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 3,
+      "routine_id": "rivet:ATLAS_2016_I1494075",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Diboson and missing momentum",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "ZZ -> 4 leptons / 2 leptons and 2 neutrinos measurment at 8TeV",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2016_I1494075.cc",
+          "git_blob": "124be045e4d54eec3d0397bc27a7deee375bd650",
+          "git_mode": "100644",
+          "sha256": "771012e887529f79b56d96c7c3e2df26b1041c46a3b6d0913e1c4beecc85b22a",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2016_I1494075.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1610.07585",
+        "https://inspirehep.net/literature/1494075"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "STDM-2014-16"
+      ],
+      "discriminating_experiment": "Freeze four-lepton and two-lepton-plus-invisible examples; compare lepton pairing, invisible-particle definition and disjoint channel assignment.",
+      "missing_input_or_adapter": "Frozen diboson events and an explicit channel/object contract.",
+      "transfer_question": "Ensures neutrinos in an ordinary collider final state do not trigger a forward-flux workflow; tests combinatorics.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 4,
+      "routine_id": "rivet:CMS_2012_I1298807",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Diboson transfer",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Inclusive ZZ production cross section and constraints on anomalous triple gauge couplings at 8~TeV",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2012_I1298807.cc",
+          "git_blob": "fb771b0c97f60a50cad6f93e1a25bc3ca663e23e",
+          "git_mode": "100644",
+          "sha256": "68a050393dc0f65136500f84ee44d77870f9a0a468a11bda9d023843c083ade0",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2012_I1298807.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1406.0113",
+        "https://inspirehep.net/literature/1298807"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare the same eligible four-lepton events through CMS and its upstream reference separately; test alternate pairings and same-flavor ties.",
+      "missing_input_or_adapter": "CMS pairing prescription and frozen upstream outputs; shared events alone do not make fiducial regions identical.",
+      "transfer_question": "Exposes ordering, double-counting and pairing errors before detector studies.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 5,
+      "routine_id": "rivet:ATLAS_2010_I871366",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Inclusive jets",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Inclusive jet cross section and di-jet mass and chi spectra at 7 TeV in ATLAS",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2010_I871366.cc",
+          "git_blob": "002c776d49be592df554cf632319a75b60a263d0",
+          "git_mode": "100644",
+          "sha256": "250290c4eea29e489c1d37a9082a5bd94a47279354a1032683062ada6ee7edd9",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2010_I871366.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1009.5908",
+        "https://inspirehep.net/literature/871366"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "STDM-2010-03"
+      ],
+      "discriminating_experiment": "Replay a tiny frozen hadron-level jet sample and synthetic boundaries; compare clustered four-vectors, multiplicities, rapidity slices and histogram contribution counts.",
+      "missing_input_or_adapter": "Pinned jet algorithm/runtime and per-object versus per-event output semantics.",
+      "transfer_question": "Tests whether one event contributing several jets is incorrectly normalized as one entry.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 6,
+      "routine_id": "rivet:CMS_2016_I1459051",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Jet transfer",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Measurement of the inclusive jet cross-section in $pp$ collisions at $\\sqrt{s} = 13~\\TeV$",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2016_I1459051.cc",
+          "git_blob": "4e2607bd344e8d44a789db9a23766c4b7ca136fa",
+          "git_mode": "100644",
+          "sha256": "ee1be372fb1b240834da7e8c50a838c5c65d89c890c982b8a83ae61ce75355ea",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2016_I1459051.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://inspirehep.net/literature/1459051"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Replay fixed jet events with CMS booking; compare bin edges, rapidity slices, histogram integrals and equivalent chunked input.",
+      "missing_input_or_adapter": "Confirmed CMS jet/radius options and differential bin measure.",
+      "transfer_question": "Tests bin-volume and merge consistency independently of any exclusion fit.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 7,
+      "routine_id": "simpleanalysis:ZeroLeptonDiscovery2018",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Ordinary reconstructed search",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "ZeroLeptonDiscovery2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-22_Discovery.cxx",
+          "git_blob": "42f4db06d2ddfb3e296559de15b226b77c72b513",
+          "git_mode": "100644",
+          "sha256": "93b6de23f9511dcbd6e119c770b2afc63f6c3d957288db7f09918ddf369319c9",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-22_Discovery.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-22"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-22"
+      ],
+      "discriminating_experiment": "Replay fixed reconstructed objects and trace every zero-lepton region decision against pinned upstream SimpleAnalysis, including veto and threshold ties.",
+      "missing_input_or_adapter": "Reference upstream runner and matching object schema/efficiency policy; adapter registration is not closure.",
+      "transfer_question": "Localizes generic MET, overlap-removal and region-bookkeeping failures.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 8,
+      "routine_id": "simpleanalysis:EwkTwoLeptonZeroJet2018",
+      "wave": 1,
+      "effort": "bounded",
+      "role": "Leptonic reconstructed search",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "EwkTwoLeptonZeroJet2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-32.cxx",
+          "git_blob": "6b17b5be47ae777713b5ea3c31d65364df5ff0f0",
+          "git_mode": "100644",
+          "sha256": "4862afa0c48def4b42a2c9bffe79243f98594dfd438c9c61a2fff14d0da88622",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-32.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-32"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-32"
+      ],
+      "discriminating_experiment": "Trace fixed two-lepton events across flavor, charge, jet-veto and kinematic boundaries, comparing each region decision to the upstream routine.",
+      "missing_input_or_adapter": "External SimpleAnalysis adapter and explicit object/selection contract.",
+      "transfer_question": "Provides a simpler leptonic control for the compressed-search acceptance problem.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 9,
+      "routine_id": "rivet:ATLAS_2015_I1404878",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Top reconstruction",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "ttbar (to l+jets) differential cross sections at 8 TeV",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2015_I1404878.cc",
+          "git_blob": "7291edf323dc4b37495d6cba12430b21f3390564",
+          "git_mode": "100644",
+          "sha256": "b8d5999e489f9f9fd9f104fea618db61e343133dddc9808bbaf666e499b0c51c",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2015_I1404878.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1511.04716",
+        "https://inspirehep.net/literature/1404878"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "TOPQ-2015-06"
+      ],
+      "discriminating_experiment": "Compare fixed semileptonic top events through object reconstruction and each reported observable.",
+      "missing_input_or_adapter": "Top-decay, b-jet and reconstruction conventions; verified histogram references.",
+      "transfer_question": "Tests assignment ambiguities beyond Drell-Yan.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 10,
+      "routine_id": "rivet:CMS_2018_I1620050",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Normalized top shapes",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Measurement of normalized differential ttbar cross sections in the dilepton channel from pp collisions at 13 TeV",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2018_I1620050.cc",
+          "git_blob": "ab75606d73abe0b1dd3e6490f3ab8098b294e270",
+          "git_mode": "100644",
+          "sha256": "46816ae7b2220e18ae8d40d468cef6dd3d330bd481a591dcb8c604e2cc724779",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2018_I1620050.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1708.07638",
+        "https://inspirehep.net/literature/1620050"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare dilepton-top bin yields, then independently derive normalized distributions and their covariance constraints.",
+      "missing_input_or_adapter": "Normalization denominator and correlated reference uncertainties.",
+      "transfer_question": "Tests normalized-shape constraints and prevents independent-bin likelihood invention.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 11,
+      "routine_id": "rivet:ATLAS_2020_I1790439",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Higgs four leptons",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Higgs to 4-lepton at 13 TeV",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2020_I1790439.cc",
+          "git_blob": "dc70ce4f6bc39c00bc30721f07c3cb359bce9561",
+          "git_mode": "100644",
+          "sha256": "971ac744df1b0ca21e2a8aba93d20a275f5656ec3f3512a7f15993f4e048787e",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2020_I1790439.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2004.03969",
+        "https://inspirehep.net/literature/1790439"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "HIGG-2018-29"
+      ],
+      "discriminating_experiment": "Compare fixed Higgs-to-four-lepton pairing, fiducial event membership and differential distributions.",
+      "missing_input_or_adapter": "Production/decay definition, reference bins and normalization basis.",
+      "transfer_question": "Tests rare-signal pairing and production-versus-decay normalization.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 12,
+      "routine_id": "rivet:CMS_2022_I2142341",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Higgs diphotons",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Measurement of differential fiducial Higgs boson production cross sections in $pp$collisions at $\\sqrt{s} = 13$ TeV in the diphoton decay channel",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2022_I2142341.cc",
+          "git_blob": "c3406f2b3a832fd5abc024b94ee5450a1db97fa8",
+          "git_mode": "100644",
+          "sha256": "e1ea22119116d683a4e70ee87f6f3238a9efb4a3b28bbb7b128ea3e9793d0378",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2022_I2142341.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2208.12279",
+        "https://inspirehep.net/literature/2142341"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Replay fixed photon events; compare isolation, pair assignment and differential fiducial bins.",
+      "missing_input_or_adapter": "Photon promptness/isolation definition and production-mode mixture.",
+      "transfer_question": "Tests photons and observable-specific fiducial definitions.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 13,
+      "routine_id": "rivet:ATLAS_2019_I1725190",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Smeared dilepton line shape",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Dilepton mass spectrum in 13 TeV pp collisions with 139/fb Run 2 dataset",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2019_I1725190.cc",
+          "git_blob": "2f795eaba17995d6f170420f812f30746ffc500a",
+          "git_mode": "100644",
+          "sha256": "a186c185556d39e292851d56212498b8e5a8964dec359b03c9aac418c5718212",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2019_I1725190.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1903.06248",
+        "https://inspirehep.net/literature/1725190"
+      ],
+      "upstream_status": "VALIDATED SINGLEWEIGHT NOREENTRY",
+      "analysis_ids": [
+        "EXOT-2018-08"
+      ],
+      "discriminating_experiment": "Compare identical truth inputs before/after the exact response prescription; test migration and the routine single-weight/non-reentrant restrictions.",
+      "missing_input_or_adapter": "Response functions, allowed weight/finalization mode and reproducible stochastic handling.",
+      "transfer_question": "Distinguishes rate bias, smearing bias and incorrect merge semantics.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 14,
+      "routine_id": "simpleanalysis:EwkCompressed2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Canonical RRR closure",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "EwkCompressed2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-16.cxx",
+          "git_blob": "f8fec8301d84033e9f8f97925fc642fdb1178179",
+          "git_mode": "100644",
+          "sha256": "215298ad34bea06922611f90ac08aafb6c90aebc4803b36ac4a9ddaed378b69d",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-16.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-16"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-16"
+      ],
+      "discriminating_experiment": "Use retained RRR event traces to compare truth acceptance, reconstructed acceptance, RestFrames observables, all SR/CR contributions and fixed-template inference separately.",
+      "missing_input_or_adapter": "Unclosed detector/acceptance, low-splitting shape and generator-cut stability; final full-plane reference closure.",
+      "transfer_question": "Directly addresses the publication blocker without tuning to the observed contour.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 15,
+      "routine_id": "simpleanalysis:EwkCompressedVBF2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Compressed transfer stress test",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "EwkCompressedVBF2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-16_VBF.cxx",
+          "git_blob": "d1653b0c86a0f2fbd635cb81833b14c7a9444805",
+          "git_mode": "100644",
+          "sha256": "6fe600b6cd4e028064209668c1a792180452afc3f5697440fe7128c7255ec43c",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-16_VBF.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-16"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-16"
+      ],
+      "discriminating_experiment": "Replay eligible fixed events and compare forward-jet selection plus RestFrames quantities separately from soft-lepton response.",
+      "missing_input_or_adapter": "VBF-specific event/object contract and reference cutflow.",
+      "transfer_question": "Tests whether compressed-analysis repairs generalize to another topology.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 16,
+      "routine_id": "simpleanalysis:EwkThreeLeptonOnshell2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Multilepton categories",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "EwkThreeLeptonOnshell2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2019-09_OnShell.cxx",
+          "git_blob": "5b93bab497e0c8442852782b8e1dc87e8ecaeef3",
+          "git_mode": "100644",
+          "sha256": "56517d9951f6a05f413fce4344fd46b8878cb2d977c9981998c4dd5c98c72c3d",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2019-09_OnShell.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-09"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2019-09"
+      ],
+      "discriminating_experiment": "Trace fixed three-lepton events through pairing/category choices and exact region-to-likelihood ordering.",
+      "missing_input_or_adapter": "Validated adapter and channel mapping; indexed models require independent acquisition.",
+      "transfer_question": "Tests category bookkeeping and ambiguous lepton assignments.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 17,
+      "routine_id": "simpleanalysis:MonoJet2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "ISR and missing momentum",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "MonoJet2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-EXOT-2018-06.cxx",
+          "git_blob": "02a20f4c229abdafbd91adcb87a611a3fd0706c3",
+          "git_mode": "100644",
+          "sha256": "1ac689e4eafe95e05341c902fc175e6a32ba15e541d37f6c121ebcf15c417a76",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-EXOT-2018-06.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/EXOT-2018-06"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "EXOT-2018-06"
+      ],
+      "discriminating_experiment": "Compare fixed event selections with varying jet thresholds and vetoes; only later propose matched-recipe generator-cut controls.",
+      "missing_input_or_adapter": "ISR/shower recipe and trigger/object reference evidence.",
+      "transfer_question": "Tests cut dependence relevant to compressed RRR without assuming a universal correction.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 18,
+      "routine_id": "simpleanalysis:DirectStau2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Tau response",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "DirectStau2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-04.cxx",
+          "git_blob": "6a87b53e9f199269ba46061ab96b116b95fc5f61",
+          "git_mode": "100644",
+          "sha256": "a86fe817464fc996b85d23540f2cf4dceddc3aff43a9d2799c1874ca8611cc7e",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-04.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-04"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-04"
+      ],
+      "discriminating_experiment": "Separate truth tau decay/polarization from reconstructed tau decisions on the same frozen events.",
+      "missing_input_or_adapter": "Tau efficiencies, fake treatment and decay conventions.",
+      "transfer_question": "Prevents attributing tau-response differences to signal normalization.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 19,
+      "routine_id": "simpleanalysis:TauStrong2016",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Tau and jets transfer",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "TauStrong2016",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2016-30.cxx",
+          "git_blob": "72fbf5122f2a4e5a7bd7815b4acb18f3098079b9",
+          "git_mode": "100644",
+          "sha256": "e7b0246a707cb9a51f308375e96887e16de822b98020859c29a71dd4b869406d",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2016-30.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-30"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2016-30"
+      ],
+      "discriminating_experiment": "Compare tau/jet overlap handling and region assignments using hand-selected threshold cases.",
+      "missing_input_or_adapter": "Tau-tag response and exact overlap/removal order.",
+      "transfer_question": "Tests whether tau handling survives a different topology.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 20,
+      "routine_id": "simpleanalysis:ThreeBjets_NN_2020",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Neural classifier",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "ThreeBjets_NN_2020",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-30.cxx",
+          "git_blob": "b5e81543b81d7cae8abb201e55fd14cc63c9d1c9",
+          "git_mode": "100644",
+          "sha256": "cb29f6dc7bcfe8e9ef430556a206fb7fcee1d65409322490f7b9d4c291aa6543",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-30.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-30"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-30"
+      ],
+      "discriminating_experiment": "Compare each fixed feature vector and network score before comparing bin membership.",
+      "missing_input_or_adapter": "Network/preprocessing assets, b-tag calibration dependency and runtime version.",
+      "transfer_question": "Exposes feature-order, precision and tagging errors invisible in aggregate yields.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 21,
+      "routine_id": "simpleanalysis:TriHiggs6b",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Conditional model assets",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "TriHiggs6b",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-HIGP-2024-32.cxx",
+          "git_blob": "c28e56eaa988327b6a3d9da791a8c55db0c4a3f5",
+          "git_mode": "100644",
+          "sha256": "24810f0dfbe33091211eaeb1bcd29f7871e6467a7eeddadbd2f717c9cb890fde",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-HIGP-2024-32.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/HIGP-2024-32"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "HIGP-2024-32"
+      ],
+      "discriminating_experiment": "Resolve dynamically assembled model/variable filenames; compare parity/model selection and feature scores on fixed objects.",
+      "missing_input_or_adapter": "Model-file resolution and provenance beyond literal filename fragments.",
+      "transfer_question": "Tests asset discovery and deterministic routing across learned models.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 22,
+      "routine_id": "simpleanalysis:ZeroLeptonBDT2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "BDT comparison",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "ZeroLeptonBDT2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-22_BDT.cxx",
+          "git_blob": "a934755d2dc77add6a6089a7943f1397122fae4e",
+          "git_mode": "100644",
+          "sha256": "862c73583ebd0f7e871e14ab56e31bec2a71e682c549a1280d7d6b0e3a61f8d7",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-22_BDT.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-22"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-22"
+      ],
+      "discriminating_experiment": "Compare feature vectors, BDT scores and strict score thresholds on fixed reconstructed events.",
+      "missing_input_or_adapter": "Exact BDT assets/runtime and preprocessing.",
+      "transfer_question": "Separates classifier implementation from detector response.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 23,
+      "routine_id": "rivet:ATLAS_2022_I2172216",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Rivet ONNX search",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "ATLAS search for pair produced VLQs with a leptonically decaying Z-boson and a 3rd generation quark.",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginONNX/ATLAS_2022_I2172216.cc",
+          "git_blob": "67c8dada8ca6c10d23dff6d438498fb61a949891",
+          "git_mode": "100644",
+          "sha256": "906e2675238977aa3c56ce9bad0ed2d49187d2c594cb2bea4be23c4d503a8c29",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginONNX/ATLAS_2022_I2172216.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2210.15413",
+        "https://inspirehep.net/literature/2172216"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "EXOT-2018-58"
+      ],
+      "discriminating_experiment": "Run fixed inputs through the pinned ONNX and smearing interfaces separately; compare scores and region counts.",
+      "missing_input_or_adapter": "ONNX model/input contract and validated smearing response.",
+      "transfer_question": "Tests that Rivet discovery does not imply a pure particle-level measurement.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 24,
+      "routine_id": "rivet:ATLAS_2017_I1614149",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Boosted top substructure",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Resolved and boosted ttbar l+jets cross sections at 13 TeV",
+      "experiment": "ATLAS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginATLAS/ATLAS_2017_I1614149.cc",
+          "git_blob": "3afc78e88460747869680b0540b122818ff680cd",
+          "git_mode": "100644",
+          "sha256": "a9ed92599331e705eed2f3fa656654f174deecdc77a769298fbad67716e6e9c8",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginATLAS/ATLAS_2017_I1614149.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1708.00727",
+        "https://inspirehep.net/literature/1614149"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [
+        "TOPQ-2016-01"
+      ],
+      "discriminating_experiment": "Compare clustering, grooming and resolved/boosted category membership on fixed hadron-level events.",
+      "missing_input_or_adapter": "Exact FastJet-contrib algorithms and category overlap policy.",
+      "transfer_question": "Checks nontrivial jet dependencies and topology transitions.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 25,
+      "routine_id": "rivet:CMS_2019_I1764472",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Boosted jet mass",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Measurement of the differential ttbar production cross section as a function of the jet mass and top quark mass in boosted hadronic top quark decays.",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2019_I1764472.cc",
+          "git_blob": "44941d03504f13f18982a4f3d473f59afc61e5a2",
+          "git_mode": "100644",
+          "sha256": "1260cae4d251e3718525504f12ffcc49a9719ba4103c43d3fc7a70b6c76f5c06",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2019_I1764472.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1911.03800",
+        "https://inspirehep.net/literature/1764472"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare constituents and jet mass before histogram normalization on identical frozen events.",
+      "missing_input_or_adapter": "Grooming/contrib settings and mass/normalization reference.",
+      "transfer_question": "Tests whether visually shifted shapes arise before plotting.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 26,
+      "routine_id": "simpleanalysis:EwkFullHad2018",
+      "wave": 2,
+      "effort": "substantial",
+      "role": "Hadronic tagging assets",
+      "catalogue_family": "search-recast",
+      "title_from_upstream_metadata": "EwkFullHad2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-41.cxx",
+          "git_blob": "7c0e64397063d19c760664a83cb64876fb5dbfd2",
+          "git_mode": "100644",
+          "sha256": "7e9640052e5e38d5cb770fce267fe43412f82c930ffba79ea29ba4c4ebec564c",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-41.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-41"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-41"
+      ],
+      "discriminating_experiment": "Verify classifier/tagging calibration acquisition before replaying fixed boosted-object selections.",
+      "missing_input_or_adapter": "External ROOT calibration asset and large-R/tagging conventions.",
+      "transfer_question": "Tests a real missing-asset blocker before expensive simulation.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 27,
+      "routine_id": "simpleanalysis:DisappearingTrack2018",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "LLP full selection",
+      "catalogue_family": "long-lived",
+      "title_from_upstream_metadata": "DisappearingTrack2018",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-19.cxx",
+          "git_blob": "a91aa4fc3c549ee145abfb38d5507ae424cf009c",
+          "git_mode": "100755",
+          "sha256": "52666ac6308973990f364cf2915b020ffd1fd9372c9612f9d723056411a2da14",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-19.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-19"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-19"
+      ],
+      "discriminating_experiment": "Factor lifetime/geometry, event acceptance and tracklet reconstruction; compare controlled decay positions and published supported benchmark points.",
+      "missing_input_or_adapter": "Validated decay/geometry and tracklet-efficiency adapter.",
+      "transfer_question": "Tests applicability limits of prompt-object infrastructure.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 28,
+      "routine_id": "simpleanalysis:DisappearingTrack2018_EventAcc",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "LLP event-acceptance component",
+      "catalogue_family": "long-lived",
+      "title_from_upstream_metadata": "DisappearingTrack2018_EventAcc",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-19_EventAcc.cxx",
+          "git_blob": "c4b40775cf5b7f7ba85e881a216a72cbfb78bcb4",
+          "git_mode": "100644",
+          "sha256": "24c886476ac9292f048e8df64c230430630afa2767c1c3f9bc06772ccadf82fa",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-19_EventAcc.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-19"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-19"
+      ],
+      "discriminating_experiment": "Compare the event-only variant to the corresponding factor in the full routine on the same inputs.",
+      "missing_input_or_adapter": "Variant-specific semantics and shared event identity.",
+      "transfer_question": "Prevents counting an acceptance component as a complete search result.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 29,
+      "routine_id": "simpleanalysis:DisappearingTrack2018_TrackletAcc",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "LLP tracklet component",
+      "catalogue_family": "long-lived",
+      "title_from_upstream_metadata": "DisappearingTrack2018_TrackletAcc",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2018-19_TrackletAcc.cxx",
+          "git_blob": "d22b7837e96558bbbe7993d503b273fe934c4c64",
+          "git_mode": "100644",
+          "sha256": "4229fa7c6b2d88dc54dca0e194ee4ab32de5e187bf668aedd27bebee7cb11a90",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2018-19_TrackletAcc.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-19"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2018-19"
+      ],
+      "discriminating_experiment": "Compare the tracklet-only variant at matched lifetimes/boosts and track its denominator explicitly.",
+      "missing_input_or_adapter": "Tracklet domain and relation to full/event-only routines.",
+      "transfer_question": "Tests factorization and denominator consistency; this is not another independent paper.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 30,
+      "routine_id": "simpleanalysis:DisplacedTrack2020",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Displaced tracks",
+      "catalogue_family": "long-lived",
+      "title_from_upstream_metadata": "DisplacedTrack2020",
+      "experiment": "ATLAS",
+      "framework": "simpleanalysis",
+      "source_revision": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "source_files": [
+        {
+          "path": "SimpleAnalysisCodes/src/ANA-SUSY-2020-04.cxx",
+          "git_blob": "f83cbf8baa3bb7119270d8d5dee1bc30d9d1017f",
+          "git_mode": "100644",
+          "sha256": "200cba75bb1f6f1d997cf8fb1eccc05be7eb34fc72e67ad89789f83605945c3e",
+          "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/blob/5a33033d788619bb1039a5b8116fdf43c46fc72a/SimpleAnalysisCodes/src/ANA-SUSY-2020-04.cxx"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2020-04"
+      ],
+      "upstream_status": "not-declared-per-routine",
+      "analysis_ids": [
+        "SUSY-2020-04"
+      ],
+      "discriminating_experiment": "Test length-unit conversions, decay positions and prompt/displaced boundary cases before reference efficiencies.",
+      "missing_input_or_adapter": "Non-prompt tracking/trigger response and lifetime convention.",
+      "transfer_question": "Exposes silent reuse of prompt efficiencies.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 31,
+      "routine_id": "rivet:ALICE_2015_CENT_PBPB",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Centrality calibration helper",
+      "catalogue_family": "calibration",
+      "title_from_upstream_metadata": "ALICE centrality calibration for Pb-Pb at 5.02TeV",
+      "experiment": "ALICE",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginALICE/ALICE_2015_CENT_PBPB.cc",
+          "git_blob": "be55b6064feaa6e9bffe55ca4174c493869b7178",
+          "git_mode": "100644",
+          "sha256": "e2f0bed99a63c32da284bf45665ad71163117ae94fda250cf66b43cd7abcb8f6",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginALICE/ALICE_2015_CENT_PBPB.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [],
+      "upstream_status": "NEW",
+      "analysis_ids": [],
+      "discriminating_experiment": "Validate calibration inputs against beam/energy metadata and test centrality percentile boundary mapping.",
+      "missing_input_or_adapter": "Correct ion energy-per-nucleon convention and calibration sample.",
+      "transfer_question": "Separates calibration infrastructure from a publication result; helper does not count as an independently reproduced paper.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 32,
+      "routine_id": "rivet:ALICE_2016_I1419244",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Nuclear flow",
+      "catalogue_family": "heavy-ion",
+      "title_from_upstream_metadata": "Anisotropic flow of charged particles in PbPb collisions at 5.02 TeV.",
+      "experiment": "ALICE",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginALICE/ALICE_2016_I1419244.cc",
+          "git_blob": "05ac0ab28a0a3d94e59ae83f08a37ab6175babfb",
+          "git_mode": "100644",
+          "sha256": "80a9053b0c08683602c641b3d9292d696a50894d5b5555a2c4d3d810e940826c",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginALICE/ALICE_2016_I1419244.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1602.01119",
+        "https://inspirehep.net/literature/1419244"
+      ],
+      "upstream_status": "UNVALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Test particle correlations and event-plane/centrality conventions on synthetic symmetric events before data comparison.",
+      "missing_input_or_adapter": "Heavy-ion event metadata, centrality and correlated uncertainty treatment.",
+      "transfer_question": "Tests a qualitatively different observable algebra.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 33,
+      "routine_id": "rivet:ALICE_2012_I930312",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Nuclear correlations",
+      "catalogue_family": "heavy-ion",
+      "title_from_upstream_metadata": "Particle-yield modification in jet-like azimuthal di-hadron correlations in Pb-Pb collisions at $\\sqrt{s_\\mathrm{NN}} = 2.76$ TeV",
+      "experiment": "ALICE",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginALICE/ALICE_2012_I930312.cc",
+          "git_blob": "1716a1eab25b2076f5827a6502840d8d11d07722",
+          "git_mode": "100644",
+          "sha256": "e010682d34a28d1822fb6d96e25b068f7cb389265b9dfb541f3e3859b5832708",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginALICE/ALICE_2012_I930312.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1110.0121",
+        "https://inspirehep.net/literature/930312"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare pair counting and mixed/background populations using controlled duplicated and permuted events.",
+      "missing_input_or_adapter": "Pair/background construction, nuclear reference and covariance.",
+      "transfer_question": "Tests correlated populations where independent-event assumptions fail.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 34,
+      "routine_id": "rivet:LHCB_2022_I2694685",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "pPb charm modification",
+      "catalogue_family": "heavy-ion",
+      "title_from_upstream_metadata": "Measurement of the prompt $D^0$ nuclear modification factor in $p$-$\\mathrm{Pb}$ collisions at $\\sqrt{s_{NN}} = 8.16\\,\\mathrm{TeV}$",
+      "experiment": "LHCb",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginLHCb/LHCB_2022_I2694685.cc",
+          "git_blob": "5c4f69186d32492a908717ed2ee3686c7208172c",
+          "git_mode": "100644",
+          "sha256": "8b09a9b4f5a12df82e2072c7856bb6491475eb840ea6f9dafaabc1dda625fc26",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginLHCb/LHCB_2022_I2694685.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2205.03936",
+        "https://inspirehep.net/literature/2694685"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Verify asymmetric beam boosts, prompt-charm ancestry and pp/pPb normalization independently.",
+      "missing_input_or_adapter": "Nuclear beams, prompt definition and nuclear-reference transport.",
+      "transfer_question": "Tests mixed beam options and ratios; pPb is not fixed-target.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 35,
+      "routine_id": "rivet:LHCB_2016_I1394391",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Flavor Dalitz analysis",
+      "catalogue_family": "fiducial-measurement",
+      "title_from_upstream_metadata": "Dalitz plot analysis of $D^0\\to K^0_SK^\\pm\\pi^\\mp$",
+      "experiment": "LHCb",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginLHCb/LHCB_2016_I1394391.cc",
+          "git_blob": "a9b4ac100edff27e3510f7c027dcae14248d0646",
+          "git_mode": "100644",
+          "sha256": "662cc53653b316e58055be00fa700e88f7930c49205ea2691e881bf9c56f34f7",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginLHCb/LHCB_2016_I1394391.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://inspirehep.net/literature/1394391"
+      ],
+      "upstream_status": "VALIDATED NOHEPDATA",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare invariant-mass pairings and Dalitz-boundary membership on exact decay kinematics.",
+      "missing_input_or_adapter": "Decay generator/amplitude conventions and normalized distribution semantics.",
+      "transfer_question": "Tests decay observables outside generic high-pT exclusions.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 36,
+      "routine_id": "rivet:LHCB_2015_I1396331",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Forward charm",
+      "catalogue_family": "flavour",
+      "title_from_upstream_metadata": "Charm hadron differential cross-sections in $p_T$ and rapidity at $\\sqrt{s} = 13$ TeV",
+      "experiment": "LHCb",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginLHCb/LHCB_2015_I1396331.cc",
+          "git_blob": "d00f423cf8389ea0682b685edd7c19c2284a69f6",
+          "git_mode": "100644",
+          "sha256": "cb3d738e40a26f3dc9273b16bad5bad548a164f255a838171cbf208237e5e1ca",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginLHCb/LHCB_2015_I1396331.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://inspirehep.net/literature/1396331"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare parent/decay ancestry, rapidity bins and charm-species normalization on fixed events.",
+      "missing_input_or_adapter": "Heavy-flavor production/decay definitions and branching basis.",
+      "transfer_question": "Tests ancestry and forward acceptance without treating charm hadrons as prompt leptons.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 37,
+      "routine_id": "rivet:CMS_2020_I1776758",
+      "wave": 3,
+      "effort": "substantial",
+      "role": "Heavy-flavor jet ratios",
+      "catalogue_family": "flavour",
+      "title_from_upstream_metadata": "Ratios of cross sections in the associated production of a Z boson with at least one charm or bottom quark jet are measured in proton-proton collisions at $\\sqrt{s}=13$ TeV",
+      "experiment": "CMS",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginCMS/CMS_2020_I1776758.cc",
+          "git_blob": "e52d70a9f21463cea392160e9b1d94043bd0852a",
+          "git_mode": "100644",
+          "sha256": "f06ec55da3b73b34df517589e2743bca7883532034b27d416331bbc5f6afdfe1",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginCMS/CMS_2020_I1776758.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2001.06899",
+        "https://inspirehep.net/literature/1776758"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare charm/bottom flavor labeling and the ratio numerator/denominator on shared events.",
+      "missing_input_or_adapter": "Flavor definition, shared-population covariance and normalization convention.",
+      "transfer_question": "Tests ratio uncertainties and heavy-flavor semantics.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 38,
+      "routine_id": "rivet:LHCF_2018_I1518782",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Very forward photons",
+      "catalogue_family": "forward",
+      "title_from_upstream_metadata": "Measurement of forward photon production cross-section in proton-proton collisions at $\\mathrm{\\sqrt{s}=13\\,TeV}$ with the LHCf detector",
+      "experiment": "LHCf",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginLHCf/LHCF_2018_I1518782.cc",
+          "git_blob": "3da6ed5531f8d6788ea7a3f403084691f623256b",
+          "git_mode": "100644",
+          "sha256": "0f4b547656c9ab0edd5d063563da406dece8ef57e24973a301696fc0e82b6f2c",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginLHCf/LHCF_2018_I1518782.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/1703.07678",
+        "https://inspirehep.net/literature/1518782"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Verify laboratory energy/angle acceptance and photon ancestry on controlled forward kinematics.",
+      "missing_input_or_adapter": "Forward hadronization/acceptance and relevant beam configuration.",
+      "transfer_question": "Tests extreme-rapidity observables beyond central detector assumptions.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 39,
+      "routine_id": "rivet:TOTEM_2012_I1220862",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Elastic scattering",
+      "catalogue_family": "forward",
+      "title_from_upstream_metadata": "Measurement of proton-proton elastic scattering and total cross section at $\\sqrt{s} = 7~\\TeV$",
+      "experiment": "TOTEM",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginTOTEM/TOTEM_2012_I1220862.cc",
+          "git_blob": "8f08b0bdd6a2b2c370f20c373b7c4353bcc00c21",
+          "git_mode": "100644",
+          "sha256": "a3142b2d364a9ebafd9290be83934f25a005870422d3ea9789fd7619bf8624ce",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginTOTEM/TOTEM_2012_I1220862.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://inspirehep.net/literature/1220862"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Compare momentum-transfer definition and elastic event selection before beam-optics/acceptance corrections.",
+      "missing_input_or_adapter": "Elastic generator, beam optics and normalization inputs.",
+      "transfer_question": "Separates forward elastic physics from ordinary pp hard-scattering simulation.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    },
+    {
+      "order": 40,
+      "routine_id": "rivet:FASER_2024_I2855783",
+      "wave": 3,
+      "effort": "new-domain",
+      "role": "Forward neutrino interactions",
+      "catalogue_family": "neutrino",
+      "title_from_upstream_metadata": "Muon neutrino cross-section and flux at 13.6 TeV",
+      "experiment": "FASER",
+      "framework": "rivet",
+      "source_revision": "74816bd4cf29a9d71447f8c122887d498d3dea3a",
+      "source_files": [
+        {
+          "path": "analyses/pluginNeutrino/FASER_2024_I2855783.cc",
+          "git_blob": "88255d17daedce1b225cc9fc6ab98a5a922d75d8",
+          "git_mode": "100644",
+          "sha256": "460b02a61b416aecf5700919e323264735dec585f78f84b5bdef9ea60d30c690",
+          "url": "https://gitlab.com/hepcedar/rivet/-/blob/74816bd4cf29a9d71447f8c122887d498d3dea3a/analyses/pluginNeutrino/FASER_2024_I2855783.cc"
+        }
+      ],
+      "publication_urls_from_metadata": [
+        "https://arxiv.org/abs/2412.03186",
+        "https://inspirehep.net/literature/2855783"
+      ],
+      "upstream_status": "VALIDATED",
+      "analysis_ids": [],
+      "discriminating_experiment": "Validate flux normalization, target composition and interaction response separately on controlled neutrino inputs.",
+      "missing_input_or_adapter": "Flux/transport/interaction backend and their joint covariance.",
+      "transfer_question": "Tests genuinely new physics stages; ordinary missing-energy events are not a substitute.",
+      "review_status": "candidate selected from pinned routine metadata and dependency signals; full paper/routine physics review not performed",
+      "likelihood_bytes_verified": false,
+      "experiment_executed": false,
+      "compute_authorized": false
+    }
+  ],
+  "competitor_context": "docs/research/2026-09-26-competitor-capability-map.md"
+}

@@ -56,7 +56,46 @@ def parser() -> argparse.ArgumentParser:
     audit = sub.add_parser("audit", help="inspect a source checkout with the existing R1-R9 audit")
     audit.add_argument("--root", type=Path, help="Ravel source checkout (otherwise search cwd parents)")
     audit.add_argument("--out", type=Path, help="write the audit report to this explicit path")
+    analyses = sub.add_parser("analyses", help="search the pinned public routine census and inspect adaptation requirements; no compute")
+    commands = analyses.add_subparsers(dest="analysis_command", required=True)
+    listing = commands.add_parser("list", help="filter routines without implying validated support")
+    listing.add_argument("--query", default="")
+    listing.add_argument("--experiment")
+    listing.add_argument("--framework", choices=("rivet", "simpleanalysis"))
+    from .analysis_catalog import FAMILIES
+    listing.add_argument("--family", choices=tuple(FAMILIES))
+    listing.add_argument("--json", action="store_true")
+    show = commands.add_parser("show", help="derive an adaptation packet for one unambiguous routine")
+    show.add_argument("identity")
+    check = commands.add_parser("check-source", help="verify selected source/asset bytes in an existing upstream checkout")
+    check.add_argument("identity")
+    check.add_argument("--source", type=Path, required=True)
+    commands.add_parser("summary", help="report census denominators and scientific boundaries")
     return ap
+
+
+def _analyses(args) -> int:
+    from .analysis_catalog import load_catalog, search, resolve, adaptation_packet, verify_source
+    catalog = load_catalog()
+    if args.analysis_command == "summary":
+        result = {"date": catalog["retrieved_at_utc"], "scope": catalog["scope"],
+                  **catalog["summary"], "compute_authorized": False}
+    elif args.analysis_command == "list":
+        rows = search(catalog, args.query, args.experiment, args.framework, args.family)
+        result = {"matches": len(rows), "entries": rows, "compute_authorized": False}
+        if not args.json:
+            print(f"{len(rows)} catalogue entries; discovery only, compute_authorized=false")
+            for row in rows:
+                print(f"{row['id']} | {row['experiment']} | {row['family']} | {row['title']}")
+            return 0
+    else:
+        row = resolve(catalog, args.identity)
+        if args.analysis_command == "show":
+            result = adaptation_packet(catalog, row)
+        else:
+            result = verify_source(catalog, row, args.source)
+    print(json.dumps(result, indent=2, allow_nan=False))
+    return 1 if result.get("status") == "FAIL" else 0
 
 
 def _initiate(args) -> int:
@@ -241,7 +280,7 @@ def main(argv=None) -> int:
     try:
         return {"initiate": _initiate, "status": _status, "validate": _validate,
                 "replay": _replay, "audit": _audit, "plan": _plan, "approve": _approve,
-                "run": _run, "compare-recipes": _compare_recipes}[args.command](args)
+                "run": _run, "compare-recipes": _compare_recipes, "analyses": _analyses}[args.command](args)
     except (OSError, ValueError) as exc:
         print(f"ravel: {exc}", file=sys.stderr)
         return 2

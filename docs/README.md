@@ -37,3 +37,11 @@ records a particular implementation and timing comparison.
 
 The research records explain how the project developed. Use the current workflow
 and reference pages for operating instructions.
+
+## Analysis expansion
+
+Use the [public analysis landscape](research/2026-09-26-analysis-landscape.md),
+[validation targets](research/2026-09-26-validation-targets.md), and
+[competitor capability map](research/2026-09-26-competitor-capability-map.md) for
+source-backed discovery and the proposed adaptation sequence. These are separate
+from demonstrated physics support.
