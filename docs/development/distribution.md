@@ -68,10 +68,23 @@ python3 scripts/check_publication.py
 bash scripts/maintenance/export-distribution.sh /tmp/ravel-review
 ```
 
-The exporter refuses a populated directory, the source tree, repository
-ancestors, the home directory, or symlinked staging paths. It copies the registry
+The exporter runs its checks with the `python3` first on `PATH` and stops at
+once unless that is Python 3.12, the version the public CI and `CONTRIBUTING.md`
+use: pinned evidence (the native fidelity audit's AST digests) verifies only under
+the version it was recorded with. Put the development venv's `bin` first on `PATH`
+when the system `python3` differs. The exporter refuses a populated directory, the
+source tree, repository ancestors, the home directory, or symlinked staging paths. It copies the registry
 selection and then permits only the declared home-directory and repository-URL
 redactions. The public directory index is generated from the selected files.
+
+After redaction the leak check (`scripts/export_safety.py leak-check`) reads every
+staged file, text or binary, and every staged path, and stops the export if one
+still contains the home directory, its dash-encoded form (`-Users-<name>-...`, as
+in Claude Code's per-project directory names) or the bare account name as a whole
+word. The last two are refused, not redacted: rewriting text that a recorded
+fingerprint covers would make the record fail its check, so the source file is
+fixed instead. An account name that is an ordinary word matches ordinary text and
+cannot pass; publish from an account with a distinctive name.
 
 Before publishing, the exporter verifies the original source evidence pins,
 compares every selected staged file with its declared source transformation,
@@ -97,8 +110,32 @@ validation.
 
 Passing `--push <remote-url>` explicitly requests publication of the validated
 stage. The publisher clones the remote main branch, applies the reviewed tree,
-and appends a normal commit. It verifies the remote revision afterward. A
-concurrent update causes rejection; there is no force-push fallback.
+and appends a normal commit with the message given by `--message` (default:
+`Distribution update from dev repo @ <source commit>`). It verifies the remote
+revision afterward. A concurrent update causes rejection; there is no force-push
+fallback.
+
+The fresh clone has no local Git identity, so the commit takes its author and
+committer from the `GIT_AUTHOR_*` and `GIT_COMMITTER_*` environment variables or
+the global configuration. Both must equal those of the remote's last commit, or
+the publisher stops before committing; set the four variables to the published
+identity, or pass `--allow-new-identity` to publish under a new one deliberately.
+This keeps a machine's default identity off the public history.
+
+`--push-branch <name>` pushes the commit to that branch (new, or fast-forwarded)
+instead of `main`, which stays unchanged. The public CI's test job runs only on a
+push to `main` or on a pull request, so a branch push alone runs no tests: open a
+pull request against `main` and read the test job's log. Publish this way whenever
+the tree holds tests that have not yet run on Linux (the CI runs ubuntu-24.04
+without Seatbelt), rather than making the public `main` their first Linux run.
+
+Once the pull request's checks pass, move `main` by fast-forwarding it to the
+reviewed commit from the retained publish checkout (`git push origin
+HEAD:refs/heads/main` in the directory the publisher printed); the branch commit's
+parent is the old `main`, so this is a fast-forward. Merging in GitHub's web
+interface (merge, squash or rebase) instead makes GitHub's web-flow identity the
+last committer, and the next `--push` then stops at the identity check unless it
+is given `--allow-new-identity`.
 
 An export demonstrates the checked software and artifact properties. It does
 not establish fresh event generation, detector validation, scientific

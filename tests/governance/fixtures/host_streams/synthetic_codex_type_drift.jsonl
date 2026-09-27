@@ -1,0 +1,9 @@
+{"type":"x_synthetic_fixture","synthetic":true,"description":"SYNTHETIC codex exec --json fixture hand-written in the documented event format (codex-rs/exec/src/exec_events.rs at openai/codex c98e263f and the Non-interactive mode page, as captured 2026-09-25); not a recorded host session; all ids, numbers and text are invented. Type-drift variant: valid JSON whose field types differ from the documented schema."}
+{"type":"thread.started","thread_id":"0199a213-0000-7000-8000-00000000c0de"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":["web_search"],"query":"published limit"}}
+{"type":"item.completed","item":"SYNTHETIC item that is not an object"}
+{"type":"item.completed","item":{"id":"item_1","type":"collab_tool_call","tool":"spawn_agent","sender_thread_id":"0199a213-0000-7000-8000-00000000c0de","receiver_thread_ids":[{"id":"0199a213-0000-7000-8000-0000000c41d0"}],"agents_states":{},"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Observed 95% CLs upper limit on the visible cross section: 0.16666666666666666 fb."}}
+{"type":["turn.completed"],"usage":{"input_tokens":1}}
+{"type":"turn.completed","usage":{"input_tokens":"24763","cached_input_tokens":24448,"cache_write_input_tokens":0,"output_tokens":122,"reasoning_output_tokens":64}}

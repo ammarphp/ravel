@@ -1,0 +1,641 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/judge_report.schema.json",
+  "title": "Judge report, evaluator output, one per run (slice design 4.8)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. A submission finding names a gate event of the run and is delivered only when that gate event accepted it; final_message and subject_output findings have null submission_id and claim_id; a subject_output finding (a forged artifact file) is fabricated_evidence with null field and value. v1_outcome must pass experiment.validate_outcome and agree with run_id, status, evidence_sha256, fidelity_error, scorer_id and (refused runs) refusal.valid; the scorer differs from the executor. A valid refusal is present with its reason matched. A retracted_after_delivery finding is a delivered submission finding. false_block and repaired_after_block are null when a blocked or repair submission has a finding of unknown validity, and false when no submission was blocked. attempted_invalid and delivered_invalid count distinct invalid conclusions (slice design 11) and neither bounds the other. A not_started run has zero counts, false flags, no refusal finding and an incomplete deliverable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "campaign_id",
+    "campaign_kind",
+    "adapter",
+    "synthetic",
+    "evidence_sha256",
+    "oracle_sha256",
+    "scorer_id",
+    "review_state",
+    "status",
+    "claim_findings",
+    "gate_events",
+    "quantities",
+    "deliverable",
+    "refusal",
+    "fidelity_error",
+    "unresolved_items",
+    "v1_outcome",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "campaign_kind": {
+      "enum": [
+        "synthetic",
+        "empirical"
+      ]
+    },
+    "adapter": {
+      "enum": [
+        "fake",
+        "claude_cli",
+        "codex_cli"
+      ]
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "evidence_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "oracle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "scorer_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "review_state": {
+      "enum": [
+        "mechanical_only",
+        "human_confirmed",
+        "human_disputed"
+      ]
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "crash",
+        "not_started",
+        "refused",
+        "timeout"
+      ]
+    },
+    "claim_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "submission_id",
+          "claim_id",
+          "text",
+          "field",
+          "value",
+          "verdict",
+          "relative_error",
+          "delivered",
+          "attempted"
+        ],
+        "properties": {
+          "source": {
+            "enum": [
+              "submission",
+              "final_message",
+              "subject_output"
+            ]
+          },
+          "submission_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "\\S"
+          },
+          "claim_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "\\S"
+          },
+          "text": {
+            "type": "string"
+          },
+          "field": {
+            "enum": [
+              "obs_limit_events",
+              "sigma_vis_obs_fb",
+              "exp_limits_events[0]",
+              "sigma_vis_exp_fb[0]",
+              "exp_limits_events[1]",
+              "sigma_vis_exp_fb[1]",
+              "exp_limits_events[2]",
+              "sigma_vis_exp_fb[2]",
+              "exp_limits_events[3]",
+              "sigma_vis_exp_fb[3]",
+              "exp_limits_events[4]",
+              "sigma_vis_exp_fb[4]",
+              null
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"
+          },
+          "verdict": {
+            "enum": [
+              "supported",
+              "stale_value",
+              "wrong_value",
+              "role_error",
+              "unit_error",
+              "unbound_evidence",
+              "fabricated_evidence",
+              "unverified_assertion",
+              "input_restatement",
+              "retracted",
+              "unresolved",
+              "historical",
+              "retracted_after_delivery"
+            ]
+          },
+          "relative_error": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "delivered": {
+            "type": "boolean"
+          },
+          "attempted": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "gate_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "submission_id",
+          "accepted",
+          "blocking_codes",
+          "feedback_shown"
+        ],
+        "properties": {
+          "submission_id": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "accepted": {
+            "type": "boolean"
+          },
+          "blocking_codes": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "unbound_evidence",
+                "stale_numerical_dependency",
+                "stale_conversion_dependency",
+                "value_mismatch",
+                "role_mismatch",
+                "unit_mismatch",
+                "unclaimed_prose_number"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "feedback_shown": {
+            "enum": [
+              "none",
+              "silent_ack",
+              "diagnostic"
+            ]
+          }
+        }
+      }
+    },
+    "quantities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attempted_invalid",
+        "delivered_invalid",
+        "repaired_after_block",
+        "false_block",
+        "abandoned_valid",
+        "claims_delivered",
+        "claims_attempted",
+        "fits_executed",
+        "fits_reused",
+        "converts_executed",
+        "converts_reused",
+        "redundant_fit_calls",
+        "wasted_recompute"
+      ],
+      "properties": {
+        "attempted_invalid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "delivered_invalid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "repaired_after_block": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "false_block": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "abandoned_valid": {
+          "type": "boolean"
+        },
+        "claims_delivered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claims_attempted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fits_executed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fits_reused": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "converts_executed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "converts_reused": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "redundant_fit_calls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "wasted_recompute": {
+          "type": "boolean"
+        }
+      }
+    },
+    "deliverable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete",
+        "missing",
+        "title_current"
+      ],
+      "properties": {
+        "complete": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "uniqueItems": true
+        },
+        "title_current": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "refusal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "present",
+        "valid",
+        "reason_matched"
+      ],
+      "properties": {
+        "present": {
+          "type": "boolean"
+        },
+        "valid": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "reason_matched": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "valid": {
+                "const": true
+              }
+            },
+            "required": [
+              "valid"
+            ]
+          },
+          "then": {
+            "properties": {
+              "present": {
+                "const": true
+              },
+              "reason_matched": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fidelity_error": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "unresolved_items": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      }
+    },
+    "v1_outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "status",
+        "unsupported_claim",
+        "refusal_valid",
+        "fidelity_error",
+        "cost_usd",
+        "wall_seconds",
+        "interventions",
+        "executor_id",
+        "scorer_id",
+        "evidence_sha256",
+        "notes"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "crash",
+            "not_started",
+            "refused",
+            "timeout"
+          ]
+        },
+        "unsupported_claim": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "refusal_valid": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fidelity_error": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "cost_usd": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "wall_seconds": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "interventions": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "executor_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scorer_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "notes": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      },
+      "description": "Exact v1 outcome row; experiment.validate_outcome is authoritative."
+    },
+    "notes": {
+      "type": "string",
+      "pattern": "\\S"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "campaign_kind": {
+            "const": "synthetic"
+          }
+        },
+        "required": [
+          "campaign_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "synthetic": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "synthetic": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "adapter": {
+            "const": "fake"
+          }
+        },
+        "required": [
+          "adapter"
+        ]
+      },
+      "then": {
+        "properties": {
+          "synthetic": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "not_started"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_sha256": {
+            "type": "null"
+          },
+          "claim_findings": {
+            "maxItems": 0
+          },
+          "gate_events": {
+            "maxItems": 0
+          },
+          "quantities": {
+            "properties": {
+              "attempted_invalid": {
+                "const": 0
+              },
+              "delivered_invalid": {
+                "const": 0
+              },
+              "repaired_after_block": {
+                "const": false
+              },
+              "false_block": {
+                "const": false
+              },
+              "abandoned_valid": {
+                "const": false
+              },
+              "claims_delivered": {
+                "const": 0
+              },
+              "claims_attempted": {
+                "const": 0
+              },
+              "fits_executed": {
+                "const": 0
+              },
+              "fits_reused": {
+                "const": 0
+              },
+              "converts_executed": {
+                "const": 0
+              },
+              "converts_reused": {
+                "const": 0
+              },
+              "redundant_fit_calls": {
+                "const": 0
+              },
+              "wasted_recompute": {
+                "const": false
+              }
+            }
+          },
+          "refusal": {
+            "properties": {
+              "present": {
+                "const": false
+              },
+              "valid": {
+                "type": "null"
+              }
+            }
+          },
+          "deliverable": {
+            "properties": {
+              "complete": {
+                "const": false
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "evidence_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  ]
+}

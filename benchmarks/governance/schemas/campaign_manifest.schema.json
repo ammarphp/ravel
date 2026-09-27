@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/campaign_manifest.schema.json",
+  "title": "Campaign manifest, campaign.json (slice design 4.1)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. campaign_manifest.verify additionally checks spec/registry bytes (regular files), hashes, the budget against the v1 spec, the storage namespace, the v1 spec's binding to the host (a real host: spec.runtime is '<adapter> <version>' and spec.model equals a non-null host.model; the fake host: spec.model and spec.runtime start with 'synthetic'), and every materialized evaluator task definition against the v1 spec and its manifest entry (task definition digests are canonical.digest of each 4.4 record).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "campaign_id",
+    "kind",
+    "created_utc",
+    "spec_sha256",
+    "registry_sha256",
+    "registry_file_sha256",
+    "source",
+    "interpreter",
+    "host",
+    "arms",
+    "tasks",
+    "budget",
+    "retry_policy",
+    "authorization",
+    "storage"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "kind": {
+      "enum": [
+        "synthetic",
+        "empirical"
+      ]
+    },
+    "created_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?(?:Z|\\+00:00)$"
+    },
+    "spec_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "registry_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "registry_file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "git_commit",
+        "dirty"
+      ],
+      "properties": {
+        "git_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "dirty": {
+          "type": "boolean"
+        }
+      }
+    },
+    "interpreter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executable",
+        "version",
+        "sha256"
+      ],
+      "properties": {
+        "executable": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "host": {
+      "$ref": "host_config.schema.json"
+    },
+    "arms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline",
+        "instructions",
+        "enforcement",
+        "full"
+      ],
+      "properties": {
+        "baseline": {
+          "$ref": "treatment_manifest.schema.json"
+        },
+        "instructions": {
+          "$ref": "treatment_manifest.schema.json"
+        },
+        "enforcement": {
+          "$ref": "treatment_manifest.schema.json"
+        },
+        "full": {
+          "$ref": "treatment_manifest.schema.json"
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task_id",
+          "family",
+          "pair_id",
+          "definition_sha256"
+        ],
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "family": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "pair_id": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "definition_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "usd_per_run",
+        "seconds_per_run",
+        "max_broker_ops",
+        "max_fits",
+        "global_usd_cap",
+        "global_seconds_cap"
+      ],
+      "properties": {
+        "usd_per_run": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "seconds_per_run": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_broker_ops": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_fits": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "global_usd_cap": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "global_seconds_cap": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "retry_policy": {
+      "const": "none"
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "reference",
+        "reference_sha256"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "synthetic_engineering",
+            "approved_campaign"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "reference_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "approved_campaign"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reference_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "store_kind",
+        "subjects_root"
+      ],
+      "properties": {
+        "store_kind": {
+          "enum": [
+            "synthetic",
+            "empirical"
+          ]
+        },
+        "subjects_root": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "empirical"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "authorization": {
+            "properties": {
+              "kind": {
+                "const": "approved_campaign"
+              },
+              "reference_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          "host": {
+            "properties": {
+              "adapter": {
+                "enum": [
+                  "claude_cli",
+                  "codex_cli"
+                ]
+              },
+              "sandbox": {
+                "const": "seatbelt"
+              },
+              "model": {
+                "type": "string",
+                "pattern": "\\S"
+              }
+            }
+          },
+          "source": {
+            "properties": {
+              "dirty": {
+                "const": false
+              }
+            }
+          },
+          "storage": {
+            "properties": {
+              "store_kind": {
+                "const": "empirical"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "storage": {
+            "properties": {
+              "store_kind": {
+                "const": "synthetic"
+              }
+            }
+          }
+        },
+        "anyOf": [
+          {
+            "properties": {
+              "host": {
+                "properties": {
+                  "adapter": {
+                    "const": "fake"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "authorization": {
+                "properties": {
+                  "kind": {
+                    "const": "synthetic_engineering"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

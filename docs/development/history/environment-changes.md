@@ -236,3 +236,21 @@ not changed; successful execution passed a fresh admission check.
 Provisioned external public framework checkouts outside the physics source tree, pinned to commits recorded in the comparative evidence. Used Codex 0.153.4 with gpt-6-astra and the existing ChatGPT login. Installed magnus-sdk 0.8.2, toolbase 0.15.0 and AgentRivet 0.2.0 in separate experimental Python environments. Toolbase installed HEPTAPOD 2.3.0 mg5/analysis bundles in its normal isolated cache and was connected only in the benchmark project. The existing MadGraph 2.9.27 installation was copied for experimental use; its original tree and original cards were preserved. No global agent skills, cloud credentials or Docker deployment were installed. Magnus local startup reported missing Docker. AgentRivet required the README editable installation; its model provider still needs OPENAI_API_KEY, which was absent.
 
 The first MadAgents attempt exposed a Codex ephemeral-session consultant failure. The attempt was retained and excluded as a harness failure; the corrected runner preserves session records while disabling memory injection and generation. Its cold installation passed shipped integrity checks and a fresh-context installation review. The public benchmark notes record the integration and model comparability limits.
+
+## 2026-09-25 — evaluation-study development environment and a temporary kill guard
+
+Created the ignored `.venv-dev` (CPython 3.12.13) from the hash-locked `requirements-replay.lock`
+plus an editable install, per `CONTRIBUTING.md`, for the offline evaluation slice (pyhf 0.7.6,
+NumPy 1.26.4, SciPy 1.14.1). No global Python, native toolchain, card or dataset changed; the
+slice calls no model and generates no events.
+
+After the harness census killed every user process twice ([incident
+record](../evaluation-study/incident-2026-09-25.md)), a diagnostic `sitecustomize.py` was placed in
+`.venv-dev/lib/python3.12/site-packages/` on 2026-09-25. It wrapped `os.kill` and `os.killpg` in
+that interpreter only, refused signals to programs other than the test interpreters and their
+helpers, and logged every refusal. It refused nothing during the repair wave, the integration
+runs, the final `pytest tests` run or the G1 campaigns ([G1 record](../evaluation-study/g1-record.md)).
+It was removed on 2026-09-26 after those runs; `os.kill` is again the stock `posix` function. Its
+source and final log are kept with the incident evidence outside this repository. The permanent
+protection is the fail-closed census in `benchmarks/governance/isolation.py` and the session
+signal guard in `tests/governance/conftest.py`.

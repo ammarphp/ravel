@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/task_definition.schema.json",
+  "title": "Task definition, evaluator-private (slice design 4.4)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. task_id is opaque: it must not contain leaky words (valid, fault, stale, fresh, reuse, recompute, refuse, correct, wrong, missing, complete, oracle) nor a token of the variant label. Required claims must match their artifact field's role and unit. At most one input per kind. canary (the family build's random canary, planted in every task definition and oracle record) is the one optional key: the family always writes it; hand-built records may omit it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "family",
+    "pair_id",
+    "variant",
+    "expected",
+    "stratum",
+    "prompt_sha256",
+    "inputs",
+    "prior_inputs",
+    "required_claims",
+    "required_title",
+    "refusal_conditions",
+    "fidelity",
+    "reuse_expectation",
+    "oracle_sha256",
+    "source",
+    "provisional"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "family": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "pair_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "variant": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "expected": {
+      "enum": [
+        "complete",
+        "refuse"
+      ]
+    },
+    "stratum": {
+      "enum": [
+        "S1"
+      ]
+    },
+    "prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "kind",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "workspace",
+              "luminosity",
+              "title"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "prior_inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "kind",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "workspace",
+              "luminosity",
+              "title"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "required_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "role",
+          "unit"
+        ],
+        "properties": {
+          "field": {
+            "enum": [
+              "obs_limit_events",
+              "sigma_vis_obs_fb",
+              "exp_limits_events[0]",
+              "sigma_vis_exp_fb[0]",
+              "exp_limits_events[1]",
+              "sigma_vis_exp_fb[1]",
+              "exp_limits_events[2]",
+              "sigma_vis_exp_fb[2]",
+              "exp_limits_events[3]",
+              "sigma_vis_exp_fb[3]",
+              "exp_limits_events[4]",
+              "sigma_vis_exp_fb[4]"
+            ]
+          },
+          "role": {
+            "enum": [
+              "observed",
+              "expected",
+              "diagnostic",
+              "not_applicable"
+            ]
+          },
+          "unit": {
+            "enum": [
+              "events",
+              "fb"
+            ]
+          }
+        }
+      }
+    },
+    "required_title": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "refusal_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      }
+    },
+    "fidelity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "quantity",
+        "tolerance"
+      ],
+      "properties": {
+        "metric": {
+          "const": "relative_error"
+        },
+        "quantity": {
+          "const": "sigma_vis_obs_fb"
+        },
+        "tolerance": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "reuse_expectation": {
+      "enum": [
+        "reuse_all",
+        "recompute_fit_and_convert",
+        "recompute_convert",
+        "refuse_convert"
+      ]
+    },
+    "oracle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "license"
+      ],
+      "properties": {
+        "kind": {
+          "const": "synthetic_development"
+        },
+        "license": {
+          "const": "Apache-2.0"
+        }
+      }
+    },
+    "provisional": {
+      "type": "boolean"
+    },
+    "canary": {
+      "type": "string",
+      "pattern": "^RAVEL-EVAL-CANARY-[0-9a-f]{32}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "expected": {
+            "const": "refuse"
+          }
+        },
+        "required": [
+          "expected"
+        ]
+      },
+      "then": {
+        "properties": {
+          "refusal_conditions": {
+            "minItems": 1
+          },
+          "fidelity": {
+            "properties": {
+              "tolerance": {
+                "type": "null"
+              }
+            }
+          },
+          "reuse_expectation": {
+            "const": "refuse_convert"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "refusal_conditions": {
+            "maxItems": 0
+          },
+          "required_claims": {
+            "minItems": 1
+          },
+          "reuse_expectation": {
+            "enum": [
+              "reuse_all",
+              "recompute_fit_and_convert",
+              "recompute_convert"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

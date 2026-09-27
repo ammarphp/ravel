@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/run_record.schema.json",
+  "title": "Sealed run record runs/<run_id>/sealed/run.json (slice design 10a)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py validate_run_record; the Python validator is authoritative and also enforces rules JSON Schema cannot express: a fake-adapter behavior from the fake subject's catalogue, started_utc <= ended_utc (equal for not_started), validity_flags sorted, and status_hint interrupted iff exactly one lost-launch cause flag (coordinator_interrupted, adapter_error). interrupted is the one representation of a lost launch; launch_error is an adapter-reported launch failure.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "campaign_id",
+    "campaign_kind",
+    "task_id",
+    "seed",
+    "arm",
+    "opaque_handle",
+    "adapter",
+    "synthetic",
+    "executor_id",
+    "behavior",
+    "behavior_plan_sha256",
+    "started_utc",
+    "ended_utc",
+    "status_hint",
+    "not_started_reason",
+    "treatment_manifest_sha256",
+    "prompt_sha256",
+    "profile_sha256",
+    "validity_flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "campaign_kind": {
+      "enum": [
+        "synthetic",
+        "empirical"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "arm": {
+      "enum": [
+        "baseline",
+        "instructions",
+        "enforcement",
+        "full"
+      ]
+    },
+    "opaque_handle": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "adapter": {
+      "enum": [
+        "fake",
+        "claude_cli",
+        "codex_cli"
+      ]
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "executor_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "behavior": {
+      "enum": [
+        "reference",
+        "stale_copy",
+        "stale_then_repair",
+        "selective_repair",
+        "needless_recompute",
+        "over_refuse",
+        "fabricate",
+        "prose_unsupported",
+        "crash_after_claim",
+        "timeout",
+        "malformed_stream",
+        "tamper",
+        null
+      ]
+    },
+    "behavior_plan_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "started_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?(Z|\\+00:00)$"
+    },
+    "ended_utc": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?(Z|\\+00:00)$"
+    },
+    "status_hint": {
+      "enum": [
+        "exited",
+        "timeout",
+        "launch_error",
+        "not_started",
+        "interrupted"
+      ]
+    },
+    "not_started_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "treatment_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "profile_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "validity_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status_hint": {
+            "const": "not_started"
+          }
+        },
+        "required": [
+          "status_hint"
+        ]
+      },
+      "then": {
+        "properties": {
+          "executor_id": {
+            "type": "null"
+          },
+          "not_started_reason": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "executor_id": {
+            "type": "string"
+          },
+          "not_started_reason": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "adapter": {
+            "const": "fake"
+          }
+        },
+        "required": [
+          "adapter"
+        ]
+      },
+      "then": {
+        "properties": {
+          "synthetic": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "behavior": {
+            "type": "null"
+          },
+          "behavior_plan_sha256": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "campaign_kind": {
+            "const": "synthetic"
+          }
+        },
+        "required": [
+          "campaign_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "synthetic": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "synthetic": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}
