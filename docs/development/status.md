@@ -22,6 +22,29 @@ selection, adaptation packets and selected-source verification. The survey itsel
 tracks twelve systems; SFitterAgents now has public implementation. Fixed-event scientific admission is now implemented above; published-reference
 closure remains the next scientific task.
 
+## September 26 evaluation-study harness
+
+The offline harness for the planned agent evaluation study is in `benchmarks/governance/`
+([module table](../../benchmarks/governance/README.md)); its design, decisions, blockers and
+iteration log are in the [evaluation-study records](evaluation-study/plan.md). It has run only
+synthetic campaigns with a deterministic fake host. No model has been called and no agent result
+exists. After the September 25 [census incident](evaluation-study/incident-2026-09-25.md) was
+fixed, the G1 engineering acceptance run at `0b3d251` passed `pytest tests` (4,776 passed,
+0 failed) and two synthetic CLI campaigns. The analysis-landscape and scientific-studies work was
+merged into the harness branch at `12cc6f9`, where the integration lead's run of `pytest tests`
+gave 4,980 passed, 41 optional-dependency skips and 0 failed. Seven file names were then changed
+to satisfy the publication filename rule ([decisions](evaluation-study/decisions.md) E-32). The
+harness now derives its research-packet location from the checkout and reads Linux `/proc` through
+functions tested on recorded samples (E-33). `tests/governance` has not yet run on Linux.
+
+On September 26 the budget owner deferred the human reviews (charter, oracle, statistics, scoring
+and the pending engineering sign-offs) to one consolidated review and authorized one 8-assignment
+real-host engineering smoke (E-34). The smoke cannot run until its real-host campaign builder,
+adapter factory, launch policy, proxy start and credential path exist; that engineering is the
+next work. The pilot needs its own authorization. The development family, its oracle and the
+evaluator are published with the distribution; protected final cases never enter this repository
+(E-35).
+
 ## Architecture hardening
 
 The completed v0.4.0 architecture release covers typed limit transport, artifact-bound comparisons, explicit native normalization, capability dispatch, grounded draft intake, compact current-state handoff and durable dependency-aware execution. All twelve independent consistency, approval and lifecycle findings were repaired and rechecked. Its recorded verification was 1,089 source passes, a separate 40-test wheel run, and 1,081 public-export passes with ten development-artifact skips. These are the prior release's results, not full-suite results for the follow-up below. This engineering work does not close the scientific items below.

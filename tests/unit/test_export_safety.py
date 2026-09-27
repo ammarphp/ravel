@@ -3,8 +3,10 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -139,6 +141,47 @@ def test_binding_cannot_repair_an_invalid_source_byte_pin(evidence_trees):
         export.bind_evidence(stage, source, home)
 
 
+def test_leak_check_refuses_home_dash_encoded_home_and_account_name_in_text_binary_and_paths(tmp_path):
+    stage = tmp_path / 'stage'
+    stage.mkdir()
+    home = '/Users/opname7'
+    clean = {'clean.txt': b'$OPERATOR_HOME/x and $DSRLAB_ROOT/y; opname70, xopname7 and -Users-<name>- differ\n'}
+    leaky = {
+        'home.txt': b'see /Users/opname7/notes',
+        'dash.json': b'{"p": "/private/tmp/claude-501/-Users-opname7-Documents-DSRLab/t/b57.output"}',
+        'pytest.log': b'/private/var/folders/x/pytest-of-opname7/pytest-1',
+        'binary.png': b'\x89PNG\0\0-Users-opname7-',
+        'opname7-notes.md': b'nothing inside',
+        'upper.txt': b'OPNAME7@host',
+    }
+    for name, data in {**clean, **leaky}.items():
+        (stage / name).write_bytes(data)
+    assert export.find_leaks(stage, home) == sorted(leaky)
+    script = REPO / 'scripts/export_safety.py'
+    failed = subprocess.run([sys.executable, str(script), 'leak-check', str(stage), home],
+                            capture_output=True, text=True)
+    assert failed.returncode == 2 and all(name in failed.stderr for name in leaky)
+    for name in leaky:
+        (stage / name).unlink()
+    assert export.find_leaks(stage, home) == []
+    passed = subprocess.run([sys.executable, str(script), 'leak-check', str(stage), home],
+                            capture_output=True, text=True)
+    assert passed.returncode == 0, passed.stderr
+    for bad in ('relative/home', '/'):
+        with pytest.raises(ValueError):
+            export.find_leaks(stage, bad)
+    (stage / 'link').symlink_to(stage / 'clean.txt')
+    with pytest.raises(ValueError, match='symlink'):
+        export.find_leaks(stage, home)
+
+
+def test_exporter_runs_the_leak_check_on_the_sanitized_stage():
+    exporter = (REPO / 'scripts/maintenance/export-distribution.sh').read_text()
+    sanitize = exporter.index('export_safety.py" sanitize')
+    leak = exporter.index('export_safety.py" leak-check "$STAGE" "$LEAK"')
+    assert sanitize < leak < exporter.index('export_safety.py" bind-evidence')
+
+
 def test_sanitization_preserves_binary_bytes_and_rejects_malformed_repository_url():
     rules = export.replacements_for('/home/researcher', 'https://github.com/ammarphp/ravel.git')
     assert export.sanitize_bytes(b'binary\0/home/researcher', rules) == b'binary\0/home/researcher'
@@ -239,3 +282,6 @@ def test_required_user_facing_entrypoints_ship_and_are_in_the_public_index():
     assert required <= public
     index = export.public_directory(selection)
     assert all(f'`{name}`' in index for name in required)
+    for directory in ('tests/governance', 'benchmarks/governance'):   # the evaluation-study harness is mapped
+        count = sum(path.startswith(directory + '/') for path in public)
+        assert count and re.search(rf'^\| `{directory}/` \| [^|]+ \| {count} \|$', index, re.M)

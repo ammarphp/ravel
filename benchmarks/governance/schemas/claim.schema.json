@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/claim.schema.json",
+  "title": "Claim record, subject-submitted (slice design 4.5)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. Role/unit/value consistency with the cited artifact is a guard diagnostic, not a contract rule. quantity must also be a finite double.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "claim_id",
+    "status",
+    "text",
+    "quantity",
+    "unit",
+    "role",
+    "expected_quantile",
+    "artifact_field",
+    "evidence_ids",
+    "qualifiers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "provisional",
+        "retracted",
+        "final"
+      ]
+    },
+    "text": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"
+    },
+    "unit": {
+      "enum": [
+        "events",
+        "fb",
+        null
+      ]
+    },
+    "role": {
+      "enum": [
+        "observed",
+        "expected",
+        "diagnostic",
+        "not_applicable"
+      ]
+    },
+    "expected_quantile": {
+      "enum": [
+        "-2",
+        "-1",
+        "0",
+        "+1",
+        "+2",
+        null
+      ]
+    },
+    "artifact_field": {
+      "enum": [
+        "obs_limit_events",
+        "sigma_vis_obs_fb",
+        "exp_limits_events[0]",
+        "sigma_vis_exp_fb[0]",
+        "exp_limits_events[1]",
+        "sigma_vis_exp_fb[1]",
+        "exp_limits_events[2]",
+        "sigma_vis_exp_fb[2]",
+        "exp_limits_events[3]",
+        "sigma_vis_exp_fb[3]",
+        "exp_limits_events[4]",
+        "sigma_vis_exp_fb[4]",
+        null
+      ]
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "qualifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "expected"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "then": {
+        "properties": {
+          "expected_quantile": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "expected_quantile": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "quantity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifact_field": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "artifact_field": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

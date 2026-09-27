@@ -1,10 +1,12 @@
 # Governance experiment registry
 
-`governance_experiment.py` freezes a complete 2×2 assignment roster and scores
+`experiment.py` freezes a complete 2×2 assignment roster and scores
 independently adjudicated outcomes. It launches no agents or simulation jobs,
 contains no physics oracle, and provides descriptive accounting only. The
 prospective scientific protocol is in
 [`docs/research/2026-09-05-competitive-design-and-validation.md`](../../docs/research/2026-09-05-competitive-design-and-validation.md).
+The evaluation-study harness built around this unchanged v1 contract is documented in
+[`docs/development/evaluation-study/`](../../docs/development/evaluation-study/).
 
 The four arms are fixed: `baseline` (no additional instructions, no experimental
 enforcement), `instructions` (instructions only), `enforcement` (enforcement only),
@@ -122,13 +124,77 @@ self-drive. Those require the separate experiment described in the protocol.
 
 ## Software verification
 
-Run pytest from outside this checkout to avoid its legacy `py.py` shadowing
-pytest's dependency:
+From the repository root:
 
 ```sh
-cd /tmp
-python3 -m pytest /absolute/path/to/hep-agentic-pipeline/tests/unit/test_governance_experiment.py -q
+python -m pytest tests/unit/test_governance_experiment.py -q
 ```
 
 The fixtures are explicitly synthetic tests of accounting failures, not empirical
 agent outcomes. No campaign results ship in this directory.
+
+## Evaluation harness around v1 (synthetic engineering only)
+
+The other modules in this directory implement the offline evaluation slice described in
+[`slice-design.md`](../../docs/development/evaluation-study/slice-design.md). They are standard
+library only, except the broker's stage workers (`stages/`), which run the RAVEL kernel and import
+pyhf and `ravel` under the stage interpreter. They never modify `experiment.py`, and they add
+sidecar records linked to v1 rows by run id and digest. They launch no paid model call: the only
+host that runs in tests or the CLI is the deterministic fake adapter, and every record it produces
+is labeled synthetic. The Claude Code and Codex adapters are exercised only against mocked
+executables and hand-written synthetic fixtures in the hosts' documented stream formats; no fixture
+is a recorded host session. An 8-assignment Claude Code engineering smoke is authorized but cannot
+run until the real-host pieces it needs exist
+([smoke request](../../docs/development/evaluation-study/smoke-request.md)).
+
+| Module | Role |
+|---|---|
+| `canonical.py`, `contracts.py`, `schemas/` | Canonical JSON, strict loading, exact-key sidecar validators (schemas are documentation mirrors) |
+| `campaign_manifest.py` | One v1 spec and registry per host configuration and campaign kind (the kind is bound into the spec), a write-once approval record, the frozen family definitions, byte-level verification of every sealed run record the runner would trust (`verify(sealed_runs=...)` limits that to named runs), and provenance checks |
+| `oracle/`, `tasks/development/` | Independent pyhf-free counting oracle and the provisional `likelihood_freshness` development family |
+| `isolation.py`, `allowlist_proxy.py` | Fresh-byte workspaces, admission checks, deny-default Seatbelt profile (no terminals, no POSIX shared memory or named semaphores), sandboxed launcher with its process census and System V IPC cleanup; the allowlist proxy is tested but nothing starts it yet |
+| `broker.py`, `guard.py`, `stages/`, `client/` | Coordinator-owned operation broker over the RAVEL kernel, the delivery guard, and the subject's `ravel-task` client with its neutral tool guide |
+| `treatment.py`, `treatments/` | Arm manifests, prompt assembly and the treatment-identity checks: manifests (`treatment_diff`), broker behavior (`behavioral_diff`) and the delivered prompt (`check_prompt`) |
+| `adapters/` | Fake, Claude Code and Codex host adapters |
+| `runner.py`, `cli.py` | Assignment coordinator (journal, resume, budgets, per-launch verification against the frozen campaign, sealing, outcome re-derivation), the behavioral treatment check (`treatment-diff --behavioral`), human incident decisions (`incident-decision`) and the command line |
+| `audit.py` | Independent mechanical evaluator: judge reports and v1 outcome rows (provisional rules below) |
+| `analysis.py` | Family-aware descriptive analysis, missingness bounds, design simulation, cost planning |
+
+A synthetic campaign, from the repository root (store and subjects root outside the lab tree: the
+outermost ancestor of the checkout that holds `.git`, `CLAUDE.md` or `AGENTS.md`). The interpreter
+must import pyhf and the kernel's dependencies, because the build probes it as the broker's stage
+interpreter; the kernel itself is always imported from this checkout's `src/` through the stage
+environment's pinned `PYTHONPATH`, and the broker refuses an interpreter that would import `ravel` from
+anywhere else. `.venv-dev/bin/python` qualifies, as does an interpreter with `requirements-replay.lock`
+installed (the CI setup); a system `python3` without pyhf fails at that probe:
+
+```sh
+PY=.venv-dev/bin/python
+$PY benchmarks/governance/cli.py build-synthetic --store STORE --campaign-id demo \
+  --created-utc 2026-09-25T00:00:00Z --seed 11 --schedule-seed 7 --subjects-root SUBJECTS
+$PY benchmarks/governance/cli.py treatment-diff --behavioral --campaign STORE/synthetic/demo
+$PY benchmarks/governance/cli.py run --campaign STORE/synthetic/demo
+$PY benchmarks/governance/cli.py audit --campaign STORE/synthetic/demo
+$PY benchmarks/governance/cli.py report --campaign STORE/synthetic/demo
+$PY benchmarks/governance/cli.py verify --campaign STORE/synthetic/demo
+```
+
+The evaluator's verdicts include `historical` (a superseded value that its own clause marks as
+superseded) and `retracted_after_delivery` (a delivered finding that a later positive retraction
+withdrew). Its invalid-claim quantities count distinct conclusions: `attempted_invalid` covers
+everything put to the gate (every submission, blocked or accepted, and forged output files, before any
+later withdrawal), `delivered_invalid` what was delivered and still stands (accepted submissions, the
+final message, forged files), and neither bounds the other; `false_block` and `repaired_after_block`
+are null when a finding's validity is unknown (slice design §4.8, §11).
+
+The oracle, task variants, tolerance and the audit's claim-classification rules are
+provisional until the human reviews listed in
+[`decisions.md`](../../docs/development/evaluation-study/decisions.md), which are deferred to one
+consolidated review (E-34). A synthetic campaign tests the harness; it is not evidence about any
+agent, arm or scientific claim. Run the harness
+tests with `.venv-dev/bin/python -m pytest tests/governance -q`; sandbox tests skip where
+`sandbox-exec` is unavailable. On Linux (the public CI) there is no Seatbelt: those tests skip, a
+campaign runs only as `none_test_only`, and the launcher reads processes from `/proc`
+(`isolation._linux_proc_read`, tested on every host against recorded Linux samples). The tests launch and kill subject processes: keep the session signal
+guard in `tests/governance/conftest.py`, and run one full suite at a time on a host (the prevention
+rules in the [incident record](../../docs/development/evaluation-study/incident-2026-09-25.md)).

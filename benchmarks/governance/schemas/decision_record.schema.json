@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/decision_record.schema.json",
+  "title": "Decision record, optional, subject-submitted through note (slice design 4.7)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. run_id is the opaque subject handle, not the v1 run_id. As in the packet schema, requested_budget is any JSON object and timestamp_utc any nonblank string: a note is recorded, never required.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "decision_id",
+    "evidence_ids",
+    "question",
+    "action",
+    "brief_rationale",
+    "falsification_test",
+    "requested_budget",
+    "timestamp_utc"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "question": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "action": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "brief_rationale": {
+      "type": "string"
+    },
+    "falsification_test": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requested_budget": {
+      "type": "object"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "pattern": "\\S"
+    }
+  }
+}

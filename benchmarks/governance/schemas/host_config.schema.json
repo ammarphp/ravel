@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/host_config.schema.json",
+  "title": "Host configuration (slice design 4.2)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. Unknown values are explicit nulls listed in unknown_fields; context/memory/subagent policies may be null only when listed. A real host adapter pins executable, executable_sha256 and version, and lists a null model, reasoning or sampling in unknown_fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "adapter",
+    "executable",
+    "executable_sha256",
+    "version",
+    "model",
+    "reasoning",
+    "sampling",
+    "context_policy",
+    "memory_policy",
+    "subagent_policy",
+    "tool_allowlist",
+    "network",
+    "sandbox",
+    "environment_manifest_sha256",
+    "cost_source",
+    "unknown_fields"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "adapter": {
+      "enum": [
+        "fake",
+        "claude_cli",
+        "codex_cli"
+      ]
+    },
+    "executable": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^/"
+    },
+    "executable_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "reasoning": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "sampling": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "context_policy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "memory_policy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "subagent_policy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "tool_allowlist": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      },
+      "uniqueItems": true
+    },
+    "network": {
+      "enum": [
+        "none",
+        "localhost",
+        "allowlist_proxy"
+      ]
+    },
+    "sandbox": {
+      "enum": [
+        "seatbelt",
+        "none_test_only"
+      ]
+    },
+    "environment_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "cost_source": {
+      "enum": [
+        "none_synthetic",
+        "host_reported",
+        "tokens_only"
+      ]
+    },
+    "unknown_fields": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "executable",
+          "executable_sha256",
+          "version",
+          "model",
+          "reasoning",
+          "sampling",
+          "context_policy",
+          "memory_policy",
+          "subagent_policy"
+        ]
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "adapter": {
+            "const": "fake"
+          }
+        },
+        "required": [
+          "adapter"
+        ]
+      },
+      "then": {
+        "properties": {
+          "cost_source": {
+            "const": "none_synthetic"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "cost_source": {
+            "enum": [
+              "host_reported",
+              "tokens_only"
+            ]
+          },
+          "executable": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "executable_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "model": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "model"
+              ]
+            },
+            "then": {
+              "properties": {
+                "unknown_fields": {
+                  "contains": {
+                    "const": "model"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "reasoning": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "reasoning"
+              ]
+            },
+            "then": {
+              "properties": {
+                "unknown_fields": {
+                  "contains": {
+                    "const": "reasoning"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "sampling": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "sampling"
+              ]
+            },
+            "then": {
+              "properties": {
+                "unknown_fields": {
+                  "contains": {
+                    "const": "sampling"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

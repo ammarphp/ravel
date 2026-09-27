@@ -1,0 +1,7 @@
+{"type":"x_synthetic_fixture","synthetic":true,"description":"SYNTHETIC codex exec --json fixture hand-written in the documented event format (codex-rs/exec/src/exec_events.rs at openai/codex c98e263f and the Non-interactive mode page, as captured 2026-09-25); not a recorded host session; all ids, numbers and text are invented."}
+{"type":"thread.started","thread_id":"0199a213-0000-7000-8000-00000000c0de"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"Delivered: the observed limit is 0.25 fb."}}
+{"type":"turn.failed","error":{"message":"synthetic stream disconnected"}}
+{"type":"error","message":"synthetic fatal error"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_mess

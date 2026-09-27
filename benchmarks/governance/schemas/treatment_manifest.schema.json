@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v1/treatment_manifest.schema.json",
+  "title": "Treatment manifest, one per arm (slice design 4.3)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. Arm factors follow the v1 ARMS table; block mode requires diagnostic feedback; the common fields and guard implementation must be identical across the arms of one campaign, and prompt_template_sha256 is identical within the arms sharing an instructions setting and differs between the two settings (treatment.treatment_diff is authoritative).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "arm",
+    "instructions",
+    "guard",
+    "common",
+    "prompt_template_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "arm": {
+      "enum": [
+        "baseline",
+        "instructions",
+        "enforcement",
+        "full"
+      ]
+    },
+    "instructions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included",
+        "text_sha256"
+      ],
+      "properties": {
+        "included": {
+          "type": "boolean"
+        },
+        "text_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "included": {
+                "const": true
+              }
+            },
+            "required": [
+              "included"
+            ]
+          },
+          "then": {
+            "properties": {
+              "text_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "text_sha256": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "guard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "feedback",
+        "implementation_sha256"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "audit",
+            "block"
+          ]
+        },
+        "feedback": {
+          "enum": [
+            "silent",
+            "diagnostic"
+          ]
+        },
+        "implementation_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "block"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "feedback": {
+                "const": "diagnostic"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "common": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelope_sha256",
+        "tool_guide_sha256",
+        "client_sha256",
+        "broker_sha256",
+        "stage_workers_sha256",
+        "kernel_source_sha256",
+        "interpreter_sha256",
+        "operation_schema_sha256"
+      ],
+      "properties": {
+        "envelope_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "tool_guide_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "client_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "broker_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "stage_workers_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kernel_source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "interpreter_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "operation_schema_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "prompt_template_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "arm": {
+            "const": "baseline"
+          }
+        },
+        "required": [
+          "arm"
+        ]
+      },
+      "then": {
+        "properties": {
+          "instructions": {
+            "properties": {
+              "included": {
+                "const": false
+              }
+            }
+          },
+          "guard": {
+            "properties": {
+              "mode": {
+                "const": "audit"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "arm": {
+            "const": "instructions"
+          }
+        },
+        "required": [
+          "arm"
+        ]
+      },
+      "then": {
+        "properties": {
+          "instructions": {
+            "properties": {
+              "included": {
+                "const": true
+              }
+            }
+          },
+          "guard": {
+            "properties": {
+              "mode": {
+                "const": "audit"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "arm": {
+            "const": "enforcement"
+          }
+        },
+        "required": [
+          "arm"
+        ]
+      },
+      "then": {
+        "properties": {
+          "instructions": {
+            "properties": {
+              "included": {
+                "const": false
+              }
+            }
+          },
+          "guard": {
+            "properties": {
+              "mode": {
+                "const": "block"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "arm": {
+            "const": "full"
+          }
+        },
+        "required": [
+          "arm"
+        ]
+      },
+      "then": {
+        "properties": {
+          "instructions": {
+            "properties": {
+              "included": {
+                "const": true
+              }
+            }
+          },
+          "guard": {
+            "properties": {
+              "mode": {
+                "const": "block"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

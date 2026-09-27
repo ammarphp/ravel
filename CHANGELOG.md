@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased — offline evaluation-study harness
+
+- Add an offline harness in `benchmarks/governance/` for a planned controlled study: does an
+  evidence-bound delivery guard improve agent outcomes beyond the same tools plus instructions?
+  It wraps the unchanged v1 registry with strict contracts, a campaign manifest bound to each
+  campaign's kind, freeze and sealed run records, an independent pyhf-free counting oracle and a
+  synthetic four-variant development family whose answers are public and used only for development.
+- Run subjects in fresh workspaces under a deny-default macOS Seatbelt profile, with admission
+  checks and System V IPC cleanup. An allowlist proxy class is tested against local targets, but no
+  launch starts it yet. A coordinator-owned custody broker runs every operation; its delivery guard
+  checks each submission and stage workers run the RAVEL kernel.
+- Add fake, Claude Code and Codex host adapters; only the deterministic fake host has run, and the
+  other two are tested against mocked executables. Add treatment manifests with behavioral identity
+  checks, a mechanical evaluator that re-derives its judgments from sealed evidence, analysis and
+  cost planning, and a runner/CLI with journal, resume, budgets and per-launch verification.
+- During development, on 2026-09-25, the harness process census killed every user process on the
+  development Mac twice: with a marker file missing, its membership test matched almost every
+  process. The census now fails closed and signals only processes proven to belong to the launch
+  and started after it; tests run under a session signal guard. See the
+  [incident record](docs/development/evaluation-study/incident-2026-09-25.md).
+- The G1 engineering acceptance run at `0b3d251` passed `pytest tests` (4,776 passed, 0 failed)
+  and two 16-assignment synthetic campaigns through the CLI.
+
+This is synthetic engineering evidence. No model has been evaluated, no agent result or treatment
+effect is reported, and the real-host path has not run. The oracle and scoring rules stay
+provisional until a deferred human review. On Linux the Seatbelt tests skip and the process readers
+are tested only against recorded samples. Design, decisions and open items are in
+[docs/development/evaluation-study/](docs/development/evaluation-study/).
+
 ## Unreleased — supplied-data scientific studies
 
 - Add approved, bounded `analyze`, `quantities`, `measurement` and `domain` studies

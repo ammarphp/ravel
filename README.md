@@ -272,3 +272,9 @@ with [upstream acknowledgements](docs/reference/third-party.md). Licensed under
 For supported-analysis expansion, use the [public routine landscape](docs/research/2026-09-26-analysis-landscape.md)
 and `ravel analyses summary`. The census distinguishes public availability,
 adaptation requirements and demonstrated scientific support.
+
+The [evaluation-study harness](benchmarks/governance/README.md) is offline tooling for a planned
+controlled study of evidence-bound delivery safeguards for coding agents. So far it has run only
+synthetic campaigns with a deterministic fake host. It reports no agent or model results, and its
+real-host path has not been exercised. Design, decisions and open reviews are in
+[docs/development/evaluation-study/](docs/development/evaluation-study/).

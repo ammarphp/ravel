@@ -75,6 +75,43 @@ def sanitize(stage, home, self_url=None):
     return changed
 
 
+def leak_patterns(home):
+    """What identifies the operator in a staged file: the home directory, its dash-encoded form (tools that
+    name a folder after a path, such as Claude Code's per-project directories, write /Users/<name>/x as
+    -Users-<name>-x) and the account name as a whole word, in any case (pytest-of-<name>, <name>@host).
+
+    Only the home directory is redacted (replacements_for). The other forms are refused, never rewritten:
+    rewriting text that a recorded fingerprint covers would make that record stop verifying, so a hit is
+    fixed at its source. An account name that is an ordinary word (for example `runner`) matches ordinary
+    text and cannot pass; publish from an account with a distinctive name."""
+    home = Path(home)
+    if not home.is_absolute() or home == Path('/') or not home.name:
+        raise ValueError('the leak check requires an absolute non-root home directory')
+    path = str(home).encode()
+    name = re.escape(home.name.encode())
+    return [re.compile(re.escape(path)), re.compile(re.escape(path.replace(b'/', b'-'))),
+            re.compile(rb'(?<![A-Za-z0-9_])' + name + rb'(?![A-Za-z0-9_])', re.IGNORECASE)]
+
+
+def find_leaks(stage, home):
+    """Relative paths of the staged files whose path or bytes, text or binary, match a leak pattern."""
+    stage = Path(stage)
+    if stage.is_symlink() or not stage.is_dir():
+        raise ValueError('the leak check requires a real staging directory')
+    patterns = leak_patterns(home)
+    leaks = []
+    for path in sorted(stage.rglob('*')):
+        if path.is_symlink():
+            raise ValueError(f'export must not contain symlinks: {path.relative_to(stage)}')
+        if not path.is_file():
+            continue
+        relative = path.relative_to(stage).as_posix()
+        data = path.read_bytes()
+        if any(p.search(relative.encode()) or p.search(data) for p in patterns):
+            leaks.append(relative)
+    return leaks
+
+
 def evidence_path(root, relative):
     """Evidence bindings never follow a manifest outside its tree, even through symlinks."""
     if (not isinstance(relative, str) or not relative or '\\' in relative or '\0' in relative
@@ -112,7 +149,9 @@ def public_directory(selection):
         'tests/unit': 'Focused regression tests',
         'tests/adversarial': 'Adversarial workflow scenarios',
         'tests/fixtures': 'Immutable test inputs',
+        'tests/governance': 'Evaluation-study harness tests',
         'benchmarks': 'Benchmark and capability registries',
+        'benchmarks/governance': 'Offline evaluation-study harness (counted in benchmarks/ too)',
         'native/src': 'Native C++ source',
         'native/scripts': 'Native build and execution scripts',
         'environment': 'Simulation environment setup',
@@ -298,6 +337,9 @@ def main():
     clean.add_argument('stage')
     clean.add_argument('home')
     clean.add_argument('--self-url')
+    leak = sub.add_parser('leak-check')
+    leak.add_argument('stage')
+    leak.add_argument('home')
     bind = sub.add_parser('bind-evidence')
     bind.add_argument('stage')
     bind.add_argument('repo')
@@ -311,6 +353,13 @@ def main():
             print(f'Assembled {len(assemble(args.stage, args.repo))} explicitly selected files')
         elif args.command == 'sanitize':
             print(f'Sanitized {len(sanitize(args.stage, args.home, args.self_url))} text files')
+        elif args.command == 'leak-check':
+            leaks = find_leaks(args.stage, args.home)
+            if leaks:
+                print('export safety: FAIL: the home directory, its dash-encoded form or the account name '
+                      f'remains in {len(leaks)} staged file(s): ' + ', '.join(leaks), file=sys.stderr)
+                return 2
+            print('Leak check: no home path, dash-encoded home path or account name in the stage')
         else:
             changes = bind_evidence(args.stage, args.repo, args.home, args.self_url)
             print(f'Verified staged evidence; {len(changes)} deterministic redactions rebound')
