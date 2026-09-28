@@ -41,7 +41,9 @@ from governance.tasks.development.yield_normalization import family as mq  # noq
 PYTHON = os.path.realpath(getattr(sys, "_base_executable", sys.executable))
 SANDBOX = ("seatbelt" if isolation.sandbox_available() and isolation.census_available()
            and PYTHON.startswith(os.path.realpath(sys.base_prefix) + "/") else "none_test_only")
-CLEAN = False if SANDBOX == "seatbelt" else None     # unsupported_claim of a clean run
+CLEAN = False if SANDBOX == "seatbelt" else None
+# refusal_valid is scored whatever a run's integrity flags are (H-08): without Seatbelt the sandbox flag nulls only
+# unsupported_claim, so a valid refusal stays True on every host.     # unsupported_claim of a clean run
 CREATED = "2026-09-27T12:00:00Z"
 FAMILIES = {"poi_domain_limit": kx, "limit_summary": hv, "yield_normalization": mq, "sample_census": tz}
 NAIVE = {name: module.PAIRS[0]["naive"] for name, module in FAMILIES.items()}
@@ -973,7 +975,7 @@ def test_reference_is_completed_and_valid_or_a_valid_refusal(cohort, name):
         assert row["unsupported_claim"] is CLEAN, (task, report["unresolved_items"])
         assert not [f for f in report["claim_findings"] if f["verdict"] in audit.INVALID | audit.UNKNOWN]
         if task == kx.FAULT:
-            assert (row["status"], row["refusal_valid"]) == ("refused", True if CLEAN is False else None)
+            assert (row["status"], row["refusal_valid"]) == ("refused", True)
             assert report["refusal"]["evidence_matched"] is True and report["refusal"]["other_conditions"] == []
             bounds = findings(report, source="submission", relation="gt")
             assert {(f["field"], f["verdict"]) for f in bounds} == {("obs_limit_events", "supported"),
@@ -1118,7 +1120,7 @@ def test_the_reference_is_never_blocked_and_valid_in_every_arm(reference_cohort,
             assert not [f for f in report["claim_findings"] if f["verdict"] in audit.INVALID | audit.UNKNOWN], \
                 (task, arm)
             if task == kx.FAULT:
-                assert (row["status"], row["refusal_valid"]) == ("refused", True if CLEAN is False else None)
+                assert (row["status"], row["refusal_valid"]) == ("refused", True)
             else:
                 assert row["status"] == "completed", (task, arm)
 
@@ -1196,7 +1198,7 @@ def test_the_reference_variant_is_never_blocked_and_valid_in_every_arm(variant_c
             else:
                 assert unknown == [] and row["unsupported_claim"] is CLEAN, (task, arm, report["unresolved_items"])
             if task == kx.FAULT:
-                assert (row["status"], row["refusal_valid"]) == ("refused", True if CLEAN is False else None)
+                assert (row["status"], row["refusal_valid"]) == ("refused", True)
                 assert report["refusal"]["other_conditions"] == []
             else:
                 assert row["status"] == "completed" and report["deliverable"]["complete"] is True, (task, arm)

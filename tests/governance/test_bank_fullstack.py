@@ -37,6 +37,8 @@ PYTHON = os.path.realpath(getattr(sys, "_base_executable", sys.executable))
 SANDBOX = ("seatbelt" if isolation.sandbox_available() and isolation.census_available()
            and PYTHON.startswith(os.path.realpath(sys.base_prefix) + "/") else "none_test_only")
 CLEAN = False if SANDBOX == "seatbelt" else None
+# refusal_valid is scored whatever a run's integrity flags are (H-08): without Seatbelt the sandbox flag nulls only
+# unsupported_claim, so a valid refusal stays True on every host.
 CREATED = "2026-09-27T12:00:00Z"
 AUDIT_ARMS, BLOCK_ARMS = ("baseline", "instructions"), ("enforcement", "full")
 # pairs where a generic guard predicate stops the naive fault delivery in the block arms (design §1.9, §4 step 9)
@@ -213,7 +215,7 @@ def test_a_request_literal_tz_delivery_completes_through_the_cli(literal):
     for (task, arm), report in literal["reports"].items():
         row = report["v1_outcome"]
         if task == kx.FAULT:          # the refusal control, not blocked in any arm
-            assert (row["status"], row["refusal_valid"]) == ("refused", True if CLEAN is False else None), (arm, row)
+            assert (row["status"], row["refusal_valid"]) == ("refused", True), (arm, row)
             assert all(g["accepted"] for g in report["gate_events"]), arm
             continue
         assert row["status"] == "completed" and report["deliverable"]["complete"] is True, (task, arm, report["notes"])

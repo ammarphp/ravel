@@ -818,7 +818,8 @@ def test_host_roots_are_created_exclusively_or_verified(tmp_path):
     link.symlink_to(fresh)
     with pytest.raises(ContractError, match="symlink"):
         runner.prepare_host_root(link, "root")
-    assert "not this user" in runner.host_root_problem("/var/empty")   # a directory another user (root) owns
+    root_owned = next(p for p in ("/var/empty", "/usr") if os.path.isdir(p) and os.lstat(p).st_uid == 0)   # macOS, Linux
+    assert "not this user" in runner.host_root_problem(root_owned)   # a directory another user (root) owns
     with pytest.raises(ContractError, match="its parent must exist"):
         runner.prepare_host_root(base / "missing" / "root", "root")
 

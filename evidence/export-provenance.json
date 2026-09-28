@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "e67f54fc6dba0bae8eb0e3f4209ba3cef7797666",
+  "source_commit": "fa77bce0ded67919747c5b0294faaae3c52436f4",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "c27bdce459d7361bcc05980882c3430c6bb96078a788ff0ed0b480f843cb8974",
@@ -8106,8 +8106,8 @@
     {
       "source_path": "tests/governance/test_audit_bank.py",
       "public_path": "tests/governance/test_audit_bank.py",
-      "source_sha256": "86de8097fa5fec6deb6e53d786cc2e51f4f658d9dc3cde6007b5d7dfdc614b82",
-      "export_sha256": "86de8097fa5fec6deb6e53d786cc2e51f4f658d9dc3cde6007b5d7dfdc614b82"
+      "source_sha256": "62f607358b818af764ff376e47a92fd4f9b503567f9ed99fdda6fa9ca2a096cf",
+      "export_sha256": "62f607358b818af764ff376e47a92fd4f9b503567f9ed99fdda6fa9ca2a096cf"
     },
     {
       "source_path": "tests/governance/test_audit_heldout.py",
@@ -8136,8 +8136,8 @@
     {
       "source_path": "tests/governance/test_bank_fullstack.py",
       "public_path": "tests/governance/test_bank_fullstack.py",
-      "source_sha256": "a5a6537fa1436e32061bec8a1c4646545511015d9afeada906a15c0817acd0bc",
-      "export_sha256": "a5a6537fa1436e32061bec8a1c4646545511015d9afeada906a15c0817acd0bc"
+      "source_sha256": "6003279a8bc8822552c38215c020a9785cb0b9fb4ca34c3d3549b356f9817e3d",
+      "export_sha256": "6003279a8bc8822552c38215c020a9785cb0b9fb4ca34c3d3549b356f9817e3d"
     },
     {
       "source_path": "tests/governance/test_broker.py",
@@ -8190,8 +8190,8 @@
     {
       "source_path": "tests/governance/test_live_host.py",
       "public_path": "tests/governance/test_live_host.py",
-      "source_sha256": "b1f1517bfdf85b305c330c2f457efda2e76a16434b10aedebd10d96247d293b4",
-      "export_sha256": "b1f1517bfdf85b305c330c2f457efda2e76a16434b10aedebd10d96247d293b4"
+      "source_sha256": "25a535b2881630c3f6c0bb22035f7b2a317734fa8fbd2b4e4a0378b3a51c3262",
+      "export_sha256": "25a535b2881630c3f6c0bb22035f7b2a317734fa8fbd2b4e4a0378b3a51c3262"
     },
     {
       "source_path": "tests/governance/test_oracle_counting.py",
