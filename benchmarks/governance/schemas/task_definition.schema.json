@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.ravel.invalid/governance/v1/task_definition.schema.json",
   "title": "Task definition, evaluator-private (slice design 4.4)",
-  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. task_id is opaque: it must not contain leaky words (valid, fault, stale, fresh, reuse, recompute, refuse, correct, wrong, missing, complete, oracle) nor a token of the variant label. Required claims must match their artifact field's role and unit. At most one input per kind. canary (the family build's random canary, planted in every task definition and oracle record) is the one optional key: the family always writes it; hand-built records may omit it.",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. task_id is opaque: it must not contain leaky words (valid, fault, stale, fresh, reuse, recompute, refuse, correct, wrong, missing, complete, oracle) nor a token of the variant label. Required claims must match their artifact field's role and unit. At most one input per kind. canary (the family build's random canary, planted in every task definition and oracle record) is the one optional key: the family always writes it; hand-built records may omit it. This file is schema_version 1; version 2 records follow task_definition_v2.schema.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [

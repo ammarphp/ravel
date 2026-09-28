@@ -30,10 +30,39 @@ cancellation-free form; Phi uses ``math.erfc``; each root is found by bisection 
 floating-point numbers. Unresolved curves are reported as ``above_cap`` with a null value,
 never as a fabricated root. Inputs whose arithmetic leaves the float range raise ContractError.
 
+Cap-bounded models (a POI range [0, poi_cap] set by the workspace, e.g. [0, 10]): a curve is
+``above_cap`` exactly when its CLs at mu = poi_cap is still above the level. Whenever a curve has
+that status, all six curves are checked on the 64-point grid over (0, poi_cap]. The five expected
+curves are monotone analytically: CLs_exp = Phi(-(k + sqrt(q~_A))) / Phi(-k), and q~_A increases
+with mu (the log-likelihood is jointly concave and the Asimov mu_hat is 0). For them CLs(poi_cap)
+> level proves there is no crossing in (0, poi_cap]. The observed curve, Phi(-sqrt(q~)) /
+Phi(sqrt(q~_A) - sqrt(q~)) on its lower branch, is not monotone by construction. It is only
+verified monotone on the grid, so for it CLs(poi_cap) > level supports "no crossing in
+(0, poi_cap]" without proving it: a dip below the level between grid points would not be seen.
+(A 400-point check of 399 random models found no rise on any observed curve; see the WP12
+oracle appendix.) The only supported statements about an above_cap limit are the relations
+"limit > poi_cap" (strict) and the weaker "limit >= poi_cap", in signal events; the value is
+null, never the cap. ``limits`` then also returns ``cls_at_cap``, the six CLs at mu = poi_cap,
+as evidence for the status. A resolved root never depends on the cap: the same definitions give
+the same root for every cap above it. ``cls_at`` evaluates the six CLs at any mu in
+(0, poi_cap] with exactly the definitions (and the same functions) the root solver uses.
+
 Status vocabulary: the kernel (``ravel.physics.pyhf_exclude.compute``) reports the same unresolved
 condition (CLs still above the level at the POI cap) as ``above_scan`` with the cap as a numeric
-bound; see KERNEL_LIMIT_STATUS. The kernel's ``below_scan`` (CLs already below the level at its mu
-floor) has no oracle status: the oracle raises ContractError there instead of reporting a limit.
+bound; see KERNEL_LIMIT_STATUS. The kernel's ``below_scan`` (CLs already below the level at the
+first point of its scan, which lies at or below 1e-3 events) has no oracle status. The two floors
+differ: the oracle raises ContractError only when CLs is still at or below the level after mu is
+halved down to MU_FLOOR = 1e-9 events, so it would resolve a root just below the kernel's first
+scan point that the kernel reports as below_scan. No unit-signal model can put a root there. For
+a unit signal the negative log-likelihood rises by at most one unit per signal event, so q~ and
+q~_A are at most 2 mu. At mu = 1e-3, sqrt(q~_A) <= 0.045, and every one of the six CLs exceeds
+0.89 (the -2 sigma expected curve is the lowest, Phi(-2.045) / Phi(-2)). The kernel's below_scan
+therefore cannot occur for the models this oracle accepts.
+
+Convention values (WP12 design §1.4 rule 4): ``convention_limits`` evaluates the same limits under a
+known legitimate alternative, the pre-fit (nominal-nuisance, g = 1) background-only Asimov data. A
+family builder lists such values as ``convention_values`` (verdict unresolved), never as the oracle
+value. Toy-based CLs is excluded by the pinned estimand clause (decision E-118) and is not computed.
 """
 from __future__ import annotations
 
@@ -154,14 +183,47 @@ def _solve(f, poi_cap):
     return hi, "resolved"
 
 
+ASIMOV = {"conditional": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+          "prefit": "background-only (mu = 0) at the nominal nuisance g = 1 (pre-fit; a convention alternative, "
+                    "never the oracle value)"}
+
+
+def _datasets(model, n, asimov="conditional"):
+    """Observed data and the background-only Asimov data, each with its unconditional fit. The Asimov nuisance is
+    the conditional background-only fit to data (the estimand) or, for the pre-fit convention, nominal (g = 1)."""
+    a = model.tau
+    observed = (n, a, model.free_fit(n, a))
+    g0 = model.gamma_hat(0.0, n, a) if asimov == "conditional" else 1.0
+    n_asimov, a_asimov = g0 * model.b, g0 * model.tau
+    return observed, (n_asimov, a_asimov, model.free_fit(n_asimov, a_asimov))
+
+
 def limits(n_obs, background, background_uncertainty, *, level=0.05, poi_cap=256.0) -> dict:
     """95% (level=0.05) asymptotic q~ CLs upper limits on signal events, observed and expected.
 
     Returns ``obs_limit_events``, ``exp_limits_events`` (-2..+2 sigma), ``limit_status``
     ({"observed": s, "expected": [s]*5}, s in resolved/above_cap; unresolved values are null),
-    ``method`` and ``root_precision``. Full precision; ``oracle_record`` rounds. Every failure,
-    including float overflow or underflow on extreme inputs, raises ContractError.
+    ``cls_at_cap`` (the six CLs at mu = poi_cap when any curve is above_cap, else null),
+    ``method`` and ``root_precision``. ``above_cap`` means CLs(poi_cap) > level on a curve
+    verified monotone over (0, poi_cap]: the limit exceeds poi_cap (strictly) and has no value
+    inside the POI range. Full precision; ``oracle_record`` rounds. Every failure, including
+    float overflow or underflow on extreme inputs, raises ContractError.
     """
+    return _checked_limits(n_obs, background, background_uncertainty, level, poi_cap, "conditional")
+
+
+def convention_limits(n_obs, background, background_uncertainty, *, convention="prefit_asimov", level=0.05,
+                      poi_cap=256.0) -> dict:
+    """``limits`` under a known legitimate convention alternative (only ``prefit_asimov``: the background-only
+    Asimov data at the nominal nuisance, g = 1). Same record shape; ``method.estimand`` names the convention.
+    A convention value is never the oracle value (design §1.4 rule 4)."""
+    require(convention == "prefit_asimov", f"convention: only prefit_asimov is defined, not {convention!r}")
+    result = _checked_limits(n_obs, background, background_uncertainty, level, poi_cap, "prefit")
+    result["method"]["estimand"] = "convention_value_prefit_asimov"
+    return result
+
+
+def _checked_limits(n_obs, background, background_uncertainty, level, poi_cap, asimov):
     require(finite_number(n_obs) and n_obs >= 0, "n_obs: finite nonnegative number required")
     require(finite_number(background) and background > 0, "background: finite positive number required")
     require(finite_number(background_uncertainty) and background_uncertainty > 0,
@@ -169,20 +231,16 @@ def limits(n_obs, background, background_uncertainty, *, level=0.05, poi_cap=256
     require(finite_number(level) and 0 < level < 1, "level: must lie strictly between 0 and 1")
     require(finite_number(poi_cap) and poi_cap > 0, "poi_cap: finite positive number required")
     try:
-        return _limits(n_obs, background, background_uncertainty, level, float(poi_cap))
+        return _limits(n_obs, background, background_uncertainty, level, float(poi_cap), asimov)
     except ContractError:
         raise
     except (ArithmeticError, ValueError) as exc:   # float overflow, underflow to zero, math domain
         raise ContractError(f"counting oracle arithmetic failed for these inputs: {exc!r}") from exc
 
 
-def _limits(n_obs, background, background_uncertainty, level, poi_cap):
+def _limits(n_obs, background, background_uncertainty, level, poi_cap, convention="conditional"):
     model = _SingleBin(background, background_uncertainty)
-    n, a = float(n_obs), model.tau
-    observed = (n, a, model.free_fit(n, a))
-    g0 = model.gamma_hat(0.0, n, a)               # conditional background-only fit to data
-    n_asimov, a_asimov = g0 * model.b, g0 * model.tau
-    asimov = (n_asimov, a_asimov, model.free_fit(n_asimov, a_asimov))
+    observed, asimov = _datasets(model, float(n_obs), convention)
 
     def curve(index):
         return lambda mu: _cls(model, mu, observed, asimov)[index] - level
@@ -193,8 +251,10 @@ def _limits(n_obs, background, background_uncertainty, level, poi_cap):
     for i, value in enumerate(values):
         if value is not None:
             require(abs(curve(i)(value)) <= CLS_RESIDUAL_ATOL, "CLs residual at root exceeds tolerance")
-    # Each root is unique only if its curve is monotone; check all six on a fixed grid.
-    top = min(poi_cap, 2.0 * max(resolved)) if resolved else poi_cap
+    # Each root is unique only if its curve is monotone; check all six on a fixed grid. An
+    # above_cap status means "no crossing in (0, poi_cap]", so the grid then spans the full range.
+    above_cap = any(status == "above_cap" for _, status in solved)
+    top = poi_cap if above_cap or not resolved else min(poi_cap, 2.0 * max(resolved))
     grid = [_cls(model, top * i / 64, observed, asimov) for i in range(1, 65)]
     for i in range(6):
         require(all(later[i] <= earlier[i] + 1e-12 for earlier, later in zip(grid, grid[1:])),
@@ -203,13 +263,14 @@ def _limits(n_obs, background, background_uncertainty, level, poi_cap):
         "obs_limit_events": values[0],
         "exp_limits_events": values[1:],
         "limit_status": {"observed": solved[0][1], "expected": [s for _, s in solved[1:]]},
+        "cls_at_cap": _cls_record(_cls(model, poi_cap, observed, asimov)) if above_cap else None,
         "method": {
             "estimand": "asymptotic_qtilde_cls_upper_limit", "level": level,
             "definition": "pyhf 0.7.6 hypotest(test_stat='qtilde', calctype='asymptotics', "
                           "calc_base_dist='normal')",
             "model": "single-bin uncorrelated_background: unit normfactor signal mu, shapesys "
                      "Poisson-constrained background, tau = b**2/sigma_b**2",
-            "asimov": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+            "asimov": ASIMOV[convention],
             "expected_order": ["-2", "-1", "0", "+1", "+2"],
             "poi_bounds": [0.0, poi_cap], "gamma_bounds": list(GAMMA_BOUNDS),
             "implementation": "closed-form profiles; standard library only; no pyhf or ravel",
@@ -217,6 +278,43 @@ def _limits(n_obs, background, background_uncertainty, level, poi_cap):
         "root_precision": {"solver": "bracketed bisection to adjacent floats", "rtol": ROOT_RTOL,
                            "cls_residual_atol": CLS_RESIDUAL_ATOL, "monotonicity_grid_points": 64},
     }
+
+
+def _cls_record(values):
+    return {"observed": values[0], "expected": values[1:]}
+
+
+def cls_at(n_obs, background, background_uncertainty, mu, *, poi_cap=256.0) -> dict:
+    """Observed and expected (-2..+2 sigma) asymptotic q~ CLs at one signal strength mu.
+
+    Same model, estimand and Asimov data as ``limits``, evaluated by the very function its root
+    solver brackets, at full double precision (no root, so no solver tolerance applies). mu is
+    in signal events and must lie in the model's POI range (0, poi_cap]; mu = 0 is excluded
+    because CLs is not defined there. Returns ``mu``, ``observed``, ``expected`` (-2..+2 sigma
+    order, as ``exp_limits_events``) and ``poi_bounds``. Every failure raises ContractError.
+    """
+    require(finite_number(n_obs) and n_obs >= 0, "n_obs: finite nonnegative number required")
+    require(finite_number(background) and background > 0, "background: finite positive number required")
+    require(finite_number(background_uncertainty) and background_uncertainty > 0,
+            "background_uncertainty: finite positive number required")
+    require(finite_number(poi_cap) and poi_cap > 0, "poi_cap: finite positive number required")
+    require(finite_number(mu) and 0 < mu <= poi_cap, "mu: must lie in the POI range (0, poi_cap]")
+    try:
+        model = _SingleBin(background, background_uncertainty)
+        observed, asimov = _datasets(model, float(n_obs))
+        values = _cls(model, float(mu), observed, asimov)
+    except ContractError:
+        raise
+    except (ArithmeticError, ValueError) as exc:
+        raise ContractError(f"counting oracle arithmetic failed for these inputs: {exc!r}") from exc
+    return {"mu": float(mu), **_cls_record(values), "poi_bounds": [0.0, float(poi_cap)]}
+
+
+def cls_at_workspace(workspace: dict, mu) -> dict:
+    """``cls_at`` for exactly the scoped counting workspace (POI range read from the workspace)."""
+    counting = parse_counting_workspace(workspace)
+    return cls_at(counting["n_obs"], counting["background"], counting["background_uncertainty"], mu,
+                  poi_cap=counting["poi_cap"])
 
 
 def _one_number(value, label):
@@ -334,19 +432,26 @@ def _oracle_side(files, label):
         "limit_status": result["limit_status"],
         "sigma_vis_obs_fb": sigma(result["obs_limit_events"]),
         "sigma_vis_exp_fb": [sigma(v) for v in result["exp_limits_events"]],
+        "cls_at_cap": None if result["cls_at_cap"] is None else {
+            "observed": _rounded(result["cls_at_cap"]["observed"]),
+            "expected": [_rounded(v) for v in result["cls_at_cap"]["expected"]]},
         "method": result["method"],
         "root_precision": result["root_precision"],
     }
 
 
-def oracle_record(current: dict, prior: dict) -> dict:
+def oracle_record(current: dict, prior: dict | None = None) -> dict:
     """Evaluator oracle for one task variant from the exact input bytes.
 
     ``current`` and ``prior`` map input file names (workspace.json, optional luminosity.json,
-    optional title.txt) to bytes. Each side carries the input digests, the counting inputs,
-    the limits in events and sigma_vis = S95 / L in fb (null without a luminosity record or
-    for an unresolved limit). Field names match the claim ``artifact_field`` vocabulary.
-    Values are rounded to 10 significant digits so the record digest is platform-stable.
+    optional title.txt) to bytes; ``prior`` is None for a task without prior inputs (its side is
+    then null). Each side carries the input digests, the counting inputs, the limits in events,
+    sigma_vis = S95 / L in fb (null without a luminosity record or for an unresolved limit) and
+    ``cls_at_cap``, the six CLs at mu = poi_cap when a curve is above_cap (the evidence for that
+    status), else null. Field names match the claim ``artifact_field`` vocabulary. Values are
+    rounded to 10 significant digits so the record digest is platform-stable. ``cls_at_cap`` joined
+    each side at WP12 plan step 7, as the oracle appendix planned (§1b): the likelihood_freshness
+    records gain a null field on each side, so their bytes and digests changed with it.
     """
     return {
         "schema_version": 1,
@@ -355,5 +460,5 @@ def oracle_record(current: dict, prior: dict) -> dict:
         "review": "unreviewed (PKT-D02 pending)",
         "significant_digits": SIGNIFICANT_DIGITS,
         "current": _oracle_side(current, "current"),
-        "prior": _oracle_side(prior, "prior"),
+        "prior": None if prior is None else _oracle_side(prior, "prior"),
     }

@@ -186,9 +186,11 @@ class AttackAdapter(base.Adapter):
 # =================================================================================================
 
 def build(base_dir, **budget):
+    # the likelihood_freshness tasks only (16 assignments), as before every family became runnable (WP12 steps 8-9)
     return runner.build_synthetic_campaign(base_dir / "store", campaign_id="synthetic-redteam", created_utc=CREATED,
                                            seeds=[11], schedule_seed=7, subjects_root=base_dir / "subjects",
-                                           sandbox=SANDBOX, budget=budget or None)
+                                           sandbox=SANDBOX, budget=budget or None,
+                                           tasks=["lf-a", "lf-b", "lf-c", "lf-d"])
 
 
 def registry(campaign):

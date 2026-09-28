@@ -18,12 +18,13 @@ from governance.tasks.development.likelihood_freshness import family
 ROOT = Path(__file__).resolve().parents[2]
 FAMILY_SOURCE = ROOT / "benchmarks" / "governance" / "tasks" / "development" / "likelihood_freshness" / "family.py"
 DESIGN = ROOT / "docs" / "development" / "evaluation-study" / "slice-design.md"
-TASK_DEFINITION_KEYS = {
-    "schema_version", "task_id", "family", "pair_id", "variant", "expected", "stratum", "prompt_sha256",
-    "inputs", "prior_inputs", "required_claims", "required_title", "refusal_conditions", "fidelity",
-    "reuse_expectation", "oracle_sha256", "source", "provisional", "canary"}
+# WP12 plan step 1: the family writes schema_version 2 definitions (contracts._task_definition_v2).
+TASK_DEFINITION_KEYS = set(contracts.FIELDS["task_definition_v2"]) | {"canary"}
 EXPECTED = {"V0": ("lf-a", "complete", "reuse_all"), "V1": ("lf-b", "complete", "recompute_fit_and_convert"),
             "V2": ("lf-c", "complete", "recompute_convert"), "V3": ("lf-d", "refuse", "refuse_convert")}
+PAIRS = {"V0": ("lf-p1", "valid", "lf-b"), "V1": ("lf-p1", "fault", "lf-a"),
+         "V2": ("lf-p2", "valid", "lf-d"), "V3": ("lf-p2", "fault", "lf-c")}
+NEW_TITLE = "SR-A 95% CL upper limit on the visible cross section"
 
 
 @pytest.fixture(scope="module")
@@ -81,9 +82,10 @@ def test_variants_change_exactly_the_declared_input():
     assert all(inputs[v]["prior"] == prior for v in inputs)
     changed = {v: {name for name in set(prior) | set(inputs[v]["current"])
                    if prior.get(name) != inputs[v]["current"].get(name)} for v in inputs}
-    assert changed == {"V0": {"title.txt"}, "V1": {"workspace.json"}, "V2": {"luminosity.json"},
-                       "V3": {"luminosity.json"}}
-    assert parsed(inputs["V0"]["current"])[2] != "SR-A visible cross-section limit"
+    # every variant carries the one new title (WP12 design §2 P1), so the twins differ in one input each
+    assert changed == {"V0": {"title.txt"}, "V1": {"title.txt", "workspace.json"},
+                       "V2": {"title.txt", "luminosity.json"}, "V3": {"title.txt", "luminosity.json"}}
+    assert {parsed(inputs[v]["current"])[2] for v in inputs} == {NEW_TITLE}
     assert parsed(inputs["V1"]["current"])[0]["background"] == 44.0
     assert parsed(inputs["V1"]["current"])[0]["background_uncertainty"] == 5.0
     lumi = parsed(inputs["V2"]["current"])[1]
@@ -126,14 +128,19 @@ def test_task_definitions_follow_contract(built):
     for task in index["tasks"]:
         definition = load(out / task["definition_path"])
         task_id, expected, reuse = EXPECTED[task["variant"]]
+        pair_id, pair_variant, twin = PAIRS[task["variant"]]
         assert set(definition) == TASK_DEFINITION_KEYS
         assert definition["task_id"] == task["task_id"] == task_id
         assert re.fullmatch(r"lf-[a-z]", task_id)
         assert (definition["schema_version"], definition["family"], definition["pair_id"], definition["stratum"]) \
-            == (1, "likelihood_freshness", "lf-p1", "S1")
-        assert definition["expected"] == expected and definition["reuse_expectation"] == reuse
+            == (2, "likelihood_freshness", pair_id, "S1")
+        assert (definition["variant"], definition["twin_task_id"]) == (pair_variant, twin)
+        assert (task["pair_id"], task["pair_variant"], task["twin_task_id"]) == (pair_id, pair_variant, twin)
+        assert definition["expected"] == expected and task["reuse_expectation"] == reuse
+        assert definition["reuse_plan"] == contracts.V1_REUSE_PLANS[reuse]
         assert definition["prompt_sha256"] == prompt_sha256
-        assert definition["source"] == {"kind": "synthetic_development", "license": "Apache-2.0"}
+        assert definition["source"] == {"kind": "synthetic_development", "license": "Apache-2.0", "citation": None,
+                                        "provenance": family.SOURCE["provenance"], "modifications": []}
         assert definition["provisional"] is True
         assert definition["canary"] == index["canary"]
         assert canonical.digest(definition) == task["definition_sha256"]
@@ -153,15 +160,21 @@ def test_task_definitions_follow_contract(built):
         assert bool(definition["refusal_conditions"]) is not complete
         assert definition["fidelity"] == {"metric": "relative_error", "quantity": "sigma_vis_obs_fb",
                                           "tolerance": 0.005 if complete else None}
+        assert definition["diagnostic_tolerance"] == (None if complete else 0.005)
         if complete:
-            assert definition["required_claims"] == [
+            assert contracts.required_claims(definition) == [
                 {"field": "sigma_vis_obs_fb", "role": "observed", "unit": "fb"},
                 {"field": "sigma_vis_exp_fb[2]", "role": "expected", "unit": "fb"}]
+            assert {(e["relation"], e["metric"], e["tolerance"]) for e in definition["endpoints"]} == {
+                ("eq", "relative_error", 0.005)}
             current_title = (out / task["inputs"]["current"]["title.txt"]["path"]).read_text()
-            assert definition["required_title"] == current_title
+            assert definition["required_title"] == current_title == NEW_TITLE
         else:
-            assert definition["required_claims"] == [] and definition["required_title"] is None
-            assert "authorized integrated-luminosity" in definition["refusal_conditions"][0]
+            assert definition["endpoints"] == [] and definition["required_title"] is None
+            [condition] = definition["refusal_conditions"]
+            assert "authorized integrated-luminosity" in condition["text"]
+            assert (condition["matcher"], condition["evidence_predicate"]) == (
+                "luminosity_reason", "inputs_listing_without_luminosity")
             assert [e["name"] for e in definition["inputs"]] == ["title.txt", "workspace.json"]
 
 
@@ -248,7 +261,7 @@ def test_build_is_deterministic_given_its_canary_and_write_once(built, tmp_path)
 def test_fault_effect_below_floor_fails_before_writing(monkeypatch, tmp_path):
     weak = {**family.CERTIFIED, "luminosity_fb": 119.0}   # a 0.84% change: below 3 x 0.005
     monkeypatch.setitem(family.VARIANTS, "V2", {**family.VARIANTS["V2"],
-                                                "current": {**family.PRIOR, "luminosity": weak}})
+                                                "current": {**family.CURRENT, "luminosity": weak}})
     with pytest.raises(ContractError, match="fault effect"):
         family.build_family(tmp_path / "out")
     assert not (tmp_path / "out").exists()
@@ -257,7 +270,7 @@ def test_fault_effect_below_floor_fails_before_writing(monkeypatch, tmp_path):
 def test_v1_median_expected_effect_below_floor_fails(monkeypatch, tmp_path):
     # n_obs 42 -> 43: observed S95 moves 4.4% but the median expected only 0.48%
     monkeypatch.setitem(family.VARIANTS, "V1", {**family.VARIANTS["V1"],
-                                                "current": {**family.PRIOR, "n_obs": 43}})
+                                                "current": {**family.CURRENT, "n_obs": 43}})
     with pytest.raises(ContractError, match="fault effect on exp_median_limit_events"):
         family.build_family(tmp_path / "out")
     assert not (tmp_path / "out").exists()
@@ -273,7 +286,7 @@ def test_unresolved_limit_fails_build(monkeypatch, tmp_path):
 
 def test_unchanged_quantity_drift_fails(monkeypatch, tmp_path):
     monkeypatch.setitem(family.VARIANTS, "V0", {**family.VARIANTS["V0"],
-                                                "current": {**family.PRIOR, "background": 38.5}})
+                                                "current": {**family.CURRENT, "background": 38.5}})
     with pytest.raises(ContractError, match="unchanged"):
         family.build_family(tmp_path / "out")
 

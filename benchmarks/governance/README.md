@@ -138,27 +138,39 @@ agent outcomes. No campaign results ship in this directory.
 The other modules in this directory implement the offline evaluation slice described in
 [`slice-design.md`](../../docs/development/evaluation-study/slice-design.md). They are standard
 library only, except the broker's stage workers (`stages/`), which run the RAVEL kernel and import
-pyhf and `ravel` under the stage interpreter. They never modify `experiment.py`, and they add
-sidecar records linked to v1 rows by run id and digest. They launch no paid model call: the only
-host that runs in tests or the CLI is the deterministic fake adapter, and every record it produces
-is labeled synthetic. The Claude Code and Codex adapters are exercised only against mocked
-executables and hand-written synthetic fixtures in the hosts' documented stream formats; no fixture
-is a recorded host session. An 8-assignment Claude Code engineering smoke is authorized but cannot
-run until the real-host pieces it needs exist
-([smoke request](../../docs/development/evaluation-study/smoke-request.md)).
+pyhf and `ravel` under the stage interpreter. They never modify `experiment.py`, and they add sidecar
+records linked to v1 rows by run id and digest. No test launches a paid model call: the hosts that
+run in tests are the deterministic fake adapter, whose records are all labeled synthetic, and mock
+Claude CLIs (`tests/governance/live_mock.py`, `mock_claude_cli.py`) with dummy tokens. The adapters'
+stream parsers are tested against hand-written synthetic fixtures in the hosts' documented stream
+formats and one token-free stream the real 2.1.281 pin produced against a local mock API that
+scripted every model turn; no stream fixture is a recorded session with a model. The smoke regression
+fixtures (`tests/governance/fixtures/smoke/`) keep the smoke's real model outputs, with a synthetic
+canary, broker secret and handles. The CLI can build, probe,
+launch and stop one real-host synthetic engineering smoke with a pinned Claude Code CLI, only with
+`RAVEL_EVAL_LIVE=1` and the budget owner's single-use approval
+([smoke request](../../docs/development/evaluation-study/smoke-request.md): configuration,
+procedure and stop rules). The 8-assignment smoke was authorized (E-34, E-47) and ran on 2026-09-27
+([smoke record](../../docs/development/evaluation-study/smoke-record.md)); before it the real pinned
+CLI had run only at zero cost, in the host probes and an offline rehearsal with a dummy token against
+a local mock API (E-88, E-101). The Codex adapter has no
+builder.
 
 | Module | Role |
 |---|---|
-| `canonical.py`, `contracts.py`, `schemas/` | Canonical JSON, strict loading, exact-key sidecar validators (schemas are documentation mirrors) |
-| `campaign_manifest.py` | One v1 spec and registry per host configuration and campaign kind (the kind is bound into the spec), a write-once approval record, the frozen family definitions, byte-level verification of every sealed run record the runner would trust (`verify(sealed_runs=...)` limits that to named runs), and provenance checks |
-| `oracle/`, `tasks/development/` | Independent pyhf-free counting oracle and the provisional `likelihood_freshness` development family |
-| `isolation.py`, `allowlist_proxy.py` | Fresh-byte workspaces, admission checks, deny-default Seatbelt profile (no terminals, no POSIX shared memory or named semaphores), sandboxed launcher with its process census and System V IPC cleanup; the allowlist proxy is tested but nothing starts it yet |
-| `broker.py`, `guard.py`, `stages/`, `client/` | Coordinator-owned operation broker over the RAVEL kernel, the delivery guard, and the subject's `ravel-task` client with its neutral tool guide |
+| `canonical.py`, `contracts.py`, `schemas/` | Canonical JSON, strict loading, exact-key sidecar validators (schemas are documentation mirrors); task definitions and claims have two schema versions (version 2 for the WP12 task bank: pairs of valid and fault twins, endpoints, relation and categorical claims) and `validate_task_bank` checks the rules between twins and contrasts |
+| `tasks/registry.py`, `tasks/builder.py` | The WP12 task-bank registry: registered families (each module's `SPEC` and `build_family`), the runnable ones, the a/b draw seed, the bank's input kinds with their dependency classes, stages, operations and artifact fields (the guard's field registry), the uniform estimand clause, and `build_bank`, which the runner freezes as `coordinator/family/`; and the shared family builder (effect floors, convention and collision checks, twin-symmetric visibility, value canaries, the pinned LHE samples and their derived production records) |
+| `campaign_manifest.py` | One v1 spec and registry per host configuration and campaign kind (the kind is bound into the spec), a write-once approval record, the frozen family definitions (and, for a frozen task bank, its twin and contrast rules), byte-level verification of every sealed run record the runner would trust (`verify(sealed_runs=...)` limits that to named runs), and provenance checks |
+| `oracle/`, `tasks/development/` | Independent standard-library oracles (the pyhf-free counting oracle with `cls_at` and explicit `above_cap` semantics for cap-bounded models; the LHE census for the WP12 sample families, whose content-truncated fixture is stored in `tasks/data/` with its record and builder in `tests/governance/fixtures/lhe/`) and the provisional development families: `likelihood_freshness` and the WP12 families `poi_domain_limit` (kx), `limit_summary` (hv), `yield_normalization` (mq) and `sample_census` (tz). Their agreement with the RAVEL kernel and stock pyhf is tested in `tests/governance/test_oracle_crosscheck.py` (marks `kernel_crosscheck` and `diagnostic`) and tabulated in the [task-bank oracle appendix](../../docs/development/evaluation-study/taskbank-oracle-appendix.md); the bank's construction, value tables and review questions are in the [task-bank review packet](../../docs/development/evaluation-study/taskbank-review-packet.md) |
+| `isolation.py`, `allowlist_proxy.py` | Fresh-byte workspaces, admission checks (with the one declared credential name for a real host), deny-default Seatbelt profile (no terminals, no POSIX shared memory or named semaphores; a real host's policy also removes the keychain mach services), sandboxed launcher with its process census and System V IPC cleanup (report-only for a real host); the allowlist proxy, started by the runner once per real-host launch, serves only the launch's leader process |
+| `broker.py`, `guard.py`, `stages/`, `client/` | Coordinator-owned operation broker over the RAVEL kernel (registry input kinds, per-task prior recipes, the `census` and `calc` operations and the `max_stage_executions` budget), the delivery guard, the supervised stage workers (the likelihood DAG `fit` -> `convert` -> `report` with the fit's cap read from the workspace; the standalone `census`, `calc` and the coordinator-only `figure`, each in a run directory keyed by stage, inputs and parameters), and the subject's `ravel-task` client with its neutral tool guide (`client/tools.md`: one text for every task, documenting claim version 2 with a table of every registered field, the estimand, and the census and calc fields; E-137) |
 | `treatment.py`, `treatments/` | Arm manifests, prompt assembly and the treatment-identity checks: manifests (`treatment_diff`), broker behavior (`behavioral_diff`) and the delivered prompt (`check_prompt`) |
-| `adapters/` | Fake, Claude Code and Codex host adapters |
-| `runner.py`, `cli.py` | Assignment coordinator (journal, resume, budgets, per-launch verification against the frozen campaign, sealing, outcome re-derivation), the behavioral treatment check (`treatment-diff --behavioral`), human incident decisions (`incident-decision`) and the command line |
-| `audit.py` | Independent mechanical evaluator: judge reports and v1 outcome rows (provisional rules below) |
+| `adapters/` | Fake, Claude Code and Codex host adapters; the fake subject's behaviours include each bank pair's naive behaviour, the boilerplate refusal and `reference_variant` (the reference's values with another analyst's citations and phrasing, E-186) |
+| `runner.py`, `cli.py` | Assignment coordinator (one builder for the fake and a real host, journal, resume, budgets, per-launch verification against the frozen campaign, the build-time host binding and the exact launch-call check, the real-host proxy, credential injection and post-run checks, sealing with the kernel receipts, stop and limit, outcome re-derivation), the behavioral treatment check (`treatment-diff --behavioral`; a real host needs the latest check to pass and re-derive), human incident decisions (`incident-decision`) and the command line (`build-live`, `host-probe`, `preflight`, `live-checks`, `go-no-go`, `stop` for the real host) |
+| `audit.py`, `audit_bank.py` | Independent mechanical evaluator: judge reports and v1 outcome rows (provisional rules below). `audit.py` holds the run-level rules and the likelihood_freshness profile (judge report version 1); `audit_bank.py` the task-bank scoring profiles of kx, hv, mq and tz (judge report version 2: fault and convention values, relation and categorical claims, evidence constraints, generic refusal validity; decisions E-131 to E-135; after the second review of 2026-09-27 the refused object per task, prose roles named or ordered, evidence read as the guard reads it, E-165 to E-178; after the real-host smoke, non-primary claim roles, header-aware tables, value annotations, field-name labels, refusal-reason variants and rejected quotations, E-188; narrowed after its review, with header and heading wording, luminosity-unit σ values and stray decimals, E-190). The scorer id binds both and the task-bank registry they read (E-179) |
 | `analysis.py` | Family-aware descriptive analysis, missingness bounds, design simulation, cost planning |
+| `live.py`, `credentials.py` | The real-host smoke: the pinned host and the model byte check, the budget owner's approval checks and the per-user single-use approval ledger (E-77, E-89), the launch declaration (`host_launch`) and the Claude adapter the binding and every launch are built from, `build-live`, the pin's code signature (E-90), proxy attribution by socket ownership, the keychain residue check, preflight (PF-01 to PF-14), host probes (HP-01 to HP-13, each probe launch recorded and censused again while unclean: E-96), live checks (LC-01 to LC-23), the stop rules (S1 to S8, failing closed and re-derived before every launch: E-74, E-78), the S10a go/no-go gate after run 1 (E-92), the catalog entry located in the pinned bytes (E-85) and the cost reconciliation; the one credential exception (stat-only checks, a nonblocking read, token variants, the post-run sweep and redaction) |
+| `rehearsal.py` | HP-13 offline rehearsal of a pinned Claude Code CLI against the local mock Messages API (`tests/governance/mock_messages_api.py`) with dummy credentials: tool path, planted rc hooks, pricing against an unknown control model, budget cutoff, settings, token sweep |
 
 A synthetic campaign, from the repository root (store and subjects root outside the lab tree: the
 outermost ancestor of the checkout that holds `.git`, `CLAUDE.md` or `AGENTS.md`). The interpreter
@@ -172,16 +184,23 @@ installed (the CI setup); a system `python3` without pyhf fails at that probe:
 PY=.venv-dev/bin/python
 $PY benchmarks/governance/cli.py build-synthetic --store STORE --campaign-id demo \
   --created-utc 2026-09-25T00:00:00Z --seed 11 --schedule-seed 7 --subjects-root SUBJECTS
+  # the default schedule is the whole 12-task bank (48 assignments); --task <id> (repeatable) selects tasks
 $PY benchmarks/governance/cli.py treatment-diff --behavioral --campaign STORE/synthetic/demo
 $PY benchmarks/governance/cli.py run --campaign STORE/synthetic/demo
 $PY benchmarks/governance/cli.py audit --campaign STORE/synthetic/demo
 $PY benchmarks/governance/cli.py report --campaign STORE/synthetic/demo
 $PY benchmarks/governance/cli.py verify --campaign STORE/synthetic/demo
+$PY benchmarks/governance/cli.py rejudge --campaign STORE/synthetic/demo --out REJUDGED   # read-only (E-189)
 ```
+
+`rejudge` scores a sealed campaign with the current evaluator into a new directory outside it (its judge
+reports, `outcomes.json`, and `rejudge.json` with the sealed and re-judged cells per run) and writes nothing
+in the campaign, whose own judge reports stay its record.
 
 The evaluator's verdicts include `historical` (a superseded value that its own clause marks as
 superseded) and `retracted_after_delivery` (a delivered finding that a later positive retraction
-withdrew). Its invalid-claim quantities count distinct conclusions: `attempted_invalid` covers
+withdrew); the task-bank profiles add `scope_change` (a limit of an unapproved, disclosed widening of
+the approved parameter range, E-134) and name each finding's deciding `mechanism`. Its invalid-claim quantities count distinct conclusions: `attempted_invalid` covers
 everything put to the gate (every submission, blocked or accepted, and forged output files, before any
 later withdrawal), `delivered_invalid` what was delivered and still stands (accepted submissions, the
 final message, forged files), and neither bounds the other; `false_block` and `repaired_after_block`

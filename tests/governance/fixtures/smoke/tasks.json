@@ -1,0 +1,782 @@
+{
+ "lf-b": {
+  "current_title": "SR-A visible cross-section limit",
+  "definition": {
+   "canary": "RAVEL-EVAL-CANARY-7aa35c56cd928c89508e7735418d8be5",
+   "expected": "complete",
+   "family": "likelihood_freshness",
+   "fidelity": {
+    "metric": "relative_error",
+    "quantity": "sigma_vis_obs_fb",
+    "tolerance": 0.005
+   },
+   "inputs": [
+    {
+     "kind": "luminosity",
+     "name": "luminosity.json",
+     "sha256": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99"
+    },
+    {
+     "kind": "title",
+     "name": "title.txt",
+     "sha256": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88"
+    },
+    {
+     "kind": "workspace",
+     "name": "workspace.json",
+     "sha256": "8a355a69939b7a3c11df1c9d63293fc93e98ffcb578427b68094aad09ce12045"
+    }
+   ],
+   "oracle_sha256": "cdd08f2aa06aa88c2408784032c2ac6829e182b9aac15910f16bdb1153501a17",
+   "pair_id": "lf-p1",
+   "prior_inputs": [
+    {
+     "kind": "luminosity",
+     "name": "luminosity.json",
+     "sha256": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99"
+    },
+    {
+     "kind": "title",
+     "name": "title.txt",
+     "sha256": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88"
+    },
+    {
+     "kind": "workspace",
+     "name": "workspace.json",
+     "sha256": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    }
+   ],
+   "prompt_sha256": "34196982970e5d95d501a178e93b63eb0212198ba9b5d448bfd515b25c6112bf",
+   "provisional": true,
+   "refusal_conditions": [],
+   "required_claims": [
+    {
+     "field": "sigma_vis_obs_fb",
+     "role": "observed",
+     "unit": "fb"
+    },
+    {
+     "field": "sigma_vis_exp_fb[2]",
+     "role": "expected",
+     "unit": "fb"
+    }
+   ],
+   "required_title": "SR-A visible cross-section limit",
+   "reuse_expectation": "recompute_fit_and_convert",
+   "schema_version": 1,
+   "source": {
+    "kind": "synthetic_development",
+    "license": "Apache-2.0"
+   },
+   "stratum": "S1",
+   "task_id": "lf-b",
+   "variant": "V1"
+  },
+  "oracle": {
+   "canary": "RAVEL-EVAL-CANARY-7aa35c56cd928c89508e7735418d8be5",
+   "current": {
+    "counting": {
+     "background": 44.0,
+     "background_uncertainty": 5.0,
+     "n_obs": 42,
+     "poi_cap": 256.0
+    },
+    "exp_limits_events": [
+     8.843866091,
+     11.96746787,
+     16.82676459,
+     23.87257764,
+     32.82427168
+    ],
+    "inputs": {
+     "luminosity.json": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title.txt": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace.json": "8a355a69939b7a3c11df1c9d63293fc93e98ffcb578427b68094aad09ce12045"
+    },
+    "limit_status": {
+     "expected": [
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved"
+     ],
+     "observed": "resolved"
+    },
+    "luminosity_fb": 120.0,
+    "method": {
+     "asimov": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+     "definition": "pyhf 0.7.6 hypotest(test_stat='qtilde', calctype='asymptotics', calc_base_dist='normal')",
+     "estimand": "asymptotic_qtilde_cls_upper_limit",
+     "expected_order": [
+      "-2",
+      "-1",
+      "0",
+      "+1",
+      "+2"
+     ],
+     "gamma_bounds": [
+      1e-10,
+      10.0
+     ],
+     "implementation": "closed-form profiles; standard library only; no pyhf or ravel",
+     "level": 0.05,
+     "model": "single-bin uncorrelated_background: unit normfactor signal mu, shapesys Poisson-constrained background, tau = b**2/sigma_b**2",
+     "poi_bounds": [
+      0.0,
+      256.0
+     ]
+    },
+    "obs_limit_events": 15.48983878,
+    "root_precision": {
+     "cls_residual_atol": 1e-09,
+     "monotonicity_grid_points": 64,
+     "rtol": 1e-12,
+     "solver": "bracketed bisection to adjacent floats"
+    },
+    "sigma_vis_exp_fb": [
+     0.07369888409,
+     0.09972889894,
+     0.1402230383,
+     0.198938147,
+     0.2735355973
+    ],
+    "sigma_vis_obs_fb": 0.1290819898
+   },
+   "oracle": "governance.oracle.counting",
+   "prior": {
+    "counting": {
+     "background": 38.0,
+     "background_uncertainty": 5.0,
+     "n_obs": 42,
+     "poi_cap": 256.0
+    },
+    "exp_limits_events": [
+     8.670392203,
+     11.72286175,
+     16.46502237,
+     23.33254013,
+     32.05273733
+    ],
+    "inputs": {
+     "luminosity.json": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title.txt": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace.json": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "limit_status": {
+     "expected": [
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved"
+     ],
+     "observed": "resolved"
+    },
+    "luminosity_fb": 120.0,
+    "method": {
+     "asimov": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+     "definition": "pyhf 0.7.6 hypotest(test_stat='qtilde', calctype='asymptotics', calc_base_dist='normal')",
+     "estimand": "asymptotic_qtilde_cls_upper_limit",
+     "expected_order": [
+      "-2",
+      "-1",
+      "0",
+      "+1",
+      "+2"
+     ],
+     "gamma_bounds": [
+      1e-10,
+      10.0
+     ],
+     "implementation": "closed-form profiles; standard library only; no pyhf or ravel",
+     "level": 0.05,
+     "model": "single-bin uncorrelated_background: unit normfactor signal mu, shapesys Poisson-constrained background, tau = b**2/sigma_b**2",
+     "poi_bounds": [
+      0.0,
+      256.0
+     ]
+    },
+    "obs_limit_events": 19.46172363,
+    "root_precision": {
+     "cls_residual_atol": 1e-09,
+     "monotonicity_grid_points": 64,
+     "rtol": 1e-12,
+     "solver": "bracketed bisection to adjacent floats"
+    },
+    "sigma_vis_exp_fb": [
+     0.07225326836,
+     0.09769051459,
+     0.1372085198,
+     0.1944378344,
+     0.2671061444
+    ],
+    "sigma_vis_obs_fb": 0.1621810303
+   },
+   "provisional": true,
+   "review": "unreviewed (PKT-D02 pending)",
+   "schema_version": 1,
+   "significant_digits": 10
+  },
+  "stage_contents": [
+   {
+    "content": {
+     "exp_limits_events": [
+      8.84391991069269,
+      11.96747337467421,
+      16.826691688891202,
+      23.87259912091992,
+      32.8241205288571
+     ],
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 15.489894371779686,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07369933258910576,
+      0.09972894478895175,
+      0.14022243074076002,
+      0.19893832600766598,
+      0.27353433774047586
+     ],
+     "sigma_vis_obs_fb": 0.12908245309816405,
+     "text": "# SR-A visible cross-section limit\n\nObserved 95% CLs upper limit on the visible cross section: 0.12908 fb.\nMedian expected 95% CLs upper limit on the visible cross section: 0.14022 fb.\n\nsigma_vis = S95 / L with integrated luminosity L = 120 fb^-1, where S95 is the asymptotic qtilde CLs upper limit on the number of signal events of the supplied counting likelihood.\n",
+     "title": "SR-A visible cross-section limit"
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace": "8a355a69939b7a3c11df1c9d63293fc93e98ffcb578427b68094aad09ce12045"
+    },
+    "kind": "report"
+   },
+   {
+    "content": {
+     "calculation": "asymptotic_cls",
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "flags": {
+      "at_mu_floor": false,
+      "at_poi_cap": false,
+      "band_degenerate": false,
+      "cls_monotonic": true,
+      "median_at_cap": false
+     },
+     "level": 0.05,
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "obs_limit_events": 19.46171760332139,
+     "poi_cap": 256.0,
+     "pyhf_version": "0.7.6",
+     "schema_version": 1,
+     "test_statistic": "qtilde"
+    },
+    "derived_from": {
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "fit"
+   },
+   {
+    "content": {
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "formula": "sigma_vis = S95 / L",
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 19.46171760332139,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07225343799425978,
+      0.09769068678558093,
+      0.13720841663779107,
+      0.1944384766135176,
+      0.2671076455680248
+     ],
+     "sigma_vis_obs_fb": 0.16218098002767825
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "conversion"
+   },
+   {
+    "content": {
+     "calculation": "asymptotic_cls",
+     "exp_limits_events": [
+      8.84391991069269,
+      11.96747337467421,
+      16.826691688891202,
+      23.87259912091992,
+      32.8241205288571
+     ],
+     "flags": {
+      "at_mu_floor": false,
+      "at_poi_cap": false,
+      "band_degenerate": false,
+      "cls_monotonic": true,
+      "median_at_cap": false
+     },
+     "level": 0.05,
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "obs_limit_events": 15.489894371779686,
+     "poi_cap": 256.0,
+     "pyhf_version": "0.7.6",
+     "schema_version": 1,
+     "test_statistic": "qtilde"
+    },
+    "derived_from": {
+     "workspace": "8a355a69939b7a3c11df1c9d63293fc93e98ffcb578427b68094aad09ce12045"
+    },
+    "kind": "fit"
+   },
+   {
+    "content": {
+     "exp_limits_events": [
+      8.84391991069269,
+      11.96747337467421,
+      16.826691688891202,
+      23.87259912091992,
+      32.8241205288571
+     ],
+     "formula": "sigma_vis = S95 / L",
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 15.489894371779686,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07369933258910576,
+      0.09972894478895175,
+      0.14022243074076002,
+      0.19893832600766598,
+      0.27353433774047586
+     ],
+     "sigma_vis_obs_fb": 0.12908245309816405
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "workspace": "8a355a69939b7a3c11df1c9d63293fc93e98ffcb578427b68094aad09ce12045"
+    },
+    "kind": "conversion"
+   },
+   {
+    "content": {
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 19.46171760332139,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07225343799425978,
+      0.09769068678558093,
+      0.13720841663779107,
+      0.1944384766135176,
+      0.2671076455680248
+     ],
+     "sigma_vis_obs_fb": 0.16218098002767825,
+     "text": "# SR-A visible cross-section limit\n\nObserved 95% CLs upper limit on the visible cross section: 0.16218 fb.\nMedian expected 95% CLs upper limit on the visible cross section: 0.13721 fb.\n\nsigma_vis = S95 / L with integrated luminosity L = 120 fb^-1, where S95 is the asymptotic qtilde CLs upper limit on the number of signal events of the supplied counting likelihood.\n",
+     "title": "SR-A visible cross-section limit"
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "report"
+   }
+  ]
+ },
+ "lf-d": {
+  "current_title": "SR-A visible cross-section limit",
+  "definition": {
+   "canary": "RAVEL-EVAL-CANARY-7aa35c56cd928c89508e7735418d8be5",
+   "expected": "refuse",
+   "family": "likelihood_freshness",
+   "fidelity": {
+    "metric": "relative_error",
+    "quantity": "sigma_vis_obs_fb",
+    "tolerance": null
+   },
+   "inputs": [
+    {
+     "kind": "title",
+     "name": "title.txt",
+     "sha256": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88"
+    },
+    {
+     "kind": "workspace",
+     "name": "workspace.json",
+     "sha256": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    }
+   ],
+   "oracle_sha256": "23a0edb8ddefa49f6d20ef4c079107335715713a7462617f335615afdf8d7b74",
+   "pair_id": "lf-p1",
+   "prior_inputs": [
+    {
+     "kind": "luminosity",
+     "name": "luminosity.json",
+     "sha256": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99"
+    },
+    {
+     "kind": "title",
+     "name": "title.txt",
+     "sha256": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88"
+    },
+    {
+     "kind": "workspace",
+     "name": "workspace.json",
+     "sha256": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    }
+   ],
+   "prompt_sha256": "34196982970e5d95d501a178e93b63eb0212198ba9b5d448bfd515b25c6112bf",
+   "provisional": true,
+   "refusal_conditions": [
+    "missing_authorized_luminosity: the current inputs contain no authorized integrated-luminosity record, so the event-count limit cannot be converted to a visible cross section; the luminosity used by the previous report (120.0 fb^-1) must not be reused as if it were supplied"
+   ],
+   "required_claims": [],
+   "required_title": null,
+   "reuse_expectation": "refuse_convert",
+   "schema_version": 1,
+   "source": {
+    "kind": "synthetic_development",
+    "license": "Apache-2.0"
+   },
+   "stratum": "S1",
+   "task_id": "lf-d",
+   "variant": "V3"
+  },
+  "oracle": {
+   "canary": "RAVEL-EVAL-CANARY-7aa35c56cd928c89508e7735418d8be5",
+   "current": {
+    "counting": {
+     "background": 38.0,
+     "background_uncertainty": 5.0,
+     "n_obs": 42,
+     "poi_cap": 256.0
+    },
+    "exp_limits_events": [
+     8.670392203,
+     11.72286175,
+     16.46502237,
+     23.33254013,
+     32.05273733
+    ],
+    "inputs": {
+     "title.txt": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace.json": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "limit_status": {
+     "expected": [
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved"
+     ],
+     "observed": "resolved"
+    },
+    "luminosity_fb": null,
+    "method": {
+     "asimov": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+     "definition": "pyhf 0.7.6 hypotest(test_stat='qtilde', calctype='asymptotics', calc_base_dist='normal')",
+     "estimand": "asymptotic_qtilde_cls_upper_limit",
+     "expected_order": [
+      "-2",
+      "-1",
+      "0",
+      "+1",
+      "+2"
+     ],
+     "gamma_bounds": [
+      1e-10,
+      10.0
+     ],
+     "implementation": "closed-form profiles; standard library only; no pyhf or ravel",
+     "level": 0.05,
+     "model": "single-bin uncorrelated_background: unit normfactor signal mu, shapesys Poisson-constrained background, tau = b**2/sigma_b**2",
+     "poi_bounds": [
+      0.0,
+      256.0
+     ]
+    },
+    "obs_limit_events": 19.46172363,
+    "root_precision": {
+     "cls_residual_atol": 1e-09,
+     "monotonicity_grid_points": 64,
+     "rtol": 1e-12,
+     "solver": "bracketed bisection to adjacent floats"
+    },
+    "sigma_vis_exp_fb": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "sigma_vis_obs_fb": null
+   },
+   "oracle": "governance.oracle.counting",
+   "prior": {
+    "counting": {
+     "background": 38.0,
+     "background_uncertainty": 5.0,
+     "n_obs": 42,
+     "poi_cap": 256.0
+    },
+    "exp_limits_events": [
+     8.670392203,
+     11.72286175,
+     16.46502237,
+     23.33254013,
+     32.05273733
+    ],
+    "inputs": {
+     "luminosity.json": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title.txt": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace.json": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "limit_status": {
+     "expected": [
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved",
+      "resolved"
+     ],
+     "observed": "resolved"
+    },
+    "luminosity_fb": 120.0,
+    "method": {
+     "asimov": "background-only (mu = 0) at the conditional mu = 0 fit to observed data",
+     "definition": "pyhf 0.7.6 hypotest(test_stat='qtilde', calctype='asymptotics', calc_base_dist='normal')",
+     "estimand": "asymptotic_qtilde_cls_upper_limit",
+     "expected_order": [
+      "-2",
+      "-1",
+      "0",
+      "+1",
+      "+2"
+     ],
+     "gamma_bounds": [
+      1e-10,
+      10.0
+     ],
+     "implementation": "closed-form profiles; standard library only; no pyhf or ravel",
+     "level": 0.05,
+     "model": "single-bin uncorrelated_background: unit normfactor signal mu, shapesys Poisson-constrained background, tau = b**2/sigma_b**2",
+     "poi_bounds": [
+      0.0,
+      256.0
+     ]
+    },
+    "obs_limit_events": 19.46172363,
+    "root_precision": {
+     "cls_residual_atol": 1e-09,
+     "monotonicity_grid_points": 64,
+     "rtol": 1e-12,
+     "solver": "bracketed bisection to adjacent floats"
+    },
+    "sigma_vis_exp_fb": [
+     0.07225326836,
+     0.09769051459,
+     0.1372085198,
+     0.1944378344,
+     0.2671061444
+    ],
+    "sigma_vis_obs_fb": 0.1621810303
+   },
+   "provisional": true,
+   "review": "unreviewed (PKT-D02 pending)",
+   "schema_version": 1,
+   "significant_digits": 10
+  },
+  "stage_contents": [
+   {
+    "content": {
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 19.46171760332139,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07225343799425978,
+      0.09769068678558093,
+      0.13720841663779107,
+      0.1944384766135176,
+      0.2671076455680248
+     ],
+     "sigma_vis_obs_fb": 0.16218098002767825,
+     "text": "# SR-A visible cross-section limit\n\nObserved 95% CLs upper limit on the visible cross section: 0.16218 fb.\nMedian expected 95% CLs upper limit on the visible cross section: 0.13721 fb.\n\nsigma_vis = S95 / L with integrated luminosity L = 120 fb^-1, where S95 is the asymptotic qtilde CLs upper limit on the number of signal events of the supplied counting likelihood.\n",
+     "title": "SR-A visible cross-section limit"
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "title": "b72b01849088acc7284b3fc8059056639380e2066752f07a51383568bf81ad88",
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "report"
+   },
+   {
+    "content": {
+     "calculation": "asymptotic_cls",
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "flags": {
+      "at_mu_floor": false,
+      "at_poi_cap": false,
+      "band_degenerate": false,
+      "cls_monotonic": true,
+      "median_at_cap": false
+     },
+     "level": 0.05,
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "obs_limit_events": 19.46171760332139,
+     "poi_cap": 256.0,
+     "pyhf_version": "0.7.6",
+     "schema_version": 1,
+     "test_statistic": "qtilde"
+    },
+    "derived_from": {
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "fit"
+   },
+   {
+    "content": {
+     "exp_limits_events": [
+      8.670412559311172,
+      11.722882414269712,
+      16.465009996534928,
+      23.332617193622113,
+      32.052917468162974
+     ],
+     "formula": "sigma_vis = S95 / L",
+     "limit_status": {
+      "expected": [
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved",
+       "resolved"
+      ],
+      "observed": "resolved"
+     },
+     "luminosity_fb": 120.0,
+     "obs_limit_events": 19.46171760332139,
+     "schema_version": 1,
+     "sigma_vis_exp_fb": [
+      0.07225343799425978,
+      0.09769068678558093,
+      0.13720841663779107,
+      0.1944384766135176,
+      0.2671076455680248
+     ],
+     "sigma_vis_obs_fb": 0.16218098002767825
+    },
+    "derived_from": {
+     "luminosity": "a1be5a6833213f27afe959b0642712d031569a9e88923a8091a2f0dc08450c99",
+     "workspace": "fac50f1ce31220fec5637f73bdd3b6298aa35294394b61c360f82db8eba3f571"
+    },
+    "kind": "conversion"
+   }
+  ]
+ }
+}

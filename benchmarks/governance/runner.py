@@ -1,8 +1,9 @@
 """Assignment coordinator (slice design §3, §6, §10; WP07): build, run, seal and account.
 
-``build_synthetic_campaign`` freezes a synthetic campaign from the development family: the v1
-spec and registry and the §4.1 manifest (``campaign_manifest.write_campaign``), plus the
-coordinator-private directory ``<campaign>/coordinator/`` (family build, campaign secret,
+``build_synthetic_campaign`` freezes a synthetic campaign from the task bank (``tasks.registry.build_bank``:
+every registered family, schema_version 2 task definitions recording the campaign's per-run task budget,
+one request per family): the v1 spec and registry and the §4.1 manifest (``campaign_manifest.write_campaign``),
+plus the coordinator-private directory ``<campaign>/coordinator/`` (the bank build, campaign secret,
 planted canary, environment manifest, run configuration, behavior plans, run lock). The whole
 campaign is assembled in a temporary directory and renamed into place only after it loads, so a
 failed build leaves nothing behind. ``run_campaign`` walks the registry in order and, per
@@ -51,8 +52,34 @@ audit.py judge report from the sealed evidence; a run whose seal does not reconc
 only through a recorded human incident decision (``record_incident_decision``: the evaluator's
 null-judgment row). ``behavioral_check`` is the §12.3 behavioral treatment check as a product check.
 
-Standard library only. The only host this module builds a campaign for is the synthetic fake
-host; a campaign with any other host runs only with ``RAVEL_EVAL_LIVE=1``.
+Real hosts (smoke spec §9 step 5). ``_build_campaign`` is the one builder: ``build_synthetic_campaign``
+calls it with the fake host (unchanged behaviour: the whole family, ``host_launch`` null) and
+``live.build_live_campaign`` with a pinned Claude Code CLI, a task subset (in family-index order; the
+family stays whole), the frozen approval, the single-use approval ledger and ``host_launch`` (the
+real-host launch declaration in ``coordinator/config.json``, bound into the environment manifest with
+the family index's sha256). A real host's binding is written once at build from the adapter the
+runtime factory builds (``live.claude_adapter``); every launch is compared with it, including the exact
+argv and environment the adapter passes (M6). Per assignment a real host gets a private host-state
+directory (``<host_state_root>/<opaque>``), its own allowlist proxy on 127.0.0.1 that serves only the
+launch's leader process (``allowlist_proxy``, attribution by socket ownership), the real-host profile
+(the pinned binary, the per-run config and tmp directories, the proxy port, the credential directory,
+the keychains and ``~/.claude.json`` denied, the keychain mach services removed) and the one
+credential exception: the recording launcher reads the declared token file after every other check and
+puts the value only into the environment it hands ``isolation.launch`` (``launch_call.json`` records
+names only). After the run, before anything is sealed, the coordinator sweeps the campaign, the
+workspace and the host state for the token and its encodings and redacts every hit
+(``host/redactions.json``), checks the keychain for an item the host may have written, reads the task
+client's environment-name reports, scans the host's transcripts and state for canaries and records
+the proxy's decisions; each finding is a sealed validity flag or a journaled note. The kernel's stage
+receipts are sealed and compared with the frozen kernel, interpreter and stage workers (M5). The
+behavioral gate reads the latest record and re-derives it (M1); a failing post-run drift check never
+loses a paid result (M2). ``run_campaign`` honours ``coordinator/stop.json`` (an automated stop rule or
+a human ``cli.py stop``: every remaining assignment is closed not_started, charge 0), ``limit`` (a
+pause) and, for a real host, preflight, the run-start credential validation (a pause: nothing
+journaled) and a hard core-file limit of 0.
+
+Standard library only. A campaign with a host other than the synthetic fake host runs only with
+``RAVEL_EVAL_LIVE=1``.
 """
 from __future__ import annotations
 
@@ -66,29 +93,33 @@ import importlib.util
 import json
 import os
 import platform
+import re
+import resource
 import secrets
 import shutil
 import stat
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
-from . import analysis, campaign_manifest, canonical, contracts, guard, isolation, stages, treatment
+from . import (allowlist_proxy, analysis, campaign_manifest, canonical, contracts, credentials, guard, isolation,
+               stages, treatment)
 from .adapters import fake as fake_adapter
 from .adapters.base import (AdapterResult, HostDriftError, assert_prompt_not_in_argv, ipc_residue_flagged,
                             profile_sha256)
-from .broker import STAGE_ENV_KEYS, TOKEN_HEADER, Broker
+from .broker import BUDGET_KEYS as BROKER_BUDGET, OPERATIONS as BROKER_OPERATIONS, STAGE_ENV_KEYS, TOKEN_HEADER, Broker
 from .canonical import ContractError, require
 from .contracts import (LAUNCH_FIELDS, LOST_CAUSES, RUN_FIELDS, RUN_STATUS_HINTS, validate_launch_record,  # noqa: F401
                         validate_run_record)
-from .oracle.counting import INPUT_KINDS
-from .tasks.development.likelihood_freshness import family
+from .tasks import registry
 
 experiment = contracts.experiment
 GOVERNANCE = Path(__file__).resolve().parent
@@ -108,13 +139,14 @@ STATES = ("materialized", "admitted", "admission_failed", "launched", "process_s
           "not_started", "interrupted_crash")
 LOST_HINT = "interrupted"   # contracts.RUN_STATUS_HINTS: the one sealed representation of a lost launch
 CONFIG_FIELDS = ("schema_version", "checkout", "stage_python", "stage_env", "subject_python", "subject_prefix",
-                 "sandbox", "forbidden_roots", "subjects_root")
+                 "sandbox", "forbidden_roots", "subjects_root", "host_launch")
 ASSIGNMENT_KEYS = ("adapter", "behavior", "behavior_plan_sha256")
 INTERRUPTED = "coordinator interrupted; no retry under policy none"
 LOST_NOTES = {"coordinator_interrupted": INTERRUPTED,
               "adapter_error": "adapter failed after the launch began; no retry under policy none"}
 SUBJECT_ROOT = "$SUBJECT_ROOT"
-DEFAULT_BUDGET = {"usd_per_run": 1.0, "seconds_per_run": 600, "max_broker_ops": 40, "max_fits": 4}
+DEFAULT_BUDGET = {"usd_per_run": 1.0, "seconds_per_run": 600, "max_broker_ops": 40, "max_fits": 4,
+                  "max_stage_executions": 6}
 SYNTHETIC_MODEL = "synthetic-fake-subject (no model)"
 SYNTHETIC_AUTHORIZATION = {"kind": "synthetic_engineering", "reference_sha256": None,
                            "reference": "SYNTHETIC engineering campaign from runner.build_synthetic_campaign; "
@@ -123,15 +155,19 @@ STAGE_ENV = {"PATH": "/usr/bin:/bin", "PYTHONHASHSEED": "0", "PYTHONNOUSERSITE":
              **{name: "1" for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
                                        "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS")}}
 RESOURCE_POLICY = ("Use only this workspace and bin/ravel-task; at most {ops} task-service operations, of which at "
-                   "most {fits} fit operations; wall-clock limit {seconds:g} s; no network access except the task "
-                   "service.")
+                   "most {fits} fit operations and at most {stages} census and calc operations together; wall-clock "
+                   "limit {seconds:g} s; no network access except the task service.")
 # Content canaries, checked at every campaign load against every subject-visible byte: the family
 # build's random canary (index["canary"], planted in every oracle record and task definition before
-# hashing), fragments present in every oracle record / task definition however it is formatted, and
-# each oracle limit and sigma_vis value as printed (10 significant digits). The random campaign
-# canary is the tripwire file coordinator/canary.txt.
+# hashing), fragments present in every oracle record / task definition however it is formatted (the
+# oracle module each record names, by the definition's oracle_kind), and each task's value canaries,
+# which its family index lists (tasks.builder.value_canaries: the distinctive printed oracle, fault and
+# convention values; for likelihood_freshness exactly _value_canaries of its oracle record). The random
+# campaign canary is the tripwire file coordinator/canary.txt.
 ORACLE_CANARY = "governance.oracle.counting"
-DEFINITION_CANARY = "reuse_expectation"
+ORACLE_CANARIES = {"counting": ORACLE_CANARY, "lhe_census": "governance.oracle.lhe_census"}
+DEFINITION_CANARY = "exposure_class"   # a key of every schema_version 2 task definition (never subject-visible)
+FIXED_CANARIES = (*ORACLE_CANARIES.values(), DEFINITION_CANARY)
 VALUE_FIELDS = ("obs_limit_events", "exp_limits_events", "sigma_vis_obs_fb", "sigma_vis_exp_fb")
 SEAL_REMEDY = ("Remedy: a human compares runs/<run_id>/sealed/ with runs/<run_id>/evidence_manifest.json, "
                "the sealed evidence_sha256 in runs/<run_id>/journal.jsonl and runs/<run_id>/judge_report.json, "
@@ -157,11 +193,27 @@ INCIDENT_FIELDS = ("schema_version", "run_id", "decision", "decided_by", "decide
 CLOCK_FLAG = "clock_stepped_back"          # a closing journal time before the launch time: ended set to started
 CODE_DRIFT_FLAG = "code_drift_during_run"  # treatment code verified before the launch differed after it
 PROBE_REUSE = "recompute_convert"          # the behavioral check probes the task whose conversion alone is stale
+STOP_FILE = "stop.json"                    # coordinator/stop.json: no further launch (live.STOP_RULES or cli.py stop)
+STOP_FIELDS = ("schema_version", "time_utc", "run_id", "rule", "reason", "set_by")
+STOPPED_REASON = "campaign stopped before this assignment ({rule}: {reason}); no launch under the stop"
+HOST_ROOT_MODE = 0o700                     # a real host's subjects and host-state roots: private to this user
+RECEIPTS = "ravel-runs"                    # broker/<run_id>/ravel-runs/<16 hex>/execution_state.json (M5)
+PLACEHOLDER_PORTS = (1, 2)                 # build- and load-time profile checks: broker and proxy ports
 
 
 class LaunchRefused(RuntimeError):
     """The recording launcher refused a launch call before anything started (never an OSError or
     ValueError, so an adapter's launch_host cannot turn it into a launch_error result)."""
+
+    def __init__(self, message, code="launch_refused"):
+        super().__init__(message)
+        self.code = code
+
+
+class CoordinatorInterrupted(BaseException):
+    """SIGHUP or SIGTERM reached a live coordinator (cli.py run installs the handlers, M8). A BaseException, so no
+    handler on the way turns it into a result: isolation.launch's finally kills the launch by census, the broker
+    and proxy stop in _start's finally, and the resumed run is a lost launch (interrupted_crash)."""
 
 
 # ---------------------------------------------------------------- small helpers
@@ -361,7 +413,8 @@ def checkout_source(checkout=CHECKOUT) -> dict:
 
 
 def lab_root(checkout=CHECKOUT) -> str:
-    """Outermost ancestor of the checkout holding .git, CLAUDE.md or AGENTS.md (the lab tree)."""
+    """Outermost ancestor of the checkout holding .git, CLAUDE.md or AGENTS.md (the lab tree). Never the subject
+    markers' .claude: the user's home holds ~/.claude and must not become the lab root."""
     checkout = Path(os.path.realpath(checkout))
     found = checkout
     for ancestor in (checkout, *checkout.parents):
@@ -392,21 +445,58 @@ def forbidden_roots(store, extra=()) -> list:
     return sorted(roots | {os.path.realpath(r) for r in extra})
 
 
-def check_subjects_root(subjects_root, forbidden) -> Path:
-    """Absolute, outside every forbidden root, no instruction-bearing ancestor, no arm word in the path."""
-    path = Path(subjects_root)
-    require(path.is_absolute(), f"subjects_root: absolute path required, got {path}")
+def check_subject_visible_root(path, forbidden, label) -> Path:
+    """A root a subject can see (the subjects root, a real host's host-state root): absolute, outside and not
+    containing any forbidden root, no ancestor holding an instruction or host-settings marker
+    (isolation.SUBJECT_ANCESTOR_MARKERS) and no arm word in its realpath (smoke spec WI-6). Returns the realpath."""
+    path = Path(path)
+    require(path.is_absolute(), f"{label}: absolute path required, got {path}")
     real = os.path.realpath(path)
     for root in forbidden:
-        require(not (_within(real, root) or _within(root, real)),
-                f"subjects_root {real} overlaps forbidden root {root}")
+        require(not (_within(real, root) or _within(root, real)), f"{label} {real} overlaps forbidden root {root}")
     for ancestor in (Path(real), *Path(real).parents):
-        for marker in isolation.ANCESTOR_MARKERS:
+        for marker in isolation.SUBJECT_ANCESTOR_MARKERS:
             require(not os.path.lexists(ancestor / marker),
-                    f"subjects_root: {ancestor} holds {marker} (hosts load parent-directory instructions)")
+                    f"{label}: {ancestor} holds {marker} (hosts load parent-directory instructions)")
     terms = treatment.arm_identifying_terms(real)
-    require(not terms, f"subjects_root: the path names {terms}; subject-visible paths may not identify an arm")
+    require(not terms, f"{label}: the path names {terms}; subject-visible paths may not identify an arm")
     return Path(real)
+
+
+def check_subjects_root(subjects_root, forbidden) -> Path:
+    """Absolute, outside every forbidden root, no instruction-bearing ancestor, no arm word in the path."""
+    return check_subject_visible_root(subjects_root, forbidden, "subjects_root")
+
+
+def host_root_problem(path):
+    """None when a real host's root (subjects or host state) is a real directory owned by this user with mode
+    0700 (lstat: never a symlink), else the problem (smoke spec R17)."""
+    try:
+        info = os.lstat(path)
+    except OSError as exc:
+        return f"{path}: cannot be inspected ({exc.strerror})"
+    if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+        return f"{path}: not a real directory (a symlink or another kind of file)"
+    if info.st_uid != os.getuid():
+        return f"{path}: owned by uid {info.st_uid}, not this user"
+    if stat.S_IMODE(info.st_mode) != HOST_ROOT_MODE:
+        return f"{path}: mode {stat.S_IMODE(info.st_mode):04o}, not {HOST_ROOT_MODE:04o}"
+    return None
+
+
+def prepare_host_root(path, label) -> bool:
+    """Create a real host's root exclusively with mode 0700 (its parent must exist), or verify an existing one
+    (host_root_problem). Returns True when this call created it (the builder removes it again on failure)."""
+    try:
+        os.mkdir(path, HOST_ROOT_MODE)
+    except FileExistsError:
+        problem = host_root_problem(path)
+        require(problem is None, f"{label}: {problem}")
+        return False
+    except OSError as exc:
+        raise ContractError(f"{label}: cannot create {path} ({exc.strerror}); its parent must exist") from None
+    os.chmod(path, HOST_ROOT_MODE)   # the umask never widens it, but make the mode exact
+    return True
 
 
 def subject_interpreter() -> tuple:
@@ -419,19 +509,45 @@ def subject_interpreter() -> tuple:
     return python, prefix
 
 
-def launch_policy(*, workspace, subject_prefix, forbidden, port) -> isolation.SandboxPolicy:
+def launch_policy(*, workspace, subject_prefix, forbidden, port, extra_ports=(), host_access=None) \
+        -> isolation.SandboxPolicy:
     """The subject's sandbox policy: read the workspace and the subject interpreter prefix, write its
     output/, tmp/ and home/, reach only the broker port, and deny every forbidden root. Built at
     build time (placeholder workspace and port), at every campaign load and at every launch, in
     every sandbox mode, so a misconfiguration (an interpreter prefix inside a forbidden root, say)
-    fails the build instead of burning assignments as not_started."""
+    fails the build instead of burning assignments as not_started.
+
+    A real host adds exactly its ``host_access`` (``host_access(host_launch, host_state_dir)``): the pinned
+    binary (one read literal, or the copied ``.app`` as one read root), write roots for its per-run config/ and
+    tmp/, the deny roots (the credential directory, ~/Library/Keychains, ~/.claude.json) and the removal of the
+    keychain mach services; ``extra_ports`` adds its proxy port. Nothing else: no /private/tmp, ~/Library or
+    ~/.local/share/claude, no new mach service, no pty or semaphore rule. Without ``host_access`` the policy is
+    exactly the fake host's (same profile bytes)."""
     workspace = Path(workspace)
+    access = host_access or {}
     try:
-        return isolation.SandboxPolicy(read_roots=[workspace, subject_prefix],
-                                       write_roots=[workspace / "output", workspace / "tmp", workspace / "home"],
-                                       network="localhost", localhost_ports=[port], forbidden_roots=forbidden)
+        return isolation.SandboxPolicy(
+            read_roots=[workspace, subject_prefix, *access.get("read_roots", ())],
+            write_roots=[workspace / "output", workspace / "tmp", workspace / "home", *access.get("write_roots", ())],
+            read_literals=list(access.get("read_literals", ())), network="localhost",
+            localhost_ports=[port, *extra_ports], deny_roots=list(access.get("deny_roots", ())),
+            forbidden_roots=forbidden, mach_services_removed=list(access.get("mach_services_removed", ())))
     except ContractError as exc:
         raise ContractError(f"launch profile: {exc}") from None
+
+
+def host_access(host_launch, host_state_dir) -> dict:
+    """What a real host's launch policy adds (launch_policy): {read_literals, read_roots, write_roots, deny_roots,
+    mach_services_removed}; the write roots are the run's host-state config/ and tmp/ (never the state root)."""
+    state = Path(host_state_dir)
+    return {"read_literals": list(host_launch["binary_access"]["read_literals"]),
+            "read_roots": list(host_launch["binary_access"]["read_roots"]),
+            "write_roots": [state / name for name in HOST_STATE_SUBDIRS],
+            "deny_roots": list(host_launch["deny_roots"]),
+            "mach_services_removed": list(host_launch["mach_services_removed"])}
+
+
+HOST_STATE_SUBDIRS = ("config", "tmp")   # a real host's per-run CLAUDE_CONFIG_DIR and CLAUDE_CODE_TMPDIR
 
 
 def stage_environment(checkout=CHECKOUT) -> dict:
@@ -458,9 +574,11 @@ def materialized_client(subject_python) -> bytes:
     return f"#!{subject_python} -I\n".encode() + rest
 
 
-def environment_manifest(*, subject_python, stage_python, stage_env, sandbox) -> dict:
+def environment_manifest(*, subject_python, stage_python, stage_env, sandbox, host_launch=None,
+                         family_index_sha256=None) -> dict:
     """What the environment digest binds: both interpreters, the stage env, pyhf, platform, sandbox,
-    the materialized client and the harness code."""
+    the materialized client, the harness code, the real host's launch declaration (null for the fake
+    host) and the sha256 of the frozen family index. Every field is re-derived at load."""
     probe = subprocess.run([stage_python, "-c", "import sys, pyhf; sys.stdout.write(pyhf.__version__)"], cwd="/",
                            env=stage_env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=300,
                            check=False)
@@ -474,7 +592,7 @@ def environment_manifest(*, subject_python, stage_python, stage_env, sandbox) ->
                          "platform": platform.platform()},
             "sandbox": sandbox,
             "materialized_client_sha256": canonical.sha256_bytes(materialized_client(subject_python)),
-            "harness_code": harness_manifest()}
+            "harness_code": harness_manifest(), "host_launch": host_launch, "family_index_sha256": family_index_sha256}
 
 
 def fake_host_version() -> str:
@@ -492,22 +610,35 @@ def fake_host(subject_python, environment_sha256, sandbox) -> dict:
             "unknown_fields": []}
 
 
+# The task-bank registry decides guard and broker behaviour (the field registry, the dependency classes that choose the
+# stale codes, key units, role acceptance, input formats and operations) and the operation vocabulary the contracts
+# check, so it is part of the guard implementation, the broker and the operation schema (decision E-179).
+REGISTRY_SOURCE = GOVERNANCE / "tasks" / "registry.py"
+GUARD_SOURCES = (GOVERNANCE / "guard.py", REGISTRY_SOURCE)
+
+
+def guard_implementation_sha256() -> str:
+    """The guard implementation digest every arm manifest records: the canonical digest of the sorted
+    [{path, sha256}] list of guard.py and the registry it reads (treatment.common_hashes' file-list rule)."""
+    return canonical.digest(sorted(({"path": p.name, "sha256": canonical.sha256_file(p)} for p in GUARD_SOURCES),
+                                   key=lambda entry: entry["path"]))
+
+
 def common_sources(stage_python) -> dict:
     """Source files of the §4.3 common block (identical in every arm)."""
     g = GOVERNANCE
     return {"envelope": treatment.TREATMENTS_DIR / treatment.FROZEN_FILES["envelope"], "tool_guide": TOOL_GUIDE,
-            "client": CLIENT, "broker": [g / "broker.py", g / "guard.py"],
-            "stage_workers": [Path(stages.__file__)] + [stages.worker_path(s) for s in stages.ORDER],
+            "client": CLIENT, "broker": [g / "broker.py", g / "guard.py", REGISTRY_SOURCE],
+            "stage_workers": [Path(stages.__file__)] + [stages.worker_path(s) for s in stages.WORKERS],
             "kernel_source": CHECKOUT / "src", "interpreter": stage_python,
-            "operation_schema": [g / "contracts.py"] + [g / "schemas" / f"{n}.schema.json"
-                                                       for n in ("claim", "submission", "decision_record")]}
+            "operation_schema": [g / "contracts.py", REGISTRY_SOURCE] + [
+                g / "schemas" / f"{n}.schema.json" for n in ("claim", "claim_v2", "submission", "decision_record")]}
 
 
 def arm_manifests(stage_python) -> dict:
     common = treatment.common_hashes(common_sources(stage_python))
-    guard_sha = canonical.sha256_file(GOVERNANCE / "guard.py")
     arms = {arm: treatment.arm_manifest(arm, common=common, instructions_text=treatment.frozen_bytes("instructions"),
-                                        guard_impl_sha256=guard_sha) for arm in contracts.ARMS}
+                                        guard_impl_sha256=guard_implementation_sha256()) for arm in contracts.ARMS}
     diff = treatment.treatment_diff(arms)
     require(diff["ok"], f"treatment diff failed: {diff['violations']}")
     return arms
@@ -528,17 +659,127 @@ def _budget(overrides, runs) -> dict:
 # ---------------------------------------------------------------- build
 
 def build_synthetic_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed, subjects_root, source=None,
-                             budget=None, sandbox="seatbelt", extra_forbidden_roots=()) -> Path:
+                             budget=None, sandbox="seatbelt", extra_forbidden_roots=(), tasks=None) -> Path:
     """Freeze a synthetic fake-host campaign at <store>/synthetic/<campaign_id>/; return its directory.
 
     ``source`` defaults to the checkout's git HEAD and tracked-file dirtiness; an explicit
     {git_commit, dirty} must equal it when git can read the checkout. ``budget`` overrides
     DEFAULT_BUDGET fields (global caps default to runs x per-run caps). ``sandbox`` is
-    ``seatbelt`` or ``none_test_only`` (recorded in the host config and every run.json). The
-    campaign is assembled under a temporary directory in the namespace and renamed into place
-    only after it loads (profile, separation and code checks included); on any failure nothing
+    ``seatbelt`` or ``none_test_only`` (recorded in the host config and every run.json). ``tasks``
+    (default: every family task) selects the v1 tasks, kept in family-index order; the family stays
+    whole. The campaign is assembled under a temporary directory in the namespace and renamed into
+    place only after it loads (profile, separation and code checks included); on any failure nothing
     remains and the campaign id stays free.
     """
+    return _build_campaign(store, campaign_id=campaign_id, created_utc=created_utc, seeds=seeds,
+                           schedule_seed=schedule_seed, subjects_root=subjects_root, tasks=tasks, sandbox=sandbox,
+                           budget=budget, make_host=fake_host, authorization=dict(SYNTHETIC_AUTHORIZATION),
+                           approval_record=None, host_launch=None, source=source,
+                           extra_forbidden_roots=extra_forbidden_roots)
+
+
+def _select_tasks(index, tasks) -> list:
+    """The requested task ids in bank-index order (every task of a runnable family when ``tasks`` is None: since WP12
+    plan steps 8-9 the whole 12-task bank). A task of a family outside the bank's ``runnable_families`` (one with no
+    evaluator profile or fake behaviours, registry.RUNNABLE_FAMILIES) is never scheduled; the frozen bank still
+    holds it."""
+    runnable = [t["task_id"] for t in index["tasks"] if t["family"] in index["runnable_families"]]
+    if tasks is None:
+        return runnable
+    require(isinstance(tasks, (list, tuple)) and tasks and all(isinstance(t, str) for t in tasks),
+            "tasks: a nonempty list of task ids")
+    require(len(set(tasks)) == len(tasks), f"tasks: duplicate task ids in {list(tasks)}")
+    ids = [t["task_id"] for t in index["tasks"]]
+    unknown = sorted(set(tasks) - set(ids))
+    require(not unknown, f"tasks: {unknown} are not tasks of the family index {ids}")
+    held = sorted(set(tasks) - set(runnable))
+    require(not held, f"tasks: {held} belong to families no campaign may run yet (runnable: "
+                      f"{index['runnable_families']}; a family needs its evaluator profile and fake behaviours)")
+    return [t for t in ids if t in set(tasks)]
+
+
+def _pinned_binary_problems(pin, host_launch, forbidden) -> list:
+    """The pinned binary as a real host's campaign must hold it (smoke spec WI-1 step 4, R2, R17): its resolved
+    path, outside every forbidden root and naming no arm; a regular file (never a symlink) with the pinned sha256;
+    read-only (no write bit) in a directory owned by this user without write bits (a harness-owned 0555 copy),
+    or the inner binary of a copied, read-only .app bundle whose parent directory has no write bits either (so the
+    bundle cannot be swapped by a rename: only the inner binary's sha256 is rechecked at each launch); the
+    host_launch binary access naming exactly it."""
+    executable, problems = pin.executable, []
+    real = os.path.realpath(executable)
+    if real != executable:
+        return [f"pin: {executable} resolves to {real}; pin the resolved path of the harness-owned copy"]
+    for root in forbidden:
+        if _within(real, root) or _within(root, real):
+            problems.append(f"pin: {real} overlaps forbidden root {root}")
+    terms = treatment.arm_identifying_terms(real)
+    if terms:
+        problems.append(f"pin: the path names {terms}; a subject-visible path may not identify an arm")
+    try:
+        info = os.lstat(real)
+    except OSError as exc:
+        return problems + [f"pin: {real} cannot be inspected ({exc.strerror})"]
+    if not stat.S_ISREG(info.st_mode):
+        return problems + [f"pin: {real} is not a regular file"]
+    if info.st_mode & 0o222:
+        problems.append(f"pin: {real} is writable (mode {stat.S_IMODE(info.st_mode):04o}); make the copy read-only")
+    access = host_launch["binary_access"]
+    app = next(iter(access["read_roots"]), None)
+    owned = [Path(real).parent] if app is None else [Path(app).parent, Path(app), Path(app) / "Contents",
+                                                     Path(real).parent]
+    for directory in owned:
+        try:
+            state = os.lstat(directory)
+        except OSError as exc:
+            problems.append(f"pin: {directory} cannot be inspected ({exc.strerror})")
+            continue
+        if stat.S_ISLNK(state.st_mode) or state.st_uid != os.getuid() or state.st_mode & 0o222:
+            problems.append(f"pin: {directory} must be a real directory owned by this user without write bits "
+                            f"(mode {stat.S_IMODE(state.st_mode):04o}): a harness-owned read-only copy")
+    if app is None and access["read_literals"] != [real]:
+        problems.append(f"host_launch.binary_access.read_literals {access['read_literals']} is not the pin {real}")
+    if app is not None and not _within(real, app):
+        problems.append(f"host_launch.binary_access.read_roots {access['read_roots']} does not hold the pin {real}")
+    if not problems and canonical.sha256_file(real) != pin.executable_sha256:
+        problems.append(f"pin: {real} does not have the pinned sha256 {pin.executable_sha256}")
+    return problems
+
+
+def _verify_pin(pin, host_launch) -> dict:
+    """verify_host of the pin (sha256 and ``--version``, run with the adapter's isolation environment in a
+    throwaway directory), then its code signature (hardened runtime and no get-task-allow: the profile's
+    same-sandbox task-port allowance is safe only with a binary the kernel protects, E-90), then the byte check
+    that the binary knows the model id (R2, necessary only)."""
+    from . import live
+    from .adapters import base as adapter_base, claude_cli
+    pins = host_launch["claude"]["env_pins"]
+    identity = adapter_base.verify_host(pin.executable, expected_version=pin.version,
+                                        expected_sha256=pin.executable_sha256,
+                                        version_pattern=claude_cli.VERSION_PATTERN,
+                                        env_for=lambda tmp: {"PATH": "/usr/bin:/bin", "HOME": tmp,
+                                                             "CLAUDE_CONFIG_DIR": tmp, **claude_cli.ISOLATION_ENV,
+                                                             **pins})
+    signature = live.code_signature(pin.executable)
+    require(not signature["problems"], "pin: its code signature does not protect the host process: "
+                                       + "; ".join(signature["problems"]))
+    require(live.model_in_binary(pin.executable, pin.model),
+            f"pin: the model id {pin.model!r} does not appear in the pinned binary; this pin cannot serve that model "
+            "(smoke spec §1.1: choose the pin and the model together)")
+    return identity
+
+
+def _build_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed, subjects_root, tasks, sandbox, budget,
+                    make_host, authorization, approval_record, host_launch, source, extra_forbidden_roots,
+                    pin=None, approval=None) -> Path:
+    """The one campaign builder (smoke spec WI-1). ``make_host(subject_python, environment_sha256, sandbox)``
+    returns the §4.2 host configuration. A real host (``host_launch``, ``pin`` and ``approval`` given) adds, in
+    order: the credential directory to the forbidden roots; both subject-visible roots checked and created 0700
+    exclusively or verified (R17); the pinned binary checked, verified and searched for the model id (R2); the
+    real-host profile built with placeholder ports; the approval checked against the finished spec, caps and
+    host (live.approval_problems); the host binding written once from the runtime adapter (R20); the self-check;
+    the ledger claim, whose line is removed again if the rename fails (R9). Every failure leaves nothing behind:
+    no campaign directory, no ledger line and no root this build created."""
+    from . import live
     require(sandbox in contracts.SANDBOXES, f"sandbox: expected one of {list(contracts.SANDBOXES)}")
     require(isinstance(campaign_id, str) and contracts.SAFE_ID.fullmatch(campaign_id) is not None,
             f"campaign_id: must match {contracts.SAFE_ID.pattern}")
@@ -546,48 +787,94 @@ def build_synthetic_campaign(store, *, campaign_id, created_utc, seeds, schedule
     require(store.is_absolute(), f"store: absolute path required, got {store}")
     target = store / "synthetic" / campaign_id
     require(not os.path.lexists(target), f"refusing to overwrite existing campaign directory {target}")
-    forbidden = forbidden_roots(store, extra_forbidden_roots)
+    real = host_launch is not None
+    require(real == (pin is not None) == (approval is not None),
+            "a real host's campaign needs its host_launch, its pin and its approval together")
+    require(not real or sandbox == "seatbelt", "a real host runs only under the Seatbelt sandbox")
+    state_root = None
+    if real:
+        contracts.validate_host_launch(host_launch)
+        credential_dir = os.path.dirname(host_launch["credential"]["file"])
+        forbidden = forbidden_roots(store, [*extra_forbidden_roots, credential_dir])
+    else:
+        forbidden = forbidden_roots(store, extra_forbidden_roots)
     subjects = check_subjects_root(subjects_root, forbidden)
+    if real:
+        state_root = check_subject_visible_root(host_launch["host_state_root"], forbidden, "host_state_root")
+        require(not (_within(str(state_root), str(subjects)) or _within(str(subjects), str(state_root))),
+                f"host_state_root {state_root} and subjects_root {subjects} must be disjoint")
+        problems = _pinned_binary_problems(pin, host_launch, forbidden)
+        require(not problems, "; ".join(problems))
+        _verify_pin(pin, host_launch)
     subject_python, subject_prefix = subject_interpreter()
     # Fail fast, before any family build or interpreter probe, and in every sandbox mode.
-    isolation.seatbelt_profile(launch_policy(workspace=subjects / PLACEHOLDER_HANDLE, subject_prefix=subject_prefix,
-                                             forbidden=forbidden, port=1))
+    isolation.seatbelt_profile(launch_policy(
+        workspace=subjects / PLACEHOLDER_HANDLE, subject_prefix=subject_prefix, forbidden=forbidden,
+        port=PLACEHOLDER_PORTS[0], extra_ports=PLACEHOLDER_PORTS[1:] if real else (),
+        host_access=host_access(host_launch, state_root / PLACEHOLDER_HANDLE) if real else None))
     stage_python = os.path.abspath(sys.executable)
     stage_env = stage_environment()
-    environment = environment_manifest(subject_python=subject_python, stage_python=stage_python,
-                                       stage_env=stage_env, sandbox=sandbox)
-    host = fake_host(subject_python, canonical.digest(environment), sandbox)
     source = _source(source)
     arms = arm_manifests(stage_python)
     namespace = store / "synthetic"
     namespace.mkdir(parents=True, exist_ok=True)
+    created = []
     build = Path(tempfile.mkdtemp(prefix=f".{campaign_id}.build-", dir=namespace))
     try:
-        index = family.build_family(build / "family")
-        definitions, tasks = [], []   # v1 tasks in family index order, tolerance from each definition
+        if real:
+            for path, label in ((subjects, "subjects_root"), (state_root, "host_state_root")):
+                if prepare_host_root(path, label):
+                    created.append(path)
+        # the task bank: every registered family under one canary, each definition recording this campaign's
+        # per-run task budget and the operations the broker serves (checked again below)
+        require(registry.CAMPAIGN_OPERATIONS == tuple(sorted(BROKER_OPERATIONS)),
+                f"registry.CAMPAIGN_OPERATIONS {list(registry.CAMPAIGN_OPERATIONS)} are not the broker's operations "
+                f"{sorted(BROKER_OPERATIONS)}")
+        per_run = _budget(budget, 1)
+        task_budget = {name: per_run[name] for name in registry.TASK_BUDGET_FIELDS}
+        index = registry.build_bank(build / "family", budget=task_budget)
+        definitions, v1_tasks = {}, {}   # every bank task, keyed by id, in bank index order
         require(len(index["tasks"]) == len(index["v1_tasks"]), "family index: tasks and v1_tasks differ in length")
         for entry, v1_task in zip(index["tasks"], index["v1_tasks"]):
             data = (build / "family" / entry["definition_path"]).read_bytes()
             require(canonical.sha256_bytes(data) == entry["definition_sha256"], f"{entry['task_id']}: definition hash")
             definition = canonical.strict_loads(data.decode())
+            require(definition["schema_version"] == 2
+                    and canonical.canonical_bytes(definition["budget"]) == canonical.canonical_bytes(task_budget)
+                    and definition["allowed_operations"] == sorted(BROKER_OPERATIONS),
+                    f"{entry['task_id']}: a bank definition records this campaign's task budget and the broker's "
+                    "operations")
             task = {"id": definition["task_id"], "expected": definition["expected"],
                     "prompt_sha256": definition["prompt_sha256"], "oracle_sha256": definition["oracle_sha256"],
                     "fidelity_tolerance": definition["fidelity"]["tolerance"]}
             require(canonical.canonical_bytes(task) == canonical.canonical_bytes(v1_task),
                     f"{entry['task_id']}: family index v1 task differs from its definition")
-            definitions.append(definition)
-            tasks.append(task)
-        limits = _budget(budget, len(tasks) * len(seeds) * len(contracts.ARMS))
+            definitions[task["id"]], v1_tasks[task["id"]] = definition, task
+        selected = _select_tasks(index, tasks)
+        environment = environment_manifest(subject_python=subject_python, stage_python=stage_python,
+                                           stage_env=stage_env, sandbox=sandbox, host_launch=host_launch,
+                                           family_index_sha256=canonical.sha256_file(build / "family" / "index.json"))
+        host = make_host(subject_python, canonical.digest(environment), sandbox)
+        limits = _budget(budget, len(selected) * len(seeds) * len(contracts.ARMS))
+        if real:
+            model, runtime = campaign_manifest.spec_identity("synthetic", host)
+        else:
+            model = SYNTHETIC_MODEL
+            runtime = f"{campaign_manifest.SYNTHETIC_LABEL} {campaign_manifest.runtime_label(host)}"
         spec = {"experiment_id": campaign_id, "protocol_sha256": canonical.sha256_file(PROTOCOL),
                 "code_commit": source["git_commit"], "environment_sha256": host["environment_manifest_sha256"],
-                "model": SYNTHETIC_MODEL,
-                "runtime": f"{campaign_manifest.SYNTHETIC_LABEL} {campaign_manifest.runtime_label(host)}",
-                "schedule_seed": schedule_seed, "seeds": list(seeds), "tasks": tasks,
+                "model": model, "runtime": runtime, "schedule_seed": schedule_seed, "seeds": list(seeds),
+                "tasks": [v1_tasks[t] for t in selected],
                 "budget": {"usd_per_run": limits["usd_per_run"], "seconds_per_run": limits["seconds_per_run"]}}
+        if real:
+            problems = live.approval_problems(approval, spec=spec, host=pin.fields(), budget=limits,
+                                              arms=list(contracts.ARMS), ledger=live.read_approval_ledger())
+            require(not problems, "the approval does not authorize this campaign: " + "; ".join(problems))
         staged = campaign_manifest.write_campaign(   # <build>/synthetic/<campaign_id>: verify checks the names
-            build, kind="synthetic", campaign_id=campaign_id, spec=spec, host=host, arms=arms, tasks=definitions,
-            budget=limits, authorization=dict(SYNTHETIC_AUTHORIZATION), created_utc=created_utc, source=source,
-            interpreter=campaign_manifest.interpreter_record(stage_python), subjects_root=subjects_root)
+            build, kind="synthetic", campaign_id=campaign_id, spec=spec, host=host, arms=arms,
+            tasks=[definitions[t] for t in selected], budget=limits, authorization=authorization,
+            created_utc=created_utc, source=source, interpreter=campaign_manifest.interpreter_record(stage_python),
+            subjects_root=subjects_root, approval_record=approval_record)
         coordinator = staged / COORDINATOR
         coordinator.mkdir(mode=0o700)
         os.rename(build / "family", coordinator / "family")
@@ -597,13 +884,32 @@ def build_synthetic_campaign(store, *, campaign_id, created_utc, seeds, schedule
         canonical.write_once(coordinator / "environment.json", _pretty(environment))
         config = {"schema_version": 1, "checkout": str(CHECKOUT), "stage_python": stage_python,
                   "stage_env": stage_env, "subject_python": subject_python, "subject_prefix": subject_prefix,
-                  "sandbox": sandbox, "forbidden_roots": forbidden, "subjects_root": str(subjects)}
+                  "sandbox": sandbox, "forbidden_roots": forbidden, "subjects_root": str(subjects),
+                  "host_launch": host_launch}
         canonical.write_once(coordinator / "config.json", _pretty(config))
         canonical.write_once(coordinator / CAMPAIGN_DIGEST,
                              (canonical.sha256_file(staged / campaign_manifest.MANIFEST) + "\n").encode(), mode=0o400)
+        if real:   # R20: the binding is the runtime adapter's, written once here; every launch only compares
+            adapter = live.claude_adapter(host, host_launch, limits, state_root / PLACEHOLDER_HANDLE, launcher=None)
+            binding, problems = host_binding(adapter, host, limits, "synthetic")
+            require(not problems, "host binding: " + "; ".join(problems))
+            canonical.write_once(coordinator / HOST_BINDING, _pretty(binding))
         _Campaign(staged, check_environment=False)   # fail closed now, not at the first launch
         require(not os.path.lexists(target), f"refusing to overwrite existing campaign directory {target}")
-        os.rename(staged, target)
+        if real:
+            with live.claim_approval(approval_sha256=live.approval_digest(approval), campaign_id=campaign_id,
+                                     created_utc=created_utc):
+                require(not os.path.lexists(target), f"refusing to overwrite existing campaign directory {target}")
+                os.rename(staged, target)
+        else:
+            os.rename(staged, target)
+    except BaseException:
+        for path in reversed(created):   # only a root this build created, and only while it is still empty
+            try:
+                os.rmdir(path)
+            except OSError:
+                pass
+        raise
     finally:
         shutil.rmtree(build, ignore_errors=True)
     return target
@@ -629,18 +935,76 @@ class _Recorder:
     starts, so an interrupted launch is on record and its census can find exactly its processes. No
     launch call on record and no process start on record together prove that nothing was started."""
 
-    def __init__(self, path, journal, check=None):
+    def __init__(self, path, journal, check=None, *, credential=None, admission=None, proxy=None,
+                 remove_unattributed_ipc=True, fingerprint=None):
+        """``credential`` (a real host: ``(env_name, file)``) is the one credential exception (smoke spec WI-5):
+        after every other check the file is read (credentials.read_credential) and its value goes only into the
+        environment handed to isolation.launch; ``admission(final_env, allowed_secret_names)`` must then pass
+        (isolation.env_admission: codes only for the declared name). ``launch_call.json`` records names only. The
+        value is kept in memory for the post-run sweep until ``release()``. ``proxy``: the launch's allowlist proxy,
+        whose owner becomes the started leader and is cleared as soon as the launch returns (a later client is never
+        the owner, whoever reuses the pid). ``remove_unattributed_ipc`` is passed to isolation.launch (False for a
+        real host: M7). ``fingerprint(token bytes)``: the keyed fingerprint launch_call.json records (never a plain
+        hash), so a resume can tell whether the file it re-reads still holds the token this launch used."""
         self.path, self.journal, self.check = Path(path), Path(journal), check
+        self.credential, self.admission, self.proxy = credential, admission, proxy
+        self.fingerprint = fingerprint
+        self.remove_unattributed_ipc = remove_unattributed_ipc
+        self._needle = None
+        self.credential_failed = False
+
+    @property
+    def needle(self):
+        """The credential bytes this launch used, for the post-run sweep only (None before a launch)."""
+        return self._needle
+
+    def release(self):
+        self._needle = None
 
     def __call__(self, argv, *, cwd, env, profile, timeout_s, stdout_path, stderr_path, stdin_path=None):
         problems = self.check(list(argv), dict(env)) if self.check is not None else []
         if problems:
             raise LaunchRefused("the coordinator refused the launch call: " + "; ".join(problems))
-        canonical.write_once(self.path, _pretty({"argv": list(argv), "env_names": sorted(env), "cwd": str(cwd),
-                                                 "timeout_s": timeout_s, "profile_sha256": profile_sha256(profile)}))
-        return isolation.launch(argv, cwd=cwd, env=env, profile=profile, timeout_s=timeout_s, stdout_path=stdout_path,
-                                stderr_path=stderr_path, stdin_path=stdin_path,
-                                on_start=lambda started: _record(self.journal, "process_started", **started))
+        final_env, credential_names = dict(env), []
+        if self.credential is not None:
+            name, file = self.credential
+            if name in env:
+                raise LaunchRefused(f"the adapter set the credential variable {name} itself; only the coordinator "
+                                    "injects it")
+            try:
+                value = credentials.read_credential(file)
+            except credentials.CredentialError as exc:   # generic: never content, length or prefix
+                self.credential_failed = True
+                raise LaunchRefused(f"the host credential is unavailable: {exc}", code="credential_unavailable") \
+                    from None
+            final_env[name] = value
+            credential_names = [name]
+            if self.admission is not None:
+                checked = self.admission(final_env, frozenset(credential_names))
+                if not checked["ok"]:
+                    codes = sorted({f"{v['code']} ({v['where']})" for v in checked["violations"]})
+                    raise LaunchRefused("the launch environment failed admission: " + ", ".join(codes))
+            self._needle = value.encode("ascii")
+            del value
+        call = {"argv": list(argv), "env_names": sorted(final_env), "cwd": str(cwd), "timeout_s": timeout_s,
+                "profile_sha256": profile_sha256(profile)}
+        if self.credential is not None:
+            call["credential_env_names"] = credential_names
+            if self.fingerprint is not None:
+                call["credential_fingerprint"] = self.fingerprint(self._needle)
+        canonical.write_once(self.path, _pretty(call))
+
+        def on_start(started):
+            if self.proxy is not None:
+                self.proxy.owner_pid = started["pid"]
+            _record(self.journal, "process_started", **started)
+        try:
+            return isolation.launch(argv, cwd=cwd, env=final_env, profile=profile, timeout_s=timeout_s,
+                                    stdout_path=stdout_path, stderr_path=stderr_path, stdin_path=stdin_path,
+                                    on_start=on_start, remove_unattributed_ipc=self.remove_unattributed_ipc)
+        finally:
+            if self.proxy is not None:
+                self.proxy.owner_pid = None
 
 
 def _value_canaries(oracle) -> list:
@@ -658,6 +1022,16 @@ def fake_adapter_factory(assignment):
     """Adapter factory for the synthetic fake host: the planned behavior, the pinned subject
     interpreter and the coordinator's recording launcher."""
     return fake_adapter.FakeAdapter(assignment["behavior"], assignment["launcher"], python=assignment["python"])
+
+
+def adapter_factory_for(campaign):
+    """The campaign host's adapter factory: the fake subject's, or live.claude_factory for the Claude CLI (the
+    adapter the build-time binding was written from, R20). Another host has no factory here."""
+    if campaign.host["adapter"] == "fake":
+        return fake_adapter_factory
+    require(campaign.host["adapter"] == "claude_cli", f"no adapter factory for a {campaign.host['adapter']} host")
+    from . import live
+    return live.claude_factory(campaign)
 
 
 PLACEHOLDER_SESSION = "00000000-0000-0000-0000-000000000000"   # a real host's per-run session id in its binding
@@ -699,6 +1073,10 @@ def host_binding(adapter, host, budget, kind) -> tuple:
         problems.append(f"adapter synthetic label {getattr(adapter, 'synthetic', None)!r} differs from the "
                         f"{kind} campaign")
     ceiling, extra_env = None, {}
+    if name == "claude_cli":   # smoke spec WI-2: a per-run CLAUDE_CODE_TMPDIR (the CLI's default is /tmp) and a
+        for attribute, what in (("tmp_dir", "per-run temp directory"), ("effort", "pinned --effort")):
+            if getattr(adapter, attribute, None) is None:   # pinned effort (R14) are part of every live launch
+                problems.append(f"the claude_cli adapter has no {what} ({attribute} is None)")
     try:
         if name == "claude_cli":
             ceiling = getattr(adapter, "max_budget_usd", None)
@@ -723,7 +1101,8 @@ def host_binding(adapter, host, budget, kind) -> tuple:
 
 def _subject_files(campaign, run) -> dict:
     """The §6 subject workspace as fresh bytes (no links, no .git, no evaluator material)."""
-    files = {"request.md": campaign.request, "tools.md": campaign.tool_guide, "bin/ravel-task": campaign.client,
+    files = {"request.md": campaign.requests[run["task_id"]], "tools.md": campaign.tool_guide,
+             "bin/ravel-task": campaign.client,
              "output/": b"", "tmp/": b"", "home/": b""}
     for name, data in campaign.inputs(run["task_id"], "current").items():
         files[f"inputs/{name}"] = data
@@ -744,6 +1123,9 @@ class _Campaign:
         self.manifest = canonical.strict_loads(manifest_bytes.decode("utf-8"))
         self.registry = canonical.strict_load(self.dir / campaign_manifest.REGISTRY)
         self.spec, self.host, self.budget = self.registry["spec"], self.manifest["host"], self.manifest["budget"]
+        require(set(self.budget) == set(contracts.BUDGET_FIELDS),
+                "campaign.budget has no max_stage_executions: a campaign frozen before WP12 is verified and audited by "
+                "this checkout but run only from its own (E-24, E-151)")
         coordinator = self.dir / COORDINATOR
         self.config = canonical.strict_load(coordinator / "config.json")
         require(set(self.config) == set(CONFIG_FIELDS), f"coordinator config: fields must be {sorted(CONFIG_FIELDS)}")
@@ -754,22 +1136,41 @@ class _Campaign:
                 "a non-fake host runs only with RAVEL_EVAL_LIVE=1 and an approved campaign")
         require(self.host["sandbox"] == "seatbelt" or self.manifest["kind"] == "synthetic",
                 "sandbox none_test_only is for synthetic campaigns only")
+        require(self.host["adapter"] == "fake" or self.host["sandbox"] == "seatbelt",
+                "a real host runs only under the Seatbelt sandbox (none_test_only is for the fake host)")
+        self.host_launch = self.config["host_launch"]
+        self.real = self.host["adapter"] != "fake"
+        require((self.host_launch is not None) == self.real,
+                "coordinator config: host_launch is required for, and only for, a real host")
+        if self.real:
+            contracts.validate_host_launch(self.host_launch, "coordinator config host_launch")
         if self.host["sandbox"] == "seatbelt":
             require(isolation.sandbox_available() and isolation.census_available(),
                     "the campaign requires the Seatbelt sandbox and its census, unavailable here")
         self.environment = canonical.strict_load(coordinator / "environment.json")
         require(canonical.digest(self.environment) == self.host["environment_manifest_sha256"]
                 == self.spec["environment_sha256"], "coordinator/environment.json differs from the frozen digest")
+        self.family_dir = coordinator / "family"
+        index_sha256 = canonical.sha256_file(self.family_dir / "index.json")
+        require(canonical.canonical_bytes(self.environment.get("host_launch")) == canonical.canonical_bytes(
+            self.host_launch) and self.environment.get("family_index_sha256") == index_sha256,
+                "coordinator/environment.json does not bind this campaign's host_launch and family index (rebuild the "
+                "campaign with the current builder)")
         self._check_code(check_environment)
         self.secret = (coordinator / "campaign_secret").read_bytes()
         self.canary = (coordinator / "canary.txt").read_text().strip()
         require(len(self.secret) >= 32 and self.canary.startswith("RAVEL-EVAL-CANARY-"), "coordinator secret/canary")
-        self.family_dir = coordinator / "family"
         self.index = canonical.strict_load(self.family_dir / "index.json")
         self.tasks = {t["task_id"]: t for t in self.index["tasks"]}
-        require(list(self.tasks) == [t["id"] for t in self.spec["tasks"]], "family index tasks differ from the spec")
-        self.request = (self.family_dir / "request.md").read_bytes()
-        require(all(t["prompt_sha256"] == canonical.sha256_bytes(self.request) for t in self.spec["tasks"]),
+        spec_ids = [t["id"] for t in self.spec["tasks"]]
+        require(spec_ids and [t for t in self.tasks if t in set(spec_ids)] == spec_ids,
+                f"the spec's tasks {spec_ids} are not a subset of the family index {list(self.tasks)} in its order")
+        self.requests = {}   # task id -> its family's request.md, as the bank index lists and hashes it
+        for task_id, task in self.tasks.items():
+            data = (self.family_dir / task["request_path"]).read_bytes()
+            require(canonical.sha256_bytes(data) == task["prompt_sha256"], f"{task_id}: its request.md changed")
+            self.requests[task_id] = data
+        require(all(t["prompt_sha256"] == canonical.sha256_bytes(self.requests[t["id"]]) for t in self.spec["tasks"]),
                 "request.md differs from the prompt_sha256 the v1 spec freezes for its tasks")
         self.tool_guide = TOOL_GUIDE.read_bytes()
         self.client = materialized_client(self.config["subject_python"])
@@ -779,7 +1180,19 @@ class _Campaign:
                                       | set(forbidden_roots(self.dir.parent.parent)))
         self.subjects_root = check_subjects_root(self.manifest["storage"]["subjects_root"], self.forbidden_roots)
         require(str(self.subjects_root) == self.config["subjects_root"], "subjects_root differs from the config")
-        self._profile(self.subjects_root / PLACEHOLDER_HANDLE, 1)   # the launch policy must be buildable
+        self.host_state_root = None
+        if self.real:
+            credential_dir = os.path.realpath(os.path.dirname(self.host_launch["credential"]["file"]))
+            require(credential_dir in self.forbidden_roots,
+                    "the credential directory is not among the campaign's forbidden roots")
+            self.host_state_root = check_subject_visible_root(self.host_launch["host_state_root"],
+                                                              self.forbidden_roots, "host_state_root")
+            require(not (_within(str(self.host_state_root), str(self.subjects_root))
+                         or _within(str(self.subjects_root), str(self.host_state_root))),
+                    "host_state_root and subjects_root must be disjoint")
+        # the launch policy must be buildable (placeholder workspace, ports and host-state directory)
+        self._profile(self.subjects_root / PLACEHOLDER_HANDLE, list(PLACEHOLDER_PORTS if self.real else [1]),
+                      host_state_dir=self.host_state_dir_for(None))
         self.forbidden_sha256 = {canonical.sha256_file(self.family_dir / p)
                                  for p in self.index["path_roles"]["evaluator_private"]}
         self.forbidden_sha256 |= {canonical.sha256_file(coordinator / "canary.txt"),
@@ -787,10 +1200,12 @@ class _Campaign:
         self.family_canary = self.index.get("canary")
         require(isinstance(self.family_canary, str) and contracts.CANARY.fullmatch(self.family_canary) is not None,
                 "family index: no build canary (rebuild the campaign with the current family)")
-        self.canaries = [self.canary, self.family_canary, ORACLE_CANARY, DEFINITION_CANARY]
-        for task_id in self.tasks:
-            oracle = canonical.strict_loads(self.evaluator_files(task_id)["oracle.json"].decode())
-            self.canaries += [c for c in _value_canaries(oracle) if c not in self.canaries]
+        self.canaries = [self.canary, self.family_canary, *FIXED_CANARIES]
+        for task_id, task in self.tasks.items():
+            listed = task.get("value_canaries")
+            require(isinstance(listed, list) and all(isinstance(c, str) and c for c in listed),
+                    f"{task_id}: the bank index lists no value canaries (rebuild the campaign with the current builder)")
+            self.canaries += [c for c in listed if c not in self.canaries]
         self._check_separation()
 
     def _check_code(self, check_environment):
@@ -804,8 +1219,10 @@ class _Campaign:
         require(not problems, "frozen treatment texts: " + "; ".join(problems))
         self.texts = texts
         if check_environment:
-            environment = environment_manifest(subject_python=self.config["subject_python"], stage_python=stage_python,
-                                               stage_env=self.config["stage_env"], sandbox=self.config["sandbox"])
+            environment = environment_manifest(
+                subject_python=self.config["subject_python"], stage_python=stage_python,
+                stage_env=self.config["stage_env"], sandbox=self.config["sandbox"], host_launch=self.host_launch,
+                family_index_sha256=canonical.sha256_file(self.family_dir / "index.json"))
             require(canonical.digest(environment) == self.host["environment_manifest_sha256"],
                     "the environment differs from the frozen environment manifest")
 
@@ -823,11 +1240,16 @@ class _Campaign:
             problems.append("treatment code, kernel source or interpreter changed since the campaign was frozen")
         if self.host["adapter"] == "fake" and self.host["version"] != fake_host_version():
             problems.append("fake_subject.py changed since the campaign was frozen")
-        now = {e["path"]: e["sha256"] for e in harness_manifest()}
-        frozen = {e["path"]: e["sha256"] for e in self.environment["harness_code"]}
-        changed = sorted(p for p in set(now) | set(frozen) if now.get(p) != frozen.get(p))
-        if changed:
-            problems.append(f"harness code changed since the campaign was frozen: {changed[:10]}")
+        try:
+            now = {e["path"]: e["sha256"] for e in harness_manifest()}
+        except (ContractError, OSError) as exc:
+            now = None
+            problems.append(f"the harness code cannot be read: {exc}")
+        if now is not None:
+            frozen = {e["path"]: e["sha256"] for e in self.environment["harness_code"]}
+            changed = sorted(p for p in set(now) | set(frozen) if now.get(p) != frozen.get(p))
+            if changed:
+                problems.append(f"harness code changed since the campaign was frozen: {changed[:10]}")
         held = getattr(self, "texts", None)
         if held is not None:
             for name, data in held.items():
@@ -870,21 +1292,26 @@ class _Campaign:
         """Every fixed canary sits in its evaluator source; no subject-visible byte (workspace
         template, inputs, fake subject script, every arm's prompt) is evaluator-private or holds a
         canary."""
-        visible = {"request.md": self.request, "tools.md": self.tool_guide, "bin/ravel-task": self.client,
-                   "client source": CLIENT.read_bytes()}
+        visible = {"tools.md": self.tool_guide, "bin/ravel-task": self.client, "client source": CLIENT.read_bytes()}
         if self.host["adapter"] == "fake":
             visible["fake subject"] = fake_adapter.SUBJECT_SCRIPT.read_bytes()
         placeholder = self.subjects_root / PLACEHOLDER_HANDLE
         for task_id in self.tasks:
+            visible[f"{task_id} request.md"] = self.requests[task_id]
             for name, data in self.inputs(task_id, "current").items():
                 visible[f"{task_id} input {name}"] = data
             evaluator = self.evaluator_files(task_id)
-            require(ORACLE_CANARY.encode() in evaluator["oracle.json"], f"{task_id}: oracle canary missing")
+            kind = canonical.strict_loads(evaluator["task_definition.json"].decode("utf-8"))["oracle_kind"]
+            require(ORACLE_CANARIES[kind].encode() in evaluator["oracle.json"], f"{task_id}: oracle canary missing")
             require(DEFINITION_CANARY.encode() in evaluator["task_definition.json"], f"{task_id}: definition canary")
             for name, data in evaluator.items():
                 require(self.family_canary.encode() in data, f"{task_id}: {name} lacks the family build canary")
-        for arm in contracts.ARMS:
-            visible[f"{arm} prompt"] = self.prompt({"arm": arm}, placeholder).encode()
+        first = {}   # one task per distinct request: the prompt depends on the arm and the request only
+        for task_id, data in self.requests.items():
+            first.setdefault(data, task_id)
+        for task_id in first.values():
+            for arm in contracts.ARMS:
+                visible[f"{task_id} {arm} prompt"] = self.prompt({"arm": arm, "task_id": task_id}, placeholder).encode()
         for label, data in visible.items():
             codes = self.leaks(data)
             require(not codes, f"subject-visible {label}: evaluator material ({', '.join(codes)})")
@@ -897,6 +1324,23 @@ class _Campaign:
             require(canonical.sha256_bytes(data) == entry["sha256"], f"{task_id}: {side} input {name} changed")
             result[name] = data
         return result
+
+    def definition(self, task_id) -> dict:
+        """The task's frozen definition (verified against the index): the coordinator reads its input kinds and prior
+        recipe to set up the broker; nothing of it reaches the subject but the prior artifacts the recipe makes."""
+        return canonical.strict_loads(self.evaluator_files(task_id)["task_definition.json"].decode("utf-8"))
+
+    def broker_inputs(self, task_id) -> dict:
+        """{current, prior}: {registry input kind: bytes} of the task's inputs, named by kind as its definition lists
+        them (input names may have subdirectories: sample/, archive/)."""
+        definition = self.definition(task_id)
+        by_side = {}
+        for side, key in (("current", "inputs"), ("prior", "prior_inputs")):
+            kinds = {item["name"]: item["kind"] for item in definition[key]}
+            files = self.inputs(task_id, side)
+            require(set(files) == set(kinds), f"{task_id}: {side} inputs differ from the definition's")
+            by_side[side] = {kinds[name]: data for name, data in files.items()}
+        return by_side
 
     def evaluator_files(self, task_id) -> dict:
         task = self.tasks[task_id]
@@ -916,11 +1360,13 @@ class _Campaign:
     def prompt(self, run, ws) -> str:
         """The run's prompt, rendered from the frozen texts verified at load (never re-read from disk)."""
         policy = RESOURCE_POLICY.format(ops=self.budget["max_broker_ops"], fits=self.budget["max_fits"],
+                                        stages=self.budget["max_stage_executions"],
                                         seconds=self.budget["seconds_per_run"])
         included = self.manifest["arms"][run["arm"]]["instructions"]["included"]
         return treatment.render_prompt(
             self.texts["envelope"], treatment.SEPARATOR + self.texts["instructions"] if included else None,
-            request_text=self.request.decode("utf-8").strip(), input_root=str(ws), output_root=str(ws / "output"),
+            request_text=self.requests[run["task_id"]].decode("utf-8").strip(), input_root=str(ws),
+            output_root=str(ws / "output"),
             resource_policy=policy)
 
     def plan(self, behavior_plan):
@@ -960,6 +1406,29 @@ class _Campaign:
         usd, seconds = self.spent_exact()
         return {"usd": float(usd), "seconds": float(seconds)}
 
+    def credential_fingerprint(self, token: bytes) -> str:
+        """The keyed fingerprint of a credential (HMAC-SHA256 under coordinator/campaign_secret, which is never
+        sealed): it tells a resume whether the file still holds the token a launch used, and is no check value for
+        anyone without the campaign secret (never a plain hash of a retained secret)."""
+        return credentials.keyed_digest(self.secret, token, credentials.FINGERPRINT_PURPOSE)
+
+    def redaction_digest(self, data: bytes) -> str:
+        """The keyed digest a redaction record keeps of the bytes before redaction (audit.py recomputes it with the
+        campaign secret to find sealed pre-redaction bytes); never a plain hash of token-bearing bytes."""
+        return credentials.keyed_digest(self.secret, data, credentials.REDACTION_PURPOSE)
+
+    def open_launches(self, exclude=None) -> list:
+        """The run ids whose journal records a launch (``launched``) without a closing record: lost launches not yet
+        resumed. Global admission charges each at the per-run caps until its resume charges it (E-79)."""
+        found = []
+        for run in self.registry["runs"]:
+            if run["run_id"] == exclude:
+                continue
+            states = {r["state"] for r in read_journal(self.run_dir(run["run_id"]) / "journal.jsonl")}
+            if "launched" in states and not states & {"exited", "interrupted_crash", "not_started"}:
+                found.append(run["run_id"])
+        return found
+
     def charge(self, usd, provenance, seconds) -> dict:
         """Unknown cost or time is charged at the per-run cap, never zero. Only a fake-host run costs 0
         (provenance none_synthetic); none_synthetic from any other host counts as unknown."""
@@ -975,6 +1444,13 @@ class _Campaign:
             seconds, seconds_basis = float(self.budget["seconds_per_run"]), "per_run_cap_unknown"
         return {"usd": usd, "usd_basis": usd_basis, "seconds": seconds, "seconds_basis": seconds_basis}
 
+    def host_state_dir_for(self, run_id):
+        """A real host's per-run state directory ``<host_state_root>/<opaque handle>`` (run_id None: the placeholder
+        the build- and load-time profile checks use); None for the fake host."""
+        if not self.real:
+            return None
+        return self.host_state_root / (PLACEHOLDER_HANDLE if run_id is None else self.opaque(run_id))
+
     # -- one assignment
     def process(self, run, plan, plan_sha, factory) -> dict:
         rid = run["run_id"]
@@ -986,6 +1462,19 @@ class _Campaign:
         if records:
             return self._resume(run, records)
         return self._start(run, plan, plan_sha, factory)
+
+    def close_stopped(self, run, stop) -> dict:
+        """Close one assignment under a stop (smoke spec §4): a sealed run is skipped, a run the journal already
+        opened is resumed as usual (a lost launch stays a lost launch), and an untouched one is closed not_started
+        with charge 0 after its evaluator files are copied, so every assignment keeps a v1 row. Never launches."""
+        rid = run["run_id"]
+        records = read_journal(self.run_dir(rid) / "journal.jsonl")
+        if any(r["state"] == "sealed" for r in records):
+            return {"run_id": rid, "action": "skipped", "evidence_sha256": sealed_evidence(self.run_dir(rid))}
+        self._copy_evaluator(run)
+        if records:
+            return self._resume(run, records)
+        return self._not_started(run, STOPPED_REASON.format(rule=stop["rule"], reason=stop["reason"]), code="stopped")
 
     def _copy_evaluator(self, run):
         target = self.dir / "evaluator" / run["run_id"]
@@ -1004,104 +1493,177 @@ class _Campaign:
         assignment = {"adapter": self.host["adapter"], "behavior": behavior, "behavior_plan_sha256": plan_sha}
         opaque = self.opaque(rid)
         ws = self.subjects_root / opaque
+        state = self.host_state_dir_for(rid)
         try:
             files = _subject_files(self, run)
             self.subjects_root.mkdir(mode=0o700, parents=True, exist_ok=True)
+            if self.real:   # both roots were created 0700 at build; verified again before anything goes in
+                for root, label in ((self.subjects_root, "subjects_root"), (self.host_state_root, "host_state_root")):
+                    problem = host_root_problem(root)
+                    require(problem is None, f"{label}: {problem}")
             isolation.materialize(files, ws)
+            if state is not None:
+                os.mkdir(state, 0o700)   # fresh: a leftover from an earlier attempt is refused, never reused
         except (ContractError, OSError) as exc:
             reason = f"subject workspace materialization failed: {exc}"
             _record(journal, "admission_failed", stage="materialization", reason=reason, **assignment)
-            return self._not_started(run, reason)
+            return self._not_started(run, reason, code="materialization")
         _record(journal, "materialized", opaque_handle=opaque, subject_root=str(ws),
                 workspace_files={n: canonical.sha256_bytes(d) for n, d in sorted(files.items()) if not n.endswith("/")},
                 evaluator_files={n: canonical.sha256_bytes(d) for n, d in self.evaluator_files(run["task_id"]).items()},
-                campaign_sha256=self.campaign_sha256, **assignment)
+                campaign_sha256=self.campaign_sha256,
+                **({"host_state_dir": str(state)} if state is not None else {}), **assignment)
         check = self._admit(ws, {})
         if not check["ok"]:
             reason = "admission check failed (workspace): " + ", ".join(
                 sorted({v["code"] for v in check["violations"]}))
             _record(journal, "admission_failed", stage="workspace", reason=reason, violations=check["violations"])
-            return self._not_started(run, reason)
+            return self._not_started(run, reason, code="admission")
         # §10: global budget admission after the admission check, in exact decimals (a campaign sized to
-        # N runs at the cap admits all N; float sums would refuse the last one).
+        # N runs at the cap admits all N; float sums would refuse the last one). A real host's launch that is on
+        # record but not closed (a lost launch not yet resumed) counts at the per-run caps (E-79).
         (usd, seconds), b = self.spent_exact(), self.budget
+        if self.real:
+            open_launches = self.open_launches(exclude=rid)
+            usd += exact(b["usd_per_run"]) * len(open_launches)
+            seconds += exact(b["seconds_per_run"]) * len(open_launches)
         remaining = {"usd": exact(b["global_usd_cap"]) - usd, "seconds": exact(b["global_seconds_cap"]) - seconds}
         if remaining["usd"] < exact(b["usd_per_run"]) or remaining["seconds"] < exact(b["seconds_per_run"]):
             reason = (f"global budget admission: remaining {remaining['usd']:f} USD / {remaining['seconds']:f} s is "
                       f"below the per-run cap {b['usd_per_run']:g} USD / {b['seconds_per_run']:g} s")
             _record(journal, "admission_failed", stage="global_budget", reason=reason,
                     spent={"usd": float(usd), "seconds": float(seconds)})
-            return self._not_started(run, reason)
+            return self._not_started(run, reason, code="global_budget")
         try:
             broker, handles = self._broker(run)
         except Exception as exc:   # kernel probe or prior stages: fail closed, the subject never runs
             reason = f"broker preparation failed: {type(exc).__name__}: {exc}"
             _record(journal, "admission_failed", stage="broker", reason=reason)
-            return self._not_started(run, reason)
-        stop_error = None
-        try:
-            kind, value = self._serve(run, ws, broker, handles, behavior, assignment, factory)
-        finally:
+            return self._not_started(run, reason, code="broker_preparation")
+        proxy = None
+        if self.real:   # WI-4: one proxy per launch, in this process; it serves only the launch's leader
+            from . import live
+            proxy = allowlist_proxy.AllowlistProxy(self.host_launch["proxy"]["allow"],
+                                                   log_path=self.run_dir(rid) / "host" / "proxy.jsonl")
+            proxy.owner_check = lambda address: live.socket_owned_by(proxy.owner_pid, address[1], proxy.port)
             try:
-                broker.stop()
+                proxy.start()
+            except OSError as exc:
+                reason = f"proxy start failed: {type(exc).__name__}: {exc}"
+                _record(journal, "admission_failed", stage="proxy", reason=reason)
+                return self._not_started(run, reason, code="proxy_start_failed")
+        stop_error, summary, box, broker_seconds = None, None, {}, None
+        try:
+            kind, value, code = self._serve(run, ws, broker, handles, behavior, assignment, factory, proxy=proxy,
+                                            state=state, box=box)
+        finally:
+            if proxy is not None:   # first: the host is gone, so nothing may reach the proxy while the broker drains
+                proxy.owner_pid = None
+                proxy.stop()        # joins its handlers (bounded) before its log is summarized and sealed
+                summary = proxy_summary(proxy.decisions, stop_error=proxy.stop_error,
+                                        late=proxy.late_decisions)
+            began = time.monotonic()
+            try:
+                broker.stop()       # may wait up to broker.STOP_SECONDS for a stage call in progress
             except RuntimeError as exc:
                 stop_error = str(exc)
-        extra = {"broker_stop_error": stop_error} if stop_error else {}
-        if kind == "not_started":
-            return self._not_started(run, value, **extra)
-        drift = self._code_problems()   # verified before the launch: the same code must be there after it
-        if drift:
-            extra["code_drift"] = drift
-        if kind == "adapter_error":
-            return self._crash(run, "adapter_error", error=value, **extra)
-        result = value.as_dict()
-        canonical.write_once(self.run_dir(rid) / "host" / "adapter_result.json", _pretty(result))
-        charge = self.charge(result["cost"]["usd"], result["cost"]["provenance"], result["wall_seconds"])
-        _record(journal, "exited", status_hint=result["status_hint"], exit_code=result["exit_code"],
-                wall_seconds=result["wall_seconds"], cost=result["cost"], validity=result["validity"], charge=charge,
-                **extra)
-        return self._seal(run)
+            broker_seconds = round(time.monotonic() - began, 3)
+        recorder = box.get("recorder")
+        try:
+            extra = {"broker_stop_error": stop_error} if stop_error else {}
+            if self.real:
+                extra["broker_stop_seconds"] = broker_seconds
+            if summary is not None:
+                extra["proxy"] = summary
+            if kind == "not_started":
+                return self._not_started(run, value, code=code, **extra)
+            data = None
+            if kind == "exited":
+                result = value.as_dict()
+                data = _pretty(result)
+            if self.real:   # before anything is written or sealed: redact, sweep, check (WI-5, WI-7b)
+                needle = recorder.needle if recorder is not None else None
+                post, data = self._post_run(run, ws, state, needle, data, summary)
+                extra.update(post)
+                if kind == "adapter_error" and needle is not None:
+                    value = credentials.redact_value(value, needle)[0]
+            if kind == "adapter_error":
+                extra.update(self._post_run_drift())
+                return self._crash(run, "adapter_error", error=value, **extra)
+            canonical.write_once(self.run_dir(rid) / "host" / "adapter_result.json", data)   # M2: the paid result
+            extra.update(self._post_run_drift())   # first, then the drift check (which never raises)
+            charge = self.charge(result["cost"]["usd"], result["cost"]["provenance"], result["wall_seconds"])
+            _record(journal, "exited", status_hint=result["status_hint"], exit_code=result["exit_code"],
+                    wall_seconds=result["wall_seconds"], cost=result["cost"], validity=result["validity"],
+                    charge=charge, **extra)
+            return self._seal(run)
+        finally:
+            if recorder is not None:
+                recorder.release()
+
+    def _post_run_drift(self) -> dict:
+        """M2: the post-run drift check, total: {"code_drift": problems} or {}; an exception is itself a drift
+        entry, never a lost result."""
+        try:
+            drift = self._code_problems()
+        except Exception as exc:   # noqa: BLE001 - the run already happened and was paid for
+            drift = [f"post-run drift check failed: {type(exc).__name__}: {exc}"]
+        return {"code_drift": drift} if drift else {}
 
     def _broker(self, run):
         guard = self.manifest["arms"][run["arm"]]["guard"]
         broker = Broker(self.dir / "broker" / run["run_id"], guard_mode=guard["mode"], feedback=guard["feedback"],
-                        budgets={"max_broker_ops": self.budget["max_broker_ops"], "max_fits": self.budget["max_fits"]},
+                        budgets={name: self.budget[name] for name in BROKER_BUDGET},
                         python=self.config["stage_python"], env=self.config["stage_env"],
                         secret=secrets.token_bytes(32))
-        by_kind = {side: {INPUT_KINDS[n]: d for n, d in self.inputs(run["task_id"], side).items()}
-                   for side in ("current", "prior")}
+        by_kind = self.broker_inputs(run["task_id"])
         current = broker.register_inputs(by_kind["current"])
-        prior = broker.create_prior(by_kind["prior"])
+        prior = broker.create_prior(by_kind["prior"], recipe=self.definition(run["task_id"])["prior_recipe"])
         return broker, {"current": current, "prior": prior}
 
-    def _profile(self, ws, port):
-        """The Seatbelt profile (None for none_test_only, whose policy inputs are still validated)."""
+    def _profile(self, ws, ports, host_state_dir=None):
+        """The Seatbelt profile (None for none_test_only, whose policy inputs are still validated). ``ports``: the
+        broker port, or [broker, proxy] for a real host, whose policy adds its host access (``host_state_dir``)."""
+        ports = [ports] if isinstance(ports, int) else list(ports)
+        access = host_access(self.host_launch, host_state_dir) if self.real else None
         policy = launch_policy(workspace=ws, subject_prefix=self.config["subject_prefix"],
-                               forbidden=self.forbidden_roots, port=port)
+                               forbidden=self.forbidden_roots, port=ports[0], extra_ports=ports[1:],
+                               host_access=access)
         return isolation.seatbelt_profile(policy) if self.host["sandbox"] == "seatbelt" else None
 
     def _admit(self, ws, env):
         return isolation.admission_check(ws, forbidden_sha256=self.forbidden_sha256, canaries=self.canaries, env=env,
                                          forbidden_roots=self.forbidden_roots)
 
-    def _serve(self, run, ws, broker, handles, behavior, assignment, factory):
+    def _serve(self, run, ws, broker, handles, behavior, assignment, factory, *, proxy=None, state=None, box=None):
         """Start the broker, admit the launch environment and prompt, re-verify what the run receives
-        against the frozen campaign, bind the host, launch. Returns (kind, value)."""
+        against the frozen campaign, bind the host, launch. Returns (kind, value, not_started code).
+
+        A real host's environment adds the proxy variables (coordinator environment: never bound, never the
+        adapter's to change) and puts the subject interpreter's directory first on PATH (E-49); its profile
+        reaches the broker and its proxy and grants its host access; its recording launcher checks the exact
+        call against the build-time binding (M6), injects the credential and hands the proxy its owner."""
         rid = run["run_id"]
         journal, host_dir = self.run_dir(rid) / "journal.jsonl", self.run_dir(rid) / "host"
         endpoint, token = broker.start()
         parts = urllib.parse.urlsplit(endpoint)
         require(parts.scheme == "http" and parts.hostname == "127.0.0.1" and parts.port,
                 f"broker endpoint is not 127.0.0.1: {endpoint}")
-        env = isolation.subject_env(workspace=ws, home=ws / "home", path_dirs=["/usr/bin", "/bin", str(ws / "bin")],
-                                    extra={"RAVEL_TASK_ENDPOINT": endpoint, "RAVEL_TASK_TOKEN": token})
+        extra, path_dirs, ports = {"RAVEL_TASK_ENDPOINT": endpoint, "RAVEL_TASK_TOKEN": token}, \
+            ["/usr/bin", "/bin", str(ws / "bin")], [parts.port]
+        if self.real:
+            url, no_proxy = f"http://127.0.0.1:{proxy.port}", self.host_launch["proxy"]["no_proxy"]
+            extra.update({"HTTPS_PROXY": url, "https_proxy": url, "NO_PROXY": no_proxy, "no_proxy": no_proxy})
+            path_dirs.insert(0, os.path.dirname(self.config["subject_python"]))
+            ports.append(proxy.port)
+        env = isolation.subject_env(workspace=ws, home=ws / "home", path_dirs=path_dirs, extra=extra)
 
-        def refuse(stage, reason, **details):
+        def refuse(stage, reason, code=None, **details):
             _record(journal, "admission_failed", stage=stage, reason=reason, **details)
-            return "not_started", reason
+            return "not_started", reason, code or stage
 
         try:
-            profile = self._profile(ws, parts.port)   # after start: localhost is exactly the broker port
+            profile = self._profile(ws, ports, host_state_dir=state)   # after start: exactly the broker/proxy ports
         except ContractError as exc:
             return refuse("profile", f"admission check failed (launch profile): {exc}")
         check = self._admit(ws, env)
@@ -1117,13 +1679,29 @@ class _Campaign:
             return refuse("treatment", "treatment verification failed before the launch (the run would not "
                                        "receive the frozen treatment): " + "; ".join(problems), problems=problems)
         _record(journal, "admitted", broker_port=parts.port, current_handles=handles["current"],
-                prior_handles=handles["prior"], profile_sha256=profile_sha256(profile), verified=verified)
-        recorder = _Recorder(host_dir / "launch_call.json", journal,
-                             check=lambda argv, final_env: self._launch_call_problems(argv, final_env, env))
+                prior_handles=handles["prior"], profile_sha256=profile_sha256(profile), verified=verified,
+                **({"proxy_port": proxy.port} if proxy is not None else {}))
+        expected = {}   # M6: filled with the bound call once the host binding is checked, before adapter.run
+        credential = self.host_launch["credential"] if self.real else None
+        recorder = _Recorder(
+            host_dir / "launch_call.json", journal,
+            check=lambda argv, final_env: self._launch_call_problems(argv, final_env, env, expected=expected.get("call"),
+                                                                     require_expected=self.real),
+            credential=(credential["env_name"], credential["file"]) if credential else None,
+            admission=(lambda final_env, names: isolation.env_admission(
+                final_env, canaries=self.canaries, forbidden_roots=self.forbidden_roots,
+                allowed_secret_names=names)) if credential else None,
+            proxy=proxy, remove_unattributed_ipc=not self.real,
+            fingerprint=self.credential_fingerprint if credential else None)
+        if box is not None:
+            box["recorder"] = recorder
         # The arm is not passed: the runner resolves everything arm-dependent (the fake behavior plan),
         # so no factory can configure a host differently by arm (R0.5).
-        adapter = factory({"run_id": rid, "task_id": run["task_id"], "seed": run["seed"], "behavior": behavior,
-                           "python": self.config["subject_python"], "launcher": recorder})
+        request = {"run_id": rid, "task_id": run["task_id"], "seed": run["seed"], "behavior": behavior,
+                   "python": self.config["subject_python"], "launcher": recorder}
+        if state is not None:
+            request["host_state_dir"] = str(state)
+        adapter = factory(request)
         name = getattr(adapter, "name", None)
         require(name == self.host["adapter"], f"adapter factory returned a {name!r} adapter for a "
                                               f"{self.host['adapter']} host")
@@ -1132,31 +1710,36 @@ class _Campaign:
         if getattr(adapter, "launcher", None) is not recorder:
             return refuse("host", "the adapter does not launch through the coordinator's recording launcher, so its "
                                   "launch could not be journaled or censused")
-        binding_sha256 = None
-        if self.host["adapter"] != "fake":
+        binding_sha256, gate = None, {}
+        if self.real:
             binding, problems = self._bind_host(adapter)
             if problems:
                 return refuse("host", "host configuration differs from the campaign: " + "; ".join(problems),
-                              problems=problems)
+                              code="binding_mismatch", problems=problems)
             binding_sha256 = canonical.digest(binding)
+            expected["call"] = {"binding": binding, "per_run_env": {
+                "CLAUDE_CONFIG_DIR": str(state / HOST_STATE_SUBDIRS[0]),
+                "CLAUDE_CODE_TMPDIR": str(state / HOST_STATE_SUBDIRS[1])}}
+            gate = {"behavioral_record_sha256": getattr(self, "behavioral_sha256", None)}
         timeout = self.budget["seconds_per_run"]
         _record(journal, "launched", executor_id=executor, timeout_s=timeout, profile_sha256=profile_sha256(profile),
                 prompt_sha256=canonical.sha256_bytes(prompt.encode()), campaign_sha256=self.campaign_sha256,
-                host_binding_sha256=binding_sha256, **assignment)
+                host_binding_sha256=binding_sha256, **gate, **assignment)
         try:
             result = adapter.run(prompt=prompt, workspace=ws, env=env, profile=profile, timeout_s=timeout,
                                  out_dir=host_dir)
         except Exception as exc:  # never a retry: a lost launch if the launcher was called, else not started
             if self._launcher_called(rid):
-                return "adapter_error", f"{type(exc).__name__}: {exc}"
+                return "adapter_error", f"{type(exc).__name__}: {exc}", None
             if isinstance(exc, HostDriftError):
-                what = "host drift; the host was not launched"
+                what, code = "host drift; the host was not launched", "host_drift"
             elif isinstance(exc, LaunchRefused):
-                what = "the launch call was refused before anything started"
+                what, code = "the launch call was refused before anything started", exc.code
             else:
-                what = "the adapter failed before calling the launcher; no process was started"
-            return "not_started", f"{what}: {type(exc).__name__}: {exc}"
-        return "exited", result
+                what, code = "the adapter failed before calling the launcher; no process was started", \
+                    "adapter_before_launch"
+            return "not_started", f"{what}: {type(exc).__name__}: {exc}", code
+        return "exited", result, None
 
     def _launcher_called(self, run_id) -> bool:
         """Whether the recording launcher was ever called for this run: its launch call or a process
@@ -1182,14 +1765,15 @@ class _Campaign:
             problems.append(f"campaign.json changed since this coordinator loaded it (now sha256 {current})")
         problems += self._code_problems()
         task = next(t for t in self.spec["tasks"] if t["id"] == run["task_id"])
-        request_sha256 = canonical.sha256_bytes(self.request)
+        request = self.requests[run["task_id"]]
+        request_sha256 = canonical.sha256_bytes(request)
         if request_sha256 != task["prompt_sha256"]:
             problems.append("request.md is not the prompt_sha256 the v1 spec freezes for this task")
         if canonical.sha256_bytes(self.tool_guide) != arm["common"]["tool_guide_sha256"]:
             problems.append("the tool guide is not the one the treatment manifest binds")
         if canonical.sha256_bytes(self.client) != self.environment["materialized_client_sha256"]:
             problems.append("the client is not the one the environment manifest binds")
-        for name, data in (("request.md", self.request), ("tools.md", self.tool_guide), ("bin/ravel-task", self.client)):
+        for name, data in (("request.md", request), ("tools.md", self.tool_guide), ("bin/ravel-task", self.client)):
             path = ws / name
             if not (path.is_file() and not path.is_symlink() and path.read_bytes() == data):
                 problems.append(f"the materialized {name} differs from the frozen bytes")
@@ -1207,18 +1791,26 @@ class _Campaign:
                   "prompt_sha256": canonical.sha256_bytes(prompt.encode()), "request_sha256": request_sha256}
         return record, problems
 
-    def _launch_call_problems(self, argv, env, base_env) -> list:
+    def _launch_call_problems(self, argv, env, base_env, expected=None, require_expected=False) -> list:
         """The final launch call an adapter makes, checked by the recording launcher before anything
         starts: the coordinator's subject environment is passed on unchanged (an adapter may only add),
-        neither an added environment value nor any argv element carries evaluator material, and, for a
-        real host, no added value names an arm (the per-run directories its factory chooses, R0.5; the
+        neither an added environment value nor any argv element carries evaluator material, no added name
+        looks like a credential (isolation.SECRET_NAME: the coordinator alone injects the declared one), and,
+        for a real host, no added value names an arm (the per-run directories its factory chooses, R0.5; the
         fake host's arm-dependent behavior is the runner's own plan, and its synthetic test adapters
-        pass probe paths such as the repository's audit.py, which the arm-term scan would name)."""
+        pass probe paths such as the repository's audit.py, which the arm-term scan would name).
+
+        M6 (a real host, ``expected`` = {binding, per_run_env}): exactly one ``--session-id`` with a canonical
+        uuid, the argv equal to the binding's with that uuid replaced by the placeholder, the added names exactly
+        the binding's plus the per-run directories, each bound value and each per-run path equal to the
+        coordinator's, and none of the names that may never reach a real host anywhere in the final environment.
+        ``require_expected``: a real host's call before its binding was checked is refused."""
         problems = []
         changed = sorted(n for n, v in base_env.items() if env.get(n) != v)
         if changed:
             problems.append(f"the adapter changed or dropped coordinator environment variables {changed}")
-        for name in sorted(set(env) - set(base_env)):
+        added = sorted(set(env) - set(base_env))
+        for name in added:
             value = env[name]
             if not isinstance(value, str):
                 problems.append(f"environment variable {name} is not a string")
@@ -1228,36 +1820,46 @@ class _Campaign:
                 problems.append(f"environment variable {name} names {terms}")
             if self.leaks(value.encode()):
                 problems.append(f"environment variable {name} carries evaluator material")
+        secret = [n for n in added if isolation.SECRET_NAME.search(n)]
+        if secret:
+            problems.append(f"the adapter added credential-like variables {secret}; only the coordinator injects the "
+                            "declared credential")
         for i, element in enumerate(argv):
             if isinstance(element, str) and self.leaks(element.encode()):
                 problems.append(f"argv[{i}] carries evaluator material")
+        if require_expected and expected is None:
+            problems.append("the launch call came before the host binding was checked")
+        if expected is not None:
+            problems += _bound_call_problems(list(argv), env, set(added), expected)
         return problems
 
     def _bind_host(self, adapter) -> tuple:
-        """host_binding against the campaign, then against the binding of the campaign's first launch
-        (coordinator/host_binding.json, written once): every run launches the host identically."""
+        """host_binding against the campaign, then against the binding written at build
+        (coordinator/host_binding.json, R20): every run launches the host identically, and exactly as the
+        builder bound it. A real host's campaign without that file is refused (never bound at a launch)."""
         binding, problems = host_binding(adapter, self.host, self.budget, self.manifest["kind"])
         if problems:
             return binding, problems
         path = self.dir / COORDINATOR / HOST_BINDING
-        if os.path.lexists(path):
-            if canonical.canonical_bytes(canonical.strict_load(path)) != canonical.canonical_bytes(binding):
-                problems.append(f"the host launch differs from the campaign's first launch (coordinator/{HOST_BINDING})")
-        else:
-            canonical.write_once(path, _pretty(binding))
+        if not os.path.lexists(path):
+            problems.append(f"no host binding was written at build (coordinator/{HOST_BINDING}); rebuild the campaign")
+        elif canonical.canonical_bytes(canonical.strict_load(path)) != canonical.canonical_bytes(binding):
+            problems.append(f"the host launch differs from the binding written at build (coordinator/{HOST_BINDING})")
         return binding, problems
 
-    def _not_started(self, run, reason, **extra):
+    def _not_started(self, run, reason, code=None, **extra):
+        if code is not None:
+            extra["code"] = code
         _record(self.run_dir(run["run_id"]) / "journal.jsonl", "not_started", reason=reason,
                 charge={"usd": 0.0, "usd_basis": "not_started", "seconds": 0.0, "seconds_basis": "not_started"},
                 **extra)
         return self._seal(run)
 
-    def _crash(self, run, cause, **extra):
+    def _crash(self, run, cause, *, census=None, **extra):
         """A lost launch: census of exactly that launch, charge at the cap (unknown), journal, seal.
         Never relaunched."""
         require(cause in LOST_CAUSES, f"lost launch cause: one of {list(LOST_CAUSES)}")
-        found = self._lost_census(run["run_id"])
+        found = census if census is not None else self._lost_census(run["run_id"])
         provenance = "none_synthetic" if self.host["adapter"] == "fake" else None
         _record(self.run_dir(run["run_id"]) / "journal.jsonl", "interrupted_crash", cause=cause,
                 note=LOST_NOTES[cause], census=found, charge=self.charge(None, provenance, None), **extra)
@@ -1284,14 +1886,233 @@ class _Campaign:
             return self._seal(run)
         if "launched" in states:
             if self._launcher_called(run["run_id"]):
-                return self._crash(run, "coordinator_interrupted")
+                if not self.real:
+                    return self._crash(run, "coordinator_interrupted")
+                census = self._lost_census(run["run_id"])   # first: nothing of the launch may still be writing
+                return self._crash(run, "coordinator_interrupted", census=census, **self._resume_post_run(run))
             return self._not_started(run, "coordinator interrupted after the launch record and before the launcher "
                                           "was called (no launch call and no process start on record, so no process "
-                                          "was started); no retry under policy none")
+                                          "was started); no retry under policy none", code="interrupted_before_launch")
         if "admission_failed" in states:
-            return self._not_started(run, states["admission_failed"]["details"].get("reason") or "admission failed")
+            details = states["admission_failed"]["details"]
+            return self._not_started(run, details.get("reason") or "admission failed",
+                                     code=details.get("stage") if self.real else None)
         return self._not_started(run, f"coordinator interrupted before launch (last state {records[-1]['state']}); "
-                                      "no retry under policy none")
+                                      "no retry under policy none", code="interrupted_before_launch")
+
+    # -- a real host's post-run checks (WI-5, WI-7b, M9)
+    def _resume_post_run(self, run) -> dict:
+        """The post-run checks of a lost launch, on resume: the credential file is re-read only to sweep (R8), and
+        only when its keyed fingerprint equals the one the launch recorded (launch_call.json); a file that cannot be
+        re-read, or that now holds another token (re-minted after the launch), leaves the sweep incomplete
+        (credential_sweep_incomplete, S2), while every other post-run check still runs. The host's raw streams of such
+        a launch cannot be redacted, so they are moved out of the sealed set into ``runs/<id>/quarantine/`` (E-99:
+        journaled ``quarantined_streams``; sealed as missing, raw_streams_missing), never sealed unredacted; the
+        quarantine is deleted with the token when it is revoked. A launch whose call was never recorded never
+        received the credential: nothing to sweep."""
+        rid = run["run_id"]
+        call_path, note, needle = self.run_dir(rid) / "host" / "launch_call.json", None, None
+        call = canonical.strict_load(call_path) if call_path.is_file() and not call_path.is_symlink() else None
+        if call is not None:
+            try:
+                needle = credentials.read_credential(self.host_launch["credential"]["file"]).encode("ascii")
+            except credentials.CredentialError as exc:
+                note = f"the credential could not be re-read to sweep: {exc}"
+            else:
+                recorded = call.get("credential_fingerprint")
+                if not isinstance(recorded, str) or not hmac.compare_digest(recorded,
+                                                                            self.credential_fingerprint(needle)):
+                    needle, note = None, ("the credential file no longer holds the token this launch used (its "
+                                          "keyed fingerprint differs from the recorded one): the sweep cannot search "
+                                          "for the launch's token")
+        post, _ = self._post_run(run, self.subjects_root / self.opaque(rid), self.host_state_dir_for(rid), needle,
+                                 None, None)
+        if note is not None:
+            post["credential_sweep"] = {"clean": False, "hits": [], "incomplete": True, "redactions": 0, "note": note}
+            post["coordinator_flags"] = sorted(set(post["coordinator_flags"]) | {"credential_sweep_incomplete"})
+            post["quarantined_streams"] = self._quarantine_streams(rid)
+        return post
+
+    QUARANTINE = "quarantine"   # runs/<id>/quarantine/: unswept raw streams, outside the sealed set (E-99)
+
+    def _quarantine_streams(self, rid) -> list:
+        """Move a lost launch's raw host streams, which no sweep could search, out of runs/<id>/host/ (what the seal
+        reads) into runs/<id>/quarantine/ (mode 0700, never sealed): [names moved]."""
+        host_dir, target = self.run_dir(rid) / "host", self.run_dir(rid) / self.QUARANTINE
+        moved = []
+        for name in ("stdout.jsonl", "stderr.txt"):
+            path = host_dir / name
+            if path.is_file() and not path.is_symlink():
+                target.mkdir(mode=0o700, exist_ok=True)
+                require(not os.path.lexists(target / name), f"{rid}: quarantine/{name} already exists")
+                os.rename(path, target / name)
+                moved.append(name)
+        return moved
+
+    def _post_run(self, run, ws, state, needle, data, proxy) -> tuple:
+        """(journal details, adapter-result bytes) of a real host's run, before anything is written or sealed.
+
+        The serialized adapter result is redacted in memory first. Then, each step recorded whatever the others
+        find: the sweep of the campaign directory, the workspace and the host state for the token and its
+        encodings, every hit redacted (host/redactions.json, with the in-memory redaction); the keychain residue
+        check (LC-21); the task client's environment-name reports (LC-11); the canary scan of the host's streams
+        and state, and the host-state manifest (hang-safe capped reads, M9); the shell snapshot; the sandbox
+        denial collector; the proxy's decisions. ``coordinator_flags`` are sealed as validity flags;
+        ``info_flags`` are journaled only (outcomes, not stops)."""
+        from . import live
+        rid = run["run_id"]
+        host_dir = self.run_dir(rid) / "host"
+        flags, info, details, redactions = set(), set(), {}, []
+        if data is not None and needle is not None:
+            redacted, counts = credentials.redact_bytes(data, needle)
+            if counts:
+                redactions.append({"root": "coordinator_memory", "path": f"runs/{rid}/host/adapter_result.json",
+                                   "pre_hmac_sha256": self.redaction_digest(data),
+                                   "post_sha256": canonical.sha256_bytes(redacted), "counts_by_variant": counts})
+                data = redacted
+        try:
+            if needle is None:
+                details["credential_sweep"] = {"clean": True, "hits": [], "incomplete": False, "redactions": 0,
+                                               "note": "no credential was read for this launch: nothing to sweep"}
+            else:
+                swept = credentials.sweep({"campaign": str(self.dir), "workspace": str(ws), "host_state": str(state)},
+                                          needle, redact=True, pre_digest=self.redaction_digest)
+                redactions += swept["redactions"]
+                renames = [{"root": label, **r} for label, root in (("workspace", ws), ("host_state", state))
+                           for r in credentials.redact_names(root, needle)]   # a name the sweep cannot rewrite
+                redactions += renames
+                if any(not r["renamed"] for r in renames):
+                    swept["incomplete"] = True
+                hits = swept["hits"] + [{"root": r["root"], "path": r["path"], "where": "content",
+                                         "counts": r["counts_by_variant"]} for r in redactions
+                                        if r["root"] == "coordinator_memory"]
+                details["credential_sweep"] = {"clean": not hits and not swept["incomplete"], "hits": hits,
+                                               "incomplete": swept["incomplete"], "redactions": len(redactions),
+                                               "skipped": [s for s in swept["skipped"]
+                                                           if s["kind"] not in ("missing", "special_file")][:50],
+                                               "bytes_read": swept["bytes_read"]}
+                if hits:
+                    flags.add("credential_exposed")
+                if swept["incomplete"]:
+                    flags.add("credential_sweep_incomplete")
+            if redactions:   # a resumed run keeps what an interrupted post-run check already recorded
+                path = host_dir / REDACTIONS
+                earlier = canonical.strict_load(path) if path.is_file() and not path.is_symlink() else []
+                canonical.atomic_write_bytes(path, _pretty(earlier + redactions))
+        except Exception as exc:   # noqa: BLE001 - a sweep that fails is incomplete, never silent
+            details["credential_sweep"] = {"clean": False, "hits": [], "incomplete": True, "redactions": len(redactions),
+                                           "note": f"the sweep failed: {type(exc).__name__}"}
+            flags.add("credential_sweep_incomplete")
+        steps = (("keychain", lambda: self._keychain_check(live, state)),
+                 ("client_env", lambda: self._client_env_check(rid)),
+                 ("canary_scan", lambda: self._canary_check(host_dir, state)),
+                 ("sandbox_denials", lambda: self._denials_check(live, rid)),
+                 ("host_config", lambda: self._host_config_check(state)))
+        for name, step in steps:
+            try:
+                details[name], found, noted = step()
+            except Exception as exc:   # noqa: BLE001 - recorded, and conservative
+                details[name], found, noted = {"error": f"{type(exc).__name__}: {exc}"}, \
+                    {"keychain": {"credential_persisted_keychain"}, "client_env": {"credential_visible_to_subject"},
+                     "canary_scan": {"canary_in_transcript"},
+                     "host_config": {"host_config_credential_shaped"}}.get(name, set()), \
+                    {"sandbox_denials_unavailable"} if name == "sandbox_denials" else set()
+            flags |= found
+            info |= noted
+        bash = (canonical.strict_loads(data.decode("utf-8")).get("details") or {}).get("bash") if data else None
+        snapshots = details.get("canary_scan", {}).get("snapshots", 0)
+        details["shell_snapshot"] = {"snapshots": snapshots, "bash_calls": (bash or {}).get("calls")}
+        if (bash or {}).get("calls") and not snapshots:
+            info.add("shell_snapshot_missing")
+        if proxy is not None:
+            sealed_flags, noted = proxy_flags(proxy)
+            flags |= sealed_flags
+            info |= noted
+            if needle is not None:   # its request lines and targets came from the host: journaled redacted
+                details["proxy"], counts = credentials.redact_value(proxy, needle)
+                if counts:
+                    flags.add("credential_exposed")
+        details["coordinator_flags"] = sorted(flags)
+        details["info_flags"] = sorted(info)
+        return details, data
+
+    def _host_config_check(self, state):
+        """The key NAMES of the host's own config file (``<CLAUDE_CONFIG_DIR>/.claude.json``), read by the coordinator
+        (O_NOFOLLOW, nonblocking, capped; values never recorded), with the credential-shaped names among them. The
+        host's config directory is a write root of the one profile the host shares with the subject, so the subject
+        could read that file during the run, and the host's first-party behaviour after authentication (profile
+        fetches, config writes) is unobserved before paid run 1: any credential-shaped name is
+        ``host_config_credential_shaped`` (S2, which prints the REVOKE action and ends the token's retention, E-50),
+        in every run, and the S10a go/no-go reviews the rest (E-92). A file that cannot be read or parsed sets the same
+        flag (_post_run's conservative map)."""
+        path = state / HOST_STATE_SUBDIRS[0] / ".claude.json"
+        try:
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        except FileNotFoundError:
+            return {"present": False, "keys": [], "credential_shaped": []}, set(), set()
+        try:
+            info = os.fstat(fd)
+            require(stat.S_ISREG(info.st_mode), "not a regular file")
+            data = os.read(fd, HOST_CONFIG_CAP + 1)
+        finally:
+            os.close(fd)
+        require(len(data) <= HOST_CONFIG_CAP, f"larger than {HOST_CONFIG_CAP} bytes")
+        value = json.loads(data.decode("utf-8"))
+        keys = sorted(value) if isinstance(value, dict) else []
+        nested = sorted(f"{k}.{n}" for k in keys if isinstance(value[k], dict) for n in value[k])
+        names = keys + nested
+        shaped = [n for n in names if CREDENTIAL_SHAPED.search(n)]
+        return {"present": True, "keys": names[:500], "credential_shaped": shaped[:100]}, \
+            {"host_config_credential_shaped"} if shaped else set(), set()
+
+    def _keychain_check(self, live, state):
+        """LC-21, outside the sandbox: no keychain item named for the run's config dir (as passed and resolved)."""
+        found = live.keychain_residue(state / HOST_STATE_SUBDIRS[0])
+        return found, {"credential_persisted_keychain"} if found["persisted"] else set(), set()
+
+    def _client_env_check(self, rid):
+        """LC-11 (best effort: the report comes from a process the subject controls): no environment-name report
+        of the task client lists a credential variable."""
+        reports, error = canonical.read_jsonl(self.dir / "broker" / rid / "client_env.jsonl")
+        listed = sorted({n for r in reports if isinstance(r, dict) for n in (r.get("names") or [])
+                         if n in CREDENTIAL_VISIBLE_NAMES})
+        record = {"reports": len(reports), "credential_names": listed, "malformed": error,
+                  "markers": sorted({str(r.get("marker")) for r in reports if isinstance(r, dict) and r.get("marker")})}
+        return record, {"credential_visible_to_subject"} if listed else set(), set()
+
+    def _canary_check(self, host_dir, state):
+        """The canary scan of the host's raw streams and every host-state file, and the host-state manifest, from
+        one hang-safe capped read (isolation.read_output_tree: no link followed, FIFOs and devices reported,
+        never opened blocking; M9). Value canaries are left out: the host's transcript legitimately carries the
+        numbers the task computes."""
+        canaries = [self.canary, self.family_canary, *FIXED_CANARIES]
+        needles = [c.encode(enc) for c in canaries for enc in isolation.CANARY_ENCODINGS]
+        hits = []
+        for name in ("stdout.jsonl", "stderr.txt"):
+            path = host_dir / name
+            if path.is_file() and not path.is_symlink():
+                with open(path, "rb") as handle:
+                    data = handle.read(HOST_STATE_CAP)
+                if any(n in data for n in needles):
+                    hits.append(f"host/{name}")
+        files, violations = isolation.read_output_tree(state, max_bytes=HOST_STATE_CAP)
+        hits += [f"host_state/{rel}" for rel, data in sorted(files.items()) if any(n in data for n in needles)]
+        manifest = {"files": [{"path": rel, "bytes": len(data), "sha256": canonical.sha256_bytes(data)}
+                              for rel, data in sorted(files.items())],
+                    "violations": violations}
+        canonical.atomic_write_bytes(host_dir / HOST_STATE_MANIFEST, _pretty(manifest))   # not sealed yet
+        snapshots = sum(1 for rel in files if Path(rel).parent.as_posix() == f"{HOST_STATE_SUBDIRS[0]}/shell-snapshots"
+                        and Path(rel).name.startswith("snapshot-"))
+        record = {"hits": hits, "state_files": len(files), "state_violations": sorted({v["code"] for v in violations}),
+                  "snapshots": snapshots}
+        return record, {"canary_in_transcript"} if hits else set(), set()
+
+    def _denials_check(self, live, rid):
+        """Sandbox denials over the launch window (log show; a 60 s wall bound). Best effort (F14)."""
+        records = read_journal(self.run_dir(rid) / "journal.jsonl")
+        launched = [r["time_utc"] for r in records if r["state"] == "launched"]
+        found = live.sandbox_denials(launched[-1] if launched else utc_now(), utc_now())
+        return found, set(), set() if found.get("available") else {"sandbox_denials_unavailable"}
 
     # -- sealing
     def _seal(self, run):
@@ -1316,6 +2137,7 @@ class _Campaign:
             flags.add("broker_stop_failed")
         if closing["details"].get("code_drift"):
             flags.add(CODE_DRIFT_FLAG)
+        flags.update(closing["details"].get("coordinator_flags") or [])   # a real host's post-run checks
         ended = closing["time_utc"]
         if "not_started" in last:
             status, reason, started = "not_started", closing["details"]["reason"], ended
@@ -1343,7 +2165,9 @@ class _Campaign:
                                           started="process_started" in last))
             output, violations = self._output_files(ws, flags)
             files.update(output)
-        files.update(self._broker_files(rid, flags))
+        if self.real:
+            files.update(self._live_files(rdir / "host", launched=status != "not_started"))
+        files.update(self._broker_files(rid, flags, arm_manifest))
         if status != "not_started" and "broker/custody.jsonl" not in files:
             flags.add("custody_missing")
         record = {"schema_version": 1, "run_id": rid, "campaign_id": self.manifest["campaign_id"],
@@ -1463,7 +2287,10 @@ class _Campaign:
             flags.add("subject_output_violations")
         return {f"subject_output/{Path(rel).as_posix()}": content for rel, content in data.items()}, violations
 
-    def _broker_files(self, run_id, flags) -> dict:
+    def _broker_files(self, run_id, flags, arm_manifest=None) -> dict:
+        """The broker's custody log and artifacts, the kernel's stage receipts (M5:
+        ``broker/ravel-runs/<16 hex>/execution_state.json``, checked against the frozen kernel source, interpreter
+        and stage workers) and, for a real host, the task client's environment-name reports (LC-11)."""
         root, files = self.dir / "broker" / run_id, {}
         custody = root / "custody.jsonl"
         if custody.is_file() and not custody.is_symlink():
@@ -1475,7 +2302,162 @@ class _Campaign:
             for path in sorted(artifacts.iterdir()):
                 require(stat.S_ISREG(path.lstat().st_mode), f"broker artifact {path.name} is not a regular file")
                 files[f"broker/artifacts/{path.name}"] = path.read_bytes()
+        runs = root / RECEIPTS
+        if runs.is_dir() and not runs.is_symlink():
+            for rundir in sorted(runs.iterdir()):
+                receipt = rundir / "execution_state.json"
+                if rundir.is_dir() and not rundir.is_symlink() and receipt.is_file() and not receipt.is_symlink():
+                    files[f"broker/{RECEIPTS}/{rundir.name}/execution_state.json"] = receipt.read_bytes()
+        if arm_manifest is not None:
+            workers = {e["path"]: e["sha256"] for e in self.environment["harness_code"]
+                       if e["path"].startswith("stages/")}
+            flags.update(receipt_flags({k: v for k, v in files.items() if k.startswith(f"broker/{RECEIPTS}/")},
+                                       arm_manifest["common"], workers))
+        reports = root / "client_env.jsonl"
+        if self.real and reports.is_file() and not reports.is_symlink():
+            files["broker/client_env.jsonl"] = reports.read_bytes()
         return files
+
+    def _live_files(self, host_dir, *, launched) -> dict:
+        """A real host's coordinator records sealed with its run: the proxy log (empty when there were no requests,
+        always for a launched run), the redaction manifest when anything was redacted, the host-state manifest."""
+        files = {}
+        for name, always in (("proxy.jsonl", launched), (REDACTIONS, False), (HOST_STATE_MANIFEST, False)):
+            path = host_dir / name
+            if path.is_file() and not path.is_symlink():
+                files[name] = path.read_bytes()
+            elif always:
+                files[name] = b""
+        return files
+
+
+def receipt_findings(receipts: dict, common: dict, workers=None) -> list:
+    """(flag, where) for every stage receipt that does not match the frozen treatment (M5): the kernel source
+    digest over the receipt's ``src/ravel/**/*.py`` snapshot entries against ``common.kernel_source_sha256``
+    (kernel_fingerprint_mismatch), the interpreter entry (the one absolute entry that is neither a Python source
+    nor inside the RAVEL run directory) against ``common.interpreter_sha256`` (interpreter_mismatch) and, when
+    ``workers`` ({"stages/<name>.py": sha256}) is given, each stage worker against it (stage_worker_mismatch).
+    A receipt that does not parse is kernel_fingerprint_mismatch too. Shared rule: audit.py restates it."""
+    found = []
+    for name, data in sorted(receipts.items()):
+        try:
+            state = canonical.strict_loads(data.decode("utf-8"))
+            stages_ = state["stages"]
+            require(isinstance(stages_, dict), "stages: object required")
+        except (UnicodeDecodeError, ValueError, KeyError, TypeError, ContractError):
+            found.append(("kernel_fingerprint_mismatch", f"{name}: unreadable receipt"))
+            continue
+        for stage, record in sorted(stages_.items()):
+            where = f"{name}#{stage}"
+            snapshot = record.get("input_snapshot") if isinstance(record, dict) else None
+            if not isinstance(snapshot, dict):
+                found.append(("kernel_fingerprint_mismatch", f"{where}: no input snapshot"))
+                continue
+
+            def sha_of(entry):
+                files_ = entry.get("files") if isinstance(entry, dict) else None
+                return files_[0].get("sha256") if isinstance(files_, list) and len(files_) == 1 \
+                    and isinstance(files_[0], dict) else None
+            kernel = sorted(({"path": "src/ravel/" + key.rsplit("/src/ravel/", 1)[1], "sha256": sha_of(entry)}
+                             for key, entry in snapshot.items() if "/src/ravel/" in key and key.endswith(".py")),
+                            key=lambda e: e["path"])
+            if not kernel or canonical.digest(kernel) != common["kernel_source_sha256"]:
+                found.append(("kernel_fingerprint_mismatch", where))
+            interpreters = [sha_of(entry) for key, entry in snapshot.items()
+                            if not key.endswith(".py") and f"/{RECEIPTS}/" not in key]
+            if interpreters != [common["interpreter_sha256"]]:
+                found.append(("interpreter_mismatch", where))
+            if workers is not None:
+                for key, entry in snapshot.items():
+                    tail = key.rsplit("/benchmarks/governance/", 1)[-1] if "/benchmarks/governance/stages/" in key \
+                        else None
+                    if tail is not None and workers.get(tail) != sha_of(entry):
+                        found.append(("stage_worker_mismatch", f"{where}: {tail}"))
+    return found
+
+
+def receipt_flags(receipts, common, workers=None) -> set:
+    return {flag for flag, _ in receipt_findings(receipts, common, workers)}
+
+
+HOST_STATE_CAP = 64 << 20                 # bytes of a real host's streams and state one post-run scan reads (M9)
+HOST_STATE_MANIFEST = "host_state.json"  # runs/<id>/host/: {files: [{path, bytes, sha256}], violations}, sealed
+REDACTIONS = "redactions.json"           # runs/<id>/host/: the redaction manifest (WI-5), sealed when present
+HOST_CONFIG_CAP = 4 << 20                # bytes of the host's .claude.json whose key names a post-run check lists
+CREDENTIAL_SHAPED = re.compile(r"token|secret|oauth|credential|api_?key|password|bearer|auth", re.IGNORECASE)
+# Credential variables no task-client report may list (LC-11): the host's token, its fd variant, the API credentials.
+CREDENTIAL_VISIBLE_NAMES = ("CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR", "ANTHROPIC_API_KEY",
+                            "ANTHROPIC_AUTH_TOKEN")
+PROXY_ATTRIBUTION_REASONS = ("subject_client", "owner_unknown")
+
+
+def proxy_summary(decisions, *, stop_error=None, late=0) -> dict:
+    """The journaled summary of one launch's proxy decisions (WI-4): requests, allowed {target: n}, denied
+    [{target, reason, n}], the non-owner clients, the errors, the stop error and decisions after stop."""
+    allowed, denied = {}, {}
+    for d in decisions:
+        if d["decision"] == "allow":
+            allowed[d["target"]] = allowed.get(d["target"], 0) + 1
+        elif d["decision"] == "deny":
+            key = (d["target"], d["reason"])
+            denied[key] = denied.get(key, 0) + 1
+    return {"requests": len(decisions), "allowed": dict(sorted(allowed.items(), key=lambda kv: str(kv[0]))),
+            "denied": [{"target": t, "reason": r, "n": n}
+                       for (t, r), n in sorted(denied.items(), key=lambda kv: (str(kv[0][0]), kv[0][1]))],
+            "subject_clients": sum(1 for d in decisions if d["reason"] == "subject_client"),
+            "errors": [{"target": d["target"], "reason": d["reason"]} for d in decisions if d["decision"] == "error"],
+            "stop_error": stop_error, "late_decisions": late}
+
+
+def proxy_flags(summary) -> tuple:
+    """(sealed flags, informational flags) of a proxy summary (WI-4): a deny of the host's own request
+    (proxy_denied_connect) or of an unattributable client (proxy_owner_unknown) is S3; an upstream failure or a
+    proxy that did not stop cleanly is S7; a non-owner client (subject_network_attempt) is an outcome."""
+    flags, info = set(), set()
+    reasons = [d["reason"] for d in summary["denied"]]
+    if any(r not in PROXY_ATTRIBUTION_REASONS for r in reasons):
+        flags.add("proxy_denied_connect")
+    if "owner_unknown" in reasons:
+        flags.add("proxy_owner_unknown")
+    if summary["errors"]:
+        flags.add("proxy_upstream_error")
+    if summary["stop_error"] or summary["late_decisions"]:
+        flags.add("proxy_stop_failed")
+    if summary["subject_clients"]:
+        info.add("subject_network_attempt")
+    return flags, info
+
+
+def _canonical_uuid(value) -> bool:
+    try:
+        return isinstance(value, str) and value == str(uuid.UUID(value))
+    except ValueError:
+        return False
+
+
+def _bound_call_problems(argv, env, added, expected) -> list:
+    """M6: a real host's launch call against its build-time binding (``_launch_call_problems``)."""
+    from . import live
+    binding, per_run, problems = expected["binding"], expected["per_run_env"], []
+    at = [i for i, a in enumerate(argv) if a == "--session-id"]
+    if len(at) != 1 or at[0] + 1 >= len(argv) or not _canonical_uuid(argv[at[0] + 1]):
+        problems.append("the launch argv must carry exactly one --session-id followed by a canonical uuid")
+    elif argv[:at[0] + 1] + [PLACEHOLDER_SESSION] + argv[at[0] + 2:] != binding["argv"]:
+        problems.append("the launch argv differs from the host binding written at build")
+    names = set(binding["extra_env"]) | set(per_run)
+    if added != names:
+        problems.append(f"the added variables differ from the binding: extra {sorted(added - names)}, missing "
+                        f"{sorted(names - added)}")
+    for name, value in binding["extra_env"].items():
+        if name in env and env[name] != value:
+            problems.append(f"{name} differs from its bound value")
+    for name, value in per_run.items():
+        if name in env and env[name] != value:
+            problems.append(f"the per-run {name} is not the coordinator's {value}")
+    never = live.never_present(env)
+    if never:
+        problems.append(f"the launch environment holds names that never reach a real host: {never}")
+    return problems
 
 
 def _opaque_path(path, ws) -> str:
@@ -1514,40 +2496,194 @@ def _set_aside(path):
 
 # ---------------------------------------------------------------- run, outcomes, report
 
-def run_campaign(campaign_dir, *, adapter_factory, behavior_plan=None, only=None) -> dict:
+class CredentialPause(ContractError):
+    """The run-start credential validation failed (smoke spec R8): the invocation pauses. Nothing is journaled for
+    the assignment that was about to start and no stop is written; fix the credential file and run again."""
+
+
+def core_limit_problem():
+    """None when the hard core-file limit is 0 (a crashing host dumps no memory, token included: R12e)."""
+    soft, hard = resource.getrlimit(resource.RLIMIT_CORE)
+    return None if hard == 0 else (f"the hard core-file limit is {hard} (soft {soft}), not 0: run under "
+                                   "`ulimit -Hc 0` or through cli.py run, which sets it")
+
+
+def read_stop(campaign_dir):
+    """coordinator/stop.json (validated), or None. A malformed stop record fails closed (never ignored)."""
+    path = Path(campaign_dir) / COORDINATOR / STOP_FILE
+    if not os.path.lexists(path):
+        return None
+    require(path.is_file() and not path.is_symlink(), f"coordinator/{STOP_FILE}: not a regular file")
+    record = canonical.strict_load(path)
+    require(isinstance(record, dict) and set(record) == set(STOP_FIELDS) and record["schema_version"] == 1
+            and isinstance(record["rule"], str) and isinstance(record["reason"], str)
+            and isinstance(record["set_by"], str) and (record["run_id"] is None or canonical.is_sha256(record["run_id"])),
+            f"coordinator/{STOP_FILE}: not a stop record ({sorted(STOP_FIELDS)}); a human must repair it")
+    return record
+
+
+def record_stop(campaign_dir, *, run_id, rule, reason, set_by) -> tuple:
+    """(stop record, written): write coordinator/stop.json exactly once, atomically and exclusively (the record is
+    written to a private temporary file and hard-linked into place, which fails if a stop is already there, so a human
+    stop and an automated one can never overwrite each other); ``written`` is False when another stop was first, and
+    the record returned is then that one. A campaign under a stop never launches again (a repaired configuration is a
+    new campaign with its own approval)."""
+    record = {"schema_version": 1, "time_utc": utc_now(), "run_id": run_id, "rule": rule, "reason": reason,
+              "set_by": set_by}
+    written = write_exclusive(Path(campaign_dir) / COORDINATOR / STOP_FILE, _pretty(record))
+    return read_stop(campaign_dir), written
+
+
+def write_exclusive(target, data: bytes) -> bool:
+    """Write ``data`` to ``target`` once, atomically and exclusively: a private temporary file in the same directory,
+    fsynced, made read-only (0444) and hard-linked into place, which fails when ``target`` exists. Returns whether this
+    call wrote it (False: another writer was first, and nothing changed)."""
+    target = Path(target)
+    fd, tmp = tempfile.mkstemp(prefix=f".{target.name}-", dir=target.parent)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(tmp, 0o444)
+        try:
+            os.link(tmp, target)
+            return True
+        except FileExistsError:
+            return False
+    finally:
+        os.unlink(tmp)
+
+
+def write_stop(campaign_dir, *, run_id, rule, reason, set_by) -> dict:
+    """record_stop that refuses when a stop is already in place (ContractError, nothing changed)."""
+    stop, written = record_stop(campaign_dir, run_id=run_id, rule=rule, reason=reason, set_by=set_by)
+    require(written, f"coordinator/{STOP_FILE}: refusing to overwrite the stop already in place ({stop['rule']})")
+    return stop
+
+
+def run_campaign(campaign_dir, *, adapter_factory=None, behavior_plan=None, only=None, limit=None) -> dict:
     """Process the registry's assignments in order (or the subset ``only``, still in registry order).
 
-    ``adapter_factory(assignment)`` returns the Adapter for one run; ``assignment`` carries
-    run_id, task_id, seed, behavior, python (the subject interpreter) and launcher (the
-    coordinator's recording launcher, which the adapter must use: a run whose adapter holds another
-    launcher is not started). The arm is never passed: everything arm-dependent (the fake host's
-    behavior) is resolved here, and a real host must launch identically in every run
-    (``host_binding``, the campaign's first launch in ``coordinator/host_binding.json``).
-    ``behavior_plan`` (fake host only) is {"default": behavior, "by_task_arm": {"<task_id>|<arm>":
-    behavior}}.
+    ``adapter_factory(assignment)`` returns the Adapter for one run (default: the host's,
+    ``adapter_factory_for``); ``assignment`` carries run_id, task_id, seed, behavior, python (the
+    subject interpreter), launcher (the coordinator's recording launcher, which the adapter must
+    use: a run whose adapter holds another launcher is not started) and, for a real host,
+    host_state_dir. The arm is never passed: everything arm-dependent (the fake host's behavior) is
+    resolved here, and a real host must launch identically in every run (``host_binding``, the
+    binding written at build in ``coordinator/host_binding.json``). ``behavior_plan`` (fake host only)
+    is {"default": behavior, "by_task_arm": {"<task_id>|<arm>": behavior}}.
 
     Before each launch the run's treatment is re-verified against the frozen campaign (the code
     behind every common hash, the frozen texts, the prompt's instruction segment, the request, the
     materialized workspace; ``admitted.verified`` in the journal) and a drifted run is not started;
     after it, a drift is flagged ``code_drift_during_run``. A failure before the recording launcher
     was called (no launch call and no process start on record) is not_started with no charge.
+
+    ``limit`` processes at most that many unsealed assignments and leaves the rest untouched (a pause,
+    never a stop). ``coordinator/stop.json`` (an automated stop rule or ``cli.py stop``) closes every
+    remaining assignment not_started with charge 0 instead of launching it (``close_stopped``); a launch
+    resumed there is still evaluated, so its triggers are recorded beside the stop in place (E-95). A real
+    host also needs, before any assignment: every lost or unclean probe launch censused, and none left
+    unclean (E-96), a passing preflight, the run-start credential validation (CredentialPause: nothing
+    journaled, no stop), a hard core-file limit of 0 and the behavioral gate (the latest record,
+    re-derived: M1); before each new assignment the S10a gate (``live.go_no_go_problem``: once run 1 was
+    launched, no further run launches until its recorded go; a hold, reported as ``paused`` with
+    ``held`` true: E-92) and the credential again (a pause); after each sealed run its live checks are
+    written and the stop rules evaluated (``live.stop_reason``): the first trigger writes stop.json once.
+
+    Stop evaluation is idempotent across invocations (E-78): before anything else a real host's campaign re-derives
+    the stop rules of every sealed run (``live.derive_stops``), so a stop lost between a seal and its stop.json (a
+    SIGHUP, Ctrl-C, a crash, an exception in the live checks) is written now and nothing launches; an evaluation that
+    raises is an S7 stop (fail closed). A trigger that finds a stop already in place (a human stop written meanwhile)
+    is recorded in ``triggers`` (and the run's live_checks.json), never lost and never an error. ``only`` is refused
+    for a real host: it would skip an earlier lost launch, its census, charge and stop (E-79).
     """
     campaign = _Campaign(campaign_dir)
-    if campaign.host["adapter"] != "fake":   # a real subject never meets an unverified gate (§12.3, R0.1)
-        problem = behavioral_record_problem(campaign.dir, campaign.campaign_sha256)
-        require(problem is None, f"refusing to launch a real host: {problem}")
-    plan, plan_sha = campaign.plan(behavior_plan)
+    require(limit is None or (type(limit) is int and limit > 0), "limit: a positive integer or None")
+    require(only is None or not campaign.real, "only: refused for a real host (every run is processed in registry "
+                                               "order, so an earlier lost launch is always resumed and charged first)")
+    factory = adapter_factory if adapter_factory is not None else adapter_factory_for(campaign)
     runs = campaign.registry["runs"]
     if only is not None:
         wanted = set(only)
         unknown = sorted(wanted - {r["run_id"] for r in runs})
         require(not unknown, f"only: not assignments of this campaign: {unknown}")
         runs = [r for r in runs if r["run_id"] in wanted]
+    live, triggers = None, []
+
+    def apply(run_id, trigger, action=None):
+        """Write the stop of one fired trigger, or record it beside the stop already in place."""
+        stop, written = record_stop(campaign.dir, run_id=run_id, rule=trigger["rule"], reason=trigger["reason"],
+                                    set_by="live.stop_reason")
+        triggers.append({"run_id": run_id, "rule": trigger["rule"], "reason": trigger["reason"], "written": written,
+                         **({"action": action} if action else {})})
+        return stop
+
     # One coordinator per campaign: two would both find an empty journal and launch the same run.
     with campaign_lock(campaign.dir):
-        results = [campaign.process(run, plan, plan_sha, adapter_factory) for run in runs]
+        if campaign.real:
+            from . import live
+            for derived in live.derive_stops(campaign.dir):   # before any launch or gate: never skip a lost stop
+                if derived["stop"] is not None:
+                    apply(derived["run_id"], derived["stop"], derived.get("action"))
+        stop = read_stop(campaign.dir)
+        if campaign.real and stop is None:   # a real subject never meets an unverified gate (§12.3, R0.1)
+            unclean = live.census_problems(live.census_lost_probes(campaign.dir))
+            require(not unclean, f"refusing to launch a real host: probe launches {unclean} left survivors or could "
+                                 f"not be censused: {live.PROBE_CENSUS_REMEDY}")
+            checked = live.preflight(campaign.dir, campaign=campaign)
+            failed = [f"{c['id']}: {c['detail']}" for c in checked["checks"] if not c["ok"]]
+            require(checked["ok"], "refusing to launch a real host: preflight failed: " + "; ".join(failed))
+            live.validate_credential(campaign.dir)
+            problem = core_limit_problem()
+            require(problem is None, f"refusing to launch a real host: {problem}")
+            problem, campaign.behavioral_sha256 = behavioral_record(campaign.dir, campaign.campaign_sha256,
+                                                                    campaign.manifest["arms"])
+            require(problem is None, f"refusing to launch a real host: {problem}")
+        plan, plan_sha = campaign.plan(behavior_plan)
+        results, processed, paused, held = [], 0, None, False
+
+        def evaluate(run_id):
+            """The stop rules of one freshly sealed run: its live checks written, a trigger applied."""
+            try:
+                checks = live.live_checks(campaign.dir, run_id)
+                trigger, action = checks["stop"], checks.get("action")
+            except Exception as exc:   # noqa: BLE001 - an evaluation that cannot run stops the campaign (S7)
+                trigger, action = live.evaluation_failed(run_id, exc), None
+            return None if trigger is None else apply(run_id, trigger, action)
+
+        for run in runs:
+            stop = stop or read_stop(campaign.dir)
+            if stop is not None:
+                journal = read_journal(campaign.run_dir(run["run_id"]) / "journal.jsonl")
+                outcome = campaign.close_stopped(run, stop)
+                results.append(outcome)
+                # E-95: a launch resumed under a stop (sealed interrupted by close_stopped) is evaluated like any
+                # sealed run, so its credential findings are recorded beside the stop in place and print REVOKE
+                if campaign.real and outcome["action"] == "sealed" and any(r["state"] == "launched" for r in journal):
+                    evaluate(run["run_id"])
+                continue
+            journal = read_journal(campaign.run_dir(run["run_id"]) / "journal.jsonl")
+            if not any(r["state"] == "sealed" for r in journal):
+                if limit is not None and processed >= limit:
+                    paused = f"limit {limit} reached; the remaining assignments are untouched"
+                    break
+                if campaign.real and not journal:
+                    problem = live.go_no_go_problem(campaign.dir)   # E-92: run 1 is reviewed before run 2 launches
+                    if problem is not None:
+                        paused, held = problem, True
+                        break
+                    live.validate_credential(campaign.dir)   # before _start journals anything: a pause
+            outcome = campaign.process(run, plan, plan_sha, factory)
+            results.append(outcome)
+            if outcome["action"] != "skipped":
+                processed += 1
+            if campaign.real and outcome["action"] == "sealed":
+                stop = evaluate(run["run_id"]) or stop
     return {"campaign_dir": str(campaign.dir), "synthetic": campaign.manifest["kind"] == "synthetic",
-            "behavior_plan_sha256": plan_sha, "runs": results, "spent": campaign.spent()}
+            "behavior_plan_sha256": plan_sha, "runs": results, "spent": campaign.spent(), "stopped": stop,
+            "paused": paused, "held": held, "triggers": triggers}
 
 
 # ---------------------------------------------------------------- behavioral treatment check (§12.3)
@@ -1608,18 +2744,16 @@ def behavioral_check(campaign_dir) -> dict:
             n += 1
         root = parent / str(n)
         root.mkdir(mode=0o700)
-        by_kind = {side: {INPUT_KINDS[name]: data for name, data in campaign.inputs(task, side).items()}
-                   for side in ("current", "prior")}
+        by_kind, recipe = campaign.broker_inputs(task), campaign.definition(task)["prior_recipe"]
         secret, arms = secrets.token_bytes(32), list(contracts.ARMS)
 
         def prepare(arm):
             setting = campaign.manifest["arms"][arm]["guard"]
             broker = Broker(root / arm, guard_mode=setting["mode"], feedback=setting["feedback"],
-                            budgets={"max_broker_ops": campaign.budget["max_broker_ops"],
-                                     "max_fits": campaign.budget["max_fits"]},
+                            budgets={name: campaign.budget[name] for name in BROKER_BUDGET},
                             python=campaign.config["stage_python"], env=campaign.config["stage_env"], secret=secret)
             broker.register_inputs(by_kind["current"])
-            broker.create_prior(by_kind["prior"])
+            broker.create_prior(by_kind["prior"], recipe=recipe)
             return broker
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(arms)) as pool:
@@ -1657,22 +2791,70 @@ def behavioral_check(campaign_dir) -> dict:
             "task_id": task, "record": str(path)}
 
 
-def behavioral_record_problem(campaign_dir, campaign_sha256):
-    """None when ``coordinator/behavioral/<n>/result.json`` holds a passing behavioral check of this
-    campaign's frozen campaign.json (its sha256), else the problem. A real host's campaign is launched
-    only after one (run_campaign): the manifest check alone cannot see a no-op or arm-dependent guard."""
-    parent = Path(campaign_dir) / COORDINATOR / BEHAVIORAL
+NO_BEHAVIORAL = "no behavioral treatment check was recorded (cli.py treatment-diff --behavioral)"
+
+
+def _numbered(parent) -> list:
+    """(n, path) of the numbered subdirectories of ``parent`` in numeric order ("10" after "2")."""
     if not parent.is_dir() or parent.is_symlink():
-        return "no behavioral treatment check was recorded (cli.py treatment-diff --behavioral)"
-    for path in sorted(parent.glob("*/result.json")):
-        try:
-            record = canonical.strict_load(path)
-        except (ContractError, OSError, ValueError):
-            continue
-        if (isinstance(record, dict) and record.get("campaign_sha256") == campaign_sha256
-                and isinstance(record.get("result"), dict) and record["result"].get("ok") is True):
-            return None
-    return "no passing behavioral treatment check of this campaign.json was recorded (cli.py treatment-diff --behavioral)"
+        return []
+    return sorted((int(p.name), p) for p in parent.iterdir()
+                  if p.name.isdigit() and p.name == str(int(p.name)) and p.is_dir() and not p.is_symlink())
+
+
+def behavioral_record(campaign_dir, campaign_sha256, arms=None) -> tuple:
+    """(problem, record sha256): the stricter treatment gate (H-11, E-48, M1). Only the LATEST behavioral check
+    (``coordinator/behavioral/<n>/``, the largest n in numeric order) counts: its result.json must parse strictly,
+    name this campaign.json's sha256, pass, record the arms' guards exactly as ``arms`` (the manifest's arms, when
+    given) freeze them, and re-derive from its own custody: two successful submits per arm through
+    ``treatment.probe_from_custody`` and ``treatment.behavioral_diff`` must give exactly its observations and
+    verdict (a hand-written passing result fails). (None, sha256 of result.json) when it holds."""
+    parent = Path(campaign_dir) / COORDINATOR / BEHAVIORAL
+    numbered = _numbered(parent)
+    if not numbered:
+        return NO_BEHAVIORAL, None
+    n, root = numbered[-1]
+    label = f"coordinator/{BEHAVIORAL}/{n}"
+    unpassed = (f"the latest behavioral treatment check ({label}) is not a passing behavioral treatment check of "
+                "this campaign.json (cli.py treatment-diff --behavioral)")
+    path = root / "result.json"
+    try:
+        require(path.is_file() and not path.is_symlink(), "result.json missing")
+        record = canonical.strict_load(path)
+        require(isinstance(record, dict) and isinstance(record.get("result"), dict), "not a behavioral record")
+    except (ContractError, OSError, ValueError) as exc:
+        return f"{unpassed}: unreadable ({exc})", None
+    if record.get("campaign_sha256") != campaign_sha256 or record["result"].get("ok") is not True:
+        return unpassed, None
+    if arms is not None:
+        expected = {arm: dict(arms[arm]["guard"]) for arm in contracts.ARMS}
+        if canonical.canonical_bytes(record.get("arms")) != canonical.canonical_bytes(expected):
+            return f"{unpassed}: its arms' guards differ from the campaign manifest's", None
+    observations = {}
+    try:
+        for arm in contracts.ARMS:
+            lines, error = canonical.read_jsonl(root / arm / "custody.jsonl")
+            submits = [line for line in lines if isinstance(line, dict) and line.get("op") == "submit" and line.get("ok")]
+            require(error is None and len(submits) == 2, f"{arm}: custody holds {len(submits)} successful submits, "
+                                                         f"not 2 ({error or 'intact'})")
+            observations[arm] = {"stale": treatment.probe_from_custody(submits[0]),
+                                 "clean": treatment.probe_from_custody(submits[1])}
+        verdict = treatment.behavioral_diff(observations)
+    except (ContractError, KeyError, TypeError, ValueError) as exc:
+        return f"{unpassed}: it does not re-derive from its custody ({exc})", None
+    if (canonical.canonical_bytes(observations) != canonical.canonical_bytes(record.get("observations"))
+            or canonical.canonical_bytes(verdict) != canonical.canonical_bytes(record["result"])):
+        return f"{unpassed}: its observations or verdict differ from their re-derivation from its custody", None
+    if not verdict["ok"]:
+        return f"{unpassed}: the re-derived verdict fails", None
+    return None, canonical.sha256_file(path)
+
+
+def behavioral_record_problem(campaign_dir, campaign_sha256, arms=None):
+    """None when the latest behavioral check passes and re-derives (``behavioral_record``), else the problem. A
+    real host's campaign is launched only after one (run_campaign, live.preflight): the manifest check alone
+    cannot see a no-op or arm-dependent guard."""
+    return behavioral_record(campaign_dir, campaign_sha256, arms)[0]
 
 
 def scorer_ids_for(manifest, scorer_ids=None) -> set:
@@ -2026,4 +3208,7 @@ __all__ = ["build_synthetic_campaign", "run_campaign", "write_outcomes", "report
            "read_journal", "evidence_digest", "seal_problem", "sealed_evidence", "launch_policy", "checkout_source",
            "campaign_lock", "audit_module", "unsealed_runs", "scorer_ids_for", "harness_manifest", "behavioral_check",
            "record_incident_decision", "campaign_digest_problem", "host_binding", "exact",
-           "behavioral_record_problem"]
+           "behavioral_record_problem", "behavioral_record", "adapter_factory_for", "host_access",
+           "check_subject_visible_root", "host_root_problem", "prepare_host_root", "read_stop", "write_stop",
+           "core_limit_problem", "CredentialPause", "CoordinatorInterrupted", "proxy_summary", "proxy_flags",
+           "receipt_findings"]

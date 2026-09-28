@@ -92,6 +92,10 @@ PATHOLOGY_PLAN = {"default": "over_refuse", "by_task_arm": {f"{task}|{arm}": beh
     (MALFORMED, "malformed_stream"), (FABRICATE, "fabricate"), (TIMEOUT, "timeout"),
     (CRASH_AFTER_CLAIM, "crash_after_claim"), (BUDGET_CRASH, "selective_repair"))}}
 PATHOLOGY_BUDGET = {"seconds_per_run": 40, "max_broker_ops": 5}
+# These cohorts are the likelihood_freshness tasks (16 assignments each). Since WP12 plan steps 8-9 every family is
+# runnable and the default schedule is the 12-task bank, so they name their tasks (test_bank_fullstack.py runs the
+# whole bank through the CLI).
+LF_IDS = ("lf-a", "lf-b", "lf-c", "lf-d")
 
 
 # ---------------------------------------------------------------- adapter-seam test doubles
@@ -161,7 +165,7 @@ def tamper_probes(campaign_dir, run_id) -> dict:
 def build(base, campaign_id, budget):
     return runner.build_synthetic_campaign(base / "store", campaign_id=campaign_id, created_utc=CREATED, seeds=[11],
                                            schedule_seed=7, subjects_root=base / "subjects", sandbox=SANDBOX,
-                                           budget=budget)
+                                           budget=budget, tasks=list(LF_IDS))
 
 
 def pipeline(base, campaign_id, plan, factory_for, budget):
@@ -202,19 +206,30 @@ def cli(*args, timeout=1200):
         return done.returncode, {"ok": False, "stdout": done.stdout[-2000:], "stderr": done.stderr[-2000:]}
 
 
+def tree_snapshot(root):
+    """(relative path, size, mode, mtime_ns, sha256) of every entry under root."""
+    return sorted((str(p.relative_to(root)), p.lstat().st_size, p.lstat().st_mode, p.lstat().st_mtime_ns,
+                   hashlib.sha256(p.read_bytes()).hexdigest() if p.is_file() and not p.is_symlink() else "")
+                  for p in Path(root).rglob("*"))
+
+
 def cli_pipeline(base):
     """The all-refusal cohort, driven only through ``python3 benchmarks/governance/cli.py``."""
     started = time.monotonic()
     steps = {}
     steps["build"] = cli("build-synthetic", "--store", base / "store", "--campaign-id", "synthetic-fullstack-refusal",
                          "--created-utc", CREATED, "--seed", 11, "--schedule-seed", 7, "--subjects-root",
-                         base / "subjects", "--sandbox", SANDBOX, "--seconds-per-run", 300)
+                         base / "subjects", "--sandbox", SANDBOX, "--seconds-per-run", 300,
+                         *[arg for task in LF_IDS for arg in ("--task", task)])
     assert steps["build"][0] == 0, steps["build"]
     campaign = Path(steps["build"][1]["campaign_dir"])
     plan = base / "plan.json"
     plan.write_text(json.dumps({"default": "over_refuse", "by_task_arm": {}}))   # SYNTHETIC behavior plan
     steps["run"] = cli("run", "--campaign", campaign, "--behavior-plan", plan)
     steps["audit"] = cli("audit", "--campaign", campaign)
+    before = tree_snapshot(campaign)
+    steps["rejudge"] = cli("rejudge", "--campaign", campaign, "--out", base / "rejudged")    # E-189, read-only
+    steps["rejudge_untouched"] = tree_snapshot(campaign) == before
     steps["report"] = cli("report", "--campaign", campaign, "--n-bootstrap", 200)
     steps["verify"] = cli("verify", "--campaign", campaign)
     steps["treatment_diff"] = cli("treatment-diff", "--campaign", campaign)
@@ -250,7 +265,8 @@ def probe_job(base, arms):
     for i, arm in enumerate(ARMS):
         setting = arms[arm]["guard"]
         broker = Broker(base / f"broker-{i}", guard_mode=setting["mode"], feedback=setting["feedback"],
-                        budgets={"max_broker_ops": 40, "max_fits": 4}, python=os.path.abspath(sys.executable),
+                        budgets={"max_broker_ops": 40, "max_fits": 4, "max_stage_executions": 6},
+                        python=os.path.abspath(sys.executable),
                         env=runner.stage_environment(), secret=PROBE_SECRET)
         broker.register_inputs(by_kind["current"])
         broker.create_prior(by_kind["prior"])
@@ -433,11 +449,11 @@ def test_every_registry_run_has_one_v1_row_and_a_reconstructable_evidence_chain(
     assert c.outcomes["registry_sha256"] == c.registry["registry_sha256"] == c.manifest["registry_sha256"]
     tasks = {t["id"]: t for t in c.registry["spec"]["tasks"]}
     entries = {t["task_id"]: t for t in c.manifest["tasks"]}
-    request = (c.dir / "coordinator" / "family" / "request.md").read_bytes()
+    request = (c.dir / "coordinator" / "family" / "likelihood_freshness" / "request.md").read_bytes()
     subjects = Path(os.path.realpath(c.manifest["storage"]["subjects_root"]))
     budget = c.manifest["budget"]
     policy = runner.RESOURCE_POLICY.format(ops=budget["max_broker_ops"], fits=budget["max_fits"],
-                                           seconds=budget["seconds_per_run"])
+                                           stages=budget["max_stage_executions"], seconds=budget["seconds_per_run"])
     for run, row in zip(c.runs, c.outcomes["outcomes"]):
         rid, task_id, arm = run["run_id"], run["task_id"], run["arm"]
         rdir, sealed = c.dir / "runs" / rid, c.dir / "runs" / rid / "sealed"
@@ -633,8 +649,11 @@ def test_treatment_diff_passes_for_every_campaign_and_sees_only_manifest_differe
     code, diff = campaigns[-1].job.steps["treatment_diff"]
     assert code == 0 and diff["ok"] is True and diff["violations"] == []
     assert set(treatment.treatment_diff(arms)["differences"]) == set(treatment.FACTOR_FIELDS)
-    assert {a["guard"]["implementation_sha256"] for a in arms.values()} == {
-        canonical.sha256_file(REPO / "benchmarks" / "governance" / "guard.py")}
+    # the guard implementation is guard.py and the task-bank registry it reads (E-179): a registry change is a new guard
+    assert {a["guard"]["implementation_sha256"] for a in arms.values()} == {runner.guard_implementation_sha256()} == {
+        canonical.digest(sorted(({"path": p.name, "sha256": canonical.sha256_file(p)} for p in (
+            REPO / "benchmarks" / "governance" / "guard.py",
+            REPO / "benchmarks" / "governance" / "tasks" / "registry.py")), key=lambda e: e["path"]))}
     mixed = copy.deepcopy(arms)
     for arm in BLOCK:
         mixed[arm]["guard"]["implementation_sha256"] = canonical.sha256_bytes(NOOP_GUARD)
@@ -690,7 +709,8 @@ def test_stale_copy_is_blocked_in_block_arms_and_delivered_but_flagged_in_audit_
     for task, arm in STALE_COPIES:
         report, q, row = c.report(task, arm), c.report(task, arm)["quantities"], c.report(task, arm)["v1_outcome"]
         assert c.record(task, arm)["behavior"] == "stale_copy"
-        assert c.subject_ops(task, arm) == ["inputs", "show", "show", "show", "submit"]   # nothing recomputed
+        # no fit or conversion recomputed; the prior conversion re-reported under the new title (WP12 §2 P1)
+        assert c.subject_ops(task, arm) == ["inputs", "show", "show", "report", "submit"]
         [submit] = [line for line in c.custody(task, arm) if line["op"] == "submit"]
         code = "stale_numerical_dependency" if task == "lf-b" else "stale_conversion_dependency"
         assert code in {d["code"] for d in submit["guard"]["diagnostics"]}
@@ -797,6 +817,12 @@ def test_all_refusal_cohort_has_zero_verified_completion(jobs):
     assert job.steps["run"][1]["synthetic"] is True and job.steps["run"][1]["spent"]["usd"] == 0.0
     assert job.steps["audit"][1]["status_counts"] == {"refused": 16} and job.steps["audit"][1]["synthetic"] is True
     assert job.steps["verify"][1]["judge_reports"] == 16 and job.steps["report"][1]["synthetic"] is True
+    # E-189: the re-judgment wrote 16 reports elsewhere, left the campaign byte-identical, and (same scorer) agrees
+    rejudged = job.steps["rejudge"]
+    assert rejudged[0] == 0 and rejudged[1]["ok"] is True and rejudged[1]["judge_reports"] == 16, rejudged
+    assert job.steps["rejudge_untouched"] is True
+    assert all(row["sealed"] == row["rejudged"] for row in rejudged[1]["runs"])
+    assert rejudged[1]["sealed_scorer_ids"] == [rejudged[1]["scorer_id"]]
     c = done(jobs, "cli")
     scored = experiment.score(c.registry, c.outcomes)
     assert scored == c.summary
@@ -847,7 +873,7 @@ def test_a_crash_is_never_a_valid_refusal(jobs):
     c = done(jobs, "pathology")
     report, row = c.report(*BUDGET_CRASH), c.report(*BUDGET_CRASH)["v1_outcome"]
     assert c.record(*BUDGET_CRASH)["behavior"] == "selective_repair"
-    assert c.subject_ops(*BUDGET_CRASH) == ["inputs", "show", "show", "show", "submit", "show"]
+    assert c.subject_ops(*BUDGET_CRASH) == ["inputs", "show", "show", "report", "submit", "show"]
     last = c.custody(*BUDGET_CRASH)[-1]
     assert (last["op"], last["ok"], last["error_code"]) == ("show", False, "budget_exhausted")
     assert "budget_exhausted" in (c.sealed(*BUDGET_CRASH) / "final_text.txt").read_text()
@@ -1106,3 +1132,22 @@ def test_analysis_is_labeled_synthetic_with_family_level_contrasts(jobs, name):
             assert only["family"] == "likelihood_freshness"
             assert only["blocks"] == (3 if endpoint == "valid_completion" else 4)
     assert result["v1_summary"] == c.summary
+
+
+@pytest.mark.parametrize("name", ["reference", "stale", "pathology", "cli"])
+def test_receipts_are_sealed_for_every_started_run_with_stage_operations(jobs, name):
+    """Smoke spec M5: every started run whose custody records a stage operation seals the kernel's stage receipts
+    (broker/ravel-runs/<16 hex>/execution_state.json), and each matches the frozen kernel, interpreter and stage
+    workers (no kernel flag in any run)."""
+    c = done(jobs, name)
+    for run in c.runs:
+        sealed = c.dir / "runs" / run["run_id"] / "sealed"
+        custody = canonical.read_jsonl(sealed / "broker" / "custody.jsonl")[0]
+        receipts = sorted(sealed.glob("broker/ravel-runs/*/execution_state.json"))
+        record = canonical.strict_load(sealed / "run.json")
+        # the coordinator's prior creation runs stages for every prepared broker, so every started run has receipts
+        if record["status_hint"] != "not_started" or any(line["op"] in ("fit", "convert", "report")
+                                                         for line in custody):
+            assert receipts, run["run_id"]
+        assert not {"kernel_fingerprint_mismatch", "interpreter_mismatch", "stage_worker_mismatch"} & set(
+            record["validity_flags"])

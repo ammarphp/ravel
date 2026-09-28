@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v2/claim.schema.json",
+  "title": "Claim record, schema_version 2, subject-submitted (WP12 task-bank design 1.5)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py (_claim_v2); the Python validator is authoritative and also enforces rules JSON Schema cannot express: artifact_field is required iff quantity or value is non-null, a quantity needs a numeric field and a value a categorical field of its type (boolean or string; tasks/registry.py), a value has a null unit, and a relation other than eq bounds a numeric quantity. Role/unit/value consistency with the cited artifact is the guard's and the evaluator's. quantity must also be a finite double. Version 1 claims (relation eq) follow claim.schema.json; the broker accepts both versions (decision E-131).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "claim_id",
+    "status",
+    "text",
+    "quantity",
+    "unit",
+    "role",
+    "expected_quantile",
+    "artifact_field",
+    "evidence_ids",
+    "qualifiers",
+    "relation",
+    "value"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "status": {
+      "enum": [
+        "provisional",
+        "retracted",
+        "final"
+      ]
+    },
+    "text": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"
+    },
+    "unit": {
+      "enum": [
+        "events",
+        "fb",
+        "pb",
+        null
+      ]
+    },
+    "role": {
+      "enum": [
+        "observed",
+        "expected",
+        "diagnostic",
+        "not_applicable"
+      ]
+    },
+    "expected_quantile": {
+      "enum": [
+        "-2",
+        "-1",
+        "0",
+        "+1",
+        "+2",
+        null
+      ]
+    },
+    "artifact_field": {
+      "enum": [
+        "obs_limit_events",
+        "sigma_vis_obs_fb",
+        "exp_limits_events[0]",
+        "sigma_vis_exp_fb[0]",
+        "exp_limits_events[1]",
+        "sigma_vis_exp_fb[1]",
+        "exp_limits_events[2]",
+        "sigma_vis_exp_fb[2]",
+        "exp_limits_events[3]",
+        "sigma_vis_exp_fb[3]",
+        "exp_limits_events[4]",
+        "sigma_vis_exp_fb[4]",
+        "cls_at_cap_obs",
+        "cls_at_cap_exp[0]",
+        "cls_at_cap_exp[1]",
+        "cls_at_cap_exp[2]",
+        "cls_at_cap_exp[3]",
+        "cls_at_cap_exp[4]",
+        "gzip_complete",
+        "document_complete",
+        "complete_events",
+        "header_nevents",
+        "file_sha256",
+        "sha256_matches_record",
+        "stream_error",
+        "cross_section_pb",
+        "integration_error_pb",
+        "event_norm",
+        "sum_weights",
+        "sum_weights_sq",
+        "selected_events",
+        "selected_sum_weights",
+        "recipe_check",
+        "result",
+        null
+      ]
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "qualifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relation": {
+      "enum": [
+        "eq",
+        "gt",
+        "ge",
+        "lt",
+        "le"
+      ]
+    },
+    "value": {
+      "type": [
+        "boolean",
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "expected"
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "then": {
+        "properties": {
+          "expected_quantile": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "expected_quantile": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "quantity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantity"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifact_field": {
+            "type": "string"
+          },
+          "value": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "relation": {
+            "not": {
+              "const": "eq"
+            }
+          }
+        },
+        "required": [
+          "relation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "quantity": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value": {
+            "type": [
+              "boolean",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifact_field": {
+            "type": "string"
+          },
+          "unit": {
+            "const": null
+          }
+        }
+      }
+    }
+  ]
+}

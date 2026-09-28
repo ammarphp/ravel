@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "label": "DERIVED development fixtures for the WP12 LHE census oracle tests; software-test inputs, not physics results, agent evidence or approvals",
+  "referenced": {
+    "dy-1729": {
+      "path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan/events.lhe.gz",
+      "sha256": "875f06a5e8752ae754dddb7765ba980009ab61388ea14f653f43a07fa8519276",
+      "bytes": 17571,
+      "provenance": "RAVEL scoped-workflow control 2026-09-09: MG5_aMC 2.9.27 LO pp > e+ e-, 13 TeV, seed 1729, 100 events; the exporter states that the public copy redacts only the home-directory prefix in the header, and the recorded event-block sha256 shows the event bytes unchanged (event-projection.json)"
+    },
+    "dy-1730": {
+      "path": "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/events.lhe.gz",
+      "sha256": "c8c7330fa387e5b4c864c771b6374fcbad9dbea6cffb6f104ad9275ffff4109a",
+      "bytes": 17547,
+      "provenance": "RAVEL scoped-workflow control 2026-09-09: same recipe as dy-1729 with seed 1730; the exporter states that the public copy redacts only the home-directory prefix in the header, and the recorded event-block sha256 shows the event bytes unchanged (event-projection.json)"
+    }
+  },
+  "stored": {
+    "dy-1730-content-truncated.lhe.gz": {
+      "sha256": "c45eea92cf785c0de3d2116bb11813f4948dc289f09c8b2b66335610feec4d61",
+      "bytes": 10462,
+      "content_sha256": "5cdb5f850f0cc14ad8b23316752c6f0157fd0ff5b47debfa442635584772a807",
+      "content_bytes": 54179,
+      "source": "dy-1730",
+      "cut_event": 42,
+      "cut_offset": 54179,
+      "construction": "decompressed dy-1730 cut midway inside event block 42, recompressed as one gzip member (no name, MTIME 0, XFL 2, OS 255, raw deflate level 9, memLevel 8) by build_fixture.py",
+      "built_with_zlib": "1.2.12",
+      "reproduced_with_zlib": [
+        "1.2.12",
+        "1.3.1",
+        "1.3.2"
+      ],
+      "kind": "ravel_generated_development",
+      "modifications": [
+        "decompressed content cut at byte 54,179, midway inside event block 42 (41 closed event blocks, no </LesHouchesEvents>; the header still says 100 events)",
+        "recompressed as one gzip member; the file sha256 therefore differs from dy-1730"
+      ],
+      "license": "Apache-2.0 for the RAVEL-generated content; the header keeps MG5_aMC@NLO banner and card text under its own licence (docs/reference/third-party.md); the MG5_aMC citation request in the init block is preserved"
+    }
+  }
+}

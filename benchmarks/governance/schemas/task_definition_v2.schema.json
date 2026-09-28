@@ -1,0 +1,695 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.ravel.invalid/governance/v2/task_definition.schema.json",
+  "title": "Task definition, schema_version 2, evaluator-private (WP12 task-bank design 3.2)",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py (_task_definition_v2, validate_task_bank); the Python validator is authoritative and also enforces rules JSON Schema cannot express: the task_id, twin_task_id and pair_id carry no leaky word, inputs are sorted by name with at most one per kind, prior_recipe is nonempty iff prior_inputs is, allowed_operations are sorted and include inputs and submit, approval_mode is supplied_approval_record iff an approval input is supplied, each endpoint's role and unit are its registered field's (tasks/registry.py), the metric is categorical iff the field is and sets the tolerance (relative_error positive, exact 0, categorical null), fidelity names an endpoint with its metric and tolerance (it is the design's primary_fidelity pointer), required_title is given iff a completion task is supplied a title, reuse_plan keys are subject stages with a refuse stage iff expected is refuse, waivers are sorted, and a source other than synthetic_development cites its material. The bank rules between twins (one valid and one fault twin per pair_id naming each other, identical request bytes, bank-wide budget and operations, each contrast's declared subject-visible differences, the waiver marking exactly the tasks with a declared visible oracle value, a fault twin declared only where its valid twin is declared too) are validate_task_bank's. canary is the one optional key. Version 1 records follow task_definition.schema.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "family",
+    "pair_id",
+    "variant",
+    "expected",
+    "stratum",
+    "split",
+    "objective",
+    "exposure_class",
+    "twin_task_id",
+    "bank_version",
+    "prompt_sha256",
+    "inputs",
+    "prior_inputs",
+    "prior_recipe",
+    "allowed_operations",
+    "units",
+    "oracle_kind",
+    "approval_mode",
+    "budget",
+    "endpoints",
+    "fidelity",
+    "diagnostic_tolerance",
+    "required_title",
+    "reuse_plan",
+    "refusal_conditions",
+    "waivers",
+    "oracle_sha256",
+    "source",
+    "provisional"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "family": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "pair_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "variant": {
+      "enum": [
+        "valid",
+        "fault"
+      ]
+    },
+    "expected": {
+      "enum": [
+        "complete",
+        "refuse"
+      ]
+    },
+    "stratum": {
+      "enum": [
+        "S1"
+      ]
+    },
+    "split": {
+      "enum": [
+        "development"
+      ]
+    },
+    "objective": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "exposure_class": {
+      "enum": [
+        "numerical_dependency",
+        "calibration_supersession",
+        "missing_authorization",
+        "scope_overreach",
+        "unit_convention",
+        "data_integrity_provenance",
+        "role_label_provenance"
+      ]
+    },
+    "twin_task_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "bank_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "prompt_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "kind",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
+            "maxLength": 255
+          },
+          "kind": {
+            "enum": [
+              "workspace",
+              "luminosity",
+              "title",
+              "events",
+              "archive_events",
+              "manifest",
+              "selection",
+              "approval"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "prior_inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "kind",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
+            "maxLength": 255
+          },
+          "kind": {
+            "enum": [
+              "workspace",
+              "luminosity",
+              "title",
+              "events",
+              "archive_events",
+              "manifest",
+              "selection",
+              "approval"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "prior_recipe": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "op",
+          "params"
+        ],
+        "properties": {
+          "op": {
+            "enum": [
+              "fit",
+              "convert",
+              "report",
+              "census",
+              "calc",
+              "figure"
+            ]
+          },
+          "params": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "allowed_operations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "calc",
+          "census",
+          "convert",
+          "fit",
+          "inputs",
+          "note",
+          "report",
+          "show",
+          "status",
+          "submit"
+        ]
+      }
+    },
+    "units": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "\\S"
+      }
+    },
+    "oracle_kind": {
+      "enum": [
+        "counting",
+        "lhe_census"
+      ]
+    },
+    "approval_mode": {
+      "enum": [
+        "pre_authorized_operations",
+        "supplied_approval_record"
+      ]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_broker_ops",
+        "max_fits",
+        "max_stage_executions",
+        "seconds_per_run"
+      ],
+      "properties": {
+        "max_broker_ops": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_fits": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_stage_executions": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "seconds_per_run": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "role",
+          "unit",
+          "relation",
+          "metric",
+          "tolerance",
+          "evidence_constraint"
+        ],
+        "properties": {
+          "field": {
+            "enum": [
+              "obs_limit_events",
+              "sigma_vis_obs_fb",
+              "exp_limits_events[0]",
+              "sigma_vis_exp_fb[0]",
+              "exp_limits_events[1]",
+              "sigma_vis_exp_fb[1]",
+              "exp_limits_events[2]",
+              "sigma_vis_exp_fb[2]",
+              "exp_limits_events[3]",
+              "sigma_vis_exp_fb[3]",
+              "exp_limits_events[4]",
+              "sigma_vis_exp_fb[4]",
+              "cls_at_cap_obs",
+              "cls_at_cap_exp[0]",
+              "cls_at_cap_exp[1]",
+              "cls_at_cap_exp[2]",
+              "cls_at_cap_exp[3]",
+              "cls_at_cap_exp[4]",
+              "gzip_complete",
+              "document_complete",
+              "complete_events",
+              "header_nevents",
+              "file_sha256",
+              "sha256_matches_record",
+              "stream_error",
+              "cross_section_pb",
+              "integration_error_pb",
+              "event_norm",
+              "sum_weights",
+              "sum_weights_sq",
+              "selected_events",
+              "selected_sum_weights",
+              "recipe_check",
+              "result"
+            ]
+          },
+          "role": {
+            "enum": [
+              "observed",
+              "expected",
+              "diagnostic",
+              "not_applicable"
+            ]
+          },
+          "unit": {
+            "enum": [
+              "events",
+              "fb",
+              "pb",
+              null
+            ]
+          },
+          "relation": {
+            "enum": [
+              "eq",
+              "gt",
+              "ge",
+              "lt",
+              "le"
+            ]
+          },
+          "metric": {
+            "enum": [
+              "relative_error",
+              "exact",
+              "categorical"
+            ]
+          },
+          "tolerance": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "evidence_constraint": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact",
+                  "predicate",
+                  "input_kind"
+                ],
+                "properties": {
+                  "artifact": {
+                    "enum": [
+                      "calc",
+                      "census",
+                      "conversion",
+                      "figure",
+                      "fit",
+                      "report"
+                    ]
+                  },
+                  "predicate": {
+                    "enum": [
+                      "derived_from_current_input",
+                      "file_sha256_matches_record"
+                    ]
+                  },
+                  "input_kind": {
+                    "enum": [
+                      "workspace",
+                      "luminosity",
+                      "title",
+                      "events",
+                      "archive_events",
+                      "manifest",
+                      "selection",
+                      "approval"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "fidelity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "quantity",
+        "tolerance"
+      ],
+      "properties": {
+        "metric": {
+          "enum": [
+            "relative_error",
+            "exact"
+          ]
+        },
+        "quantity": {
+          "enum": [
+            "obs_limit_events",
+            "sigma_vis_obs_fb",
+            "exp_limits_events[0]",
+            "sigma_vis_exp_fb[0]",
+            "exp_limits_events[1]",
+            "sigma_vis_exp_fb[1]",
+            "exp_limits_events[2]",
+            "sigma_vis_exp_fb[2]",
+            "exp_limits_events[3]",
+            "sigma_vis_exp_fb[3]",
+            "exp_limits_events[4]",
+            "sigma_vis_exp_fb[4]",
+            "cls_at_cap_obs",
+            "cls_at_cap_exp[0]",
+            "cls_at_cap_exp[1]",
+            "cls_at_cap_exp[2]",
+            "cls_at_cap_exp[3]",
+            "cls_at_cap_exp[4]",
+            "complete_events",
+            "header_nevents",
+            "cross_section_pb",
+            "integration_error_pb",
+            "sum_weights",
+            "sum_weights_sq",
+            "selected_events",
+            "selected_sum_weights",
+            "result"
+          ]
+        },
+        "tolerance": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "diagnostic_tolerance": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "exclusiveMinimum": 0
+    },
+    "required_title": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "\\S"
+    },
+    "reuse_plan": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^(fit|convert|report|census|calc)(:[a-z0-9_]+)?$"
+      },
+      "additionalProperties": {
+        "enum": [
+          "reuse",
+          "execute",
+          "optional",
+          "refuse",
+          "not_required"
+        ]
+      }
+    },
+    "refusal_conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text",
+          "matcher",
+          "evidence_predicate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+          },
+          "text": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "matcher": {
+            "enum": [
+              "luminosity_reason",
+              "domain_no_crossing"
+            ]
+          },
+          "evidence_predicate": {
+            "enum": [
+              "inputs_listing_without_luminosity",
+              "fit_on_current_workspace_not_resolved"
+            ]
+          }
+        }
+      }
+    },
+    "waivers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "visibility_waiver_pending"
+        ]
+      }
+    },
+    "oracle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "license",
+        "citation",
+        "provenance",
+        "modifications"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "synthetic_development",
+            "derived_from_published",
+            "ravel_generated_development"
+          ]
+        },
+        "license": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "citation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "\\S"
+        },
+        "provenance": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "modifications": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        }
+      }
+    },
+    "provisional": {
+      "type": "boolean"
+    },
+    "canary": {
+      "type": "string",
+      "pattern": "^RAVEL-EVAL-CANARY-[0-9a-f]{32}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "expected": {
+            "const": "refuse"
+          }
+        },
+        "required": [
+          "expected"
+        ]
+      },
+      "then": {
+        "properties": {
+          "refusal_conditions": {
+            "minItems": 1
+          },
+          "endpoints": {
+            "maxItems": 0
+          },
+          "fidelity": {
+            "properties": {
+              "tolerance": {
+                "type": "null"
+              }
+            }
+          },
+          "diagnostic_tolerance": {
+            "type": "number"
+          },
+          "required_title": {
+            "type": "null"
+          },
+          "variant": {
+            "const": "fault"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "refusal_conditions": {
+            "maxItems": 0
+          },
+          "endpoints": {
+            "minItems": 1
+          },
+          "diagnostic_tolerance": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "properties": {
+              "kind": {
+                "const": "synthetic_development"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "license": {
+                "const": "Apache-2.0"
+              },
+              "citation": {
+                "type": "null"
+              },
+              "modifications": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "source": {
+            "properties": {
+              "citation": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

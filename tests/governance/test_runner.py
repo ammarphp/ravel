@@ -52,13 +52,18 @@ SEALED_LAUNCHED = SEALED_ALWAYS | {"adapter_result.json", "stdout.jsonl", "stder
                                   "launch.json", "broker/custody.jsonl"}
 LAUNCH_ENV = sorted(["HOME", "LANG", "PATH", "TMPDIR", "RAVEL_TASK_ENDPOINT", "RAVEL_TASK_TOKEN"])
 SUBJECT_TEMPLATE = ("request.md", "tools.md", "bin/ravel-task")
+# The likelihood_freshness family inside the frozen task bank (coordinator/family/<family>/tasks/<task_id>/).
+LF_TASKS = ("coordinator", "family", "likelihood_freshness", "tasks")
+# The likelihood_freshness tasks: these runner tests schedule them only (16 assignments), as before WP12 plan steps 8-9
+# made every family runnable (the default schedule is now the 12-task bank; test_bank_fullstack.py runs it).
+LF_IDS = ["lf-a", "lf-b", "lf-c", "lf-d"]
 ZERO_CHARGE = {"usd": 0.0, "usd_basis": "not_started", "seconds": 0.0, "seconds_basis": "not_started"}
 
 
 def build(base, campaign_id="synthetic-runner-test", sandbox=SANDBOX, **budget):
     return runner.build_synthetic_campaign(base / "store", campaign_id=campaign_id, created_utc=CREATED, seeds=[11],
                                            schedule_seed=7, subjects_root=base / "subjects", sandbox=sandbox,
-                                           budget=budget or None)
+                                           budget=budget or None, tasks=LF_IDS)
 
 
 def registry(campaign):
@@ -256,7 +261,7 @@ def lost(tmp_path_factory):
         patch.setattr(isolation, "subject_env", lambda **kw: {**subject_env(**kw), "RAVEL_NOTE": canary})
         go("env_refused")
 
-    def broken_prior(self, prior):
+    def broken_prior(self, prior, recipe=None):   # the runner passes the definition's prior recipe
         raise RuntimeError("SYNTHETIC prior stage failure")
 
     with pytest.MonkeyPatch.context() as patch:
@@ -626,7 +631,7 @@ def test_global_budget_admission_refuses_below_the_per_run_cap(base):
 def test_admission_failure_is_not_started_with_zero_resources(base, monkeypatch):
     campaign = build(base)
     run = run_of(campaign, "lf-c", "instructions")
-    plant(monkeypatch, (campaign / "coordinator" / "family" / "tasks" / "lf-c" / "oracle.json").read_bytes())
+    plant(monkeypatch, (campaign.joinpath(*LF_TASKS) / "lf-c" / "oracle.json").read_bytes())
     result = runner.run_campaign(campaign, adapter_factory=never, only=[run["run_id"]])
     rid = run["run_id"]
     assert states(campaign, rid) == ["materialized", "admission_failed", "not_started", "sealed"]
@@ -649,13 +654,36 @@ def test_admission_failure_is_not_started_with_zero_resources(base, monkeypatch)
 def test_a_reformatted_oracle_copy_is_caught_by_value_canaries(base, monkeypatch):
     campaign = build(base)
     rid = run_of(campaign, "lf-b", "full")["run_id"]
-    oracle = canonical.strict_load(campaign / "coordinator" / "family" / "tasks" / "lf-b" / "oracle.json")
+    oracle = canonical.strict_load(campaign.joinpath(*LF_TASKS) / "lf-b" / "oracle.json")
     # SYNTHETIC leak: the oracle's numbers only, reformatted (no fixed fragment, no matching hash).
     notes = json.dumps({"numbers": [oracle["current"]["sigma_vis_obs_fb"]]}, indent=4).encode()
     plant(monkeypatch, notes)
     runner.run_campaign(campaign, adapter_factory=never, only=[rid])
     failed = last(campaign, rid, "admission_failed")
     assert failed["stage"] == "workspace" and {v["code"] for v in failed["violations"]} == {"canary"}
+
+
+def test_a_value_canary_of_every_bank_family_fails_admission(base, monkeypatch):
+    """Review of 2026-09-27 (second): the runtime scan of every subject-visible byte at admission catches a printed
+    oracle value of each task-bank family, not only likelihood_freshness's; the loaded campaign scans for every value
+    canary the frozen bank index lists (E-183)."""
+    tasks = ["kx-a", "hv-b", "mq-a", "tz-a"]                 # one task of each new family
+    campaign = runner.build_synthetic_campaign(base / "store", campaign_id="synthetic-bank-canaries",
+                                               created_utc=CREATED, seeds=[11], schedule_seed=7,
+                                               subjects_root=base / "subjects", sandbox=SANDBOX, tasks=tasks)
+    index = canonical.strict_load(campaign / "coordinator" / "family" / "index.json")
+    listed = {c for task in index["tasks"] for c in task["value_canaries"]}
+    assert {task["family"] for task in index["tasks"] if task["value_canaries"]} == set(index["families"])
+    assert listed <= set(runner._Campaign(campaign).canaries)
+    for task_id in tasks:
+        entry = next(t for t in index["tasks"] if t["task_id"] == task_id)
+        assert entry["family"] != "likelihood_freshness" and entry["value_canaries"]
+        rid = run_of(campaign, task_id, "full")["run_id"]
+        # SYNTHETIC leak: one printed oracle value of this family, reformatted into a note
+        plant(monkeypatch, json.dumps({"number": entry["value_canaries"][-1]}, indent=4).encode())
+        runner.run_campaign(campaign, adapter_factory=never, only=[rid])
+        failed = last(campaign, rid, "admission_failed")
+        assert failed["stage"] == "workspace" and {v["code"] for v in failed["violations"]} == {"canary"}, task_id
 
 
 def test_the_family_build_canary_alone_fails_admission(base, monkeypatch):
@@ -666,7 +694,7 @@ def test_the_family_build_canary_alone_fails_admission(base, monkeypatch):
     assert contracts.CANARY.fullmatch(canary)
     for task in ("lf-a", "lf-d"):
         for name in ("oracle.json", "task_definition.json"):
-            assert canary.encode() in (campaign / "coordinator" / "family" / "tasks" / task / name).read_bytes()
+            assert canary.encode() in (campaign.joinpath(*LF_TASKS) / task / name).read_bytes()
     rid = run_of(campaign, "lf-a", "baseline")["run_id"]
     plant(monkeypatch, json.dumps({"note": canary}).encode())
     runner.run_campaign(campaign, adapter_factory=never, only=[rid])
@@ -712,7 +740,7 @@ def test_timeout_is_sealed_and_an_unsandboxed_campaign_is_flagged_everywhere(bas
 def test_code_or_prompt_drift_refuses_to_run(base, monkeypatch):
     campaign = build(base)
     rid = registry(campaign)["runs"][0]["run_id"]
-    oracle = canonical.strict_load(campaign / "coordinator" / "family" / "tasks" / "lf-a" / "oracle.json")
+    oracle = canonical.strict_load(campaign.joinpath(*LF_TASKS) / "lf-a" / "oracle.json")
     drifts = [
         ("fake_host_version", lambda: "fake_subject-sha256:" + "0" * 64, "fake_subject.py changed"),
         ("harness_manifest", lambda: [{"path": "runner.py", "sha256": "0" * 64}], "harness code changed"),
@@ -769,6 +797,11 @@ def test_build_binds_checkout_environment_and_family(base):
     assert manifest["host"]["sandbox"] == SANDBOX and manifest["authorization"]["kind"] == "synthetic_engineering"
     assert treatment.treatment_diff(manifest["arms"])["ok"] is True
     assert len(registry(campaign)["runs"]) == 16 and manifest["budget"]["global_seconds_cap"] == 16 * 600
+    config = canonical.strict_load(campaign / "coordinator" / "config.json")
+    assert config["host_launch"] is None and environment["host_launch"] is None   # the fake host has no launch record
+    assert environment["family_index_sha256"] == canonical.sha256_file(campaign / "coordinator" / "family" /
+                                                                       "index.json")
+    assert not (campaign / "coordinator" / runner.HOST_BINDING).exists()
     secret = campaign / "coordinator" / "campaign_secret"
     assert stat.S_IMODE(secret.stat().st_mode) == 0o400
     assert sorted(p.name for p in (base / "store" / "synthetic").iterdir()) == ["synthetic-runner-test"]
@@ -776,13 +809,21 @@ def test_build_binds_checkout_environment_and_family(base):
     assert canonical.strict_load(other / "campaign.json")["host"]["sandbox"] == "none_test_only"
 
 
-@pytest.mark.parametrize("case", ["repository", "instructions_ancestor", "arm_word", "store"])
+@pytest.mark.parametrize("case", ["repository", "instructions_ancestor", "claude_settings_ancestor",
+                                  "claude_local_memory_ancestor", "arm_word", "store"])
 def test_build_refuses_unsafe_subject_roots(base, case):
     if case == "repository":
         subjects = REPO / "local-subjects"
     elif case == "instructions_ancestor":
         (base / "marked").mkdir()
         (base / "marked" / "AGENTS.md").write_text("synthetic instructions\n")
+        subjects = base / "marked" / "subjects"
+    elif case == "claude_settings_ancestor":       # smoke spec WI-6: project settings a host would load
+        (base / "marked" / ".claude").mkdir(parents=True)
+        subjects = base / "marked" / "subjects"
+    elif case == "claude_local_memory_ancestor":
+        (base / "marked").mkdir()
+        (base / "marked" / "CLAUDE.local.md").write_text("synthetic local memory\n")
         subjects = base / "marked" / "subjects"
     elif case == "arm_word":
         subjects = base / "full" / "subjects"
@@ -793,6 +834,18 @@ def test_build_refuses_unsafe_subject_roots(base, case):
                                         seeds=[11], schedule_seed=7, subjects_root=subjects, sandbox=SANDBOX)
     assert not (base / "store" / "synthetic" / "synthetic-refused").exists()
     assert not subjects.exists()
+
+
+def test_lab_root_ignores_a_home_dot_claude(tmp_path):
+    """lab_root keeps the three instruction markers: a home directory holding ~/.claude (as the user's does) never
+    becomes the lab root, while a subject root below it is refused (SUBJECT_ANCESTOR_MARKERS)."""
+    home = Path(os.path.realpath(tmp_path)) / "home"
+    (home / ".claude").mkdir(parents=True)
+    (home / "lab" / ".git").mkdir(parents=True)
+    (home / "lab" / "checkout").mkdir()
+    assert runner.lab_root(home / "lab" / "checkout") == str(home / "lab")
+    with pytest.raises(ContractError, match="holds .claude"):
+        runner.check_subjects_root(home / "subjects", [str(home / "lab")])
 
 
 def test_a_failed_build_leaves_nothing_and_the_id_stays_usable(base, monkeypatch):
@@ -1074,8 +1127,10 @@ def cli_run(*args):
 def test_cli_builds_verifies_and_fails_closed(base):
     code, built = cli_run("build-synthetic", "--store", base / "store", "--campaign-id", "synthetic-cli-test",
                           "--created-utc", CREATED, "--seed", 11, "--schedule-seed", 3, "--subjects-root",
-                          base / "subjects", "--sandbox", SANDBOX, "--seconds-per-run", 60)
+                          base / "subjects", "--sandbox", SANDBOX, "--seconds-per-run", 60,
+                          *[arg for task in LF_IDS for arg in ("--task", task)])
     assert code == 0 and built["ok"] and built["runs"] == 16 and built["synthetic"] is True
+    assert built["tasks"] == LF_IDS
     campaign = built["campaign_dir"]
     assert cli_run("verify", "--campaign", campaign) == (0, {"ok": True, "campaign": {"ok": True, "errors": []},
                                                              "provenance": {"ok": True, "errors": []},
@@ -1115,8 +1170,16 @@ def test_cli_audit_reports_a_missing_evaluator_and_calls_a_present_one(lost, mon
     assert cli.main(["audit", "--campaign", campaign]) == 0
     done = json.loads(capsys.readouterr().out)
     assert done == {"ok": True, "scorer_id": STUB_SCORER, "judge_reports": 16, "status_counts": {"not_started": 16},
-                    "synthetic": True}
+                    "synthetic": True, "evaluator_errors": 0}
     assert seen == [Path(campaign).resolve()]
+    # E-181: an evaluator defect's row (E-150: permanent, never overwritten) is reported and fails the step
+    crashed = {"run_id": "SYNTHETIC-run", "status": "crash", "synthetic": True,
+               "unresolved_items": ["unscorable_record: evaluator error KeyError: 'result'"]}
+    stub.audit_campaign = lambda d: [crashed] + [{"status": "not_started", "synthetic": True}] * 15
+    assert cli.main(["audit", "--campaign", campaign]) == 1
+    failed = json.loads(capsys.readouterr().out)
+    assert failed["ok"] is False and failed["evaluator_errors"] == 1
+    assert failed["evaluator_error_runs"] == ["SYNTHETIC-run"] and "fix the evaluator" in failed["note"]
 
     def boom(*args, **kwargs):
         raise RuntimeError("SYNTHETIC unexpected failure")
@@ -1476,11 +1539,14 @@ def claude(tmp_path, **overrides):
     args = {"executable": "/opt/synthetic/claude-2.1.233", "expected_version": "2.1.233",
             "expected_sha256": "a" * 64, "model": "synthetic-model", "max_turns": 30, "max_budget_usd": 1.5,
             "permission_mode": "dontAsk", "setting_sources": "project", "disallowed_tools": ["WebSearch", "WebFetch"],
-            "config_dir": str(tmp_path / "claude-config"), "synthetic": True}
+            "config_dir": str(tmp_path / "claude-config"), "tmp_dir": str(tmp_path / "claude-tmp"), "effort": "high",
+            "synthetic": True}
     return ClaudeCliAdapter(**{**args, **overrides})
 
 
 def test_host_binding_requires_the_frozen_identity_and_the_per_run_ceiling(tmp_path):
+    """Smoke spec WI-2 changed this test: a claude_cli adapter without a per-run temp directory or a pinned effort
+    is now a binding problem (the live launch needs both), so the helper adapter carries them."""
     budget = {"usd_per_run": 1.5}
     binding, problems = runner.host_binding(claude(tmp_path), claude_host(), budget, "synthetic")
     assert problems == []
@@ -1488,6 +1554,8 @@ def test_host_binding_requires_the_frozen_identity_and_the_per_run_ceiling(tmp_p
     assert binding["executor_id"] == "claude_cli/2.1.233/synthetic-model"
     cases = [(claude(tmp_path, max_budget_usd=5.0), claude_host(), "max_budget_usd 5.0 differs from the campaign's "
                                                                      "usd_per_run 1.5"),
+             (claude(tmp_path, tmp_dir=None), claude_host(), "no per-run temp directory (tmp_dir is None)"),
+             (claude(tmp_path, effort=None), claude_host(), "no pinned --effort (effort is None)"),
              (claude(tmp_path, model="other-model"), claude_host(), "adapter model 'other-model' differs"),
              (claude(tmp_path, expected_version="2.1.281"), claude_host(), "adapter expected_version '2.1.281'"),
              (claude(tmp_path), claude_host(model=None), "host.model is unknown in the campaign"),
@@ -1518,16 +1586,22 @@ def test_a_real_hosts_added_environment_may_not_name_an_arm():
 
 
 def test_every_run_launches_a_real_host_identically(tmp_path):
-    """R0.5: the first launch's binding is written once; a later run whose argv differs (per-arm max turns,
-    here) is refused."""
+    """R0.5, R20: the binding is written once at build (smoke spec WI-1 step 10; this test changed with it: a launch
+    no longer writes the binding, it only compares); a run whose argv differs (per-arm max turns, here) is refused,
+    and a real host's campaign without a build-time binding is refused too."""
     (tmp_path / "coordinator").mkdir()
     campaign = SimpleNamespace(host=claude_host(), budget={"usd_per_run": 1.5}, manifest={"kind": "synthetic"},
                                dir=tmp_path)
+    assert runner._Campaign._bind_host(campaign, claude(tmp_path))[1] == [
+        "no host binding was written at build (coordinator/host_binding.json); rebuild the campaign"]
+    assert not (tmp_path / "coordinator" / runner.HOST_BINDING).exists()
+    built, problems = runner.host_binding(claude(tmp_path), campaign.host, campaign.budget, "synthetic")
+    canonical.write_once(tmp_path / "coordinator" / runner.HOST_BINDING, runner._pretty(built))
     first, problems = runner._Campaign._bind_host(campaign, claude(tmp_path))
     assert problems == [] and canonical.strict_load(tmp_path / "coordinator" / runner.HOST_BINDING) == first
     assert runner._Campaign._bind_host(campaign, claude(tmp_path))[1] == []
     assert runner._Campaign._bind_host(campaign, claude(tmp_path, max_turns=60))[1] == [
-        "the host launch differs from the campaign's first launch (coordinator/host_binding.json)"]
+        "the host launch differs from the binding written at build (coordinator/host_binding.json)"]
 
 
 # -- R1.0, R1.2, R1.6: outcomes bound to the frozen campaign, the evaluator and recorded human decisions
@@ -1691,3 +1765,194 @@ def test_cli_refuses_the_mechanism_study_no_campaign_carries(base, capsys):
     """R0.3: the variant is library-level only; the CLI says so instead of checking an operator flag."""
     assert cli.main(["treatment-diff", "--campaign", str(base / "absent"), "--mechanism-study"]) == 2
     assert "library-level only in this slice" in json.loads(capsys.readouterr().out)["error"]
+
+
+# -- smoke spec WI-8: M1 (the latest behavioral record, re-derived), M2, M5, M10
+
+@pytest.fixture(scope="module")
+def gated(tmp_path_factory):
+    """A SYNTHETIC campaign with one passing behavioral check (coordinator/behavioral/1)."""
+    base = Path(os.path.realpath(tmp_path_factory.mktemp("lab")))
+    campaign = build(base, campaign_id="synthetic-runner-gated")
+    assert runner.behavioral_check(campaign)["ok"] is True
+    manifest = canonical.strict_load(campaign / "campaign.json")
+    return SimpleNamespace(campaign=campaign, digest=canonical.sha256_file(campaign / "campaign.json"),
+                           arms=manifest["arms"], parent=campaign / "coordinator" / "behavioral")
+
+
+def copy_check(gated, source, target, change=None):
+    """A SYNTHETIC copy of a recorded behavioral check under another number, its result optionally changed."""
+    path = gated.parent / str(target)
+    shutil.copytree(gated.parent / str(source), path)
+    if change is not None:
+        result = path / "result.json"
+        record = canonical.strict_load(result)
+        change(record)
+        result.chmod(0o644)
+        result.write_bytes(runner._pretty(record))
+    return path
+
+
+def remove(*paths):
+    for path in paths:
+        for item in [path, *path.rglob("*")]:
+            item.chmod(0o755)
+        shutil.rmtree(path)
+
+
+def test_gate_orders_checks_numerically(gated):
+    """"10" is later than "2": with lexicographic order the failing check 2 would be the latest."""
+    failing = copy_check(gated, 1, 2, lambda r: r["result"].update(ok=False))
+    passing = copy_check(gated, 1, 10)
+    try:
+        assert runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms) is None
+        problem, sha = runner.behavioral_record(gated.campaign, gated.digest, gated.arms)
+        assert problem is None and sha == canonical.sha256_file(passing / "result.json")
+        remove(passing)
+        assert "(coordinator/behavioral/2) is not a passing" in runner.behavioral_record_problem(
+            gated.campaign, gated.digest, gated.arms)
+    finally:
+        remove(*[p for p in (failing, passing) if p.exists()])
+
+
+def test_gate_refuses_when_the_latest_check_failed_after_a_pass(gated, monkeypatch):
+    monkeypatch.setattr(guard, "evaluate", lambda submission, current_inputs, artifacts:
+                        {"blocking": False, "diagnostics": []})      # SYNTHETIC no-op guard
+    noop = runner.behavioral_check(gated.campaign)
+    latest = Path(noop["record"]).parent
+    try:
+        assert noop["ok"] is False
+        problem = runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms)
+        assert f"(coordinator/behavioral/{latest.name}) is not a passing" in problem
+    finally:
+        remove(latest)
+    assert runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms) is None
+
+
+def test_gate_refuses_a_hand_written_passing_result(gated, monkeypatch):
+    """The no-op guard's custody with a result.json edited to pass: the verdict re-derived from the custody fails."""
+    with monkeypatch.context() as patch:
+        patch.setattr(guard, "evaluate", lambda submission, current_inputs, artifacts:
+                      {"blocking": False, "diagnostics": []})
+        latest = Path(runner.behavioral_check(gated.campaign)["record"]).parent
+    try:
+        record = canonical.strict_load(latest / "result.json")
+        record["result"] = {**record["result"], "ok": True, "violations": []}
+        (latest / "result.json").chmod(0o644)
+        (latest / "result.json").write_bytes(runner._pretty(record))
+        problem = runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms)
+        assert "differ from their re-derivation from its custody" in problem
+    finally:
+        remove(latest)
+    forged = copy_check(gated, 1, 99, lambda r: r["observations"]["full"]["stale"].update(accepted=True))
+    try:
+        assert "re-derivation" in runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms)
+    finally:
+        remove(forged)
+
+
+def test_gate_refuses_arms_that_differ_from_the_manifest(gated):
+    arms = copy.deepcopy(gated.arms)
+    arms["baseline"]["guard"]["feedback"] = "silent" if arms["baseline"]["guard"]["feedback"] == "diagnostic" \
+        else "diagnostic"
+    assert "arms' guards differ from the campaign manifest's" in runner.behavioral_record_problem(
+        gated.campaign, gated.digest, arms)
+    edited = copy_check(gated, 1, 50, lambda r: r["arms"]["full"].update(mode="audit"))
+    try:
+        assert "arms' guards differ" in runner.behavioral_record_problem(gated.campaign, gated.digest, gated.arms)
+    finally:
+        remove(edited)
+
+
+def test_a_failing_post_run_drift_check_keeps_the_paid_result(base, monkeypatch):
+    """M2: the post-run drift check raising after the subject ran leaves the run exited with its adapter result
+    written, flagged code_drift_during_run; never a lost launch."""
+    campaign = build(base, campaign_id="synthetic-runner-drift-check")
+    rid = run_of(campaign, "lf-a", "baseline")["run_id"]
+
+    def broken():
+        raise RuntimeError("SYNTHETIC harness read failure")
+    runner.run_campaign(campaign, only=[rid], adapter_factory=lambda a: AfterRun(
+        lambda: monkeypatch.setattr(runner, "harness_manifest", broken), a["behavior"], a["launcher"],
+        python=a["python"]))
+    assert states(campaign, rid) == ["materialized", "admitted", "launched", "process_started", "exited", "sealed"]
+    assert last(campaign, rid, "exited")["code_drift"] == [
+        "post-run drift check failed: RuntimeError: SYNTHETIC harness read failure"]
+    record = run_record(campaign, rid)
+    assert record["status_hint"] == "exited" and runner.CODE_DRIFT_FLAG in record["validity_flags"]
+    assert sealed_json(campaign, rid, "adapter_result.json")["exit_code"] == 0
+
+
+@pytest.mark.parametrize("cap, admitted", [(7680.0, True), (7200.0, False)])
+def test_global_seconds_admission_with_timed_out_runs(base, cap, admitted):
+    """M10 (R13): 8 assignments at 900 s; the first seven each measured 915 s (timed out, killed a little after the
+    wall limit). The confirmed cap 7680 s (8 x 960) admits the eighth (1275 s left); 7200 s (8 x 900) leaves 795 s,
+    below the per-run cap, so the eighth is refused: the documented consequence of the lower cap."""
+    campaign = runner.build_synthetic_campaign(base / "store", campaign_id=f"synthetic-seconds-{int(cap)}",
+                                               created_utc=CREATED, seeds=[11], schedule_seed=7,
+                                               subjects_root=base / "subjects", sandbox=SANDBOX,
+                                               tasks=["lf-b", "lf-d"],
+                                               budget={"seconds_per_run": 900.0, "global_seconds_cap": cap})
+    loaded = runner._Campaign(campaign)
+    runs = loaded.registry["runs"]
+    assert len(runs) == 8
+    for run in runs[:7]:
+        runner._record(campaign / "runs" / run["run_id"] / "journal.jsonl", "exited",
+                       charge={"usd": 0.0, "usd_basis": "none_synthetic", "seconds": 915.0,
+                               "seconds_basis": "measured"})
+    plan, plan_sha = loaded.plan(None)
+    outcome = loaded.process(runs[7], plan, plan_sha, runner.fake_adapter_factory)
+    record = run_record(campaign, runs[7]["run_id"])
+    if admitted:
+        assert record["status_hint"] == "exited", record
+    else:
+        assert record["status_hint"] == "not_started" and "global budget admission" in record["not_started_reason"]
+        assert last(campaign, runs[7]["run_id"], "not_started")["code"] == "global_budget"
+    assert outcome["action"] == "sealed"
+
+
+def test_build_selects_tasks_in_family_order_and_keeps_the_family(base):
+    campaign = runner.build_synthetic_campaign(base / "store", campaign_id="synthetic-subset", created_utc=CREATED,
+                                               seeds=[11], schedule_seed=7, subjects_root=base / "subjects",
+                                               sandbox=SANDBOX, tasks=["lf-d", "lf-b"])
+    assert [t["id"] for t in registry(campaign)["spec"]["tasks"]] == ["lf-b", "lf-d"]
+    index = canonical.strict_load(campaign / "coordinator" / "family" / "index.json")
+    # the frozen bank holds every registered family (WP12 plan step 7); only runnable families are scheduled
+    assert [t["task_id"] for t in index["tasks"] if t["family"] == "likelihood_freshness"] == ["lf-a", "lf-b", "lf-c",
+                                                                                           "lf-d"]
+    # every family is runnable since WP12 plan steps 8-9 (a held family's refusal: test_bank_families.py)
+    assert {t["family"] for t in index["tasks"]} == set(index["families"]) == set(index["runnable_families"])
+    assert campaign_manifest.verify(campaign) == {"ok": True, "errors": []}
+    assert runner.behavioral_check(campaign)["task_id"] == "lf-c"   # the probe task stays in the family
+    with pytest.raises(ContractError, match="not tasks of the family index"):
+        runner.build_synthetic_campaign(base / "store", campaign_id="synthetic-subset-bad", created_utc=CREATED,
+                                        seeds=[11], schedule_seed=7, subjects_root=base / "subjects",
+                                        sandbox=SANDBOX, tasks=["lf-z"])
+
+
+def test_receipt_findings_compare_every_stage_with_the_frozen_treatment(launched):
+    """M5: the sealed kernel receipts of a real fake-host run match the frozen kernel, interpreter and stage workers;
+    a changed kernel digest, interpreter or stage worker is found by the runner's rule and (kernel, interpreter) by
+    the evaluator's independent restatement."""
+    audit = pytest.importorskip("governance.audit", reason="audit.py (WP08) is not integrated in this checkout")
+    rid = launched.picks["reuse"]["run_id"]
+    root = sealed(launched.campaign, rid)
+    receipts = {p.relative_to(root).as_posix(): p.read_bytes() for p in root.glob("broker/ravel-runs/*/"
+                                                                                  "execution_state.json")}
+    assert receipts, "a started run with stage operations seals its receipts"
+    manifest = canonical.strict_load(launched.campaign / "campaign.json")
+    common = manifest["arms"]["baseline"]["common"]
+    environment = canonical.strict_load(launched.campaign / "coordinator" / "environment.json")
+    workers = {e["path"]: e["sha256"] for e in environment["harness_code"] if e["path"].startswith("stages/")}
+    assert runner.receipt_findings(receipts, common, workers) == [] and audit._receipt_findings(receipts, common) == []
+    assert "kernel_fingerprint_mismatch" not in run_record(launched.campaign, rid)["validity_flags"]
+    stage_worker = {**workers, "stages/fit.py": "0" * 64}
+    assert {f for f, _ in runner.receipt_findings(receipts, common, stage_worker)} == {"stage_worker_mismatch"}
+    kernel = {**common, "kernel_source_sha256": "0" * 64}
+    assert {f for f, _ in runner.receipt_findings(receipts, kernel)} == {"kernel_fingerprint_mismatch"}
+    assert {k for k, _ in audit._receipt_findings(receipts, kernel)} == {"kernel fingerprint mismatch"}
+    interpreter = {**common, "interpreter_sha256": "0" * 64}
+    assert {f for f, _ in runner.receipt_findings(receipts, interpreter)} == {"interpreter_mismatch"}
+    assert {k for k, _ in audit._receipt_findings(receipts, interpreter)} == {"interpreter mismatch"}
+    report = audit.build_report(launched.campaign, rid)
+    assert not any("kernel" in item for item in report["unresolved_items"])

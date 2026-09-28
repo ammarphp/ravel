@@ -208,10 +208,34 @@ def _recover_orphan(rundir, stage, grace):
         return
     identity = execution.process_identity(pid)
     if identity is None:
-        if not execution.process_group_members(pid):
+        # An unreadable identity proves nothing while some process holds the pid (ps may have failed or timed
+        # out): that process may now lead an unrelated group of this user. A pid no process holds (ESRCH) proves
+        # nothing about a group of that id either: after pid reuse a later process can create a group with that
+        # id and exit, leaving members that are not this stage's. Without a live leader to compare with the
+        # recorded identity nothing is signalled: an active leaderless group holds the stage, its members are
+        # recorded for a human, and a resume proceeds only once that group is observed empty.
+        try:
+            os.kill(pid, 0)   # existence probe only: signal 0 is never delivered
+            held = True
+        except ProcessLookupError:
+            held = False
+        except OSError:
+            held = True
+        if held:
+            raise ValueError(f"cannot establish ownership of previous process {pid} (its identity is unreadable); "
+                             f"stage {stage} held")
+        members = execution.process_group_members(pid)
+        if not members:
             return
-        if not old.get("child_identity"):
-            raise ValueError(f"cannot establish ownership of previous group {pid}; stage {stage} held")
+        old["cleanup"] = {"process_group": pid, "signals": [], "errors": [],
+                          "census_scope": CLEANUP_CENSUS_SCOPE, "remaining_group_members": members,
+                          "group_state": "active", "leader_returncode": None, "requires_recovery": True,
+                          "note": "the recorded leader is gone, so the group's identity cannot be proven (a later "
+                                  "process may have taken its id); nothing was signalled: a human must identify "
+                                  "these members"}
+        execution.finish_attempt(rundir, old, 130, "leaderless orphan group held for a human (nothing signalled)")
+        raise ValueError(f"previous group {pid} has no leader to prove its identity and remains active "
+                         f"(members {members}); nothing was signalled; stage {stage} held")
     elif identity != old.get("child_identity") or os.getpgid(pid) != pid:
         raise ValueError(f"cannot establish ownership of previous process {pid}; stage {stage} held")
     try:

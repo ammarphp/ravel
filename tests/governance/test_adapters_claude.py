@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from governance.adapters import claude_cli
+from governance.adapters import base, claude_cli
 from governance.adapters.base import HostDriftError, assert_prompt_not_in_argv
 from governance.adapters.claude_cli import ClaudeCliAdapter, claude_cost, cost_semantics, parse_stream
 from governance.canonical import ContractError, sha256_bytes, sha256_file
@@ -123,6 +123,11 @@ def test_argv_is_structured_prompt_free_and_pins_isolation_flags(host):
     resumed = host(session_id=None, resume_session_id=RESUMED).build_argv()
     assert resumed[-2:] == ["--resume", RESUMED] and "--session-id" not in resumed
     assert host(setting_sources="").build_argv(session_id=SESSION)[argv.index("--setting-sources") + 1] == ""
+    assert "--effort" not in argv
+    pinned = host(effort="high").build_argv(session_id=SESSION)
+    assert pinned[pinned.index("--model"):pinned.index("--model") + 4] == ["--model", "synthetic-model", "--effort",
+                                                                             "high"]
+    assert [a for a in pinned if a not in ("--effort", "high")] == argv
 
 
 @pytest.mark.parametrize("change", [
@@ -146,6 +151,12 @@ def test_argv_is_structured_prompt_free_and_pins_isolation_flags(host):
     {"sandbox": "none"},
     {"sandbox": "none_test_only", "subprocess_env_scrub": 1},
     {"synthetic": "yes"},
+    {"effort": "extreme"},
+    {"effort": ""},
+    {"shell": "/bin/sh"},
+    {"cert_store": "system"},
+    {"expected_tools": "Bash,Read"},
+    {"expected_api_key_source": ""},
 ])
 def test_constructor_refuses_unsafe_configuration(host, change):
     with pytest.raises(ContractError):
@@ -331,8 +342,10 @@ def test_outer_sandbox_is_required_unless_test_only(host):
 
 
 def test_subprocess_env_scrub_is_a_recorded_choice(host):
+    """Off is an explicit "0" (smoke spec §1.3, R19): an unset scrub turns on under CLAUDE_CODE_ENTRYPOINT=local-agent
+    (F4), and a truthy one forces the permission mode to default (F3)."""
     result, record = host.run(host(subprocess_env_scrub=False), "synthetic_claude_2.1.233_success.jsonl")
-    assert "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB" not in record["env"]
+    assert record["env"]["CLAUDE_CODE_SUBPROCESS_ENV_SCRUB"] == "0"
     assert result.details["subprocess_env_scrub"] is False and result.validity == VALID
     with pytest.raises(ContractError, match="subprocess_env_scrub"):
         host.run(host(subprocess_env_scrub=False), "synthetic_claude_2.1.233_success.jsonl",
@@ -426,3 +439,311 @@ def test_launch_error_is_reported(host):
     result, _ = host.run(host(launcher=failing), "synthetic_claude_2.1.233_success.jsonl")
     assert result.status_hint == "launch_error" and result.events == [] and result.cost["usd"] is None
     assert "no_result_event" in result.details["flags"]
+
+
+# -- Real-host settings (smoke spec §1.3, WI-2, R1, R3, R4, R14): recorded choices, never defaults of the host
+
+LIVE_PINS = {"CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1", "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1",
+             "CLAUDE_CODE_MAX_RETRIES": "3", "BASH_DEFAULT_TIMEOUT_MS": "120000", "BASH_MAX_TIMEOUT_MS": "300000",
+             "ZDOTDIR": "/var/empty", "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
+             "CLAUDE_CODE_DISABLE_FAST_MODE": "1"}
+
+
+def test_isolation_env_carries_the_live_settings(host):
+    adapter = host(effort="high", env_pins=LIVE_PINS, cert_store="bundled", subprocess_env_scrub=False,
+                   tmp_dir=host.tmp / "claude-tmp")
+    env = adapter.isolation_env()
+    for name in ("DISABLE_TELEMETRY", "DISABLE_ERROR_REPORTING", "CLAUDE_CODE_DISABLE_FAST_MODE",
+                 "CLAUDE_CODE_NO_MODEL_FALLBACK", "CLAUDE_CODE_DISABLE_1M_CONTEXT"):
+        assert env[name] == "1", name
+    assert {k: env[k] for k in LIVE_PINS} == LIVE_PINS
+    assert env["CLAUDE_CODE_SUBPROCESS_ENV_SCRUB"] == "0" and env["CLAUDE_CODE_SHELL"] == "/bin/zsh"
+    assert env["CLAUDE_CODE_CERT_STORE"] == "bundled"
+    assert "CLAUDE_CODE_CERT_STORE" not in host().isolation_env()      # unset unless the campaign chooses it
+    assert host().isolation_env()["CLAUDE_CODE_DISABLE_FAST_MODE"] == "1"   # the paid paths are always off
+    result, record = host.run(adapter, "synthetic_claude_2.1.233_success.jsonl")
+    assert record["env"]["CLAUDE_CODE_TMPDIR"] == str(host.tmp / "claude-tmp")
+    assert all(record["env"][k] == v for k, v in env.items())
+    assert result.details["effort"] == "high" and result.details["isolation_env"] == env
+    assert not any(k.startswith("ANTHROPIC_") for k in record["env"])
+
+
+def test_tmp_dir_is_fresh_absolute_and_never_the_user_home(host):
+    for bad in ("relative/tmp", Path.home() / ".claude" / "tmp", Path.home() / ".claude", host.tmp / "claude-config",
+                host.tmp / "claude-config" / "tmp"):
+        with pytest.raises(ContractError):
+            host(tmp_dir=bad)
+    (host.tmp / "claude-tmp").mkdir()
+    (host.tmp / "claude-tmp" / "claude-501-cwd").write_text("/elsewhere")
+    with pytest.raises(ContractError, match="tmp_dir: must be fresh"):
+        host.run(host(tmp_dir=host.tmp / "claude-tmp"), "synthetic_claude_2.1.233_success.jsonl")
+    assert not (host.tmp / "run-record.json").exists()
+
+
+@pytest.mark.parametrize("pins, match", [
+    ({"ANTHROPIC_BASE_URL": "http://127.0.0.1:9"}, "not one of the documented pins"),
+    ({"CLAUDE_CODE_OAUTH_TOKEN": "sk-ant-oat01-SYNTHETIC"}, "not one of the documented pins"),
+    ({"CLAUDE_CODE_SIMPLE": "1"}, "not one of the documented pins"),
+    ({"CLAUDE_CODE_DISABLE_FAST_MODE": "0"}, "may only repeat"),
+    ({"CLAUDE_CODE_NO_MODEL_FALLBACK": ""}, "may only repeat"),
+    ({"ZDOTDIR": "/runs/full-arm/zdot"}, "names"),
+    ({"BASH_MAX_TIMEOUT_MS": "300\x00000"}, "without NUL"),
+    ({"BASH_MAX_TIMEOUT_MS": 300000}, "without NUL"),
+    (["ZDOTDIR"], "mapping"),
+])
+def test_env_pins_are_restricted_to_the_documented_names(host, pins, match):
+    with pytest.raises(ContractError, match=match):
+        host(env_pins=pins)
+
+
+# -- Live stream checks (smoke spec WI-7a, R3): one fixture per flag, each through the whole adapter
+
+LIVE_EXPECTATIONS = {"tools": ["Bash", "Read", "Write", "Edit"], "expected_api_key_source": "none"}
+# The success fixture's init offers six tools: its clean control declares them.
+CLEAN_EXPECTATIONS = {"tools": ["Bash", "Read", "Write", "Edit", "Glob", "Grep"], "expected_api_key_source": "none"}
+
+
+@pytest.mark.parametrize("fixture, flag, invalidating", [
+    ("init_mismatch", "init_model_mismatch", True),
+    ("init_mismatch", "init_permission_mode_mismatch", True),
+    ("init_mismatch", "init_api_key_source_unexpected", True),
+    ("init_mismatch", "init_tools_unexpected", True),
+    ("model_swap", "main_model_substituted", True),
+    ("model_swap", "auxiliary_model_usage", False),
+    ("fallback_system_event", "main_model_substituted", True),
+    ("task_token_missing", "task_token_missing_in_shell", True),
+    ("fast_speed", "fast_mode_used", False),
+    ("fast_speed", "cost_basis_not_list", False),
+    ("auth_error", "host_auth_failed", False),
+    ("usage_limit", "host_usage_limited", False),
+    ("shell_failed", "shell_tool_failed", False),
+    ("shell_failed", "sandbox_denial_in_tool_output", False),
+    ("task_token_missing", "shell_tool_failed", False),
+    ("budget_exhausted", "host_budget_exhausted", False),
+    ("budget_exhausted", "cost_over_run_cap", False),
+])
+def test_live_check_flags(host, fixture, flag, invalidating):
+    result, _ = host.run(host(**LIVE_EXPECTATIONS), f"synthetic_claude_{fixture}.jsonl")
+    assert flag in result.details["flags"]
+    assert (flag in result.validity["invalidating"]) is invalidating
+    clean, _ = host.run(host(**CLEAN_EXPECTATIONS), "synthetic_claude_2.1.233_success.jsonl", name="clean")
+    assert flag not in clean.details["flags"] and clean.validity == VALID
+
+
+def test_live_check_details_record_what_was_seen(host):
+    swap, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_model_swap.jsonl", name="swap")
+    assert swap.details["models_seen"] == ["synthetic-fallback-model", "synthetic-model"]
+    fallback, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_fallback_system_event.jsonl", name="fb")
+    assert fallback.details["model_switch_events"] == ["model_fallback"]
+    assert fallback.details["system_subtypes"] == {"init": 1, "model_fallback": 1}
+    fast, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_fast_speed.jsonl", name="fast")
+    assert fast.details["fast_mode"] is True and fast.details["cost_basis"] == {"synthetic-model": "unknown"}
+    shell, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_shell_failed.jsonl", name="shell")
+    assert shell.details["bash"] == {"calls": 1, "ok": 0, "errors": 1}
+    assert shell.details["sandbox_denials_in_tool_output"] == 1
+    budget, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_budget_exhausted.jsonl", name="budget")
+    assert budget.details["cost_overshoot_usd"] == pytest.approx(0.3) and budget.cost["usd"] == 5.3
+    auth, _ = host.run(host(**LIVE_EXPECTATIONS), "synthetic_claude_auth_error.jsonl", name="auth")
+    assert auth.details["api_retry_statuses"] == [401] and auth.details["assistant_errors"] == ["authentication_failed"]
+    # The CLI's own error message (model "<synthetic>") is counted, never a substitution: an auth failure is S1 alone.
+    assert auth.details["local_messages"] == 1 and auth.details["models_seen"] == []
+    assert not {"main_model_substituted", "cost_zero_with_usage"} & set(auth.details["flags"])
+    ok, _ = host.run(host(**CLEAN_EXPECTATIONS), "synthetic_claude_2.1.233_success.jsonl", name="ok")
+    assert ok.details["bash"] == {"calls": 2, "ok": 2, "errors": 0} and ok.validity == VALID
+
+
+def stream(*records):
+    return [(i, r) for i, r in enumerate(records, start=1)]
+
+
+def test_a_dated_snapshot_of_the_pin_is_not_a_substitution():
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.281",
+            "model": "claude-synthetic-5", "tools": ["Bash"], "permissionMode": "dontAsk"}
+
+    def reply(model):
+        return {"type": "assistant", "session_id": SESSION, "message": {"model": model, "content": [
+            {"type": "text", "text": "SYNTHETIC"}]}}
+
+    for model, substituted in (("claude-synthetic-5", False), ("claude-synthetic-5-20260101", False),
+                               ("claude-synthetic-5-1", True), ("claude-synthetic-4-20260101", True),
+                               ("claude-synthetic-5x-20260101", True)):
+        parsed = parse_stream(stream(init, reply(model)), version="2.1.281", expected_model="claude-synthetic-5")
+        assert ("main_model_substituted" in parsed["flags"]) is substituted, model
+    assert claude_cli.same_model("claude-synthetic-5-20260101", "claude-synthetic-5")
+    assert not claude_cli.same_model(None, "claude-synthetic-5")
+
+
+def test_a_message_the_cli_generated_itself_is_not_another_model():
+    """2.1.281 builds API-error and notice messages itself with model "<synthetic>" (the bundle's lc): counted in
+    local_messages, never a main-model substitution; any other unexpected model still is."""
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.281",
+            "model": "claude-synthetic-5", "tools": ["Bash"], "permissionMode": "dontAsk"}
+    local = {"type": "assistant", "session_id": SESSION, "error": "rate_limit",
+             "message": {"model": claude_cli.LOCAL_MODEL, "content": [{"type": "text", "text": "SYNTHETIC notice"}],
+                         "usage": {"input_tokens": 0, "output_tokens": 0}}}
+    parsed = parse_stream(stream(init, local, local), version="2.1.281", expected_model="claude-synthetic-5")
+    assert "main_model_substituted" not in parsed["flags"] and "host_usage_limited" in parsed["flags"]
+    assert parsed["details"]["local_messages"] == 2 and parsed["details"]["models_seen"] == []
+    other = {**local, "message": {**local["message"], "model": "synthetic"}}
+    parsed = parse_stream(stream(init, other), version="2.1.281", expected_model="claude-synthetic-5")
+    assert "main_model_substituted" in parsed["flags"] and parsed["details"]["models_seen"] == ["synthetic"]
+
+
+def test_expectations_are_checked_only_when_declared():
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.233",
+            "model": "other", "tools": ["Glob"], "permissionMode": "plan", "apiKeySource": "user"}
+    parsed = parse_stream(stream(init), version="2.1.233")
+    assert not {"init_model_mismatch", "init_tools_unexpected", "init_permission_mode_mismatch",
+                "init_api_key_source_unexpected", "main_model_substituted"} & set(parsed["flags"])
+
+
+def test_a_refusal_without_fallback_is_recorded_not_a_substitution():
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.281",
+            "model": "claude-synthetic-5", "tools": ["Bash"]}
+    refusal = {"type": "system", "subtype": "model_refusal_no_fallback", "session_id": SESSION,
+               "originalModel": "claude-synthetic-5"}
+    parsed = parse_stream(stream(init, refusal), version="2.1.281", expected_model="claude-synthetic-5")
+    assert "model_refusal_reported" in parsed["flags"] and "main_model_substituted" not in parsed["flags"]
+    for subtype in ("model_refusal_fallback", "model_consent_fallback", "model_switch_notice"):
+        event = {**refusal, "subtype": subtype}
+        parsed = parse_stream(stream(init, event), version="2.1.281", expected_model="claude-synthetic-5")
+        assert "main_model_substituted" in parsed["flags"], subtype
+
+
+def test_zero_cost_with_usage_is_flagged():
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.233",
+            "model": "m", "tools": ["Bash"]}
+    result = {"type": "result", "subtype": "success", "session_id": SESSION, "is_error": False, "num_turns": 1,
+              "result": "SYNTHETIC", "total_cost_usd": 0, "usage": {"input_tokens": 5000, "output_tokens": 10},
+              "modelUsage": {"m": {"inputTokens": 5000, "outputTokens": 10, "costUSD": 0}}}
+    assert "cost_zero_with_usage" in parse_stream(stream(init, result), version="2.1.233")["flags"]
+    paid = {**result, "total_cost_usd": 0.02}
+    assert "cost_zero_with_usage" not in parse_stream(stream(init, paid), version="2.1.233")["flags"]
+
+
+# -- Real-pin shapes (2026-09-27 review): the builtin plugin, the task client's missing-token line, cache TTLs and
+#    inference geography, and a stream the real 2.1.281 CLI wrote (against the local mock API, dummy credential).
+
+REAL_PIN = "synthetic_claude_2.1.281_rehearsal.jsonl"
+PINNED = "claude-sonnet-5"
+TOOLS4 = ["Bash", "Read", "Write", "Edit"]
+
+
+def records_of(name):
+    from governance.adapters.base import parse_jsonl
+    return parse_jsonl((FIXTURES / name).read_bytes())[0]
+
+
+def real_pin_stream(**kw):
+    return parse_stream(records_of(REAL_PIN), version="2.1.281", expected_model=PINNED, expected_tools=TOOLS4,
+                        expected_permission_mode="dontAsk", expected_api_key_source="none", run_cap_usd=2.0, **kw)
+
+
+def test_the_real_2_1_281_stream_parses_clean_with_its_builtin_plugin_recorded():
+    parsed = real_pin_stream()
+    assert parsed["flags"] == [], parsed["flags"]
+    init = parsed["details"]["init"]
+    assert init["plugins"] == [{"name": "agents-md", "path": "builtin", "source": "agents-md@builtin"}]
+    assert init["builtin_plugins"] == ["agents-md@builtin"] and init["apiKeySource"] == "none"
+    assert parsed["details"]["bash"] == {"calls": 1, "ok": 1, "errors": 0}
+    assert parsed["details"]["cost_basis"] == {PINNED: "list"} and parsed["details"]["inference_geo"] == []
+    assert parsed["details"]["cache_write_1h_tokens"] == 0 and parsed["usage"]["by_model"][PINNED]["costUSD"] > 0
+    assert "rate_limit_event" not in parsed["details"]["system_subtypes"]
+
+
+def with_init(records, **changes):
+    out = []
+    for line, obj in records:
+        if obj.get("type") == "system" and obj.get("subtype") == "init":
+            obj = {**obj, **changes}
+        out.append((line, obj))
+    return out
+
+
+@pytest.mark.parametrize("plugins, flagged", [
+    ([], False),
+    ([{"name": "agents-md", "path": "builtin", "source": "agents-md@builtin"}], False),
+    ([{"name": "agents-md", "path": "/elsewhere", "source": "agents-md@builtin"}], True),   # another shape: flagged
+    ([{"name": "other", "path": "builtin", "source": "other@builtin"}], True),               # never any '@builtin'
+    ([{"name": "agents-md", "path": "builtin", "source": "agents-md@builtin"},
+      {"name": "x", "path": "/p", "source": "x@local"}], True),
+    ("agents-md", True),
+])
+def test_only_the_exact_builtin_plugin_is_exempt(plugins, flagged):
+    parsed = parse_stream(with_init(records_of(REAL_PIN), plugins=plugins), version="2.1.281", expected_model=PINNED)
+    assert ("plugins_present" in parsed["flags"]) is flagged
+
+
+@pytest.mark.parametrize("field, flag, listed, version, flagged", [
+    ("skills", "init_skills_unexpected", [], "2.1.281", False),
+    ("skills", "init_skills_unexpected", ["dataviz", "schedule", "workflow-authoring"], "2.1.281", False),
+    ("skills", "init_skills_unexpected", ["dataviz", "synthetic-planted-skill"], "2.1.281", True),
+    ("skills", "init_skills_unexpected", "dataviz", "2.1.281", True),              # not a list: unverifiable
+    ("skills", "init_skills_unexpected", [7], "2.1.281", True),
+    ("skills", "init_skills_unexpected", ["dataviz"], "2.1.282", True),            # a pin without a recorded set
+    ("agents", "init_agents_unexpected", ["claude", "Explore", "general-purpose", "Plan", "statusline-setup"],
+     "2.1.281", False),
+    ("agents", "init_agents_unexpected", ["general-purpose", "synthetic-planted-agent"], "2.1.281", True),
+    ("agents", "init_agents_unexpected", None, "2.1.281", False),
+])
+def test_only_the_pins_own_skills_and_agents_pass_init(field, flag, listed, version, flagged):
+    """E-91: the other two extension surfaces init declares are checked like plugins: a name the pinned version does not
+    ship (or a list that cannot be read) is flagged, and a version without a recorded set allows none."""
+    records = with_init(records_of(REAL_PIN), claude_code_version=version, **{field: listed})
+    parsed = parse_stream(records, version=version, expected_model=PINNED)
+    assert (flag in parsed["flags"]) is flagged, parsed["details"]["init"]
+    assert flag in base.INVALIDATING_FLAGS
+    assert bool(parsed["details"]["init"][f"{field}_unexpected"]) is flagged
+
+
+def test_the_real_2_1_281_init_lists_only_its_own_skills_and_agents():
+    init = real_pin_stream()["details"]["init"]
+    assert set(init["skills"]) <= claude_cli.BUILTIN_SKILLS["2.1.281"] and "schedule" in init["skills"]
+    assert set(init["agents"]) == claude_cli.BUILTIN_AGENTS["2.1.281"]
+    assert init["skills_unexpected"] == [] and init["agents_unexpected"] == []
+
+
+def test_reading_the_task_client_is_not_a_missing_token():
+    """The client's source holds the unprefixed text; only a Bash result line equal to the client's output counts."""
+    client = (Path(__file__).parents[2] / "benchmarks" / "governance" / "client" / "ravel_task.py").read_text()
+    assert claude_cli.TOKEN_MISSING in client and claude_cli.TOKEN_MISSING_LINE.search(client) is None
+    init = {"type": "system", "subtype": "init", "session_id": SESSION, "claude_code_version": "2.1.281",
+            "tools": TOOLS4, "model": PINNED, "permissionMode": "dontAsk", "apiKeySource": "none", "plugins": [],
+            "mcp_servers": []}
+
+    def use(uid, name, text, is_error=False):
+        return [{"type": "assistant", "session_id": SESSION, "message": {
+                    "id": f"m-{uid}", "model": PINNED, "content": [{"type": "tool_use", "id": uid, "name": name,
+                                                                     "input": {}}]}},
+                {"type": "user", "session_id": SESSION, "message": {"content": [
+                    {"type": "tool_result", "tool_use_id": uid, "content": text, "is_error": is_error}]}}]
+    result = {"type": "result", "subtype": "success", "is_error": False, "num_turns": 2, "total_cost_usd": 0.01,
+              "usage": {"input_tokens": 1}, "modelUsage": {}, "session_id": SESSION}
+    read = stream(init, *use("r1", "Read", client), *use("b1", "Bash", '{"ok": true}'), result)
+    catted = stream(init, *use("b0", "Bash", client), *use("b1", "Bash", '{"ok": true}'), result)
+    missing = stream(init, *use("b1", "Bash", "ravel-task: " + claude_cli.TOKEN_MISSING + "\nExit code 2", True),
+                     result)
+    elsewhere = stream(init, *use("r1", "Read", "ravel-task: " + claude_cli.TOKEN_MISSING), result)
+    for records, flagged in ((read, False), (catted, False), (missing, True), (elsewhere, False)):
+        parsed = parse_stream(records, version="2.1.281", expected_model=PINNED)
+        assert ("task_token_missing_in_shell" in parsed["flags"]) is flagged, records
+
+
+def test_one_hour_cache_writes_and_the_inference_geography_are_recorded():
+    records = records_of(REAL_PIN)
+    changed = []
+    for line, obj in records:
+        if obj.get("type") == "result":
+            usage = {**obj["usage"], "cache_creation": {"ephemeral_1h_input_tokens": 500, "ephemeral_5m_input_tokens": 0},
+                     "inference_geo": "us"}
+            obj = {**obj, "usage": usage}
+        changed.append((line, obj))
+    parsed = parse_stream(changed, version="2.1.281", expected_model=PINNED)
+    assert "cache_write_1h_reported" in parsed["flags"]
+    assert parsed["details"]["cache_write_1h_tokens"] == 500 and parsed["details"]["inference_geo"] == ["us"]
+    assert not {"cache_write_1h_reported"} & set(real_pin_stream()["flags"])
+
+
+def test_the_new_env_pins_are_documented_pins():
+    for name in ("CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR", "FORCE_PROMPT_CACHING_5M"):
+        assert name in claude_cli.ENV_PIN_NAMES

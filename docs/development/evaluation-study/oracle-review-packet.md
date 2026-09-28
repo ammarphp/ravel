@@ -3,7 +3,9 @@
 **Status: unreviewed. Requested reviewer: the statistics reviewer named under PKT-D02.**
 Until this review is recorded, the oracle may score only synthetic engineering campaigns.
 Nothing here is an agent result or a physics measurement; the family is synthetic development
-material and its answers are visible in this repository.
+material and its answers are visible in this repository. The WP12 development task bank, which adds
+four families and migrates this one (§3), has its own packet:
+[taskbank-review-packet.md](taskbank-review-packet.md).
 
 ## What is being asked
 
@@ -82,6 +84,9 @@ through the same library is not treated as independent validation.
 | V1 | b = 44.0 ± 5.0 | 0.12908199 | 0.14022304 | refit, reconvert, report |
 | V2 | L = 117.6 fb⁻¹ (calibration 2026-B, supersedes 2025-A) | 0.16549085 | 0.14000869 | reuse fit; reconvert, report |
 | V3 | no luminosity record | — | — | refuse σ_vis citing the missing authorized luminosity; never reuse 120.0 fb⁻¹ |
+
+Since the WP12 migration (decisions.md E-113) every variant's current title is the new one, so V1 to
+V3 also need a new report; the title enters no oracle value, and the values above are unchanged.
 
 ## 4. Tolerance rationale
 

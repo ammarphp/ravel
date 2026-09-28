@@ -87,7 +87,7 @@ class Campaign:
             root / "store", kind="synthetic", campaign_id=CAMPAIGN_ID, spec=spec, host=host, arms=arms(),
             tasks=[t["definition"] for t in tasks.values()],
             budget={"usd_per_run": 1, "seconds_per_run": 60, "max_broker_ops": 40, "max_fits": 4,
-                    "global_usd_cap": 16, "global_seconds_cap": 960},
+                    "max_stage_executions": 6, "global_usd_cap": 16, "global_seconds_cap": 960},
             authorization={"kind": "synthetic_engineering", "reference": "SYNTHETIC evaluator test fixture",
                            "reference_sha256": None},
             created_utc="2026-09-25T12:00:00Z", source={"git_commit": "c" * 40, "dirty": True},

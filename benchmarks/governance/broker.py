@@ -9,19 +9,31 @@ operation; malformed HTTP (``bad_request``) and a connection that makes no progr
 REQUEST_SECONDS on one read or write (``request_timeout``) are recorded with op null.
 A handle is ``art-`` plus 12 hex of an HMAC (broker secret) over the artifact's kind,
 origin, content and derived_from, so identical results of one origin share a handle.
-Kernel work runs as RAVEL supervised stages (fit -> convert -> report, resume) with one
-fixed interpreter string and one fixed environment, in one RAVEL run directory per
-workspace digest (``ravel-runs/<first 16 hex of its sha256>/``). The stage environment
+Kernel work runs as RAVEL supervised stages (resume) with one fixed interpreter string and
+one fixed environment (``stages``): the likelihood DAG fit -> convert -> report in one RAVEL
+run directory per workspace digest (``ravel-runs/<first 16 hex of its sha256>/``), and the
+standalone stages census, calc and the coordinator-only figure each in a run directory keyed
+by the stage, its input digests and its parameters (``stages.run_key``). The stage environment
 is an allowlist (STAGE_ENV_KEYS, never a copy of os.environ) and must pin the kernel
 source with PYTHONPATH; the broker verifies once that the interpreter imports ``ravel``
 from there. RAVEL's ``execution_state.json`` stays the stage authority; custody records
 what the subject asked for and received.
 
+Inputs are the task-bank registry's kinds (``registry.INPUT_KINDS``): JSON records, the title
+text, and gzip event files, which the broker stores as bytes and never parses (their artifact
+content is their size). The runner materializes a task's input names, subdirectories included
+(``sample/``, ``archive/``), and hands the broker their bytes by kind.
+
 Coordinator-owned layout under ``root``: custody.jsonl, artifacts/, blobs/<sha256>
-(exact input bytes for re-establishing stages), ravel-runs/, stage-home/, stage-tmp/.
+(exact input bytes for re-establishing stages), ravel-runs/, stage-home/, stage-tmp/, and
+client_env.jsonl once a call carries the client's environment-name report (the
+X-Ravel-Client-Env header, names only: one {seq, names, marker} line per such call, seq
+naming the call's custody line; custody itself is unchanged). The report comes from a process
+the subject controls, so it is evidence of what reached the subject's shell, never proof.
 Coordinator calls are recorded with the ops ``register_inputs`` (one line) and
-``create_prior`` (one line per step: inputs, fit, convert, report); every other op is a
-subject call. Standard library only.
+``create_prior`` (one line per step: inputs, then each step of the task's prior recipe, by
+default fit, convert, report); every other op is a subject call, and no subject op runs a
+coordinator-only step (``figure``). Standard library only.
 """
 from __future__ import annotations
 
@@ -41,23 +53,44 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import guard, stages
-from .canonical import (ContractError, append_jsonl, atomic_write_bytes, canonical_bytes, digest,
+from .allowlist_proxy import TWIN_ATTEMPTS, PortTaken, reserve_ipv6_twin
+from .canonical import (ContractError, append_jsonl, atomic_write_bytes, canonical_bytes, digest, finite_number,
                         require, sha256_bytes, sha256_file, strict_load, strict_loads, write_once)
+from .stages import calc as calc_stage
+from .tasks import registry
 
-INPUT_KINDS = ("workspace", "luminosity", "title")
-PRIOR_KINDS = ("fit", "conversion", "report")
+INPUT_KINDS = tuple(registry.INPUT_KINDS)      # workspace, luminosity, title first: the v1 listing order
 MODES = {("audit", "silent"), ("audit", "diagnostic"), ("block", "diagnostic")}
-BUDGET_KEYS = {"max_broker_ops", "max_fits"}
+BUDGET_KEYS = {"max_broker_ops", "max_fits", "max_stage_executions"}
 TREATMENT_WORDS = frozenset({"mode", "arm", "guard", "enforcement", "feedback"})
-FREE_FORM = {"note": ("requested_budget",)}      # subject-defined objects: their keys are not scanned
+# subject-defined objects: their keys are not scanned (a note's requested budget, a calc's binding names)
+FREE_FORM = {"note": ("requested_budget",), "calc": ("bind",)}
+# The prior recipe of a task that names none: the likelihood_freshness recipe (slice design §5).
+DEFAULT_RECIPE = ({"op": "fit", "params": {}}, {"op": "convert", "params": {}}, {"op": "report", "params": {}})
+# Each stage's operands: argument name -> the artifact kinds it accepts (inputs or computed artifacts).
+OPERANDS = {"fit": {"workspace": ("workspace",)}, "convert": {"fit": ("fit",), "luminosity": ("luminosity",)},
+            "report": {"conversion": ("conversion",), "title": ("title",)},
+            "census": {"events": ("events", "archive_events"), "manifest": ("manifest",),
+                       "selection": ("selection",)},
+            "figure": {"fit": ("fit",)}}
+LIMIT_STATUS = {"obs_limit_events": "observed", "sigma_vis_obs_fb": "observed",
+                "exp_limits_events": "expected", "sigma_vis_exp_fb": "expected"}
+CALC_ARGS = {"expr", "bind", "unit"}
+CALC_OPTIONAL = {"label"}
+CENSUS_SUMMARY = ("complete_events", "header_nevents", "gzip_complete", "document_complete", "sha256_matches_record",
+                  "physics_status", "cross_section_pb", "selected_events")
 STAGE_ENV_KEYS = frozenset({"PATH", "PYTHONPATH", "PYTHONHASHSEED", "PYTHONNOUSERSITE", "PYTHONUTF8", "LANG", "LC_ALL",
                             "LC_CTYPE", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
                             "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH",
                             "CONDA_PREFIX"})
 KERNEL_PROBE = "import importlib.util as u; s = u.find_spec('ravel'); print(s.origin if s and s.origin else '')"
 TOKEN_HEADER = "X-Ravel-Task-Token"
+CLIENT_ENV_HEADER = "X-Ravel-Client-Env"   # the client's environment NAMES (smoke spec WI-5, LC-11)
+CLIENT_ENV_LIMIT = 8192
+ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 OPERATIONS = {"inputs": (), "show": ("handle",), "fit": ("workspace",), "convert": ("fit", "luminosity"),
-              "report": ("conversion", "title"), "submit": None, "note": None, "status": ()}
+              "report": ("conversion", "title"), "census": ("events", "manifest", "selection"), "calc": None,
+              "submit": None, "note": None, "status": ()}
 HANDLE = re.compile(r"art-[0-9a-f]{12}")
 ACCEPTED = "Submission accepted."
 NOT_ACCEPTED = "Submission not accepted."
@@ -68,6 +101,10 @@ REQUEST_SECONDS = 30.0                               # socket timeout of one rea
 STOP_SECONDS = STAGE_KILL_SECONDS + 300.0            # longest legitimate call in progress at stop()
 CLAIM_KEYS = {"schema_version", "claim_id", "status", "text", "quantity", "unit", "role",
               "expected_quantile", "artifact_field", "evidence_ids", "qualifiers"}
+# Claim schema version 2 (WP12 design §1.5): the unit pb, a relation (eq, gt, ge, lt, le) and a categorical value on
+# any registered artifact field. Accepted since the evaluator's task-bank profiles score it (plan step 8, E-131).
+CLAIM_KEYS_V2 = CLAIM_KEYS | {"relation", "value"}
+CLAIM_UNITS = {1: ("events", "fb", None), 2: ("events", "fb", "pb", None)}
 DECISION_KEYS = {"schema_version", "run_id", "decision_id", "evidence_ids", "question", "action",
                  "brief_rationale", "falsification_test", "requested_budget", "timestamp_utc"}
 
@@ -105,8 +142,9 @@ def check_submission(submission):
     require(isinstance(submission["claims"], list), "claims: list required")
     ids = set()
     for claim in submission["claims"]:
-        _keys(claim, CLAIM_KEYS, "claim")
-        require(type(claim["schema_version"]) is int and claim["schema_version"] == 1, "claim schema_version: expected 1")
+        version = claim.get("schema_version") if isinstance(claim, dict) else None
+        require(type(version) is int and version in CLAIM_UNITS, "claim schema_version: expected 1 or 2")
+        _keys(claim, CLAIM_KEYS if version == 1 else CLAIM_KEYS_V2, "claim")
         require(isinstance(claim["claim_id"], str) and claim["claim_id"].strip(), "claim_id: nonblank string required")
         require(claim["claim_id"] not in ids, f"duplicate claim_id: {claim['claim_id']}")
         ids.add(claim["claim_id"])
@@ -115,15 +153,19 @@ def check_submission(submission):
         quantity = claim["quantity"]
         require(quantity is None or guard.decimal_value(quantity) is not None,
                 f"claim quantity: decimal string within 1e+-{guard.MAX_EXPONENT}, or null")
-        require(claim["unit"] in ("events", "fb", None), "claim unit: events, fb or null")
+        require(claim["unit"] in CLAIM_UNITS[version],
+                "claim unit: events, fb or null" + (" (version 2: or pb)" if version == 2 else ""))
         require(claim["role"] in ("observed", "expected", "diagnostic", "not_applicable"), "claim role: invalid")
         require(claim["expected_quantile"] in (*guard.QUANTILES, None), "claim expected_quantile: invalid")
         require((claim["role"] == "expected") == (claim["expected_quantile"] is not None),
                 "claim expected_quantile: required exactly when role is expected")
-        require((quantity is None) == (claim["artifact_field"] is None),
-                "claim artifact_field: required exactly when quantity is present")
-        if claim["artifact_field"] is not None:
-            guard.field_spec(claim["artifact_field"])
+        valued = quantity is not None or (version == 2 and claim["value"] is not None)
+        require(valued == (claim["artifact_field"] is not None),
+                "claim artifact_field: required exactly when quantity" + (" or value" if version == 2 else "")
+                + " is present")
+        if claim["artifact_field"] is not None:   # version 1: the v1 fields; version 2: every registry field
+            fields = guard.V1_FIELDS if version == 1 else registry.ARTIFACT_FIELDS
+            require(claim["artifact_field"] in fields, f"unknown artifact_field: {claim['artifact_field']!r}")
         _strings(claim["evidence_ids"], "claim evidence_ids")
         _strings(claim["qualifiers"], "claim qualifiers")
     require(isinstance(submission["report_text"], str), "report_text: string required")
@@ -157,17 +199,66 @@ def _contracts():
 
 
 def _input_content(kind, data):
+    """An input's artifact content by its registry format: the JSON object, the title text, or for gzip event
+    files (never parsed here) their size."""
+    require(kind in registry.INPUT_FORMATS, f"{kind}: not a registry input kind")
     require(isinstance(data, bytes), f"{kind}: input bytes required")
+    if registry.INPUT_FORMATS[kind] == "gzip":
+        require(data, f"{kind}: empty input")
+        return {"file_bytes": len(data)}
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ContractError(f"{kind}: input is not UTF-8") from exc
-    if kind == "title":
-        require(text.strip(), "title: blank input")
+    if registry.INPUT_FORMATS[kind] == "text":
+        require(text.strip(), f"{kind}: blank input")
         return text
     content = strict_loads(text)
     require(isinstance(content, dict), f"{kind}: JSON object required")
     return content
+
+
+def _recipe_needs(name, params):
+    """The operand kinds one prior-recipe step needs (``Broker.create_prior``); ContractError for parameters its
+    stage does not take."""
+    if name in ("fit", "convert", "report"):
+        require(params == {}, f"prior recipe {name}: takes no parameters")
+        return {kinds[0] for kinds in OPERANDS[name].values()}
+    if name == "census":
+        events = params.get("events", "events")
+        require(set(params) <= {"events"} and isinstance(events, str) and events in OPERANDS["census"]["events"],
+                "prior recipe census: parameters {events?: events | archive_events}")
+        return {events, "manifest", "selection"}
+    if name == "figure":
+        require(set(params) == {"legend"}, "prior recipe figure: parameters {legend}")
+        return {"fit"}
+    bindings = params.get("bindings")
+    require(set(params) == {"expression", "bindings", "unit", "label"} and isinstance(bindings, list) and bindings
+            and all(isinstance(b, dict) and set(b) == {"name", "source", "field"} and isinstance(b["source"], str)
+                    and isinstance(b["name"], str) for b in bindings)
+            and len({b["name"] for b in bindings}) == len(bindings),
+            "prior recipe calc: parameters {expression, bindings: [{name, source, field}] with unique names, unit, "
+            "label}")
+    return {b["source"] for b in bindings}
+
+
+def _check_recipe(recipe, available):
+    """A prior recipe's steps are stages with the parameters they take, each operand is a prior input kind or an
+    earlier step's artifact kind, and each artifact kind is made once; ContractError otherwise."""
+    require(isinstance(recipe, list), "prior recipe: a list of steps required")
+    available, made = set(available), set()
+    for i, step in enumerate(recipe):
+        require(isinstance(step, dict) and set(step) == {"op", "params"} and step["op"] in stages.WORKERS
+                and isinstance(step["params"], dict), f"prior recipe[{i}]: {{op, params}} over the stages "
+                                                      f"{list(stages.WORKERS)}")
+        canonical_bytes(step["params"])            # strict JSON: the parameters go into custody
+        missing = sorted(_recipe_needs(step["op"], step["params"]) - available)
+        require(not missing, f"prior recipe[{i}] {step['op']}: needs {missing}, which neither a prior input nor an "
+                             "earlier step provides")
+        kind = stages.STAGES[step["op"]]["kind"]
+        require(kind not in made, f"prior recipe[{i}]: a second {kind} artifact")
+        made.add(kind)
+        available.add(kind)
 
 
 def _treatment_like(name):
@@ -200,6 +291,24 @@ def _switch_attempt(request):
 
 def _within(path, root):
     return path == root or root in path.parents
+
+
+def parse_client_env(value) -> tuple:
+    """(names, marker) of an X-Ravel-Client-Env header: the sorted unique variable names and marker None; the
+    names and "invalid_names" when the client left out names that are not plain identifiers (its trailing
+    "!invalid"); (None, "overflow") for the client's "!overflow"; (None, "malformed") for anything else (too long,
+    unsorted, duplicated or not names). Never a value: the client sends names only."""
+    if not isinstance(value, str) or len(value) > CLIENT_ENV_LIMIT:
+        return None, "malformed"
+    if value == "!overflow":
+        return None, "overflow"
+    parts = value.split(",") if value else []
+    marker = None
+    if parts and parts[-1] == "!invalid":
+        parts, marker = parts[:-1], "invalid_names"
+    if not all(ENV_NAME.fullmatch(p) for p in parts) or parts != sorted(set(parts)):
+        return None, "malformed"
+    return parts, marker
 
 
 class _Server(http.server.HTTPServer):
@@ -241,7 +350,8 @@ class _Handler(http.server.BaseHTTPRequestHandler):
             return True
         # Any other method or path: authenticated and recorded like a call, never counted, then closed.
         self.close_connection = True
-        self._send(*self.server.broker._request(self.headers.get(TOKEN_HEADER), None, route=(self.command, self.path)))
+        self._send(*self.server.broker._request(self.headers.get(TOKEN_HEADER), None, route=(self.command, self.path),
+                                                client_env=self.headers.get(CLIENT_ENV_HEADER)))
         return False
 
     def _send(self, status, response):
@@ -265,7 +375,8 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         if body is None:
             self.close_connection = True
         try:
-            status, response = self.server.broker._request(self.headers.get(TOKEN_HEADER), body)
+            status, response = self.server.broker._request(self.headers.get(TOKEN_HEADER), body,
+                                                           client_env=self.headers.get(CLIENT_ENV_HEADER))
         except Exception:  # custody could not be written: fail closed, never hang the client
             status, response = 500, {"ok": False, "error": {"code": "internal_error", "message": "internal error"}}
         self._send(status, response)
@@ -301,7 +412,7 @@ class Broker:
                            "PYTHONDONTWRITEBYTECODE": "1"}
         self._kernel_package = self._probe_kernel(env["PYTHONPATH"])
         self._artifacts, self._current, self._prior, self._prior_attempted = {}, None, None, False
-        self._seq = self._ops = self._fits = 0
+        self._seq = self._ops = self._fits = self._stage_runs = 0
         self._submissions = []
         self._lock = threading.Lock()
         self._server = self._thread = self._token = None
@@ -311,12 +422,15 @@ class Broker:
     def custody_path(self) -> Path:
         return self.root / "custody.jsonl"
 
+    def client_env_path(self) -> Path:
+        return self.root / "client_env.jsonl"
+
     def register_inputs(self, current: dict) -> dict:
-        """Register the subject's current inputs; returns kind -> handle."""
+        """Register the subject's current inputs ({registry input kind: bytes}); returns kind -> handle."""
         with self._lock:
             require(self._current is None and not self._started, "current inputs are registered once, before start")
-            require(isinstance(current, dict) and set(current) <= set(INPUT_KINDS)
-                    and {"workspace", "title"} <= set(current), "current inputs: workspace, title, optional luminosity")
+            require(isinstance(current, dict) and current and set(current) <= set(INPUT_KINDS),
+                    f"current inputs: a nonempty mapping of registry input kinds {list(INPUT_KINDS)}")
             for kind, data in current.items():
                 _input_content(kind, data)
             seq = self._reserve()
@@ -338,38 +452,53 @@ class Broker:
             finally:
                 self._write(seq, entry)
 
-    def create_prior(self, prior: dict) -> dict:
-        """Run fit -> convert -> report on the prior inputs; returns kind -> handle for fit/conversion/report."""
+    def create_prior(self, prior: dict, recipe=None) -> dict:
+        """Store the prior inputs ({registry input kind: bytes}) and run the task's prior recipe on them; return
+        artifact kind -> handle of every step's artifact, in recipe order.
+
+        ``recipe`` is the task definition's ``prior_recipe`` (default ``DEFAULT_RECIPE``: fit, convert,
+        report): steps ``{op, params}`` over every stage, the coordinator-only ``figure`` included. A step's
+        operands are resolved by kind (``OPERANDS``): a prior input, or the artifact an earlier step made
+        (each artifact kind at most once). Parameters: none for fit, convert and report; census
+        ``{events?: events | archive_events}``; figure ``{legend}`` (stages/figure.py); calc ``{expression,
+        bindings: [{name, source, field}], unit, label}`` with each ``source`` a prior input kind or an earlier
+        step's artifact kind. Custody gets one ``create_prior`` line for the inputs and one per step (its
+        derived_from digests, and its parameters when it has any). An empty recipe with no prior inputs records
+        the inputs line only. A failed step is terminal for this broker."""
+        recipe = [dict(step) for step in DEFAULT_RECIPE] if recipe is None else recipe
         with self._lock:
             require(not self._prior_attempted and not self._started, "prior artifacts are created once, before start")
-            require(isinstance(prior, dict) and set(prior) == set(INPUT_KINDS),
-                    "prior inputs require workspace, luminosity and title")
+            require(isinstance(prior, dict) and set(prior) <= set(INPUT_KINDS),
+                    f"prior inputs: a mapping of registry input kinds {list(INPUT_KINDS)}")
             for kind, data in prior.items():
                 _input_content(kind, data)
+            _check_recipe(recipe, set(prior))
             self._prior_attempted = True   # a failed prior is terminal for this broker, never retried
             seq = self._reserve()
-            entry = self._entry("create_prior", {"step": "inputs", **{k: sha256_bytes(prior[k]) for k in INPUT_KINDS}})
+            entry = self._entry("create_prior", {"step": "inputs",
+                                                 **{k: sha256_bytes(prior[k]) for k in INPUT_KINDS if k in prior}})
             try:
-                handles = {kind: self._store_input(kind, prior[kind], "prior", seq)[0] for kind in INPUT_KINDS}
-                entry.update(ok=True, result=handles)
+                inputs = {kind: self._store_input(kind, prior[kind], "prior", seq)[0]
+                          for kind in INPUT_KINDS if kind in prior}
+                entry.update(ok=True, result=inputs)
             except Exception as exc:
                 entry.update(error_code="internal_error", incident={"kind": "internal_error", "detail": repr(exc)})
                 raise
             finally:
                 self._write(seq, entry)
-            shas = {kind: sha256_bytes(prior[kind]) for kind in INPUT_KINDS}
-            made, expect = {}, {}
-            for name in stages.ORDER:
-                kind = stages.STAGES[name]["kind"]
-                # fit <- workspace; convert <- workspace, luminosity; report <- all three inputs.
-                derived = {k: shas[k] for k in INPUT_KINDS[: stages.ORDER.index(name) + 1]}
+            made = {}
+            for step in recipe:
+                name, params = step["op"], step["params"]
                 seq = self._reserve()
-                entry = self._entry("create_prior", {"step": name, **derived})
+                entry = self._entry("create_prior", {"step": name})
                 trace = {}
                 try:
-                    content = self._run_dag(derived, name, trace, expect)
-                    handle, _ = self._store(kind, "prior", content, digest(content), derived, seq)
-                    made[kind], expect[name] = handle, content
+                    derived, run = self._prior_plan(name, params, {**inputs, **made})
+                    entry["args"] = {"step": name, **derived, **({"params": params} if params else {})}
+                    content = run(trace)
+                    handle, _ = self._store(stages.STAGES[name]["kind"], "prior", content, digest(content), derived,
+                                            seq)
+                    made[stages.STAGES[name]["kind"]] = handle
                     entry.update(ok=True, result={"handle": handle, "upstream_stages": trace["upstream"]})
                 except OpError as exc:
                     entry.update(error_code=exc.code, result={"detail": getattr(exc, "detail", exc.message)})
@@ -391,7 +520,19 @@ class Broker:
             require(not self._prior_attempted or self._prior is not None, "prior artifact creation failed")
             self._started = True
             self._token = secrets.token_hex(32)
-            server = _Server(("127.0.0.1", 0), _Handler)
+            for _ in range(TWIN_ATTEMPTS):   # the port's [::1] twin is held too (E-82): a subject's profile admits it
+                server = _Server(("127.0.0.1", 0), _Handler)
+                try:
+                    server.twin = reserve_ipv6_twin(server.server_address[1])
+                except PortTaken:
+                    server.server_close()
+                    continue
+                except BaseException:
+                    server.server_close()
+                    raise
+                break
+            else:
+                raise OSError(f"no 127.0.0.1 port whose [::1] twin is free after {TWIN_ATTEMPTS} tries")
             server.broker = self
             self._server = server
             self._thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.1},
@@ -411,6 +552,8 @@ class Broker:
             server.socket.close()                   # no new connections; the call in progress is still recorded
             raise RuntimeError(f"broker did not stop within {STOP_SECONDS:g} s: a call is still in progress")
         server.server_close()
+        if getattr(server, "twin", None) is not None:
+            server.twin.close()
         thread.join(timeout=30)
         self._server = self._thread = None
 
@@ -543,15 +686,144 @@ class Broker:
                 raise RuntimeError(f"determinism check failed: {status} {name} output differs from the cited artifact")
         return content
 
+    def _run_standalone(self, name, files, trace):
+        """Run a standalone stage (census, calc, figure) with resume in its keyed run dir (``stages.run_key``):
+        the input files ({relative path: bytes}) are written once and a run dir's inputs never change."""
+        key = stages.run_key(name, files)
+        rundir = self.root / "ravel-runs" / key
+        trace.update(stage={"name": name, "status": "not_run", "ravel_run": f"ravel-runs/{key}"}, upstream=[])
+        for relative, data in files.items():
+            path = rundir / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists():
+                require(sha256_file(path) == sha256_bytes(data), "RAVEL run directory input mismatch")
+            else:
+                atomic_write_bytes(path, data)
+        try:
+            status = self._supervise(rundir, name)
+        except StageFailure:
+            trace["stage"]["status"] = "failed"
+            raise
+        content = strict_load(rundir / stages.STAGES[name]["artifact"])
+        trace["stage"]["status"] = status
+        return content
+
+    def _plan(self, name, operands, params=None):
+        """(derived_from, run) of one stage over resolved operand records ({argument: artifact record}); ``run(trace)``
+        returns the stage's artifact content. calc is planned by ``_calc_request``."""
+        if name == "fit":
+            derived = {"workspace": operands["workspace"]["derived_from"]["workspace"]}
+            return derived, lambda trace: self._run_dag(derived, "fit", trace, {})
+        if name == "convert":
+            fit = operands["fit"]
+            derived = {"workspace": fit["derived_from"]["workspace"],
+                       "luminosity": operands["luminosity"]["derived_from"]["luminosity"]}
+            return derived, lambda trace: self._run_dag(derived, "convert", trace, {"fit": fit["content"]})
+        if name == "report":
+            conversion = operands["conversion"]
+            derived = {**conversion["derived_from"], "title": operands["title"]["derived_from"]["title"]}
+            fits = [r["content"] for r in self._artifacts.values()
+                    if r["kind"] == "fit" and r["derived_from"] == {"workspace": derived["workspace"]}]
+            expect = {"convert": conversion["content"], **({"fit": fits[0]} if fits else {})}
+            return derived, lambda trace: self._run_dag(derived, "report", trace, expect)
+        if name == "census":
+            events = operands["events"]
+            derived = {events["kind"]: events["derived_from"][events["kind"]],
+                       "manifest": operands["manifest"]["derived_from"]["manifest"],
+                       "selection": operands["selection"]["derived_from"]["selection"]}
+            files = {"inputs/events.lhe.gz": self._blob(derived[events["kind"]]),
+                     "inputs/manifest.json": self._blob(derived["manifest"]),
+                     "inputs/selection.json": self._blob(derived["selection"])}
+            return derived, lambda trace: self._run_standalone("census", files, trace)
+        if name == "figure":
+            fit = operands["fit"]
+            files = {"inputs/fit.json": canonical_bytes(fit["content"]), stages.PARAMS: stages.params_bytes(params)}
+            return dict(fit["derived_from"]), lambda trace: self._run_standalone("figure", files, trace)
+        raise ContractError(f"no plan for stage {name!r}")
+
+    def _prior_plan(self, name, params, available):
+        """``_plan`` of one prior-recipe step whose operands are resolved by kind in ``available`` ({kind: handle}
+        of the prior inputs and of the earlier steps' artifacts)."""
+        if name == "calc":
+            bind = {b["name"]: {"handle": available[b["source"]], "field": b["field"]} for b in params["bindings"]}
+            return self._calc_request(params["expression"], bind, params["unit"], params["label"])
+        operands = {}
+        for argument, kinds in OPERANDS[name].items():
+            kind = params.get("events", "events") if (name, argument) == ("census", "events") else kinds[0]
+            operands[argument] = self._artifacts[available[kind]]
+        return self._plan(name, operands, params if name == "figure" else None)
+
+    def _bound_value(self, name, record, field):
+        """The finite, resolved value of one calc binding (``stages/calc.py``); OpError otherwise."""
+        def refuse(why):
+            return OpError("invalid_arguments", f"calc: binding {name}: {why}")
+        try:
+            key, index = calc_stage.field_path(field)
+        except calc_stage.CalcError as exc:
+            raise refuse(str(exc)) from None
+        content = record["content"]
+        value = content.get(key) if isinstance(content, dict) else None
+        if not isinstance(content, dict) or key not in content or (
+                index is not None and not (isinstance(value, list) and index < len(value))):
+            raise refuse(f"{record['handle']} has no field {field}")
+        if index is not None:
+            value = value[index]
+        if value is None:
+            raise refuse(f"{field} is null (not a resolved value); a calc binds only resolved values")
+        if not finite_number(value):
+            raise refuse(f"{field} is not a finite number")
+        curve = LIMIT_STATUS.get(key)
+        status = content.get("limit_status")
+        if curve is not None and isinstance(status, dict):
+            state = status.get("observed") if curve == "observed" else (
+                status.get("expected")[index] if index is not None and isinstance(status.get("expected"), list)
+                and index < len(status["expected"]) else None)
+            if state != "resolved":
+                raise refuse(f"{field} is a numerical bound (limit status {state}), not a resolved limit")
+        return value
+
+    def _calc_request(self, expression, bind, unit, label):
+        """(derived_from, run) of a calc: the checked request (grammar, bindings, unit, label) and the union of the
+        bound artifacts' derived_from, which must name one digest per input kind; OpError invalid_arguments
+        otherwise."""
+        try:
+            calc_stage.parse(expression)
+        except calc_stage.CalcError as exc:
+            raise OpError("invalid_arguments", f"calc: {exc}") from None
+        if not (isinstance(bind, dict) and bind and all(isinstance(ref, dict) and set(ref) == {"handle", "field"}
+                                                        for ref in bind.values())):
+            raise OpError("invalid_arguments", "calc: bind is a nonempty object {name: {handle, field}}")
+        bindings, derived = [], {}
+        for name in sorted(bind):
+            record = self._artifact(bind[name]["handle"])
+            value = self._bound_value(name, record, bind[name]["field"])
+            bindings.append({"name": name, "handle": record["handle"], "field": bind[name]["field"], "value": value})
+            for kind, sha in record["derived_from"].items():
+                if derived.setdefault(kind, sha) != sha:
+                    raise OpError("invalid_arguments", f"calc: the bound artifacts derive from different {kind} "
+                                                       "inputs; a calc combines values of one set of inputs")
+        request = {"expression": expression, "bindings": bindings, "unit": unit, "label": label}
+        try:
+            calc_stage.check_request(request)
+        except calc_stage.CalcError as exc:
+            raise OpError("invalid_arguments", f"calc: {exc}") from None
+        files = {stages.PARAMS: stages.params_bytes(request)}
+        return derived, lambda trace: self._run_standalone("calc", files, trace)
+
     # -- subject protocol ---------------------------------------------------------------------
-    def _request(self, token, body, route=None):
+    def _request(self, token, body, route=None, client_env=None):
         """Authenticate, account, dispatch and record one call; returns (HTTP status, response).
 
         ``route`` is the (method, path) of a request other than POST /op: it is authenticated
         and recorded like a call, answered not_found and never counted as an operation.
+        ``client_env`` is the X-Ravel-Client-Env header, when present: recorded in
+        client_env.jsonl under this call's seq (``parse_client_env``), whatever the call's outcome.
         """
         with self._lock:
             seq = self._reserve()
+            if client_env is not None:
+                names, marker = parse_client_env(client_env)
+                append_jsonl(self.client_env_path(), {"seq": seq, "names": names, "marker": marker})
             entry = self._entry(None, None)
             status = 200
             try:
@@ -617,19 +889,21 @@ class Broker:
         return getattr(self, f"_op_{op}")(args, seq, entry)
 
     def _artifact(self, handle, kind=None):
+        """The record of a handle; ``kind`` (one kind or a tuple of kinds) is what the argument accepts."""
         if not (isinstance(handle, str) and HANDLE.fullmatch(handle)):
             raise OpError("invalid_arguments", "a handle is 'art-' followed by 12 lowercase hex characters")
         record = self._artifacts.get(handle)
         if record is None:
             raise OpError("unknown_handle", f"unknown handle: {handle}")
-        if kind is not None and record["kind"] != kind:
-            raise OpError("invalid_arguments", f"{handle} is not a {kind} artifact")
+        kinds = (kind,) if isinstance(kind, str) else kind
+        if kinds is not None and record["kind"] not in kinds:
+            raise OpError("invalid_arguments", f"{handle} is not a {' or '.join(kinds)} artifact")
         return record
 
     def _op_inputs(self, args, seq, entry):
         prior = [] if self._prior is None else [
             {"handle": h, "kind": self._artifacts[h]["kind"], "derived_from": self._artifacts[h]["derived_from"]}
-            for h in (self._prior[k] for k in PRIOR_KINDS)]
+            for h in self._prior.values()]
         result = {"current": [{"handle": self._current[k]["handle"], "kind": k, "sha256": self._current[k]["sha256"]}
                               for k in INPUT_KINDS if k in self._current], "prior": prior}
         entry["result"] = result
@@ -640,10 +914,10 @@ class Broker:
         entry["result"] = {k: record[k] for k in ("handle", "kind", "content_sha256", "derived_from")}
         return {k: record[k] for k in ("handle", "kind", "content", "derived_from")}
 
-    def _run_stage_op(self, target, derived, expect, seq, entry, summary):
+    def _run_stage_op(self, target, derived, run, seq, entry, summary):
         trace = {}
         try:
-            content = self._run_dag(derived, target, trace, expect)
+            content = run(trace)
         finally:
             entry["stage"] = trace.get("stage")
             entry["result"] = {"upstream_stages": trace.get("upstream", [])}
@@ -654,31 +928,46 @@ class Broker:
         entry["result"] = {**result, "upstream_stages": trace["upstream"]}
         return result
 
+    def _stage_budget(self):
+        """Count one census or calc request against max_stage_executions (like fits: executed or reused)."""
+        if self._stage_runs >= self.budgets["max_stage_executions"]:
+            raise OpError("budget_exhausted", "the census and calc budget is exhausted")
+        self._stage_runs += 1
+
     def _op_fit(self, args, seq, entry):
         workspace = self._artifact(args["workspace"], "workspace")
         if self._fits >= self.budgets["max_fits"]:
             raise OpError("budget_exhausted", "the fit budget is exhausted")
         self._fits += 1
-        derived = {"workspace": workspace["derived_from"]["workspace"]}
-        return self._run_stage_op("fit", derived, {}, seq, entry,
+        derived, run = self._plan("fit", {"workspace": workspace})
+        return self._run_stage_op("fit", derived, run, seq, entry,
                                   ("obs_limit_events", "exp_limits_events", "limit_status"))
 
     def _op_convert(self, args, seq, entry):
-        fit = self._artifact(args["fit"], "fit")
-        luminosity = self._artifact(args["luminosity"], "luminosity")
-        derived = {"workspace": fit["derived_from"]["workspace"],
-                   "luminosity": luminosity["derived_from"]["luminosity"]}
-        return self._run_stage_op("convert", derived, {"fit": fit["content"]}, seq, entry,
+        operands = {"fit": self._artifact(args["fit"], "fit"),
+                    "luminosity": self._artifact(args["luminosity"], "luminosity")}
+        derived, run = self._plan("convert", operands)
+        return self._run_stage_op("convert", derived, run, seq, entry,
                                   ("sigma_vis_obs_fb", "sigma_vis_exp_fb", "luminosity_fb"))
 
     def _op_report(self, args, seq, entry):
-        conversion = self._artifact(args["conversion"], "conversion")
-        title = self._artifact(args["title"], "title")
-        derived = {**conversion["derived_from"], "title": title["derived_from"]["title"]}
-        fits = [r["content"] for r in self._artifacts.values()
-                if r["kind"] == "fit" and r["derived_from"] == {"workspace": derived["workspace"]}]
-        expect = {"convert": conversion["content"], **({"fit": fits[0]} if fits else {})}
-        return self._run_stage_op("report", derived, expect, seq, entry, ("text",))
+        operands = {"conversion": self._artifact(args["conversion"], "conversion"),
+                    "title": self._artifact(args["title"], "title")}
+        derived, run = self._plan("report", operands)
+        return self._run_stage_op("report", derived, run, seq, entry, ("text",))
+
+    def _op_census(self, args, seq, entry):
+        operands = {name: self._artifact(args[name], kinds) for name, kinds in OPERANDS["census"].items()}
+        self._stage_budget()
+        derived, run = self._plan("census", operands)
+        return self._run_stage_op("census", derived, run, seq, entry, CENSUS_SUMMARY)
+
+    def _op_calc(self, args, seq, entry):
+        if not CALC_ARGS <= set(args) <= CALC_ARGS | CALC_OPTIONAL:
+            raise OpError("invalid_arguments", "calc takes exactly: expr, bind, unit, and optionally label")
+        derived, run = self._calc_request(args["expr"], args["bind"], args["unit"], args.get("label"))
+        self._stage_budget()
+        return self._run_stage_op("calc", derived, run, seq, entry, ("result", "declared_unit"))
 
     def _op_submit(self, args, seq, entry):
         try:
@@ -721,6 +1010,8 @@ class Broker:
     def _op_status(self, args, seq, entry):
         result = {"ops_used": self._ops, "ops_remaining": self.budgets["max_broker_ops"] - self._ops,
                   "fits_used": self._fits, "fits_remaining": self.budgets["max_fits"] - self._fits,
+                  "stage_executions_used": self._stage_runs,
+                  "stage_executions_remaining": self.budgets["max_stage_executions"] - self._stage_runs,
                   "submissions": [dict(s) for s in self._submissions]}
         entry["result"] = result
         return result

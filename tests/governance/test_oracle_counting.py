@@ -1,7 +1,12 @@
 """Independent counting oracle: definitions, metamorphic checks and pyhf/kernel agreement.
 
-Every fixture here is a SYNTHETIC development input (software tests, not physics results
-or agent outcomes). Agreement tests skip when pyhf 0.7.6 or the ravel kernel is unavailable.
+Every fixture here is a development input for software tests, not a physics result or an agent
+outcome. All are SYNTHETIC except the 2jl counts (n = 263, b = 283 +- 24 events), which are
+DERIVED FROM PUBLISHED values: ATLAS arXiv:1605.03814, SR 2jl (Table 6, as cited in
+evidence/audits/2026-09-08-statistical-fidelity/README.md; record
+benchmarks/scoped/atlas-2jl-counting.json), used in a single-bin gamma/Poisson approximation. No
+HEPData record is used for them; the deferred human review confirms the table and whether one
+should be cited. Agreement tests skip when pyhf 0.7.6 or the ravel kernel is unavailable.
 """
 import ast
 import contextlib
@@ -9,6 +14,7 @@ import copy
 import io
 import json
 import math
+import random
 import statistics
 import subprocess
 import sys
@@ -23,15 +29,15 @@ from governance.tasks.development.likelihood_freshness import family
 ROOT = Path(__file__).resolve().parents[2]
 COUNTING_SOURCE = ROOT / "benchmarks" / "governance" / "oracle" / "counting.py"
 
-# Synthetic fixtures (n_obs, background, background_uncertainty, poi_cap): the family's distinct
-# prior/current workspaces plus four extra cases (the public 2jl counts, a low-count excess, a
-# loosely constrained background, and a large excess over a tiny, loosely constrained
-# background whose conditional mu = 0 fit, and so the Asimov data, sit at the shapesys upper
-# bound gamma = 10).
+# Fixtures (n_obs, background, background_uncertainty, poi_cap): the family's distinct synthetic
+# prior/current workspaces plus four extra cases: the 2jl counts derived from published values
+# (see the module docstring), and three synthetic ones (a low-count excess, a loosely constrained
+# background, and a large excess over a tiny, loosely constrained background whose conditional
+# mu = 0 fit, and so the Asimov data, sit at the shapesys upper bound gamma = 10).
 FIXTURES = {
     "synthetic-family-prior": (42, 38.0, 5.0, 256.0),
     "synthetic-family-V1-current": (42, 44.0, 5.0, 256.0),
-    "synthetic-public-2jl": (263, 283.0, 24.0, 256.0),
+    "derived-from-published-2jl": (263, 283.0, 24.0, 256.0),
     "synthetic-low-count": (5, 3.0, 1.0, 256.0),
     "synthetic-loose-constraint": (12, 5.0, 3.0, 256.0),
     "synthetic-gamma-at-upper-bound": (1000, 5.0, 50.0, 4096.0),
@@ -53,6 +59,10 @@ KERNEL_RTOL = 1e-3
 
 def values(result):
     return [result["obs_limit_events"], *result["exp_limits_events"]]
+
+
+def cls_values(result):
+    return [result["observed"], *result["expected"]]
 
 
 def fixture_limits(label):
@@ -222,6 +232,13 @@ def test_poi_cap_too_small_reports_above_cap_not_a_root():
     tiny = counting.limits(42, 38.0, 5.0, poi_cap=5.0)
     assert values(tiny) == [None] * 6
     assert tiny["limit_status"] == {"observed": "above_cap", "expected": ["above_cap"] * 5}
+    # the status is evidenced by the CLs at the cap: above the level exactly on the above_cap curves
+    for result, cap in ((capped, 10.0), (tiny, 5.0)):
+        at_cap = [result["cls_at_cap"]["observed"], *result["cls_at_cap"]["expected"]]
+        assert at_cap == cls_values(counting.cls_at(42, 38.0, 5.0, cap, poi_cap=cap))
+        statuses = [result["limit_status"]["observed"], *result["limit_status"]["expected"]]
+        assert [cls > 0.05 for cls in at_cap] == [s == "above_cap" for s in statuses]
+    assert full["cls_at_cap"] is None
 
 
 def test_non_monotone_cls_curve_is_rejected(monkeypatch):
@@ -237,6 +254,39 @@ def test_non_monotone_cls_curve_is_rejected(monkeypatch):
     monkeypatch.setattr(counting, "_cls", bumped)
     with pytest.raises(ContractError, match="monotonically"):
         counting.limits(42, 38.0, 5.0)
+
+
+def test_observed_curve_has_no_rise_on_a_fine_grid():
+    # The expected curves are monotone analytically; the observed curve is only grid-verified by
+    # limits() (module docstring). This seeded survey checks 400 points per model, from 0 to three
+    # times the largest finite root, for 400 random synthetic models (one raises ContractError).
+    rng = random.Random(20260926)
+    checked = rising = 0
+    for _ in range(400):
+        b = 10 ** rng.uniform(-1, 3.5)
+        sigma = b * 10 ** rng.uniform(-2, 0.3)
+        n = max(0, round(b + rng.gauss(0, 1) * (b + sigma * sigma) ** 0.5 * rng.uniform(0, 3)))
+        try:
+            result = counting.limits(n, b, sigma, poi_cap=1e6)
+        except ContractError:
+            continue
+        top = 3 * max(v for v in values(result) if v is not None)
+        model = counting._SingleBin(b, sigma)
+        observed, asimov = counting._datasets(model, float(n))
+        curve = [counting._cls(model, top * i / 400, observed, asimov)[0] for i in range(1, 401)]
+        checked += 1
+        rising += any(later > earlier for earlier, later in zip(curve, curve[1:]))
+    assert checked == 399 and rising == 0
+
+
+@pytest.mark.parametrize("model", [(0, 1e-3, 1e-2), (0, 0.5, 0.05), (0, 3.0, 1.0), (5, 3.0, 1.0),
+                                   (263, 283.0, 24.0), (1000, 5.0, 50.0), (10000, 1e4, 1e2)])
+def test_no_crossing_below_the_kernel_first_scan_point(model):
+    # q~ and q~_A are at most 2 mu for a unit signal (module docstring), so at mu = 1e-3 every CLs
+    # exceeds Phi(-(2 + sqrt(2e-3))) / Phi(-2) > 0.89: the kernel's below_scan cannot occur.
+    bound = 0.5 * math.erfc((2 + math.sqrt(2e-3)) / math.sqrt(2)) / (0.5 * math.erfc(2 / math.sqrt(2)))
+    assert bound > 0.89
+    assert min(cls_values(counting.cls_at(*model, 1e-3))) > bound
 
 
 @pytest.mark.parametrize("args", [(42, 38.0, 1e-200), (42, 38.0, 1e200), (42, 1e-200, 5.0), (42, 1e200, 5.0),
@@ -284,6 +334,219 @@ def test_limits_reject_invalid_arguments():
                          ((42, 38.0, 5.0), {"level": 1.0}), ((42, 38.0, 5.0), {"poi_cap": 0.0})]:
         with pytest.raises(ContractError):
             counting.limits(*args, **kwargs)
+
+
+# --------------------------------------------------------------------------- cap-bounded models, cls_at
+#
+# WP12 task-bank models (revised design 2026-09-26, section 2 P3 and P6). The 2jl counts
+# (n = 263, b = 283 +- 24 events) are transcribed from ATLAS arXiv:1605.03814, SR 2jl, and used
+# in a derived single-bin gamma/Poisson approximation (derived_from_published); the POI range
+# [0, 10] is a synthetic perturbation. The hv model (n = 73, b = 58.0 +- 7.0) is synthetic.
+# Every expected number below was recomputed on 2026-09-26 (CPython 3.12.13, macOS arm64): the
+# design values agree with the oracle to the half-unit of their last printed digit, and the
+# CLs values with the test-side numeric-profile reference below.
+
+PUBLIC_2JL = (263, 283.0, 24.0)
+SYNTHETIC_HV = (73, 58.0, 7.0)
+DESIGN_2JL_CLS_AT_10 = [0.60590601, 0.41145174, 0.55681585, 0.72556045, 0.88170610, 0.97254797]
+DESIGN_HV_LIMITS = [34.01420, 11.58529, 15.60338, 21.78224, 30.59717, 41.57884]
+# The numeric reference locates g_hat and mu_hat by golden section (argmax precision ~1e-8),
+# which moves the Asimov data slightly; measured worst difference 7.5e-9, bound 5e-8.
+NUMERIC_CLS_ATOL = 5e-8
+
+
+def close_to_printed(value, printed, places):
+    return abs(value - printed) <= 0.5 * 10.0 ** -places + 1e-12
+
+
+def numeric_cls(n, b, sigma, mu, cap=256.0):
+    """Test-side CLs at mu from golden-section profiles (independent of the closed forms)."""
+    tau = b * b / (sigma * sigma)
+    lo, hi = counting.GAMMA_BOUNDS
+
+    def conditional(m, count, aux):
+        g = golden_argmax(lambda g: log_likelihood(m, g, count, aux, b, tau), lo, hi)
+        return log_likelihood(m, g, count, aux, b, tau)
+
+    def qtilde(count, aux):
+        mu_hat = golden_argmax(lambda m: conditional(m, count, aux), 0.0, cap)
+        if mu_hat > mu:
+            return 0.0
+        return max(0.0, 2.0 * (conditional(mu_hat, count, aux) - conditional(mu, count, aux)))
+
+    g0 = golden_argmax(lambda g: log_likelihood(0.0, g, n, tau, b, tau), lo, hi)
+    q, qa = qtilde(n, tau), qtilde(g0 * b, g0 * tau)
+    phi = statistics.NormalDist().cdf
+    sq, sqa = math.sqrt(q), math.sqrt(qa)
+    t = sq - sqa if sq <= sqa else (q - qa) / (2 * sqa)
+    return [(1 - phi(t + sqa)) / (1 - phi(t))] + [(1 - phi(k + sqa)) / (1 - phi(k)) for k in (2, 1, 0, -1, -2)]
+
+
+def test_public_2jl_at_cap_10_is_above_cap_on_every_curve():
+    result = counting.limits(*PUBLIC_2JL, poi_cap=10.0)
+    assert result["limit_status"] == {"observed": "above_cap", "expected": ["above_cap"] * 5}
+    assert values(result) == [None] * 6
+    at_cap = cls_values(result["cls_at_cap"])
+    assert all(close_to_printed(v, d, 8) for v, d in zip(at_cap, DESIGN_2JL_CLS_AT_10)), at_cap
+    assert all(cls > 0.05 for cls in at_cap)          # no crossing inside [0, 10]: S95 > 10 events
+    # the uncapped limits all lie above the cap, as the status states
+    assert all(v > 10.0 for v in values(counting.limits(*PUBLIC_2JL)))
+
+
+def test_cls_at_workspace_reads_the_cap_and_matches_cls_at():
+    workspace = family.counting_workspace(*PUBLIC_2JL, poi_cap=10.0)
+    assert workspace["measurements"][0]["config"]["parameters"][0]["inits"] == [1]   # min(1, cap/2)
+    result = counting.cls_at_workspace(workspace, 10.0)
+    assert result == counting.cls_at(*PUBLIC_2JL, 10.0, poi_cap=10.0)
+    assert result["poi_bounds"] == [0.0, 10.0] and result["mu"] == 10.0
+    assert all(close_to_printed(v, d, 8) for v, d in zip(cls_values(result), DESIGN_2JL_CLS_AT_10))
+    with pytest.raises(ContractError, match="POI range"):
+        counting.cls_at_workspace(workspace, 10.5)
+
+
+@pytest.mark.parametrize("model, mu, cap", [(PUBLIC_2JL, 10.0, 10.0), (PUBLIC_2JL, 43.0, 256.0),
+                                            (SYNTHETIC_HV, 20.0, 256.0), (SYNTHETIC_HV, 34.0, 256.0),
+                                            ((42, 38.0, 5.0), 5.0, 256.0)])
+def test_cls_at_matches_numeric_profile_reference(model, mu, cap):
+    ours = cls_values(counting.cls_at(*model, mu, poi_cap=cap))
+    reference = numeric_cls(*model, mu, cap)
+    assert max(abs(a - b) for a, b in zip(ours, reference)) <= NUMERIC_CLS_ATOL
+
+
+def test_synthetic_hv_reference_values():
+    result = counting.limits(*SYNTHETIC_HV)
+    assert result["limit_status"] == {"observed": "resolved", "expected": ["resolved"] * 5}
+    assert all(close_to_printed(v, d, 5) for v, d in zip(values(result), DESIGN_HV_LIMITS)), values(result)
+    obs, median, plus1 = result["obs_limit_events"], result["exp_limits_events"][2], result["exp_limits_events"][3]
+    # design margins: the swap moves the observed value by 36.0 % and the median by 56.2 %; the
+    # nearest role confusion (observed vs +1 sigma) is 10.0 %
+    assert round(relative(median, obs), 3) == 0.360 and round(relative(obs, median), 3) == 0.562
+    assert round(relative(plus1, obs), 3) == 0.100
+
+
+@pytest.mark.parametrize("model", [PUBLIC_2JL, SYNTHETIC_HV, (42, 38.0, 5.0)])
+def test_cls_at_resolved_roots_equals_the_level(model):
+    result = counting.limits(*model)
+    for index, root in enumerate(values(result)):
+        assert abs(cls_values(counting.cls_at(*model, root))[index] - 0.05) <= counting.CLS_RESIDUAL_ATOL
+
+
+@pytest.mark.parametrize("model, cap", [(PUBLIC_2JL, 10.0), (PUBLIC_2JL, 256.0), (SYNTHETIC_HV, 256.0)])
+def test_cls_at_is_monotone_and_ordered(model, cap):
+    top = min(cap, 128.0)   # beyond ~2x the largest limit the tails approach float underflow
+    grid = [counting.cls_at(*model, top * i / 100, poi_cap=cap) for i in range(1, 101)]
+    curves = [cls_values(point) for point in grid]
+    for index in range(6):
+        assert all(later[index] < earlier[index] for earlier, later in zip(curves, curves[1:]))
+    for point in curves:
+        assert 0.0 < point[0] <= 1.0
+        assert all(low < high for low, high in zip(point[1:], point[2:]))   # -2 sigma band lowest
+
+
+def test_above_cap_status_flips_exactly_at_the_uncapped_root():
+    uncapped = values(counting.limits(*PUBLIC_2JL))
+    for cap in (10.0, 30.0, 40.0, 43.6, 43.7, 55.0, 80.0, 100.9, 101.0):
+        result = counting.limits(*PUBLIC_2JL, poi_cap=cap)
+        statuses = [result["limit_status"]["observed"], *result["limit_status"]["expected"]]
+        assert statuses == ["resolved" if root <= cap else "above_cap" for root in uncapped]
+        for value, root in zip(values(result), uncapped):
+            assert value is None if root > cap else relative(value, root) < 1e-12   # cap-independent roots
+        assert (result["cls_at_cap"] is None) == all(root <= cap for root in uncapped)
+
+
+def test_above_cap_monotonicity_grid_spans_the_whole_poi_range(monkeypatch):
+    # Synthetic CLs curves: curve 0 crosses the level at mu = 2; curves 1-5 stay above it on
+    # (0, 100] but rise again on (60, 70). Only a grid reaching the cap sees that rise, which
+    # would make "no crossing in (0, poi_cap]" unverified.
+    def synthetic(model, mu, observed, asimov):
+        bump = 0.05 if 60.0 < mu < 70.0 else 0.0
+        return [0.1 / mu] + [0.9 - 0.001 * mu + bump] * 5
+
+    monkeypatch.setattr(counting, "_cls", synthetic)
+    with pytest.raises(ContractError, match="monotonically"):
+        counting.limits(42, 38.0, 5.0, poi_cap=100.0)
+
+
+@pytest.mark.parametrize("mu, kwargs", [(0.0, {}), (-1.0, {}), (257.0, {}), (10.5, {"poi_cap": 10.0}),
+                                        (float("nan"), {}), (float("inf"), {}), (True, {}), ("10", {})])
+def test_cls_at_rejects_mu_outside_the_poi_range(mu, kwargs):
+    with pytest.raises(ContractError):
+        counting.cls_at(*PUBLIC_2JL, mu, **kwargs)
+
+
+def test_cls_at_extreme_inputs_raise_contract_error():
+    for args in [(42, 38.0, 1e-200), (42, 1e200, 5.0), (42, 5e-324, 5e-324)]:
+        with pytest.raises(ContractError):
+            counting.cls_at(*args, 1.0)
+
+
+def prefit_asimov_limits(n, b, sigma, level=0.05, cap=256.0):
+    """Test-side limits under the pre-fit (nominal-nuisance, g = 1) Asimov convention.
+
+    A known legitimate alternative to the oracle's conditional mu = 0 Asimov data: the design
+    lists its values as convention_values (verdict unresolved), never as the oracle value.
+    """
+    model = counting._SingleBin(b, sigma)
+    observed = (float(n), model.tau, model.free_fit(float(n), model.tau))
+    asimov = (model.b, model.tau, model.free_fit(model.b, model.tau))
+    roots = []
+    for index in range(6):
+        lo, hi = 1e-6, cap
+        for _ in range(200):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if counting._cls(model, mid, observed, asimov)[index] > level else (lo, mid)
+        roots.append(hi)
+    return roots
+
+
+def test_prefit_asimov_convention_values():
+    # design section 2 P3/P6 and 7.1: (model, observed, median) under the pre-fit convention
+    shifts = {}
+    for label, model in {"2jl": PUBLIC_2JL, "hv": SYNTHETIC_HV, "lf-prior": (42, 38.0, 5.0),
+                         "lf-v1": (42, 44.0, 5.0)}.items():
+        pre, post = prefit_asimov_limits(*model), values(counting.limits(*model))
+        shifts[label] = (round(100 * (pre[0] / post[0] - 1), 2), round(100 * (pre[3] / post[3] - 1), 1))
+        if label == "2jl":
+            assert close_to_printed(pre[0], 43.93693, 5) and close_to_printed(pre[3], 56.25982, 5)
+        if label == "hv":
+            assert close_to_printed(pre[3], 20.62317, 5)
+    assert shifts == {"2jl": (0.65, 2.5), "hv": (-0.41, -5.3), "lf-prior": (-0.44, -1.9), "lf-v1": (0.25, 0.8)}
+    # lf-c collision: the pre-fit median at the current 117.6 fb^-1 lies 0.066 % from the stale
+    # median at 120.0 fb^-1 (a fault value and a convention value within tolerance of each other)
+    prefit_current = prefit_asimov_limits(42, 38.0, 5.0)[3] / 117.6
+    stale = counting.limits(42, 38.0, 5.0)["exp_limits_events"][2] / 120.0
+    assert close_to_printed(prefit_current, 0.1372986, 7) and close_to_printed(stale, 0.1372085, 7)
+    assert round(100 * relative(prefit_current, stale), 3) == 0.066
+
+
+def test_convention_limits_match_the_test_side_prefit_helper():
+    """The oracle's convention helper (WP12 plan step 7: the family builders list convention_values) agrees with
+    the independent test-side bisection above, and its record names the convention."""
+    for model in (PUBLIC_2JL, SYNTHETIC_HV, (42, 38.0, 5.0), (42, 44.0, 5.0)):
+        expected = prefit_asimov_limits(*model)
+        result = counting.convention_limits(*model)
+        assert all(relative(a, b) < 1e-9 for a, b in zip([result["obs_limit_events"], *result["exp_limits_events"]],
+                                                          expected))
+        assert result["method"]["estimand"] == "convention_value_prefit_asimov"
+        assert "nominal nuisance" in result["method"]["asimov"]
+    capped = counting.convention_limits(*PUBLIC_2JL, poi_cap=10.0)
+    assert capped["limit_status"]["observed"] == "above_cap" and capped["obs_limit_events"] is None
+    assert counting.limits(*PUBLIC_2JL)["method"]["asimov"] == (
+        "background-only (mu = 0) at the conditional mu = 0 fit to observed data")
+    with pytest.raises(ContractError, match="only prefit_asimov"):
+        counting.convention_limits(*PUBLIC_2JL, convention="toy_cls")
+
+
+def test_oracle_record_carries_cls_at_cap_and_an_optional_prior():
+    files = {"workspace.json": json.dumps(family.counting_workspace(263, 283, 24, poi_cap=10.0)).encode()}
+    record = counting.oracle_record(files)
+    assert record["prior"] is None
+    at_cap, direct = record["current"]["cls_at_cap"], counting.cls_at(263, 283, 24, 10.0, poi_cap=10.0)
+    assert at_cap["observed"] == float(f"{direct['observed']:.9e}") == 0.60590601
+    assert at_cap["expected"] == [float(f"{v:.9e}") for v in direct["expected"]]
+    inputs = family.variant_inputs("V0")
+    lf = counting.oracle_record(inputs["current"], inputs["prior"])
+    assert lf["current"]["cls_at_cap"] is None and lf["prior"]["cls_at_cap"] is None
 
 
 # --------------------------------------------------------------------------- workspace parsing

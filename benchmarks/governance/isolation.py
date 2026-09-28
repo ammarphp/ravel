@@ -24,6 +24,7 @@ is proven to be the launch's; never a command-line match. See evaluation-study/s
 """
 from __future__ import annotations
 
+import contextlib
 import ctypes
 import errno
 import functools
@@ -53,6 +54,8 @@ TERM_GRACE_S = 2.0       # SIGTERM -> SIGKILL grace for the subject's processes
 KILL_WAIT_S = 5.0        # SIGSTOP+SIGKILL rounds repeat this long against a forking tree
 CENSUS_WAIT_S = 5.0      # how long the post-kill census waits for every subject process to go
 QUIET_S = 0.05           # group and sandbox must stay empty this long (then a full rescan agrees)
+LEADER_WAIT_S = KILL_WAIT_S + CENSUS_WAIT_S   # after the kill rounds, how long the launcher waits to reap the leader
+
 DRAIN_S = 1.0            # stream copying continues at most this long after the census
 OUTPUT_LIMIT = 64 << 20  # read_output_tree: default cap on the total bytes read
 SANDBOX_FILTER_PATH, SANDBOX_CHECK_NO_REPORT = 1, 0x40000000   # libsystem_sandbox sandbox_check
@@ -83,6 +86,10 @@ SECRET_NAME_ALLOWLIST = frozenset({"RAVEL_TASK_TOKEN", "RAVEL_TASK_ENDPOINT"})
 HOST_SESSION_NAME = re.compile(r"CLAUDECODE|CLAUDE_CODE_(ENTRYPOINT|EXECPATH|SESSION_ID|MESSAGING_.*)")
 ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 ANCESTOR_MARKERS = (".git", "CLAUDE.md", "AGENTS.md")   # hosts load parent-directory instructions
+# What no ancestor of a subject-visible root may hold: the instruction files hosts load from parent directories
+# plus Claude Code's project settings directory and local memory file (smoke spec WI-6). runner.lab_root keeps
+# ANCESTOR_MARKERS: the user's home holds ~/.claude, which must not make the home directory the lab root.
+SUBJECT_ANCESTOR_MARKERS = ANCESTOR_MARKERS + (".claude", "CLAUDE.local.md")
 CANARY_ENCODINGS = ("utf-8", "utf-16-le", "utf-16-be")   # compressed or transformed copies are not detected
 ALLOW_DEFAULT = re.compile(r"\(\s*allow\s+default\b")
 SYSTEM_READ_ROOTS = (
@@ -173,7 +180,9 @@ class SandboxPolicy:
     host's DARWIN_USER_TEMP_DIR, whose xcrun_db cache /usr/bin developer shims need; None
     denies it. forbidden_roots: the store, packet and DSRLab roots; with the defaults of
     `default_forbidden_roots()` added, no read, write or literal root may lie in or contain one,
-    and the profile denies each explicitly.
+    and the profile denies each explicitly. mach_services_removed: names from MACH_SERVICES the
+    profile does not let the subject look up (a real host's policy removes the keychain services
+    com.apple.SecurityServer and com.apple.securityd.xpc: smoke spec R1); empty keeps them all.
     """
     read_roots: tuple = ()
     write_roots: tuple = ()
@@ -183,6 +192,7 @@ class SandboxPolicy:
     deny_roots: tuple = ()
     darwin_user_temp: str | None = None
     forbidden_roots: tuple = ()
+    mach_services_removed: tuple = ()
 
     def __post_init__(self):
         for name in ("read_roots", "write_roots", "read_literals", "deny_roots", "forbidden_roots"):
@@ -205,6 +215,13 @@ class SandboxPolicy:
         object.__setattr__(self, "localhost_ports", ports)
         if self.darwin_user_temp is not None:
             object.__setattr__(self, "darwin_user_temp", _clean_path(self.darwin_user_temp, "darwin_user_temp"))
+        removed = self.mach_services_removed
+        require(isinstance(removed, (list, tuple, set, frozenset)) and all(isinstance(n, str) for n in removed),
+                "mach_services_removed: expected a list of mach service names")
+        unknown = sorted(set(removed) - set(MACH_SERVICES))
+        require(not unknown, f"mach_services_removed: {unknown} are not among the profile's mach services")
+        require(len(set(removed)) < len(MACH_SERVICES), "mach_services_removed: at least one service stays")
+        object.__setattr__(self, "mach_services_removed", tuple(sorted(set(removed))))
 
 
 def _q(path: str) -> str:
@@ -234,7 +251,8 @@ def seatbelt_profile(policy: SandboxPolicy) -> str:
         "(allow signal (target same-sandbox))",
         "(allow mach-priv-task-port (target same-sandbox))",
         "(allow user-preference-read)",
-        "(allow mach-lookup " + " ".join(f"(global-name {_q(s)})" for s in MACH_SERVICES) + ")",
+        "(allow mach-lookup " + " ".join(f"(global-name {_q(s)})" for s in MACH_SERVICES
+                                         if s not in policy.mach_services_removed) + ")",
         f"(allow ipc-posix-shm-read* {SYSTEM_SHM_READ})",
         '(allow iokit-open (iokit-registry-entry-class "IOSurfaceRootUserClient") '
         '(iokit-registry-entry-class "RootDomainUserClient") (iokit-user-client-class "IOSurfaceSendRight"))',
@@ -467,7 +485,7 @@ def admission_check(subject_root, *, forbidden_sha256: set, canaries: list, env:
     orchestrator-session env names (except RAVEL_TASK_TOKEN/RAVEL_TASK_ENDPOINT), env paths or
     coordinator secret values leaking in, a root overlapping a forbidden root (the caller's,
     which should name the store, packet and DSRLab roots, plus `default_forbidden_roots()`),
-    and an ancestor holding .git/CLAUDE.md/AGENTS.md.
+    and an ancestor holding one of SUBJECT_ANCESTOR_MARKERS. The environment rules are ``env_admission``'s.
     """
     try:
         require(isinstance(forbidden_sha256, (set, frozenset)) and forbidden_sha256
@@ -491,7 +509,7 @@ def admission_check(subject_root, *, forbidden_sha256: set, canaries: list, env:
         if _within(real, other) or _within(other, real):
             flag("forbidden_root", real, f"overlaps {other}")
     for ancestor in _ancestors(real)[1:]:
-        for marker in ANCESTOR_MARKERS:
+        for marker in SUBJECT_ANCESTOR_MARKERS:
             if os.path.lexists(os.path.join(ancestor, marker)):
                 flag("ancestor_marker", ancestor, f"contains {marker}")
 
@@ -518,6 +536,44 @@ def admission_check(subject_root, *, forbidden_sha256: set, canaries: list, env:
             elif not stat.S_ISDIR(info.st_mode):
                 flag("special_file", rel, oct(info.st_mode))
 
+    violations += _env_violations(env, canaries, forbidden, frozenset())
+    violations.sort(key=lambda v: (v["code"], v["where"], v["detail"]))
+    return {"ok": not violations, "violations": violations}
+
+
+def env_admission(env: dict, *, canaries: list, forbidden_roots=(), allowed_secret_names=frozenset()) -> dict:
+    """The launch-environment half of ``admission_check``: {"ok", "violations"} for ``env`` alone.
+
+    ``allowed_secret_names`` are the credential variables a real-host campaign declares (``host_launch
+    .credential.env_name``, smoke spec WI-5): such a name may look like a credential, and its value is never
+    split, resolved or echoed. Only name-level checks (orchestrator session names, a canary in the name) and
+    value checks that record a code with an empty detail (a canary in the value, a coordinator credential value
+    inside it) apply to it; the path checks, which copy a path-like part of a value into their detail and resolve
+    it, are skipped. Every other name gets exactly admission_check's rules; the global SECRET_NAME_ALLOWLIST is
+    unchanged. Invalid arguments give one "invalid_arguments" violation."""
+    try:
+        require(isinstance(canaries, (list, tuple)) and canaries and all(isinstance(c, str) and c for c in canaries),
+                "canaries: expected a nonempty list of nonempty strings")
+        require(isinstance(env, dict), "env: expected a dict")
+        require(isinstance(forbidden_roots, (list, tuple, set, frozenset)), "forbidden_roots: expected a list")
+        require(isinstance(allowed_secret_names, (list, tuple, set, frozenset))
+                and all(isinstance(n, str) and ENV_NAME.fullmatch(n) for n in allowed_secret_names),
+                "allowed_secret_names: expected variable names")
+        forbidden = sorted({_clean_path(r, "forbidden_roots") for r in forbidden_roots}
+                           | set(default_forbidden_roots()))
+    except ContractError as exc:
+        return {"ok": False, "violations": [{"code": "invalid_arguments", "where": "arguments", "detail": str(exc)}]}
+    violations = _env_violations(env, canaries, forbidden, frozenset(allowed_secret_names))
+    violations.sort(key=lambda v: (v["code"], v["where"], v["detail"]))
+    return {"ok": not violations, "violations": violations}
+
+
+def _env_violations(env: dict, canaries, forbidden, allowed_secret_names) -> list:
+    violations = []
+
+    def flag(code, where, detail):
+        violations.append({"code": code, "where": str(where), "detail": str(detail)})
+
     inherited = {v for k, v in os.environ.items()
                  if SECRET_NAME.search(k) and k not in SECRET_NAME_ALLOWLIST and len(v) >= 8}
     for name, value in sorted(env.items(), key=lambda item: str(item[0])):
@@ -525,10 +581,19 @@ def admission_check(subject_root, *, forbidden_sha256: set, canaries: list, env:
         if not (isinstance(name, str) and isinstance(value, str)):
             flag("env_invalid", where, "names and values must be strings")
             continue
-        if name not in SECRET_NAME_ALLOWLIST and SECRET_NAME.search(name):
-            flag("env_secret_name", where, "name looks like a credential")
         if HOST_SESSION_NAME.fullmatch(name):
             flag("env_host_session", where, "orchestrator session variable")
+        if name in allowed_secret_names:   # the declared credential: codes only, the value never echoed
+            for index, canary in enumerate(canaries):
+                if canary in name:
+                    flag("env_canary", where, f"canary #{index} present")
+            if any(canary in value for canary in canaries):
+                flag("env_canary", where, "")
+            if any(secret in value for secret in inherited):
+                flag("env_inherited_secret", where, "")
+            continue
+        if name not in SECRET_NAME_ALLOWLIST and SECRET_NAME.search(name):
+            flag("env_secret_name", where, "name looks like a credential")
         for index, canary in enumerate(canaries):
             if canary in name or canary in value:
                 flag("env_canary", where, f"canary #{index} present")
@@ -537,8 +602,7 @@ def admission_check(subject_root, *, forbidden_sha256: set, canaries: list, env:
                 flag("env_forbidden_path", where, part)
         if any(secret in value for secret in inherited):
             flag("env_inherited_secret", where, "value contains a coordinator credential value")
-    violations.sort(key=lambda v: (v["code"], v["where"], v["detail"]))
-    return {"ok": not violations, "violations": violations}
+    return violations
 
 
 def read_output_tree(root, *, max_bytes: int = OUTPUT_LIMIT) -> tuple[dict, list]:
@@ -1038,6 +1102,8 @@ IPC_KIND_NAMES = {"q": "msg", "m": "shm", "s": "sem"}
 IPC_PIDS = {"q": ("LSPID", "LRPID"), "m": ("CPID", "LPID"), "s": ()}   # the processes ipcs names for an object
 IPC_COLUMNS = ("T", "ID", "KEY", "OWNER", "CREATOR")
 IPC_REMOVE_BATCH = 256   # ids per ipcrm call
+# The note on a System V object a launch with remove_unattributed_ipc=False reports and never removes (R12a).
+IPC_UNATTRIBUTABLE = "unattributable over a long window: left for a human"
 
 
 class IpcUnavailable(ContractError):
@@ -1123,7 +1189,7 @@ def _ipc_remove(objects) -> None:
         subprocess.run(argv, env={}, stdin=subprocess.DEVNULL, capture_output=True, timeout=60, check=False)
 
 
-def _ipc_residue(before: dict) -> list | None:
+def _ipc_residue(before: dict, *, remove_unattributed: bool = True) -> list | None:
     """The System V IPC objects a launch left behind, removed where that is provably safe; None when the
     host's listing after the launch fails (residue unknown). `before` is the listing taken before the launch.
 
@@ -1134,8 +1200,11 @@ def _ipc_residue(before: dict) -> list | None:
     last sender and receiver of a queue) are all gone. The census has ended every subject process, so a live
     one belongs to another program (or is a survivor the census reports): its object is never removed, only
     reported. The residual: a message queue or semaphore set that another program of this user creates and has
-    not yet used during the window records no live process and is removed. Each entry is {kind, id, key,
-    cleared, note}; cleared is True only when a fresh listing no longer shows a removed object."""
+    not yet used during the window records no live process and is removed. ``remove_unattributed=False``
+    (a real host's launch, whose window is long: smoke spec R12a) closes that residual: a new message queue
+    that records no sending or receiving process, and every new semaphore set (ipcs records none for one), is
+    reported with the note IPC_UNATTRIBUTABLE and never removed. Each entry is {kind, id, key, cleared, note};
+    cleared is True only when a fresh listing no longer shows a removed object."""
     try:
         after = _sysv_objects()
     except IpcUnavailable:
@@ -1145,12 +1214,15 @@ def _ipc_residue(before: dict) -> list | None:
         if (kind, ident) in before or row["CREATOR"] not in me:
             continue
         entry = {"kind": IPC_KIND_NAMES[kind], "id": ident, "key": row["KEY"], "cleared": False, "note": None}
-        live = sorted({p for p in (int(row[c]) for c in IPC_PIDS[kind]) if p > 0 and _process_exists(p)})
+        recorded = [int(row[c]) for c in IPC_PIDS[kind]]
+        live = sorted({p for p in recorded if p > 0 and _process_exists(p)})
         if row["OWNER"] not in me:
             entry["note"] = f"owned by {row['OWNER']}, not this user: not removed"
         elif live or (kind == "m" and int(row["NATTCH"]) > 0):
             entry["note"] = (f"in use (live process(es) {live}, {row.get('NATTCH', '0')} attached): a live process "
                              "is not the launch's once its census ended; not removed")
+        elif not remove_unattributed and kind in ("q", "s") and not any(p > 0 for p in recorded):
+            entry["note"] = IPC_UNATTRIBUTABLE
         else:
             removable.append(((kind, ident), entry))
         residue.append(entry)
@@ -1234,7 +1306,7 @@ def _pump(proc, data: bytes, sinks, stop, errors) -> None:
 
 
 def launch(argv, *, cwd, env, profile: str | None, timeout_s, stdout_path, stderr_path,
-           stdin_path=None, on_start=None) -> LaunchResult:
+           stdin_path=None, on_start=None, remove_unattributed_ipc: bool = True) -> LaunchResult:
     """Run argv (no shell) in a new session with only `env`, every other descriptor closed and
     stdin fed from stdin_path (or /dev/null). stdout and stderr are pipes the coordinator
     copies into stdout_path/stderr_path (created exclusively). At the wall limit every subject
@@ -1247,10 +1319,11 @@ def launch(argv, *, cwd, env, profile: str | None, timeout_s, stdout_path, stder
     coordinator-private file, and finds subject processes by that marker in any process group
     or session. It also lists the host's System V IPC objects just before the start (refusing the
     launch, IpcUnavailable, when it cannot) and again after the census, and removes the objects
-    the launch left (LaunchResult.ipc_residue, _ipc_residue). profile None runs unsandboxed (tests
-    of the timeout logic only) and covers only the process group. Raises ContractError for invalid
-    arguments or profiles and OSError when the program cannot be started or its streams cannot be
-    copied.
+    the launch left (LaunchResult.ipc_residue, _ipc_residue; with ``remove_unattributed_ipc`` False, as
+    for a real host, a message queue or semaphore set no process is recorded for is reported and left for
+    a human). profile None runs unsandboxed (tests of the timeout logic only) and covers only the process
+    group. Raises ContractError for invalid arguments or profiles and OSError when the program cannot be
+    started or its streams cannot be copied.
 
     ``on_start`` (optional) is called exactly once, right after the child starts and before the
     launcher waits on it, with ``{"pid", "pgid", "marker", "started_at", "leader_start"}`` (pgid
@@ -1271,6 +1344,7 @@ def launch(argv, *, cwd, env, profile: str | None, timeout_s, stdout_path, stder
     require(os.path.isdir(cwd), f"launch: cwd is not a directory: {cwd}")
     require(finite_number(timeout_s) and timeout_s > 0, "launch: timeout_s must be a positive finite number")
     require(on_start is None or callable(on_start), "launch: on_start must be callable or None")
+    require(type(remove_unattributed_ipc) is bool, "launch: remove_unattributed_ipc must be a bool")
     stdout_path, stderr_path = (_clean_path(p, "output path", resolve=False) for p in (stdout_path, stderr_path))
     require(stdout_path != stderr_path, "launch: stdout_path and stderr_path must differ")
     require(not any(os.path.lexists(p) for p in (stdout_path, stderr_path)), "launch: output files must not exist")
@@ -1292,28 +1366,78 @@ def launch(argv, *, cwd, env, profile: str | None, timeout_s, stdout_path, stder
             command = [SANDBOX_EXEC, "-p", profile, *command]
         with open(stdout_path, "xb", buffering=0) as fout, open(stderr_path, "xb", buffering=0) as ferr:
             return _run(command, cwd, env, timeout_s, stdin_data, (fout, ferr), marker, on_start,
-                        ipc_before=ipc_before)
+                        ipc_before=ipc_before, remove_unattributed_ipc=remove_unattributed_ipc)
     finally:
         if directory is not None:
             shutil.rmtree(directory, ignore_errors=True)
 
 
-def _run(command, cwd, env, timeout_s, stdin_data, sinks, marker, on_start=None, *, ipc_before=None) -> LaunchResult:
-    start, launched_at = time.monotonic(), time.time()
-    proc = subprocess.Popen(command, cwd=cwd, env=env, bufsize=0, close_fds=True, start_new_session=True,
-                            stdin=subprocess.DEVNULL if stdin_data is None else subprocess.PIPE,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    pgid, timed_out, killed, finished = proc.pid, False, False, False
-    leader = _proc_read(proc.pid) or (None, None, None)   # read once: recorded start, compared identity
-    watch = _Watch(pgid, marker, launched_at - START_SLACK_S, leader[1], leader[2])
-    stop, errors = threading.Event(), []
-    pump = threading.Thread(target=_pump, name="launch-streams", daemon=True,
-                            args=(proc, stdin_data or b"", ((proc.stdout, sinks[0]), (proc.stderr, sinks[1])),
-                                  stop, errors))
+# Deferred interrupts (E-81). The live coordinator's SIGHUP and SIGTERM handlers raise an interrupt in the main thread
+# at any bytecode (cli.install_live_handlers). Two windows must not be cut: between starting a subject and recording
+# its start (a lost launch without a record could never be censused), and while an interrupted launch is being killed
+# (a second signal would leave it running without a wall limit). Inside ``interrupts_deferred`` a handler that calls
+# ``interrupt(exc)`` records the interrupt instead of raising it; the outermost section re-raises it when it ends. The
+# process signal mask is never touched: a mask blocked across Popen would be inherited by the subject through exec.
+_DEFERRAL = {"depth": 0, "pending": None}
+
+
+@contextlib.contextmanager
+def interrupts_deferred():
+    """Hold interrupts delivered through ``interrupt`` until the outermost section ends, then raise the first one
+    (after the section's own cleanup has run). Only the main thread's sections count: signal handlers run there."""
+    if threading.current_thread() is not threading.main_thread():
+        yield
+        return
+    _DEFERRAL["depth"] += 1
     try:
-        if on_start is not None:   # before any wait: a coordinator that dies from here on left a record
-            on_start({"pid": proc.pid, "pgid": pgid, "marker": None if marker is None else list(marker),
-                      "started_at": launched_at, "leader_start": watch.leader_start})
+        yield
+    finally:
+        _DEFERRAL["depth"] -= 1
+        if _DEFERRAL["depth"] == 0 and _DEFERRAL["pending"] is not None:
+            pending, _DEFERRAL["pending"] = _DEFERRAL["pending"], None
+            raise pending
+
+
+def interrupt(exc: BaseException) -> None:
+    """For a signal handler: raise ``exc`` now, or, inside ``interrupts_deferred``, once the section ends."""
+    if _DEFERRAL["depth"] > 0:
+        if _DEFERRAL["pending"] is None:
+            _DEFERRAL["pending"] = exc
+        return
+    raise exc
+
+
+def _reap(proc, wait_s: float) -> bool:
+    """Wait at most ``wait_s`` for our own child ``proc`` to exit; whether it did. Every wait on a launch's leader is
+    bounded (E-97): a leader stuck in an uninterruptible kernel wait survives SIGKILL, and an unbounded wait there would
+    hang the coordinator with its proxy and broker still up."""
+    try:
+        proc.wait(timeout=wait_s)
+        return True
+    except subprocess.TimeoutExpired:
+        return False
+
+
+def _run(command, cwd, env, timeout_s, stdin_data, sinks, marker, on_start=None, *, ipc_before=None,
+         remove_unattributed_ipc=True) -> LaunchResult:
+    start, launched_at = time.monotonic(), time.time()
+    proc = watch = pump = None
+    timed_out, killed, finished = False, False, False
+    stop, errors = threading.Event(), []
+    try:
+        with interrupts_deferred():   # an interrupt here is raised only once the start is on record
+            proc = subprocess.Popen(command, cwd=cwd, env=env, bufsize=0, close_fds=True, start_new_session=True,
+                                    stdin=subprocess.DEVNULL if stdin_data is None else subprocess.PIPE,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            pgid = proc.pid
+            leader = _proc_read(proc.pid) or (None, None, None)   # read once: recorded start, compared identity
+            watch = _Watch(pgid, marker, launched_at - START_SLACK_S, leader[1], leader[2])
+            pump = threading.Thread(target=_pump, name="launch-streams", daemon=True,
+                                    args=(proc, stdin_data or b"", ((proc.stdout, sinks[0]), (proc.stderr, sinks[1])),
+                                          stop, errors))
+            if on_start is not None:   # before any wait: a coordinator that dies from here on left a record
+                on_start({"pid": proc.pid, "pgid": pgid, "marker": None if marker is None else list(marker),
+                          "started_at": launched_at, "leader_start": watch.leader_start})
         pump.start()
         try:
             proc.wait(timeout=timeout_s)
@@ -1322,22 +1446,30 @@ def _run(command, cwd, env, timeout_s, stdin_data, sinks, marker, on_start=None,
         if timed_out or _remaining(watch, 0.0):
             killed = True
             _terminate(proc, watch, TERM_GRACE_S)
-        proc.wait()
+        unreaped = not _reap(proc, LEADER_WAIT_S)   # a leader that outlived SIGKILL (an uninterruptible wait, E-97)
         wall = time.monotonic() - start
         survivors = _census(watch, CENSUS_WAIT_S)
+        if unreaped and proc.poll() is None:   # never waited on forever: reported as a survivor (S3), not hidden
+            survivors = sorted(set(survivors) | {proc.pid})
         finished = True
     finally:
-        if not finished:   # coordinator interrupted: never leave the subject running (or its IPC objects)
-            _terminate(proc, watch, 0.0)
-            if ipc_before is not None:
-                _ipc_residue(ipc_before)   # best effort, never raises: the exception in flight is the report
-        stop.set()
-        if pump.ident is not None:
-            pump.join(timeout=DRAIN_S + 10)
-        for pipe in (proc.stdin, proc.stdout, proc.stderr):
-            if pipe is not None and not pump.is_alive():
-                pipe.close()
-    ipc_residue = None if ipc_before is None else _ipc_residue(ipc_before)   # after the census: subject gone
+        with interrupts_deferred():   # a second interrupt never cuts the kill or the cleanup short
+            if proc is not None:
+                if not finished and watch is None:   # its start could not even be read: our own child, by handle
+                    proc.kill()
+                    _reap(proc, LEADER_WAIT_S)
+                elif not finished:   # coordinator interrupted: never leave the subject running (or its IPC objects)
+                    _terminate(proc, watch, 0.0)
+                    if ipc_before is not None:
+                        _ipc_residue(ipc_before, remove_unattributed=remove_unattributed_ipc)   # best effort
+                stop.set()
+                if pump is not None and pump.ident is not None:
+                    pump.join(timeout=DRAIN_S + 10)
+                for pipe in (proc.stdin, proc.stdout, proc.stderr):
+                    if pipe is not None and (pump is None or not pump.is_alive()):
+                        pipe.close()
+    ipc_residue = None if ipc_before is None else _ipc_residue(   # after the census: subject gone
+        ipc_before, remove_unattributed=remove_unattributed_ipc)
     if errors:
         raise OSError(f"launch: copying the subject's streams failed: {errors[0]!r}") from errors[0]
     return LaunchResult(exit_code=proc.returncode, timed_out=timed_out, wall_seconds=wall, killed=killed,

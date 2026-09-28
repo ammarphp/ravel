@@ -33,6 +33,9 @@ if [ "$FOUND_PYTHON" != "$EXPORT_PYTHON" ]; then
   echo "Put a $EXPORT_PYTHON interpreter first on PATH, for example the development venv's bin directory."
   exit 3
 fi
+# The checks below import the staged code; no bytecode cache may land in the stage (a .pyc embeds the
+# absolute source path, and the leak check has already run).
+export PYTHONDONTWRITEBYTECODE=1
 LEAK="$HOME"
 STAGE="$(python3 "$REPO/scripts/export_safety.py" prepare "$STAGE" "$REPO")"
 python3 "$REPO/scripts/export_safety.py" assemble "$STAGE" "$REPO"
@@ -55,6 +58,17 @@ python3 "$REPO/scripts/export_safety.py" bind-evidence "${BIND_ARGS[@]}"
 python3 "$REPO/scripts/check_evidence.py" --check --root "$STAGE"
 python3 "$STAGE/scripts/run.py" ravel.validation.check_agent_surface --stage "$STAGE"
 python3 "$STAGE/scripts/check_publication.py"
+# Every campaign build freezes the whole task bank from pinned files (E-136, E-152). Build it from the stage,
+# so a pin that the sanitizer breaks fails here rather than in the public CI.
+BANK_CHECK="$(mktemp -d "${TMPDIR:-/tmp}/ravel-bank-check.XXXXXX")"
+(cd "$STAGE" && PYTHONPATH="$STAGE/src:$STAGE/benchmarks" python3 -c '
+import sys
+from governance.tasks import registry
+tasks = registry.build_bank(sys.argv[1] + "/bank")["tasks"]
+print("task bank from the stage: OK (%d tasks)" % len(tasks))' "$BANK_CHECK")
+rm -rf "$BANK_CHECK"
+cache=$(find "$STAGE" -name __pycache__ -o -name '*.pyc')
+if [ -n "$cache" ]; then echo "FAIL: bytecode caches in the stage:"; echo "$cache"; exit 4; fi
 big=$(find "$STAGE" -type f -size +5M)
 if [ -n "$big" ]; then echo "FAIL: oversized files:"; echo "$big"; exit 4; fi
 echo "export ready: $STAGE"

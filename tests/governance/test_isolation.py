@@ -2309,3 +2309,163 @@ def test_a_launch_whose_census_marker_vanishes_kills_only_its_own_group(tmp_path
         for proc in [older, *younger]:
             proc.kill()
             proc.wait()
+
+
+# --------------------------------------------------------------------------- real-host foundations (smoke spec)
+
+KEYCHAIN_SERVICES = ("com.apple.SecurityServer", "com.apple.securityd.xpc")
+DUMMY_TOKEN = "sk-ant-oat01-SYNTHETIC-" + "5f" * 16
+
+
+def env_report(env, **kw):
+    kw.setdefault("canaries", [CANARY])
+    return isolation.env_admission(env, **kw)
+
+
+def test_admission_check_env_rules_equal_env_admission(lab, monkeypatch):
+    """The factored-out environment half keeps admission_check's verdicts exactly (no allowed secret names)."""
+    monkeypatch.setenv("SYNTHETIC_PARENT_TOKEN", "synthetic-parent-secret-value")
+    env = dict(lab.env, API_KEY="x", CLAUDECODE="1", NOTE=f"synthetic {CANARY}",
+               PYTHONPATH=f"/usr/lib:{lab.repo / 'src'}", COPIED="prefix synthetic-parent-secret-value", BAD=3)
+    whole = admit(lab.ws, env, forbidden_roots=[lab.repo])
+    half = env_report(env, forbidden_roots=[lab.repo])
+    assert [v for v in whole["violations"] if v["where"].startswith("env:")] == half["violations"]
+    assert half["ok"] is False and ("env_invalid", "env:BAD") in codes(half)
+
+
+def test_env_admission_allows_exactly_the_declared_credential_name(lab):
+    env = dict(lab.env, CLAUDE_CODE_OAUTH_TOKEN=DUMMY_TOKEN)
+    assert ("env_secret_name", "env:CLAUDE_CODE_OAUTH_TOKEN") in codes(env_report(env))
+    allowed = env_report(env, allowed_secret_names={"CLAUDE_CODE_OAUTH_TOKEN"})
+    assert allowed == {"ok": True, "violations": []}
+    other = env_report(dict(env, ANTHROPIC_API_KEY="x"), allowed_secret_names={"CLAUDE_CODE_OAUTH_TOKEN"})
+    assert codes(other) == {("env_secret_name", "env:ANTHROPIC_API_KEY")}
+    session = env_report(dict(env, CLAUDECODE="1"), allowed_secret_names={"CLAUDECODE"})
+    assert ("env_host_session", "env:CLAUDECODE") in codes(session)   # a session marker is never allowed
+    assert isolation.SECRET_NAME_ALLOWLIST == frozenset({"RAVEL_TASK_TOKEN", "RAVEL_TASK_ENDPOINT"})
+
+
+def test_env_admission_never_echoes_a_secret_value(lab, monkeypatch):
+    """A declared credential's value is never split, resolved or echoed (R10): a value shaped like a path list
+    that names a forbidden root, carries a canary and a coordinator secret gets codes with empty details."""
+    monkeypatch.setenv("SYNTHETIC_PARENT_TOKEN", "synthetic-parent-secret-value")
+    value = f"{lab.repo}/x:{DUMMY_TOKEN}:{CANARY}:synthetic-parent-secret-value"
+    resolved = []
+    real = os.path.realpath
+    monkeypatch.setattr(os.path, "realpath", lambda p, *a, **k: resolved.append(p) or real(p, *a, **k))
+    report = env_report(dict(lab.env, CLAUDE_CODE_OAUTH_TOKEN=value), forbidden_roots=[lab.repo],
+                        allowed_secret_names={"CLAUDE_CODE_OAUTH_TOKEN"})
+    mine = [v for v in report["violations"] if v["where"] == "env:CLAUDE_CODE_OAUTH_TOKEN"]
+    assert {v["code"] for v in mine} == {"env_canary", "env_inherited_secret"}
+    assert all(v["detail"] == "" for v in mine)
+    text = json.dumps(report)
+    assert DUMMY_TOKEN not in text and str(lab.repo) + "/x" not in text and DUMMY_TOKEN[:16] not in text
+    assert not any(DUMMY_TOKEN in str(p) or str(p).startswith(f"{lab.repo}/x") for p in resolved)
+    plain = env_report(dict(lab.env, SYNTHETIC_PATHS=f"{lab.repo}/x"), forbidden_roots=[lab.repo])
+    assert ("env_forbidden_path", "env:SYNTHETIC_PATHS") in codes(plain)   # other names keep the path check
+
+
+@pytest.mark.parametrize("kw", [{"canaries": []}, {"env": None}, {"forbidden_roots": ["relative"]},
+                                {"allowed_secret_names": ["BAD NAME"]}, {"allowed_secret_names": "TOKEN"}])
+def test_env_admission_arguments_fail_closed(lab, kw):
+    kw = {"env": lab.env, "canaries": [CANARY], **kw}
+    report = isolation.env_admission(kw.pop("env"), **kw)
+    assert report["ok"] is False and [v["code"] for v in report["violations"]] == ["invalid_arguments"]
+
+
+@pytest.mark.parametrize("marker", [".claude", "CLAUDE.local.md"])
+def test_admission_refuses_a_workspace_below_a_claude_settings_marker(lab, tmp_path, marker):
+    project = Path(os.path.realpath(tmp_path)) / "marked"
+    project.mkdir()
+    (project / marker).mkdir() if marker == ".claude" else (project / marker).write_text("synthetic\n")
+    isolation.materialize({"a.txt": b"synthetic"}, project / "s-3")
+    assert ("ancestor_marker", str(project)) in codes(admit(project / "s-3", lab.env))
+    assert isolation.SUBJECT_ANCESTOR_MARKERS[:3] == isolation.ANCESTOR_MARKERS
+
+
+def test_mach_services_removed_drops_exactly_those_lookups(tmp_path):
+    ws = os.path.realpath(tmp_path)
+    kept = isolation.seatbelt_profile(isolation.SandboxPolicy(read_roots=[ws]))
+    assert ("(allow mach-lookup " + " ".join(f'(global-name "{s}")' for s in isolation.MACH_SERVICES) + ")"
+            in kept.splitlines())   # the fake host's profile is unchanged
+    assert isolation.seatbelt_profile(isolation.SandboxPolicy(read_roots=[ws], mach_services_removed=())) == kept
+    removed = isolation.SandboxPolicy(read_roots=[ws], mach_services_removed=list(reversed(KEYCHAIN_SERVICES)))
+    assert removed.mach_services_removed == tuple(sorted(KEYCHAIN_SERVICES))
+    profile = isolation.seatbelt_profile(removed)
+    expected = kept
+    for service in KEYCHAIN_SERVICES:
+        expected = expected.replace(f' (global-name "{service}")', "")
+    assert profile == expected and '"com.apple.trustd.agent"' in profile
+    for bad in (["com.example.unknown"], "com.apple.SecurityServer", [1], list(isolation.MACH_SERVICES)):
+        with pytest.raises(ContractError, match="mach_services_removed"):
+            isolation.SandboxPolicy(read_roots=[ws], mach_services_removed=bad)
+
+
+MACH_PROBE = '''
+import ctypes, json, sys
+lib = ctypes.CDLL("/usr/lib/libSystem.B.dylib")
+bootstrap = ctypes.c_uint.in_dll(lib, "bootstrap_port").value
+port = ctypes.c_uint(0)
+print(json.dumps({name: lib.bootstrap_look_up(bootstrap, name.encode(), ctypes.byref(port)) for name in sys.argv[1:]}))
+'''
+
+
+@needs_sandbox
+def test_a_removed_mach_service_cannot_be_looked_up(lab):
+    """A bootstrap lookup only (no keychain item is read): KERN_SUCCESS (0) under the fake host's profile,
+    BOOTSTRAP_NOT_PRIVILEGED (1100) once the real-host policy removes the service; trustd stays reachable."""
+    script = lab.ws / "tmp" / "mach_probe.py"
+    script.write_text(MACH_PROBE)
+    names = [*KEYCHAIN_SERVICES, "com.apple.trustd.agent"]
+
+    def lookups(**extra):
+        n = next(lab.n)
+        out, err = lab.coord / f"mach-{n}.out", lab.coord / f"mach-{n}.err"
+        result = isolation.launch([PYTHON, "-I", "-S", str(script), *names], cwd=lab.ws, env=lab.env,
+                                  profile=profile_for(lab, **extra), timeout_s=60, stdout_path=out, stderr_path=err)
+        assert result.exit_code == 0, err.read_text()
+        return json.loads(out.read_text())
+
+    assert lookups() == {name: 0 for name in names}
+    assert lookups(mach_services_removed=KEYCHAIN_SERVICES) == {"com.apple.SecurityServer": 1100,
+                                                               "com.apple.securityd.xpc": 1100,
+                                                               "com.apple.trustd.agent": 0}
+
+
+def test_a_real_host_launch_reports_but_does_not_remove_unattributable_ipc(monkeypatch):
+    """remove_unattributed=False (a real host's long window, R12a): a queue that records no sender or receiver and
+    every new semaphore set are reported for a human, never removed; attributable residue keeps the rules."""
+    before = {}
+    after = {("m", 11): ipc_row("m", 11, pids=(FAKE_PID, 0)),     # the launch's segment: removed as before
+             ("q", 12): ipc_row("q", 12),                          # no recorded process: left for a human
+             ("q", 13): ipc_row("q", 13, pids=(FAKE_PID, 0)),     # its sender is gone: removed as before
+             ("s", 14): ipc_row("s", 14)}                          # a semaphore set records none: left
+    listings, removed = [after], []
+
+    def remove(objects):
+        objects = list(objects)
+        removed.extend(objects)
+        listings.append({k: v for k, v in after.items() if k not in objects})
+    monkeypatch.setattr(isolation, "_user_names", lambda: {"subject"})
+    monkeypatch.setattr(isolation, "_process_exists", lambda pid: False)
+    monkeypatch.setattr(isolation, "_sysv_objects", lambda: listings.pop(0))
+    monkeypatch.setattr(isolation, "_ipc_remove", remove)
+    residue = isolation._ipc_residue(before, remove_unattributed=False)
+    assert removed == [("m", 11), ("q", 13)]
+    notes = {(e["kind"], e["id"]): (e["cleared"], e["note"]) for e in residue}
+    assert notes == {("shm", 11): (True, "removed"), ("msg", 12): (False, isolation.IPC_UNATTRIBUTABLE),
+                     ("msg", 13): (True, "removed"), ("sem", 14): (False, isolation.IPC_UNATTRIBUTABLE)}
+
+
+def test_launch_passes_the_ipc_choice_through(tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(isolation, "_run", lambda *a, **k: seen.append(k["remove_unattributed_ipc"]) or "ran")
+    common = dict(cwd=tmp_path, env={}, profile=None, timeout_s=5)
+    assert isolation.launch(["/usr/bin/true"], stdout_path=tmp_path / "a", stderr_path=tmp_path / "b",
+                            **common) == "ran"
+    assert isolation.launch(["/usr/bin/true"], stdout_path=tmp_path / "c", stderr_path=tmp_path / "d",
+                            remove_unattributed_ipc=False, **common) == "ran"
+    assert seen == [True, False]
+    with pytest.raises(ContractError, match="remove_unattributed_ipc"):
+        isolation.launch(["/usr/bin/true"], stdout_path=tmp_path / "e", stderr_path=tmp_path / "f",
+                         remove_unattributed_ipc=0, **common)

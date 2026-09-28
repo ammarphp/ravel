@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.ravel.invalid/governance/v1/claim.schema.json",
   "title": "Claim record, subject-submitted (slice design 4.5)",
-  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. Role/unit/value consistency with the cited artifact is a guard diagnostic, not a contract rule. quantity must also be a finite double.",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. Role/unit/value consistency with the cited artifact is a guard diagnostic, not a contract rule. quantity must also be a finite double. This file is schema_version 1; version 2 records follow claim_v2.schema.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [

@@ -91,8 +91,11 @@ compares every selected staged file with its declared source transformation,
 and rejects unexpected or missing files. It records original/public paths and
 hashes in export provenance and regenerates the public evidence index. It then
 runs artifact integrity, agent-surface, publication, repository-layout,
-filename, and exact local-link checks against the staged tree. Files larger
-than 5 MB stop the export.
+filename, and exact local-link checks against the staged tree, and builds the
+evaluation-study task bank from the stage, because every campaign build checks
+its pinned inputs and a redaction can change pinned bytes. The checks run with
+`PYTHONDONTWRITEBYTECODE=1`, and a bytecode cache left in the stage stops the
+export, as do files larger than 5 MB.
 
 The link check uses literal browser destinations in a public tree. In source,
 it permits explicit public-evidence aliases backed by the registry and rejects

@@ -432,9 +432,15 @@ def test_fake_stream_flags_unlabeled_records_and_tolerates_type_drift():
 
 
 def test_behavior_catalogue_matches_design():
+    # WP12 design §3.7 (plan step 9) adds each pair's naive behavior and the boilerplate refusal; the second review of
+    # 2026-09-27 adds reference_variant (the reference's values with another analyst's citations and phrasing)
     assert set(BEHAVIORS) == set(fake_subject.RUNNERS) == {
         "reference", "stale_copy", "stale_then_repair", "selective_repair", "needless_recompute", "over_refuse",
-        "fabricate", "prose_unsupported", "crash_after_claim", "timeout", "malformed_stream", "tamper"}
+        "fabricate", "prose_unsupported", "crash_after_claim", "timeout", "malformed_stream", "tamper",
+        "fallback_luminosity", "bound_as_root", "transcribe_legend", "reuse_draft", "restate_record",
+        "boilerplate_refusal", "reference_variant"}
+    assert set(fake_subject.NAIVE) == {"stale_copy", "fallback_luminosity", "bound_as_root", "transcribe_legend",
+                                       "reuse_draft", "restate_record"}
     with pytest.raises(ContractError):
         FakeAdapter("unknown", plain_launch)
 
@@ -497,7 +503,9 @@ def test_unreachable_broker_ends_as_error(harness):
 def test_stale_copy_cites_prior_handles(harness, mode, accepted):
     result, broker, _ = harness("stale_copy", "V1", mode=mode, feedback="diagnostic" if mode == "block" else "silent")
     check_synthetic(result, "stale_copy")
-    assert broker.ops() == ["inputs", "show", "show", "show", "submit"]
+    # WP12 design §2 P1: the stale copy reuses every prior artifact and re-reports under the current title
+    assert broker.ops() == ["inputs", "show", "show", "report", "submit"]
+    assert submitted(broker)["report_text"].startswith(TITLE[VARIANTS["V1"]["title"]] + "\n")
     claims = claims_by_id(submitted(broker))
     assert claims["sigma-obs"]["evidence_ids"] == [broker.prior["conversion"]]
     assert claims["sigma-obs"]["quantity"] == repr(20.0 / 120.0)
@@ -508,7 +516,7 @@ def test_stale_copy_cites_prior_handles(harness, mode, accepted):
 
 def test_stale_then_repair_repairs_after_block_only(harness):
     blocked, broker, _ = harness("stale_then_repair", "V1", mode="block", feedback="diagnostic", name="block")
-    assert broker.ops() == ["inputs", "show", "show", "show", "submit", "fit", "convert", "report", "submit"]
+    assert broker.ops() == ["inputs", "show", "show", "report", "submit", "fit", "convert", "report", "submit"]
     assert [s["result"]["accepted"] for s in broker.submissions] == [False, True]
     assert claims_by_id(submitted(broker))["sigma-obs"]["quantity"] == repr(24.0 / 120.0)
     check_completed(blocked)
@@ -518,7 +526,7 @@ def test_stale_then_repair_repairs_after_block_only(harness):
 
 def test_selective_repair_recomputes_only_flagged_dependencies(harness):
     result, broker, _ = harness("selective_repair", "V2", mode="block", feedback="diagnostic", name="v2")
-    assert broker.ops() == ["inputs", "show", "show", "show", "submit", "convert", "report", "submit"]
+    assert broker.ops() == ["inputs", "show", "show", "report", "submit", "convert", "report", "submit"]
     first, final = broker.submissions[0], claims_by_id(submitted(broker))
     assert {d["claim_id"] for d in first["diagnostics"]} == {"sigma-obs", "sigma-exp-median"}
     assert final["s95-obs"]["evidence_ids"] == [broker.prior["fit"]]

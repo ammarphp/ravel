@@ -106,7 +106,7 @@ def campaign_args(tmp_path, kind="synthetic", **changes):
     args = {"kind": kind, "campaign_id": "synthetic-fixture-campaign", "spec": spec(), "host": host(),
             "arms": arms(), "tasks": [definition("lf-a", "complete"), definition("lf-d", "refuse")],
             "budget": {"usd_per_run": 1, "seconds_per_run": 60, "max_broker_ops": 40, "max_fits": 4,
-                       "global_usd_cap": 8, "global_seconds_cap": 480},
+                       "max_stage_executions": 6, "global_usd_cap": 8, "global_seconds_cap": 480},
             "authorization": dict(SYNTHETIC_AUTH), "created_utc": "2026-09-25T12:00:00Z",
             "source": {"git_commit": "b" * 40, "dirty": True},
             "interpreter": {"executable": "/usr/bin/python3", "version": "CPython 3.12.0", "sha256": sha("python")},
@@ -953,6 +953,124 @@ def test_verify_checks_the_coordinator_family_definitions(tmp_path):
     text = error_text(cm.verify(empirical))
     assert ("coordinator/family/tasks/lf-a/task_definition.json: a provisional (unreviewed) definition cannot "
             "enter an empirical campaign") in text
+
+
+def test_verify_rederives_the_bank_rules_of_a_frozen_task_bank(tmp_path):
+    """WP12 plan step 1: a runner-built campaign freezes the whole task bank (tasks.registry.build_bank); verify
+    re-derives contracts.validate_task_bank over every definition its index lists, so a contrast whose declared
+    fault inputs are not the twins' actual subject-visible differences fails verification. SYNTHETIC."""
+    from governance.tasks import registry
+    built = registry.build_bank(tmp_path / "bank")
+    definitions = [canonical.strict_load(tmp_path / "bank" / t["definition_path"]) for t in built["tasks"]]
+    campaign = spec()
+    campaign["tasks"] = built["v1_tasks"]
+    campaign_dir = write(tmp_path, spec=campaign, tasks=definitions)
+    shutil.copytree(tmp_path / "bank", campaign_dir / "coordinator" / "family")
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}
+    index = campaign_dir / "coordinator" / "family" / "index.json"
+    tampered = json.loads(index.read_bytes())
+    tampered["contrasts"][0]["fault_inputs"] = ["luminosity.json"]
+    rewrite(index, json.dumps(tampered, indent=1).encode())
+    assert error_text(cm.verify(campaign_dir)) == (
+        "coordinator/family/index.json.contrasts[0]: the subject-visible differences ['workspace.json'] are not "
+        "the declared fault_inputs ['luminosity.json']")
+    tampered["contrasts"] = [c for c in built["contrasts"] if c["id"] != "lf-p2"]
+    rewrite(index, json.dumps(tampered, indent=1).encode())
+    assert "pair lf-p2 needs its primary contrast" in error_text(cm.verify(campaign_dir))
+    # an index whose definitions cannot all be read is reported once, never judged as a partial bank
+    tampered = copy.deepcopy(built)
+    tampered["tasks"][2]["definition_path"] = "../../campaign.json"
+    rewrite(index, json.dumps(tampered, indent=1).encode())
+    text = error_text(cm.verify(campaign_dir))
+    assert "definition_path" in text and "pair" not in text and "contrasts" not in text
+
+
+def test_a_task_bank_index_without_its_rules_or_changed_after_freezing_fails_verification(tmp_path):
+    """Review of 2026-09-27: a task-bank index (it names a bank_version) whose contrasts or visible_oracle_values were
+    removed is an error, never a bank without rules; and a runner-built campaign's coordinator/environment.json binds
+    the frozen index (family_index_sha256) and the host (environment_manifest_sha256), so any change to the index
+    fails verify, as it fails the runner's load. SYNTHETIC."""
+    from governance.tasks import registry
+    built = registry.build_bank(tmp_path / "bank")
+    definitions = [canonical.strict_load(tmp_path / "bank" / t["definition_path"]) for t in built["tasks"]]
+    campaign = spec()
+    campaign["tasks"] = built["v1_tasks"]
+    environment = {"schema_version": 1, "family_index_sha256": canonical.sha256_file(tmp_path / "bank" / "index.json"),
+                   "synthetic": "SYNTHETIC environment manifest"}
+    campaign_dir = write(tmp_path, spec=campaign, tasks=definitions,
+                         host={**host(), "environment_manifest_sha256": canonical.digest(environment)})
+    shutil.copytree(tmp_path / "bank", campaign_dir / "coordinator" / "family")
+    index = campaign_dir / "coordinator" / "family" / "index.json"
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}           # no environment.json: not bound
+    (campaign_dir / "coordinator" / "environment.json").write_text(json.dumps(environment))
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}
+    for key in ("contrasts", "visible_oracle_values"):
+        tampered = {k: v for k, v in built.items() if k != key}
+        rewrite(index, json.dumps(tampered, indent=1).encode())
+        text = error_text(cm.verify(campaign_dir))
+        assert f"a task-bank index (bank_version 'wp12-dev-1') without ['{key}']" in text, text
+        assert "family_index_sha256 is not the sha256" in text
+    rewrite(index, json.dumps(built, indent=1).encode())        # the same content, other bytes: still a change
+    assert "family_index_sha256 is not the sha256" in error_text(cm.verify(campaign_dir))
+    rewrite(index, (tmp_path / "bank" / "index.json").read_bytes())
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}
+    rewrite(campaign_dir / "coordinator" / "environment.json", json.dumps({**environment, "x": 1}).encode())
+    assert "its digest is not host.environment_manifest_sha256" in error_text(cm.verify(campaign_dir))
+
+
+def test_a_campaign_frozen_before_wp12_still_verifies(tmp_path):
+    """Review of 2026-09-27 (E-151): the manifest budget of a campaign frozen before WP12 has no max_stage_executions
+    (its broker had no census or calc budget); it still validates and verifies (the paid smoke store must stay
+    verifiable and auditable by mainline tools), while a budget missing any other field, or carrying a partial new
+    one, does not. The evaluator audits such a campaign (test_audit.py) and the runner never runs it."""
+    legacy = {"usd_per_run": 1, "seconds_per_run": 60, "max_broker_ops": 40, "max_fits": 4, "global_usd_cap": 8,
+              "global_seconds_cap": 480}
+    campaign_dir = write(tmp_path, budget=legacy)
+    assert canonical.strict_load(campaign_dir / cm.MANIFEST)["budget"] == legacy
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}
+    for broken in ({k: v for k, v in legacy.items() if k != "max_fits"}, {**legacy, "max_stage_executions": 0},
+                   {**legacy, "unexpected": 1}):
+        manifest = canonical.strict_load(campaign_dir / cm.MANIFEST)
+        with pytest.raises(ContractError, match="budget"):
+            contracts.validate_campaign_manifest({**manifest, "budget": broken})
+
+
+def test_a_pending_visibility_waiver_keeps_a_definition_out_of_an_empirical_campaign(tmp_path):
+    """D-V (WP12 design §1.1, provisional): lf-a's answer is visible in its prior report, so its definition carries
+    visibility_waiver_pending, and even a reviewed (non-provisional) copy cannot enter an empirical campaign. SYNTHETIC."""
+    from governance.tasks import registry
+    built = registry.build_bank(tmp_path / "bank")
+    definitions = [{**canonical.strict_load(tmp_path / "bank" / t["definition_path"]), "provisional": False}
+                   for t in built["tasks"]]
+    waived = [d["task_id"] for d in definitions if d["waivers"]]     # lf-a, then the later families' (plan step 7)
+    assert waived[0] == "lf-a" and set(waived) == {e["task"] for e in built["visible_oracle_values"]}
+    empirical = spec(host("claude_cli"), "empirical")
+    empirical["tasks"] = built["v1_tasks"]
+    with pytest.raises(ContractError, match="lf-a: a definition with a pending waiver"):
+        write(tmp_path, "empirical", spec=empirical, tasks=definitions)
+    reviewed = [{**d, "waivers": []} for d in definitions]
+    assert cm.verify(write(tmp_path, "empirical", spec=empirical, tasks=reviewed))["ok"] is True
+
+
+def test_family_only_definitions_are_accepted_and_every_spec_task_must_be_listed(tmp_path):
+    """Smoke spec WI-1 task subset: a campaign over some of the family's tasks keeps the whole family; an index task
+    outside the v1 spec is a family-only definition, checked for structure only; a v1 spec task missing from the
+    index is an error, and so is a malformed family-only definition."""
+    campaign_dir = write(tmp_path)   # v1 spec tasks lf-a and lf-d
+    index = family_tree(campaign_dir, [definition("lf-a", "complete"), definition("lf-b", "complete"),
+                                       definition("lf-d", "refuse")])
+    assert cm.verify(campaign_dir) == {"ok": True, "errors": []}
+    family_tree(campaign_dir, [definition("lf-a", "complete"), definition("lf-b", "complete")])
+    assert "the v1 spec tasks ['lf-d'] are missing from the family index" in error_text(cm.verify(campaign_dir))
+    malformed = {**definition("lf-b", "complete"), "expected": "maybe"}
+    family_tree(campaign_dir, [definition("lf-a", "complete"), malformed, definition("lf-d", "refuse")])
+    assert "coordinator/family/tasks/lf-b/task_definition.json" in error_text(cm.verify(campaign_dir))
+    misnamed = json.loads(index.read_text())
+    misnamed["tasks"].append({"task_id": "lf-c", "definition_path": "tasks/lf-a/task_definition.json",
+                              "definition_sha256": sha("x")})
+    family_tree(campaign_dir, [definition("lf-a", "complete"), definition("lf-d", "refuse")])
+    rewrite(index, json.dumps(misnamed).encode())
+    assert "is for task 'lf-a', not the family index's 'lf-c'" in error_text(cm.verify(campaign_dir))
 
 
 def test_empirical_campaign_rules_at_write_time(tmp_path):

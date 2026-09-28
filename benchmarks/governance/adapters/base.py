@@ -65,6 +65,7 @@ INVALIDATING_FLAGS = frozenset({
     "web_requests_reported",                  # claude: result usage reports web search/fetch requests
     "web_search_item_present",                # codex: a web_search item despite web_search="disabled"
     "mcp_servers_present", "plugins_present",  # claude: init lists MCP servers or plugins
+    "init_skills_unexpected", "init_agents_unexpected",   # claude: init lists a skill or agent the pin does not ship
     "init_tools_unrecognized",                # claude: init tools missing or not names; web tools unverifiable
     "init_unverified",                        # claude: model activity without a system/init record
     "session_id_mismatch",                    # claude: init session differs from the launched/resumed one
@@ -77,6 +78,13 @@ INVALIDATING_FLAGS = frozenset({
     "synthetic_marker_in_nonsynthetic_run",   # a synthetic fixture stream in a run labeled non-synthetic
     "sandbox_none_test_only",                 # a CLI host run without the outer sandbox (mocked hosts only)
     "ipc_residue",                            # a sandboxed launch left System V IPC objects, or its residue is unknown
+    # Real-host live checks (smoke spec WI-7a): the run did not observe the declared host configuration.
+    "init_model_mismatch",                    # claude: init model differs from the pinned model
+    "main_model_substituted",                 # claude: an assistant message from another model, or a fallback event
+    "init_tools_unexpected",                  # claude: init tools differ from the declared tool set
+    "init_permission_mode_mismatch",          # claude: init permissionMode differs from the declared mode
+    "init_api_key_source_unexpected",         # claude: init apiKeySource differs from the declared credential's
+    "task_token_missing_in_shell",            # the task client reported its endpoint or token missing in the shell
 })
 SCHEMA_ERRORS = (TypeError, ValueError, KeyError, IndexError, AttributeError)
 

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.ravel.invalid/governance/v1/submission.schema.json",
   "title": "Submission, the submit operation body (slice design 4.6)",
-  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. No schema_version: the design lists exactly these four fields. claim_id values are unique within a submission.",
+  "description": "Documentation mirror of benchmarks/governance/contracts.py; the Python validator is authoritative and also enforces rules JSON Schema cannot express. No schema_version: the design lists exactly these four fields. claim_id values are unique within a submission. A claim is a version 1 or version 2 claim record.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -15,7 +15,14 @@
     "claims": {
       "type": "array",
       "items": {
-        "$ref": "claim.schema.json"
+        "anyOf": [
+          {
+            "$ref": "claim.schema.json"
+          },
+          {
+            "$ref": "../v2/claim.schema.json"
+          }
+        ]
       }
     },
     "report_text": {

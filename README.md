@@ -274,7 +274,8 @@ and `ravel analyses summary`. The census distinguishes public availability,
 adaptation requirements and demonstrated scientific support.
 
 The [evaluation-study harness](benchmarks/governance/README.md) is offline tooling for a planned
-controlled study of evidence-bound delivery safeguards for coding agents. So far it has run only
-synthetic campaigns with a deterministic fake host. It reports no agent or model results, and its
-real-host path has not been exercised. Design, decisions and open reviews are in
+controlled study of evidence-bound delivery safeguards for coding agents. So far it has run
+synthetic campaigns with a deterministic fake host and one 8-run engineering smoke with a pinned
+Claude Code CLI ([record](docs/development/evaluation-study/smoke-record.md)). It reports no agent or
+model results. Design, decisions and open reviews are in
 [docs/development/evaluation-study/](docs/development/evaluation-study/).

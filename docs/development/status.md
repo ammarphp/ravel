@@ -26,9 +26,9 @@ closure remains the next scientific task.
 
 The offline harness for the planned agent evaluation study is in `benchmarks/governance/`
 ([module table](../../benchmarks/governance/README.md)); its design, decisions, blockers and
-iteration log are in the [evaluation-study records](evaluation-study/plan.md). It has run only
-synthetic campaigns with a deterministic fake host. No model has been called and no agent result
-exists. After the September 25 [census incident](evaluation-study/incident-2026-09-25.md) was
+iteration log are in the [evaluation-study records](evaluation-study/plan.md). It has run
+synthetic campaigns with a deterministic fake host and one 8-run engineering smoke with a pinned
+Claude Code CLI (below); no agent result is reported. After the September 25 [census incident](evaluation-study/incident-2026-09-25.md) was
 fixed, the G1 engineering acceptance run at `0b3d251` passed `pytest tests` (4,776 passed,
 0 failed) and two synthetic CLI campaigns. The analysis-landscape and scientific-studies work was
 merged into the harness branch at `12cc6f9`, where the integration lead's run of `pytest tests`
@@ -39,10 +39,15 @@ functions tested on recorded samples (E-33). `tests/governance` has not yet run 
 
 On September 26 the budget owner deferred the human reviews (charter, oracle, statistics, scoring
 and the pending engineering sign-offs) to one consolidated review and authorized one 8-assignment
-real-host engineering smoke (E-34). The smoke cannot run until its real-host campaign builder,
-adapter factory, launch policy, proxy start and credential path exist; that engineering is the
-next work. The pilot needs its own authorization. The development family, its oracle and the
-evaluator are published with the distribution; protected final cases never enter this repository
+real-host engineering smoke (E-34, E-47). Its real-host path (campaign builder, adapter factory,
+launch policy, per-launch proxy, credential exception, host probes, live checks and stop rules;
+E-40 to E-101) was built on a separate branch and merged on September 27. The pinned Claude Code
+CLI first ran at zero cost, in the host probes and an offline rehearsal with a dummy token against a
+local mock API, and then ran the smoke on September 27: 8 of 8 runs sealed with no stop
+([smoke record](evaluation-study/smoke-record.md)). The mechanical evaluator could not score its
+realistic reports (E-163); the repair and its re-judgments of the sealed smoke are done (E-188 to
+E-191), and its rules await the deferred review (H-90, H-91). The pilot needs its own authorization. The development task bank (five provisional families, merged
+on September 28), its oracles and the evaluator are published with the distribution; protected final cases never enter this repository
 (E-35).
 
 ## Architecture hardening

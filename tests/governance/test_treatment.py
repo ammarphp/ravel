@@ -90,24 +90,48 @@ def test_frozen_texts_are_neutral():
         assert treatment.arm_identifying_terms(text) == []
 
 
+def _word_runs(text, n=6):
+    words = re.findall(r"[a-z0-9_']+", text.lower())
+    return {tuple(words[i:i + n]) for i in range(len(words) - n + 1)}
+
+
+def _packet_word_runs():
+    """Every run of six words in the research packet's text files, read in place (never copied); skips where the
+    packet is absent. The packet lies outside every checkout (runner.packet_dirs)."""
+    packets = [Path(d) for d in runner.packet_dirs() if Path(d).is_dir()]
+    if not packets:
+        pytest.skip("research packet not present (e.g. CI)")
+    packet = set()
+    for path in (f for d in packets for f in d.rglob("*")):
+        if path.is_file() and path.suffix in (".md", ".txt", ".json", ".py", ".yaml", ".yml", ".csv"):
+            packet |= _word_runs(path.read_text(errors="ignore"))
+    return packet
+
+
 def test_frozen_texts_copy_no_text_of_the_research_packet():
     """E-36: the frozen texts were written for this repository; the private research packet is never copied
     into it. No run of six words of either text occurs in any text file of the packet. The packet lies outside
     every checkout (runner.packet_dirs), so this runs only where it exists and skips elsewhere (CI)."""
-    packets = [Path(d) for d in runner.packet_dirs() if Path(d).is_dir()]
-    if not packets:
-        pytest.skip("research packet not present (e.g. CI)")
-
-    def runs(text, n=6):
-        words = re.findall(r"[a-z0-9_']+", text.lower())
-        return {tuple(words[i:i + n]) for i in range(len(words) - n + 1)}
-    packet = set()
-    for path in (f for d in packets for f in d.rglob("*")):
-        if path.is_file() and path.suffix in (".md", ".txt", ".json", ".py", ".yaml", ".yml", ".csv"):
-            packet |= runs(path.read_text(errors="ignore"))
+    packet = _packet_word_runs()
     for name in treatment.FROZEN_FILES:
         text = treatment.frozen_bytes(name).decode()
-        assert runs(text) and not runs(text) & packet, name
+        assert _word_runs(text) and not _word_runs(text) & packet, name
+
+
+def test_task_bank_subject_texts_copy_no_text_of_the_research_packet():
+    """WP12 design §0 (plan step 10): the bank's other subject-visible texts were also written for this
+    repository: the tool guide, every family's request, the prompt's resource sentence and the guard's
+    permitted-actions sentence share no run of six words with the packet (the E-36 rule; the step-10 check
+    outside the repository found no shared run longer than four words, decisions.md E-140). Skips where the
+    packet is absent (CI)."""
+    from governance.tasks import registry
+    packet = _packet_word_runs()
+    texts = {"tools.md": runner.TOOL_GUIDE.read_text(), "RESOURCE_POLICY": runner.RESOURCE_POLICY,
+             "PERMITTED_ACTIONS": "; ".join(guard.PERMITTED_ACTIONS)}
+    for name, module in registry.families().items():
+        texts[f"{name}/request.md"] = (Path(module.__file__).parent / module.SPEC["request"]).read_text()
+    for name, text in texts.items():
+        assert _word_runs(text) and not _word_runs(text) & packet, name
 
 
 # ---- prompt assembly ------------------------------------------------------------------------

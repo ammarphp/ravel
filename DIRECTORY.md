@@ -40,9 +40,9 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `tests/unit/` | Focused regression tests | 117 |
 | `tests/adversarial/` | Adversarial workflow scenarios | 37 |
 | `tests/fixtures/` | Immutable test inputs | 7 |
-| `tests/governance/` | Evaluation-study harness tests | 37 |
-| `benchmarks/` | Benchmark and capability registries | 65 |
-| `benchmarks/governance/` | Offline evaluation-study harness (counted in benchmarks/ too) | 46 |
+| `tests/governance/` | Evaluation-study harness tests | 81 |
+| `benchmarks/` | Benchmark and capability registries | 91 |
+| `benchmarks/governance/` | Offline evaluation-study harness (counted in benchmarks/ too) | 72 |
 | `native/src/` | Native C++ source | 3 |
 | `native/scripts/` | Native build and execution scripts | 9 |
 | `environment/` | Simulation environment setup | 7 |
@@ -50,7 +50,7 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/workflow/` | Physics workflow instructions | 54 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 12 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 46 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 49 |
 | `docs/research/` | Research and evaluation protocols | 21 |
 | `docs/guides/` | Longer guides and sources | 5 |
 | `evidence/` | Curated historical inputs, measurements, and provenance | 856 |

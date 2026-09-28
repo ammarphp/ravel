@@ -116,6 +116,9 @@ def _check_definition(definition, task, kind, label):
             f"{label}: fidelity.tolerance differs from v1 fidelity_tolerance")
     require(kind != "empirical" or definition["provisional"] is False,
             f"{label}: a provisional (unreviewed) definition cannot enter an empirical campaign")
+    require(kind != "empirical" or not definition.get("waivers"),
+            f"{label}: a definition with a pending waiver {definition.get('waivers')} cannot enter an empirical campaign "
+            "(D-V: the bank scores only synthetic engineering campaigns until the reviewer records it)")
     return {"task_id": task["id"], "family": definition["family"], "pair_id": definition["pair_id"],
             "definition_sha256": canonical.digest(definition)}
 
@@ -221,7 +224,9 @@ def write_campaign(store, *, kind, campaign_id, spec, host, arms, tasks, budget,
 def _definition_copies(campaign_dir, registry, errors) -> list:
     """(label, path, task_id) of every on-disk task definition: evaluator/<run_id>/task_definition.json
     wherever it exists and, in a runner-built campaign, each definition its frozen family index lists
-    (coordinator/family/index.json). An unreadable or unsafe index is an error (appended)."""
+    (coordinator/family/index.json). An index task outside the v1 spec is a family-only definition (a campaign
+    over a task subset keeps the whole family): listed, and checked by ``verify`` for structure only. A v1 spec
+    task missing from the index, and an unreadable or unsafe index, are errors (appended)."""
     copies = []
     for run in registry["runs"]:
         path = campaign_dir / "evaluator" / run["run_id"] / TASK_DEFINITION
@@ -235,15 +240,19 @@ def _definition_copies(campaign_dir, registry, errors) -> list:
         index = canonical.strict_load(_regular(index_path, campaign_dir))
         require(isinstance(index, dict) and isinstance(index.get("tasks"), list), "tasks: list required")
         spec_tasks = {r["task_id"] for r in registry["runs"]}
+        listed = []
         for i, task in enumerate(index["tasks"]):
             require(isinstance(task, dict) and isinstance(task.get("task_id"), str)
                     and isinstance(task.get("definition_path"), str), f"tasks[{i}]: task_id and definition_path")
             relative = PurePosixPath(task["definition_path"])
             require(relative.parts and not relative.is_absolute() and ".." not in relative.parts,
                     f"tasks[{i}].definition_path: a relative path inside the family required")
-            require(task["task_id"] in spec_tasks, f"tasks[{i}]: task {task['task_id']!r} is not a v1 spec task")
+            require(task["task_id"] not in listed, f"tasks[{i}]: task {task['task_id']!r} is listed twice")
+            listed.append(task["task_id"])
             copies.append((f"{index_path.parent.relative_to(campaign_dir).as_posix()}/{relative.as_posix()}",
                            index_path.parent.joinpath(*relative.parts), task["task_id"]))
+        missing = sorted(spec_tasks - set(listed))
+        require(not missing, f"the v1 spec tasks {missing} are missing from the family index")
     except READ_ERRORS as exc:
         errors.append(f"{label}: {exc}")
     return copies
@@ -395,6 +404,63 @@ def _approval_errors(campaign_dir, manifest) -> list:
     return []
 
 
+BANK_INDEX_KEYS = ("contrasts", "visible_oracle_values")   # a task-bank index (bank_version) must carry both
+
+
+def _environment_errors(campaign_dir, manifest) -> list:
+    """A runner-built campaign's ``coordinator/environment.json``, when present, binds its family index: its
+    ``family_index_sha256`` must be the index's sha256 and its canonical digest the host's
+    ``environment_manifest_sha256`` (the runner's own load rule, so a verified campaign's index is the frozen one)."""
+    path, label = campaign_dir / "coordinator" / "environment.json", "coordinator/environment.json"
+    if not os.path.lexists(path):
+        return []
+    try:
+        environment = canonical.strict_load(_regular(path, campaign_dir))
+        index = campaign_dir.joinpath(*FAMILY_INDEX)
+        errors = []
+        if canonical.digest(environment) != manifest["host"]["environment_manifest_sha256"]:
+            errors.append(f"{label}: its digest is not host.environment_manifest_sha256")
+        if os.path.lexists(index) and (not isinstance(environment, dict) or environment.get("family_index_sha256")
+                                       != canonical.sha256_file(_regular(index, campaign_dir))):
+            errors.append(f"{label}: family_index_sha256 is not the sha256 of {'/'.join(FAMILY_INDEX)} (the frozen "
+                          "family index was changed)")
+        return errors
+    except READ_ERRORS as exc:
+        return [f"{label}: {exc}"]
+
+
+def _bank_errors(campaign_dir, bank) -> list:
+    """A runner-built campaign freezes the whole task bank (``coordinator/family/index.json`` with its
+    ``contrasts``, schema_version 2 definitions): the bank rules (``contracts.validate_task_bank``: twins,
+    identical request bytes, budget and operations, each contrast's declared differences) are re-derived over
+    every definition the index lists. A family index without contrasts (a hand-built v1 family, or a family frozen
+    before WP12) has none; a task-bank index (it names a ``bank_version``) without ``contrasts`` or
+    ``visible_oracle_values`` is an error, never a bank without rules. An index whose tasks or definitions could
+    not all be read is already an error, so the rules are not applied to part of the bank."""
+    label = "/".join(FAMILY_INDEX)
+    if not bank or any(d is None for d in bank.values()):
+        return []
+    try:
+        index = canonical.strict_load(_regular(campaign_dir.joinpath(*FAMILY_INDEX), campaign_dir))
+    except READ_ERRORS as exc:
+        return [f"{label}: {exc}"]
+    if isinstance(index, dict) and "bank_version" in index:
+        missing = [key for key in BANK_INDEX_KEYS if not isinstance(index.get(key), list)]
+        if missing:
+            return [f"{label}: a task-bank index (bank_version {index['bank_version']!r}) without {missing}: its bank "
+                    "rules cannot be re-derived"]
+    if not isinstance(index, dict) or "contrasts" not in index:
+        return []
+    if [t.get("task_id") if isinstance(t, dict) else None for t in index.get("tasks") or []] != list(bank):
+        return []
+    try:
+        contracts.validate_task_bank(list(bank.values()), index["contrasts"], label,
+                                     visible_oracle_values=index.get("visible_oracle_values", []))
+    except READ_ERRORS as exc:   # the message names the index and the offending entry
+        return [str(exc)]
+    return []
+
+
 def verify(campaign_dir, *, sealed_runs=None) -> dict:
     """Re-derive every §4.1 invariant from the files on disk (spec, registry, manifest and any approval
     record must be regular files). Task definitions are checked wherever they already exist (evaluator
@@ -445,11 +511,26 @@ def verify(campaign_dir, *, sealed_runs=None) -> dict:
     errors += _approval_errors(campaign_dir, manifest)
     tasks = {t["id"]: t for t in spec["tasks"]}
     entries = {t["task_id"]: t for t in manifest["tasks"]}
+    family_prefix = "/".join(FAMILY_INDEX[:-1]) + "/"
+    bank = {}   # task id -> the definition the frozen family index lists (None when it cannot be read)
     for label, path, task_id in _definition_copies(campaign_dir, registry, errors):
+        from_index = label.startswith(family_prefix)
         try:
             definition = canonical.strict_load(_regular(path, campaign_dir))
         except READ_ERRORS as exc:
             errors.append(f"{label}: {exc}")
+            if from_index:
+                bank[task_id] = None
+            continue
+        if from_index:
+            bank[task_id] = definition
+        if task_id not in tasks:   # a family-only definition (the campaign runs a task subset): structure only
+            try:
+                contracts.validate_task_definition(definition, label)
+                require(definition["task_id"] == task_id,
+                        f"{label}: is for task {definition['task_id']!r}, not the family index's {task_id!r}")
+            except ContractError as exc:
+                errors.append(str(exc))
             continue
         try:
             entry = _check_definition(definition, tasks[task_id], manifest["kind"], label)
@@ -461,6 +542,8 @@ def verify(campaign_dir, *, sealed_runs=None) -> dict:
             if entry[name] != recorded.get(name):
                 errors.append(f"{label}: {name} {entry[name]!r} differs from the manifest task entry "
                               f"({recorded.get(name)!r})")
+    errors += _bank_errors(campaign_dir, bank)
+    errors += _environment_errors(campaign_dir, manifest)
     runs = registry["runs"]
     if sealed_runs is not None:
         planned = {r["run_id"] for r in runs}

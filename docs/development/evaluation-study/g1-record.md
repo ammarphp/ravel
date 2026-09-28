@@ -6,6 +6,11 @@ synthetic development family: no model was called, nothing was scored as an agen
 number below is a treatment effect or a physics measurement. G1 is an engineering gate; the human
 gates stay open (G0 and B-01, the WP05 statistics review B-02, paid smoke B-03, custodian B-06).
 
+**Task version.** This record is of the development family's first version (schema_version 1 task
+definitions, one pair id for the four variants, the old title in V1 to V3, a request without the
+estimand clause). The WP12 migration (decisions.md E-113, plan.md iteration 12) made new tasks; this
+record is not re-run and stays as the history of that version.
+
 ## Revision and host
 
 | Item | Value |

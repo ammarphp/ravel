@@ -5,14 +5,21 @@
 - Add an offline harness in `benchmarks/governance/` for a planned controlled study: does an
   evidence-bound delivery guard improve agent outcomes beyond the same tools plus instructions?
   It wraps the unchanged v1 registry with strict contracts, a campaign manifest bound to each
-  campaign's kind, freeze and sealed run records, an independent pyhf-free counting oracle and a
-  synthetic four-variant development family whose answers are public and used only for development.
+  campaign's kind, freeze and sealed run records, independent standard-library oracles and a synthetic
+  development task bank (five provisional families, twelve tasks) whose answers are public and used
+  only for development.
 - Run subjects in fresh workspaces under a deny-default macOS Seatbelt profile, with admission
-  checks and System V IPC cleanup. An allowlist proxy class is tested against local targets, but no
-  launch starts it yet. A coordinator-owned custody broker runs every operation; its delivery guard
+  checks and System V IPC cleanup. An allowlist proxy, started once per real-host launch, serves only
+  that launch's leader process. A coordinator-owned custody broker runs every operation; its delivery guard
   checks each submission and stage workers run the RAVEL kernel.
-- Add fake, Claude Code and Codex host adapters; only the deterministic fake host has run, and the
-  other two are tested against mocked executables. Add treatment manifests with behavioral identity
+- Add fake, Claude Code and Codex host adapters; the deterministic fake host has run the synthetic
+  campaigns, the Claude Code adapter one authorized engineering smoke, and the Codex adapter is tested
+  against mocked executables. The Claude Code adapter has a real-host
+  path for one authorized 8-assignment engineering smoke: a builder bound to the budget owner's
+  single-use approval, a declared credential exception, host probes, live checks, stop rules and
+  cost reconciliation. It is tested against mock CLIs; the real pinned CLI ran the host probes and
+  an offline rehearsal at zero cost, then the 8-run smoke on 2026-09-27, whose
+  [record](docs/development/evaluation-study/smoke-record.md) reports engineering results only. Add treatment manifests with behavioral identity
   checks, a mechanical evaluator that re-derives its judgments from sealed evidence, analysis and
   cost planning, and a runner/CLI with journal, resume, budgets and per-launch verification.
 - During development, on 2026-09-25, the harness process census killed every user process on the
@@ -22,9 +29,22 @@
   [incident record](docs/development/evaluation-study/incident-2026-09-25.md).
 - The G1 engineering acceptance run at `0b3d251` passed `pytest tests` (4,776 passed, 0 failed)
   and two 16-assignment synthetic campaigns through the CLI.
+- Repair the mechanical evaluator against the smoke's findings on generic grounds, with a held-out
+  check written first and the 8 smoke runs as replayed regression cases, and add `cli.py rejudge`,
+  which re-scores a sealed campaign into a separate directory without touching it. Re-judged, one
+  smoke completion is clean and two refusals are valid; the other cells stay null for stated reasons.
+- Narrow that repair after its review, with the review's probes held out first: a value stated as
+  this run's result is never read as a rejected quotation, the refusal reason needs the luminosity
+  record as the missing thing, a σ_vis value under a luminosity unit counts against a refusal, table
+  headers and list headings lend their historical wording, and a decimal that states a current or
+  prior quantity is judged instead of dropped. The re-judged smoke is unchanged.
+- Fix the distribution export: the task bank pins the production specs' generation plan, not the spec
+  file's bytes, whose machine-local paths the export rewrites (every campaign build failed from an
+  export); the exporter now builds the task bank from the stage and writes no bytecode into it; and the
+  end-to-end rehearsal tests skip where the bound shell `/bin/zsh` is absent.
 
-This is synthetic engineering evidence. No model has been evaluated, no agent result or treatment
-effect is reported, and the real-host path has not run. The oracle and scoring rules stay
+This is synthetic engineering evidence. No agent result or treatment effect is reported, and no paid
+call has been made beyond the 8-run engineering smoke. The oracle and scoring rules stay
 provisional until a deferred human review. On Linux the Seatbelt tests skip and the process readers
 are tested only against recorded samples. Design, decisions and open items are in
 [docs/development/evaluation-study/](docs/development/evaluation-study/).

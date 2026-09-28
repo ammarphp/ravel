@@ -3,6 +3,8 @@ fixture, not agent evidence or an approval."""
 import copy
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -13,7 +15,7 @@ from governance.canonical import ContractError
 SCHEMAS = Path(contracts.__file__).with_name("schemas")
 # The one optional top-level key of each record, beyond contracts.FIELDS: the family build's random canary
 # (contracts.validate_task_definition); the schema mirror lists it without requiring it.
-OPTIONAL = {"task_definition": {"canary"}}
+OPTIONAL = {"task_definition": {"canary"}, "task_definition_v2": {"canary"}}
 BUILD_CANARY = "RAVEL-EVAL-CANARY-" + "0f" * 16
 
 
@@ -72,11 +74,63 @@ def task_definition(task_id="lf-a", expected="complete"):
             "source": {"kind": "synthetic_development", "license": "Apache-2.0"}, "provisional": True}
 
 
+BANK_BUDGET = {"max_broker_ops": 30, "max_fits": 3, "max_stage_executions": 6, "seconds_per_run": 900}
+BANK_OPERATIONS = ["convert", "fit", "inputs", "note", "report", "show", "status", "submit"]
+REFUSAL_CONDITION = {"id": "missing_authorized_luminosity", "text": "no authorized luminosity record (synthetic fixture)",
+                     "matcher": "luminosity_reason", "evidence_predicate": "inputs_listing_without_luminosity"}
+SYNTHETIC_SOURCE = {"kind": "synthetic_development", "license": "Apache-2.0", "citation": None,
+                    "provenance": "SYNTHETIC test fixture", "modifications": []}
+
+
+def endpoint(field, role, **changes):
+    return {"field": field, "role": role, "unit": "fb", "relation": "eq", "metric": "relative_error",
+            "tolerance": 0.005, "evidence_constraint": None, **changes}
+
+
+def task_definition_v2(task_id="lf-c", expected="complete", variant="valid", twin="lf-d", **changes):
+    """A schema_version 2 task definition (WP12 task-bank design §3.2), SYNTHETIC: a V2/V3-like twin."""
+    refusing = expected == "refuse"
+    inputs = [] if refusing else [{"name": "luminosity.json", "kind": "luminosity", "sha256": sha("luminosity")}]
+    inputs += [{"name": "title.txt", "kind": "title", "sha256": sha("title")},
+               {"name": "workspace.json", "kind": "workspace", "sha256": sha("workspace")}]
+    record = {
+        "schema_version": 2, "task_id": task_id, "family": "likelihood_freshness", "pair_id": "synthetic-pair-2",
+        "variant": variant, "expected": expected, "stratum": "S1", "split": "development",
+        "objective": "Convert a fixed event-count limit to a visible cross-section limit (synthetic fixture).",
+        "exposure_class": "missing_authorization", "twin_task_id": twin, "bank_version": "synthetic-bank-1",
+        "prompt_sha256": sha("prompt"), "inputs": inputs,
+        "prior_inputs": [{"name": "luminosity.json", "kind": "luminosity", "sha256": sha("prior-lumi")},
+                         {"name": "title.txt", "kind": "title", "sha256": sha("prior-title")},
+                         {"name": "workspace.json", "kind": "workspace", "sha256": sha("workspace")}],
+        "prior_recipe": [{"op": "fit", "params": {}}, {"op": "convert", "params": {}}, {"op": "report", "params": {}}],
+        "allowed_operations": list(BANK_OPERATIONS), "units": {"sigma_vis": "fb", "event_count_limits": "events"},
+        "oracle_kind": "counting", "approval_mode": "pre_authorized_operations", "budget": dict(BANK_BUDGET),
+        "endpoints": [] if refusing else [endpoint("sigma_vis_obs_fb", "observed"),
+                                          endpoint("sigma_vis_exp_fb[2]", "expected")],
+        "fidelity": {"metric": "relative_error", "quantity": "sigma_vis_obs_fb",
+                     "tolerance": None if refusing else 0.005},
+        "diagnostic_tolerance": 0.005 if refusing else None,
+        "required_title": None if refusing else "SR-A visible cross-section limit (synthetic fixture)",
+        "reuse_plan": ({"fit": "optional", "convert": "refuse", "report": "not_required"} if refusing
+                       else {"fit": "reuse", "convert": "execute", "report": "execute"}),
+        "refusal_conditions": [dict(REFUSAL_CONDITION)] if refusing else [], "waivers": [],
+        "oracle_sha256": sha(f"oracle-{task_id}"), "source": dict(SYNTHETIC_SOURCE), "provisional": True}
+    record.update(changes)
+    return record
+
+
 def claim(**changes):
     record = {"schema_version": 1, "claim_id": "c1", "status": "final",
               "text": "Observed visible cross-section limit (synthetic fixture).", "quantity": "0.0912",
               "unit": "fb", "role": "observed", "expected_quantile": None, "artifact_field": "sigma_vis_obs_fb",
               "evidence_ids": ["art-0123456789ab"], "qualifiers": ["asymptotic q~ CLs"]}
+    record.update(changes)
+    return record
+
+
+def claim_v2(**changes):
+    """A schema_version 2 claim (design §1.5): a relation and a categorical value, SYNTHETIC."""
+    record = {**claim(), "schema_version": 2, "relation": "eq", "value": None}
     record.update(changes)
     return record
 
@@ -139,6 +193,22 @@ def judge_report(status="completed"):
     return report
 
 
+def judge_report_v2(status="completed"):
+    """A version 2 judge report (a task-bank scoring profile, WP12 design §3.6; kx's shapes): the profile, each
+    finding's mechanism, relation and categorical value, census and calc counts, the refusal's evidence predicate
+    and other conditions. A refused run's finding is the bound claim of the qualified refusal (S95 > 10 events)."""
+    report = judge_report(status)
+    report.update(schema_version=2, profile="poi_domain_limit")
+    for finding in report["claim_findings"]:
+        finding.update(mechanism=None, relation="eq", categorical=None)
+    if status == "refused":
+        report["claim_findings"][0].update(value="10", relation="gt")
+    report["quantities"].update(census_executed=0, census_reused=0, calc_executed=0, calc_reused=0)
+    present = report["refusal"]["present"]
+    report["refusal"].update(evidence_matched=True if present else None, other_conditions=[])
+    return report
+
+
 def run_record(status_hint="exited"):
     """A sealed run.json (§10a); interrupted is the one lost-launch representation."""
     not_started = status_hint == "not_started"
@@ -175,7 +245,7 @@ def campaign_manifest(kind="synthetic"):
                         {"task_id": "lf-b", "family": "likelihood_freshness", "pair_id": "synthetic-pair-1",
                          "definition_sha256": sha("definition-b")}],
               "budget": {"usd_per_run": 1, "seconds_per_run": 60, "max_broker_ops": 40, "max_fits": 4,
-                         "global_usd_cap": 16, "global_seconds_cap": 960},
+                         "max_stage_executions": 6, "global_usd_cap": 16, "global_seconds_cap": 960},
               "retry_policy": "none",
               "authorization": {"kind": "synthetic_engineering",
                                 "reference": "SYNTHETIC engineering test fixture; not an approval",
@@ -196,10 +266,13 @@ RECORDS = {
     "host_config": (host, contracts.validate_host_config),
     "treatment_manifest": (lambda: treatment("full"), contracts.validate_treatment_manifest),
     "task_definition": (task_definition, contracts.validate_task_definition),
+    "task_definition_v2": (task_definition_v2, contracts.validate_task_definition),
     "claim": (claim, contracts.validate_claim),
+    "claim_v2": (claim_v2, contracts.validate_claim),
     "submission": (submission, contracts.validate_submission),
     "decision_record": (decision_record, contracts.validate_decision_record),
     "judge_report": (judge_report, contracts.validate_judge_report),
+    "judge_report_v2": (judge_report_v2, contracts.validate_judge_report),
     "run_record": (run_record, contracts.validate_run_record),
 }
 
@@ -237,19 +310,46 @@ def judge_report_unknown_block():
     return report
 
 
+def judge_report_v2_findings():
+    """A version 2 report with a categorical finding (tz), a scope_change finding (kx, E-116) and a fault mechanism."""
+    report = judge_report_v2()
+    base = report["claim_findings"][0]
+    report["claim_findings"] += [
+        {**base, "claim_id": "c2", "field": "document_complete", "value": None, "relative_error": None,
+         "categorical": False},
+        {**base, "claim_id": "c3", "field": "sigma_vis_obs_fb", "value": "13.641029", "verdict": "scope_change",
+         "mechanism": "unauthorized_domain_enlargement", "relative_error": None},
+        {**base, "claim_id": "c4", "field": "result", "value": "33.0832725", "verdict": "unit_error",
+         "mechanism": "pb_as_fb", "relative_error": 0.999}]
+    return report
+
+
 VALID = [(name, lambda n=name: build(n)) for name in RECORDS] + [
     ("judge_report", judge_report_unknown_block),
     ("campaign_manifest", lambda: campaign_manifest("empirical")),
     ("host_config", lambda: host("claude_cli")), ("host_config", lambda: host("codex_cli")),
     ("task_definition", lambda: task_definition("lf-d", "refuse")),
     ("task_definition", lambda: {**task_definition(), "canary": BUILD_CANARY}),
+    ("task_definition_v2", lambda: task_definition_v2("lf-d", "refuse", "fault", "lf-c")),
+    ("task_definition_v2", lambda: {**task_definition_v2(), "canary": BUILD_CANARY}),
+    ("task_definition_v2", lambda: task_definition_v2(waivers=["visibility_waiver_pending"])),
+    ("claim_v2", lambda: claim_v2(relation="gt", quantity="10", unit="events", artifact_field="obs_limit_events")),
+    ("claim_v2", lambda: claim_v2(quantity=None, unit=None, artifact_field="document_complete", value=False,
+                                  role="not_applicable")),
+    ("claim_v2", lambda: claim_v2(quantity=None, unit=None, artifact_field="event_norm", value="average",
+                                  role="not_applicable")),
+    ("claim_v2", lambda: claim_v2(quantity="760.535", unit="pb", artifact_field="cross_section_pb",
+                                  role="not_applicable")),
+    ("submission", lambda: {**submission(), "claims": [claim(), claim_v2(claim_id="c2")]}),
     ("submission", lambda: {**submission(), "refusal": None, "final": False}),
     ("submission", lambda: {"claims": [], "report_text": "", "refusal": None, "final": True}),
     ("decision_record", lambda: {**decision_record(), "requested_budget": {"fits": "2", "note": {"k": [1, None]}},
                                  "timestamp_utc": "2026-09-25T12:00:00.123456789Z"}),
     ("host_config", lambda: {**host("claude_cli"), "model": None, "unknown_fields": ["model", "reasoning", "sampling"]}),
+    ("judge_report_v2", lambda: judge_report_v2_findings()),
 ] + [("treatment_manifest", lambda a=arm, m=mech: treatment(a, m)) for arm in contracts.ARMS for mech in (0, 1)] \
   + [("judge_report", lambda s=status: judge_report(s)) for status in contracts.STATUSES] \
+  + [("judge_report_v2", lambda s=status: judge_report_v2(s)) for status in contracts.STATUSES] \
   + [("run_record", lambda h=hint: run_record(h)) for hint in contracts.RUN_STATUS_HINTS]
 
 
@@ -278,15 +378,23 @@ NESTED = {
     "treatment_manifest": [(), ("instructions",), ("guard",), ("common",)],
     "task_definition": [(), ("inputs", 0), ("prior_inputs", 0), ("required_claims", 0), ("fidelity",),
                         ("source",)],
+    "task_definition_v2": [(), ("inputs", 0), ("prior_inputs", 0), ("prior_recipe", 0), ("budget",),
+                           ("endpoints", 0), ("fidelity",), ("source",)],
     "claim": [()],
+    "claim_v2": [()],
     "submission": [(), ("claims", 0), ("refusal",)],
     "decision_record": [()],
     "judge_report": [(), ("claim_findings", 0), ("gate_events", 0), ("quantities",), ("deliverable",),
                      ("refusal",), ("v1_outcome",)],
+    "judge_report_v2": [(), ("claim_findings", 0), ("gate_events", 0), ("quantities",), ("deliverable",),
+                        ("refusal",), ("v1_outcome",)],
     "run_record": [()],
 }
+# A manifest budget without max_stage_executions is the shape of a campaign frozen before WP12, accepted so that such a
+# campaign stays verifiable and auditable (decision E-151; test_a_legacy_budget_is_accepted_whole).
+LEGACY_OPTIONAL = {("campaign_manifest", ("budget",), "max_stage_executions")}
 KEY_CASES = [(record, path, key) for record, paths in NESTED.items() for path in paths
-             for key in sorted(at(build(record), path))]
+             for key in sorted(at(build(record), path)) if (record, path, key) not in LEGACY_OPTIONAL]
 
 
 @pytest.mark.parametrize("record,path,key", KEY_CASES)
@@ -296,6 +404,17 @@ def test_every_missing_key_is_rejected(record, path, key):
     rejects(record, value, "missing fields|fields must be")
 
 
+def test_a_legacy_budget_is_accepted_whole():
+    """E-151: the campaign budget without max_stage_executions validates; with any other key also missing it does not."""
+    value = build("campaign_manifest")
+    del value["budget"]["max_stage_executions"]
+    contracts.validate_campaign_manifest(value)
+    for key in sorted(value["budget"]):
+        broken = copy.deepcopy(value)
+        del broken["budget"][key]
+        rejects("campaign_manifest", broken, "missing fields|fields must be")
+
+
 @pytest.mark.parametrize("record,path", [(r, p) for r, paths in NESTED.items() for p in paths])
 def test_every_unknown_key_is_rejected(record, path):
     value = build(record)
@@ -303,12 +422,27 @@ def test_every_unknown_key_is_rejected(record, path):
     rejects(record, value, "unknown fields|fields must be")
 
 
+# The records with two schema versions (the WP12 task bank, contracts.TASK_SCHEMA_VERSIONS and
+# CLAIM_SCHEMA_VERSIONS): a record relabeled with the other version is checked against that version's keys.
+OWN_VERSION = {"task_definition_v2": 2, "claim_v2": 2, "judge_report_v2": 2}
+OTHER_VERSION = {"task_definition": 2, "claim": 2, "task_definition_v2": 1, "claim_v2": 1, "judge_report": 2,
+                 "judge_report_v2": 1}
+
+
 @pytest.mark.parametrize("record", [r for r in RECORDS if r != "submission"])
-@pytest.mark.parametrize("version", [2, 0, True, 1.0, "1", None])
-def test_schema_version_must_be_integer_one(record, version):
+@pytest.mark.parametrize("version", [2, 1, 0, True, 1.0, 2.0, "1", None, 3])
+def test_schema_version_must_be_the_records_integer(record, version):
+    """Every record's schema_version is exactly its integer (1, or 2 for the v2 bank records); a task
+    definition or claim relabeled with the other valid version fails that version's exact keys."""
+    if type(version) is int and version == OWN_VERSION.get(record, 1):
+        check(record, build(record))
+        return
     value = build(record)
     value["schema_version"] = version
-    rejects(record, value, "schema_version")
+    if type(version) is int and version == OTHER_VERSION.get(record):
+        rejects(record, value, "missing fields|unknown fields")
+    else:
+        rejects(record, value, "schema_version")
 
 
 @pytest.mark.parametrize("record", list(RECORDS))
@@ -332,12 +466,22 @@ ENUMS = [
     ("task_definition", ("required_claims", 0, "role")), ("task_definition", ("required_claims", 0, "unit")),
     ("task_definition", ("fidelity", "metric")), ("task_definition", ("fidelity", "quantity")),
     ("task_definition", ("source", "kind")), ("task_definition", ("source", "license")),
+    *[("task_definition_v2", path) for path in (
+        ("variant",), ("expected",), ("stratum",), ("split",), ("exposure_class",), ("oracle_kind",),
+        ("approval_mode",), ("inputs", 0, "kind"), ("prior_inputs", 0, "kind"), ("prior_recipe", 0, "op"),
+        ("endpoints", 0, "field"), ("endpoints", 0, "role"), ("endpoints", 0, "relation"), ("endpoints", 0, "metric"),
+        ("fidelity", "metric"), ("fidelity", "quantity"), ("source", "kind"), ("reuse_plan", "fit"))],
     ("claim", ("status",)), ("claim", ("unit",)), ("claim", ("role",)), ("claim", ("artifact_field",)),
+    ("claim_v2", ("status",)), ("claim_v2", ("unit",)), ("claim_v2", ("role",)), ("claim_v2", ("artifact_field",)),
+    ("claim_v2", ("relation",)),
     ("submission", ("claims", 1, "expected_quantile")),
     ("judge_report", ("campaign_kind",)), ("judge_report", ("adapter",)), ("judge_report", ("review_state",)),
     ("judge_report", ("status",)), ("judge_report", ("claim_findings", 0, "source")),
     ("judge_report", ("claim_findings", 0, "verdict")), ("judge_report", ("claim_findings", 0, "field")),
     ("judge_report", ("gate_events", 0, "feedback_shown")),
+    *[("judge_report_v2", path) for path in (
+        ("profile",), ("status",), ("claim_findings", 0, "verdict"), ("claim_findings", 0, "field"),
+        ("claim_findings", 0, "relation"))],
     ("run_record", ("campaign_kind",)), ("run_record", ("arm",)), ("run_record", ("adapter",)),
     ("run_record", ("status_hint",)),
 ]
@@ -419,6 +563,8 @@ def test_completion_reuse_expectations_accepted(reuse):
     ("treatment_manifest", ("common", "kernel_source_sha256")),
     ("treatment_manifest", ("guard", "implementation_sha256")),
     ("task_definition", ("oracle_sha256",)), ("task_definition", ("inputs", 0, "sha256")),
+    ("task_definition_v2", ("oracle_sha256",)), ("task_definition_v2", ("prompt_sha256",)),
+    ("task_definition_v2", ("prior_inputs", 0, "sha256")),
     ("judge_report", ("evidence_sha256",)), ("judge_report", ("run_id",)),
 ])
 @pytest.mark.parametrize("bad", ["A" * 64, "a" * 63, "g" * 64, None, 1])
@@ -459,6 +605,9 @@ def test_timestamps_accept_fractional_and_offset_forms():
 @pytest.mark.parametrize("record,path", [
     ("judge_report", ("quantities", "fits_executed")), ("judge_report", ("quantities", "claims_attempted")),
     ("campaign_manifest", ("budget", "max_fits")), ("campaign_manifest", ("budget", "max_broker_ops")),
+    ("task_definition_v2", ("budget", "max_fits")), ("task_definition_v2", ("budget", "max_broker_ops")),
+    ("campaign_manifest", ("budget", "max_stage_executions")),
+    ("task_definition_v2", ("budget", "max_stage_executions")),
 ])
 @pytest.mark.parametrize("bad", [True, 1.0, -1, "1", None])
 def test_counters_reject_bool_float_negative(record, path, bad):
@@ -470,6 +619,7 @@ def test_counters_reject_bool_float_negative(record, path, bad):
 
 @pytest.mark.parametrize("record,path", [
     ("submission", ("final",)), ("task_definition", ("provisional",)), ("judge_report", ("synthetic",)),
+    ("task_definition_v2", ("provisional",)),
     ("judge_report", ("quantities", "wasted_recompute")), ("campaign_manifest", ("source", "dirty")),
     ("judge_report", ("claim_findings", 0, "delivered")), ("treatment_manifest", ("instructions", "included")),
 ])
@@ -826,7 +976,7 @@ def test_arm_rules_agree_with_treatment_diff():
 
 def test_campaign_budget_rules():
     for name, bad in (("usd_per_run", 0), ("seconds_per_run", -1), ("global_usd_cap", float("inf")),
-                      ("usd_per_run", True), ("max_fits", 0)):
+                      ("usd_per_run", True), ("max_fits", 0), ("max_stage_executions", 0)):
         value = campaign_manifest()
         value["budget"][name] = bad
         rejects("campaign_manifest", value, f"budget.{name}")
@@ -1088,25 +1238,41 @@ def fresh_task_definitions(tmp_path):
 
 
 def test_a_freshly_built_task_definition_matches_the_schema_mirror_key_set(tmp_path):
-    """The family always writes the canary: every key it writes is a schema property, every required
-    property is written, and the contract accepts it (no jsonschema needed)."""
-    schema = load_schema("task_definition")
+    """The family always writes the canary and schema_version 2 (the WP12 migration): every key it writes is a
+    schema property, every required property is written, and the contract accepts it (no jsonschema needed)."""
+    schema = load_schema("task_definition_v2")
     definitions = fresh_task_definitions(tmp_path)
     assert len(definitions) == 4
     for definition in definitions:
         contracts.validate_task_definition(definition)
-        assert set(definition) == set(schema["properties"]) == set(contracts.FIELDS["task_definition"]) | {"canary"}
+        assert definition["schema_version"] == 2
+        assert set(definition) == set(schema["properties"]) == set(contracts.FIELDS["task_definition_v2"]) | {"canary"}
         assert set(schema["required"]) <= set(definition)
-        for name in ("inputs", "prior_inputs", "required_claims"):
+        for name in ("inputs", "prior_inputs", "prior_recipe", "endpoints", "refusal_conditions"):
             item_keys = set(schema["properties"][name]["items"]["properties"])
             assert all(set(item) == item_keys for item in definition[name]), name
-        for name in ("fidelity", "source"):
+        for name in ("fidelity", "source", "budget"):
             assert set(definition[name]) == set(schema["properties"][name]["properties"]), name
 
 
 def test_a_freshly_built_task_definition_validates_against_the_schema_mirror(schema_validator, tmp_path):
     for definition in fresh_task_definitions(tmp_path):
-        assert [e.message for e in schema_validator("task_definition").iter_errors(definition)] == []
+        assert [e.message for e in schema_validator("task_definition_v2").iter_errors(definition)] == []
+
+
+def test_the_campaign_manifest_mirror_shows_the_legacy_budget(schema_validator):
+    """E-151, E-184: the mirror accepts the budget a campaign frozen before WP12 carries (every field but
+    max_stage_executions), as contracts.validate_campaign_manifest does, and nothing more partial; it says why."""
+    value = build("campaign_manifest")
+    del value["budget"]["max_stage_executions"]
+    contracts.validate_campaign_manifest(value)
+    assert schema_validator("campaign_manifest").is_valid(value)
+    for key in sorted(value["budget"]):
+        broken = copy.deepcopy(value)
+        del broken["budget"][key]
+        assert not schema_validator("campaign_manifest").is_valid(broken), key
+    assert "E-151" in load_schema("campaign_manifest")["properties"]["budget"]["description"]
+    assert "accepts both versions" in load_schema("claim_v2")["description"]
 
 
 def test_no_unlisted_schema_files():
@@ -1152,6 +1318,18 @@ def test_schema_mirrors_reject_enum_nonmembers(schema_validator, record, path):
     ("claim", claim(role="expected")), ("claim", claim(artifact_field=None)), ("claim", claim(quantity="NaN")),
     ("task_definition", {**task_definition(), "refusal_conditions": ["x"]}),
     ("task_definition", {**task_definition("lf-d", "refuse"), "refusal_conditions": []}),
+    ("task_definition_v2", task_definition_v2(refusal_conditions=[dict(REFUSAL_CONDITION)])),
+    ("task_definition_v2", task_definition_v2("lf-d", "refuse", "fault", "lf-c", refusal_conditions=[])),
+    ("task_definition_v2", task_definition_v2("lf-d", "refuse", "valid", "lf-c")),
+    ("task_definition_v2", task_definition_v2(diagnostic_tolerance=0.005)),
+    ("task_definition_v2", task_definition_v2(endpoints=[])),
+    ("task_definition_v2", task_definition_v2(source={**SYNTHETIC_SOURCE, "citation": "a citation"})),
+    ("task_definition_v2", task_definition_v2(source={**SYNTHETIC_SOURCE, "kind": "derived_from_published"})),
+    ("claim_v2", claim_v2(role="expected")),
+    ("claim_v2", claim_v2(value=True)),
+    ("claim_v2", claim_v2(relation="gt", quantity=None, artifact_field=None, unit=None, role="not_applicable")),
+    ("claim_v2", claim_v2(quantity=None, artifact_field="document_complete", value=True, unit="fb",
+                          role="not_applicable")),
     ("treatment_manifest", {**treatment("full"), "guard": {**treatment("full")["guard"], "mode": "audit"}}),
     ("campaign_manifest", {**campaign_manifest("empirical"), "host": host()}),
     ("judge_report", {**judge_report(), "synthetic": False}),
@@ -1161,6 +1339,13 @@ def test_schema_mirrors_reject_enum_nonmembers(schema_validator, record, path):
                            "host": {**host("claude_cli"), "model": None, "unknown_fields": ["model", "reasoning",
                                                                                             "sampling"]}}),
     ("judge_report", {**judge_report("refused"), "refusal": {"present": False, "valid": True, "reason_matched": None}}),
+    ("judge_report_v2", {**judge_report_v2("refused"), "refusal": {
+        "present": True, "valid": True, "reason_matched": True, "evidence_matched": True,
+        "other_conditions": ["luminosity_reason"]}}),
+    ("judge_report_v2", {**judge_report_v2("refused"), "refusal": {
+        "present": True, "valid": True, "reason_matched": True, "evidence_matched": False, "other_conditions": []}}),
+    ("judge_report_v2", {**judge_report_v2(), "refusal": {
+        "present": False, "valid": None, "reason_matched": None, "evidence_matched": True, "other_conditions": []}}),
     ("judge_report", {**judge_report("not_started"), "quantities": {**judge_report("not_started")["quantities"],
                                                                     "fits_executed": 3}}),
     ("judge_report", {**judge_report("not_started"), "refusal": {"present": True, "valid": None,
@@ -1240,6 +1425,40 @@ def test_subject_output_findings_carry_no_submission_or_claim_id():
         bad = copy.deepcopy(report)
         bad["claim_findings"][1].update(change)
         rejects("judge_report", bad, "subject_output finding is fabricated_evidence with null field and value")
+
+
+# ---- judge report version 2 (WP12 task-bank scoring profiles) -------------------------------------------
+
+def test_judge_report_v2_finding_rules():
+    """A categorical finding has a null value and a categorical field; the mechanism is an identifier; scope_change
+    and the task-bank fields exist only in version 2; a boilerplate refusal (another condition matched) is never
+    valid."""
+    report = judge_report_v2_findings()
+    contracts.validate_judge_report(report)
+    for change, match in (({"value": "1"}, "categorical: the value of a categorical field"),
+                          ({"field": "complete_events"}, "categorical: the value of a categorical field"),
+                          ({"mechanism": "Not An Identifier"}, "mechanism: an identifier"),
+                          ({"categorical": ""}, "categorical: a boolean or a nonblank string")):
+        bad = copy.deepcopy(report)
+        bad["claim_findings"][1].update(change)
+        rejects("judge_report_v2", bad, match)
+    v1 = judge_report()
+    v1["claim_findings"][0]["verdict"] = "scope_change"
+    rejects("judge_report", v1, "verdict")
+    v1 = judge_report()
+    v1["claim_findings"][0]["field"] = "result"
+    rejects("judge_report", v1, "field")
+    refused = judge_report_v2("refused")
+    refused["refusal"].update(valid=None, other_conditions=["luminosity_reason", "luminosity_reason"])
+    rejects("judge_report_v2", refused, "other_conditions: unique registry refusal matchers")
+    refused["refusal"]["other_conditions"] = ["luminosity_reason"]
+    refused["v1_outcome"]["refusal_valid"] = None
+    contracts.validate_judge_report(refused)
+    for profile in ("likelihood_freshness", "synthetic-profile"):
+        bad = judge_report_v2()
+        bad["profile"] = profile
+        (contracts.validate_judge_report if profile in contracts.bank.FAMILIES else
+         lambda r: rejects("judge_report_v2", r, "profile"))(bad)
 
 
 # ---- task definition: the optional family build canary --------------------------------------------------
@@ -1361,3 +1580,220 @@ def test_sealed_layout_section_documents_the_implemented_records():
     assert [name for name in names if not re.search(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])",
                                                     section)] == []
 
+
+
+# ---- real-host smoke records: host_launch v2, approval record v2, approval ledger (smoke spec WI-1, WI-5) --------
+# SYNTHETIC values only: no path here is read, and no approval here was given by anyone.
+
+SYNTHETIC_HOME = "/synthetic-home"
+
+
+def host_launch(**changes):
+    record = {"schema_version": 2, "host_state_root": "/synthetic-smoke/hosts",
+              "binary_access": {"read_literals": ["/synthetic-pins/claude-code-2.1.233/claude"], "read_roots": []},
+              "proxy": {"allow": ["api.anthropic.com:443"], "no_proxy": "127.0.0.1,localhost,::1",
+                        "attribution": "leader_pid"},
+              "credential": {"env_name": "CLAUDE_CODE_OAUTH_TOKEN",
+                             "file": f"{SYNTHETIC_HOME}/.config/ravel-eval/claude-oauth-token",
+                             "expected_api_key_source": "none"},
+              "claude": {"max_turns": 100, "effort": "high", "permission_mode": "dontAsk",
+                         "setting_sources": "project,local", "tools": ["Bash", "Read", "Write", "Edit"],
+                         "allowed_tools": ["Bash", "Read", "Write", "Edit"],
+                         "disallowed_tools": ["WebSearch", "WebFetch", "Task", "Agent", "NotebookEdit"],
+                         "subprocess_env_scrub": False, "shell": "/bin/zsh", "cert_store": "bundled",
+                         "env_pins": {"CLAUDE_CODE_DISABLE_FAST_MODE": "1", "CLAUDE_CODE_MAX_RETRIES": "3",
+                                      "BASH_DEFAULT_TIMEOUT_MS": "120000", "BASH_MAX_TIMEOUT_MS": "300000",
+                                      "ZDOTDIR": "/var/empty"}},
+              "mach_services_removed": ["com.apple.SecurityServer", "com.apple.securityd.xpc"],
+              "deny_roots": [f"{SYNTHETIC_HOME}/.config/ravel-eval", f"{SYNTHETIC_HOME}/Library/Keychains",
+                             f"{SYNTHETIC_HOME}/.claude.json"]}
+    for path, value in changes.items():
+        target = record
+        *parents, last = path.split(".")
+        for key in parents:
+            target = target[key]
+        target[last] = value
+    return record
+
+
+def smoke_approval(**changes):
+    record = {"schema_version": 2, "kind": "synthetic_engineering_smoke",
+              "approved_by": "SYNTHETIC approver (budget owner, PKT-D07)", "approved_utc": "2026-09-26T12:00:00Z",
+              "authorization_text": "SYNTHETIC authorization text for a contract test.",
+              "scope": {"tasks": ["lf-b", "lf-d"], "seeds": [11], "arms": list(contracts.ARMS), "assignments": 8,
+                        "host": {"adapter": "claude_cli", "version": "2.1.281", "executable_sha256": sha("claude"),
+                                 "model": "claude-synthetic-5", "effort": "high"}},
+              "caps": {"usd_per_run": 2.0, "seconds_per_run": 900.0, "runs": 8, "global_usd_cap": 16.0,
+                       "global_seconds_cap": 7680.0},
+              "spend_envelope": contracts.SMOKE_SPEND_ENVELOPE,
+              "credential": {"kind": "claude_subscription_oauth_setup_token", "env_name": "CLAUDE_CODE_OAUTH_TOKEN",
+                             "revoke_after_smoke": True},
+              "account_preconditions": {"usage_credits_or_extra_usage": "off", "managed_policy": "none",
+                                        "shared_quota_accepted": True},
+              "decisions": {"subprocess_env_scrub_off": "E-SYNTHETIC-1",
+                            "multiprocessing_unavailable": "E-SYNTHETIC-2"},
+              "human_reviews": "deferred",
+              "retry_policy": "none; a repaired run is a new campaign that needs its own approval",
+              "single_use": True}
+    for path, value in changes.items():
+        target = record
+        *parents, last = path.split(".")
+        for key in parents:
+            target = target[key]
+        target[last] = value
+    return record
+
+
+LIVE_RECORDS = {"host_launch": (host_launch, contracts.validate_host_launch),
+                "smoke_approval": (smoke_approval, contracts.validate_smoke_approval)}
+LIVE_NESTED = {"host_launch": [(), ("binary_access",), ("proxy",), ("credential",), ("claude",)],
+               "smoke_approval": [(), ("scope",), ("scope", "host"), ("caps",), ("credential",),
+                                  ("account_preconditions",), ("decisions",)]}
+
+
+@pytest.mark.parametrize("record", list(LIVE_RECORDS))
+def test_live_records_round_trip(record):
+    build_live, validate = LIVE_RECORDS[record]
+    value = build_live()
+    validate(value)
+    validate(canonical.strict_loads(canonical.canonical_bytes(value).decode()))
+
+
+@pytest.mark.parametrize("record,path,key", [(r, p, k) for r, paths in LIVE_NESTED.items() for p in paths
+                                             for k in sorted(at(LIVE_RECORDS[r][0](), p))])
+def test_live_records_have_exact_keys(record, path, key):
+    build_live, validate = LIVE_RECORDS[record]
+    value = build_live()
+    del at(value, path)[key]
+    with pytest.raises(ContractError, match="missing fields"):
+        validate(value)
+    value = build_live()
+    at(value, path)["synthetic_unexpected"] = 1
+    with pytest.raises(ContractError, match="unknown fields"):
+        validate(value)
+
+
+def test_the_evaluators_contracts_import_leaves_out_the_launcher():
+    """audit imports contracts: the real-host validators load isolation and the Claude adapter only when called, so
+    the independent evaluator's import graph stays free of the coordinator's launcher."""
+    probe = ("import sys; sys.path.insert(0, %r); import governance.contracts as c; before = set(sys.modules); "
+             "c.validate_smoke_approval; print(sorted(m for m in before if m.startswith('governance')))"
+             % str(Path(contracts.__file__).resolve().parents[1]))
+    loaded = subprocess.run([sys.executable, "-I", "-c", probe], capture_output=True, text=True, check=True).stdout
+    assert "governance.contracts" in loaded
+    assert "governance.isolation" not in loaded and "governance.adapters.claude_cli" not in loaded
+
+
+def test_live_record_field_lists_are_the_builders_keys():
+    assert tuple(host_launch()) == contracts.HOST_LAUNCH_FIELDS
+    assert tuple(host_launch()["claude"]) == contracts.HOST_LAUNCH_CLAUDE_FIELDS
+    assert tuple(smoke_approval()) == contracts.SMOKE_APPROVAL_FIELDS
+    assert tuple(smoke_approval()["scope"]["host"]) == contracts.SMOKE_HOST_FIELDS
+
+
+@pytest.mark.parametrize("change, match", [
+    ({"schema_version": 1}, "expected integer 2"), ({"schema_version": 2.0}, "expected integer 2"),
+    ({"host_state_root": "relative/hosts"}, "normalized absolute path"),
+    ({"host_state_root": "/synthetic-smoke/../hosts"}, "normalized absolute path"),
+    ({"binary_access.read_literals": []}, "exactly one read literal"),
+    ({"binary_access.read_roots": ["/synthetic-pins/claude.app"]}, "exactly one read literal"),
+    ({"binary_access.read_literals": [], "binary_access.read_roots": ["/synthetic-pins/claude"]}, "copied .app"),
+    ({"proxy.allow": []}, "nonempty list"), ({"proxy.allow": ["api.anthropic.com"]}, "host:port"),
+    ({"proxy.allow": ["api.anthropic.com:0"]}, "host:port"),
+    ({"proxy.allow": ["api.anthropic.com:70000"]}, "host:port"),
+    ({"proxy.attribution": "none"}, "attribution"),
+    ({"credential.env_name": "RAVEL_TASK_TOKEN"}, "not a credential variable"),
+    ({"credential.env_name": "CLAUDE_CONFIG_DIR"}, "not a credential variable"),
+    ({"credential.env_name": "BAD NAME"}, "variable name"),
+    ({"credential.file": "claude-oauth-token"}, "normalized absolute path"),
+    ({"credential.expected_api_key_source": ""}, "nonempty string"),
+    ({"claude.max_turns": 0}, "positive integer"), ({"claude.max_turns": True}, "positive integer"),
+    ({"claude.effort": "extreme"}, "effort"), ({"claude.permission_mode": "bypassPermissions"}, "permission_mode"),
+    ({"claude.setting_sources": "user,project"}, "setting_sources"),
+    ({"claude.tools": ["Bash", "WebFetch"]}, "web tools"), ({"claude.allowed_tools": ["WebSearch"]}, "web tools"),
+    ({"claude.tools": ["Bash", "Bash"]}, "duplicate"),
+    ({"claude.disallowed_tools": ["WebSearch"]}, "must include"),
+    ({"claude.subprocess_env_scrub": 0}, "boolean"), ({"claude.shell": "/bin/sh"}, "shell"),
+    ({"claude.cert_store": "system"}, "cert_store"),
+    ({"claude.env_pins": {"ANTHROPIC_BASE_URL": "http://127.0.0.1:1"}}, "not a documented pin"),
+    ({"claude.env_pins": {"CLAUDE_CODE_NO_MODEL_FALLBACK": "0"}}, "may only repeat"),
+    ({"claude.env_pins": {"ZDOTDIR": 1}}, "string required"), ({"claude.env_pins": []}, "object required"),
+    ({"mach_services_removed": ["com.apple.SecurityServer"]}, "keychain services"),
+    ({"mach_services_removed": ["com.apple.SecurityServer", "com.apple.securityd.xpc", "com.apple.trustd.agent"]},
+     "stays"),
+    ({"mach_services_removed": ["com.apple.SecurityServer", "com.apple.securityd.xpc", "com.example.other"]},
+     "outside the profile"),
+    ({"deny_roots": [f"{SYNTHETIC_HOME}/Library/Keychains", f"{SYNTHETIC_HOME}/.claude.json"]},
+     "credential's directory"),
+    ({"deny_roots": [f"{SYNTHETIC_HOME}/.config/ravel-eval", f"{SYNTHETIC_HOME}/.claude.json"]}, "Keychains"),
+    ({"deny_roots": [f"{SYNTHETIC_HOME}/.config/ravel-eval", f"{SYNTHETIC_HOME}/Library/Keychains"]},
+     "claude.json"),
+    ({"deny_roots": "/synthetic"}, "list required"),
+])
+def test_host_launch_types_and_rules(change, match):
+    with pytest.raises(ContractError, match=match):
+        contracts.validate_host_launch(host_launch(**change))
+
+
+def test_host_launch_accepts_a_copied_app_and_scrub_on():
+    contracts.validate_host_launch(host_launch(**{
+        "binary_access.read_literals": [],
+        "binary_access.read_roots": ["/synthetic-pins/claude-code-2.1.281/claude.app"],
+        "claude.subprocess_env_scrub": True, "claude.env_pins": {}}))
+
+
+@pytest.mark.parametrize("change, match", [
+    ({"schema_version": 1}, "expected integer 2"), ({"kind": "approved_campaign"}, "kind"),
+    ({"approved_by": " "}, "nonempty string"), ({"approved_utc": "2026-09-26"}, "UTC timestamp"),
+    ({"authorization_text": ""}, "nonempty string"),
+    ({"scope.tasks": []}, "nonempty list"), ({"scope.tasks": ["lf-b", "lf-b"]}, "duplicate"),
+    ({"scope.tasks": ["stale-case"]}, "opaque"),
+    ({"scope.seeds": []}, "seeds"), ({"scope.seeds": [1, 1]}, "seeds"), ({"scope.seeds": [True]}, "seeds"),
+    ({"scope.seeds": [-1]}, "seeds"), ({"scope.arms": ["baseline", "other"]}, "arms"),
+    ({"scope.assignments": 7}, "tasks x seeds x arms"), ({"scope.host.adapter": "fake"}, "adapter"),
+    ({"scope.host.executable_sha256": "0" * 63}, "SHA-256"), ({"scope.host.effort": "extreme"}, "effort"),
+    ({"scope.host.model": ""}, "nonempty string"),
+    ({"caps.usd_per_run": 0}, "positive number"), ({"caps.usd_per_run": True}, "positive number"),
+    ({"caps.seconds_per_run": float("nan")}, "positive number"), ({"caps.runs": 7}, "must equal"),
+    ({"caps.global_usd_cap": 1.0}, "below its per-run cap"),
+    ({"spend_envelope": "the global cap is a ceiling"}, "SMOKE_SPEND_ENVELOPE"),   # E-94: the exact text, signed
+    ({"spend_envelope": contracts.SMOKE_SPEND_ENVELOPE + " "}, "SMOKE_SPEND_ENVELOPE"),
+    ({"credential.kind": "api_key"}, "credential.kind"), ({"credential.env_name": "PATH"}, "credential variable"),
+    ({"credential.revoke_after_smoke": "yes"}, "boolean"),
+    ({"account_preconditions.usage_credits_or_extra_usage": "on"}, "off"),
+    ({"account_preconditions.usage_credits_or_extra_usage": "capped:0"}, "off"),
+    ({"account_preconditions.usage_credits_or_extra_usage": "capped:-1"}, "off"),
+    ({"account_preconditions.managed_policy": "org"}, "managed_policy"),
+    ({"account_preconditions.shared_quota_accepted": 1}, "boolean"),
+    ({"decisions.subprocess_env_scrub_off": ""}, "nonempty string"),
+    ({"credential.revoke_after_smoke": False}, "missing fields"),
+    ({"human_reviews": ""}, "nonempty string"), ({"retry_policy": None}, "nonempty string"),
+    ({"single_use": False}, "single_use"), ({"single_use": 1}, "single_use"),
+])
+def test_smoke_approval_types_and_rules(change, match):
+    with pytest.raises(ContractError, match=match):
+        contracts.validate_smoke_approval(smoke_approval(**change))
+
+
+def test_keeping_the_token_needs_a_recorded_retention_decision():
+    kept = smoke_approval(**{"credential.revoke_after_smoke": False})
+    kept["decisions"]["token_retention"] = "E-SYNTHETIC-3"
+    contracts.validate_smoke_approval(kept)
+    revoked = smoke_approval()
+    revoked["decisions"]["token_retention"] = "E-SYNTHETIC-3"
+    with pytest.raises(ContractError, match="unknown fields"):
+        contracts.validate_smoke_approval(revoked)
+    contracts.validate_smoke_approval(smoke_approval(**{"account_preconditions.usage_credits_or_extra_usage":
+                                                        "capped:5.50"}))
+
+
+@pytest.mark.parametrize("change, match", [
+    ({"approval_sha256": "A" * 64}, "SHA-256"), ({"campaign_id": "../x"}, "campaign_id"),
+    ({"created_utc": "yesterday"}, "UTC timestamp"), ({"extra": 1}, "unknown fields"),
+])
+def test_approval_ledger_entries_are_exact(change, match):
+    entry = {"approval_sha256": sha("approval"), "campaign_id": "smoke-claude-2.1.281-a",
+             "created_utc": "2026-09-26T12:00:00Z"}
+    contracts.validate_approval_ledger_entry(entry)
+    with pytest.raises(ContractError, match=match):
+        contracts.validate_approval_ledger_entry({**entry, **change})

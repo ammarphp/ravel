@@ -70,6 +70,15 @@ def _guarded(kind, real):
 os.kill, os.killpg = _guarded("kill", _REAL_KILL), _guarded("killpg", _REAL_KILLPG)
 
 
+def pytest_configure(config):
+    # Oracle cross-checks (tests/governance/test_oracle_crosscheck.py). The oracles themselves never
+    # import pyhf or ravel; these marks label the tests that do, so they can be selected or excluded.
+    config.addinivalue_line("markers", "kernel_crosscheck: compares an independent oracle with the RAVEL "
+                            "kernel or stock pyhf (imports them; skips when they are unavailable)")
+    config.addinivalue_line("markers", "diagnostic: records a diagnostic measurement (toy MC, sensitivity), "
+                            "not a correctness criterion of the oracle or the kernel")
+
+
 def pytest_sessionfinish(session, exitstatus):
     if REFUSED:
         session.exitstatus = pytest.ExitCode.TESTS_FAILED

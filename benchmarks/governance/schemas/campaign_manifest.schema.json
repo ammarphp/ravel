@@ -153,42 +153,92 @@
       }
     },
     "budget": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "usd_per_run",
-        "seconds_per_run",
-        "max_broker_ops",
-        "max_fits",
-        "global_usd_cap",
-        "global_seconds_cap"
-      ],
-      "properties": {
-        "usd_per_run": {
-          "type": "number",
-          "exclusiveMinimum": 0
+      "description": "The per-run and campaign limits. A campaign frozen before WP12 has the legacy shape without max_stage_executions (its broker had no census or calc budget): contracts.validate_campaign_manifest accepts it whole (LEGACY_BUDGET_FIELDS, decision E-151) so that it stays verifiable and auditable, and the runner refuses to run it (E-24).",
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "usd_per_run",
+            "seconds_per_run",
+            "max_broker_ops",
+            "max_fits",
+            "max_stage_executions",
+            "global_usd_cap",
+            "global_seconds_cap"
+          ],
+          "properties": {
+            "usd_per_run": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "seconds_per_run": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_broker_ops": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_fits": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_stage_executions": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "global_usd_cap": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "global_seconds_cap": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "title": "budget (WP12: census and calc executions limited)"
         },
-        "seconds_per_run": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "max_broker_ops": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "max_fits": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "global_usd_cap": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "global_seconds_cap": {
-          "type": "number",
-          "exclusiveMinimum": 0
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "usd_per_run",
+            "seconds_per_run",
+            "max_broker_ops",
+            "max_fits",
+            "global_usd_cap",
+            "global_seconds_cap"
+          ],
+          "properties": {
+            "usd_per_run": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "seconds_per_run": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_broker_ops": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_fits": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "global_usd_cap": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "global_seconds_cap": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "title": "legacy budget (a campaign frozen before WP12, decision E-151)"
         }
-      }
+      ]
     },
     "retry_policy": {
       "const": "none"

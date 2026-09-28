@@ -1,18 +1,33 @@
-"""RAVEL supervised stage workers for the evaluation broker: fit -> convert -> report.
+"""RAVEL supervised stage workers for the evaluation broker.
 
-The workers (fit.py, convert.py, report.py) run under the pinned replay interpreter in
-one RAVEL run directory per workspace digest. This module only declares the stage DAG
-and builds the supervisor command; it imports nothing outside the standard library.
-The supervisor is RAVEL's own ``stage_supervisor.supervise`` with ``resume=True`` and
-the declared ``depends_on``, called exactly as its CLI does (errors -> exit 2) but with
-a short poll interval: the CLI's fixed 5 s poll would make every executed stage last
-at least 5 s. The poll interval is not part of any RAVEL receipt.
+Two groups of workers run under the pinned replay interpreter:
+
+- The likelihood DAG, fit -> convert -> report (fit.py, convert.py, report.py), runs in one RAVEL
+  run directory per workspace digest (``ravel-runs/<first 16 hex of its sha256>/``): the DAG's
+  root input keys the directory, the luminosity record and title are placed there per call, and
+  RAVEL's receipts decide which stages are reused.
+- The standalone stages census, calc and figure (census.py, calc.py, figure.py; WP12 task-bank
+  design §3.3) run each in a run directory keyed by the stage, its input digests and its
+  parameters (``run_key``; calc and figure take theirs as ``inputs/params.json``): the input files
+  are placed once and never change, so a repeated request is a verified reuse. ``figure`` is a
+  coordinator-only prior-recipe step (``COORDINATOR_ONLY``); no subject operation runs it.
+
+This module only declares the stages and builds the supervisor command; it imports nothing outside
+the standard library. The supervisor is RAVEL's own ``stage_supervisor.supervise`` with
+``resume=True`` and the declared ``depends_on``, called exactly as its CLI does (errors -> exit 2)
+but with a short poll interval: the CLI's fixed 5 s poll would make every executed stage last at
+least 5 s. The poll interval is not part of any RAVEL receipt.
 """
+import hashlib
 import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ORDER = ("fit", "convert", "report")
+ORDER = ("fit", "convert", "report")            # the likelihood DAG, in dependency order
+STANDALONE = ("census", "calc", "figure")       # one keyed run directory per (stage, inputs, parameters)
+COORDINATOR_ONLY = ("figure",)                  # prior-recipe steps no subject operation may run
+WORKERS = ORDER + STANDALONE
+PARAMS = "inputs/params.json"
 STAGES = {
     "fit": {"kind": "fit", "inputs": ("inputs/workspace.json",), "outputs": ("outputs/fit",),
             "depends_on": (), "artifact": "outputs/fit/fit.json"},
@@ -22,6 +37,12 @@ STAGES = {
     "report": {"kind": "report", "inputs": ("outputs/convert/conversion.json", "inputs/title.txt"),
                "outputs": ("outputs/report",), "depends_on": ("convert",),
                "artifact": "outputs/report/report.json"},
+    "census": {"kind": "census", "inputs": ("inputs/events.lhe.gz", "inputs/manifest.json", "inputs/selection.json"),
+               "outputs": ("outputs/census",), "depends_on": (), "artifact": "outputs/census/census.json"},
+    "calc": {"kind": "calc", "inputs": (PARAMS,), "outputs": ("outputs/calc",), "depends_on": (),
+             "artifact": "outputs/calc/calc.json"},
+    "figure": {"kind": "figure", "inputs": ("inputs/fit.json", PARAMS), "outputs": ("outputs/figure",),
+               "depends_on": (), "artifact": "outputs/figure/figure.json"},
 }
 SUPERVISOR = (
     "import json, sys\n"
@@ -44,6 +65,22 @@ def worker_path(stage):
 def stage_command(python, stage):
     """The supervised command bound into the RAVEL receipt: interpreter, worker script, run dir."""
     return [python, str(worker_path(stage)), "."]
+
+
+def params_bytes(params) -> bytes:
+    """The canonical JSON bytes (governance.canonical's) of a standalone stage's parameters (``inputs/params.json``)."""
+    return json.dumps(params, sort_keys=True, separators=(",", ":"), allow_nan=False, ensure_ascii=True).encode()
+
+
+def run_key(stage, files) -> str:
+    """The run-directory name of a standalone stage: the first 16 hex of the sha256 of its name and the sha256
+    of every input file it is given ({relative path: bytes}, parameters included as ``inputs/params.json``)."""
+    if stage not in STANDALONE:
+        raise ValueError(f"{stage} is not a standalone stage")
+    if set(files) != set(STAGES[stage]["inputs"]):
+        raise ValueError(f"{stage} takes exactly the inputs {sorted(STAGES[stage]['inputs'])}")
+    material = {"stage": stage, "inputs": {path: hashlib.sha256(data).hexdigest() for path, data in files.items()}}
+    return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:16]
 
 
 def supervisor_argv(python, stage, rundir, *, kill_secs, poll):
