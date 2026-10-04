@@ -29,7 +29,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from governance import allowlist_proxy, canonical, cli, contracts, credentials, isolation, live, runner
+from governance import (allowlist_proxy, campaign_manifest, canonical, cli, contracts, credentials, isolation, live,
+                        runner)
 from governance.canonical import ContractError
 
 ARMS = list(contracts.ARMS)
@@ -124,6 +125,133 @@ def test_an_approval_already_in_the_ledger_is_refused():
     assert any("single-use" in p for p in problems(record, ledger=[entry]))
     reformatted = json.loads(json.dumps(record, indent=4, sort_keys=False))   # other bytes, same approval
     assert live.approval_digest(reformatted) == entry["approval_sha256"]
+
+
+# ---------------------------------------------------------------- the pilot approval (E-204)
+
+PILOT_SPEC = {"tasks": [{"id": "lf-b"}, {"id": "lf-d"}], "seeds": [11], "schedule_seed": 7}
+PILOT_BUDGET = {**BUDGET, "max_broker_ops": 30, "max_fits": 3, "max_stage_executions": 6}
+
+
+def pilot_approval(base=None, **changes):
+    """A SYNTHETIC pilot approval: ``base`` (default: approval()) with the pilot kind, schedule seed 7 and the design's
+    broker limits, then ``changes`` by dotted path."""
+    record = copy.deepcopy(base) if base is not None else approval()
+    record.update(kind=contracts.PILOT_APPROVAL_KIND, schedule_seed=7,
+                  broker_limits={"max_broker_ops": 30, "max_fits": 3, "max_stage_executions": 6})
+    for path, value in changes.items():
+        target = record
+        *parents, last = path.split(".")
+        for key in parents:
+            target = target[key]
+        target[last] = value
+    return record
+
+
+def test_a_matching_pilot_approval_has_no_problems():
+    assert problems(pilot_approval(), spec=PILOT_SPEC, budget=PILOT_BUDGET) == []
+    two = {**PILOT_SPEC, "seeds": [12, 11]}
+    record = pilot_approval(**{"scope.seeds": [12, 11], "scope.assignments": 16, "caps.runs": 16})
+    assert problems(record, spec=two, budget=PILOT_BUDGET) == []
+
+
+@pytest.mark.parametrize("change, match", [
+    ({"schedule_seed": 8}, "schedule_seed 8 differs from the campaign's 7"),
+    ({"broker_limits.max_broker_ops": 40}, "broker_limits.max_broker_ops 40 differs"),
+    ({"broker_limits.max_fits": 4}, "broker_limits.max_fits 4 differs"),
+    ({"broker_limits.max_stage_executions": 5}, "broker_limits.max_stage_executions 5 differs"),
+    ({"scope.tasks": ["lf-d", "lf-b"]}, "scope.tasks ['lf-d', 'lf-b'] is not in the campaign's order"),
+    ({"scope.arms": list(reversed(ARMS))}, "scope.arms"),
+    ({"caps.seconds_per_run": 600.0}, "caps.seconds_per_run"),       # the smoke's checks hold for a pilot
+    ({"scope.host.model": "claude-synthetic-6"}, "scope.host.model"),
+])
+def test_a_pilot_approval_that_differs_is_refused(change, match):
+    found = problems(pilot_approval(**change), spec=PILOT_SPEC, budget=PILOT_BUDGET)
+    assert found and any(match in p for p in found), found
+
+
+def test_a_pilot_approval_binds_what_the_smoke_approval_leaves_free():
+    """The smoke's approval has no field for the schedule seed or the broker limits and compares the roster as sets; a
+    pilot's refuses a build whose schedule seed, broker limits or roster order differs (pilot-request.md item 3)."""
+    reordered = {**PILOT_SPEC, "tasks": [{"id": "lf-d"}, {"id": "lf-b"}], "schedule_seed": 99}
+    looser = {**PILOT_BUDGET, "max_broker_ops": 40, "max_fits": 4}
+    assert problems(approval(), spec=reordered, budget=looser) == []
+    found = problems(pilot_approval(), spec=reordered, budget=looser)
+    assert sorted(p.split(" ")[0] for p in found) == ["broker_limits.max_broker_ops", "broker_limits.max_fits",
+                                                      "schedule_seed", "scope.tasks"], found
+    legacy = {k: v for k, v in PILOT_BUDGET.items() if k != "max_stage_executions"}   # a budget without the field
+    assert any("broker_limits.max_stage_executions 6 differs from the campaign budget's None" in p
+               for p in problems(pilot_approval(), spec=PILOT_SPEC, budget=legacy))
+    unseeded = {k: v for k, v in PILOT_SPEC.items() if k != "schedule_seed"}
+    assert any(p.startswith("schedule_seed 7 differs") for p in problems(pilot_approval(), spec=unseeded,
+                                                                          budget=PILOT_BUDGET))
+    assert any("unknown fields" in p for p in problems(pilot_approval(kind=contracts.SMOKE_APPROVAL_KIND),
+                                                        spec=PILOT_SPEC, budget=PILOT_BUDGET))
+
+
+def test_a_smoke_approval_covers_only_the_smokes_size_and_default_limits():
+    """E-211: a smoke approval binds no schedule, order or broker limits, so it covers at most SMOKE_MAX_ASSIGNMENTS
+    assignments and only the runner's default limits; a pilot-shaped campaign needs a pilot approval."""
+    two = {**SPEC, "seeds": [11, 12]}
+    found = problems(approval(**{"scope.seeds": [11, 12], "scope.assignments": 16, "caps.runs": 16}), spec=two)
+    assert found == [f"a smoke approval covers at most 8 assignments, not 16: a larger campaign needs a "
+                     f"{contracts.PILOT_APPROVAL_KIND} approval (E-211)"]
+    found = problems(approval(), budget=PILOT_BUDGET)
+    assert sorted(p.split(" ")[0] for p in found) == ["budget.max_broker_ops", "budget.max_fits"], found
+    assert problems(approval(), budget={**BUDGET, "max_stage_executions": 6}) == []
+    assert campaign_manifest.SMOKE_BROKER_LIMITS == {k: runner.DEFAULT_BUDGET[k] for k in contracts.BROKER_LIMIT_FIELDS}
+
+
+def test_a_pilot_approval_keeps_the_smokes_max_turns():
+    """E-211: the pilot request fixes the host "unchanged from the smoke"; a pilot build with other max_turns is
+    refused (a smoke's is not compared, as before)."""
+    def found(record, turns):
+        return live.approval_problems(record, spec=PILOT_SPEC, host=pin().fields(), budget=PILOT_BUDGET, arms=ARMS,
+                                      ledger=[], host_launch={"claude": {"max_turns": turns}})
+    assert found(pilot_approval(), live.CLAUDE_SETTINGS["max_turns"]) == []
+    assert found(pilot_approval(), 5) == ["host_launch.claude.max_turns 5 differs from the smoke's 100: a pilot runs "
+                                          "the smoke's host unchanged (E-211)"]
+    assert problems(approval(), budget=BUDGET) == []            # a smoke approval: max_turns not compared
+
+
+def test_the_design_budget_sets_the_pilots_task_limits_exactly():
+    from governance.tasks import registry
+    merged = live.design_budget({"usd_per_run": 2.0, "global_seconds_cap": 7680.0, "seconds_per_run": 900.0})
+    assert merged == {"usd_per_run": 2.0, "global_seconds_cap": 7680.0, **registry.DESIGN_BUDGET}
+    assert type(merged["seconds_per_run"]) is int   # the design's own value: every definition records it exactly
+    for name, value in (("max_fits", 4), ("seconds_per_run", 600.0), ("max_broker_ops", True)):
+        with pytest.raises(ContractError, match=f"budget.{name} .* differs from registry.DESIGN_BUDGET"):
+            live.design_budget({"usd_per_run": 2.0, name: value})
+
+
+def test_build_live_design_budget_flag(tmp_path, monkeypatch, capsys):
+    """``build-live --design-budget`` passes registry.DESIGN_BUDGET's task limits to the build; an explicit limit that
+    differs is refused, and without the flag --seconds-per-run is required."""
+    from governance.tasks import registry
+    seen = []
+
+    def capture(store, **kw):
+        seen.append(kw["budget"])
+        raise ContractError("SYNTHETIC: captured, nothing built")
+    monkeypatch.setenv("RAVEL_EVAL_LIVE", "1")
+    monkeypatch.setattr(live, "build_live_campaign", capture)
+    approval_file = tmp_path / "approval.json"
+    approval_file.write_text(json.dumps(pilot_approval()))
+    base = ["build-live", "--store", str(tmp_path / "store"), "--campaign-id", "pilot-synthetic", "--created-utc",
+            CREATED, "--subjects-root", str(tmp_path / "s"), "--host-state-root", str(tmp_path / "h"),
+            "--executable", "/synthetic-pins/claude", "--executable-sha256", SHA, "--host-version", "2.1.281",
+            "--model", "claude-synthetic-5", "--effort", "high", "--credential-file", str(tmp_path / "c" / "token"),
+            "--approval-file", str(approval_file), "--seed", "11", "--schedule-seed", "7", "--task", "lf-b",
+            "--task", "lf-d", "--usd-per-run", "2.0", "--global-seconds-cap", "7680"]
+    assert cli.main(base + ["--design-budget"]) == 2
+    assert seen == [{"usd_per_run": 2.0, "global_seconds_cap": 7680.0, **registry.DESIGN_BUDGET}]
+    capsys.readouterr()
+    assert cli.main(base + ["--design-budget", "--max-fits", "4"]) == 2
+    assert "differs from registry.DESIGN_BUDGET" in capsys.readouterr().out and len(seen) == 1
+    assert cli.main(base) == 2
+    assert "--seconds-per-run is required" in capsys.readouterr().out and len(seen) == 1
+    assert cli.main(base + ["--seconds-per-run", "900", "--max-fits", "3"]) == 2   # no flag: the given fields only
+    assert seen[-1] == {"usd_per_run": 2.0, "global_seconds_cap": 7680.0, "seconds_per_run": 900.0, "max_fits": 3}
 
 
 def ledger_lines(store):
@@ -393,14 +521,16 @@ def build_live(lab, campaign_id, *, approval_record=None, tasks=("lf-b", "lf-d")
         approval_bytes=data, budget=dict(budget or LIVE_BUDGET), **kw)
 
 
-def write_probe_record(campaign, *, drop=(), fail=(), pricing=True, hp07=None):
+def write_probe_record(campaign, *, drop=(), fail=(), pricing=True, hp07=None, geo=None):
     """A SYNTHETIC passing host-probe record (the probes' own tests run them; a runner test needs only the gate).
-    ``hp07``: HP-07's detail (default: made after the lab's credential file was minted)."""
+    ``hp07``: HP-07's detail (default: made after the lab's credential file was minted); ``geo``: HP-13's
+    cli_geo_multiplier (default: none recorded)."""
     probes = [{"id": f"HP-{i:02d}", "required": i not in (10, 11, 12), "ok": f"HP-{i:02d}" not in fail,
                "detail": {"SYNTHETIC": "test fixture"}} for i in range(1, 14) if f"HP-{i:02d}" not in drop]
     for probe in probes:
         if probe["id"] == "HP-13":
-            probe["detail"] = {"pricing_eligible": pricing, "cli_price_per_mtok": RATES}
+            probe["detail"] = {"pricing_eligible": pricing, "cli_price_per_mtok": RATES,
+                               **({"cli_geo_multiplier": geo} if geo is not None else {})}
         if probe["id"] == "HP-07":   # the lab's credential file exists: a record made after it was minted
             probe["detail"] = hp07 or {"directory_present": True, "file_present": True,
                                        "stat": {"directory": live.EPERM, "credential": live.EPERM}}
@@ -709,7 +839,6 @@ def test_build_live_keeps_the_whole_family_and_binds_its_index(built):
     assert index["runnable_families"] == ["likelihood_freshness", "poi_domain_limit", "limit_summary", "yield_normalization", "sample_census"]   # every family since WP12 plan steps 8-9
     environment = canonical.strict_load(built / "coordinator" / "environment.json")
     assert environment["family_index_sha256"] == canonical.sha256_file(built / "coordinator" / "family" / "index.json")
-    from governance import campaign_manifest
     assert campaign_manifest.verify(built) == {"ok": True, "errors": []}
 
 
@@ -793,6 +922,42 @@ def test_build_live_orders_tasks_by_the_family_index(lab, monkeypatch):
     with pytest.raises(ContractError, match="not tasks of the family index"):
         build_live(lab, "smoke-unknown-task", approval_record=lab.approval(**{"approved_utc": "2026-09-26T14:00:00Z"}),
                    tasks=("lf-b", "lf-z"))
+
+
+@needs_sandbox
+def test_a_pilot_build_takes_the_design_budget_and_refuses_what_its_approval_does_not_bind(lab, monkeypatch):
+    """E-204, E-205 (pilot-request.md engineering items 3 and 4): a pilot approval's schedule seed, broker limits and
+    roster order are compared with the finished campaign, a mismatch leaves nothing behind, and a campaign whose
+    manifest budget is registry.DESIGN_BUDGET's task limits builds (the bank rules accept it: every definition
+    records exactly DESIGN_BUDGET) and loads; its authorization reads as a pilot's, not the smoke's."""
+    from governance.tasks import registry
+    live_session(monkeypatch, lab)
+    budget = live.design_budget({"usd_per_run": 2.0, "global_seconds_cap": 7680.0})
+    base = lab.approval(**{"approved_utc": "2026-09-26T16:30:00Z", "caps.seconds_per_run": 900})
+    for n, (change, match) in enumerate((({"schedule_seed": 8}, "schedule_seed 8 differs from the campaign's 7"),
+                                         ({"broker_limits.max_fits": 4}, "broker_limits.max_fits 4 differs"),
+                                         ({"scope.tasks": ["lf-d", "lf-b"]}, "not in the campaign's order"),
+                                         ({"caps.seconds_per_run": 900.0}, "caps.seconds_per_run 900.0 differs"))):
+        before = live.read_approval_ledger()
+        with pytest.raises(ContractError, match=re.escape(match)):
+            build_live(lab, f"pilot-refused-{n}", approval_record=pilot_approval(base, **change), budget=budget)
+        nothing_left(lab, f"pilot-refused-{n}", before)
+    record = pilot_approval(base)
+    campaign = build_live(lab, "pilot-design", approval_record=record, budget=budget)
+    manifest = canonical.strict_load(campaign / "campaign.json")
+    assert manifest["budget"] == {"usd_per_run": 2.0, "seconds_per_run": 900, "max_broker_ops": 30, "max_fits": 3,
+                                  "max_stage_executions": 6, "global_usd_cap": 16.0, "global_seconds_cap": 7680.0}
+    family = campaign / "coordinator" / "family"
+    index = canonical.strict_load(family / "index.json")
+    definitions = [canonical.strict_load(family / t["definition_path"]) for t in index["tasks"]]
+    assert len(definitions) == 12 and all(
+        canonical.canonical_bytes(d["budget"]) == canonical.canonical_bytes(registry.DESIGN_BUDGET) for d in definitions)
+    reference = manifest["authorization"]["reference"]
+    assert reference.startswith(live.AUTHORIZATION_SCOPE[contracts.PILOT_APPROVAL_KIND]) and "not a pilot" not in \
+        reference
+    assert json.loads((campaign / "approval_record").read_bytes()) == record
+    assert runner._Campaign(campaign).budget["max_broker_ops"] == 30
+    assert campaign_manifest.verify(campaign) == {"ok": True, "errors": []}
 
 
 def test_a_real_host_campaign_refuses_none_test_only(lab):
@@ -1042,12 +1207,55 @@ def test_cli_run_refuses_when_the_latest_behavioral_check_failed(lab, built, mon
 def test_preflight_reports_every_check_and_passes_for_a_ready_campaign(lab, built, monkeypatch):
     live_session(monkeypatch, lab)
     checked = live.preflight(built)
-    assert [c["id"] for c in checked["checks"]] == [f"PF-{i:02d}" for i in range(1, 15)]
+    assert [c["id"] for c in checked["checks"]] == [f"PF-{i:02d}" for i in range(1, 16)]
     assert checked["ok"], [c for c in checked["checks"] if not c["ok"]]
     monkeypatch.setenv("CLAUDECODE", "1")                    # an orchestrating session's marker
     monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "SYNTHETIC")
     [env] = [c for c in live.preflight(built)["checks"] if c["name"] == "coordinator_env"]
     assert not env["ok"] and env["detail"]["never_present_names"] == ["CLAUDECODE", "CLAUDE_CODE_OAUTH_TOKEN"]
+
+
+def rewrite_manifest(campaign, change):
+    """SYNTHETIC tampering after the build: campaign.json rewritten by ``change`` (a function of the manifest) and
+    coordinator/campaign.sha256 regenerated to match, as the E-211 review's attack does."""
+    path = campaign / "campaign.json"
+    manifest = canonical.strict_load(path)
+    change(manifest)
+    path.chmod(0o644)
+    path.write_bytes(campaign_manifest.manifest_bytes(manifest))
+    digest = campaign / runner.COORDINATOR / runner.CAMPAIGN_DIGEST
+    digest.chmod(0o600)
+    digest.write_text(canonical.sha256_file(path) + "\n")
+
+
+@needs_sandbox
+def test_verify_and_preflight_rerun_the_frozen_approval(lab, monkeypatch):
+    """E-211: the approval is compared with the campaign again after the build. A campaign.json rewritten with other
+    broker limits (campaign.sha256 regenerated) fails verify and PF-15; one rewritten to name a new approval record that
+    covers it passes verify but fails PF-15, whose ledger has no line consuming that approval for this campaign."""
+    live_session(monkeypatch, lab)
+    limits = build_only(lab, "smoke-rewritten-limits")
+    assert campaign_manifest.verify(limits) == {"ok": True, "errors": []}
+    [pf15] = [c for c in live.preflight(limits)["checks"] if c["id"] == "PF-15"]
+    assert pf15["ok"], pf15
+    rewrite_manifest(limits, lambda m: m["budget"].update(max_fits=3))
+    errors = campaign_manifest.verify(limits)["errors"]
+    assert errors == ["approval_record: does not cover the campaign: budget.max_fits 3: a smoke approval binds no "
+                      "broker limits, so it covers only the default 4; other limits need a "
+                      f"{contracts.PILOT_APPROVAL_KIND} approval (E-211)"], errors
+    checked = live.preflight(limits)            # the frozen definitions record the old limits: refused at load
+    assert not checked["ok"] and checked["checks"][-1]["id"] == "PF-00", checked["checks"][-1]
+    swapped = build_only(lab, "smoke-rewritten-approval")
+    other = json.dumps(lab.approval(**{"approved_utc": "2026-09-26T23:59:00Z"}), indent=1).encode()
+    record = swapped / campaign_manifest.APPROVAL
+    record.chmod(0o644)
+    record.write_bytes(other)
+    rewrite_manifest(swapped, lambda m: m["authorization"].update(reference_sha256=canonical.sha256_bytes(other)))
+    assert campaign_manifest.verify(swapped) == {"ok": True, "errors": []}
+    [pf15] = [c for c in live.preflight(swapped)["checks"] if c["id"] == "PF-15"]
+    assert not pf15["ok"] and pf15["detail"] == [
+        f"the approval ledger has no line consuming this approval (canonical sha256 "
+        f"{live.approval_digest(json.loads(other))}) for campaign 'smoke-rewritten-approval'"], pf15
 
 
 # ---------------------------------------------------------------- the live runs
@@ -1189,6 +1397,19 @@ def build_only(lab, name, **kw):
         campaign = build_live(lab, name, approval_record=fresh_approval(lab), **kw)
     write_probe_record(campaign)
     return campaign
+
+
+def test_every_test_that_builds_a_live_campaign_is_marked_needs_sandbox():
+    """build_only builds a live campaign, which needs Seatbelt and its census (runner.build_live_campaign), so a test
+    that calls it without @needs_sandbox fails on a host without them, such as the public Linux CI."""
+    import ast
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    unmarked = [node.name for node in tree.body
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+                and any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == "build_only"
+                        for call in ast.walk(node))
+                and not any(isinstance(dec, ast.Name) and dec.id == "needs_sandbox" for dec in node.decorator_list)]
+    assert unmarked == []
 
 
 def stopped_as(campaign, rule):
@@ -1596,6 +1817,7 @@ runner._subject_files = lambda c, r: ({**original(c, r), "inputs/mock-mode.txt":
 live.SECURITY_COMMAND = tuple(json.loads(sys.argv[3]))
 live.CODESIGN_COMMAND = tuple(json.loads(sys.argv[8]))
 live.go_no_go_problem = lambda *a, **k: None
+live.LEDGER_DIR = sys.argv[9]      # the module's scratch ledger (E-77): PF-15 reads it, never the user's (E-211)
 live.user_sysv_objects = lambda: []
 live.sandbox_denials = lambda start, end, **kw: {"available": False, "count": None, "truncated": False,
                                                  "error": "SYNTHETIC"}
@@ -1616,7 +1838,7 @@ def coordinator(lab, campaign, modes, limit):
     return subprocess.Popen([sys.executable, "-c", COORDINATOR, str(campaign), json.dumps(modes),
                              json.dumps(list(lab.security)),
                              str(limit), str(repo / "benchmarks"), str(repo / "src"), str(HERE),
-                             json.dumps(list(lab.codesign))],
+                             json.dumps(list(lab.codesign)), str(live.LEDGER_DIR)],
                             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=str(repo))
 
 
@@ -2481,6 +2703,46 @@ def test_lc16_applies_the_measured_geography_multiplier_or_leaves_the_recompute_
     assert live.geo_multiplier([], {}) == 1.0 and live.geo_multiplier(["us", "eu"], {"us": 1.1}) is None
 
 
+def test_lc16_verifies_a_run_without_a_reported_geography_once_hp13_measured_it():
+    """E-203: every smoke run's usage reported inference_geo "not_available", which HP-13 did not measure, so LC-16
+    left the recompute unverified (E-160). HP-13 now measures that geography too; LC-16 applies what it measured,
+    never an assumed value, and still warns for a geography HP-13 did not measure."""
+    result, details = cost_result({MOCK_MODEL: usage_of(1_000_000, 2.0)}, geo=["not_available"])
+    facts, flags = live._cost_facts(result, details, RATES, {"us": 1.1}, MOCK_MODEL)   # the smoke's HP-13
+    assert flags == set() and facts["recomputed"] is None and facts["multiplier"] is None
+    facts, flags = live._cost_facts(result, details, RATES, {"us": 1.1, "not_available": 1.0}, MOCK_MODEL)
+    assert flags == set() and facts["recomputed"] == pytest.approx(2.0) and facts["multiplier"] == 1.0
+    assert facts["pinned_share"] == {MOCK_MODEL: [pytest.approx(2.0), 2.0]} and facts["geo"] == ["not_available"]
+    # a pin that priced the absent geography otherwise would be measured so, and the unmultiplied cost then differs
+    assert live._cost_facts(result, details, RATES, {"not_available": 1.1}, MOCK_MODEL)[1] == \
+        {"cost_recompute_mismatch"}
+    assert live.geo_multiplier(["not_available"], {"us": 1.1, "not_available": 1.0}) == 1.0
+    assert live.geo_multiplier(["not_available", "us"], {"us": 1.1, "not_available": 1.0}) is None
+
+
+@needs_sandbox
+def test_a_run_reporting_no_geography_passes_lc16_and_needs_no_accepted_exception(lab, monkeypatch):
+    """E-203 end to end: the mock host reports inference_geo "not_available" (as the service did in every smoke run).
+    Against the smoke's HP-13 record (only "us" measured) LC-16 warns and a go needs an accepted decision; against a
+    record that measured the absent geography, LC-16 passes and the go needs none (pilot-request.md item 2)."""
+    campaign, rids, result = scenario(lab, "smoke-no-geography", {0: "geo not_available"}, limit=1)
+    assert result["stopped"] is None and [r["action"] for r in result["runs"]] == ["sealed"]
+    live_session(monkeypatch, lab)
+    write_probe_record(campaign, geo={"us": 1.1})
+    checks = live.live_checks(campaign, rids[0])
+    lc16 = next(c for c in checks["checks"] if c["id"] == "LC-16")
+    assert lc16["status"] == "warn" and lc16["detail"]["geo"] == ["not_available"]
+    with pytest.raises(ContractError, match="LC-16 is warn"):
+        live.record_go_no_go(campaign, decision="go", decided_by="SYNTHETIC reviewer", reason="SYNTHETIC review")
+    write_probe_record(campaign, geo={"us": 1.1, "not_available": 1.0})
+    checks = live.live_checks(campaign, rids[0])
+    lc16 = next(c for c in checks["checks"] if c["id"] == "LC-16")
+    assert lc16["status"] == "pass" and lc16["detail"]["multiplier"] == 1.0, lc16
+    assert lc16["detail"]["recomputed"] == pytest.approx(lc16["detail"]["reported"])
+    record = live.record_go_no_go(campaign, decision="go", decided_by="SYNTHETIC reviewer", reason="SYNTHETIC review")
+    assert record["lc16_status"] == "pass" and record["accepted_unverified_cost"] is None
+
+
 @needs_sandbox
 def test_the_worst_case_uses_a_full_turn_bound(ran):
     worst = live.costs(ran.campaign)["worst_case"]
@@ -2989,6 +3251,136 @@ def test_run_refuses_to_launch_over_an_unclean_probe_launch(lab, monkeypatch):
     assert all(not journal_of(campaign, r["run_id"]) for r in runs_of(campaign))
 
 
+# ---------------------------------------------------------------- lost run launches, censused before preflight (E-206)
+
+def failing_preflight(calls):
+    def preflight(campaign_dir, *, campaign=None):
+        calls.append(str(campaign_dir))
+        return {"ok": False, "checks": [{"id": "PF-99", "name": "synthetic", "ok": False,
+                                         "detail": "SYNTHETIC: preflight fails"}]}
+    return preflight
+
+
+@needs_sandbox
+def test_a_lost_run_launch_is_censused_before_a_failing_preflight_and_sealed_with_that_census(lab, monkeypatch):
+    """E-96 left open that a lost RUN launch was censused only on its resume, after preflight: a preflight that failed
+    left its subject running. A coordinator killed outright (SIGKILL, so no handler censused its launch) leaves a
+    sleeping subject; the next `run` censuses it by its journaled start before preflight, so the failing preflight
+    finds it gone; once preflight passes the resume seals the lost launch with that census (the subject outlived the
+    coordinator) and the stop rules end the campaign."""
+    campaign = build_only(lab, "smoke-precensus-lost")
+    rids = [r["run_id"] for r in runs_of(campaign)]
+    first = coordinator(lab, campaign, {rids[0]: "sleep"}, 1)
+    journal = campaign / "runs" / rids[0] / "journal.jsonl"
+    deadline, started = time.monotonic() + 120, None
+    try:
+        while time.monotonic() < deadline and started is None:
+            records = runner.read_journal(journal) if journal.exists() else []
+            started = next((r["details"] for r in records if r["state"] == "process_started"), None)
+            time.sleep(0.2)
+        assert started is not None, "the sleeping launch never started"
+        time.sleep(1.0)
+    finally:
+        first.kill()   # the coordinator this test started, by its Popen handle: its launch is lost, never censused
+        first.communicate(timeout=60)
+    assert isolation._start_time(started["pid"]) is not None     # the lost launch's leader outlived its coordinator
+    calls = []
+    live_session(monkeypatch, lab)
+    gate_passes(monkeypatch)
+    monkeypatch.setattr(live, "preflight", failing_preflight(calls))
+    with pytest.raises(ContractError, match="preflight failed: PF-99"):
+        runner.run_campaign(campaign, limit=1)
+    assert calls and isolation._start_time(started["pid"]) is None   # killed by census before preflight ran
+    pre = canonical.strict_load(campaign / "runs" / rids[0] / "precensus-1.json")["census"]
+    assert pre["complete"] is True and pre["survivors"] == [] and started["pid"] in pre["killed"], pre
+    assert pre["launch"] == started
+    with pytest.raises(ContractError, match="preflight failed"):
+        runner.run_campaign(campaign, limit=1)
+    assert not (campaign / "runs" / rids[0] / "precensus-2.json").exists()   # clean: never censused twice
+    monkeypatch.undo()
+    with pytest.MonkeyPatch.context() as patch:
+        live_session(patch, lab)
+        gate_passes(patch)
+        result = runner.run_campaign(campaign, limit=1)
+    census = closing(campaign, rids[0])["details"]["census"]
+    assert census["complete"] is True and census["survivors"] == [] and started["pid"] in census["found"]
+    assert [p["k"] for p in census["precensus"]] == [1] and census["precensus"][0]["census"] == pre
+    record = sealed_json(campaign, rids[0], "run.json")
+    assert record["status_hint"] == "interrupted" and "subject_outlived_coordinator" in record["validity_flags"]
+    assert result["stopped"]["rule"] == "S3"
+
+
+@needs_sandbox
+def test_a_lost_run_launch_whose_group_cannot_be_proven_is_never_signalled_and_nothing_launches(lab, monkeypatch):
+    """Fail closed (E-206): a lost run launch whose recorded leader cannot be told from the live holder of its group id
+    (a start time within float noise of the record's) is not proven to be the launch's: the census signals nothing,
+    reads incomplete, and `run` refuses before preflight, censusing it again at every invocation."""
+    campaign = build_only(lab, "smoke-precensus-unproven")
+    rid = runs_of(campaign)[0]["run_id"]
+    sleeper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True,
+                               stdin=subprocess.DEVNULL)
+    try:
+        time.sleep(0.2)
+        start = isolation._start_time(sleeper.pid)
+        record = {"pid": sleeper.pid, "pgid": sleeper.pid, "marker": None, "started_at": start - 0.2,
+                  "leader_start": start + 5e-5}
+        journal = campaign / "runs" / rid / "journal.jsonl"
+        journal.parent.mkdir(parents=True, exist_ok=True)
+        runner._record(journal, "launched", SYNTHETIC="a lost launch planted by the test",
+                       executor_id="synthetic-planted:lost-launch", profile_sha256="0" * 64)
+        runner._record(journal, "process_started", **record)
+        calls = []
+        live_session(monkeypatch, lab)
+        gate_passes(monkeypatch)
+        monkeypatch.setattr(live, "preflight", failing_preflight(calls))
+        for k in (1, 2):
+            with pytest.raises(ContractError, match=re.escape(f"lost run launches ['{rid}'] left survivors")):
+                runner.run_campaign(campaign, limit=1)
+            census = canonical.strict_load(campaign / "runs" / rid / f"precensus-{k}.json")["census"]
+            assert census["complete"] is False and census["killed"] == [] and sleeper.pid in census["foreign"]
+            assert "unprovable" in census["note"]
+        assert calls == [] and sleeper.poll() is None                  # never signalled; preflight never ran
+        assert [r["state"] for r in journal_of(campaign, rid)] == ["launched", "process_started"]
+        # E-212: the documented recovery. A human stop (S8), then `run`: under the stop it runs no preflight, seals
+        # the lost launch with its census (still incomplete: the group is still unprovable) and keeps the pre-preflight
+        # censuses; nothing is signalled, the campaign verifies, and the live checks print REVOKE (a process that may
+        # hold the token is still alive)
+        runner.record_stop(campaign, run_id=None, rule="S8", reason="SYNTHETIC: the lost launch stays unclean",
+                           set_by="the test (a human stop)")
+        result = runner.run_campaign(campaign, limit=1)
+        assert calls == [] and sleeper.poll() is None
+        census = closing(campaign, rid)["details"]["census"]
+        assert census["complete"] is False and census["killed"] == [] and census["precensus_incomplete"] is True
+        assert [p["k"] for p in census["precensus"]] == [1, 2]
+        record = sealed_json(campaign, rid, "run.json")
+        assert record["status_hint"] == "interrupted" and "census_incomplete" in record["validity_flags"]
+        assert campaign_manifest.verify(campaign) == {"ok": True, "errors": []}
+        checks = canonical.strict_load(campaign / "runs" / rid / live.LIVE_CHECKS)
+        assert checks["action"] == live.REVOKE and checks["stop"]["rule"] == "S3", checks["stop"]
+        assert any(t.get("action") == live.REVOKE for t in result["triggers"]), result["triggers"]
+    finally:
+        sleeper.kill()   # this test's own child, by its Popen handle
+        sleeper.wait()
+
+
+@needs_sandbox
+def test_a_lost_census_reads_a_launch_call_that_is_no_regular_file_as_called(lab, tmp_path, monkeypatch):
+    """E-212: _lost_census uses _launcher_called's predicate (lexists), so a launch_call.json that exists as a directory
+    or a dangling link, with no process_started record, is an incomplete census, never a clean one."""
+    campaign = build_only(lab, "smoke-lost-call-shape")
+    rid = runs_of(campaign)[0]["run_id"]
+    host = campaign / "runs" / rid / "host"
+    host.mkdir(parents=True, exist_ok=True)
+    live_session(monkeypatch, lab)
+    loaded = runner._Campaign(campaign)
+    assert loaded._lost_census(rid)["complete"] is True                  # never called: nothing to census
+    (host / "launch_call.json").symlink_to(tmp_path / "missing")
+    assert loaded._launcher_called(rid) is True and loaded._lost_census(rid)["complete"] is False
+    (host / "launch_call.json").unlink()
+    (host / "launch_call.json").mkdir()
+    assert loaded._launcher_called(rid) is True and loaded._lost_census(rid)["complete"] is False
+
+
 def test_host_probe_installs_the_live_signal_handlers(tmp_path, monkeypatch, capsys):
     installed = []
     monkeypatch.setenv("RAVEL_EVAL_LIVE", "1")
@@ -3065,7 +3457,8 @@ def test_the_recorded_self_invocation_matched_the_former_predicate():
 def test_the_denial_collector_never_counts_its_own_log_invocation(monkeypatch):
     calls = fake_log_show(monkeypatch, recorded_log("log_show_self_invocation.ndjson"))
     found = live.sandbox_denials("2026-09-27T17:43:27Z", "2026-09-27T17:46:49Z")
-    assert found == {"available": True, "count": 0, "truncated": False, "error": None, "processes": {}}
+    assert found == {"available": True, "count": 0, "truncated": False, "error": None, "processes": {}, "pids": {},
+                     "subject_marker": 0}
     [argv] = calls
     predicate = argv[argv.index("--predicate") + 1]
     assert predicate == live.DENIAL_PREDICATE and predicate.startswith('sender == "Sandbox" AND (')
@@ -3089,9 +3482,23 @@ def test_the_denial_collector_counts_a_real_sandbox_deny_line(monkeypatch):
     fake_log_show(monkeypatch, data)
     found = live.sandbox_denials("2026-09-27T18:29:00Z", "2026-09-27T18:31:00Z")
     assert found == {"available": True, "count": 1, "truncated": False, "error": None,
-                     "processes": {"logd_helper": 1}}
+                     "processes": {"logd_helper": 1}, "pids": {"3462": 1}, "subject_marker": 0}
     assert live.sandbox_denials("2026-09-27T18:29:00Z", "2026-09-27T18:31:00Z", pid=3462)["count"] == 1
     assert live.sandbox_denials("2026-09-27T18:29:00Z", "2026-09-27T18:31:00Z", pid=346)["count"] == 0
+
+
+def test_the_denial_collector_splits_a_machine_wide_count_by_the_launchs_pids(monkeypatch):
+    """E-213: the window is machine-wide, so the count names its reporters (pids, the subject-profile marker) and, given
+    the launch's pids, how many reports were its own (attributed) and how many no record attributes."""
+    [deny] = log_events(recorded_log("sandbox_deny.ndjson"))
+    others = [{**deny, "eventMessage": deny["eventMessage"].replace("logd_helper(3462)", "zsh(5001)")},
+              {**deny, "eventMessage": deny["eventMessage"].replace("logd_helper(3462)", "claude(4000)")
+               + " " + live.SUBJECT_MARKER}]
+    fake_log_show(monkeypatch, b"".join(json.dumps(e).encode() + b"\n" for e in [deny] + others))
+    found = live.sandbox_denials("2026-09-27T18:29:00Z", "2026-09-27T18:31:00Z", launch_pids=[4000])
+    assert (found["count"], found["pids"], found["subject_marker"]) == (3, {"3462": 1, "4000": 1, "5001": 1}, 1)
+    assert (found["attributed"], found["unattributed"]) == (1, 2)
+    assert "attributed" not in live.sandbox_denials("2026-09-27T18:29:00Z", "2026-09-27T18:31:00Z")
 
 
 def test_a_deny_line_from_the_log_tool_or_another_sender_is_not_a_denial(monkeypatch):

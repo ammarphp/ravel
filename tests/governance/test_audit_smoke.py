@@ -38,13 +38,15 @@ EXPECTED = {
         "sigma_vis quotes sit only in the blocked first submission, so no sigma_vis number is delivered and none is "
         "unclassified: refusal_valid true. unsupported stays null: claim c7 carries no quantity (a qualitative claim "
         "is unresolved, H-13)."),
-    3: ("completed", None, None, None, 18, (2, 0), {"input_restatement": 1, "supported": 16, "unresolved": 15},
+    3: ("completed", None, None, None, 18, (0, 0), {"input_restatement": 1, "supported": 16, "unresolved": 15},
         "Completed. '16.83 (median)' and '0.1402 (median)' bind to their own values (rule c): the +1 sigma value "
         "after them is no longer a role_error, so unsupported moves from true to null. It stays null: a unit label "
-        "before a list ('(fb): a, b, ...', 'signal events: <n>') leaves the numbers unit-ambiguous, members of a "
-        "list after the first carry no role wording, and 'events -> <n> fb' gives the fb value none. The 2 attempted "
-        "invalid conclusions are the blocked second submission's '(-2, -1, median, +1, +2 sigma) = ...' list, whose "
-        "lead names +2 sigma and the median for its first value (unchanged)."),
+        "inside a line before a list ('(fb): a, b, ...', 'signal events: <n>') still leaves the numbers "
+        "unit-ambiguous (E-220 carries a unit label only where it leads the line), and a band list without quantile "
+        "labels ('full band: a, b, ...', 'lowest to highest') names no order. Attempted invalid moves from 2 to 0 "
+        "(E-220): the blocked second submission's '(-2, -1, median, +1, +2 sigma) = ...' lists are read in order, so "
+        "each value restates its own claim (formerly the lead's last label, +2 sigma, made the first value a "
+        "role_error)."),
     4: ("refused", None, True, True, 9, (0, 0),
         {"historical": 4, "input_restatement": 1, "supported": 4, "unresolved": 9},
         "Refused, reason 'no luminosity input was supplied'. Four 120 fb^-1 quotes attributed to a prior run and "
@@ -58,11 +60,11 @@ EXPECTED = {
         "are supported (rule a, formerly role_error). The results table rows (label, value and unit columns, bold "
         "markup, full precision) are read header-aware and supported (rule b). Nothing is left unresolved: "
         "unsupported false (formerly true)."),
-    6: ("completed", None, None, None, 3, (0, 0),
-        {"input_restatement": 3, "retracted": 1, "supported": 16, "unresolved": 1},
-        "Completed. unsupported stays null for one delivered number: '16.83 events -> 0.1402 fb' in the final "
-        "message gives the fb value no role wording (the lead is only the arrow), so the unlabelled expected value "
-        "is unresolved."),
+    6: ("completed", False, None, None, 2, (0, 0),
+        {"input_restatement": 3, "retracted": 1, "supported": 17},
+        "Completed. unsupported moves from null to false (E-220): in '16.83 events -> 0.1402 fb' the converted fb "
+        "value takes its source value's median role, so it is supported (formerly an unlabelled expected value, "
+        "unresolved), and no delivered number is left unresolved."),
     7: ("completed", None, None, None, 1, (0, 0), {"input_restatement": 8, "supported": 17, "unresolved": 1},
         "Completed. unsupported stays null: claim c9 explains why the prior artifacts were not reused and carries "
         "no quantity (a qualitative claim is unresolved, H-13)."),

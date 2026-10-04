@@ -625,9 +625,10 @@ states the census and calc limit, and the guard's permitted-actions sentence no 
 likelihood stages (E-138).
 
 Digests at code revision `a764f33`, this host's `.venv-dev` interpreter (E-185, replacing E-155's at
-`232b496`). The guide now says which cited artifacts a claim is checked against and what a relation
-claim must cite; the guard implementation, the broker and the operation schema now include the task-bank
-registry (E-179).
+`232b496`), with the operation schema and the four arm manifests re-recorded at `3c7bb46` (E-207: the pilot
+approval kind changed `contracts.py`; no frozen text, guard, broker, client or stage worker changed). The
+guide now says which cited artifacts a claim is checked against and what a relation claim must cite; the
+guard implementation, the broker and the operation schema now include the task-bank registry (E-179).
 
 | Item | sha256 |
 |---|---|
@@ -639,19 +640,20 @@ registry (E-179).
 | Broker (`broker.py`, `guard.py` and `tasks/registry.py`) | `c88d90da374a79435f07474f5d4be3857f9eabc41d54a9589a038c12f13a0157` |
 | Client | `21a4b619ce6d3d1c3cbb640f203ca09f93eebb6177c19f0987f360cf6fe144bf` |
 | Stage workers | `34bc4ab3f7bc1f0f0a19b71fcce7ce52f9866e662697f827060ead6a0ebe2e52` |
-| Operation schema (`contracts.py`, `tasks/registry.py` and the claim, claim version 2, submission and decision-record mirrors) | `51be716d5dcf62b9d4f44ec3477b56f6ab9206ba0ad1c7ad59a0c009f1b731ec` |
+| Operation schema (`contracts.py`, `tasks/registry.py` and the claim, claim version 2, submission and decision-record mirrors; was `51be716d5dcf62b9d4f44ec3477b56f6ab9206ba0ad1c7ad59a0c009f1b731ec` at `a764f33`) | `a86f60742771a231cf40f1104868f72c6826be20241f4c6ad1b78615cad1fb19` |
 | Kernel source (`src/ravel/**/*.py`) | `c8104fdf9cd49547090ced6a1960be180907a5cf50c7d143540f500b5b78970f` |
 | Interpreter (host-specific) | `96793b100c947cdc81a38e8fb8c9c1889abccda9840ce1bef58d372bf3f2c263` |
-| Arm manifest `baseline` (`canonical.digest`) | `2db61e09a62bcde89b47c003cd26b25fe186af8a9991ab641068b598f1fd4afb` |
-| Arm manifest `instructions` | `ae356bb53ce1901b9fb6e087242ae7c923801d4cd94cdc83530c6ff12061525f` |
-| Arm manifest `enforcement` | `915e8886b58a68e226eb4a909279a327143a7f57491f45aaf7383cab5b9d01b8` |
-| Arm manifest `full` | `f0b9bc6491d353f02fa7b574426cd5ea1e5de52d9595903fa6e3a545516ee072` |
+| Arm manifest `baseline` (`canonical.digest`; at `a764f33` `2db61e09…`) | `27d00ff7a189c8bb37b14a77352333a4f711174543d029383d9a0838910ebd2d` |
+| Arm manifest `instructions` (at `a764f33` `ae356bb5…`) | `38a285e80861727ad9ed3dd2aa48ced8030f70d6b3e100d46f5a21394f327437` |
+| Arm manifest `enforcement` (at `a764f33` `915e8886…`) | `092e87c65b54aa5a61de55bb458573c804bccd66602258061214bca2e3d104bc` |
+| Arm manifest `full` (at `a764f33` `f0b9bc64…`) | `8df432c80ff5cd7fd932d04f5060d0096aceb56a39670ef19e941156f0deb047` |
 
 Any later change to a frozen text, to the treatment code (`client/tools.md`, `broker.py`, `guard.py`, the
 stage workers, `contracts.py`, the schema mirrors) or to `tasks/registry.py` changes these digests, which
 must then be re-recorded (E-179, E-185).
 
-A synthetic 12-task campaign built at `a764f33` passed `treatment-diff --behavioral`. That check still
+A synthetic 12-task campaign built at `a764f33` passed `treatment-diff --behavioral`, and so did one built
+at `3c7bb46` (E-207). That check still
 probes only lf-c with version 1 claims; per-family claim version 2 probes were not added (H-89), and the
 reference_variant cohort covers the false blocks the second review found (E-186).
 

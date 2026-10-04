@@ -1429,7 +1429,11 @@ def test_swapped_observed_and_expected_labels_are_role_errors(campaign):
                                                            ("supported", "sigma_vis_exp_fb[2]")]),
     ("Observed limit: {obs} fb (expected: {exp} fb).", [("supported", "sigma_vis_obs_fb"),
                                                          ("supported", "sigma_vis_exp_fb[2]")]),
-    ("Observed and expected limits: {obs} and {exp} fb.", [("unresolved", None), ("unresolved", None)]),
+    # an ordered role list: E-174's reading, ported to likelihood_freshness by E-220 (it was unresolved before)
+    ("Observed and expected limits: {obs} and {exp} fb.", [("supported", "sigma_vis_obs_fb"),
+                                                           ("supported", "sigma_vis_exp_fb[2]")]),
+    ("Observed and expected limits: {exp} and {obs} fb.", [("role_error", "sigma_vis_exp_fb[2]"),
+                                                           ("role_error", "sigma_vis_obs_fb")]),
     ("The observed limit, computed at 95% CL, is {obs} fb.", [("supported", "sigma_vis_obs_fb")]),
     ("S95 = {s95} events.", [("supported", "obs_limit_events")]),
 ])

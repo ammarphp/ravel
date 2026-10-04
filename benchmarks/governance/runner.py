@@ -868,7 +868,8 @@ def _build_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed, su
                 "budget": {"usd_per_run": limits["usd_per_run"], "seconds_per_run": limits["seconds_per_run"]}}
         if real:
             problems = live.approval_problems(approval, spec=spec, host=pin.fields(), budget=limits,
-                                              arms=list(contracts.ARMS), ledger=live.read_approval_ledger())
+                                              arms=list(contracts.ARMS), ledger=live.read_approval_ledger(),
+                                              host_launch=host_launch)
             require(not problems, "the approval does not authorize this campaign: " + "; ".join(problems))
         staged = campaign_manifest.write_campaign(   # <build>/synthetic/<campaign_id>: verify checks the names
             build, kind="synthetic", campaign_id=campaign_id, spec=spec, host=host, arms=arms,
@@ -1874,11 +1875,34 @@ class _Campaign:
         require(len(started) <= 1, f"{run_id}: more than one process_started record")
         if started:
             return isolation.census_launch(started[0])
-        called = (self.run_dir(run_id) / "host" / "launch_call.json").is_file()
+        # E-212: the predicate _launcher_called uses, so a launch_call.json that is no regular file (a dangling link,
+        # a directory) reads as called: incomplete, never a clean census
+        called = os.path.lexists(self.run_dir(run_id) / "host" / "launch_call.json")
         return {"method": "no process_started record: nothing to census", "launch": None, "found": [], "killed": [],
                 "survivors": [], "foreign": [], "complete": not called,
                 "note": "the launcher was called but no process start was journaled; survivors unknown"
                 if called else None}
+
+    def _with_precensus(self, run_id, census) -> dict:
+        """A lost launch's resume census with the censuses ``run`` took of it before preflight (E-206,
+        runs/<run_id>/precensus-<k>.json): what they found and killed joins this census's ``found`` and ``killed``
+        (so a subject killed before preflight still reads subject_outlived_coordinator), and they are kept whole
+        under ``precensus``; survivors and completeness stay this census's (the latest look)."""
+        from . import live
+        earlier = live._precensuses(self.run_dir(run_id))
+        if not earlier:
+            return census
+        found, killed = set(census.get("found") or []), set(census.get("killed") or [])
+        incomplete = False
+        for _, prior in earlier:
+            prior = prior if isinstance(prior, dict) else {}
+            found.update(p for p in prior.get("found") or [] if type(p) is int)
+            killed.update(p for p in prior.get("killed") or [] if type(p) is int)
+            incomplete = incomplete or prior.get("complete") is not True
+        # E-212: an earlier census that could not search leaves that period unproven, even when the latest look is
+        # complete (the processes it could not prove may have exited since): census_incomplete (_host_files)
+        return {**census, "found": sorted(found), "killed": sorted(killed), "precensus_incomplete": incomplete,
+                "precensus": [{"k": k, "census": prior} for k, prior in earlier]}
 
     def _resume(self, run, records):
         states = {r["state"]: r for r in records}
@@ -1889,6 +1913,7 @@ class _Campaign:
                 if not self.real:
                     return self._crash(run, "coordinator_interrupted")
                 census = self._lost_census(run["run_id"])   # first: nothing of the launch may still be writing
+                census = self._with_precensus(run["run_id"], census)
                 return self._crash(run, "coordinator_interrupted", census=census, **self._resume_post_run(run))
             return self._not_started(run, "coordinator interrupted after the launch record and before the launcher "
                                           "was called (no launch call and no process start on record, so no process "
@@ -2108,10 +2133,17 @@ class _Campaign:
         return record, {"canary_in_transcript"} if hits else set(), set()
 
     def _denials_check(self, live, rid):
-        """Sandbox denials over the launch window (log show; a 60 s wall bound). Best effort (F14)."""
+        """Sandbox denials over the launch window (log show; a 60 s wall bound). Best effort (F14). The window is
+        machine-wide, so the count is split by the launch's own pids (E-213): its journaled leader and any process a
+        census of it found."""
         records = read_journal(self.run_dir(rid) / "journal.jsonl")
         launched = [r["time_utc"] for r in records if r["state"] == "launched"]
-        found = live.sandbox_denials(launched[-1] if launched else utc_now(), utc_now())
+        pids = {r["details"].get("pid") for r in records if r["state"] == "process_started"}
+        for r in records:
+            if r["state"] == "interrupted_crash":
+                pids.update((r["details"].get("census") or {}).get("found") or [])
+        found = live.sandbox_denials(launched[-1] if launched else utc_now(), utc_now(),
+                                     launch_pids=sorted(p for p in pids if type(p) is int))
         return found, set(), set() if found.get("available") else {"sandbox_denials_unavailable"}
 
     # -- sealing
@@ -2252,6 +2284,8 @@ class _Campaign:
             if not census_record["complete"]:   # the census could not search: survivors are unknown
                 flags.add("census_incomplete")
                 survivors = None
+            elif census_record.get("precensus_incomplete"):   # E-212: an earlier look could not search
+                flags.add("census_incomplete")
         if survivors:
             flags.add("survivors_after_kill")
         if launch.get("census_complete") is False:   # the sandbox census became unusable mid-launch: an
@@ -2585,7 +2619,9 @@ def run_campaign(campaign_dir, *, adapter_factory=None, behavior_plan=None, only
     remaining assignment not_started with charge 0 instead of launching it (``close_stopped``); a launch
     resumed there is still evaluated, so its triggers are recorded beside the stop in place (E-95). A real
     host also needs, before any assignment: every lost or unclean probe launch censused, and none left
-    unclean (E-96), a passing preflight, the run-start credential validation (CredentialPause: nothing
+    unclean (E-96), every lost run launch censused by its journaled start, and none left unclean (E-206: before
+    preflight, so a preflight that fails never leaves one running), a passing preflight, the run-start
+    credential validation (CredentialPause: nothing
     journaled, no stop), a hard core-file limit of 0 and the behavioral gate (the latest record,
     re-derived: M1); before each new assignment the S10a gate (``live.go_no_go_problem``: once run 1 was
     launched, no further run launches until its recorded go; a hold, reported as ``paused`` with
@@ -2632,6 +2668,9 @@ def run_campaign(campaign_dir, *, adapter_factory=None, behavior_plan=None, only
             unclean = live.census_problems(live.census_lost_probes(campaign.dir))
             require(not unclean, f"refusing to launch a real host: probe launches {unclean} left survivors or could "
                                  f"not be censused: {live.PROBE_CENSUS_REMEDY}")
+            unclean = live.census_problems(live.census_lost_runs(campaign))   # E-206: before preflight can fail
+            require(not unclean, f"refusing to launch a real host: lost run launches {unclean} left survivors or "
+                                 f"could not be censused: {live.RUN_CENSUS_REMEDY}")
             checked = live.preflight(campaign.dir, campaign=campaign)
             failed = [f"{c['id']}: {c['detail']}" for c in checked["checks"] if not c["ok"]]
             require(checked["ok"], "refusing to launch a real host: preflight failed: " + "; ".join(failed))

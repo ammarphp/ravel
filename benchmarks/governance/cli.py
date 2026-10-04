@@ -12,18 +12,21 @@ clean probe through a real broker per arm, checked by treatment.behavioral_diff,
 fails) and ``incident-decision`` (a HUMAN reviewer records the decision on one run whose seal does
 not reconcile; outcomes then carry the evaluator's null-judgment row for it).
 
-Real host (the synthetic engineering smoke with the Claude Code CLI; configuration, procedure and stop
-rules in docs/development/evaluation-study/smoke-request.md). Refused without ``RAVEL_EVAL_LIVE=1``:
-``build-live`` (freeze a campaign with a pinned CLI, a task subset, the budget owner's single-use
-approval and the host launch declaration; the credential file is only stat'ed), ``host-probe``
+Real host (the synthetic engineering smoke or pilot with the Claude Code CLI; configuration, procedure and
+stop rules in docs/development/evaluation-study/smoke-request.md and pilot-request.md). Refused without
+``RAVEL_EVAL_LIVE=1``: ``build-live`` (freeze a campaign with a pinned CLI, a task subset, the budget
+owner's single-use approval, a smoke's or a pilot's, which also binds the schedule seed and the broker
+limits, and the host launch declaration; ``--design-budget`` takes the per-run task limits from
+``registry.DESIGN_BUDGET``; the credential file is only stat'ed), ``host-probe``
 (HP-01..HP-13, non-model, no egress; ``--dry-start`` and ``--rehearse`` run the pinned binary with
 DUMMY credentials, the latter against a local mock API; ``--catalog-rates`` lets HP-13 accept the pinned
 binary's own catalog price entry when it equals the measured rates; it installs the same signal handlers
 as ``run``, and a probe launch whose census is unclean fails the record), ``preflight`` (PF-01..PF-14,
 every condition for a paid launch, stat-only for the credential) and ``run`` on a live campaign (it
 installs SIGHUP/SIGTERM handlers that interrupt the coordinator so its launch is killed by census, sets a
-hard core-file limit of 0, re-derives the stop rules of every sealed run before anything else, then
-requires preflight and the run-start credential validation, whose failure is a pause (exit 1,
+hard core-file limit of 0, re-derives the stop rules of every sealed run before anything else, censuses
+every lost probe or run launch by its record and refuses while one stays unclean, then requires
+preflight and the run-start credential validation, whose failure is a pause (exit 1,
 ``paused``, nothing journaled), and applies the stop rules after each sealed run; ``--limit N`` processes
 at most N unsealed assignments, a pause; once run 1 was launched no further run launches until
 ``go-no-go`` recorded a go (a hold: exit 1, ``held`` true); ``--only`` is refused; under
@@ -137,7 +140,8 @@ def cmd_run(args) -> dict:
         return {"ok": False, "paused": True, "error": str(exc)}
     stopped = result.get("stopped")
     out = {"ok": stopped is None and not result.get("held"), **result}
-    if (stopped is not None and stopped.get("rule") == "S2") or any(t["rule"] == "S2" for t in result["triggers"]):
+    if (stopped is not None and stopped.get("rule") == "S2") or any(t["rule"] == "S2" or t.get("action") == live.REVOKE
+                                                                    for t in result["triggers"]):
         out["action"] = live.REVOKE
     return out
 
@@ -152,11 +156,14 @@ def cmd_build_live(args) -> dict:
     pin = live.HostPin(adapter="claude_cli", executable=args.executable, executable_sha256=args.executable_sha256,
                        version=args.host_version, model=args.model, effort=args.effort)
     approval = Path(args.approval_file).read_bytes()
-    budget = {"usd_per_run": args.usd_per_run, "seconds_per_run": args.seconds_per_run,
-              "global_seconds_cap": args.global_seconds_cap}
-    for name in ("max_broker_ops", "max_fits", "max_stage_executions", "global_usd_cap"):
+    require(args.seconds_per_run is not None or args.design_budget,
+            "build-live: --seconds-per-run is required (or --design-budget, which sets it)")
+    budget = {"usd_per_run": args.usd_per_run, "global_seconds_cap": args.global_seconds_cap}
+    for name in ("seconds_per_run", "max_broker_ops", "max_fits", "max_stage_executions", "global_usd_cap"):
         if getattr(args, name) is not None:
             budget[name] = getattr(args, name)
+    if args.design_budget:   # E-205: the pilot's per-run task limits, exactly registry.DESIGN_BUDGET
+        budget = live.design_budget(budget)
     claude = {"max_turns": args.max_turns} if args.max_turns is not None else None
     credential = os.path.abspath(os.path.expanduser(args.credential_file))
     campaign_dir = live.build_live_campaign(
@@ -201,7 +208,7 @@ def cmd_live_checks(args) -> dict:
                "runs": checks, "stop": runner.read_stop(campaign_dir)}
         if args.costs:
             out["costs"] = live.costs(campaign_dir)
-    if any((c.get("stop") or {}).get("rule") == "S2" for c in checks):
+    if any((c.get("stop") or {}).get("rule") == "S2" or c.get("action") == live.REVOKE for c in checks):
         out["action"] = live.REVOKE
     return out
 
@@ -374,7 +381,8 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--only", action="append", help="a run_id to process (repeatable)")
     run.add_argument("--limit", type=int, help="process at most N unsealed assignments (a pause, not a stop)")
     run.set_defaults(func=cmd_run)
-    live_build = commands.add_parser("build-live", help="freeze a real-host synthetic smoke campaign (RAVEL_EVAL_LIVE=1)")
+    live_build = commands.add_parser("build-live", help="freeze a real-host synthetic smoke or pilot campaign "
+                                                        "(RAVEL_EVAL_LIVE=1)")
     for name in ("--store", "--campaign-id", "--created-utc", "--subjects-root", "--host-state-root", "--executable",
                  "--executable-sha256", "--host-version", "--model", "--effort", "--credential-file", "--approval-file"):
         live_build.add_argument(name, required=True)
@@ -382,13 +390,16 @@ def parser() -> argparse.ArgumentParser:
     live_build.add_argument("--schedule-seed", type=int, required=True)
     live_build.add_argument("--task", action="append", required=True, help="a family task id (repeatable)")
     live_build.add_argument("--usd-per-run", type=float, required=True)
-    live_build.add_argument("--seconds-per-run", type=float, required=True)
+    live_build.add_argument("--seconds-per-run", type=float, help="required unless --design-budget sets it")
     live_build.add_argument("--global-seconds-cap", type=float, required=True)
     live_build.add_argument("--global-usd-cap", type=float)
     live_build.add_argument("--max-broker-ops", type=int)
     live_build.add_argument("--max-fits", type=int)
     live_build.add_argument("--max-stage-executions", type=int)
     live_build.add_argument("--max-turns", type=int)
+    live_build.add_argument("--design-budget", action="store_true",
+                            help="take seconds_per_run, max_broker_ops, max_fits and max_stage_executions from "
+                                 "registry.DESIGN_BUDGET (the pilot's budget); an explicit one must equal it")
     live_build.set_defaults(func=cmd_build_live)
     probe = commands.add_parser("host-probe", help="HP-01..HP-13 for a live campaign (no model, no egress)")
     probe.add_argument("--campaign", required=True)

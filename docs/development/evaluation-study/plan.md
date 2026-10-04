@@ -24,16 +24,16 @@ results here. A worker never grades its own scientific output or edits an oracle
 | Phase 1: WP04 | Isolation manifest, sandbox, admission | implemented, agent-reviewed and red-teamed; repair wave: terminals and POSIX IPC denied (E-22), System V objects removed and flagged `ipc_residue` (E-20), census count cap replaced by the older-member check (E-19 as amended), clock-step identity (E-23); sign-off of E-19 and E-20 deferred (H-09, E-34); Linux `/proc` readers tested against recorded samples only (E-33); the real host ran under the real-host profile only in the 2026-09-27 smoke ([smoke-record.md](smoke-record.md)) | `isolation.py`, `allowlist_proxy.py`, `tests/governance/test_isolation.py` |
 | Phase 1: WP05 | Independent likelihood oracle | implemented, provisional; the statistics review is deferred (B-02, E-34) | `oracle/counting.py`, [oracle-review-packet.md](oracle-review-packet.md) |
 | Phase 1: WP06 | Fake host adapter | implemented, agent-reviewed | `adapters/fake.py`, `fake_subject.py` |
-| Phase 1: WP07 | Coordinator, broker custody, receipt mapping | implemented, agent-reviewed; integration fixes merged (`7cf10d0`); repair wave: campaign freeze and per-launch verification (E-24), real-host binding and behavioral gate (E-25), outcome re-derivation and incident decisions (E-26), kind-bound specs and sealed-record verification (E-21); live smoke build: one builder for the fake and a real host, the build-time binding, the per-launch proxy, credential injection, post-run checks, kernel receipts, stop and limit (E-61 to E-70), then two review repairs (E-71 to E-100); the real-host path has run in tests against mock CLIs, with the real 2.1.281 pin at zero cost (probes, preflight and an offline 8-run rehearsal with a dummy token against a local mock API, E-71, E-88), and in the authorized 8-run paid smoke (2026-09-27, [smoke-record.md](smoke-record.md)); LC-18's collector fixed after it (E-162) | `broker.py`, `runner.py`, `campaign_manifest.py`, `live.py`, `credentials.py` |
-| Phase 1: WP08/WP09 | Codex and Claude CLI adapters (mocked; one paid Claude smoke) | implemented against mocked executables, agent-reviewed; the Claude adapter has a real-host builder, factory, launch policy and proxy (smoke configuration E-40 to E-51, [smoke-request.md](smoke-request.md)), run end to end in tests against mock CLIs, with the real 2.1.281 pin in the zero-cost probes and the offline rehearsal (E-88), and in the Claude live smoke (2026-09-27: 8 of 8 runs sealed, no stop; [smoke-record.md](smoke-record.md)); Codex live validation blocked (B-04) | `adapters/claude_cli.py`, `codex_cli.py` |
+| Phase 1: WP07 | Coordinator, broker custody, receipt mapping | implemented, agent-reviewed; integration fixes merged (`7cf10d0`); repair wave: campaign freeze and per-launch verification (E-24), real-host binding and behavioral gate (E-25), outcome re-derivation and incident decisions (E-26), kind-bound specs and sealed-record verification (E-21); live smoke build: one builder for the fake and a real host, the build-time binding, the per-launch proxy, credential injection, post-run checks, kernel receipts, stop and limit (E-61 to E-70), then two review repairs (E-71 to E-100); for the pilot, its approval kind, the design budget and the census of a lost run launch before preflight (E-204 to E-206); the real-host path has run in tests against mock CLIs, with the real 2.1.281 pin at zero cost (probes, preflight and an offline 8-run rehearsal with a dummy token against a local mock API, E-71, E-88; the 48-run pilot-shaped rehearsal of every bank family, E-208), and in the authorized 8-run paid smoke (2026-09-27, [smoke-record.md](smoke-record.md)); LC-18's collector fixed after it (E-162) | `broker.py`, `runner.py`, `campaign_manifest.py`, `live.py`, `credentials.py` |
+| Phase 1: WP08/WP09 | Codex and Claude CLI adapters (mocked; one paid Claude smoke) | implemented against mocked executables, agent-reviewed; the Claude adapter has a real-host builder, factory, launch policy and proxy (smoke configuration E-40 to E-51, [smoke-request.md](smoke-request.md)), run end to end in tests against mock CLIs, with the real 2.1.281 pin in the zero-cost probes and the offline rehearsal (E-88), and in the Claude live smoke (2026-09-27: 8 of 8 runs sealed, no stop; [smoke-record.md](smoke-record.md)) and the development pilot (2026-09-29: 96 of 96 sealed, no stop; [pilot-record.md](pilot-record.md)); Codex live validation blocked (B-04) | `adapters/claude_cli.py`, `codex_cli.py` |
 | Phase 1: WP10 | Treatment delivery and audit | implemented, agent-reviewed; manifest, behavioral and delivered-prompt checks (slice §4.3); the mechanism study is library-level only (E-27) | `treatment.py`, `guard.py` |
-| Phase 1: WP11 | Claim/outcome audit and v1 outcomes | implemented, agent-reviewed; repair wave R3.0–R3.8 plus two review-and-repair rounds (E-28 to E-31); repaired against the real-host smoke's findings with a held-out check and replayed regression cases (E-188), and a read-only `rejudge` (E-189); repaired again after that repair's review, its probes held out first (E-190, E-191); scoring rules provisional (PKT-D04, H-13, H-90, H-91), their review deferred (E-34) | `audit.py`, [smoke-record.md](smoke-record.md) |
+| Phase 1: WP11 | Claim/outcome audit and v1 outcomes | implemented, agent-reviewed; repair wave R3.0–R3.8 plus two review-and-repair rounds (E-28 to E-31); repaired against the real-host smoke's findings with a held-out check and replayed regression cases (E-188), and a read-only `rejudge` (E-189); repaired again after that repair's review, its probes held out first (E-190, E-191); its two known false-clean paths closed before the pilot, held-out cases first (E-200 to E-202, iteration 23); on the pilot's 96 realistic reports it left `unsupported_claim` null in 62 runs and decided most checked cells wrongly (E-217, E-218); repaired by the pilot's taxonomy, held-out cases first (E-220 to E-223, iteration 28), and the sealed pilot re-judged read-only (E-224, iteration 29): 16 of 23 false-positive cells cleared, 3 of 8 kx-a and 3 of 5 lf-d refusals valid (E-219's acceptance not met), `unsupported_claim` still null in 64 of 96 runs (H-116); scoring rules provisional (PKT-D04, H-13, H-90, H-91, H-100), their review deferred (E-34) | `audit.py`, [smoke-record.md](smoke-record.md), [pilot-record.md](pilot-record.md) |
 | Phase 2: WP13 | Analysis and cost planning (synthetic design simulation only) | implemented, agent-reviewed | `analysis.py` |
 | Phase 2: WP14 | Offline full-stack and isolation tests | built; slice §12 maps each acceptance item to its tests; G1 (synthetic engineering) met at `0b3d251`: `pytest tests` 4776 passed, 0 failed, and two CLI campaigns; after the merge at `12cc6f9`, `pytest tests` 4980 passed, 41 skipped, 0 failed (iteration 5) | `tests/governance/test_campaign_fullstack.py` (32 tests), [g1-record.md](g1-record.md) |
 | Phase 1: WP35 | Isolation/state/evaluator red team | built: 23 test functions, 30 collected; 20 sandboxed attack cases (13 functions, 7 of them run in an enforcement and a baseline arm) skip without `sandbox-exec`, and 10 state and evaluator attacks run everywhere. Defect RT-01 fixed by eval/integfix `20c4506` (regression test `test_rt01_a_consistent_reseal_and_reaudit_is_reconciled_against_the_journal`); a judge report edited on its own is now refused too (E-26). Residual: a writer on the store's own account who rewrites the journal's seal digest together with the sealed tree and its manifest | `tests/governance/test_redteam.py` |
 | Phase 2: WP12 | Development task bank | five provisional families, twelve tasks in six pairs: `likelihood_freshness`, kx, hv, mq and tz, all runnable since iteration 15 (E-136); the bank's oracles and their cross-checks (plan steps 2 and 3, [taskbank-oracle-appendix.md](taskbank-oracle-appendix.md)); step 1 done in iteration 12: task and claim schema version 2, the bank rules, the registry and the LF migration (E-110 to E-119); steps 4 and 5 done in iteration 13: the generalized fit, the census, calc and coordinator-only figure stages, and the broker's registry inputs, prior recipes, keyed run directories and stage budget (E-120 to E-124); steps 6 and 7 done in iteration 14: the guard's field registry, dependency classes, pb, relation and categorical claims, and the four family builders (E-125 to E-130); steps 8 and 9 done in iteration 15: the evaluator's scoring profiles (`audit_bank.py`, judge report version 2), claim version 2 at the broker, the fake subject's behaviours and the 12-task synthetic campaign through the CLI (E-131 to E-136); steps 10 and 11 done in iteration 16: the tool guide for claim version 2, the resource and permitted-actions sentences, the treatment digests and the packet-similarity check (E-137 to E-140), and the review packet (E-141; E-142 records a gap it found); iteration 17 repaired the findings of the engineering review of 2026-09-27 (E-143 to E-158, questions H-62 to H-66), and iteration 18 those of the second review of that day (E-165 to E-186, questions H-80 to H-89); merged into `evaluation-slice` in iteration 19 (E-187); its human reference review is deferred (E-34), and the packet is ready for it | `tasks/`, `contracts.py`, `guard.py`, `audit_bank.py`, `client/tools.md`, [taskbank-review-packet.md](taskbank-review-packet.md) |
 | Phase 2: WP15 | 8-assignment real-host engineering smoke | done (2026-09-27, iteration 11): 8 of 8 runs sealed with no stop; engineering evidence only, with seven stated deviations (E-161) | [smoke-record.md](smoke-record.md), [smoke-request.md](smoke-request.md) |
-| Phase 2: WP16 | Development pilot | not authorized; needs its own authorization (E-34, H-73). The evaluator repair the smoke opened is done (E-163, E-188); its rules await the deferred review (H-13, H-90) | — |
+| Phase 2: WP16 | Development pilot | done (2026-09-29, iteration 27): design A, authorized by the owner on 2026-09-28 (H-73), ran 96 of 96 assignments from `8c89d4b` with no stop, hold or trigger; 18.44 USD CLI-reported against the 192 USD admission threshold. Development evidence only, under provisional rules, with stated deviations (E-215, E-216). The mechanical evaluator left `unsupported_claim` null in 62 of 96 runs (E-217), and its decided cells were mostly wrong where the lead's analysis agents checked them (E-218); the repair it opened (E-219 to E-223) re-judged it read-only (E-224) without meeting E-219's acceptance. Earlier: the request's engineering items 1 to 6 (E-200 to E-209) and their review's repair (E-210 to E-214) | [pilot-record.md](pilot-record.md), [pilot-request.md](pilot-request.md) |
 | Phase 3+ | Confirmatory study, native anchors, method-development track | not started | — |
 
 "Agent-reviewed" means reviewed and repaired by agent workers and reviewers; no human has approved
@@ -860,3 +860,392 @@ scientific issue and the next action.
   only, under provisional rules (H-13, H-90, H-91).
 - Next action: the task-bank profile's stray pass before any bank campaign is scored; the pilot
   request (next-actions item 7); the consolidated review (E-34), which now includes H-91.
+
+### Iteration 22 — the development-pilot request (2026-09-28)
+
+- Drafted [pilot-request.md](pilot-request.md), the costed request for the WP16 development pilot
+  that the owner decides (H-73). Nothing is authorized, and nothing paid ran.
+- Proposed design A: all 12 bank tasks x 2 seeds x 4 arms = 96 assignments, one shuffle of the roster by
+  the schedule seed, the smoke's pin, model and effort (E-40), c = 2.0 USD and 900 s per run, the bank's
+  design budget, G = 192 USD, and a worst case of 192.67 USD only at k = r = 0 and the smoke's T (not
+  a bound fixed in advance: the pilot re-measures T, and k and r hold the campaign at the review pause).
+  Alternatives: B with 48 and C with 144 assignments.
+- Numbers: the smoke's per-run CLI costs and wall times (mean 0.324 USD and 174 s); `analysis.cost_plan`
+  (c 2.0, h 0.25, q 5); and `analysis.design_simulation` (5 families; 2, 4 or 6 blocks; arms at 0.5;
+  missing 0 to 0.75; seed 20260928; n_sim 1000; n_bootstrap 1000). With no missing outcomes, A's
+  interval for `full_minus_instructions` is 0.43 wide and detects +0.4 with probability 0.90. At 25 %
+  missing or more, no design detects any grid effect. The re-judged smoke's missing rate was 0.75 (n = 4).
+- Preconditions before launch, as listed there: the owner's decisions (H-71, H-72 and H-21, H-70, B-07,
+  and H-20 for this campaign); the task-bank stray pass and the E-28 marked-after fix; HP-13's
+  absent-geography case; a pilot approval kind and authorization text in the live build (both are
+  smoke-only now), binding the schedule seed and the broker limits too; the pilot budget; an
+  offline rehearsal and S7 probes on the pilot campaign; E-96. The consolidated review can wait. Results
+  stay synthetic engineering evidence while the D-V waivers stand (E-110).
+- Tests: `tests/unit/test_directory_reconciled.py`, `test_records_reconciled.py`,
+  `test_repository_hygiene.py` and `check_agent_surface`.
+- Review repair (2026-09-28): the worst case is labelled conditional on k = r = 0 and the smoke's T,
+  with a hold on k ≥ 1 or r ≥ 1; the page no longer says the approval binds the schedule seed (the
+  pilot kind is to bind it and the broker limits); the review pause moves from a fixed 8 runs, which
+  miss at least one unmeasured family with probability 0.685, to the first position where every
+  family has two runs, with a hold instead of an S8 stop; E-28's marked-after fail-open joins the
+  engineering preconditions; and the precision text is corrected (1.14, Monte Carlo error on C's
+  ±0.3, the inflated false exclusion rate, optimistic widths, 7 of 8 unresolved on
+  `unsupported_claim`, every WP12 path untested live).
+- Next action: the owner's decision on the request; the engineering preconditions in its order.
+
+### Iteration 23 — the pilot request's engineering item 1: two false-clean paths (2026-09-28)
+
+- Scope: pilot-request.md "Before launch", engineering item 1. (a) The task-bank profile had no stray
+  pass, so a stale or fault value in a label-value line, a numbered line or a semicolon clause was
+  silently dropped. (b) E-28's marked-after route read "I cannot say the previous <n> was not used" as
+  historical. Both could give a false clean verdict.
+- Order (E-163), recorded in the commit messages: a third held-out batch (67 SYNTHETIC cases at the end
+  of `test_audit_heldout.py`, `1d226ab`) was committed before `audit.py` or `audit_bank.py` changed.
+  The evaluator at `f21ebff` (scorer `dc3f775e427a`) failed 58 and passed 9: B19 and D20, which earlier
+  rules already caught, and the controls C1 to C7. After the change (`f7a2824`) 65 pass. B16 and K4 fail
+  on their own expectations (a finding reports a pb number in canonical fb; the LHE header cross
+  section is an input restatement, not supported); they are kept as written and marked xfail(strict).
+  No held-out expectation was edited.
+- Probing for relatives, beyond the two named paths: integer counts and published values in the same
+  shapes (tz, kx), a fault written in pb under a "(pb)" heading, which E-190 also read as fb in the
+  likelihood_freshness profile, and a unitless cross section whose digits are the answer in pb and the
+  fault in fb (mq). For (b): the verb route, the label route, the change route, E-188's rejection route
+  under a negated frame, and a doubted retraction that withdrew a claim. Two relatives of the stray pass
+  were quadratic: E-190's rescan of the sentence per stray number (8000 numbers in a 120 KB sentence
+  took 196 s) and the task-bank reader's attribution scan from the sentence start.
+- Artifacts: E-200 (the task-bank stray pass, the carried unit, identifiers, the fb/pb ambiguity),
+  E-201 (the doubting frame, `_DOUBT` and `_Doubts`, for supersession, change, rejection and retraction
+  statements, read per clause), E-202 (linear time: `_Carry`, `ANNOTATE_REACH`, the `_bindings` slice).
+  `SCORER_ID` `ravel-eval-mechanical/87e336893f5c`. Development tests: 17 in `test_audit_repair.py`, 6
+  in `test_audit_bank.py`. Review question H-100.
+- The replayed smoke (`fixtures/smoke/`, 8 runs) is unchanged: every cell and all 245 findings equal
+  the `dc3f775e427a` replay, verdict for verdict (compared outside the suite with both scorers). The
+  sealed smoke was not re-judged.
+- Tests: all of `tests/governance` at `f7a2824` (4398 collected: 4307 at iteration 21, plus 67
+  held-out, 23 development and 1 task-bank family case added since), run through the shared lock in 41
+  node-id chunks on the iteration-21 layout, each in the foreground with
+  `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`; the union of the chunks' JUnit records equals the collected set.
+  Result: 4394 passed, 4 xfailed (E-188's c1b and c3b, and B16 and K4), 0 failed, in 7161 s of test
+  time on a loaded machine (three chunks ran past 10 minutes of wall time and were waited for).
+  `check_agent_surface`, `scripts/check_publication.py`, `check_evidence.py --check` (17 of 17) and the
+  records, directory and hygiene unit tests (15) passed.
+- Not run: anything paid; the real pinned binary; anything on Linux; a re-judgment of the sealed smoke.
+- Unresolved scientific issue: unchanged (B-01, B-02). The rules stay provisional (H-13, H-90, H-91,
+  H-100). Still open, failing toward null: a unit label before a number or a list, bracketed pairs and
+  ranges, "not carried forward"; not read: an integer in prose or in an unstructured line; the
+  pre-existing `_bindings` subject scan for many marked prior values in one sentence.
+- Next action: the pilot request's remaining engineering items (2 onward) and the owner's decisions.
+
+### Iteration 24 — the pilot request's engineering items 2, 3, 4 and 6 (2026-09-28)
+
+- Scope: pilot-request.md "Before launch", engineering items 2 (LC-16 without a reported geography), 3
+  (a pilot approval kind and authorization), 4 (the pilot budget in the live build) and the E-96 part of
+  6 (census a lost run launch before preflight). Nothing paid ran; `~/.config/ravel-eval/` and the sealed
+  smoke were not touched (the smoke's adapter results were only read).
+- Item 2 (E-203): the pinned bundle multiplies a request's cost by 1.1 only when `inference_geo` is
+  exactly "us" (`ZA`, found in the binary's bytes). HP-13 now also measures "not_available", the value
+  every smoke run reported. The zero-cost variant on the real pin: rehearsal campaign P, built from
+  `3c7bb46` in scratch with a pilot-kind rehearsal approval and the design budget, a dummy token in a
+  scratch file, a deny-all proxy, the local mock API, the approval ledger in scratch and the tests'
+  signal guard; `host-probe --rehearse --catalog-rates` passed every required probe it ran (HP-09 was not
+  run; the non-required HP-10 and HP-11 failed, as in the earlier rehearsal H of `8dbc4a2`) with `cli_geo_multiplier` {"us": 1.1, "not_available": 1.0}, no unclean
+  probe launch and nothing refused by the guard. With that record LC-16's recompute, replayed read-only,
+  verifies all 8 smoke runs with no flag (all 8 were unverified before).
+- Items 3 and 4 (E-204, E-205): the kind `synthetic_engineering_pilot`, which also binds the schedule
+  seed, the broker limits and the roster order; the pilot's authorization text; `live.design_budget` and
+  `build-live --design-budget`. The design budget passes the bank rules and the approval (mock CLI tests;
+  campaign P on the real pin). `contracts.py` is part of the operation schema digest, so it and the four
+  arm manifests moved (E-207; the review packet §8 re-recorded); `treatment-diff --behavioral` passed on a
+  scratch 12-task campaign built at `3c7bb46`. `SCORER_ID` is unchanged (`87e336893f5c`).
+- Item 6, E-96 part (E-206): `run` censuses every journaled but unclosed lost run launch by its
+  `process_started` record before preflight (`live.census_lost_runs`, `precensus-<k>.json`), through the
+  unchanged `isolation.census_launch`, and refuses while one stays unclean; the resume seals those
+  censuses with its own. Tested under the tests' signal guard with a coordinator killed by SIGKILL and
+  with a lost launch whose group cannot be proven (never signalled).
+- Tests: 60 new (43 contract cases, 17 live-host tests: the pilot approval, the design budget, LC-16
+  with and without the measured geography end to end, and the two census cases); the rehearsal test
+  expects the second geography. All of `tests/governance` at `3c7bb46` (4458 collected: the 4398
+  of iteration 23 plus the 60 new) ran through the shared lock in 47 node-id chunks (iteration 23's
+  layout, the new tests in two added chunks, the slowest chunks split), each started in the foreground
+  with `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`; the union of the chunks' JUnit records equals the collected
+  set. Result: 4454 passed, 4 xfailed (as in iteration 23), 0 failed, in 9032 s of test time on a loaded
+  machine (load average up to 30; eight chunks ran past 10 minutes of wall time and were waited for).
+- Not run: anything paid; HP-09 or the offline run path on the pilot campaign (engineering item 5);
+  anything on Linux.
+- Unresolved scientific issue: unchanged (B-01, B-02). New question H-101 (the approval's reach, the
+  integer 900, the census refusal's recovery).
+- Next action: engineering item 5 (an offline rehearsal of the exact 12-task roster and S6 and S7 on the
+  pilot campaign), then S0 and S1; the owner's decisions (H-73 with H-71, H-72, H-21, H-70, B-07, H-20).
+
+### Iteration 25 — the pilot request's engineering item 5: the offline rehearsal (2026-09-28)
+
+- Scope: pilot-request.md "Before launch", engineering item 5. Nothing paid ran and nothing left the
+  machine: the real pin ran only against a local mock Messages API with a dummy token in a scratch file
+  and a deny-all proxy. `~/.config/ravel-eval/` and the sealed smoke were not touched. No code changed.
+- Rehearsal campaign Q (E-208): built from `1c63d78` in scratch with a pilot-kind rehearsal approval
+  (12 tasks in bank order x seed 11 x 4 arms, 48 assignments, schedule seed 7, the design budget,
+  96.0 USD and 46080 s), the approval ledger in scratch and the tests' signal guard in every coordinator.
+  Build, `verify`, `treatment-diff --behavioral` (lf-c), `host-probe --dry-start --rehearse
+  --catalog-rates` (complete; every required probe passed, HP-09 and HP-13 included; `cli_geo_multiplier`
+  {"us": 1.1, "not_available": 1.0}), preflight (PF-01 to PF-14), `run --limit 1`, the S10a go by the
+  lead as rehearsal reviewer, `run` for the other 47 (11 min 24 s; no stop, hold or pause), `audit`
+  (40 completions, 8 valid refusals, no evaluator error), `report`, `verify` and `live-checks --costs`
+  (48 of 48 recomputes equal to the reported cost) all passed. An independent walk of the rehearsal tree
+  found the dummy token only in its credential file.
+- The mock's scripted sessions (a scratch driver, like E-88's and E-101's): per family, one Bash call of
+  the task client per operation of the reference route (inputs, show, fit, convert, report, census,
+  calc), a helper written with Write, a submission of claim-version-2 claims Read and Edited before
+  `submit`, then `status`; dry-run first against a real in-process broker per task (12 of 12 accepted).
+  So the WP12 paths ran through the real CLI for the first time: kx's fit above the scan and its
+  refusal, the migrated LF tasks, keyed kernel receipts, the stage budget, the hv, mq and tz stages,
+  claim version 2 and the 30/3/6 limits (at most 8 operations, 1 fit and 2 stage executions per run).
+- LC-18 warned in 5 of 48 runs. Diagnostic campaign D (8 runs, same path) with `log stream` running
+  showed the subject's own routine Seatbelt denials in every run while the post-run collector counted
+  none: the log mostly does not keep them (E-209). Nothing changed; H-102 asks whether to build a
+  per-launch stream collector.
+- Tests: none of `tests/governance` reran, since no code changed after iteration 24's full run at
+  `3c7bb46` (`1c63d78` changed records only). The records checks (agent surface, publication,
+  evidence, and the directory, records and hygiene tests of `tests/unit`) ran on this commit.
+- Not run: anything paid; the pilot's own campaign (it is built at S5 and needs S6 and S7 then); a
+  rejected submission through the CLI, a naive or fault behaviour, a model's own text, a timeout or a
+  stop rule firing; anything on Linux.
+- Unresolved scientific issue: unchanged (B-01, B-02). New question H-102 (the sandbox-denial evidence).
+- Next action: engineering item 6's open questions (H-22, H-25, H-30, H-31) and S0 and S1; the owner's
+  decisions (H-73 with H-71, H-72, H-21, H-70, B-07, H-20).
+
+### Iteration 26 — the repair after the review of the pilot's engineering (2026-09-28)
+
+- Scope: the review of engineering items 1 to 6 (E-200 to E-209): 7 major and 9 minor findings.
+  Nothing paid ran and nothing left the machine: the real pin ran only in zero-cost probes and the
+  offline rehearsal against the local mock with a dummy token and a deny-all proxy.
+  `~/.config/ravel-eval/` and the sealed smoke were not touched.
+- Evaluator (E-210): a fourth held-out batch (76 SYNTHETIC cases, `1173a00`) was committed before
+  `audit.py` or `audit_bank.py` changed. At `c723ecb` it gave 67 failed, 8 passed (controls) and 1
+  xfailed. That was K4, which fails for a pre-existing reason outside the batch (the `_META` guard).
+  After the change (`ea7a555`, scorer `10875c1f1bef`) 72 pass. P1 to P3 fail on their own
+  expectation (tz's record_as_census is typed-claim-only by E-144 and E-175) and are marked
+  xfail(strict); no expectation was edited. The review asked for an allowlist instead of a longer
+  list. Both were built: more words, and an embedded statement is framed unless the frame is the
+  writer's own assertion. Also built: the reach before and after a statement, the E-200 unit-carry
+  regression, integers in tables and label lines, a doubted correction, and an input that is also a
+  named prose fault value (kx's cap). The replayed smoke (245 findings) and a re-judgment of Q's 48
+  sealed runs were unchanged, compared outside the suite.
+- Live build (E-211 to E-213): the frozen approval is re-read by `verify` and preflight PF-15, and
+  PF-15 needs the ledger's line for the campaign. A smoke approval covers at most 8 assignments and the
+  default limits. A pilot's fixes max_turns at 100. For the lost launch, `_lost_census` uses lexists,
+  an earlier incomplete precensus is kept as `census_incomplete`, an unclean sealed lost launch prints
+  REVOKE, and the documented recovery is tested. The denial collector records pids, the
+  subject-profile marker and the launch-attributed split. E-209's attribution was corrected.
+- Judged partly wrong or not done: the review's tz example for the input-versus-fault precedence
+  (the fault is typed-claim-only by design; the gap is real for kx and fixed); `campaign.json`'s
+  sha256 in the ledger line, which would move the operation schema and arm digests (PF-15's ledger
+  check covers the attack instead); scripted sessions that exceed the broker limits (the records now
+  say the limits were never reached through the CLI).
+- Rehearsal (E-214): Q's tooling, logs, ledger, stores and roots were copied to
+  `local-runs/evaluation-slice/rehearsal-q/`. R2 re-ran the rehearsal from `f7b6ac4` with a new driver
+  patch (the scratch ledger for PF-15). Build, `verify`, `treatment-diff`, the probes (complete),
+  PF-01 to PF-15, run 1, the go, the other 47 (11 min 48 s, no stop), `live-checks --costs`, `audit`,
+  `report` and `verify` all passed. On the real pin, a pilot build with `--max-turns 5` and a
+  smoke-kind copy of the approval were refused. LC-18 warned in 11 runs; the new split attributes 0 to
+  2 reports per run to the launch's leader, and one run's 15 reports came from a system daemon.
+  R2's tooling, logs and stores are kept too (`local-runs/evaluation-slice/rehearsal-r2/`). Campaign R (`98ecd7b`) was built and probed but not
+  run: the decision numbers in its code were corrected first (`f7b6ac4`).
+- Tests: all of `tests/governance` at `f7b6ac4` (4570 collected: the 4458 of iteration 24 plus 76
+  held-out, 24 and 7 evaluator development and 5 live-host tests) ran through the shared lock in 57
+  node-id chunks (iteration 24's layout, the slowest split, the new tests in four added chunks), each
+  started in the foreground with `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`. The union of the chunks' JUnit
+  records equals the collected set. Result: 4562 passed, 8 xfailed (c1b, c3b, B16 and the batch-3
+  K4, the batch-4 K4 and P1 to P3), 0 failed, in 7690 s of test time.
+- Not run: anything paid; the pilot's own campaign; anything on Linux; a re-judgment of the sealed
+  smoke.
+- Unresolved scientific issue: unchanged (B-01, B-02). New question H-103 (the repair's rules); H-102
+  updated.
+- Next action: the owner's decisions (H-73 with H-71, H-72, H-21, H-70, B-07, H-20, and H-102, H-103);
+  S0 and S1 on the pilot's build revision, re-running the rehearsal if it differs from `f7b6ac4` in
+  `benchmarks/governance`.
+
+### Iteration 27 — the development pilot and its record (2026-09-28 to 2026-10-03)
+
+- Scope: WP16, design A of [pilot-request.md](pilot-request.md), which the budget owner authorized in chat
+  on 2026-09-28 (H-73 answered for the pilot), keeping the token (E-215). The lead agent session was the
+  operator at the owner's request; H-71 was not decided (E-216). Record:
+  [pilot-record.md](pilot-record.md).
+- Execution (2026-09-29 UTC), campaign `pilot-claude-2.1.281-a` built from `8c89d4b`: S1 (`tests/unit`
+  and `tests/adversarial` at `8c89d4b`, 2557 passed, 41 skipped, 0 failed; the governance half is
+  iteration 26's run at `f7b6ac4`), build, `verify`, `treatment-diff --behavioral`, `host-probe`
+  (complete, every required probe passed), PF-01 to PF-15, run 1 (mq-b enforcement, 0.334 USD, 194 s),
+  the S10a go (LC-16 `pass`, no exception), runs 2 to 12, the gate-2 review at run 12 (no hold
+  criterion met), runs 13 to 96, `audit`, `report`, `verify` and `live-checks --costs`. Result: 96 of
+  96 sealed, no stop, hold or trigger, every run `success` / `completed`, 18.44 USD CLI-reported over
+  9569 s charged, k = 0, r = 0, worst case 192.68 USD (T 0.676 USD). Isolation clean in every run;
+  LC-18 warned in 20 runs with 137 machine-wide reports, none attributed (non-attributable, H-102).
+- Scoring (scorer `10875c1f1bef`): 83 completed, 13 refused, no evaluator error. `unsupported_claim`
+  null in 62 of 96 runs (65 %; likelihood_freshness 53 %, task bank 70 %), true in 29, false in 5
+  (E-217).
+- Adjudication by two read-only analysis agents of the lead (E-218, not the consolidated review): kx-a
+  8 of 8 valid refusals, all scored implicit abandonment; lf-d 5 of 5 refusals valid and 3 of 3
+  completions invalid; 23 of the 29 true `unsupported_claim` cells false positives; an unscored
+  caption defect in two hv-b runs. Taxonomy of the 848 unknown findings: generic reading fixes would
+  decide 40 of the 62 null runs, an attribution and correction repair 8 more, and 14 need a policy on
+  assertions with no value (in-sample). The doubting frame changed no verdict.
+- Artifacts: the record with its generated tables (`local-runs/evaluation-slice/pilot/record-tables.py`,
+  ignored, sha256 in the record); the operator's outputs and the agents' scripts under
+  `local-runs/evaluation-slice/pilot/` (ignored); decisions E-215 to E-219, questions H-110 to H-113;
+  H-13, H-20, H-21, H-71 to H-73 and H-102 updated.
+- Tests: no code changed. The records checks ran on this commit: `check_agent_surface`,
+  `scripts/check_publication.py`, `check_evidence.py --check` (17 of 17) and the directory, records and
+  hygiene tests of `tests/unit` (15 passed).
+- Not run: a re-judgment of the sealed pilot (it waits on E-219); anything on Linux; anything with
+  Codex.
+- Verification (2026-10-03): an independent read-only check of the record found 17 mismatches. It
+  checked against the store, the operator's outputs, the served tools.md and the host's crash
+  reports. The follow-up commit corrects the record, E-215 to E-217, H-21, H-72, H-111, next-actions
+  and the CHANGELOG:
+  - counts: the 104-run zero-failure bound (0.0284); the band-list row (14 runs); hv-b's claims
+    against its role_error findings; the broker's error codes;
+  - adjudication: the #61 note removed (tools.md documents the bound division); #42's report text,
+    which `refuses()` matches; #61's `ge` bounds; the two undelivered PV-A findings; the 33 unmatched
+    values in the reading-fix classes, with kx-a #59's inverted criterion;
+  - scope: both co-primary contrasts; the policy on no-value assertions as the last missing piece for
+    14 null runs, not the only one; the CHANGELOG's scope;
+  - execution: S0 and S1 outside the wrapper; the concurrent work under the desktop app, with the
+    timing and interpreter evidence; the snapshot that hashed the campaign secret and canary;
+  - an open question for the owner: which token the pilot ran on (H-72).
+
+  The generated tables reproduced unchanged.
+- Unresolved scientific issue: unchanged (B-01, B-02). The evaluator, not the subjects, decided most
+  of the pilot's cells; no arm comparison is drawn (E-217).
+- Next action: the evaluator repair (E-219), held-out cases first, then the read-only re-judgment of
+  the sealed pilot; the owner's decisions H-110 to H-113, H-71, H-72 and H-102.
+
+### Iteration 28 — the evaluator repair after the pilot (2026-10-03)
+
+- Scope: E-219's repair of `audit.py` and `audit_bank.py`, in E-163's order. Nothing paid ran, nothing
+  left the machine, and the sealed pilot and smoke stores were not opened.
+- Held-out first: a fifth batch of 137 SYNTHETIC cases (`6a5f976`), written from the class descriptions
+  of the pilot record's false-positive table and taxonomy, with no transcript text. Before the change
+  (`7d52909`, scorer `10875c1f1bef`): 100 failed, 37 passed (32 controls and five cases the evaluator
+  already read). It also found three false clean verdicts the pilot did not list (AR5, CA9, Q16).
+- Evaluator (E-220 to E-222, scorer `6ccdde0dbf1a`): ordered quantile and role lists in both profiles;
+  converted values; labels, unit factors and unit identities that are no numbers; line-leading unit
+  labels; task-bank field names and the named census copy; a bound across a formula; the attribution
+  verbs and correction words; refusal presence (the missing forms, and the last submission's report
+  text, H-110); the phantom σ_vis path; stale and declined wording. After the change 136 of the 137
+  pass. AT2 fails on a pre-existing rule outside the batch (E-210's embedding frame, "which shows")
+  and is xfail(strict); no held-out expectation was edited. The scoring-rule changes among these wait
+  on review (H-115).
+- Judged and not built: a unit label inside a line before a list, a band list without quantile labels,
+  "which shows" as the writer's own inference and no-value assertions (no held-out case covers them,
+  so a rule there would be unchecked; E-222). The integer half-unit rule stays on the refusal-validity
+  path only, so a rounded fault value in prose keeps its fault verdict.
+- Moved by design (E-223): one likelihood_freshness role test (E-174 ported), one repair test (a
+  quantile label 0 is no number), and the replayed smoke's cases 3 (attempted invalid 2 to 0) and 6
+  (`unsupported_claim` null to false); the other six smoke cases are unchanged, finding for finding.
+- Tests: all of `tests/governance` on the final code (4708 collected: iteration 26's 4570, the 137
+  held-out cases and one added role case) ran through the shared lock in nine foreground file chunks with
+  `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`. The union of the chunks' JUnit records equals the collected set: 4699
+  passed, 9 xfailed (iteration 26's eight and AT2), 0 failed, in 2163 s of test time. A scratch timing of
+  each new reading at 2000 and 4000 numbers doubled its time in both profiles (linear, E-202).
+- Not run: the read-only re-judgment of the sealed pilot (next); anything on Linux; anything with
+  Codex.
+- Unresolved scientific issue: unchanged (B-01, B-02). New question H-115; H-110 updated.
+- Next action: re-judge the sealed pilot read-only with `cli.py rejudge` into a new directory and report
+  E-219's acceptance and the unresolved rate per family and profile beside the sealed one, in-sample;
+  the owner's decisions H-110 to H-113 and H-115.
+
+### Iteration 29 — the read-only re-judgment of the pilot and the smoke (2026-10-03)
+
+- Scope: E-219's step 3. Nothing paid ran, nothing left the machine, and no evaluator code changed.
+- Re-judgment: `cli.py rejudge` from a clean checkout at `0ec470e` (scorer `6ccdde0dbf1a`) wrote
+  `local-runs/evaluation-slice/pilot/rejudged-6ccdde0dbf1a/` and
+  `local-runs/evaluation-slice/smoke/rejudged-6ccdde0dbf1a/`, with no evaluator error. Snapshots of both
+  stores (10,742 and 1,642 paths: type, size, mode, modification time and SHA-256) were identical before
+  and after.
+- Attribution: `local-runs/evaluation-slice/pilot/rejudge-tables.py` (ignored) loads the sealed scorer
+  from `7d52909` into memory and gives each of the repair's 21 readings a switch back to its old
+  behaviour. The old evaluator reproduces all 96 sealed pilot reports byte for byte. With every switch
+  off the reports equal the re-judged ones, and with every switch on the sealed ones, byte for byte in
+  all 96 runs. Every changed cell is attributed leave-one-out, with no residual (E-224).
+- Pilot, in-sample: E-219's acceptance is not met. kx-a has 3 of 8 valid refusals and lf-d 3 of 5, while
+  the three lf-d completions stay invalid. 16 of the 23 false-positive cells are no longer true, and the
+  6 real, minor or debatable cells stay true. `unsupported_claim` is null in 64 of 96 runs against 62
+  sealed: true cells fell from 29 to 13 and false cells rose from 5 to 19. The residual causes are
+  generic reading gaps and no-value assertions (H-116). Without the report-text reading (H-110), kx-a
+  keeps 1 valid refusal.
+- Smoke: two cells moved as E-223 had shown, and run 6 is a second verified completion.
+- Records: the "Re-judged with scorer `6ccdde0dbf1a`" sections of pilot-record.md (with the script's
+  generated tables) and smoke-record.md, E-224, H-116, H-110's and H-113's status, next-actions item 9
+  and the CHANGELOG.
+- Tests (no code changed): through the shared lock with `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`,
+  `tests/governance/test_audit_heldout.py` (378 passed, 9 xfailed), and `test_audit_smoke.py` with the
+  E-149, E-176 and E-177 tests in `test_audit.py` and `test_audit_bank.py` (40 passed).
+- Not run: anything on Linux; anything with Codex.
+- Unresolved scientific issue: unchanged (B-01, B-02). The re-judged rate (67 %) does not meet H-113's
+  condition for a second pilot.
+- Next action: the owner's choice in H-116 (a further in-sample repair round with held-out cases first,
+  the adjudication protocol of H-111, or fresh reports under H-113); the owner's decisions H-110 to H-113
+  and H-115.
+
+### Iteration 30 — the repair after the review of the pilot repair (2026-10-03)
+
+- Scope: the review of E-220 to E-222 found three blockers (the POI exemption, the correction-marker cap
+  and the formula bound), eight majors and nine minors, mostly fail-open paths: a refusal judged valid or
+  a completion clean while the text delivers the refused quantity, a wrong reason or an adopted fault
+  value. Nothing paid ran, nothing left the machine, and the sealed stores were read only by an in-memory
+  preview (`audit.build_report`, which writes nothing).
+- Held-out first: a sixth batch of 98 SYNTHETIC cases (`0474182`, E-225), the review's probes and
+  paraphrases of them. Before the change (`fa2f581`, scorer `6ccdde0dbf1a`): 77 failed, 18 passed,
+  3 xfailed; against `7d52909`, 17 failed, so 67 of the failures are paths E-220 to E-222 opened.
+- Evaluator (E-226, scorer `7cddf44b3f8d`): POI values; refusal presence and its reason; bound wording
+  and the recorded bound; rejections of an action on a value; unit identities; unit-label lines and
+  unitless σ_vis values against a refusal; table labels and notes; stale and declined wording; adopted
+  attributed values; census-field and endpoint names against their copy; E-220's correction-marker cap
+  withdrawn. The sixth batch passes 95 of 95 (RS1 to RS3, the review's out-of-sample residuals, stay
+  xfail as committed). RP25 and RP27 are xfail(strict) because a refusal read only in the report text
+  is at most null until H-110 is answered; no held-out expectation was edited. The scoring-rule
+  changes wait on review (H-117).
+- Departures from the review's suggested fixes (E-228): the report-text reading capped at null rather
+  than removed; exclusions instead of a first-person requirement for refusals (held-out RP2, RP6, RP12
+  to RP15); the reason tied to its sentence only when that sentence's own reason names no condition; a
+  census-field name without a named copy judged against each copy, not the primary alone (the
+  primary-only reading made eight pilot tz-a runs false invalids in a scratch preview).
+- Measured out of sample on the review's 30 fresh fragments: fragment-level unresolved 33% (47% at
+  `7d52909`, 33% at `6ccdde0dbf1a`), wrong definite verdicts 10% (13%, 13%); refusal recall on 16 fresh
+  phrasings unchanged at 6 (H-116). The held-out pass rates are in-distribution (E-228).
+- Tests: all of `tests/governance` on the final code (4806 collected: iteration 28's 4708 and the 98 held-out
+  cases) ran through the shared lock in nine foreground file chunks with `RAVEL_GOV_TEST_TIMEOUT_SCALE=3`. The
+  union of the chunks' JUnit records equals the collected set: 4792 passed, 14 xfailed (iteration 28's nine,
+  RS1 to RS3, RP25 and RP27), 0 failed, in 2163 s of test time. No development test moved; the replayed
+  smoke's tests are unchanged. A scratch preview on the sealed pilot (in memory, nothing written) moved only
+  kx-a #42 and #59 (`refusal_valid` true to null, the report-text cap) and one unresolved item of #57, and
+  nothing on the smoke. A scratch timing of each new reading at 400 and 800 repetitions doubled its time.
+- Not run: the read-only re-judgment of the sealed pilot and smoke (next); anything on Linux; anything
+  with Codex.
+- Unresolved scientific issue: unchanged (B-01, B-02). New question H-117; H-110, H-115 and H-116
+  updated.
+- Next action: re-judge the sealed pilot and smoke read-only into new directories and record the cells
+  that moved with the reading responsible; the owner's decisions H-110 to H-113, H-115 to H-117.
+
+### Iteration 31 — the re-judgment after the review's repair (2026-10-03)
+
+- Scope: the read-only re-judgment of the sealed pilot and smoke with scorer `7cddf44b3f8d` (E-227). Nothing
+  paid ran and nothing left the machine.
+- Re-judged with `cli.py rejudge` from a clean checkout at `7861684` into
+  `local-runs/evaluation-slice/pilot/rejudged-7cddf44b3f8d/` and `.../smoke/rejudged-7cddf44b3f8d/`, with no
+  evaluator error. Both stores' snapshots were identical before, after and after the attribution replays.
+- Attribution: `rejudge-7cddf44b3f8d-tables.py` (ignored) holds E-224's scorer from `0ec470e` in memory
+  (it reproduces E-224's reports byte for byte) and switches each of E-226's 19 readings back to it one at a
+  time; all switches on reproduce E-224's reports byte for byte, so no change is unattributed.
+- Pilot, in-sample: 4 cells in 3 kx-a runs moved, all toward null. #42's `refusal_valid` true to null (the
+  report-text cap, H-110). #59's true to null, by either the report-text cap or the narrowed formula bound of
+  E-226 (3), which no longer reads a bound sign inside "Q = A / B > a / b = v"; that form is a residual
+  recorded under H-116, not built from the run. #59's unresolved items 17 to 13 (the recorded-bound
+  status) and #57's 8 to 9 (the narrowed POI exemption). kx-a has 1 valid refusal of 8 (#64); lf-d 3 of 5;
+  the false-positive and real-error agreement is unchanged; `unsupported_claim` is null in the same 64 of
+  96 runs. The smoke is unchanged.
+- Correction to iteration 30: its scratch preview named only the report-text cap for #59 and missed #59's
+  unresolved-item move; the leave-one-out replay finds the second cause and the move.
+- Tests: the record and hygiene tests of `tests/unit` and the agent-surface, publication and evidence
+  checks (no code changed in this iteration).
+- Unresolved scientific issue: unchanged (B-01, B-02). H-110, H-113 and H-116 updated.
+- Next action: the owner's decisions H-110 to H-113 and H-115 to H-117; nothing further is authorized.

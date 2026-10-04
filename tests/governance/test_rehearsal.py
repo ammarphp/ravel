@@ -271,7 +271,11 @@ def test_a_clean_rehearsal_passes_every_required_check(tmp_path):
     assert checks["a.no_token_copy_mid_run"]["ok"] is True and checks["a.cache_ttl_not_1h"]["ok"] is True
     assert checks["a.cache_ttl_not_1h"]["detail"]["cache_ttls"] == ["5m"]
     assert record["settings"]["bash_cwd_reset"]["outcome"] == rehearsal.EFFECTIVE
-    assert record["cli_geo_multiplier"] == {"us": 1.1}
+    # E-203: "us" (x1.1 in the 2.1.281 bundle, as in the mock) and "not_available", the value the smoke's usage reported
+    assert record["cli_geo_multiplier"] == {"us": 1.1, "not_available": 1.0}
+    assert checks["d.geo_multipliers"] == {"id": "d.geo_multipliers", "required": False, "ok": True,
+                                           "detail": {"measured": {"us": 1.1, "not_available": 1.0}}}
+    assert record["sessions"][f"pricing:{MODEL}:input_tokens:geo_not_available"]["requests"]
     assert token not in json.dumps(record)
     assert record["sessions"]["tool_path"]["init"]["apiKeySource"] == "none"
     assert time.monotonic() - started < 240

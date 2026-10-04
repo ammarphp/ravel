@@ -30,9 +30,12 @@ Sessions (each a fresh workspace, HOME, config and tmp directory, and session id
   for the pinned model and for the unknown control id ``claude-ravel-unknown-0``; the CLI's total is its rate per
   million tokens. Required: the pinned model's rates differ from the control's (an unknown model is priced at a
   fallback, never zero: F12), unless the caller located the pin's catalog entry in the pinned binary and it equals
-  the measured rates exactly (H-27). Recorded as cli_price_per_mtok. One more session reports 1,000,000 input
-  tokens with ``inference_geo`` "us": the ratio to the plain input session is recorded as cli_geo_multiplier (the
-  2.1.281 bundle multiplies a "us" request's cost; LC-16 applies the measured ratio).
+  the measured rates exactly (H-27). Recorded as cli_price_per_mtok. One more session per geography in GEOS
+  reports 1,000,000 input tokens with that ``inference_geo``: "us" (the 2.1.281 bundle multiplies a "us" request's
+  cost) and "not_available" (what the service reported in every smoke run, E-203). The ratio of each to the plain
+  input session is recorded in cli_geo_multiplier ({geo: ratio}); LC-16 applies the ratio measured for the one
+  geography a run's usage reports. A geography whose ratio cannot be measured is left out (LC-16 then warns),
+  and the non-required check d.geo_multipliers records which were measured.
 - ``budget`` (c): turns whose usage crosses the per-run cap on a known turn (sized from the measured input and
   output rates, at most BUDGET_TURN_CEILING tokens per turn so no turn approaches a context window and triggers a
   compaction). Required: error_max_budget_usd after at most one more answered request.
@@ -79,7 +82,10 @@ INIT_FLAGS = ("no_init_event", "init_unverified", "init_model_mismatch", "init_t
               "init_permission_mode_mismatch", "init_api_key_source_unexpected", "init_version_mismatch",
               "init_tools_unrecognized", "plugins_present", "mcp_servers_present", "init_skills_unexpected",
               "init_agents_unexpected")
-GEO = "us"                                 # the inference geography whose cost multiplier the pricing sessions measure
+# The inference geographies whose cost multiplier the pricing sessions measure (E-76, E-203): "us", which the 2.1.281
+# bundle prices at 1.1 (``ZA``: 1.1 when inference_geo is exactly "us", else 1), and "not_available", the value the
+# service reported in every smoke run.
+GEOS = ("us", "not_available")
 MIDRUN_SCAN = "midrun-token-scan.txt"      # session (a): files under the host state holding the dummy token, mid-run
 CWD_AFTER = "cwd-after-cd.txt"             # session (b): the Bash tool's working directory one command after a cd
 BASH_PYTHON = "bash-python.txt"            # session (a): which python3 the Bash tool's PATH resolves, and its version
@@ -491,7 +497,7 @@ def rehearse(host, mock_module, *, pinned_model, effort, tools, cap_usd, max_ret
             result = launch(planted_rc_session(mock_module, ctx), ctx)
             _planted_checks(checks, result, record_sessions["planted_rc"], ctx)
             settings["bash_cwd_reset"] = _cwd_outcome(ctx)
-        geo_multiplier = None
+        geo_multipliers = None
         if "pricing" in wanted:
             for model in (pinned_model, CONTROL_MODEL):
                 for kind in PRICE_KINDS:
@@ -501,11 +507,16 @@ def rehearse(host, mock_module, *, pinned_model, effort, tools, cap_usd, max_ret
                     rates.setdefault(model, {})[kind] = reported
             eligible, detail = pricing_eligibility(rates, pinned_model, catalog_rates)
             check(checks, "d.pricing_differs_from_unknown", eligible, detail)
-            ctx = host.prepare("pricing-geo")
-            launch(pricing_session(mock_module, "input_tokens", pinned_model, geo=GEO), ctx)
-            geo_multiplier = _geo_multiplier(
-                record_sessions[f"pricing:{pinned_model}:input_tokens:geo_{GEO}"]["reported_total_cost_usd"],
-                (rates.get(pinned_model) or {}).get("input_tokens"))
+            measured = {}
+            for geo in GEOS:
+                ctx = host.prepare(f"pricing-geo-{geo}")
+                launch(pricing_session(mock_module, "input_tokens", pinned_model, geo=geo), ctx)
+                measured[geo] = _geo_multiplier(
+                    record_sessions[f"pricing:{pinned_model}:input_tokens:geo_{geo}"]["reported_total_cost_usd"],
+                    (rates.get(pinned_model) or {}).get("input_tokens"))
+            geo_multipliers = {g: m for g, m in measured.items() if m is not None}
+            check(checks, "d.geo_multipliers", len(geo_multipliers) == len(GEOS), {"measured": measured},
+                  required=False)
         if "budget" in wanted:
             usage, per_turn_cost, crossing = budget_usage(cap_usd, rates.get(pinned_model) or {})
             ctx = host.prepare("budget")
@@ -532,7 +543,7 @@ def rehearse(host, mock_module, *, pinned_model, effort, tools, cap_usd, max_ret
               "api_key_source_checked": credential_mode == "oauth", "pinned_model": pinned_model,
               "effort": effort, "cap_usd": cap_usd, "checks": checks, "sessions": record_sessions,
               "cli_price_per_mtok": rates, "pricing_eligible": None, "settings": settings,
-              "cli_geo_multiplier": None if geo_multiplier is None else {GEO: geo_multiplier},
+              "cli_geo_multiplier": geo_multipliers or None,
               "catalog_rates": catalog_rates, "mock_sha256": _module_sha256(mock_module)}
     pricing = next((c for c in checks if c["id"] == "d.pricing_differs_from_unknown"), None)
     record["pricing_eligible"] = None if pricing is None else pricing["ok"]
@@ -631,7 +642,7 @@ def _cwd_outcome(ctx) -> dict:
 
 
 def _geo_multiplier(geo_cost, input_rate):
-    """The CLI's cost of 1,000,000 input tokens reported with inference_geo "us" over its plain input rate, or None."""
+    """The CLI's cost of 1,000,000 input tokens reported with one inference_geo over its plain input rate, or None."""
     if not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in (geo_cost, input_rate)) \
             or input_rate <= 0:
         return None

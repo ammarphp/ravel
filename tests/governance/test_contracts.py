@@ -1644,11 +1644,27 @@ def smoke_approval(**changes):
     return record
 
 
+def pilot_approval(**changes):
+    """A SYNTHETIC pilot approval (E-204): the smoke's fields plus the schedule seed and the broker limits."""
+    record = smoke_approval()
+    record.update(kind=contracts.PILOT_APPROVAL_KIND, schedule_seed=20260928,
+                  broker_limits={"max_broker_ops": 30, "max_fits": 3, "max_stage_executions": 6})
+    for path, value in changes.items():
+        target = record
+        *parents, last = path.split(".")
+        for key in parents:
+            target = target[key]
+        target[last] = value
+    return record
+
+
 LIVE_RECORDS = {"host_launch": (host_launch, contracts.validate_host_launch),
-                "smoke_approval": (smoke_approval, contracts.validate_smoke_approval)}
+                "smoke_approval": (smoke_approval, contracts.validate_smoke_approval),
+                "pilot_approval": (pilot_approval, contracts.validate_smoke_approval)}
 LIVE_NESTED = {"host_launch": [(), ("binary_access",), ("proxy",), ("credential",), ("claude",)],
                "smoke_approval": [(), ("scope",), ("scope", "host"), ("caps",), ("credential",),
-                                  ("account_preconditions",), ("decisions",)]}
+                                  ("account_preconditions",), ("decisions",)],
+               "pilot_approval": [(), ("scope",), ("caps",), ("broker_limits",)]}
 
 
 @pytest.mark.parametrize("record", list(LIVE_RECORDS))
@@ -1688,6 +1704,8 @@ def test_live_record_field_lists_are_the_builders_keys():
     assert tuple(host_launch()) == contracts.HOST_LAUNCH_FIELDS
     assert tuple(host_launch()["claude"]) == contracts.HOST_LAUNCH_CLAUDE_FIELDS
     assert tuple(smoke_approval()) == contracts.SMOKE_APPROVAL_FIELDS
+    assert tuple(pilot_approval()) == contracts.PILOT_APPROVAL_FIELDS
+    assert tuple(pilot_approval()["broker_limits"]) == contracts.BROKER_LIMIT_FIELDS
     assert tuple(smoke_approval()["scope"]["host"]) == contracts.SMOKE_HOST_FIELDS
 
 
@@ -1773,6 +1791,37 @@ def test_host_launch_accepts_a_copied_app_and_scrub_on():
 def test_smoke_approval_types_and_rules(change, match):
     with pytest.raises(ContractError, match=match):
         contracts.validate_smoke_approval(smoke_approval(**change))
+
+
+@pytest.mark.parametrize("change, match", [
+    ({"schedule_seed": -1}, "nonnegative integer"), ({"schedule_seed": True}, "nonnegative integer"),
+    ({"schedule_seed": 7.0}, "nonnegative integer"), ({"schedule_seed": "7"}, "nonnegative integer"),
+    ({"broker_limits.max_fits": 0}, "positive integer"), ({"broker_limits.max_fits": True}, "positive integer"),
+    ({"broker_limits.max_broker_ops": 30.0}, "positive integer"),
+    ({"broker_limits.max_stage_executions": None}, "positive integer"),
+    ({"broker_limits": [30, 3, 6]}, "expected object"),
+    ({"kind": "synthetic_engineering_campaign"}, "unknown fields"),   # the pilot's fields under another kind
+    ({"scope.assignments": 4}, "tasks x seeds x arms"),                # the smoke's rules hold for a pilot
+    ({"spend_envelope": "the global cap is a ceiling"}, "SMOKE_SPEND_ENVELOPE"),
+])
+def test_pilot_approval_types_and_rules(change, match):
+    contracts.validate_smoke_approval(pilot_approval())
+    with pytest.raises(ContractError, match=match):
+        contracts.validate_smoke_approval(pilot_approval(**change))
+
+
+def test_only_a_pilot_approval_holds_the_schedule_seed_and_broker_limits():
+    smoke = smoke_approval()
+    smoke.update(schedule_seed=7, broker_limits={"max_broker_ops": 30, "max_fits": 3, "max_stage_executions": 6})
+    with pytest.raises(ContractError, match="unknown fields"):
+        contracts.validate_smoke_approval(smoke)
+    bare = smoke_approval(kind=contracts.PILOT_APPROVAL_KIND)
+    with pytest.raises(ContractError, match=r"missing fields \['broker_limits', 'schedule_seed'\]"):
+        contracts.validate_smoke_approval(bare)
+    for kind in ("synthetic_engineering_pilot ", "empirical_pilot", None):
+        with pytest.raises(ContractError, match="kind"):
+            contracts.validate_smoke_approval(smoke_approval(kind=kind))
+    assert contracts.APPROVAL_KINDS == ("synthetic_engineering_smoke", "synthetic_engineering_pilot")
 
 
 def test_keeping_the_token_needs_a_recorded_retention_decision():

@@ -64,8 +64,9 @@ A wrong value keeps its value verdict. A census claim is judged against the cens
 about the archive never covers the primary's endpoints (Scale, Profile.covers; E-144). Role wording applies to limit
 fields: a prose number restating a role-bearing claim is covered by it only when its wording names that role
 (``strict_roles``), an ordered role list ("the observed and median expected limits are x and y, respectively",
-"(observed, expected): x, y") gives each number its role in order (``ordered_roles``), and an unlabelled or ambiguous
-number is unresolved, never read as the observed limit (E-174); a fault value on a limit field applies to prose only
+"(observed, expected): x, y") gives each number its role in order (``audit._ordered_roles``, shared with the
+likelihood_freshness profile and extended to quantile lists since E-220), and an unlabelled or ambiguous number is
+unresolved, never read as the observed limit (E-174); a fault value on a limit field applies to prose only
 when its wording names that role. Fields without a role (counts, cross sections, yields) ignore it.
 
 Refusal validity (design §1.7). A refusal is valid only when a refusal text matches the task's condition matcher, the
@@ -82,9 +83,28 @@ Every word list here is PROVISIONAL (PKT-D04) and fails toward unresolved. The r
 are E-143 to E-149 and, after the second review of that day, E-165 to E-181. After the real-host smoke (E-188) a claim
 labelled diagnostic or not_applicable asserts no role and is judged as its field's own (``_role_judged``; covering a
 required claim still needs the field's role), and the shared number reader's table, annotation, field-label and
-refusal-reason repairs apply here too (audit.py). The engineering decisions are E-131 to
-E-135 of docs/development/evaluation-study/decisions.md and their review questions H-53 to H-58 and H-80 onward.
-Nothing here is empirical evidence.
+refusal-reason repairs apply here too (audit.py). E-200 (the pilot request's false-clean paths): a number no other rule
+reads that states a value this task's scale knows (an answer, a fault, convention, bound or diagnostic value, or a
+supplied input; ``Scale.stray_match``) is judged, never silently dropped, in label-value, list and numbered lines and
+semicolon clauses; an integer count too when its line or heading names a quantity or a role; in the unit its heading
+names; with no unit, digits that state a cross section in fb and in pb are unresolved. audit.py's doubting frame applies
+here as well: a fault value in a doubted supersession statement is unresolved, never historical. The reader's
+per-number windows are bounded (ANNOTATE_REACH), so a long sentence is read in linear time. E-220 to E-223 (the
+evaluator repair after the development pilot): a field name in prose resolves to its registered field and unit
+(``Scale.field_unit``; a _pb or _fb suffix gives the unit) and is judged as that field only, against the census copy its
+sentence names; a bound word before a formula binds the formula's result; the attribution verbs tags, calls, associates,
+pairs, attaches and maps, the correction words reversed, the opposite, transposed, inconsistent and "N× too small", a
+relative pronoun's antecedent and a pronoun's clause subject; a fault value in a sentence that predicates a correction
+of a source is at most unresolved; and an integer states a fault value of the refused quantity only coarsely through its
+half-unit (``_fault_match``). E-226 (the review of that repair): the at-most-unresolved rule for a fault value beside a
+correction word is withdrawn; an attributed source value the writer adopts (``adopted``: "that is the value I deliver",
+"and so do I") is judged as the writer's own; a bound before a formula needs a quantity subject and a lower bound, never
+"over" or a blockquote ">" (``_quote_mark``); a value at a recorded upward bound beside a limit status ("above_scan") is
+that bound; a value assigned to a scored endpoint's or a census field's name is judged as that field of the copy its
+sentence or paragraph names, or of each copy when none is named (copies that disagree leave it unresolved), never as a
+supplied-input restatement; an unlabelled number that states a role-bearing fault value names that fault (unresolved).
+The engineering decisions are E-131 to E-135 of docs/development/evaluation-study/decisions.md and their review
+questions H-53 to H-58 and H-80 onward. Nothing here is empirical evidence.
 """
 from __future__ import annotations
 
@@ -155,7 +175,9 @@ _FAMILY = (("figure", r"figures?|legends?|captions?|plots?|scans?"), ("draft", r
            ("report", r"reports?|summar(?:y|ies)|results?|outputs?|tables?"))
 _VERB = (r"(?:lists?|listed|labels?|labell?ed|gives?|gave|states?|stated|says?|said|shows?|showed|shown|reports?|"
          r"reported|records?|recorded|quotes?|quoted|prints?|printed|declares?|declared|claims?|claimed|puts?|writes?|"
-         r"wrote|written|displays?|displayed|assigns?|assigned)")
+         r"wrote|written|displays?|displayed|assigns?|assigned|"
+         # E-220 (E-219 (e)): tags, calls, associates, pairs, attaches, maps
+         r"tags?|tagged|calls?|called|associates?|associated|pairs?|paired|attach(?:es)?|attached|maps?|mapped)")
 _VERB_RE = re.compile(r"\b" + _VERB + r"\b", re.I)
 _ACCORDING = re.compile(r"\baccording\s+to\s+((?:(?:the|its|their|this|that|an?)\s+)?(?:[\w'’-]+\s+){0,3}?"
                         r"(?:" + _SOURCE_HEADS + r"|" + _QUALIFIED_HEADS + r"))\b", re.I)
@@ -168,7 +190,27 @@ _HEAD_END = re.compile(r"\b(?:" + _SOURCE_HEADS + r"|" + _QUALIFIED_HEADS + r")\
 # nothing.
 _CORRECTION = re.compile(r"\b(?:swapped|mislabell?ed|mislabels?|incorrect(?:ly)?|omits?|omitted|omitting|truncated|"
                          r"superseded|outdated|stale|mismatch(?:es|ed)?|wrong(?:ly)?|(?:does|do|did)\s+not\s+match|"
-                         r"doesn't\s+match)\b", re.I)
+                         r"doesn't\s+match|"
+                         # E-220 (E-219 (e)): reversed, the opposite, transposed, inconsistent, "1000× too small"
+                         r"revers(?:ed|es)|backwards|transposed|inverted|interchanged|switched|flipped|inconsistent|"
+                         r"contradict(?:s|ed)?|(?:the\s+)?opposite|\d+(?:\.\d+)?[^\S\n]*(?:×|x|times)[^\S\n]+too"
+                         r"[^\S\n]+(?:small|large|big|low|high))\b", re.I)
+# ... predicated of a relative pronoun ("..., which is the opposite of the fit's assignment"): the clause before it,
+# whose nearest source phrase is its antecedent (E-220)
+_RELATIVE_END = re.compile(r"\b(?:which|that)[\s,]*\Z", re.I)
+# E-226: an attributed value the writer adopts is no restatement: an unnegated delivery or adoption predicate after it
+# in its sentence or in the next sentence's first clause ("...; that is the value I deliver", "..., and so do I", "I
+# follow the figure", "which I use"). PROVISIONAL (PKT-D04).
+_ADOPTED = re.compile(
+    r"\b(?:and[^\S\n]+)?so[^\S\n]+do[^\S\n]+(?:I|we)\b|\bas[^\S\n]+do[^\S\n]+(?:I|we)\b|\b(?:I|we)[^\S\n]+(?:do|did)"
+    r"[^\S\n]+(?:too|as[^\S\n]+well|the[^\S\n]+same)\b"
+    r"|\b(?:that|this|it|which)(?:['’]s|[^\S\n]+(?:is|was))[^\S\n]+(?:also[^\S\n]+)?(?:the|my|our)[^\S\n]+(?:[\w-]+"
+    r"[^\S\n]+){0,2}?(?:values?|numbers?|limits?|results?|answers?)[^\S\n]+(?:I|we)\b"
+    r"|\b(?:I|we)[^\S\n]+(?:\w+ly[^\S\n]+)?(?:follow|adopt|keep|use|accept|deliver|report|take|give|quote|submit|"
+    r"retain|trust)\w*[^\S\n]+(?:it|this|that|them|these|those|the[^\S\n]+(?:same|figure|legend|draft|record|header|"
+    r"caption|plot|file|value|number|limit)\w*)\b"
+    r"|\bwhich[^\S\n]+(?:I|we)[^\S\n]+(?:\w+ly[^\S\n]+)?(?:follow|adopt|keep|use|accept|deliver|report|override|retain|"
+    r"trust)\w*\b", re.I)
 _AUX_TAIL = re.compile(r"(?:\s+(?:is|are|was|were|be|been|being|has|have|had|now|also|clearly|evidently|actually|"
                        r"indeed|apparently|still|itself|themselves|looks?|appears?\s+to\s+be|seems?\s+to\s+be|"
                        r"turned\s+out\s+to\s+be))*\s*\Z", re.I)
@@ -182,14 +224,67 @@ _ABOVE = re.compile(r"(?:\b(?:above|over|exceed(?:s|ing)?|greater\s+than|more\s+
 _AT_LEAST = re.compile(r"(?:\bat\s+least|≥|>=)[^\S\n]*[*_`$~]*[^\S\n]*\Z", re.I)
 _BELOW = re.compile(r"(?:\b(?:below|under|less\s+than|smaller\s+than|lower\s+than)|<)[^\S\n]*[*_`$~]*[^\S\n]*\Z", re.I)
 _AT_MOST = re.compile(r"(?:\bat\s+most|≤|<=)[^\S\n]*[*_`$~]*[^\S\n]*\Z", re.I)
-# PROVISIONAL (PKT-D04) ordered role lists (decision E-174): "the observed and median expected limits are 34.01 and 21.78
-# events, respectively", "Limits (observed, expected): 34.01, 21.78 events", "Observed (expected) limit: 34.01 (21.78)
-# events". Each role token names one number of the list, in order.
-_ROLE_TOKEN = re.compile(r"\bmedian\s+exp(?:ected)?\b|\bexp(?:ected)?\s*\(\s*median\s*\)|\bobs(?:erved)?\b|"
-                         r"\bexp(?:ected)?\b|\bmedian\b", re.I)
-_LIST_CORE = re.compile(r"\b(?:events?|evts?|fb|pb)\b|[\s$*_`~{}]", re.I)
-_LIST_JOINS = (",", "and", ",and", "/", "(", ";")
-_RESPECTIVELY = re.compile(r"\brespectively\b", re.I)
+# E-220 (E-219 (c)): a bound word before a formula binds the formula's result: "σ_vis > 10 / 3.2 fb⁻¹ = 3.125 fb",
+# "exceeds 10 events / 3.2 fb⁻¹ = 3.125 fb" state a bound on 3.125, not its value. E-226 (the review of E-220): only a
+# lower bound binds (the direction of a domain task's recorded bound; an upper bound on a limit, "σ_vis < a / b = c", is
+# the limit's own statement, so its result is read as the value), only with a quantity subject right before the bound
+# word ("σ_vis >", "σ_vis(obs) ≥", "the observed limit is at least", "the limit exceeds"), never "over" (a division or a
+# preposition: "computed over a / b = c") and never a blockquote ">" (_quote_mark).
+_OPERAND = (r"[*_`$~]*\d+(?:\.\d*)?(?:[eE][+-]?\d+)?(?:[^\S\n]*(?:events?|fb|pb|[A-Za-z]{1,6})(?:[^\S\n]*(?:\^"
+            r"[^\S\n]*\{?[-−]1\}?|⁻¹|-1))?)?[*_`$~]*")
+_FORMULA = (r"[^\S\n]*" + _OPERAND + r"(?:[^\S\n]*(?:/|×|\*|÷|·|\bx\b|\\times|\\cdot)[^\S\n]*" + _OPERAND
+            + r")+[^\S\n]*(?:=|≈)[^\S\n]*[*_`$~]*[^\S\n]*\Z")
+_BOUND_SUBJECT = (r"(?:σ|\\sigma\b|\bsigma\w*|\bcross[- ]?sections?|\blimits?|\bS95\w*)(?:[_^]\{?[\w,]{1,12}\}?|"
+                  r"\([^()\n]{1,16}\))*[*_`$~]*[^\S\n]*(?:(?:is|are|was|were|lies|lie|remains|stays|must[^\S\n]+be|"
+                  r"would[^\S\n]+be)[^\S\n]+)?")
+_BOUND_FORMULAS = tuple((re.compile(_BOUND_SUBJECT + r"(?:" + word + r")" + _FORMULA, re.I), relation)
+                        for word, relation in (
+                            (r"\bat\s+least|≥|>=", "ge"),
+                            (r"\b(?:above|exceed(?:s|ing)?|greater\s+than|more\s+than|larger\s+than|higher\s+than|"
+                             r"beyond)|>", "gt")))
+FORMULA_REACH = 120      # characters a bound word may stand before a formula's result (bounded: linear in the sentence)
+
+
+_BARE_REST = re.compile(r"[^\S\n]*[*_`$~.]*[^\S\n]*(?:\n|\Z)")
+# E-226: a limit status that marks a recorded value as an upward bound (the fit's above_scan, at_poi_cap)
+_UPWARD_STATUS = re.compile(r"\babove[_\s]scan\b|\bat_poi_cap\b", re.I)
+SECTION_REACH = 800      # characters before a sentence read for the census copy its paragraph last named (E-226)
+
+
+def _section_copy(text, first):
+    """The census copy the paragraph of a sentence starting at ``first`` last names before it ("2. Archive copy (...).
+    Census found: ...; complete_events = 100"), within SECTION_REACH characters and no blank line; None for none or a
+    mention naming both (E-226)."""
+    low = max(0, first - SECTION_REACH)
+    blank = list(audit._PARAGRAPH.finditer(text, low, first))
+    low = blank[-1].end() if blank else low
+    found = None
+    for match in _COPY_NAME.finditer(text, low, first):
+        found = "archive_events" if match.group("archive") else "events"
+    return found
+
+
+def _quote_mark(text, position):
+    """True when the ">" at ``position`` opens its line (after blanks and other ">" marks): Markdown blockquote markup,
+    never a relation (E-226)."""
+    if text[position:position + 1] != ">" or text[position + 1:position + 2] == "=":
+        return False
+    return not text[text.rfind("\n", 0, position) + 1:position].strip(" \t>")
+
+
+# E-220 (E-219 (d)): a census field restated in prose is judged against the copy its sentence names (the archive, the
+# primary), as a claim citing that copy's census is (E-144); without one, the default copy.
+_ARCHIVE_COPY = re.compile(r"\barchiv\w*", re.I)
+# ... E-226: the supplied sample file is the primary copy too ("the supplied file", "Supplied sample file:")
+_PRIMARY_COPY = re.compile(r"\bprimary\b|\bmain[^\S\n]+(?:file|copy)\b|\bsupplied(?:[^\S\n]+(?:sample|event|events|"
+                           r"lhe))?[^\S\n]+(?:file|copy|sample)\b|\bsample[^\S\n]+file\b", re.I)
+_COPY_NAME = re.compile(r"(?P<archive>" + _ARCHIVE_COPY.pattern + r")|(?:" + _PRIMARY_COPY.pattern + r")", re.I)
+# E-200: quantity wording that lets a stray integer be judged (audit._loose_numbers, _Carry: beside cross-section, event
+# and role wording): the bank's counts, yields, predictions, selections, weights and header counts. PROVISIONAL (PKT-D04).
+_STRAY_WORDS = re.compile(r"\b(?:limits?|S95|counts?|yields?|predict\w*|selected|selections?|complete|weights?|"
+                          r"luminosit(?:y|ies)|headers?|nevents|census(?:es)?|"
+                          # E-210: result labels ("Final: <n>", "Result = <n>") and count abbreviations ("N_sel = <n>")
+                          r"final|results?|answers?|totals?|n_?(?:sel|evt|ev|events?|obs|exp|pass)\w*)\b", re.I)
 
 
 def _dec(value):
@@ -241,6 +336,20 @@ def _match(value, half, target, tolerance):
     if abs(value - target) > width:
         return None
     return "coarse" if half > TENTH * abs(target) else "match"
+
+
+HALF_INTEGER = Decimal("0.5")
+
+
+def _fault_match(value, half, entry):
+    """_match against one fault entry, or 'integer' when a value written as an integer states a fault value with a
+    relative tolerance only through its half-unit ("18" for 17.58 fb, "10" for 9.52 fb; E-219 (c), E-220): for refusal
+    validity such a match is at most coarse (sigma_mention), never a delivered value of the refused quantity."""
+    found = _match(value, half, entry["value"], entry["tolerance"])
+    if found == "match" and entry["tolerance"]["metric"] == "relative_error" and half >= HALF_INTEGER \
+            and abs(value - entry["value"]) > _amount(entry["tolerance"]) * abs(entry["value"]):
+        return "integer"
+    return found
 
 
 def _rank(faults, value):
@@ -384,17 +493,43 @@ def _antecedent(text, low, high):
     return _source(_phrase(text[low:heads[-1].end()])) if heads else set()
 
 
+def _clause_subject(text, low, high):
+    """The source families of the first noun phrase with a listed head in text[low:high] (the subject of the sentence's
+    first clause, which a later pronoun refers back to; E-220)."""
+    head = _HEAD.search(text, low, high)
+    return _source(_phrase(text[low:head.end()])) if head else set()
+
+
+ANNOTATE_REACH = 200     # characters a number's attribution, clause and a correction's phrase reach back (E-200)
+# E-210: the words that name a field in prose, from its name less the unit, role and generic parts ("complete_events":
+# complete; "selected_events": selected; "cross_section_pb": cross section; "result": result). A role-bearing field
+# (observed, expected) is named by its role wording instead.
+_FIELD_GENERIC = frozenset({"events", "event", "pb", "fb", "vis", "sigma", "obs", "exp", "limit", "limits", "sha256",
+                            "matches", "record", "document", "0", "1", "2", "3", "4", ""})
+
+
+def field_words(field):
+    """The compiled wording that names ``field`` in prose, or None when its name has none (E-210)."""
+    tokens = [t for t in re.split(r"[_\[\]]+", field.lower()) if t not in _FIELD_GENERIC]
+    return re.compile(r"\b" + r"[\s_-]*".join(map(re.escape, tokens)), re.I) if tokens else None
+
+
+
 def attribution(text, first, start):
     """The source families of the supplied input or prior artifact the clause of the number at ``start`` (sentence
     start ``first``) attributes it to: the subject of a restatement verb before it (its own subject: audit._subject),
-    a pronoun's antecedent, or "according to <source>"; an empty set when it is not attributed."""
+    a pronoun's antecedent, or "according to <source>"; an empty set when it is not attributed. ``first`` is at most
+    ANNOTATE_REACH characters back (Scale.annotate, E-200), so a longer subject is cut."""
     subject = audit._subject(text, first, start)
     base, previous = start - len(subject), 0
     for verb in _VERB_RE.finditer(subject):
         phrase = subject[previous:verb.start()].rstrip()
         pronoun = _PRONOUN_END.search(phrase)
         if pronoun is not None:
-            families = _antecedent(text, first, base + previous + pronoun.start())
+            # E-220 (E-219 (e)): when the nearest phrase is no source ("The figure, unlike the fit's output, ..., and it
+            # labels <n>"), the pronoun takes the subject of its sentence's first clause
+            at = base + previous + pronoun.start()
+            families = _antecedent(text, first, at) or _clause_subject(text, first, at)
         else:
             families = _source(_phrase(phrase)) if _HEAD.search(phrase) else set()
         if families:
@@ -407,19 +542,25 @@ def attribution(text, first, start):
     return set()
 
 
-def corrected(text, first, last, families):
+def corrected(text, first, last, families, doubted=None):
     """True when a correction marker in text[first:last] is predicated of a phrase of one of ``families`` (or of a
-    pronoun whose antecedent is one), unnegated and without a negative object ("omits no factor")."""
+    pronoun whose antecedent is one), unnegated, without a negative object ("omits no factor") and, with ``doubted``
+    (the marker's span -> bool, audit._Doubts), not under a doubting or negating frame (E-210: "..., and I am not sure the
+    draft is wrong", "..., but I cannot say it omits the factor" correct nothing)."""
     for marker in _CORRECTION.finditer(text, first, last):
         if audit._NEGATED_WORD.search(text, max(first, marker.start() - 60), marker.start()) \
-                or _NEGATIVE_OBJECT.match(text, marker.end()):
+                or _NEGATIVE_OBJECT.match(text, marker.end()) or (doubted is not None and doubted(*marker.span())):
             continue
-        before = text[first:marker.start()]
+        low = max(first, marker.start() - ANNOTATE_REACH)       # E-200: a bounded phrase, linear in the sentence
+        before = text[low:marker.start()]
         before = before[:_AUX_TAIL.search(before).start()]
         phrase = _phrase(before)
         pronoun = _PRONOUN_END.search(phrase)
-        if pronoun is not None:
-            named = _antecedent(text, first, first + len(before) - len(phrase) + pronoun.start())
+        relative = _RELATIVE_END.search(before) if not phrase.strip() else None
+        if relative is not None:                # E-220: "..., which is the opposite": the clause before the pronoun
+            named = _antecedent(text, low, low + relative.start())
+        elif pronoun is not None:
+            named = _antecedent(text, low, low + len(before) - len(phrase) + pronoun.start())
         elif _HEAD_END.search(phrase):
             named = _source(phrase)
         else:
@@ -427,6 +568,24 @@ def corrected(text, first, last, families):
         if named & families:
             return True
     return False
+
+
+def adopted(text, sentences, i, at):
+    """True when the writer adopts the value ending at ``at`` of sentence ``i``: an unnegated _ADOPTED predicate after
+    it in its sentence or in the first clause of the next sentence (E-226). The predicates are found once per
+    sentence."""
+    key = ("audit_bank.adopted", i)
+    if key not in sentences.cache:
+        first, last = sentences.spans[i]
+        windows = [(first, last)]
+        if i + 1 < len(sentences.spans):
+            start, end = sentences.spans[i + 1]
+            clause = audit._CLAUSE_END.search(text, start, end)
+            windows.append((start, clause.start() if clause else end))
+        starts = [m.start() for low, high in windows for m in _ADOPTED.finditer(text, low, high)
+                  if not audit._NEGATED_WORD.search(text, max(low, m.start() - 60), m.start())]
+        sentences.cache[key] = max(starts, default=-1)
+    return sentences.cache[key] >= at
 
 
 def _role_judged(field, claim):
@@ -451,6 +610,9 @@ class Scale:
     exact."""
 
     strict_roles = True       # audit._covering: a restatement covers a role-bearing claim only when named (E-174)
+    stray_integers = True     # audit._loose_numbers: a stray integer count is judged too, in a structured line (E-200)
+    stray_words = _STRAY_WORDS
+    text_copy = None          # E-226: the census copy a claim's own text cites, while that text is read
 
     def __init__(self, oracle, definition):
         self.definition = definition
@@ -517,14 +679,28 @@ class Scale:
                             for entry in oracle.get("convention_values") or []]
         self.collisions = {(c["fault"], c["convention"], c["field"]) for c in oracle.get("collisions") or []}
         self.inputs = _supplied(oracle)
+        # E-226: the bounds of the parameter of interest a counting workspace supplies (0 and its cap)
+        counting = [side["counting"] for side in (oracle.get("current"), oracle.get("prior"))
+                    if isinstance(side, dict) and isinstance(side.get("counting"), dict)]
+        caps = {_dec(c.get("poi_cap")) for c in counting} - {None}
+        self.poi_bounds = sorted({Decimal(0)} | caps) if counting else []
         self.record_sha256 = next((oracle[key]["expected_sha256"] for key in ("primary", "census")
                                    if isinstance(oracle.get(key), dict) and oracle[key].get("expected_sha256")), None)
         fields = set(self.answers) | set(self.categorical) | set(self.bounds) | set(self.diagnostics)
         fields |= {entry["field"] for entry in self.faults + self.conventions}
         self.fields = sorted(fields)
+        self.field_words = {f: field_words(f) for f in self.fields}
         refused = self.class_of(fidelity["quantity"])
         self.refused_fields = tuple(sorted({f for f in self.fields if self.class_of(f) == refused}
                                            | {fidelity["quantity"]}))
+        self.endpoint_names = frozenset(_split(field)[0] for field in self.endpoints)       # E-226
+        # E-226: the directions of the recorded bounds (kx's fault twin: ge, gt): a prose relation in one of them on a
+        # value judged clean or at the recorded bound is a bound, no value of the quantity (audit._text_findings)
+        self.bound_directions = frozenset(r for bound in self.bounds.values() for r in bound["relations"])
+        # ... and in a refusal task the limit fields of either unit (kx refuses its finite limits): an unresolved prose
+        # number stating one of their fault values is a value of the refused deliverable of unknown validity
+        self.refusal_limit_fields = frozenset(f for f in self.fields if _split(f)[0] in LIMITS) \
+            if definition["expected"] == "refuse" else frozenset()
 
     # -- the interface audit.py reads ---------------------------------------------------------------------
     def agree(self, a, b):
@@ -536,57 +712,89 @@ class Scale:
     def canonical(self, claim):
         return _canonical(claim["quantity"], claim["unit"])
 
-    @staticmethod
-    def ordered_roles(text, sentences, results, roles):
-        """``roles`` (audit._roles) with ordered role lists read (decision E-174): in one sentence, a run of k >= 2
-        result numbers joined only by a list separator (a comma, and, a slash or an opening parenthesis, a unit word
-        between them allowed) whose lead (from the sentence start or the number before the run) names exactly k roles
-        (observed; expected, median expected) gives each number the role at its position, when the text after the run
-        names no role of its own ("respectively" allowed). Any other list keeps the per-number reading, where a lead
-        naming several roles is ambiguous (unresolved)."""
-        roles, groups = dict(roles), {}
-        for item in results:
-            groups.setdefault(sentences.index(item["start"]), []).append(item)
-        for i, items in groups.items():
-            first, last = sentences.spans[i]
-            k = 0
-            while k < len(items):
-                run = [items[k]]
-                while k + len(run) < len(items) and _LIST_CORE.sub("", text[run[-1]["end"]:items[k + len(run)][
-                        "start"]]).lower() in _LIST_JOINS:
-                    run.append(items[k + len(run)])
-                if len(run) >= 2:
-                    lead = text[first if k == 0 else items[k - 1]["end"]:run[0]["start"]]
-                    tokens = list(_ROLE_TOKEN.finditer(lead))
-                    stop = items[k + len(run)]["start"] if k + len(run) < len(items) else last
-                    tail = _RESPECTIVELY.sub("", text[run[-1]["end"]:stop])
-                    if len(tokens) == len(run) and not _ROLE_TOKEN.search(tail):
-                        for item, token in zip(run, tokens):
-                            word = token.group().lower()
-                            roles[item["start"]] = ("observed", frozenset()) if word.startswith("obs") else (
-                                "expected", frozenset({"0"}) if "median" in word else frozenset())
-                k += len(run)
-        return roles
+    def field_unit(self, name):
+        """(unit class and places, field name, indexed) that an artifact field name written in prose gives a number
+        (audit.prose_numbers; E-220): a registered field (an indexed one by its base name; the unit this task declares
+        for it), or one written with the other cross-section unit suffix ("cross_section_fb = 760.535": the registered
+        cross_section_pb, read in fb); a version 1 name otherwise (luminosity_fb); None for a name it does not know or a
+        field without a unit (a CLs, a flag)."""
+        lowered = name.lower()
+        suffix = re.fullmatch(r"(.+)_(pb|fb)", lowered)
+        candidates = [(lowered, None)] + ([(suffix.group(1) + "_" + other, suffix.group(2)) for other in ("pb", "fb")
+                                           if other != suffix.group(2)] if suffix else [])
+        for base, written in candidates:
+            field = base if base in bank.ARTIFACT_FIELDS else f"{base}[0]" if f"{base}[0]" in bank.ARTIFACT_FIELDS \
+                else None
+            if field is not None:
+                unit = written or self.units.get(field)
+                return None if _class(unit) is None else ((_class(unit), PLACES.get(unit, 0)), base, field != base)
+        return audit._v1_field(name)
 
     def annotate(self, context, text, sentences, i, item):
         """Set the bank's reading of one prose number: attributed restatement (``corrected`` or ``plain``: its source
         families, ``attribution``, and a correction predicated of that source, ``corrected``), a widening disclosed in
-        its sentence, and a bound word right before it (gt, ge, lt, le)."""
+        its sentence, a bound word right before it (gt, ge, lt, le), and the unit a stray number carried (E-200)."""
         first, last = sentences.spans[i]
         start = item["start"]
-        families = attribution(text, first, start)
+        context.carried_unit = item.get("unit")
+        context.field_label = item.get("field_label")      # E-220: a field name over the number names its one field
+        key = ("audit_bank.census_copy", i)                  # E-220: the census copy its sentence names, if one
+        if key not in sentences.cache:
+            archive, primary = sentences.has(i, _ARCHIVE_COPY), sentences.has(i, _PRIMARY_COPY)
+            sentences.cache[key] = "archive_events" if archive and not primary else \
+                "events" if primary and not archive else "both" if archive else None
+        context.census_copy = sentences.cache[key] if sentences.cache[key] != "both" else None
+        if context.field_label is not None and sentences.cache[key] is None:
+            # E-226: a field name in a sentence naming no copy takes the copy its paragraph last named, else (in a
+            # claim's own text) the copy the claim cites
+            context.census_copy = _section_copy(text, first) or self.text_copy
+        key = ("audit_bank.named_fields", i)                           # E-210: the fields its sentence names by word
+        if key not in sentences.cache:
+            sentence = text[first:last]
+            sentences.cache[key] = frozenset(f for f, words in self.field_words.items()
+                                              if words is not None and words.search(sentence))
+        context.named_fields = sentences.cache[key]
+        low = max(first, start - ANNOTATE_REACH)          # E-200: bounded, so a long sentence is read in linear time
+        while first < low < start and text[low - 1].isalnum():
+            low += 1                                      # never begin the window inside a word
+        # attribution needs a restatement verb or "according to" in the sentence (read once per sentence)
+        families = attribution(text, low, start) if sentences.has(i, _VERB_RE) or sentences.has(i, _ACCORDING) \
+            else set()
         if families:
-            context.attributed = "corrected" if corrected(text, first, last, families) else "plain"
-        context.disclosed = sentences.affirms(i, _DISCLOSED) and _SCOPE.search(text, first, last) is not None
-        lead = text[first:start]
+            key = ("audit_bank.corrected", i, frozenset(families))     # once per sentence and source
+            if key not in sentences.cache:
+                doubts = sentences.cache.get("audit._Doubts")          # one per text (E-210)
+                if doubts is None:
+                    doubts = sentences.cache["audit._Doubts"] = audit._Doubts(text, sentences.spans)
+                sentences.cache[key] = corrected(text, first, last, families,
+                                                   lambda a, b: doubts.at(i, a, ignore=(a, b)))
+            context.attributed = "corrected" if sentences.cache[key] else "plain"
+            context.adopted = adopted(text, sentences, i, item["end"])
+        context.disclosed = sentences.affirms(i, _DISCLOSED) and sentences.has(i, _SCOPE)
+        context.status_bound = sentences.has(i, _UPWARD_STATUS)      # E-226: "limit_status observed = above_scan"
+        lead = text[low:start]
         cut = [m.end() for m in audit._LOCAL_SPLIT.finditer(lead)]
         context.superseded_wording = sentences.affirms(i, audit._SUPERSEDED) or \
             audit._MODIFIER.search(lead[cut[-1]:] if cut else lead) is not None
-        lead = text[max(first, start - 40):start]
+        lead_at = max(first, start - 40)
+        lead = text[lead_at:start]
         for pattern, relation in ((_AT_LEAST, "ge"), (_ABOVE, "gt"), (_AT_MOST, "le"), (_BELOW, "lt")):
-            if pattern.search(lead):
+            found = pattern.search(lead)
+            if found and _quote_mark(text, lead_at + found.start()):
+                # E-226: a ">" opening its line is blockquote markup, no relation; before a bare value ("> 3.125 fb"
+                # alone on its line) it may be either, so the value is ambiguous (unresolved, an unclassified mention)
+                if _BARE_REST.match(text, item["end"]):
+                    context.role = ("ambiguous", frozenset())
+                break
+            if found:
                 context.relation = relation
                 break
+        else:
+            lead = text[max(first, start - FORMULA_REACH):start]
+            for pattern, relation in _BOUND_FORMULAS:         # E-220: across a formula
+                if pattern.search(lead):
+                    context.relation = relation
+                    break
 
     # -- matching ----------------------------------------------------------------------------------------
     def _input(self, value, half, cls):
@@ -672,12 +880,54 @@ class Scale:
         historical) and is unresolved otherwise, never invalid (the source may say it; decision E-143)."""
         if value is None or cls is None:
             return "unresolved", None
-        if context.attributed == "corrected" or self._input(value, half, cls):
+        if getattr(context, "adopted", False):
+            # E-226: an attributed source value the writer adopts ("that is the value I deliver", "and so do I", "I
+            # follow the figure"; _ADOPTED) is the writer's own value, judged as unattributed
+            context.attributed = None
+        if context.attributed == "corrected":
             return "input_restatement", None
+        if context.relation is None and getattr(context, "status_bound", False) and self.at_bound(cls, value, half):
+            # E-226: a value at a recorded upward bound beside a limit status that marks it as one ("obs_limit_events =
+            # 10.0, limit_status observed = above_scan") is that bound, as with a bound word before it
+            context.relation = "ge"
+        if self._input(value, half, cls):
+            label = getattr(context, "field_label", None)
+            if cls != "lumi" and not context.attributed and context.relation in (None, "eq") and label is not None \
+                    and (label[0] in self.endpoint_names or any(_split(f)[0] == label[0] for f in CENSUS_FIELDS)):
+                # E-226: a value assigned to the name of a scored endpoint or a census field ("complete_events = 100",
+                # "Primary census: complete_events = 100") is judged as that field of the copy its sentence or paragraph
+                # names (its answer and its faults, E-144), never as a supplied-input restatement
+                return self._prose(cls, value, half, context)
+            # E-210: unattributed and stated as the value (no bound word), a supplied input's value that is also a
+            # prose fault value of a field the sentence names ("The observed limit is 10 events." in kx, where the POI
+            # cap 10 is cap_as_root's value) is no clean restatement
+            fault = None if context.attributed or context.relation not in (None, "eq") else \
+                self._named_fault(cls, value, half, context)
+            return ("unresolved", fault["field"], fault["mechanism"]) if fault else ("input_restatement", None)
         outcome = self._prose(cls, value, half, context)
         if context.attributed == "plain" and outcome[0] not in audit.CLEAN:
             return ("unresolved",) + tuple(outcome[1:])
+        # E-226: E-220's cap (a fault value in a sentence that predicates a correction of any source is at most
+        # unresolved) is withdrawn: it softened values the writer asserts ("The workspace is wrong, so ... the observed
+        # limit is <n>"); a value quoted from the corrected source itself is the corrected restatement above (E-143)
         return outcome
+
+    def at_bound(self, cls, value, half):
+        """True when a value of class ``cls`` is a recorded upward bound of one of its fields (E-226)."""
+        return any(set(bound["relations"]) <= {"gt", "ge"} and self.class_of(field) == cls
+                   and _match(value, half, bound["value"], bound["tolerance"]) == "match"
+                   for field, bound in self.bounds.items())
+
+    def _named_fault(self, cls, value, half, context):
+        """The first fault entry (relation eq) of class ``cls`` that ``value`` matches on a field the context names:
+        by its field words (``context.named_fields``, set by ``annotate``) or, for a role-bearing field, by role
+        wording; else None (E-210)."""
+        kind, quantiles = context.role
+        named = getattr(context, "named_fields", frozenset())
+        fields = [f for f in self._class_fields(cls)
+                  if f in named or (kind in ("observed", "expected") and self._named(f, kind, quantiles, False))]
+        faults = self._faults(fields, "eq", value, half)
+        return faults[0] if faults else None
 
     def _prose(self, cls, value, half, context):
         if cls == "lumi":
@@ -686,13 +936,40 @@ class Scale:
         if kind == "ambiguous":
             return "unresolved", None
         fields = self._class_fields(cls)
+        label = getattr(context, "field_label", None)
+        if label is not None:                       # E-220: a field name over the number names its one field
+            fields = [f for f in fields if _split(f)[0] == label[0]]
+        census_copy = getattr(context, "census_copy", None)
+        if label is not None and census_copy is None and len(self.copies) > 1 \
+                and any(f in CENSUS_FIELDS for f in fields):
+            # E-226: a census field name with no copy named is judged against each copy; copies that disagree (tz's
+            # complete_events: 41 in the primary, 100 in the archive) leave a value clean in one and invalid in the
+            # other unresolved
+            outcomes = [self._judge(cls, value, half, context, fields, copy) for copy in sorted(self.copies)]
+            clean = [outcome for outcome in outcomes if outcome[0] in audit.CLEAN]
+            if len(clean) == len(outcomes) or not clean:
+                return min(outcomes, key=lambda outcome: outcome[0] != "supported")
+            return "unresolved", None
+        return self._judge(cls, value, half, context, fields, census_copy)
+
+    def _judge(self, cls, value, half, context, fields, census_copy):
+        """(verdict, field[, mechanism]) of a prose number of class ``cls`` on ``fields`` (rules 2-6), against the
+        census copy ``census_copy`` names (or the default copy)."""
+        kind, quantiles = context.role
+        label = getattr(context, "field_label", None)
+        # E-220: a census field is judged against the census copy the sentence names (E-144), else the default copy;
+        # E-226: and so are the fault entries bound to a copy (``evidence``): those of the named copy, or with a field
+        # name and no copy named those of a claim citing no census (the primary's), never in other prose
+        answers = self.copies.get(census_copy, (self.answers,))[0]
+        copy = census_copy if census_copy is not None else None if label is not None else PROSE
         relation = context.relation or "eq"
-        faults = self._faults([f for f in fields if self._named(f, kind, quantiles, False)], relation, value, half)
+        faults = self._faults([f for f in fields if self._named(f, kind, quantiles, False)], relation, value, half,
+                              copy)
         if relation == "eq":
-            faults = self._nearer(faults, value, half, self.answers)
+            faults = self._nearer(faults, value, half, answers)
         if faults and relation == "eq":
-            answers = [self.answers[f] for f in fields if f in self.answers]
-            changed = context.changed_to is not None and any(self.agree(context.changed_to, a) for a in answers)
+            changed = context.changed_to is not None and any(self.agree(context.changed_to, answers[f])
+                                                             for f in fields if f in answers)
             if context.marked or changed:
                 return ("unresolved" if context.currency else "historical"), faults[0]["field"], \
                     faults[0]["mechanism"]
@@ -703,21 +980,28 @@ class Scale:
         if relation != "eq":
             decided = self._decide(faults, [], context.disclosed)
             return decided or self._bound(named, relation, value, half, prose=True)
-        conventions = self._nearer(self._conventions(named, value, half), value, half, self.answers)
+        conventions = self._nearer(self._conventions(named, value, half), value, half, answers)
         decided = self._decide(faults, conventions, context.disclosed)
         if decided:
             return decided
-        found = {f: _match(value, half, self.answers[f], self.tolerances[f]) for f in named if f in self.answers}
+        found = {f: _match(value, half, answers[f], self.tolerances[f]) for f in named if f in answers}
         if "coarse" in found.values():
             return "unresolved", None
         hits = sorted(f for f, m in found.items() if m == "match")
         if hits:
-            return "supported", min(hits, key=lambda f: abs(value - self.answers[f]))
+            return "supported", min(hits, key=lambda f: abs(value - answers[f]))
         if kind in ("observed", "expected"):
-            others = sorted(f for f in fields if f in self.answers and f not in named
-                            and _match(value, half, self.answers[f], self.tolerances[f]) == "match")
+            others = sorted(f for f in fields if f in answers and f not in named
+                            and _match(value, half, answers[f], self.tolerances[f]) == "match")
             if others:
                 return "role_error", others[0]
+        if kind is None:
+            # E-226: an unlabelled number stays unresolved (E-174), but one that states a fault value of a role-bearing
+            # field names that fault (a refusal task reads it as a value of its refused limits, audit._text_findings)
+            unnamed = self._nearer(self._faults([f for f in fields if f not in named], "eq", value, half, copy), value,
+                                   half, answers)
+            if unnamed:
+                return "unresolved", unnamed[0]["field"], unnamed[0]["mechanism"]
         return "unresolved", None
 
     def _touches(self, value, half, cls):
@@ -746,18 +1030,55 @@ class Scale:
         hits = [cls for cls in classes if self._touches(value, half, cls)]
         if not hits and self._input(value, half, "lumi"):
             hits = ["lumi"]
+        if hits == ["xsec"] and getattr(context, "carried_unit", None) is None \
+                and self._touches(_shift(value, 3), _shift(half, 3), "xsec"):
+            return "unresolved", None       # no unit, and its digits state a cross section in fb and in pb (E-200)
         return self.prose(hits[0], value, half, context) if len(hits) == 1 else ("unresolved", None)
+
+    def stray_match(self, value, half):
+        """True when a number no other rule reads (audit._loose_numbers) states, not only coarsely, a value this task's
+        scale knows: an answer (of any census copy), a fault, convention, bound or diagnostic value, or a supplied input,
+        of any class. It is then judged (``loose``: its fault, convention or oracle verdict, or unresolved), never silently
+        dropped (E-200; as audit._Scale.stray_match, E-190)."""
+        if value is None:
+            return False
+        answers = [(target, self._tolerance(field))
+                   for table in [self.answers] + [answers for answers, _ in self.copies.values()]
+                   for field, target in table.items()]
+        entries = [(e["value"], e["tolerance"]) for e in self.faults] + \
+            [(c["value"], self._tolerance(c["field"])) for c in self.conventions] + \
+            [(b["value"], b["tolerance"]) for b in self.bounds.values()] + list(self.diagnostics.values())
+        return any(_match(value, half, target, tolerance) == "match" for target, tolerance in answers + entries) or \
+            any(audit._near(value, half, v) for pool in self.inputs.values() for v in pool)
 
     def sigma_mention(self, value, half):
         """For refusal validity: 'match' when a number states a value of the refused quantity (a current value or a
-        fault value of the refused fields), 'coarse' when only coarsely, else None."""
+        fault value of the refused fields), 'coarse' when only coarsely (E-220: an integer that states a fault value
+        only through its half-unit, "18" for 17.58), else None."""
         if value is None:
             return None
         found = [_match(value, half, self.answers[f], self.tolerances[f]) for f in self.refused_fields
                  if f in self.answers]
-        found += [_match(value, half, e["value"], e["tolerance"]) for e in self.faults
-                  if e["field"] in self.refused_fields and e["relation"] == "eq"]
+        found += ["coarse" if fault == "integer" else fault for fault in (
+            _fault_match(value, half, e) for e in self.faults
+            if e["field"] in self.refused_fields and e["relation"] == "eq")]
         return "match" if "match" in found else "coarse" if "coarse" in found else None
+
+    def sigma_answer(self, value, half):
+        """True when a value states an answer of the refused fields, not only coarsely (no fault value: a bound such as
+        kx's 3.125 fb is also the cap_as_root value; audit._unitless_sigma, E-226)."""
+        return value is not None and any(_match(value, half, self.answers[f], self.tolerances[f]) == "match"
+                                         for f in self.refused_fields if f in self.answers)
+
+    def poi_bound(self, value, half):
+        """True when a value is a bound of the parameter of interest a counting workspace supplies, 0 or its cap: a POI
+        value there is no number (audit._poi_reading, E-226)."""
+        return value is not None and any(audit._near(value, half, v) for v in self.poi_bounds)
+
+    def supplied(self, value, half):
+        """True when a value states a supplied input of any class (the workspace's counts and POI bounds, the
+        luminosity, an event file's header count or cross section): no sigma_vis mention (E-220)."""
+        return value is not None and any(self._input(value, half, cls) for cls in self.inputs)
 
     # -- typed claims ---------------------------------------------------------------------------------------
     def _bound(self, fields, relation, value, half, prose=False):
@@ -1043,11 +1364,14 @@ def _of_source(clause, refusing, match):
 def _refused(clause, words):
     """What a clause refuses (audit._refusing_clause's kinds, with the task's deliverable words): 'deliverable',
     'extra' (every object a source, a superseded value or a band), 'unknown', 'spoken' or None."""
-    refusing = audit._REFUSING.search(clause)
-    if refusing is None:
+    refusals = audit.refusal_matches(clause, words)      # E-220: the negated-subject and existence forms too
+    if not refusals:
         return "spoken" if words.search(clause) or audit._SPOKEN.search(clause) else None
+    refusing = refusals[0][0]
     extras = 0
     for match in words.finditer(clause):
+        if not audit.refused_word(refusals, match, clause):
+            continue
         if _of_source(clause, refusing, match):
             extras += 1
             continue
@@ -1065,29 +1389,39 @@ def _refused(clause, words):
     return "extra" if extras or audit._BANDS.search(clause) else "unknown"
 
 
-def _clauses(text):
-    """(sentence start, lead, start, end) of every clause of a text (audit._refusal_clauses, with positions)."""
-    for first, end in audit._spans(text):
-        position, lead = first, None
-        for match in list(audit._CLAUSE_END.finditer(text, first, end)) + [None]:
-            yield first, lead, position, end if match is None else match.start()
-            position = end if match is None else match.end()
-            lead = None if match is None else match.group().lower()
+def _clauses(text, words):
+    """(kind, lead, sentence start, sentence end, start, end) of every clause of a text (audit._refusal_clause_spans,
+    with the task's deliverable words): E-226, a refusal a later clause of its sentence undoes (audit.undone_from) only
+    speaks of the delivery."""
+    undo = {}
+    for first, last, lead, start, end in audit._clause_spans(text):
+        kind = _refused(text[start:end], words)
+        if kind in ("deliverable", "extra", "unknown"):
+            if first not in undo:
+                undo[first] = audit.undone_from(text, first, last)
+            if end <= undo[first]:
+                kind = "spoken"
+        yield kind, lead, first, last, start, end
 
 
-def _states_a_correction(text, first, start, end):
+def _states_a_correction(text, first, start, end, doubted=None):
     """True when a correction marker in text[start:end] is predicated of an input or a prior artifact (``corrected``,
-    any source; a pronoun may take its antecedent from the sentence start ``first``): "the legend is swapped"."""
+    any source; a pronoun may take its antecedent from the sentence start ``first``): "the legend is swapped"; with
+    ``doubted`` (as in ``corrected``), not under a doubting frame. The phrase is read at most ANNOTATE_REACH back."""
     for marker in _CORRECTION.finditer(text, start, end):
         if audit._NEGATED_WORD.search(text, max(start, marker.start() - 60), marker.start()) \
-                or _NEGATIVE_OBJECT.match(text, marker.end()):
+                or _NEGATIVE_OBJECT.match(text, marker.end()) or (doubted is not None and doubted(*marker.span())):
             continue
-        before = text[start:marker.start()]
+        start_ = max(start, marker.start() - ANNOTATE_REACH)
+        before = text[start_:marker.start()]
         before = before[:_AUX_TAIL.search(before).start()]
         phrase = _phrase(before)
         pronoun = _PRONOUN_END.search(phrase)
-        if pronoun is not None:
-            named = _antecedent(text, first, start + len(before) - len(phrase) + pronoun.start())
+        relative = _RELATIVE_END.search(before) if not phrase.strip() else None
+        if relative is not None:                # E-220: a relative pronoun's antecedent
+            named = _antecedent(text, first, start_ + relative.start())
+        elif pronoun is not None:
+            named = _antecedent(text, first, start_ + len(before) - len(phrase) + pronoun.start())
         elif _HEAD_END.search(phrase):
             named = _source(phrase)
         else:
@@ -1102,12 +1436,12 @@ def refusal_target(text, words):
     the source rule above): 'extra' when a clause refuses only sources, superseded values or bands and every other clause
     is a reason, a scope statement, a substitution or a correction of a source, unnegated and disowning nothing."""
     text = text or ""
-    found = [(_refused(text[start:end], words), lead, first, start, end) for first, lead, start, end in _clauses(text)]
+    found = list(_clauses(text, words))
     kinds = {kind for kind, *_ in found}
     if "deliverable" in kinds:
         return "deliverable"
 
-    def beside(kind, lead, first, start, end):
+    def beside(kind, lead, first, last, start, end):
         clause = text[start:end]
         if audit._beside_extra(kind, lead, clause):
             return True
@@ -1364,12 +1698,20 @@ class Profile:
         texts = [(None, submission["report_text"])]
         if submission["refusal"] is not None:
             texts.append((None, submission["refusal"]["text"]))
+        # E-226: a claim's own text and qualifiers are about the census copy it cites (E-144): a field name there with
+        # no copy named takes that copy
+        copies = {claim["claim_id"]: _copy([artifacts[h] for h in claim["evidence_ids"] if h in artifacts])
+                  for claim in submission["claims"]}
         for claim in submission["claims"]:
             if claim["status"] != "retracted":
                 texts += [(claim["claim_id"], claim["text"])] + [(claim["claim_id"], q) for q in claim["qualifiers"]]
         for claim_id, text in texts:
-            findings += audit._text_findings(text, scale, "submission", sid, claim_id, delivered, covered, sigma,
-                                             integrity)
+            scale.text_copy = copies.get(claim_id)
+            try:
+                findings += audit._text_findings(text, scale, "submission", sid, claim_id, delivered, covered, sigma,
+                                                 integrity)
+            finally:
+                scale.text_copy = None
         return findings
 
     def covers(self, submission, required):
@@ -1417,9 +1759,15 @@ class Profile:
         return refusal_target(text, self.words)
 
     def refuses(self, text):
-        """True when a clause of ``text`` refuses one of the task's deliverables (E-173)."""
+        """True when a clause of ``text`` refuses one of the task's deliverables (E-173), not undone (E-226)."""
+        return any(kind == "deliverable" for kind, *_ in _clauses(text or "", self.words))
+
+    def prose_reason(self, text):
+        """The refusal-condition reading of a prose refusal text, read where its reason is given (audit.prose_reason,
+        E-226)."""
         text = text or ""
-        return any(_refused(text[start:end], self.words) == "deliverable" for _, _, start, end in _clauses(text))
+        return audit.prose_reason(text, [clause[2:] for clause in _clauses(text, self.words)
+                                         if clause[0] == "deliverable"], self.refusal_reason)
 
     def evidence(self, custody, artifacts, current, definition):
         names = sorted({c["evidence_predicate"] for c in definition["refusal_conditions"]})

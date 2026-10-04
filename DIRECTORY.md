@@ -50,7 +50,7 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `docs/workflow/` | Physics workflow instructions | 54 |
 | `docs/reference/` | Capabilities, contracts, and tool reference | 12 |
 | `docs/validation/` | Scoped results, cases, and evidence descriptions | 20 |
-| `docs/development/` | Contributor guidance and explicitly labeled history | 49 |
+| `docs/development/` | Contributor guidance and explicitly labeled history | 51 |
 | `docs/research/` | Research and evaluation protocols | 21 |
 | `docs/guides/` | Longer guides and sources | 5 |
 | `evidence/` | Curated historical inputs, measurements, and provenance | 856 |

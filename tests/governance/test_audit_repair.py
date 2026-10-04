@@ -1,9 +1,11 @@
-"""Development tests of the evaluator repair after the real-host smoke (decision E-188) and of its review (E-190, at the
-end), beside the held-out check
+"""Development tests of the evaluator repair after the real-host smoke (decision E-188) and of its review (E-190), and of
+the pilot request's two false-clean paths (E-200, at the end), beside the held-out check
 (test_audit_heldout.py) and the smoke regression cases (test_audit_smoke.py). Unit-level: the number reader's
-annotations, field-name labels and header-aware tables, the quantile-notation reading of refusal validity, and the
-rejected-quotation guards. Every text here is a SYNTHETIC fragment written for this file."""
+annotations, field-name labels and header-aware tables, the quantile-notation reading of refusal validity, the
+rejected-quotation guards, the doubting frame and the stray pass's carried unit. Every text here is a SYNTHETIC fragment
+written for this file."""
 import importlib.util
+import time
 from pathlib import Path
 
 import pytest
@@ -107,8 +109,9 @@ def test_quantile_notation_is_no_cross_section_wording(tasks):
         return [m for _, m in sigma]
 
     assert mentions("Band [−2σ, −1σ, 0, +1σ, +2σ] (events): 8.67, 11.72, 16.47, 23.33, 32.05.") == []
-    # a cross-section unit names a cross section: the quantile label 0 is a coarse mention there too (fail toward null)
-    assert mentions("Band [−2σ, −1σ, 0, +1σ, +2σ] (fb): 0.0712, 0.0963.") == [False, False, False]
+    # a cross-section unit names a cross section: the two values are unclassified mentions (fail toward null); the label
+    # 0 of the quantile label list is no number since E-220 (it was a coarse mention before)
+    assert mentions("Band [−2σ, −1σ, 0, +1σ, +2σ] (fb): 0.0712, 0.0963.") == [False, False]
     assert mentions("One cross section enters, and 0 checks failed.") == [False]   # coarse, cross-section wording
     assert mentions("Band [−2σ to +2σ]: 0.16218.") == [True]                    # the prior sigma_vis value
 
@@ -171,3 +174,135 @@ def test_a_list_line_reads_its_heading_historical_wording(tasks):
     p_obs = f"{oracle['prior']['sigma_vis_obs_fb']:.5g}"
     assert [v[1] for v in verdicts(scale, f"Results:\n- observed: {p_obs} fb")] == ["stale_value"]
     assert [v[1] for v in verdicts(scale, f"Previous results:\n- observed: {p_obs} fb")] == ["unresolved"]
+
+
+# ---- E-200: a doubting or negating frame, and the stray pass's carried unit ------------------------------------------
+
+@pytest.mark.parametrize("sentence, expected", [
+    ("The previous {p_obs} fb was not used.", ["historical"]),                       # asserted (control)
+    ("There is no doubt that the previous {p_obs} fb was superseded.", ["unresolved"]),   # "no doubt" counts (recorded)
+    ("The previous {p_obs} fb was not used. Not sure.", ["unresolved"]),             # a short doubting next sentence
+    ("The previous {p_obs} fb was not used; I cannot confirm it.", ["unresolved"]),  # a semicolon clause refers back
+    ("The previous {p_obs} fb was not used. I cannot say why the fit moved.", ["historical"]),   # about something else
+    ("It may be that the previous {p_obs} fb was superseded.", ["unresolved"]),
+    ("As far as I know, the previous {p_obs} fb was not used.", ["unresolved"]),
+    ("The observed limit changed from {p_obs} fb to {obs} fb, I believe.", ["unresolved", "supported"]),
+    ("I did not use the previous {p_obs} fb, since I could not verify it.", ["unresolved"]),   # a tag that refers back
+    # a doubt about something else, in another clause, governs nothing
+    ("The current luminosity is unknown, so the previous {p_obs} fb was not used.", ["historical"]),
+    ("Because the updated background is not yet verified, I did not reuse the previous {p_obs} fb.", ["historical"]),
+    ("The previous {p_obs} fb was not used, but I cannot say why the fit moved.", ["historical"]),
+])
+def test_a_doubting_frame_marks_nothing(tasks, sentence, expected):
+    oracle = tasks["lf-b"]["oracle"]
+    scale = audit._Scale(oracle, 0.005)
+    values = {"p_obs": f"{oracle['prior']['sigma_vis_obs_fb']:.5g}", "obs": f"{oracle['current']['sigma_vis_obs_fb']:.5g}"}
+    assert [v[1] for v in verdicts(scale, sentence.format(**values))] == expected
+
+
+def test_the_doubting_frame_is_read_per_clause():
+    text = "The previous 0.1 fb was not used. I cannot confirm this."
+    doubts = audit._Doubts(text, audit._spans(text))
+    assert doubts.at(0, 13) is True and doubts.at(1, 40) is True           # the next sentence is a tag
+    text = "The luminosity is unknown, so the old 0.1 fb was not used; it is final."
+    doubts = audit._Doubts(text, audit._spans(text))
+    assert doubts.at(0, text.index("0.1")) is False and doubts.at(0, 5) is True   # another clause, not a tag
+    assert audit._Doubts("A. B.", audit._spans("A. B.")).at(0, 0) is False
+
+
+def test_a_stray_value_is_read_in_the_unit_its_heading_names(tasks):
+    oracle = tasks["lf-b"]["oracle"]
+    scale = audit._Scale(oracle, 0.005)
+    prior = oracle["prior"]["sigma_vis_obs_fb"]
+    in_pb, in_fb = f"{prior / 1000:.5g}", f"{prior:.5g}"
+    # a pb heading scales the value to fb: the prior value is stale, reported in fb
+    [(value, verdict, field)] = verdicts(scale, f"Results (pb):\n- observed: {in_pb}")
+    assert (verdict, field) == ("stale_value", "sigma_vis_obs_fb") and float(value) == pytest.approx(float(in_fb))
+    # the fb digits under a pb heading scale to no known value, but as written they state the prior value: judged
+    # unit-ambiguous, unresolved, as "- observed: <n> pb" is (E-210; E-200 dropped it, and E-190 read it as fb)
+    [(value, verdict, field)] = verdicts(scale, f"Results (pb):\n- observed: {in_fb}")
+    assert (verdict, field) == ("unresolved", None) and float(value) == pytest.approx(float(in_fb) * 1000)
+    assert [v[1] for v in verdicts(scale, f"- observed: {in_fb} pb")] == ["unresolved"]
+    # digits that state nothing known under a pb heading are still not read
+    assert verdicts(scale, "Results (pb):\n- observed: 0.4711") == []
+    # two units: unit-ambiguous, unresolved
+    assert [v[1] for v in verdicts(scale, f"Results (fb) (pb):\n- observed: {in_fb}")] == ["unresolved"]
+    # the likelihood_freshness profile admits no stray integer
+    assert verdicts(scale, "Results (events):\n- observed: 19") == []
+
+
+@pytest.mark.parametrize("shape", ["value {p_obs}, ", "- observed: {p_obs}\n", "Results (fb): observed {p_obs}; "])
+def test_the_stray_pass_reads_a_megabyte_in_linear_time(tasks, shape):
+    oracle = tasks["lf-b"]["oracle"]
+    scale = audit._Scale(oracle, 0.005)
+    line = shape.format(p_obs=f"{oracle['prior']['sigma_vis_obs_fb']:.5g}")
+    text = line * (audit.MAX_TEXT_CHARS // len(line))
+    started = time.process_time()
+    findings = audit._text_findings(text, scale, "final_message", None, None, True, [], [], [])
+    assert time.process_time() - started < 20 and findings, len(text)       # the E-190 rescan took hours
+
+
+# ---- E-210: the review of E-200 (embedding frames, the frame's reach, reversals, the carried unit's scaled miss) ------
+
+@pytest.mark.parametrize("sentence, expected", [
+    # the writer's own assertive frames stay historical
+    ("I confirm that the previous {p_obs} fb was not used.", ["historical"]),
+    ("We can confirm that the previous {p_obs} fb was not used.", ["historical"]),
+    ("It is true that the previous {p_obs} fb was not used.", ["historical"]),
+    ("I am certain that the previous {p_obs} fb was not used.", ["historical"]),
+    # any other embedding frame, a listed doubt or none, leaves it unresolved
+    ("The log shows the previous {p_obs} fb was not used.", ["unresolved"]),
+    ("It should be noted that the previous {p_obs} fb was not used.", ["unresolved"]),
+    ("I confirm that the draft says the previous {p_obs} fb was not used.", ["unresolved"]),   # the second frame counts
+    ("I do not confirm that the previous {p_obs} fb was not used.", ["unresolved"]),
+    # a frame after the number in its clause does not govern it; "or so" is no clause break
+    ("The previous {p_obs} fb was not used, so the draft claims nothing.", ["historical"]),
+    ("The previous {p_obs} fb was not used, or so it seems.", ["unresolved"]),
+    # reach: a framing sentence covers its paragraph, or the next one when it ends its own; a blank line stops a tag
+    ("I cannot confirm the following:\n\nThe previous {p_obs} fb was not used.", ["unresolved"]),
+    ("I cannot confirm the following.\n\nNothing else changed.\n\nThe previous {p_obs} fb was not used.", ["historical"]),
+    ("The previous {p_obs} fb was not used.\n\nThe logs are incomplete. I cannot confirm this.", ["historical"]),
+    ("The previous {p_obs} fb was not used. The fit converged. The logs are complete. I cannot confirm this.",
+     ["historical"]),                                                                 # beyond DOUBT_REACH
+    # a reversal opens the next sentence of the paragraph only
+    ("The previous {p_obs} fb was not used. It was.", ["unresolved"]),
+    ("The previous {p_obs} fb was not used.\n\nActually, the fit converged.", ["historical"]),
+    ("The previous {p_obs} fb was not used. The fit converged. Actually, it was fast.", ["historical"]),
+    # a back-referring delivery predicate in the next sentence reasserts; a negated one or one without a back-reference
+    # does not
+    ("The previous {p_obs} fb is outdated. I report it as the observed limit.", ["unresolved"]),
+    ("The previous {p_obs} fb is outdated. I did not use it.", ["historical"]),
+    ("The previous {p_obs} fb is outdated; I report {obs} fb as the observed limit.", ["historical", "supported"]),
+    # a first-person doubt closing its clause is a tag; one with its own object is not
+    ("The previous {p_obs} fb was not used, though I have not checked.", ["unresolved"]),
+    ("The previous {p_obs} fb was not used, though I have not checked the fit logs.", ["historical"]),
+])
+def test_embedding_frames_reach_and_reversals(tasks, sentence, expected):
+    oracle = tasks["lf-b"]["oracle"]
+    scale = audit._Scale(oracle, 0.005)
+    values = {"p_obs": f"{oracle['prior']['sigma_vis_obs_fb']:.5g}", "obs": f"{oracle['current']['sigma_vis_obs_fb']:.5g}"}
+    assert [v[1] for v in verdicts(scale, sentence.format(**values))] == expected
+
+
+def test_an_ignored_span_is_the_statement_not_a_frame():
+    """audit_bank.corrected passes its marker as ``ignore``: "the draft is wrong" is the correction, not a doubt over it;
+    another doubt of its clause, or a tag in another clause, still counts."""
+    text = "The draft gives 33 events, and the draft is wrong."
+    doubts, marker = audit._Doubts(text, audit._spans(text)), text.index("wrong")
+    assert doubts.at(0, marker) is True and doubts.at(0, marker, ignore=(marker, marker + 5)) is False
+    text = "The draft gives 33 events, and I am not sure the draft is wrong."
+    marker = text.index("wrong")
+    assert audit._Doubts(text, audit._spans(text)).at(0, marker, ignore=(marker, marker + 5)) is True
+    text = "The draft is wrong, I think."
+    marker = text.index("wrong")
+    assert audit._Doubts(text, audit._spans(text)).at(0, marker, ignore=(marker, marker + 5)) is True
+
+
+def test_the_framing_pass_reads_many_sentences_in_linear_time():
+    text = "I cannot confirm the following. The previous 0.16218 fb was not used. " * 20000
+    sentences = audit._Sentences(text)
+    doubts = audit._Doubts(text, sentences.spans)
+    started = time.process_time()
+    last = text.rindex("0.16218")
+    assert doubts.at(sentences.index(last), last) is True
+    assert time.process_time() - started < 20

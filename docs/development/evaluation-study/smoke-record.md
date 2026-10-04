@@ -10,7 +10,11 @@ corrected the same day after an independent re-check against the store, the jour
 operator's logs (plan.md iteration 11). On 2026-09-28 the sealed evidence was re-judged, read-only, by the repaired
 evaluator (E-188, E-189; section "Re-judged with scorer `e64ae0848fcb`"), and again after that
 repair's review (E-190, E-191; section "Re-judged with scorer `dc3f775e427a`"), with the same cells.
-Both re-judgments sit beside the sealed verdicts and do not replace them.
+On 2026-10-03 it was re-judged after the evaluator repair the pilot opened (E-220 to E-224; section
+"Re-judged with scorer `6ccdde0dbf1a`"): two cells moved, and run 6 is a second verified completion.
+It was re-judged again after that repair's review (E-225 to E-227; section "Re-judged with scorer
+`7cddf44b3f8d`"), with no cell changed. All four re-judgments sit beside the sealed verdicts and do not
+replace them.
 
 ## What this is
 
@@ -509,6 +513,52 @@ not authorized input for this run" needed the spaced double hyphen read as a cla
 campaign directory was only read: its paths, sizes, modes, modification times and SHA-256 digests
 were identical before and after, and identical to those recorded after the E-189 re-judgment.
 
+## Re-judged with scorer `6ccdde0dbf1a` (2026-10-03, E-224)
+
+After the development pilot the evaluator was repaired again (E-220 to E-223). The sealed smoke was then
+re-judged read-only with `ravel-eval-mechanical/6ccdde0dbf1a`, by `cli.py rejudge` from a clean checkout
+at `0ec470e`, into `local-runs/evaluation-slice/smoke/rejudged-6ccdde0dbf1a/` (ignored). Its
+`outcomes.json` has sha256 `a880325d761d2a7e4b276dd5cb01500be944d9b0fdef8f5a996164c9a01a0af4` and its
+`rejudge.json` sha256 `06beb5df1a3df81ec305a86c2fd8daaa5acb83b91d949b4a8d90b39976b39aa8`; no run had an
+evaluator error. The store's 1,642 paths (1,162 files) were identical before the re-judgment, after it
+and after the attribution replays, by type, size, mode, modification time and SHA-256.
+
+Two cells moved, both as the replayed regression cases had shown (E-223):
+
+| # | Task | Arm | Cell: `dc3f775e427a` → `6ccdde0dbf1a` | Reading responsible |
+|---|---|---|---|---|
+| 3 | lf-b | enforcement | invalid, attempted / delivered: 2 / 0 → 0 / 0 | Ordered quantile lists (E-220 (a)): the blocked submission's band lists are read in order and restate its claims |
+| 6 | lf-b | full | `unsupported_claim`: null → false; unresolved items: 3 → 2 | Converted values (E-220 (c)): the arrow-converted fb value takes the median role of its event count |
+
+Run 6 is now a verified completion beside run 5 (fidelity error 3.6 × 10⁻⁶ against a tolerance of
+0.005). The other cells are unchanged. The four refusals stay unadjudicated for the no-value-claim
+reason given above (H-13).
+
+The intermediate scorer `10875c1f1bef` (E-200 to E-210) was replayed in memory from `7d52909`. It gives
+every compared smoke cell the value `dc3f775e427a` gave, so the two moves come from the post-pilot repair
+alone. The attribution used the same leave-one-out replay as the pilot's (pilot-record.md, "Re-judged
+with scorer `6ccdde0dbf1a`") and left no residual. None of the rule changes awaiting review (H-110,
+H-115) moves a smoke cell.
+
+## Re-judged with scorer `7cddf44b3f8d` (2026-10-03, E-227)
+
+A review of the post-pilot repair found fail-open paths in it (E-225), and the evaluator was repaired
+again after held-out cases were committed first (E-226, E-228). The sealed smoke was then re-judged
+read-only with `ravel-eval-mechanical/7cddf44b3f8d`, by `cli.py rejudge` from a clean checkout at
+`7861684`, into `local-runs/evaluation-slice/smoke/rejudged-7cddf44b3f8d/` (ignored). Its `outcomes.json`
+has sha256 `245cf7bb25594d1ab656045ff4a2c8171049d45fdb2f33e36da8e0d254b9034a` and its `rejudge.json`
+sha256 `efef0a2761e7031b2ab6a536121892ae4cc6fe633a8148908d6f6c8e13684d65`; no run had an evaluator
+error. The store's 1,642 paths (1,162 files) were identical before the re-judgment, after it and after
+the attribution replays, by type, size, mode, modification time and SHA-256, and identical to the
+snapshot taken after E-224.
+
+**No cell and no claim finding changed** from `6ccdde0dbf1a`. The replay of the pilot's section
+(pilot-record.md, "Re-judged with scorer `7cddf44b3f8d`") holds here too: the `6ccdde0dbf1a` evaluator,
+loaded in memory from `0ec470e`, reproduces its 8 smoke reports byte for byte, and with each of E-226's
+19 readings switched back to its `0ec470e` behaviour the evaluator gives those reports again, byte for
+byte, scorer id aside. None of the rule changes awaiting review (H-110, H-117) moves a smoke cell, and
+the four refusals stay unadjudicated (H-13). Run 6 stays the second verified completion.
+
 ## What the smoke established and what it did not
 
 It established, on this host with this pin:
@@ -546,7 +596,9 @@ It did not establish:
 ## What happens next
 
 1. **Done: evaluator repair** (E-163, E-188, E-189) and its review's repair (E-190, E-191): see the
-   two "Re-judged" sections above. The rules await the deferred review (H-13, H-90, H-91).
+   first two "Re-judged" sections above. The pilot's repair (E-220 to E-223) moved two more cells (third
+   "Re-judged" section, E-224); the review of that repair and its repair (E-225 to E-228) moved none
+   (fourth "Re-judged" section, E-227). The rules await the deferred review (H-13, H-90, H-91, H-117).
 2. **The guard question** (H-70).
 3. **The pilot** (WP16) needs its own authorization (E-34, H-73), a fresh token, and the owner's
    decision on the operator role (H-71).
@@ -564,7 +616,10 @@ It did not establish:
   first version (sha256 `ab40725323fadef56569a9935de969f0aa86bd6f155a01b7ef58e6d25276c6d3`) labelled
   the host binding's file sha256 without naming the journals' canonical digest and did not show that
   HP-09's CONNECTs were denied; the rest of its output is unchanged.
-- The re-judgment (ignored): `local-runs/evaluation-slice/smoke/rejudged-e64ae0848fcb/` (E-189), and the
+- The re-judgments (ignored): `local-runs/evaluation-slice/smoke/rejudged-e64ae0848fcb/` (E-189),
+  `rejudged-dc3f775e427a/` (E-191), `rejudged-6ccdde0dbf1a/` (E-224, its tables from
+  `local-runs/evaluation-slice/pilot/rejudge-tables.py smoke`) and `rejudged-7cddf44b3f8d/` (E-227, its
+  tables from `local-runs/evaluation-slice/pilot/rejudge-7cddf44b3f8d-tables.py smoke`), and the
   replayed regression fixtures in `tests/governance/fixtures/smoke/`.
 - The operator's outputs, outside Git in the lead session's scratchpad and `/tmp`: the prepared command
   sequence, the S10 and S11 run logs, the S6 treatment check, the S7 and S8b probe summaries, the S9 and

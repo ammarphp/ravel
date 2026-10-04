@@ -387,9 +387,114 @@ def _sealed_run_errors(campaign_dir, manifest, runs) -> list:
     return errors
 
 
+# A smoke approval (E-204) binds neither the broker limits nor the order of the roster: it authorizes only the smoke's
+# size and the runner's default limits (runner.DEFAULT_BUDGET's, restated here: the evaluator's import graph never
+# reaches the coordinator; a test keeps them equal). A larger roster or other limits need a pilot approval (E-211).
+SMOKE_MAX_ASSIGNMENTS = 8
+SMOKE_BROKER_LIMITS = {"max_broker_ops": 40, "max_fits": 4, "max_stage_executions": 6}
+
+
+def approval_scope_problems(approval: dict, *, spec, host, budget, arms) -> list:
+    """Why ``approval`` (a real-host synthetic campaign's approval record) does not cover this campaign ([] when it
+    does), from the campaign's own files: ``spec`` the v1 spec (task ids, seeds, schedule seed), ``host`` the pinned
+    host fields (adapter, version, executable_sha256, model, effort), ``budget`` the manifest budget and ``arms`` the
+    arm names in the campaign's order. The caps must equal the budget exactly (canonical bytes: 2.0 is not 2), runs and
+    assignments the roster (every task x seed in every arm), the scope the spec's, the host fields the pin's, and shared
+    quota accepted. A pilot's approval (E-204) also binds the schedule: its schedule_seed must equal the spec's, its task
+    list, seeds and arms the campaign's in their order, and its broker_limits the budget's (canonical bytes). A smoke's
+    covers at most SMOKE_MAX_ASSIGNMENTS assignments and only SMOKE_BROKER_LIMITS (E-211). The build
+    (live.approval_problems) adds the credential variable, the pilot's host settings and the ledger; ``verify`` and
+    preflight re-run this against the frozen record (E-211), so a campaign rewritten after its build is refused."""
+    try:
+        contracts.validate_smoke_approval(approval)
+    except ContractError as exc:
+        return [str(exc)]
+    problems = []
+    pilot = approval["kind"] == contracts.PILOT_APPROVAL_KIND
+    for name in ("usd_per_run", "seconds_per_run", "global_usd_cap", "global_seconds_cap"):
+        if name not in budget or canonical.canonical_bytes(approval["caps"][name]) != canonical.canonical_bytes(
+                budget[name]):
+            problems.append(f"caps.{name} {approval['caps'][name]!r} differs from the campaign budget's "
+                            f"{budget.get(name)!r}")
+    tasks = [t["id"] for t in spec["tasks"]]
+    roster = len(tasks) * len(spec["seeds"]) * len(list(arms))
+    scope = approval["scope"]
+    for name, mine, theirs in (("tasks", scope["tasks"], tasks), ("seeds", scope["seeds"], spec["seeds"]),
+                               ("arms", scope["arms"], list(arms))):
+        if sorted(mine) != sorted(theirs):
+            problems.append(f"scope.{name} {sorted(mine)} differs from the campaign's {sorted(theirs)}")
+        elif pilot and list(mine) != list(theirs):
+            problems.append(f"scope.{name} {list(mine)} is not in the campaign's order {list(theirs)} (a pilot's "
+                            "approval binds the schedule)")
+    if pilot:
+        if "schedule_seed" not in spec or canonical.canonical_bytes(approval["schedule_seed"]) != \
+                canonical.canonical_bytes(spec["schedule_seed"]):
+            problems.append(f"schedule_seed {approval['schedule_seed']!r} differs from the campaign's "
+                            f"{spec.get('schedule_seed')!r}")
+        for name in contracts.BROKER_LIMIT_FIELDS:
+            mine = approval["broker_limits"][name]
+            if name not in budget or canonical.canonical_bytes(mine) != canonical.canonical_bytes(budget[name]):
+                problems.append(f"broker_limits.{name} {mine!r} differs from the campaign budget's "
+                                f"{budget.get(name)!r}")
+    else:
+        if roster > SMOKE_MAX_ASSIGNMENTS:
+            problems.append(f"a smoke approval covers at most {SMOKE_MAX_ASSIGNMENTS} assignments, not {roster}: a "
+                            f"larger campaign needs a {contracts.PILOT_APPROVAL_KIND} approval (E-211)")
+        for name, default in SMOKE_BROKER_LIMITS.items():
+            if budget.get(name, default) != default:
+                problems.append(f"budget.{name} {budget.get(name)!r}: a smoke approval binds no broker limits, so it "
+                                f"covers only the default {default!r}; other limits need a "
+                                f"{contracts.PILOT_APPROVAL_KIND} approval (E-211)")
+    if scope["assignments"] != roster or approval["caps"]["runs"] != roster:
+        problems.append(f"scope.assignments/caps.runs {scope['assignments']}/{approval['caps']['runs']} differ from "
+                        f"the {roster} assignments of the roster")
+    for name in contracts.SMOKE_HOST_FIELDS:
+        if scope["host"][name] != host.get(name):
+            problems.append(f"scope.host.{name} {scope['host'][name]!r} differs from the pinned host's "
+                            f"{host.get(name)!r}")
+    if approval["account_preconditions"]["shared_quota_accepted"] is not True:
+        problems.append("account_preconditions.shared_quota_accepted: the budget owner has not accepted runs "
+                        "drawing on the shared subscription quota")
+    return problems
+
+
+def approval_host_fields(host) -> dict:
+    """The fields an approval's scope.host names, from a campaign's frozen host configuration (its reasoning is
+    "--effort <level>")."""
+    reasoning = host.get("reasoning") or ""
+    return {"adapter": host.get("adapter"), "version": host.get("version"),
+            "executable_sha256": host.get("executable_sha256"), "model": host.get("model"),
+            "effort": reasoning[len("--effort "):] if reasoning.startswith("--effort ") else None}
+
+
+def campaign_arms(manifest) -> list:
+    """The campaign's arm names in the order its roster was built from (contracts.ARMS when it holds exactly them)."""
+    names = list(manifest["arms"])
+    return list(contracts.ARMS) if sorted(names) == sorted(contracts.ARMS) else sorted(names)
+
+
+def frozen_approval(campaign_dir, manifest):
+    """(the approval record, the problems of its scope against this campaign's files) of a real-host synthetic
+    campaign; (None, []) for any other campaign (its approval, if any, is a record this module does not read)."""
+    authorization = manifest["authorization"]
+    if authorization["kind"] != "synthetic_engineering" or authorization["reference_sha256"] is None \
+            or manifest["host"]["adapter"] == "fake":
+        return None, []
+    try:
+        approval = canonical.strict_loads(_regular(campaign_dir / APPROVAL, campaign_dir).read_bytes().decode("utf-8"))
+        spec = canonical.strict_loads(_regular(campaign_dir / SPEC, campaign_dir).read_bytes().decode("utf-8"))
+    except (UnicodeDecodeError, *READ_ERRORS) as exc:
+        return None, [f"the frozen approval record or spec cannot be read ({exc})"]
+    if not isinstance(approval, dict):
+        return None, ["the frozen approval record is no JSON object"]
+    return approval, approval_scope_problems(approval, spec=spec, host=approval_host_fields(manifest["host"]),
+                                             budget=manifest["budget"], arms=campaign_arms(manifest))
+
+
 def _approval_errors(campaign_dir, manifest) -> list:
     """An authorization's reference_sha256, when given, must be the sha256 of the approval record frozen
-    with the campaign; with none given there is no approval record."""
+    with the campaign; with none given there is no approval record. A real-host synthetic campaign's frozen approval
+    must still cover the campaign's files (approval_scope_problems, E-211)."""
     reference, path = manifest["authorization"]["reference_sha256"], campaign_dir / APPROVAL
     if reference is None:
         present = os.path.lexists(path)
@@ -401,7 +506,8 @@ def _approval_errors(campaign_dir, manifest) -> list:
                 f"campaign ({exc})"]
     if canonical.sha256_bytes(data) != reference:
         return [f"{APPROVAL}: sha256 differs from authorization.reference_sha256"]
-    return []
+    _, problems = frozen_approval(campaign_dir, manifest)
+    return [f"{APPROVAL}: does not cover the campaign: {p}" for p in problems]
 
 
 BANK_INDEX_KEYS = ("contrasts", "visible_oracle_values")   # a task-bank index (bank_version) must carry both

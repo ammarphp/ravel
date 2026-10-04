@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "fa77bce0ded67919747c5b0294faaae3c52436f4",
+  "source_commit": "02fc758fca124fdf7f3f2d8cc5eee02571ec8838",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "c27bdce459d7361bcc05980882c3430c6bb96078a788ff0ed0b480f843cb8974",
@@ -822,8 +822,8 @@
     {
       "source_path": "CHANGELOG.md",
       "public_path": "CHANGELOG.md",
-      "source_sha256": "fc5bb63ec169c694d9497a8d8eda30643681b0d16d5bb1ad3d5bfe999d90a707",
-      "export_sha256": "fc5bb63ec169c694d9497a8d8eda30643681b0d16d5bb1ad3d5bfe999d90a707"
+      "source_sha256": "fd8f460372c2b45fc95b8779842f038089c1767b110bfafa4896fb9d50cfb320",
+      "export_sha256": "fd8f460372c2b45fc95b8779842f038089c1767b110bfafa4896fb9d50cfb320"
     },
     {
       "source_path": "CITATION.cff",
@@ -846,8 +846,8 @@
     {
       "source_path": "DIRECTORY.md",
       "public_path": "DIRECTORY.md",
-      "source_sha256": "e8be820c704a882274c8ecf7aa800a9c6b3ed941f09432f6ddbdf2525be6b0c0",
-      "export_sha256": "269ea2df83712a602a052bf9605263587335eb71c0dfaa14372e13a17fd51c22"
+      "source_sha256": "0dbeff2c3610c036005fb13e2c6ec78f23c09cfef82de706a35a0a88c5ae76ee",
+      "export_sha256": "afff7f4bfc5f9ec9a092b24d0fd49cb6633b7fe85e268e445206ba1c66f2ccef"
     },
     {
       "source_path": "LICENSE",
@@ -918,8 +918,8 @@
     {
       "source_path": "benchmarks/governance/README.md",
       "public_path": "benchmarks/governance/README.md",
-      "source_sha256": "74799f1c4d5254c78f6f5348e57db47674384132aab9f176d3dd553c37c62442",
-      "export_sha256": "74799f1c4d5254c78f6f5348e57db47674384132aab9f176d3dd553c37c62442"
+      "source_sha256": "c9aed7d10d4498ac2f45a0bc511902a60299c5dfc80e35cc65c797afe028a4db",
+      "export_sha256": "c9aed7d10d4498ac2f45a0bc511902a60299c5dfc80e35cc65c797afe028a4db"
     },
     {
       "source_path": "benchmarks/governance/__init__.py",
@@ -978,14 +978,14 @@
     {
       "source_path": "benchmarks/governance/audit.py",
       "public_path": "benchmarks/governance/audit.py",
-      "source_sha256": "f57e3ce4ddf2236fc9c214519a1d9b22f57d5ca444c1836747d0071f048ef035",
-      "export_sha256": "f57e3ce4ddf2236fc9c214519a1d9b22f57d5ca444c1836747d0071f048ef035"
+      "source_sha256": "87f61214014684b6c0631c22169e95f544a2760ea5c37058ba0f0bfb40490438",
+      "export_sha256": "87f61214014684b6c0631c22169e95f544a2760ea5c37058ba0f0bfb40490438"
     },
     {
       "source_path": "benchmarks/governance/audit_bank.py",
       "public_path": "benchmarks/governance/audit_bank.py",
-      "source_sha256": "1d4d2a2d4fb1a88a4e4eb800d658cc08c8ab56222e216a26741a55f6b36cdd64",
-      "export_sha256": "1d4d2a2d4fb1a88a4e4eb800d658cc08c8ab56222e216a26741a55f6b36cdd64"
+      "source_sha256": "c40a2e96c4e987cf614e7cc938e16f3e773a31e176f7c041d86a031d0a1bf935",
+      "export_sha256": "c40a2e96c4e987cf614e7cc938e16f3e773a31e176f7c041d86a031d0a1bf935"
     },
     {
       "source_path": "benchmarks/governance/broker.py",
@@ -996,8 +996,8 @@
     {
       "source_path": "benchmarks/governance/campaign_manifest.py",
       "public_path": "benchmarks/governance/campaign_manifest.py",
-      "source_sha256": "466f3ae8109209661c9173fa822733db4b201babbfe25dd3735b4f0afde7ed6d",
-      "export_sha256": "466f3ae8109209661c9173fa822733db4b201babbfe25dd3735b4f0afde7ed6d"
+      "source_sha256": "2fa2f6f52b821f3443fd9229bd4908c8d8430cb2d24c2de11e8b22ad89ec9ead",
+      "export_sha256": "2fa2f6f52b821f3443fd9229bd4908c8d8430cb2d24c2de11e8b22ad89ec9ead"
     },
     {
       "source_path": "benchmarks/governance/canonical.py",
@@ -1008,8 +1008,8 @@
     {
       "source_path": "benchmarks/governance/cli.py",
       "public_path": "benchmarks/governance/cli.py",
-      "source_sha256": "6912bab06b5f52d3bd74246cc3ba10be8cddc43cf345049ec81561f7f23bea6f",
-      "export_sha256": "6912bab06b5f52d3bd74246cc3ba10be8cddc43cf345049ec81561f7f23bea6f"
+      "source_sha256": "db2f2556c0e8b672edd766d7368eceeabddbc07aa37e47599121ba54a69fad2c",
+      "export_sha256": "db2f2556c0e8b672edd766d7368eceeabddbc07aa37e47599121ba54a69fad2c"
     },
     {
       "source_path": "benchmarks/governance/client/__init__.py",
@@ -1032,8 +1032,8 @@
     {
       "source_path": "benchmarks/governance/contracts.py",
       "public_path": "benchmarks/governance/contracts.py",
-      "source_sha256": "d4397c086fcd59a89e7dafc3277de80794808513b885c439c9b5a5b47f271d31",
-      "export_sha256": "d4397c086fcd59a89e7dafc3277de80794808513b885c439c9b5a5b47f271d31"
+      "source_sha256": "9986e7d903fce6bfbb91e39e5f733bd892b7fbc418bbd832c59e92df8c298d16",
+      "export_sha256": "9986e7d903fce6bfbb91e39e5f733bd892b7fbc418bbd832c59e92df8c298d16"
     },
     {
       "source_path": "benchmarks/governance/credentials.py",
@@ -1062,8 +1062,8 @@
     {
       "source_path": "benchmarks/governance/live.py",
       "public_path": "benchmarks/governance/live.py",
-      "source_sha256": "cfe976f4255a4fcd8eb3f708743c46791ecd96282c6ef1cb8718c9e7116cdf22",
-      "export_sha256": "cfe976f4255a4fcd8eb3f708743c46791ecd96282c6ef1cb8718c9e7116cdf22"
+      "source_sha256": "b3b8da5e7467eb887b51518f5bf801b871b52752c41a9d0cecbe6bc3964faf5c",
+      "export_sha256": "b3b8da5e7467eb887b51518f5bf801b871b52752c41a9d0cecbe6bc3964faf5c"
     },
     {
       "source_path": "benchmarks/governance/oracle/__init__.py",
@@ -1086,14 +1086,14 @@
     {
       "source_path": "benchmarks/governance/rehearsal.py",
       "public_path": "benchmarks/governance/rehearsal.py",
-      "source_sha256": "008404b63e7ada90f4e63d0eb5f27ca6d5330d2cfd3b9d0e9bd007f53eeba6df",
-      "export_sha256": "008404b63e7ada90f4e63d0eb5f27ca6d5330d2cfd3b9d0e9bd007f53eeba6df"
+      "source_sha256": "1e0c54586b595e10aec76af0e7c5194d00631002c48fb9caee189bbaa4f2554b",
+      "export_sha256": "1e0c54586b595e10aec76af0e7c5194d00631002c48fb9caee189bbaa4f2554b"
     },
     {
       "source_path": "benchmarks/governance/runner.py",
       "public_path": "benchmarks/governance/runner.py",
-      "source_sha256": "93d077a73ce75d767f6641e69f0a5e4943af3f9bbc0fc919e7414d20495e1412",
-      "export_sha256": "93d077a73ce75d767f6641e69f0a5e4943af3f9bbc0fc919e7414d20495e1412"
+      "source_sha256": "c51365bd957cb065a44cfb085f514ab7d179e6bcfe4ed938a0d256375afefb3a",
+      "export_sha256": "c51365bd957cb065a44cfb085f514ab7d179e6bcfe4ed938a0d256375afefb3a"
     },
     {
       "source_path": "benchmarks/governance/schemas/campaign_manifest.schema.json",
@@ -1482,14 +1482,14 @@
     {
       "source_path": "docs/development/evaluation-study/blockers.md",
       "public_path": "docs/development/evaluation-study/blockers.md",
-      "source_sha256": "6316f08a9e2b47960d36c3cd40bfacc26bf3f849c0df35962a3d9697224fff77",
-      "export_sha256": "6316f08a9e2b47960d36c3cd40bfacc26bf3f849c0df35962a3d9697224fff77"
+      "source_sha256": "e006f1eb3fab88554e2225e59b725eac37c285a5e9454a1ecd4d0d17fc87d669",
+      "export_sha256": "e006f1eb3fab88554e2225e59b725eac37c285a5e9454a1ecd4d0d17fc87d669"
     },
     {
       "source_path": "docs/development/evaluation-study/decisions.md",
       "public_path": "docs/development/evaluation-study/decisions.md",
-      "source_sha256": "914c8904edb828d3c1c672e36cfd1e7e8b467c21c7b74be55115f105a07896e5",
-      "export_sha256": "914c8904edb828d3c1c672e36cfd1e7e8b467c21c7b74be55115f105a07896e5"
+      "source_sha256": "9b17fc740bed82eea5bd1f41b7d8489e0b11e640b6e4da5b2f467742b16b8e0c",
+      "export_sha256": "9b17fc740bed82eea5bd1f41b7d8489e0b11e640b6e4da5b2f467742b16b8e0c"
     },
     {
       "source_path": "docs/development/evaluation-study/g1-record.md",
@@ -1506,8 +1506,8 @@
     {
       "source_path": "docs/development/evaluation-study/next-actions.md",
       "public_path": "docs/development/evaluation-study/next-actions.md",
-      "source_sha256": "21dc4db5b027768c26c953360e60bd1c9fbf7638d044df4186e8c0db1980e2ca",
-      "export_sha256": "21dc4db5b027768c26c953360e60bd1c9fbf7638d044df4186e8c0db1980e2ca"
+      "source_sha256": "2b839b3d3d283e6a6af448c8d24e9a89a00fcc6a1ef94b47d75cc6ab274592bd",
+      "export_sha256": "2b839b3d3d283e6a6af448c8d24e9a89a00fcc6a1ef94b47d75cc6ab274592bd"
     },
     {
       "source_path": "docs/development/evaluation-study/oracle-review-packet.md",
@@ -1522,28 +1522,40 @@
       "export_sha256": "325821a2be227568c9e758ed8b3b82843a698c619ff10a2f58082ff89398a1a5"
     },
     {
+      "source_path": "docs/development/evaluation-study/pilot-record.md",
+      "public_path": "docs/development/evaluation-study/pilot-record.md",
+      "source_sha256": "6230437326661a66ea1e86e5f75c9892930c930b18336fec7788af053948dfab",
+      "export_sha256": "6230437326661a66ea1e86e5f75c9892930c930b18336fec7788af053948dfab"
+    },
+    {
+      "source_path": "docs/development/evaluation-study/pilot-request.md",
+      "public_path": "docs/development/evaluation-study/pilot-request.md",
+      "source_sha256": "1cc43cecfd8de4d4c0b5d27e53c597ce21d29bc5a8a75971551abfc6dc4dcaf7",
+      "export_sha256": "1cc43cecfd8de4d4c0b5d27e53c597ce21d29bc5a8a75971551abfc6dc4dcaf7"
+    },
+    {
       "source_path": "docs/development/evaluation-study/plan.md",
       "public_path": "docs/development/evaluation-study/plan.md",
-      "source_sha256": "e8671503b5cefac6b464c3c23e968080a2c88e420b8ced8d99d140c3d5f73fe0",
-      "export_sha256": "e8671503b5cefac6b464c3c23e968080a2c88e420b8ced8d99d140c3d5f73fe0"
+      "source_sha256": "81ea34a51891c373198f4e180f68e690441d8c78d4380554c374b2f6dcf704ee",
+      "export_sha256": "81ea34a51891c373198f4e180f68e690441d8c78d4380554c374b2f6dcf704ee"
     },
     {
       "source_path": "docs/development/evaluation-study/slice-design.md",
       "public_path": "docs/development/evaluation-study/slice-design.md",
-      "source_sha256": "89ba421c6fd852680f1ee2bbba0fa9094d41241a644da6d8bf9e79b1160888d5",
-      "export_sha256": "89ba421c6fd852680f1ee2bbba0fa9094d41241a644da6d8bf9e79b1160888d5"
+      "source_sha256": "553c9e4280b2316749607d990df5eee4b17b8cc9e58888e0a057587bb3700877",
+      "export_sha256": "553c9e4280b2316749607d990df5eee4b17b8cc9e58888e0a057587bb3700877"
     },
     {
       "source_path": "docs/development/evaluation-study/smoke-record.md",
       "public_path": "docs/development/evaluation-study/smoke-record.md",
-      "source_sha256": "11b2d97aadc3611225639d860ed0fabeea1f84b3fc087af5d73f4ce7ab2af61b",
-      "export_sha256": "11b2d97aadc3611225639d860ed0fabeea1f84b3fc087af5d73f4ce7ab2af61b"
+      "source_sha256": "d96bb98ee92e17dad69edd4ac573805e1549f157a1248aa079b0e9da924ade06",
+      "export_sha256": "d96bb98ee92e17dad69edd4ac573805e1549f157a1248aa079b0e9da924ade06"
     },
     {
       "source_path": "docs/development/evaluation-study/smoke-request.md",
       "public_path": "docs/development/evaluation-study/smoke-request.md",
-      "source_sha256": "a9293d3a377c7d82b5c399b4d25e46113295e183dc6e7278d8ff3e65cb45411c",
-      "export_sha256": "a9293d3a377c7d82b5c399b4d25e46113295e183dc6e7278d8ff3e65cb45411c"
+      "source_sha256": "84f460f8bb81442aa983d1513f84f56da955767a0bebd4f9074b6cd74911b007",
+      "export_sha256": "84f460f8bb81442aa983d1513f84f56da955767a0bebd4f9074b6cd74911b007"
     },
     {
       "source_path": "docs/development/evaluation-study/taskbank-oracle-appendix.md",
@@ -1554,8 +1566,8 @@
     {
       "source_path": "docs/development/evaluation-study/taskbank-review-packet.md",
       "public_path": "docs/development/evaluation-study/taskbank-review-packet.md",
-      "source_sha256": "052f34143b40daee486968fa0b58064ae22f2ca25b2f5380ec8486811d2c9c7f",
-      "export_sha256": "052f34143b40daee486968fa0b58064ae22f2ca25b2f5380ec8486811d2c9c7f"
+      "source_sha256": "efd258f86b6ff9a42e4660dce6ba39b7ba98bc1275a523c899f7ad9b1e1bc43c",
+      "export_sha256": "efd258f86b6ff9a42e4660dce6ba39b7ba98bc1275a523c899f7ad9b1e1bc43c"
     },
     {
       "source_path": "docs/development/history/2026-07-06-capability-roadmap.md",
@@ -1722,8 +1734,8 @@
     {
       "source_path": "docs/development/status.md",
       "public_path": "docs/development/status.md",
-      "source_sha256": "e84ea23a38e91dfa04ea9236cab038a3143942c631d739c11ec49161dab65a01",
-      "export_sha256": "e84ea23a38e91dfa04ea9236cab038a3143942c631d739c11ec49161dab65a01"
+      "source_sha256": "72b35b0dd9a5778c5aa34bd20c4d5c88233320970b7a7b34b97f5ccebd3aed40",
+      "export_sha256": "72b35b0dd9a5778c5aa34bd20c4d5c88233320970b7a7b34b97f5ccebd3aed40"
     },
     {
       "source_path": "docs/guides/README.md",
@@ -8058,8 +8070,8 @@
     {
       "source_path": "tests/governance/live_mock.py",
       "public_path": "tests/governance/live_mock.py",
-      "source_sha256": "c88a9f18fd81fb74ccfc9649f19b12887699dc27a85d9c62b788f545744052c6",
-      "export_sha256": "c88a9f18fd81fb74ccfc9649f19b12887699dc27a85d9c62b788f545744052c6"
+      "source_sha256": "4b299e8e7113f730ae87aa0392331e2c6f82cdf0b78034fb316d359a580b68f4",
+      "export_sha256": "4b299e8e7113f730ae87aa0392331e2c6f82cdf0b78034fb316d359a580b68f4"
     },
     {
       "source_path": "tests/governance/mock_claude_cli.py",
@@ -8100,32 +8112,32 @@
     {
       "source_path": "tests/governance/test_audit.py",
       "public_path": "tests/governance/test_audit.py",
-      "source_sha256": "ada76694de6dfb6232e03ed2487843463a63b4e1d4912aa1b2373fa4a956c8be",
-      "export_sha256": "ada76694de6dfb6232e03ed2487843463a63b4e1d4912aa1b2373fa4a956c8be"
+      "source_sha256": "ae5ea81f30624ff59f33d2f548fdb8ecf266a27829416272d8893ed840c17a39",
+      "export_sha256": "ae5ea81f30624ff59f33d2f548fdb8ecf266a27829416272d8893ed840c17a39"
     },
     {
       "source_path": "tests/governance/test_audit_bank.py",
       "public_path": "tests/governance/test_audit_bank.py",
-      "source_sha256": "62f607358b818af764ff376e47a92fd4f9b503567f9ed99fdda6fa9ca2a096cf",
-      "export_sha256": "62f607358b818af764ff376e47a92fd4f9b503567f9ed99fdda6fa9ca2a096cf"
+      "source_sha256": "7cfee7aecd9bc9306801c681c812f31a29a190233a497a84509eae910ff11d75",
+      "export_sha256": "7cfee7aecd9bc9306801c681c812f31a29a190233a497a84509eae910ff11d75"
     },
     {
       "source_path": "tests/governance/test_audit_heldout.py",
       "public_path": "tests/governance/test_audit_heldout.py",
-      "source_sha256": "cadb272b5181045aa0e5369607a77b63a88425b23d3df0e0043870a6ddebde81",
-      "export_sha256": "cadb272b5181045aa0e5369607a77b63a88425b23d3df0e0043870a6ddebde81"
+      "source_sha256": "be51847fd27554200315b9980c6b396f83f176dcebc062b2f68f58fccc825c1c",
+      "export_sha256": "be51847fd27554200315b9980c6b396f83f176dcebc062b2f68f58fccc825c1c"
     },
     {
       "source_path": "tests/governance/test_audit_repair.py",
       "public_path": "tests/governance/test_audit_repair.py",
-      "source_sha256": "cc027cfe5686fa59f7f1fb09ddde743421826ceb9a134a3cc17584038316bfb0",
-      "export_sha256": "cc027cfe5686fa59f7f1fb09ddde743421826ceb9a134a3cc17584038316bfb0"
+      "source_sha256": "06fd291f353e4606a25037eaf435b56f8100787a4560fe228712d215113f4adb",
+      "export_sha256": "06fd291f353e4606a25037eaf435b56f8100787a4560fe228712d215113f4adb"
     },
     {
       "source_path": "tests/governance/test_audit_smoke.py",
       "public_path": "tests/governance/test_audit_smoke.py",
-      "source_sha256": "5bf1122235bb95644c48089c482ab8f4ffaf9503bb0b380f505f37a0fa0d1aae",
-      "export_sha256": "5bf1122235bb95644c48089c482ab8f4ffaf9503bb0b380f505f37a0fa0d1aae"
+      "source_sha256": "051909291f57794ecc98141dac3318d91b3536c2bc09c0533bd97741f5a6395f",
+      "export_sha256": "051909291f57794ecc98141dac3318d91b3536c2bc09c0533bd97741f5a6395f"
     },
     {
       "source_path": "tests/governance/test_bank_families.py",
@@ -8160,8 +8172,8 @@
     {
       "source_path": "tests/governance/test_contracts.py",
       "public_path": "tests/governance/test_contracts.py",
-      "source_sha256": "d90abdc03eecedef9db16d238af8f45120af9996b0c71e75d1c2148c824f1b4d",
-      "export_sha256": "d90abdc03eecedef9db16d238af8f45120af9996b0c71e75d1c2148c824f1b4d"
+      "source_sha256": "cf6f6ac0ba7a50fb43f8c7fefa054a1f776f1e50b027a9c785a6b835db12dbf0",
+      "export_sha256": "cf6f6ac0ba7a50fb43f8c7fefa054a1f776f1e50b027a9c785a6b835db12dbf0"
     },
     {
       "source_path": "tests/governance/test_credentials.py",
@@ -8190,8 +8202,8 @@
     {
       "source_path": "tests/governance/test_live_host.py",
       "public_path": "tests/governance/test_live_host.py",
-      "source_sha256": "25a535b2881630c3f6c0bb22035f7b2a317734fa8fbd2b4e4a0378b3a51c3262",
-      "export_sha256": "25a535b2881630c3f6c0bb22035f7b2a317734fa8fbd2b4e4a0378b3a51c3262"
+      "source_sha256": "e8039caebfce65a7875c9ab0da267cd3dd474fc37767e9862e6684ede96dd348",
+      "export_sha256": "e8039caebfce65a7875c9ab0da267cd3dd474fc37767e9862e6684ede96dd348"
     },
     {
       "source_path": "tests/governance/test_oracle_counting.py",
@@ -8220,8 +8232,8 @@
     {
       "source_path": "tests/governance/test_rehearsal.py",
       "public_path": "tests/governance/test_rehearsal.py",
-      "source_sha256": "558a0a49402fb498121881fec96cdacfc656cbfe4de2f86a8b470b748ccd200f",
-      "export_sha256": "558a0a49402fb498121881fec96cdacfc656cbfe4de2f86a8b470b748ccd200f"
+      "source_sha256": "f8f96d3bc66ec00c3962ac8c1d582551f0815e32fca137f63aaff3a98aa9fb8d",
+      "export_sha256": "f8f96d3bc66ec00c3962ac8c1d582551f0815e32fca137f63aaff3a98aa9fb8d"
     },
     {
       "source_path": "tests/governance/test_runner.py",

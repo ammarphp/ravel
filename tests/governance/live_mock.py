@@ -26,7 +26,9 @@ placeholder. The mode is read from ``inputs/mock-mode.txt`` in the workspace (a 
 - ``account_config``: the host writes account fields into its config directory's ``.claude.json`` (an
   ``oauthAccount`` object), as a CLI could after authenticating. ``spend <usd>``: the result reports that cost (and
   modelUsage tokens that price to it) with a success subtype; ``spend_capped <usd>`` the same with
-  ``error_max_budget_usd``, the host's own ceiling.
+  ``error_max_budget_usd``, the host's own ceiling. ``geo <value>``: the assistant and result usage report that
+  ``inference_geo``; the cost is never multiplied, so use it only for a geography the pin prices at 1 (every one
+  but "us", E-203).
 - ``proxy_other <target>``: CONNECT to a non-allowlisted target through HTTPS_PROXY. ``proxy_ok <target>``: CONNECT to
   the allowlisted target, send a line and read the echo. ``proxy_child <target>``: a child process, not the leader,
   CONNECTs to the allowlisted target.
@@ -235,7 +237,8 @@ def main():
     if network is not None:
         text += f" network: {network}"
     answered = "claude-other-synthetic-9" if name == "model_swap" else MODEL
-    usage = {**USAGE, **({"speed": "fast"} if name == "fast_mode" else {})}
+    usage = {**USAGE, **({"speed": "fast"} if name == "fast_mode" else {}),
+             **({"inference_geo": arg} if name == "geo" else {})}
     emit({"type": "assistant", "message": {"id": "msg_mock_text", "model": answered, "role": "assistant",
                                            "content": [{"type": "text", "text": text}], "usage": usage},
           "parent_tool_use_id": None, "session_id": SESSION})

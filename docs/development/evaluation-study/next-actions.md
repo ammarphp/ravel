@@ -6,7 +6,13 @@ Under E-34 the human reviews are deferred to one consolidated review and no long
 development, and the 8-assignment engineering smoke was authorized. It ran on 2026-09-27 (item 3,
 plan.md iteration 11, [smoke-record.md](smoke-record.md)); the evaluator repair it opened (item 4)
 comes before any pilot. The WP12 development task bank (item 8, plan.md iterations 12 to 18) was
-built on its own branch and merged in iteration 19. What remains:
+built on its own branch and merged in iteration 19. The development pilot ran on 2026-09-29 (item 7,
+plan.md iteration 27, [pilot-record.md](pilot-record.md)), and the evaluator repair it opened (item 9) is
+built (iteration 28) and re-judged the pilot read-only (iteration 29). That re-judgment did not meet E-219's
+acceptance. A review of the repair found fail-open paths, repaired in iteration 30 with held-out cases first
+and re-judged read-only in iteration 31: four kx-a cells moved toward null and the rate is unchanged. The
+owner's choice in H-116 comes next, before any further campaign is designed.
+What remains:
 
 ## Local, permitted now (integration lead)
 
@@ -32,37 +38,75 @@ built on its own branch and merged in iteration 19. What remains:
 3. **Done: the authorized real-host smoke** (E-34; engineering E-40 to E-101, plan.md iterations 8
    to 10; execution iteration 11). Campaign `smoke-claude-2.1.281-a` ran all 8 assignments from
    `8dbc4a2` on 2026-09-27 with no stop, hold or trigger, 2.59 USD CLI-reported
-   ([smoke-record.md](smoke-record.md); its deviations are E-161). Still open from the reviews:
-   censusing a lost run launch before preflight (E-96), and H-30 and H-31. No paid call without a
-   further authorization (E-34, H-73).
+   ([smoke-record.md](smoke-record.md); its deviations are E-161). Still open from the reviews: H-30
+   and H-31 (censusing a lost run launch before preflight, which E-96 left open, is done by E-206). No
+   paid call without a further authorization (E-34, H-73).
 4. **Done: the evaluator repair before any pilot** (E-163, E-188, E-189; plan.md iteration 20). A
    held-out check was written first, and the 8 smoke runs are replayed regression cases. `cli.py
    rejudge` re-scored the sealed smoke read-only (smoke-record.md, "Re-judged with scorer
    `e64ae0848fcb`"): one verified completion; two valid refusals, which stay unadjudicated because their
    no-value claims keep `unsupported_claim` null (H-13). Left open: numbered-list markers, a unit
-   label before a number or a list, unlabelled list members and arrows (E-163 f). There is also a
+   label before a number or a list, unlabelled list members and arrows (E-163 f). There was also a
    pre-existing fail-open in E-28's marked-after route ("I cannot say the previous <n> was not used"
-   reads historical) and a pre-existing quadratic `_bindings` scan (plan.md iteration 20). The rules
-   await the consolidated review (H-13, H-90, H-91).
+   read historical; closed by E-201) and there is a pre-existing quadratic `_bindings` scan for many
+   marked prior values in one sentence (plan.md iteration 20; still open). The rules await the
+   consolidated review (H-13, H-90, H-91, H-100).
    **Done: the repair after that repair's review** (E-190, E-191; plan.md iteration 21), with the
    review's probes held out first. The re-judged smoke is unchanged.
-   **Precondition for scoring the next campaign:** a decimal that no rule reads but that states a
-   current or prior quantity is now judged in the likelihood_freshness profile (E-190), but the
-   task-bank profile (`audit_bank.Scale`) has no `stray_match`, so a stale value in a label-value
-   line, a numbered line or a semicolon clause is still silently dropped there, which can give a
-   false clean verdict. Add that pass (with held-out cases first) before any task-bank campaign is
-   scored. Still open, failing toward null (slice §11): a unit label before a number or a list,
-   bracketed pairs and ranges under one role label, "not carried forward".
+   **Done: the precondition for scoring the next campaign** (E-200 to E-202, H-100; plan.md iteration
+   23; pilot-request.md engineering item 1). A third held-out batch (67 cases, `1d226ab`) was committed
+   before the change (`f7a2824`). The task-bank profile now has its stray pass (`audit_bank.Scale.
+   stray_match`): a value in a label-value line, a numbered line or a semicolon clause that states
+   anything the task's scale knows is judged, never dropped, integer counts included in such lines,
+   in the unit its heading names. A supersession, change, rejection or retraction statement under a
+   doubting or negating frame ("I cannot say the previous <n> was not used", "It is not true that
+   ...") is unresolved, never historical. The new readings are linear in the text (E-202). The
+   replayed smoke is unchanged finding for finding. Still open, failing toward null (slice §11): a
+   unit label before a number or a list, bracketed pairs and ranges under one role label, "not
+   carried forward"; not read: an integer in prose or in an unstructured line.
+   **Done: the repair after the review of that change** (E-210, H-103; plan.md iteration 26). A fourth
+   held-out batch (76 cases, `1173a00`) was committed before the change (`ea7a555`, scorer
+   `10875c1f1bef`): frames the word list missed and a structural rule for embedded statements, the
+   frame's reach before and after the statement, the E-200 unit-carry regression, a doubted correction,
+   integers in tables and label lines, and an input that is also a prose fault value. The replayed
+   smoke and a re-judgment of rehearsal Q are unchanged.
 5. **Done: LC-18 no longer counts the collector's own `log` invocation** (E-162), with recorded
    unified-log fixtures. Its count stays machine-wide and the collector stays blind to the subject
-   (HP-11); both are recorded residuals.
-6. **LC-16 without a reported geography.** Every smoke run reported `inference_geo: not_available`,
-   which HP-13 did not measure, so LC-16 warned in all 8 runs although the recompute with no multiplier
-   matched exactly (E-160). Before the pilot, have HP-13 measure the absent-geography case (or record
-   that the pin applies no multiplier to it), so a pilot's go needs no accepted exception.
-7. **The pilot request.** Prepare the request the owner decides (H-73): scope, caps, model and effort,
-   a fresh token minted outside any agent session and revoked at close-out, and the operator rules
-   (H-71), with the evaluator repair (item 4) done first.
+   (HP-11); both are recorded residuals. Since E-213 it records each report's pid, the reports carrying
+   the subject profile's marker and the split into the launch leader's reports and all others; whether
+   LC-18 should warn only on attributed reports is H-102.
+6. **Done: LC-16 without a reported geography** (E-203, plan.md iteration 24). Every smoke run reported
+   `inference_geo: not_available`, which HP-13 did not measure, so LC-16 warned in all 8 runs although
+   the recompute with no multiplier matched exactly (E-160). The pinned bundle multiplies only "us"
+   (×1.1); HP-13 now also measures "not_available", and the zero-cost variant on the real pin measured
+   ×1.0 for it. With that record LC-16 verifies all 8 smoke runs (replayed read-only), so a pilot's go
+   needs no accepted exception for this.
+7. **Done: the development pilot** ([pilot-record.md](pilot-record.md), plan.md iteration 27). The
+   owner authorized design A on 2026-09-28 (H-73) and kept the token (E-215); the lead agent session
+   operated it (E-216). Campaign `pilot-claude-2.1.281-a` ran 96 of 96 assignments from `8c89d4b` on
+   2026-09-29 with no stop, hold or trigger, 18.44 USD CLI-reported. The mechanical evaluator left
+   `unsupported_claim` null in 62 of 96 runs (E-217), and where the lead's analysis agents checked its
+   decided cells most were wrong (E-218: kx-a 8 of 8 valid refusals scored invalid; 23 of 29 true
+   cells false positives). No arm comparison is drawn. What follows is the request as it stood before
+   the authorization ([pilot-request.md](pilot-request.md), plan.md iteration 22). It
+   proposes 12 bank tasks x 2 seeds x 4 arms = 96 assignments (alternatives 48 and 144), c = 2.0 USD,
+   G = 192 USD, the smoke's pin, model and effort, a fresh subscription token minted in Terminal.app
+   outside any agent session and revoked at close-out, and the S10a go plus a review pause once every
+   family has run twice. The owner answered H-73 and the token's retention; H-71, H-72, H-21 (3),
+   H-70 and B-07 stayed open, and the pilot ran on their provisional defaults (E-216).
+   Its preconditions include the task-bank stray pass and the E-28 marked-after fix (item 4, done:
+   E-200 to E-202), the absent-geography HP-13 case (item 6, done: E-203), a pilot approval kind that
+   also binds the schedule seed and the broker limits (done: E-204), the design budget in the live
+   build (done: E-205), the census of a lost run launch before preflight (done: E-206), and an offline
+   rehearsal and S7 probes on a pilot-shaped campaign (its engineering item 5, done: E-208, with the
+   LC-18 finding E-209 and question H-102). The review of those items was repaired by E-210 to E-214
+   (question H-103): the evaluator (above), the approval re-read after the build (E-211), the lost
+   launch's census and REVOKE (E-212), LC-18's attribution (E-213), and the rehearsal kept in
+   `local-runs/evaluation-slice/rehearsal-q/` and re-run as R2 at `f7b6ac4` (E-214); a pilot built from
+   another governance revision re-runs the rehearsal first (`8c89d4b` differs from `f7b6ac4` there only
+   in `README.md`, so it was not re-run). Its design
+   simulation shows that at 25 % missing or more the evaluator's unresolved rate (0.75 in the re-judged
+   smoke) dominates the arm contrast's precision; the pilot measured 65 % (E-217).
 
 8. **The WP12 development task bank.** Plan steps 1 to 11 are done: the oracles and their
    cross-checks ([taskbank-oracle-appendix.md](taskbank-oracle-appendix.md)); step 1 (plan.md
@@ -106,6 +150,39 @@ built on its own branch and merged in iteration 19. What remains:
    bank's iterations 11 to 17 are 12 to 18, after the smoke's iteration 11. The smoke's evaluator
    repair (item 4, E-163) now starts from the merged `audit.py`, which carries the bank's changes.
 
+9. **The evaluator repair after the pilot** (E-219; [pilot-record.md](pilot-record.md),
+   "The unresolved-rate taxonomy"). **Done: the held-out cases and the change** (plan.md iteration 28,
+   E-220 to E-223, question H-115). A fifth held-out batch of 137 SYNTHETIC cases (`6a5f976`) was
+   committed first; the change (scorer `6ccdde0dbf1a`) passes 136 of them, and AT2 is xfail(strict) on
+   E-210's embedding frame. The replayed smoke reran: cases 3 and 6 moved by design, the other six are
+   unchanged. All of `tests/governance` passed (4699 passed, 9 xfailed, 0 failed). **Done: the
+   read-only re-judgment** (plan.md iteration 29, E-224). The sealed pilot and smoke were re-judged with
+   `cli.py rejudge` into new directories beside their stores, which stayed byte-identical. Each changed
+   cell was attributed to the reading responsible by an in-memory leave-one-out replay, which left no
+   residual (pilot-record.md and smoke-record.md, "Re-judged with scorer `6ccdde0dbf1a`"). **The
+   acceptance was not met.** kx-a has 3 of 8 valid refusals and lf-d 3 of 5. The three lf-d completions
+   stay invalid and the E-149, E-176 and E-177 cases stay closed. 16 of the 23 false-positive cells are
+   no longer true. `unsupported_claim` is null in 64 of 96 runs (62 sealed), in-sample. The residual
+   classes are listed in H-116: a bound named after its number, literal Unicode escapes, a label list
+   with a bare 0, attribution across a handle or a long phrase, hash-mismatch rejections, method
+   constants and no-value assertions. **Next: the owner's choice in H-116** between a further in-sample
+   repair round (held-out cases first), the adjudication protocol (H-111) and fresh reports (H-113).
+   **Done: the repair after the review of that repair** (plan.md iteration 30, E-225 to E-228, question
+   H-117). The review found fail-open paths in E-220 to E-222. A sixth held-out batch of 98 SYNTHETIC
+   cases (`0474182`) was committed first (77 failed before the change); the change (scorer
+   `7cddf44b3f8d`) passes them, and RP25 and RP27 are xfail(strict) because a refusal read only in the
+   report text is now at most null until H-110 is answered. All of `tests/governance` passed (4792 passed, 14 xfailed, 0 failed). On the review's 30 fresh
+   fragments the unresolved rate stays at 33% and wrong definite verdicts fall from 13% to 10%; the
+   held-out pass rates are in-distribution (E-228). **Done: its read-only re-judgment** (plan.md
+   iteration 31, E-227). The sealed pilot and smoke were re-judged with scorer `7cddf44b3f8d` into new
+   directories; the stores stayed byte-identical, and the in-memory leave-one-out replay against E-224's
+   scorer left no residual. Four cells in three kx-a runs moved, all toward null: #42 and #59 lose their
+   valid refusal to the report-text cap (H-110), #59 also to the narrowed formula bound (a residual
+   recorded under H-116), and kx-a keeps 1 valid refusal of 8. lf-d stays at 3 of 5, the false-positive
+   and real-error agreement is unchanged, and `unsupported_claim` stays null in 64 of 96 runs. The smoke
+   is unchanged (pilot-record.md and smoke-record.md, "Re-judged with scorer `7cddf44b3f8d`"). **Next:
+   the owner's choice in H-116**, and the rule changes awaiting review (H-110, H-117).
+
 ## Follow-ups from the repair wave (open, tracked here)
 
 The review names and numbers below (runner review, minor n) and where the reports are kept are
@@ -142,8 +219,9 @@ explained in [decisions.md](decisions.md).
 - **Live-host capability (with H-04):** for the Claude smoke, HP-04 exercises the shell under the
   real-host profile and HP-10 records a multiprocessing script, whose failure is accepted for the
   smoke (E-45). Codex's pty-backed exec is still unexercised (slice §8).
-- **Scoring:** estimate the unresolved rate on realistic reports before the pilot (H-13); the
-  negation-window gap and the unread unattached unitless integers (slice §11 known gaps).
+- **Scoring:** the unresolved rate on realistic reports was measured by the pilot (E-217: 65 % of
+  runs leave `unsupported_claim` null); its repair is item 9. Still open: the negation-window gap and
+  the unread unattached unitless integers (slice §11 known gaps).
 - **Analysis limitations (optional code change):** `analysis.py`'s limitations say the enforcement
   contrasts do not separate blocking from feedback, but not that the design cannot estimate RAVEL
   versus no RAVEL (slice §1). Add that note if the report should carry it.
@@ -207,14 +285,20 @@ provisional defaults is reported as a scored or empirical finding before the rev
   handling of non-value claims that cite stale evidence (H-70).
 - Ammar and the lab: the evaluator repair after the smoke (H-90, E-188) and after its review (H-91, E-190),
   with H-13.
+- Ammar and the lab: the pilot's questions on refusal presence (H-110), the adjudication protocol and the
+  agents' verdicts (H-111, E-218), and kx-a's refusal salience (H-112); the scoring-rule changes of the
+  evaluator repair after the pilot (H-115, E-220 to E-222) and of the repair after its review (H-117,
+  E-226).
 
 ## Still needing a human decision or resource
 
-- Ammar: the smoke ran (H-20 answered; the token minted, then deleted after the smoke). Still
-  needed: confirm the smoke token's revocation and the clean-up of its minting (H-72, E-192); the
-  operator rules for later paid campaigns (H-71); authorization of the development pilot and of any
-  other paid use (E-34, H-73); the approval-per-rebuild question (H-25); the Codex pin
-  (B-04, H-04).
+- Ammar: the smoke ran (H-20 answered; the token minted, then deleted after the smoke), and the
+  pilot ran (H-73 answered for design A; its token kept by the owner's choice, E-215). Still
+  needed: confirm the smoke token's revocation and the clean-up of its minting (H-72, E-192),
+  decide when the pilot's token is revoked (E-215), and confirm whether the pilot ran on a newly
+  minted token or on the smoke-era one (H-72); the operator rules for later paid campaigns
+  (H-71, E-216); what follows the pilot, and the authorization of any further paid use (H-113,
+  E-34); the approval-per-rebuild question (H-25); the Codex pin (B-04, H-04).
 - Lab: holdout custodian and external store (B-06, PKT-D08).
 - Ammar: external baselines (B-08, PKT-D11). The lab: the method-development track's choices (B-09).
 - Ammar, for the public export: whether any text that E-37 removed from these working records (the

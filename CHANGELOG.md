@@ -13,7 +13,7 @@
   that launch's leader process. A coordinator-owned custody broker runs every operation; its delivery guard
   checks each submission and stage workers run the RAVEL kernel.
 - Add fake, Claude Code and Codex host adapters; the deterministic fake host has run the synthetic
-  campaigns, the Claude Code adapter one authorized engineering smoke, and the Codex adapter is tested
+  campaigns, the Claude Code adapter one authorized engineering smoke and one development pilot, and the Codex adapter is tested
   against mocked executables. The Claude Code adapter has a real-host
   path for one authorized 8-assignment engineering smoke: a builder bound to the budget owner's
   single-use approval, a declared credential exception, host probes, live checks, stop rules and
@@ -38,13 +38,71 @@
   record as the missing thing, a σ_vis value under a luminosity unit counts against a refusal, table
   headers and list headings lend their historical wording, and a decimal that states a current or
   prior quantity is judged instead of dropped. The re-judged smoke is unchanged.
+- Close the evaluator's two known false-clean paths before any pilot, with held-out cases committed
+  first: the task-bank profile now judges a stray value in a label-value line, a numbered line or a
+  semicolon clause (integer counts included, in its heading's unit) instead of dropping it, and a
+  supersession statement under a doubting or negating frame ("I cannot say the previous value was not
+  used") is unresolved instead of historical. The new readings are linear in the text; the replayed
+  smoke is unchanged.
+- Prepare the live build for a development pilot: an approval of the pilot's kind also binds the schedule
+  seed, the broker limits and the roster order, and the authorization says it is a pilot;
+  `build-live --design-budget` sets the task bank's design budget; the host probes measure the cost of
+  a request whose usage reports no inference geography (the pinned CLI prices it at 1.0), so such a run's
+  cost recompute is verified; and `run` censuses a lost run launch by its record before preflight,
+  launching nothing while that census is unclean.
+- Rehearse the development pilot offline: a pilot-shaped campaign of the twelve bank tasks in four arms
+  ran through the real pinned CLI against a local mock API, with a dummy token and no network, from the
+  build and the host probes to the audit and the cost reconciliation, without a stop. The rehearsal also
+  showed that the post-run sandbox-denial check mostly cannot see the subject's routine denials; it stays
+  a best-effort check.
+- Repair what the review of the pilot's engineering found, with held-out cases committed first for the
+  evaluator: a supersession statement embedded under someone else's claim or an evaluation ("The draft
+  claims ...", "It is incorrect that ...") or taken back in the next sentence is unresolved instead of
+  historical, a value under a unit heading that scales to nothing known is judged instead of dropped, and
+  the task-bank profile reads counts in tables and label lines. The build's approval is re-read by
+  `verify` and preflight; a smoke approval no longer builds a pilot-sized campaign. The sandbox-denial
+  check records which reports came from the launch; its earlier warnings were machine-wide, not
+  attributed to the subject. The pilot rehearsal's tooling and evidence are kept, and the rehearsal was
+  re-run at the repaired revision without a stop.
+- Run the 96-assignment development pilot (2026-09-29): the twelve bank tasks, two seeds and four arms on
+  the pinned Claude Code CLI, all sealed with no stop, at 18.44 USD of quota usage against a 192 USD
+  admission threshold. Its [record](docs/development/evaluation-study/pilot-record.md) reports engineering
+  results and the evaluator's unresolved rate: the mechanical evaluator left `unsupported_claim`
+  unresolved in 62 of 96 runs, and a read-only check by analysis agents found 23 of the 29 cells it
+  scored true, and all 8 of its verdicts on one refusal control, wrong, so no arm comparison is drawn
+  and the evaluator is repaired next.
+- Repair the mechanical evaluator against the pilot's classes, with 137 held-out cases committed first:
+  listed limits under quantile labels or role words are read in order in both scoring profiles, a converted
+  value takes its source value's role, label digits, unit factors and unit identities are no numbers,
+  unit-label lines and task-bank field names give their unit, the attribution reader knows more verbs and
+  correction words, prose refusals are recognized in more forms and also in the last submission's report,
+  and quantile notation, a POI value or a supplied input no longer counts as a delivered cross section.
+  Two cells of the replayed smoke move by design; the sealed pilot is re-judged next.
+- Re-judge the sealed pilot and smoke read-only with the repaired evaluator, each changed cell traced to
+  the reading responsible. On the pilot, 16 of the 23 cells the agents found falsely flagged are cleared
+  and the real errors stay flagged. But only 3 of 8 refusals on one refusal control and 3 of 5 on the
+  other are now scored valid, short of the repair's acceptance, and the evaluator still leaves
+  `unsupported_claim` unresolved in 64 of 96 runs (62 before), so no arm comparison is drawn. The
+  smoke gains a second verified completion.
+- Close the fail-open paths a review found in that repair, with 98 held-out cases committed first: a value
+  of the parameter of interest that states the limit is judged again, a correction word elsewhere in a
+  sentence no longer softens a wrong value, bound wording is read only as a true lower bound, refusals that
+  are negated, questioned, about another run or undone by a hand computation are no longer read as
+  refusals, a refusal found only in a submission's report text can no longer be scored valid until the
+  owner decides H-110, and adopted source values, rejections of an action on a value, unit identities,
+  unit-label lines, table labels and census field names no longer hide a delivered value.
+- Re-judge the sealed pilot and smoke read-only with that repaired evaluator, each changed cell traced to
+  the reading responsible. Four pilot cells move, all toward unresolved: two refusals on one refusal
+  control lose their valid verdict while H-110 is open, so 1 of 8 is valid there (3 of 5 on the other).
+  The agreement with the agents' false-positive and real-error findings is unchanged, `unsupported_claim`
+  stays unresolved in 64 of 96 runs, and the smoke is unchanged.
 - Fix the distribution export: the task bank pins the production specs' generation plan, not the spec
   file's bytes, whose machine-local paths the export rewrites (every campaign build failed from an
   export); the exporter now builds the task bank from the stage and writes no bytecode into it; and the
   end-to-end rehearsal tests skip where the bound shell `/bin/zsh` is absent.
 
 This is synthetic engineering evidence. No agent result or treatment effect is reported, and no paid
-call has been made beyond the 8-run engineering smoke. The oracle and scoring rules stay
+call has been made beyond the 8-run engineering smoke and the 96-run development pilot. The oracle and scoring rules stay
 provisional until a deferred human review. On Linux the Seatbelt tests skip and the process readers
 are tested only against recorded samples. Design, decisions and open items are in
 [docs/development/evaluation-study/](docs/development/evaluation-study/).

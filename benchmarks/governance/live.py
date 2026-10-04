@@ -328,47 +328,53 @@ def claim_approval(directory=None, *, approval_sha256, campaign_id, created_utc,
         os.close(fd)
 
 
-def approval_problems(approval: dict, *, spec, host, budget, arms, ledger) -> list:
+def approval_problems(approval: dict, *, spec, host, budget, arms, ledger, host_launch=None) -> list:
     """Why ``approval`` does not authorize this campaign ([] when it does). ``spec`` is the v1 spec (its task
     ids and seeds), ``host`` the pinned host fields (``HostPin.fields()`` or a mapping with adapter, version,
     executable_sha256, model and effort), ``budget`` the manifest budget, ``arms`` the campaign's arm names and
-    ``ledger`` the store's ledger entries. The caps must equal the budget exactly (canonical bytes: 2.0 is not 2),
-    runs and assignments must equal the roster (every task x seed in every arm), the scope must be the spec's, the
-    host fields (effort included) the pin's, shared quota accepted, and the approval's sha256 unused."""
+    ``ledger`` the store's ledger entries (None: the single-use check is skipped, as after the build). The campaign's
+    own comparisons are campaign_manifest.approval_scope_problems (caps, roster, scope, host, shared quota; a pilot's
+    schedule seed, roster order and broker limits, E-204; a smoke's size and default limits, E-211); here the
+    credential variable must be the adapter's, a pilot's ``host_launch`` must keep the smoke's host settings
+    (claude.max_turns CLAUDE_SETTINGS's, E-211: the pilot request fixes the host "unchanged from the smoke"), and the
+    approval's sha256 must be unused."""
     try:
         contracts.validate_smoke_approval(approval)
     except ContractError as exc:
         return [str(exc)]
-    problems = []
-    for name in ("usd_per_run", "seconds_per_run", "global_usd_cap", "global_seconds_cap"):
-        if name not in budget or canonical.canonical_bytes(approval["caps"][name]) != canonical.canonical_bytes(
-                budget[name]):
-            problems.append(f"caps.{name} {approval['caps'][name]!r} differs from the campaign budget's "
-                            f"{budget.get(name)!r}")
-    tasks = [t["id"] for t in spec["tasks"]]
-    roster = len(tasks) * len(spec["seeds"]) * len(list(arms))
+    problems = campaign_manifest.approval_scope_problems(approval, spec=spec, host=host, budget=budget, arms=arms)
     scope = approval["scope"]
-    for name, mine, theirs in (("tasks", scope["tasks"], tasks), ("seeds", scope["seeds"], spec["seeds"]),
-                               ("arms", scope["arms"], list(arms))):
-        if sorted(mine) != sorted(theirs):
-            problems.append(f"scope.{name} {sorted(mine)} differs from the campaign's {sorted(theirs)}")
-    if scope["assignments"] != roster or approval["caps"]["runs"] != roster:
-        problems.append(f"scope.assignments/caps.runs {scope['assignments']}/{approval['caps']['runs']} differ from "
-                        f"the {roster} assignments of the roster")
-    for name in contracts.SMOKE_HOST_FIELDS:
-        if scope["host"][name] != host.get(name):
-            problems.append(f"scope.host.{name} {scope['host'][name]!r} differs from the pinned host's "
-                            f"{host.get(name)!r}")
-    if approval["account_preconditions"]["shared_quota_accepted"] is not True:
-        problems.append("account_preconditions.shared_quota_accepted: the budget owner has not accepted runs "
-                        "drawing on the shared subscription quota")
     expected = CREDENTIAL_ENV_NAMES.get(scope["host"]["adapter"], {})
     if approval["credential"]["env_name"] not in expected:
         problems.append(f"credential.env_name {approval['credential']['env_name']!r} is not the "
                         f"{scope['host']['adapter']} credential variable {sorted(expected)}")
-    sha = approval_digest(approval)
-    if any(e["approval_sha256"] == sha for e in ledger):
-        problems.append(f"the approval (canonical sha256 {sha}) is already in the approval ledger: single-use")
+    if approval["kind"] == contracts.PILOT_APPROVAL_KIND and host_launch is not None:
+        turns = (host_launch.get("claude") or {}).get("max_turns")
+        if turns != CLAUDE_SETTINGS["max_turns"]:
+            problems.append(f"host_launch.claude.max_turns {turns!r} differs from the smoke's "
+                            f"{CLAUDE_SETTINGS['max_turns']!r}: a pilot runs the smoke's host unchanged (E-211)")
+    if ledger is not None:
+        sha = approval_digest(approval)
+        if any(e["approval_sha256"] == sha for e in ledger):
+            problems.append(f"the approval (canonical sha256 {sha}) is already in the approval ledger: single-use")
+    return problems
+
+
+def frozen_approval_problems(campaign) -> list:
+    """Preflight's approval check (PF-15, E-211): the frozen approval record re-read against the campaign's files
+    (campaign_manifest.frozen_approval) and host launch, and consumed in the approval ledger by exactly this campaign
+    (the ledger is outside the campaign directory, so a campaign rewritten with a new approval record is refused)."""
+    approval, problems = campaign_manifest.frozen_approval(campaign.dir, campaign.manifest)
+    if approval is None:
+        return problems or ["a real-host campaign without a frozen approval record"]
+    problems = approval_problems(approval, spec=canonical.strict_load(campaign.dir / campaign_manifest.SPEC),
+                                 host=campaign_manifest.approval_host_fields(campaign.host), budget=campaign.budget,
+                                 arms=campaign_manifest.campaign_arms(campaign.manifest), ledger=None,
+                                 host_launch=campaign.host_launch)
+    sha, entries = approval_digest(approval), read_approval_ledger()
+    if not any(e["approval_sha256"] == sha and e["campaign_id"] == campaign.manifest["campaign_id"] for e in entries):
+        problems.append(f"the approval ledger has no line consuming this approval (canonical sha256 {sha}) for "
+                        f"campaign {campaign.manifest['campaign_id']!r}")
     return problems
 
 
@@ -488,15 +494,42 @@ def claude_factory(campaign):
     return factory
 
 
+# What the campaign's authorization says it is, by the approval's kind (E-204): the smoke is no pilot; a pilot is
+# development evidence, synthetic like every live campaign of this slice, and never a confirmatory result.
+AUTHORIZATION_SCOPE = {
+    contracts.SMOKE_APPROVAL_KIND: "SYNTHETIC engineering smoke with a real host (not a pilot, no treatment effect)",
+    contracts.PILOT_APPROVAL_KIND: ("SYNTHETIC engineering pilot with a real host (development evidence only: "
+                                    "descriptive, provisional rules, no confirmatory treatment effect, not an "
+                                    "empirical campaign)")}
+
+
+def design_budget(budget) -> dict:
+    """``budget`` (the manifest budget fields a live build takes) with the per-run task limits of
+    ``registry.DESIGN_BUDGET`` (max_broker_ops, max_fits, max_stage_executions and seconds_per_run: the pilot's
+    budget, E-205). A field ``budget`` already holds must equal the design value (a number, so 900.0 is 900); the
+    design's own value is kept, so every bank definition records exactly DESIGN_BUDGET."""
+    from .tasks import registry
+    merged = dict(budget or {})
+    for name, value in registry.DESIGN_BUDGET.items():
+        given = merged.get(name)
+        require(given is None or (canonical.finite_number(given) and given == value),
+                f"budget.{name} {given!r} differs from registry.DESIGN_BUDGET's {value!r}")
+        merged[name] = value
+    return merged
+
+
 def build_live_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed, subjects_root, host_state_root,
                         tasks, pin, credential_file, approval_bytes, budget, claude=None, source=None,
                         extra_forbidden_roots=()):
     """Freeze a synthetic engineering campaign with a real host (smoke spec WI-1) at
     ``<store>/synthetic/<campaign_id>/``. Requires RAVEL_EVAL_LIVE=1. ``approval_bytes`` is the budget owner's
-    approval record (strict UTF-8 JSON, schema 2), frozen byte for byte as ``approval_record`` and named by the
-    authorization's reference_sha256; it must match the campaign exactly (live.approval_problems) and is consumed
-    once (the approval ledger). ``budget`` holds the manifest budget fields (defaults as for the fake host: global
-    caps runs x per-run caps). The credential file is never opened. Every failure leaves nothing behind."""
+    approval record (strict UTF-8 JSON, schema 2; kind synthetic_engineering_smoke or, E-204,
+    synthetic_engineering_pilot, which also binds the schedule seed and the broker limits), frozen byte for byte as
+    ``approval_record`` and named by the authorization's reference_sha256; it must match the campaign exactly
+    (live.approval_problems) and is consumed once (the approval ledger). The authorization's reference states the
+    kind (AUTHORIZATION_SCOPE). ``budget`` holds the manifest budget fields (defaults as for the fake host: global
+    caps runs x per-run caps; ``design_budget`` sets the pilot's task limits). The credential file is never opened.
+    Every failure leaves nothing behind."""
     _require_live("build-live")
     require(isinstance(pin, HostPin), "pin: a HostPin is required")
     require(isinstance(approval_bytes, bytes) and approval_bytes, "approval: the approval record's bytes are required")
@@ -509,9 +542,9 @@ def build_live_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed
                                       claude=claude)
     reference = canonical.sha256_bytes(approval_bytes)
     authorization = {"kind": "synthetic_engineering", "reference_sha256": reference,
-                     "reference": (f"SYNTHETIC engineering smoke with a real host (not a pilot, no treatment effect): "
-                                   f"the budget owner's single-use approval, frozen as {campaign_manifest.APPROVAL} "
-                                   f"(canonical sha256 {approval_digest(approval)})")}
+                     "reference": f"{AUTHORIZATION_SCOPE[approval['kind']]}: the budget owner's single-use approval, "
+                                  f"frozen as {campaign_manifest.APPROVAL} (canonical sha256 "
+                                  f"{approval_digest(approval)})"}
     return runner._build_campaign(
         store, campaign_id=campaign_id, created_utc=created_utc, seeds=seeds, schedule_seed=schedule_seed,
         subjects_root=subjects_root, tasks=tasks, sandbox="seatbelt", budget=budget,
@@ -698,14 +731,14 @@ def _local_time(utc):
     return datetime.fromisoformat(utc.replace("Z", "+00:00")).astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def denial_reports(data, *, pid=None) -> list:
+def denial_events(data, *, pid=None) -> list:
     """The Seatbelt reports among ``log show --style ndjson`` lines, restating the predicate on the parsed fields:
     a JSON object whose sender image is the Sandbox kext (``.../Sandbox``), whose process and sender images are not
     the log tool (any image named ``log``), and whose message is a deny report or carries the subject marker; with
-    ``pid``, a deny report naming that process id. Returns the reporting process's name for each (None when the
-    message does not parse). The log tool's own record of its invocation (subsystem com.apple.log) quotes the
-    predicate, so it is never a denial whatever it contains (E-162). Trailers, partial and unparsable lines are
-    skipped."""
+    ``pid``, a deny report naming that process id. Returns (reporting process name, reporting pid, carries the
+    subject marker) for each (name and pid None when the message does not parse). The log tool's own record of its
+    invocation (subsystem com.apple.log) quotes the predicate, so it is never a denial whatever it contains (E-162).
+    Trailers, partial and unparsable lines are skipped."""
     found = []
     for line in data.splitlines():
         line = line.strip()
@@ -728,20 +761,34 @@ def denial_reports(data, *, pid=None) -> list:
                 continue
         elif "deny" not in message and SUBJECT_MARKER not in message:
             continue
-        found.append(report.group(1) if report else None)
+        found.append((report.group(1) if report else None, int(report.group(2)) if report else None,
+                      SUBJECT_MARKER in message))
     return found
 
 
-def sandbox_denials(start_utc, end_utc, *, pid=None, timeout_s=DENIAL_WALL_S, max_bytes=DENIAL_OUTPUT_CAP) -> dict:
+def denial_reports(data, *, pid=None) -> list:
+    """The reporting process's name of every Seatbelt report (denial_events)."""
+    return [name for name, _, _ in denial_events(data, pid=pid)]
+
+
+DENIAL_PIDS_CAP = 64
+
+
+def sandbox_denials(start_utc, end_utc, *, pid=None, launch_pids=None, timeout_s=DENIAL_WALL_S,
+                    max_bytes=DENIAL_OUTPUT_CAP) -> dict:
     """Seatbelt denials in the unified log over one window (``log show --style ndjson``), bounded by ``timeout_s``
-    and ``max_bytes``: {available, count, truncated, error, processes}. Only Seatbelt's own reports count
-    (``denial_reports``), never the log tool's record of this very call (E-162); ``processes`` counts them by the
-    reporting process's name (no path; at most DENIAL_PROCESS_NAMES_CAP names). Without ``pid`` the count is
-    machine-wide: any process's denial in the window counts, a system daemon's included. With ``pid`` only the
-    denials Seatbelt reports for that process ("<name>(<pid>) deny(...)") are counted (HP-11). Best effort (F14):
-    an unavailable or blind collector is recorded (sandbox_denials_unavailable), never a stop; HP-11 found no
-    report for a sandboxed process's denied read on the smoke's host, so the breach evidence is the canary scan,
-    the proxy log and the credential checks (E-49)."""
+    and ``max_bytes``: {available, count, truncated, error, processes, pids, subject_marker[, attributed,
+    unattributed]}. Only Seatbelt's own reports count (``denial_events``), never the log tool's record of this very
+    call (E-162); ``processes`` counts them by the reporting process's name (no path; at most DENIAL_PROCESS_NAMES_CAP
+    names) and ``pids`` by the reporting pid (at most DENIAL_PIDS_CAP); ``subject_marker`` counts the reports carrying
+    the subject profile's deny-default marker. Without ``pid`` the count is machine-wide: any process's denial in the
+    window counts, a system daemon's and another sandboxed session's included (E-213: so a count alone is attributed to
+    nobody). With ``launch_pids`` (the launch's journaled leader and any pid a census found) the count is split into
+    ``attributed`` (reported by one of them) and ``unattributed`` (any other process: the subject's own children, whose
+    pids no record keeps, and every foreign process alike). With ``pid`` only the denials Seatbelt reports for that
+    process ("<name>(<pid>) deny(...)") are counted (HP-11). Best effort (F14): an unavailable or blind collector is
+    recorded (sandbox_denials_unavailable), never a stop; HP-11 found no report for a sandboxed process's denied read on
+    the smoke's host, so the breach evidence is the canary scan, the proxy log and the credential checks (E-49)."""
     require(pid is None or (type(pid) is int and pid > 1), "sandbox_denials: pid must be a process id or None")
     predicate = DENIAL_PREDICATE if pid is None else PID_DENIAL_PREDICATE.format(pid=pid)
     argv = [LOG, "show", "--style", "ndjson", "--start", _local_time(start_utc), "--end", _local_time(end_utc),
@@ -754,14 +801,23 @@ def sandbox_denials(start_utc, end_utc, *, pid=None, timeout_s=DENIAL_WALL_S, ma
     if done.returncode != 0:
         return {"available": False, "count": None, "truncated": False,
                 "error": f"log show exited {done.returncode}: {done.stderr[-200:].decode(errors='replace')}"}
-    reports = denial_reports(done.stdout[:max_bytes], pid=pid)
-    names = {}
-    for name in reports:
+    events = denial_events(done.stdout[:max_bytes], pid=pid)
+    names, pids = {}, {}
+    for name, reporter, _ in events:
         name = name if name is not None else "(unparsed)"
         if name in names or len(names) < DENIAL_PROCESS_NAMES_CAP:
             names[name] = names.get(name, 0) + 1
-    return {"available": True, "count": len(reports), "truncated": len(done.stdout) > max_bytes, "error": None,
-            "processes": dict(sorted(names.items()))}
+        key = str(reporter) if reporter is not None else "(unparsed)"
+        if key in pids or len(pids) < DENIAL_PIDS_CAP:
+            pids[key] = pids.get(key, 0) + 1
+    found = {"available": True, "count": len(events), "truncated": len(done.stdout) > max_bytes, "error": None,
+             "processes": dict(sorted(names.items())), "pids": dict(sorted(pids.items())),
+             "subject_marker": sum(1 for _, _, marker in events if marker)}
+    if launch_pids is not None:
+        mine = {p for p in launch_pids if type(p) is int}
+        found["attributed"] = sum(1 for _, reporter, _ in events if reporter in mine)
+        found["unattributed"] = len(events) - found["attributed"]
+    return found
 
 
 def user_sysv_objects() -> list:
@@ -789,7 +845,7 @@ def validate_credential(campaign_dir) -> None:
 PREFLIGHT_IDS = {"live_flag": "PF-01", "coordinator_env": "PF-02", "credential_file": "PF-03", "pinned_host": "PF-04",
                  "behavioral_gate": "PF-05", "host_probe": "PF-06", "no_stop": "PF-07", "proxy_allowlist": "PF-08",
                  "host_state_root": "PF-09", "budget": "PF-10", "sandbox": "PF-11", "core_limit": "PF-12",
-                 "sysv_ipc": "PF-13", "go_no_go": "PF-14"}
+                 "sysv_ipc": "PF-13", "go_no_go": "PF-14", "approval": "PF-15"}
 
 
 def preflight(campaign_dir, *, campaign=None) -> dict:
@@ -881,6 +937,11 @@ def preflight(campaign_dir, *, campaign=None) -> dict:
         problem = go_no_go_problem(campaign.dir)
         return problem is None, problem or "no run launched yet, or run 1's recorded go (S10a)"
     check("go_no_go", go_no_go)
+
+    def approval():
+        problems = frozen_approval_problems(campaign)
+        return not problems, problems or "the frozen approval covers this campaign and the ledger consumed it for it"
+    check("approval", approval)
     return {"ok": all(c["ok"] for c in checks), "checks": checks}
 
 
@@ -1139,8 +1200,64 @@ def census_lost_probes(campaign_dir) -> list:
 
 
 def census_problems(found) -> list:
-    """The probe launches whose census in ``found`` (census_lost_probes) is still unclean: [launch]."""
+    """The probe or run launches whose census in ``found`` (census_lost_probes, census_lost_runs) is still unclean:
+    [launch]."""
     return [f["launch"] for f in found if census_unclean(f["census"])]
+
+
+PRECENSUS = "precensus-{k}.json"   # runs/<run_id>/: a census of a lost run launch taken before preflight (E-206)
+RUN_CENSUS_REMEDY = ("a lost run launch's census left survivors or could not search: every `run` censuses it again by "
+                     "its journaled process_started record (isolation.census_launch) before preflight, and launches "
+                     "nothing while it stays unclean; a human finds what is left through that record, never by name "
+                     "or pattern (E-68), and ends the campaign with `cli.py stop` (S8), after which `run` seals the "
+                     "lost launch with its census (E-95, E-206). While it stays unclean a process that may hold the "
+                     "token in its environment may still be alive: treat the campaign token as exposed and revoke it "
+                     "(claude.ai > Settings > Claude Code), then delete its file (E-212)")
+
+
+def _precensuses(run_dir: Path) -> list:
+    """[(k, census)] of one run's pre-preflight censuses (PRECENSUS), in order; an unreadable one reads unclean."""
+    found = []
+    for path in run_dir.glob("precensus-*.json"):
+        k = path.stem.split("-", 1)[1]
+        if not k.isdigit():
+            continue
+        try:
+            record = canonical.strict_load(path)
+            census = record.get("census") if isinstance(record, dict) else None
+        except (ContractError, OSError, ValueError) as exc:
+            census = {"complete": False, "note": f"precensus-{k}.json cannot be read: {exc}"}
+        found.append((int(k), census))
+    return sorted(found, key=lambda item: item[0])
+
+
+def census_lost_runs(campaign) -> list:
+    """Before preflight (E-206; E-96 left it open): every run launch of ``campaign`` (a runner._Campaign) that its
+    journal records without a closing record and whose recording launcher was called (a lost launch not yet resumed)
+    is censused by exactly its journaled process_started record (runner._Campaign._lost_census, through
+    isolation.census_launch: only processes proven to be that launch's are signalled, by pid, never one started before
+    the launch's floor, never the coordinator or an ancestor, and an unsandboxed group only while its recorded leader
+    holds it), unless its latest pre-preflight census is already clean. Each census is written as
+    runs/<run_id>/precensus-<k>.json. A census that cannot run reads incomplete (fail closed). Returns what was
+    censused: [{launch (the run id), census, precensus (k)}]; census_problems says which remain unclean, and
+    run_campaign launches nothing, preflight included, while any does. The run itself stays open: its resume (after
+    preflight, or under a stop) censuses it again and seals the pre-preflight censuses with it."""
+    found = []
+    for run_id in campaign.open_launches():
+        if not campaign._launcher_called(run_id):   # nothing was started: its resume closes it not_started
+            continue
+        run_dir = campaign.run_dir(run_id)
+        earlier = _precensuses(run_dir)
+        if earlier and not census_unclean(earlier[-1][1]):
+            continue
+        try:
+            census = campaign._lost_census(run_id)
+        except (ContractError, OSError, ValueError) as exc:
+            census = {"complete": False, "note": f"the journaled start cannot be censused: {exc}"}
+        k = 1 + max([k for k, _ in earlier] or [0])
+        canonical.write_once(run_dir / PRECENSUS.format(k=k), runner._pretty({"census": census}))
+        found.append({"launch": run_id, "census": census, "precensus": k})
+    return found
 
 
 def _capped(path) -> bytes:
@@ -1729,7 +1846,8 @@ def cli_price_per_mtok(campaign_dir) -> dict:
 
 
 def cli_geo_multiplier(campaign_dir) -> dict:
-    """The pinned CLI's measured cost multiplier per inference geography ({"us": x}) from the latest HP-13, or {}."""
+    """The pinned CLI's measured cost multiplier per inference geography ({geo: x}; rehearsal.GEOS: "us" and, from
+    E-203, "not_available") from the latest HP-13, or {}."""
     found = _hp13_detail(campaign_dir).get("cli_geo_multiplier")
     return {k: v for k, v in found.items() if canonical.finite_number(v)} if isinstance(found, dict) else {}
 
@@ -1802,6 +1920,9 @@ USAGE_KINDS = {"inputTokens": "input_tokens", "outputTokens": "output_tokens",
                "cacheCreationInputTokens": "cache_creation_input_tokens",
                "cacheReadInputTokens": "cache_read_input_tokens"}
 MAX_OUTPUT_FALLBACK = 128_000      # §5 worst case: output tokens of one turn when modelUsage names no maxOutputTokens
+# A lost launch sealed with one of these (its census left survivors or could not search) leaves a process that may hold
+# the token in its environment: its live checks print REVOKE too (E-212), not only an S2 trigger.
+UNCLEAN_LOST_FLAGS = frozenset({"census_incomplete", "survivors_after_kill"})
 REVOKE = ("REVOKE THE TOKEN NOW: claude.ai > Settings > Claude Code (or the account's security settings) lists the "
           "setup-token; revoke it, then delete ~/.config/ravel-eval/claude-oauth-token (E-50: retention ends on any "
           "credential flag)")
@@ -1841,7 +1962,8 @@ def recompute_cost(model_usage, rates, multiplier=1.0):
 
 def geo_multiplier(geos, measured):
     """The cost multiplier for the inference geographies a run's usage reported: 1.0 for none, HP-13's measured
-    multiplier for exactly one it measured, else None (unverifiable: the recompute is then not compared)."""
+    multiplier for exactly one it measured (E-203: "not_available" too, the value the smoke's usage reported), else
+    None (unverifiable: the recompute is then not compared, and LC-16 warns)."""
     geos = sorted(set(geos or []))
     if not geos:
         return 1.0
@@ -1964,8 +2086,10 @@ def live_checks(campaign_dir, run_id, *, write=True) -> dict:
 
     def finish(record):
         record["stop"] = stop_reason(record, journal)
-        if record["stop"] is not None and "S2" in record["stop"]["triggers"]:
-            record["action"] = REVOKE
+        lost = any(r["state"] == "interrupted_crash" for r in journal)
+        if record["stop"] is not None and ("S2" in record["stop"]["triggers"]
+                                           or (lost and flags & UNCLEAN_LOST_FLAGS)):
+            record["action"] = REVOKE    # E-212: a surviving or unproven process of a lost launch may hold the token
         if write:
             canonical.atomic_write_bytes(rdir / LIVE_CHECKS, runner._pretty(record))
         return record
@@ -2038,8 +2162,10 @@ def live_checks(campaign_dir, run_id, *, write=True) -> dict:
         checks[-1]["status"] = "warn"
     add("LC-17", "warn" if "shell_snapshot_missing" in flags else "pass", {"snapshot": closing.get("shell_snapshot")})
     denials = closing.get("sandbox_denials") or {}
+    # E-213: any report in the window warns (unchanged, H-102); the detail says which were the launch leader's
+    # (attributed) and which no record attributes (the subject's children and every other process alike)
     add("LC-18", "warn" if "sandbox_denials_unavailable" in flags or (denials.get("count") or 0) else "pass",
-        {"denials": denials})
+        {"denials": denials, "attribution": "machine-wide window: only 'attributed' reports are the launch leader's"})
     census_flags = ("survivors_after_kill", "census_incomplete", "ipc_residue", "subject_outlived_coordinator")
     gate("LC-19", census_flags, {"census": closing.get("census"),
                                  **({"remedy": CENSUS_REMEDY} if flags & set(census_flags) else {})})

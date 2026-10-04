@@ -7,6 +7,16 @@ configuration and procedure the smoke ran under. The budget owner authorized the
 (decisions.md E-34, E-47). The configuration choices are E-40 to E-51, and the harness pieces are
 E-52 to E-101; B-03 and B-05 hold the blocker status.
 
+Changed since the smoke, for a campaign built now (the development pilot, [pilot-request.md](pilot-request.md),
+follows this procedure): HP-13 also measures the inference geography "not_available", which every smoke
+run reported, and the pin prices it ×1.0, so LC-16 verifies such a run (E-203); the approval may be of
+the pilot's kind, which also binds the schedule seed, the broker limits and the roster order (E-204), and
+`build-live --design-budget` sets the bank's design budget (E-205); `run` censuses a lost run launch before
+preflight (E-206). The treatment digests moved with `contracts.py` (E-207). A smoke-kind approval covers at
+most 8 assignments and the default broker limits, a pilot approval fixes `max_turns` at 100, and `verify`
+and preflight PF-15 re-read the frozen approval after the build (E-211). S4's approval below is the smoke's
+kind.
+
 Before the launch (history): the harness-owned copy of the pin existed (S3; sha256 and signature
 checked). The zero-cost probes (S7) and an offline rehearsal of the whole live path had run against the
 real pin, on rehearsal campaigns with a dummy token in a scratch file, a deny-all proxy and a local mock
@@ -308,7 +318,12 @@ the stage workers use bound interpreters. Accepted as a residual (H-29).
 - **Resuming.** Run the same command, never with `--only` (refused for a real host, E-79). Before
   anything else it re-derives the stop rules of every sealed run, so a stop an interruption lost is
   written then (E-78). A lost launch is sealed `interrupted`, charged c, and never relaunched. It stops
-  the campaign (S3, with S7 among the triggers).
+  the campaign (S3, with S7 among the triggers). Since E-206 `run` first censuses a lost launch by its
+  journaled start, before preflight, and refuses while that census stays unclean. While it stays
+  unclean (survivors, or a group that cannot be proven), a process that may hold the token in its
+  environment may still be alive: treat the token as exposed and revoke it (claude.ai > Settings >
+  Claude Code), then delete its file, before the human stop below; the lost launch's live checks print
+  REVOKE once it is sealed (E-212).
 - **A resume that cannot pass preflight.** This happens, for example, when PF-13 finds a System V
   object after an interrupted launch, or when the token file is gone. Record a human stop with
   `stop --reason ... --by ...`, then run the same `run` command. Under a stop, `run` runs no
@@ -445,7 +460,7 @@ existed (E-83). The probes still inject only dummy tokens; none reads the file.
 ### S9 to S15: the paid runs and close-out
 
 ```sh
-# S9. Preflight (stat-only for the credential): PF-01..PF-14 must all be ok.
+# S9. Preflight (stat-only for the credential): PF-01..PF-15 must all be ok (PF-15 since E-211).
 "$PY" "$G" preflight --campaign "$C"
 # S10. Run 1 (paid), then its live checks.
 caffeinate -i -s "$PY" "$G" run --campaign "$C" --limit 1
@@ -584,7 +599,8 @@ latest HP-13 record. For each run it reports:
 - the sum of `modelUsage[*].costUSD`;
 - a recompute: `modelUsage` tokens × the rates HP-13 measured for the pin (`cli_price_per_mtok`) × the
   cost multiplier HP-13 measured for the inference geography the run's usage reports
-  (`cli_geo_multiplier`; the 2.1.281 bundle multiplies a "us" request's cost by 1.1). The pinned model's
+  (`cli_geo_multiplier`; the 2.1.281 bundle multiplies a "us" request's cost by 1.1 and any other by 1;
+  since E-203 HP-13 measures "us" and "not_available"). The pinned model's
   own share is compared even when an auxiliary model has no measured rates (E-76);
 - main-loop tokens, turns, the result subtype and the terminal reason;
 - the charge journaled for the run.

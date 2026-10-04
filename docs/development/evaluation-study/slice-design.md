@@ -432,8 +432,10 @@ artifact is a named extra, read with each task's own deliverable words (E-173); 
 covered only by a restatement naming its role, ordered role lists are read in order and unlabelled
 numbers are unresolved (E-174); an index or ordinal is no count (E-175); the kx refusal matcher needs a
 range, a crossing and the curve in one clause, and another family's condition counts only when stated
-as a reason (E-176, E-177). likelihood_freshness keeps §11's rules, its reading of a refusal's object
-and version 1 reports. It does not apply the design's convention values (E-142).
+as a reason (E-176, E-177). Before the pilot (E-200 to E-202): a stray number stating any value the task's
+scale knows is judged, never dropped, integer counts included in structured lines, and a doubted
+supersession statement is unresolved (§11). likelihood_freshness keeps §11's rules, its reading of a
+refusal's object and version 1 reports. It does not apply the design's convention values (E-142).
 
 Under D-V (E-110, E-126), lf-a and both twins of hv, mq and tz carry `visibility_waiver_pending`.
 Until the review decides, the bank scores only synthetic engineering campaigns.
@@ -773,10 +775,14 @@ that were never the smoke's. It then ran the authorized 8-run smoke on 2026-09-2
 ([smoke-record.md](smoke-record.md)); no other paid run has happened. The code gates a paid host as follows:
 
 - Building one: `cli.py build-live` (`live.build_live_campaign`) requires `RAVEL_EVAL_LIVE=1` and the
-  budget owner's approval record (schema 2, `contracts.validate_smoke_approval`). The approval must
+  budget owner's approval record (schema 2, `contracts.validate_smoke_approval`; kind
+  `synthetic_engineering_smoke` or `synthetic_engineering_pilot`, E-204). The approval must
   equal the finished campaign exactly (`live.approval_problems`: the caps as canonical bytes, the
   tasks, seeds, arms and assignment count, the pinned host and its effort, shared quota accepted,
-  the declared credential variable, and the spend envelope stated exactly, E-94) and must be unused. The
+  the declared credential variable, and the spend envelope stated exactly, E-94; a pilot's also the
+  schedule seed, the broker limits and the order of the tasks, seeds and arms, E-204) and must be unused.
+  The authorization's reference states the kind (a pilot is development evidence only).
+  `--design-budget` sets the per-run task limits to `registry.DESIGN_BUDGET` (E-205). The
   per-user ledger, `~/.local/share/ravel-eval/approvals/live-approvals.jsonl` (E-77: never per store, so
   no second store can reuse an approval; a directory of its own, E-89), records each approval's
   canonical sha256 once, under an exclusive lock, as the build's last step
@@ -786,7 +792,8 @@ that were never the smoke's. It then ran the authorized 8-run smoke on 2026-09-2
 - Loading one (`runner._Campaign`) requires `RAVEL_EVAL_LIVE=1`, the Seatbelt sandbox and its
   census, and a `host_launch` that validates and that the environment manifest binds (§10).
 - `run_campaign` then requires, before any assignment: every lost or unclean probe launch censused and
-  none left unclean (E-96); a passing preflight (PF-01 to PF-14; among them the pin's code signature,
+  none left unclean (E-96); every lost run launch censused by its journaled start and none left unclean
+  (E-206); a passing preflight (PF-01 to PF-15; among them the pin's code signature,
   the latest behavioral check, re-derived, §4.3, the latest host-probe record passing HP-06, HP-09 and
   HP-13 with the pin pricing its model by its own entry, and the S10a gate); the run-start credential
   validation; and a hard core-file limit of 0. Once run 1 was launched no further run launches until
@@ -884,7 +891,10 @@ or anything is sealed (§8; "A real host's run" below). Evaluation is a separate
 
 - **Before any assignment**, `run_campaign` censuses every lost probe launch by its record, and again
   every probe launch whose latest census is unclean (incomplete or with survivors), and refuses to launch
-  while one stays unclean (E-96); then it requires a passing `live.preflight`: PF-01
+  while one stays unclean (E-96); it censuses every lost run launch (journaled `launched` without a
+  closing record, its launcher called) by its `process_started` record unless its latest
+  `precensus-<k>.json` is clean, and refuses, before preflight, while one stays unclean (E-206; the
+  recovery is a human stop, E-95); then it requires a passing `live.preflight`: PF-01
   `RAVEL_EVAL_LIVE=1`; PF-02 none of the never-present
   names, nor the credential variable itself, in the coordinator's environment; PF-03 the credential
   file (stat only: a regular file with one link, this user's, no group or world bits, 1 to 4096
@@ -897,7 +907,8 @@ or anything is sealed (§8; "A real host's run" below). Evaluation is a separate
   this user (mode 0700); PF-10 remaining global budget and seconds at least one run's caps; PF-11
   Seatbelt and its census; PF-12 a hard core-file limit of 0; PF-13 no System V IPC object of this
   user; PF-14 the S10a gate (no run launched yet, or run 1's recorded go naming its sealed evidence,
-  E-92). Then the run-start credential validation (`live.validate_credential`: the file is read and
+  E-92); PF-15 the frozen approval re-read against the campaign's files and host launch, and consumed
+  in the approval ledger by exactly this campaign (E-211; `verify` re-reads it too). Then the run-start credential validation (`live.validate_credential`: the file is read and
   the value discarded; a failure is `CredentialPause`, a pause with nothing journaled and no stop).
   `cli.py run` installs SIGHUP and SIGTERM handlers that raise `CoordinatorInterrupted` in the main
   thread, so `isolation.launch` kills its launch by census on the way out, and sets the hard
@@ -1067,7 +1078,9 @@ For a lost launch `killed` and `survivors` come from the census, not a launcher.
 (unknown) whenever the launch's own census or the lost-launch census was incomplete
 (`census_incomplete`), never an empty list.
 
-**Lost-launch census.** A lost launch is censused exactly once, from its `process_started` record,
+**Lost-launch census.** A lost launch is censused from its `process_started` record, at its resume and,
+before preflight, by every `run` until one such census is clean (E-206: `runs/<run_id>/precensus-<k>.json`,
+whose `found` and `killed` the resume's sealed census joins and keeps under `precensus`), each time
 by `isolation.census_launch`: the recorded sandbox marker (both census files restored if missing;
 the scan fails closed) or, unsandboxed, the recorded process group, and that only while the group id
 is held by the recorded leader (its pid and `leader_start`, re-checked every round). Only processes
@@ -1188,7 +1201,8 @@ as H-13.
   predicate before the sentence's next number, or a pronoun sentence right after it, that asserts its
   validity or that it is reported ("(superseded) applies", "is superseded, but it is my final answer",
   "is what I report", "reported as final", "... is superseded; it is the result"). A sentence with a
-  question or a condition (?, if, unless, whether) marks nothing. Otherwise it is `stale_value`
+  question or a condition (?, if, unless, whether) marks nothing, and neither does a doubting or negating
+  frame (E-200 bullet below). Otherwise it is `stale_value`
   without historical wording in its sentence (a superseded basis stated as current) and `unresolved`
   with it: a stale value completing "the observed limit is <n>" beside wording about something else
   is never `historical`. Historical, supersession and currency words governed by a negation do not
@@ -1234,11 +1248,119 @@ as H-13.
   corner headers and a list line's heading are the value's own historical wording (unresolved, never
   `historical`). A decimal that no rule reads but that equals a current or prior quantity or a supplied
   input is judged, its classes taken from its heading or the clause before its semicolon (the
-  likelihood_freshness profile; the task-bank profile still drops it). Known coverage gaps, all
+  likelihood_freshness profile; the task-bank profile too since E-200). Known coverage gaps, all
   failing toward null: a bracketed pair or range binds unevenly to one shared role label ("[a, b] fb
   after ±1σ" supports only the first member, "[a–b at ±1σ]" only the second); the asserted-rejection
   vocabulary is closed ("were not carried forward" or "not carried over" rejects nothing, so such
   quotes stay `unresolved`); a unit label before a number or a list still leaves it unit-ambiguous.
+- **The pilot request's two false-clean paths (E-200 to E-202, provisional; H-100):** the task-bank
+  profile judges a number no other rule reads when it states, not only coarsely, a value the task's
+  scale knows (an answer, a fault, convention, bound or diagnostic value, or a supplied input): its
+  fault, convention or oracle verdict, or `unresolved`, never silently dropped. A decimal counts
+  anywhere; an integer (a count, a published value) only in a list, numbered or label line or a
+  semicolon clause whose line, heading or continued sentence names a quantity or a role. In both
+  profiles such a number is read in the unit its heading or continued sentence names ("Cross section
+  (pb):" scales it to fb), two units leave it `unresolved`, a list marker is no number and a number
+  inside an identifier ("sub-001", "E-190") is none. In the task-bank profile a unitless cross
+  section whose digits state a known value both in fb and in pb is `unresolved`. A supersession, change,
+  rejection or retraction statement is doubted when its own clause (up to a colon, a dash, but, so,
+  although, though, because, since ...) has a doubting or negating frame ("I cannot say the previous
+  <n> was not used", "I am not sure ...", "It is not true that ...", "I don't think ...", "I deny that
+  ...", "Perhaps ...", "..., I think", "as far as I know"), or when another clause of its sentence or
+  the next sentence's first clause is a doubting tag that refers back or has at most three words
+  ("..., though I cannot confirm it.", "I cannot confirm this.", "Not sure."). A doubted statement marks
+  nothing: its value is `unresolved`, never `historical`, and its retraction is unconfirmed. A doubt
+  about something else in another clause governs nothing ("The current luminosity is unknown, so the
+  previous run's 120 fb⁻¹ was not used" stays `historical`); in the statement's own clause it counts,
+  and so does "no doubt" (fail toward null). These readings are linear in the text (E-202). Still
+  open, failing toward null: a unit label before a number or a list; not read: an integer in prose or
+  an unstructured line, and a stray integer in the likelihood_freshness profile.
+- **The review of those paths (E-210, provisional; H-103):** beside the word list (now also evaluative
+  predicates such as "It is incorrect that ..." and "is wrong to say", "not 100% sure", "I have not been
+  able to verify", "no reason to believe", counterfactual adverbs, "I hope", "I'd say", "or so ...",
+  "According to ...", "I am told"), a statement embedded under a predicate is framed unless the frame
+  is an assertive one of the writer's own ("I confirm that", "I can say with certainty that", "It is
+  true that"): "The draft claims the previous <n> was not used" and "The log shows ..." leave the value
+  `unresolved`. A sentence whose doubt names "the following" or "below", or that ends with a colon,
+  doubts the rest of its paragraph (the next paragraph when it ends its own); a doubting tag in one of
+  the next two sentences of the paragraph, and a reversal opening the next one ("Actually, it was.",
+  "Not really.", "Just kidding."), doubt the statement; a first-person doubt closing its clause is a
+  tag ("..., although I have no way of checking."); a back-referring delivery predicate in the next
+  sentence or after a semicolon reasserts the value ("...; still, I report it as the observed limit").
+  A stray decimal whose carried unit scales it to nothing known while its digits state a known value is
+  `unresolved`. The task-bank profile also reads integers in a table's value cells (the row label and
+  headers lend their wording), in "=" and "→" label lines and in bare value lines under a heading, and
+  takes result labels ("Final:", "Result =") and count abbreviations ("N_sel") as quantity words; an
+  attributed correction under a doubt corrects nothing; an unattributed input that is also a prose
+  fault value of a field its sentence names is `unresolved` (kx's POI cap 10 stated as the observed
+  limit).
+- **The evaluator repair after the development pilot (E-220 to E-223, provisional; H-110, H-115):**
+  in both profiles, a run of listed numbers takes its roles in order from its lead: a label list
+  naming as many quantiles ("(−2σ, −1σ, median, +1σ, +2σ): a, …, e", "−2σ/…/+2σ", "(-2, -1, 0, +1, +2
+  sigma)", a band range "−2σ…+2σ" or "−2σ to +2σ") or E-174's role tokens ("observed and expected: x
+  and y", now in likelihood_freshness too); a label list naming several quantiles over a value not
+  read in order leaves it ambiguous; a field name over a bracketed list of five gives the k-th member
+  the field's k-th index. A converted value takes its source's role: after an arrow, after a slash
+  between numbers of two classes, or as the result of an arithmetic chain ("16.8 events / 120 fb⁻¹ =
+  0.140 fb"). Labels are no numbers: the digits of a quantile label list, the integers of a table's
+  label and header cells ("(0)", "row 2"; a decimal there is still read) and a unit factor ("1000
+  fb/pb"); a unit identity ("1 pb = 1000 fb") is no claim. A unit label leading a line ("fb: a, b")
+  gives its unit to the line's numbers, and such a line under a short title line reads the title. In
+  the task-bank profile a registered field name ("selected_events = 89", "cross_section_pb = …"; a _pb
+  or _fb suffix gives the unit) names its one field, judged against the census copy its sentence
+  names; a bound word before a formula binds its result ("σ_vis > 10 / 3.2 fb⁻¹ = 3.125 fb"); the
+  attribution verbs add tags, calls, associates, pairs, attaches and maps, a pronoun whose nearest
+  phrase is no source takes its sentence's first subject, and a relative pronoun ("…, which is the
+  opposite") its clause's source; the correction words add reversed, the opposite, transposed,
+  inconsistent and "N× too small"; a fault value in a sentence that predicates a correction of a source
+  is at most `unresolved`. For refusal presence, the refusal reader adds "could" and "did", an adverb
+  before the verb, "resolve", "is not resolved", a negated subject or existence whose noun phrase names
+  the deliverable ("No visible cross-section limit can be delivered", "no resolved σ_vis limit
+  exists") and restrictive wording ("only lower bounds on the limits can be given"); without a complete
+  delivery or a deciding structured refusal, the last accepted submission's report text is read beside
+  the final message (H-110). For refusal validity, quantile notation is no σ wording for the attached
+  and coarse readings (a number equal to a σ_vis value still counts in any σ sentence), a POI value
+  ("mu = 10", "the approved interval [0, 10]") and a supplied input are no mention unless they equal a
+  σ_vis value, and an integer that states a fault value only through its half-unit is at most coarse.
+  "stale" and "declined" are historical wording, "not reusable", "not a permitted basis" and "declined"
+  rejections, and a flagging verb between a negation and its word ("not flagged stale") keeps the
+  negation. Known gaps, failing toward null: a unit label inside a line before a list ("(fb): a, b",
+  "signal events: <n>"), a band list without quantile labels, "which shows …" (an embedding frame,
+  E-210), assertions with no value (H-13, H-111).
+- **The review of that repair (E-225 to E-228, provisional; H-110, H-117):** a POI value is no number
+  only as a range or cap value (a bracketed range, a range relation, `mu_max`, a cap or bound word) that
+  is a supplied POI bound or states nothing the scale knows, or as a bare POI value equal to a supplied
+  POI bound; a POI value with a limit suffix (`_95`, `_up`, `_hi`) or after limit wording ("the
+  observed limit is mu = <n>", "crosses 0.05 at mu of <n>") is judged as an event count. A correction
+  word elsewhere in a sentence no longer softens a fault value (E-220's cap is withdrawn); an attributed
+  source value the writer adopts ("that is the value I deliver", "and so do I", "I follow the figure")
+  is the writer's own. A bound word binds a formula's result only as a lower bound after a quantity
+  subject ("σ_vis >", "the limit is at least"), never "over" or a blockquote ">"; a line-initial ">"
+  before a bare value leaves it ambiguous; for refusal validity a bound drops its mention only in the
+  task's recorded direction when it is clean or the recorded bound itself, an upper bound on σ_vis
+  ("σ_vis < 13.7 fb", "below") counts as a value, and in a refusal task an unresolved fault value or
+  bound of a limit field (either unit) is unclassified. A value at the recorded upward bound beside the
+  fit's status ("above_scan") is that bound. Refusal presence ignores a refusal under a negating,
+  questioning, conditional or doubting frame, another run's, report's, submission's or draft's failure, a
+  meta object ("any issue with the limit"), a meta-headed or comparative negated existence ("no doubt
+  about the limit", "no limit … lower than"), "not only", and one its sentence undoes by delivering it
+  ("…, so I computed it by hand"). A prose refusal's reason is read where it is given: false when every
+  refusing sentence gives its own reason and none names the condition, else the whole text. A refusal
+  read only in the last submission's report text is at most null until H-110 is answered, and it no
+  longer counts for the timeout exception. A rejection whose subject is an action on the value
+  ("Replacing <n> was declined", "Changing <n> is not allowed"; a use of it still rejects it),
+  "declined for", "not allowed to" and "declined by nobody" reject nothing; "which I override" and "and
+  so do I" reassert. Only a unit definition is a unit identity (one side exactly 1, nothing binding the
+  pair to a quantity). A number given its unit by a line label, and a unitless decimal stating a current
+  or prior σ_vis value, still count against a refusal. Only label integers of a table's label cells are
+  masked, and a value cell may carry a note. "stale" and "declined" are historical wording only in the
+  number's own clause and not where it is stated as the result. A scored endpoint's or a census field's
+  name is judged as that field of the copy its sentence, paragraph or claim names, or of each copy (a
+  value clean in one and invalid in the other is unresolved), never as a supplied-input restatement.
+  Known gaps (H-116): refusal phrasings such as "not provided", "withheld", "N/A" or "I am unable to
+  give"; a bare 0 among σ labels; label=value legends quoted as swapped; "that labelling is backwards";
+  and, found in the re-judgment (E-227), a bound sign inside a formula chain whose quantity name stands
+  before an equation ("σ_vis = S95 / L > a / b = v"), which is not read as a bound.
 - **Retraction across submissions:** a delivered submission finding that is not clean (an invalid or
   unknown verdict: the withdrawal is tied to the claim, whatever its verdict) is withdrawn, verdict
   `retracted_after_delivery`, when a later accepted submission or the final message retracts it: a
@@ -1254,8 +1376,8 @@ as H-13.
   retract", a passive whose subject a negative determiner leads however long it is: "None of the
   provisional observed limit of <n> is withdrawn") withdraws nothing; retraction wording that is
   neither ("Should I withdraw <n>?", "I would withdraw <n>", "I considered retracting <n>",
-  "Withdrawing <n> is unnecessary"), and a retraction of something said about the number (a head noun
-  or preposition such as objection, caveat, doubts, concern, warning, flag, about, regarding between
+  "Withdrawing <n> is unnecessary", and since E-201 one under a doubting frame: "Perhaps I retract
+  <n>"), and a retraction of something said about the number (a head noun or preposition such as objection, caveat, doubts, concern, warning, flag, about, regarding between
   the verb and the number: "I withdraw my objection to <n>", "I retract my doubts about <n>"; "on"
   and "to" only after such a noun), makes the finding it names `unresolved` ("retraction
   unconfirmed", human review; its σ_vis mentions unclassified). Known gap (PKT-D04; it errs against
@@ -1498,7 +1620,7 @@ def build_live_campaign(store, *, campaign_id, created_utc, seeds, schedule_seed
                         tasks, pin: HostPin, credential_file, approval_bytes: bytes, budget: dict, claude=None,
                         source=None, extra_forbidden_roots=()) -> Path
 def claude_adapter(host, host_launch, budget, state_dir, launcher) -> ClaudeCliAdapter   # build-time binding and launches
-def preflight(campaign_dir, *, campaign=None) -> dict            # {"ok", "checks": [{id: PF-01..PF-14, name, ok, detail}]}
+def preflight(campaign_dir, *, campaign=None) -> dict            # {"ok", "checks": [{id: PF-01..PF-15, name, ok, detail}]}
 def host_probe(campaign_dir, *, dry_start=False, rehearse=False, catalog_rates=None) -> dict   # HP-01..HP-13
 def live_checks(campaign_dir, run_id) -> dict                    # LC-01..LC-23, the flags and stop_reason
 def stop_reason(checks, journal) -> dict | None                  # {rule, name, reason, triggers}

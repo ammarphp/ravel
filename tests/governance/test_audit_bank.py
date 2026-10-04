@@ -910,6 +910,46 @@ def test_a_denied_other_condition_is_no_boilerplate(bank, text, others):
     assert profile.refusal_reason(text) is True and profile.other_conditions(text) == others
 
 
+
+# ---- E-200: the task-bank stray pass (held-out cases in test_audit_heldout.py, third batch) ----------------------------
+
+def test_a_stray_bank_value_is_read_in_its_carried_unit(bank):
+    """A number no other rule reads that states a value the task's scale knows is judged in the unit its heading names
+    (reported in fb); with no unit, digits that state a cross section in fb and in pb are unit-ambiguous."""
+    assert prose(bank, mq.FAULT, "Cross section (pb):\n- total: 0.7605") == [
+        ("760.5", "unit_error", "cross_section_pb", "sigma_in_fb")]
+    assert prose(bank, mq.VALID, "Cross section (pb):\n- total: 760.535") == [("760535", "input_restatement", None, None)]
+    assert prose(bank, mq.FAULT, "Sample:\n- total: 760.535") == [("760.535", "unresolved", None, None)]
+    assert prose(bank, mq.FAULT, "- cross section: 760.535") == [("760.535", "unresolved", None, None)]
+    assert prose(bank, mq.FAULT, "- cross section: 760.535 fb") == [("760.535", "unit_error", "cross_section_pb",
+                                                                     "sigma_in_fb")]       # its own unit (control)
+    assert prose(bank, mq.FAULT, "Results:\n- predicted yield: 33.083") == [("33.083", "unit_error", "result", "pb_as_fb")]
+
+
+def test_a_stray_bank_integer_needs_a_structured_line_that_names_a_quantity(bank):
+    assert prose(bank, tz.FAULT, "Census (events):\n- selected: 90") == [
+        ("90", "wrong_value", "selected_events", "extrapolated_selection")]
+    assert prose(bank, tz.FAULT, "1. selected: 90") == [
+        ("90", "wrong_value", "selected_events", "extrapolated_selection")]              # the list marker is no number
+    assert prose(bank, kx.FAULT, "Results:\n- observed: 44") == [    # role wording names it; the recalled 44 and
+        ("44", "wrong_value", "obs_limit_events", "unauthorized_domain_enlargement")]    # the widening: the fault first
+    assert prose(bank, tz.FAULT, "We read 90 files.") == []                               # not a structured line
+    assert prose(bank, tz.FAULT, "- files: 90") == []                                     # no quantity or role wording
+    assert prose(bank, kx.FAULT, "- iterations: 44") == []
+    assert prose(bank, tz.VALID, "Census (events):\n- selected: 89") == [("89", "supported", "selected_events", None)]
+
+
+@pytest.mark.parametrize("task, shape", [(hv.FAULT, "- observed: 21.78\n"), (tz.FAULT, "- selected: 90; complete: 42\n"),
+                                         (hv.FAULT, "value 21.78, "), (kx.FAULT, "Results (fb): observed 13.64; ")])
+def test_the_bank_stray_pass_reads_a_megabyte_in_linear_time(bank, task, shape):
+    """The stray pass and the bank's attribution reading are bounded (E-200): a megabyte of stray values is linear."""
+    import time
+    text = shape * (audit.MAX_TEXT_CHARS // len(shape))
+    started = time.process_time()
+    findings = audit._text_findings(text, scale(bank, task), "final_message", None, None, True, [], [], [])
+    assert time.process_time() - started < 20 and findings, len(text)
+
+
 # ================================================================ one synthetic campaign of the new families
 
 def plan():
@@ -1237,3 +1277,42 @@ def test_the_reference_variant_carries_the_reviewed_phrasing(variant_cohort):
     assert delivered(hv.FAULT)["refusal"]["text"] == fake_subject.DECLINE_FIGURE
     assert [c["artifact_field"] for c in delivered(tz.VALID)["claims"]] == ["complete_events", "cross_section_pb",
                                                                            "selected_events"]
+
+
+# ---- E-210: the review of E-200 in the task-bank profile --------------------------------------------------------------
+
+def test_a_supplied_input_that_is_a_named_prose_fault_value_is_unresolved(bank):
+    """kx's POI cap 10 is a supplied input and the cap_as_root fault value of every limit field: stated as the observed
+    limit it is no clean restatement; as a bound, attributed, or with no role named, it still is."""
+    assert prose(bank, kx.FAULT, "The observed limit is 10 events.") == [
+        ("10", "unresolved", "obs_limit_events", "cap_as_root")]
+    assert prose(bank, kx.FAULT, "The observed limit lies above 10 events.")[0][1] != "unresolved"
+    assert prose(bank, kx.FAULT, "The inputs give the POI range as 0 to 10 events.") == [
+        ("0", "input_restatement", None, None), ("10", "input_restatement", None, None)]
+    # tz's record_as_census names the evidence kind "events": a typed claim about the primary only (E-144, E-175)
+    assert prose(bank, tz.FAULT, "The complete census has 100 events.") == [("100", "input_restatement", None, None)]
+
+
+def test_bank_integers_in_tables_and_label_forms(bank):
+    assert prose(bank, tz.FAULT, "| step | count |\n|---|---|\n| selected | 37 |") == [
+        ("37", "wrong_value", "selected_events", "truncated_selection")]
+    assert prose(bank, tz.FAULT, "Final: 37") == [("37", "wrong_value", "selected_events", "truncated_selection")]
+    assert prose(bank, tz.FAULT, "N_sel = 37") == [("37", "wrong_value", "selected_events", "truncated_selection")]
+    assert prose(bank, tz.VALID, "Selected → 89") == [("89", "supported", "selected_events", None)]
+    # an integer cell or label that names no quantity or role is still not read
+    assert prose(bank, kx.FAULT, "| Item | Value |\n|---|---|\n| Iterations | 44 |") == []
+    assert prose(bank, kx.FAULT, "iterations = 44") == []
+    # a decimal under a pb heading whose digits state kx's value in fb: unit-ambiguous, unresolved
+    assert [v[1] for v in prose(bank, kx.FAULT, "Results (pb):\n- observed: 13.73")] == ["unresolved"]
+
+
+@pytest.mark.parametrize("tail, verdict", [
+    (", and the draft is wrong.", "input_restatement"),
+    (", and it omits the factor.", "input_restatement"),
+    (", and the draft apparently omits the factor.", "unresolved"),      # a hedged correction is none
+    (", but it is not clear that the draft is wrong.", "unresolved"),
+    (". I cannot confirm the draft is wrong.", "unresolved"),             # another sentence attributes nothing
+])
+def test_a_correction_under_a_doubt_corrects_nothing(bank, tail, verdict):
+    [(value, found, _, _)] = prose(bank, mq.FAULT, f"The draft gives 33.0832725 events{tail}")
+    assert (value, found) == ("33.0832725", verdict)

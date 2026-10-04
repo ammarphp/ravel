@@ -1289,6 +1289,13 @@ HOST_PORT = re.compile(r"([A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?):([0-9
 SMOKE_APPROVAL_FIELDS = ("schema_version", "kind", "approved_by", "approved_utc", "authorization_text", "scope",
                          "caps", "spend_envelope", "credential", "account_preconditions", "decisions",
                          "human_reviews", "retry_policy", "single_use")
+# The approval kinds of a real-host synthetic campaign (E-204). A pilot's approval carries the smoke's fields and
+# also binds the schedule seed and the broker limits, and live.approval_problems compares its task list, seeds and
+# arms in the campaign's order, so the schedule and the per-run limits cannot change after it was signed.
+SMOKE_APPROVAL_KIND, PILOT_APPROVAL_KIND = "synthetic_engineering_smoke", "synthetic_engineering_pilot"
+APPROVAL_KINDS = (SMOKE_APPROVAL_KIND, PILOT_APPROVAL_KIND)
+BROKER_LIMIT_FIELDS = ("max_broker_ops", "max_fits", "max_stage_executions")
+PILOT_APPROVAL_FIELDS = SMOKE_APPROVAL_FIELDS + ("schedule_seed", "broker_limits")
 # What the global USD cap is, stated in the approval the budget owner signs (E-94): the runner admits a run while the
 # remaining budget is at least usd_per_run, so the cap is an admission threshold, not a ceiling. An approval must
 # carry exactly this text.
@@ -1422,13 +1429,25 @@ def _positive(value, name):
 
 
 def validate_smoke_approval(obj, label="approval_record"):
-    """The budget owner's approval of one real-host synthetic smoke (schema_version 2, strict keys). The record
-    is structural here; ``live.approval_problems`` compares it with the campaign (caps, scope, host, ledger)."""
+    """The budget owner's approval of one real-host synthetic smoke or pilot (schema_version 2, strict keys; kind
+    one of APPROVAL_KINDS). A pilot's record also holds ``schedule_seed`` (a nonnegative integer) and
+    ``broker_limits`` (BROKER_LIMIT_FIELDS, positive integers). The record is structural here;
+    ``live.approval_problems`` compares it with the campaign (caps, scope, host, ledger; a pilot's schedule seed,
+    broker limits and roster order too)."""
     claude_cli, _ = _live_modules()
-    _fields(obj, SMOKE_APPROVAL_FIELDS, label)
+    pilot = isinstance(obj, dict) and obj.get("kind") == PILOT_APPROVAL_KIND
+    _fields(obj, PILOT_APPROVAL_FIELDS if pilot else SMOKE_APPROVAL_FIELDS, label)
     require(type(obj["schema_version"]) is int and obj["schema_version"] == 2,
             f"{label}.schema_version: expected integer 2")
-    _one_of(obj["kind"], ("synthetic_engineering_smoke",), f"{label}.kind")
+    _one_of(obj["kind"], APPROVAL_KINDS, f"{label}.kind")
+    if pilot:
+        require(type(obj["schedule_seed"]) is int and obj["schedule_seed"] >= 0,
+                f"{label}.schedule_seed: nonnegative integer required")
+        limits = obj["broker_limits"]
+        _fields(limits, BROKER_LIMIT_FIELDS, f"{label}.broker_limits")
+        for name in BROKER_LIMIT_FIELDS:
+            require(type(limits[name]) is int and limits[name] > 0,
+                    f"{label}.broker_limits.{name}: positive integer required")
     _text(obj["approved_by"], f"{label}.approved_by")
     _utc(obj["approved_utc"], f"{label}.approved_utc")
     _text(obj["authorization_text"], f"{label}.authorization_text")
