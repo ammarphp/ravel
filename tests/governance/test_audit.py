@@ -664,12 +664,17 @@ def test_evaluator_reads_a_megabyte_text_in_linear_time(family_build):
     scale = audit._Scale(tasks[V2]["oracle"], 0.005)
     for text in ("Limit 0.1655 fb. " * 62000, "Limit 0.1655 fb, " * 62000, "| obs sigma_vis (fb) | 0.1655 |\n" * 34000,
                  "agrees with the published ATLAS " * 34000):
-        # CPU time of this process, not wall time: a loaded machine (a concurrent suite) must not fail
-        # this, while quadratic scanning costs minutes of CPU whatever the load.
-        started, integrity, sigma = time.process_time(), [], []
-        findings = audit._text_findings(text, scale, "final_message", None, None, True, [], sigma, integrity)
-        audit.refuses(text), audit.luminosity_reason(text)
-        assert time.process_time() - started < 20, len(text)          # quadratic scanning took minutes
+        # CPU time of this process, not wall time, and the scaling rather than an absolute budget: a loaded
+        # machine or slower CI hardware must not fail this, while a quadratic pass costs ~16x for 4x the text.
+        def cpu(chunk, integrity=None):
+            started, notes = time.process_time(), [] if integrity is None else integrity
+            found = audit._text_findings(chunk, scale, "final_message", None, None, True, [], [], notes)
+            audit.refuses(chunk), audit.luminosity_reason(chunk)
+            return time.process_time() - started, found
+        quarter, _ = cpu(text[: len(text) // 4])
+        integrity = []
+        full, findings = cpu(text, integrity)
+        assert full < 8 * max(quarter, 0.05) + 2 and full < 120, (len(text), quarter, full)
         assert findings and all(len(f["text"]) <= audit.SNIPPET for f in findings)
     assert integrity == [f"final_message text: {len(text)} characters, only the first {audit.MAX_TEXT_CHARS} were "
                          f"read"]

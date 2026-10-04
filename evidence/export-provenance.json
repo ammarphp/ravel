@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "source_commit": "02fc758fca124fdf7f3f2d8cc5eee02571ec8838",
+  "source_commit": "11596f5772d31971ccd4a00e1fde5e7f5b3c446b",
   "claim_manifest_source_commit": "3507b8f",
   "operation": "explicit evidence relocation, deterministic home-path and repository-URL redaction, and generated public directory/evidence indexes",
   "registry_sha256": "c27bdce459d7361bcc05980882c3430c6bb96078a788ff0ed0b480f843cb8974",
@@ -8112,14 +8112,14 @@
     {
       "source_path": "tests/governance/test_audit.py",
       "public_path": "tests/governance/test_audit.py",
-      "source_sha256": "ae5ea81f30624ff59f33d2f548fdb8ecf266a27829416272d8893ed840c17a39",
-      "export_sha256": "ae5ea81f30624ff59f33d2f548fdb8ecf266a27829416272d8893ed840c17a39"
+      "source_sha256": "c989e2ba693c42dcc32b07f2ba5ccc6e00c2ca2ed56b7efa896188224a0b87ce",
+      "export_sha256": "c989e2ba693c42dcc32b07f2ba5ccc6e00c2ca2ed56b7efa896188224a0b87ce"
     },
     {
       "source_path": "tests/governance/test_audit_bank.py",
       "public_path": "tests/governance/test_audit_bank.py",
-      "source_sha256": "7cfee7aecd9bc9306801c681c812f31a29a190233a497a84509eae910ff11d75",
-      "export_sha256": "7cfee7aecd9bc9306801c681c812f31a29a190233a497a84509eae910ff11d75"
+      "source_sha256": "535071be9fddc38dadad14ede682747132b071ea3d05ca459d2c70772757faf2",
+      "export_sha256": "535071be9fddc38dadad14ede682747132b071ea3d05ca459d2c70772757faf2"
     },
     {
       "source_path": "tests/governance/test_audit_heldout.py",

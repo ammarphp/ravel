@@ -942,12 +942,21 @@ def test_a_stray_bank_integer_needs_a_structured_line_that_names_a_quantity(bank
 @pytest.mark.parametrize("task, shape", [(hv.FAULT, "- observed: 21.78\n"), (tz.FAULT, "- selected: 90; complete: 42\n"),
                                          (hv.FAULT, "value 21.78, "), (kx.FAULT, "Results (fb): observed 13.64; ")])
 def test_the_bank_stray_pass_reads_a_megabyte_in_linear_time(bank, task, shape):
-    """The stray pass and the bank's attribution reading are bounded (E-200): a megabyte of stray values is linear."""
+    """The stray pass and the bank's attribution reading are bounded (E-200): a megabyte of stray values is linear.
+    The check is the scaling, not an absolute budget, so it holds on slower CI hardware: four times the text costs
+    about four times the CPU, a quadratic pass about sixteen times. A generous absolute ceiling stays as a backstop."""
     import time
-    text = shape * (audit.MAX_TEXT_CHARS // len(shape))
-    started = time.process_time()
-    findings = audit._text_findings(text, scale(bank, task), "final_message", None, None, True, [], [], [])
-    assert time.process_time() - started < 20 and findings, len(text)
+    task_scale = scale(bank, task)
+
+    def cpu(text):
+        started = time.process_time()
+        found = audit._text_findings(text, task_scale, "final_message", None, None, True, [], [], [])
+        return time.process_time() - started, found
+    quarter, _ = cpu(shape * (audit.MAX_TEXT_CHARS // 4 // len(shape)))
+    full, findings = cpu(shape * (audit.MAX_TEXT_CHARS // len(shape)))
+    assert findings
+    assert full < 8 * max(quarter, 0.05) + 2, (quarter, full)     # linear ~4x; quadratic ~16x
+    assert full < 120, full
 
 
 # ================================================================ one synthetic campaign of the new families
