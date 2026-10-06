@@ -242,26 +242,27 @@ every required stage has run and been checked.
 
 ## Supported analyses and statistics
 
-Three SimpleAnalysis routines run on the native toolchain:
+RAVEL reinterprets a search when it can run the search's selection, certify that selection's acceptance against the
+experiment's published values, and use the published likelihood or per-region counts.
 
-| Routine | Models | Statistics |
-|---|---|---|
-| `EwkCompressed2018` | Slepton–bino | Yields, compressed likelihood or explicit channel mapping |
-| `EwkThreeLeptonERJR2018` | Chargino–neutralino via WZ | Yields or explicit channel mapping |
-| `ZeroLeptonDiscovery2018` | Squark– and gluino–neutralino | Yields only |
+Events are generated on the **native toolchain**: MadGraph5_aMC@NLO and Pythia 8, with Delphes for the detector,
+installed directly on a Mac, at about 30 to 50 minutes per model point. Two kinds of selection code read them:
 
-Other SimpleAnalysis routines can run only through the slow container fallback, if its image includes them. Rivet
-routines run with their own detector smearing in counting mode. Published efficiency maps can be folded without
-detector simulation. Binned shape fits are used only after the paper's own limit is reproduced. A custom
-particle-level selection is labelled as sensitivity only.
+- **Rivet routines that apply their own detector smearing**, for ATLAS and CMS searches (22 in the Rivet release
+  RAVEL uses);
+- **three ATLAS SimpleAnalysis routines**, rewritten in Python:
 
-Limits come from a published HistFactory likelihood from HEPData with a signal patch, a counting model or, for binned
-shape fits, the shape-fit engine. Results are 95% CLs exclusion limits or, where no exclusion can be claimed, labelled
-expected-only sensitivity; never discovery significances. `ravel analyses summary` reports the pinned catalogue of 633
-routines (554 Rivet and 79 SimpleAnalysis), and `ravel analyses list` searches it. A catalogue entry means a routine
-is available, not that RAVEL supports it; the [catalogue
-survey](evidence/audits/2026-09-26-analysis-landscape/README.md) separates the two. The full picture is in
-[capabilities](docs/reference/capabilities.md) and the [native pipeline](docs/workflow/reference/native-pipeline.md).
+| Routine | ATLAS search | Models | Output |
+|---|---|---|---|
+| `EwkCompressed2018` | Compressed sleptons, arXiv:1911.12606 | Slepton–bino | Yields; limits once acceptance is certified |
+| `EwkThreeLeptonERJR2018` | Three leptons via WZ, arXiv:1912.08479 | Chargino–neutralino | Yields |
+| `ZeroLeptonDiscovery2018` | Zero leptons, arXiv:2010.14293 | Squark– and gluino–neutralino | Yields |
+
+Limits use the experiment's published likelihood from HEPData when one exists. Otherwise RAVEL uses **counting mode**:
+each signal region becomes one Poisson count of observed events, expected background with its uncertainty, and
+signal, and the region with the best expected sensitivity sets the 95% CLs limit. The
+[capabilities page](docs/reference/capabilities.md) covers every route, and `ravel analyses list` searches a catalogue
+of 633 public routines.
 
 ## Toolchain and platforms
 
@@ -284,11 +285,10 @@ Check the computer with the read-only health check:
 
 Add `--require-rjr` for routines that use RestFrames (recursive jigsaw reconstruction), such as `EwkCompressed2018`.
 If tools are missing, follow [the step 1 procedure](docs/workflow/steps/01-environment.md), or let your coding agent
-do it at step 1. Intel helpers are tested in CI, but native runs on Intel Macs and Linux are not verified; there, use
-the Python-only routes or the container fallback. A native point takes about 30 to 50 minutes, a container point
-about 9 hours, and a scan from hours to overnight; the estimate at CHECK-IN 1 is the one to trust. Event generation
-also needs network access and free disk: about 6 GB for each point running at once during a scan. See also
-[native portability](docs/reference/native-portability.md).
+do it at step 1. On Intel Macs and Linux, use the Python-only routes. A native point takes about 30 to 50 minutes and
+a scan from hours to overnight; the estimate at CHECK-IN 1 is the one to trust. Event generation also needs network
+access and free disk: about 6 GB for each point running at once during a scan. See also [native
+portability](docs/reference/native-portability.md).
 
 ## Outputs
 
@@ -332,20 +332,18 @@ At step 9, the verification panel (the agent, with a fresh reviewer) checks ever
 came from. Scoped, replay and supplied-data runs apply only the checks within their scope: approval binding, inputs,
 numerical status and receipts.
 
-These checks do not prove that a result is physically correct: inference and detector fidelity need their own
-evidence. In the table, S95 is the 95% CL upper limit on the number of signal events.
+These checks test the software and the statistics; detector fidelity and inference rest on their own evidence. Each
+number comes from the analyses named in its row. S95 is the 95% CL upper limit on the number of signal events.
 
-| Check | Recorded evidence | What it establishes |
-|---|---|---|
-| Statistical recovery | <!-- claim:benchmarks_reproduced -->7 observed S95 comparisons within 8.6% (statistical layer)<!-- /claim --> | Recovery of published limits from published statistical inputs, across four searches |
-| Implementation comparison | <!-- claim:arm64_output_parity -->141/141 signal regions identical; final limit delta 0.51%<!-- /claim --> | For one routine (`EwkCompressed2018`), native and container chains agree on a shared detector-level input (regions) and from independent generation (limit) |
-| Selection fidelity | Six scorable cases: four pass, one warning, one fail; three cases cannot be scored | Agreement with published acceptance times efficiency where comparable evidence exists |
-| Workflow guards | <!-- claim:adversarial_gate_cases -->30<!-- /claim --> constructed gate cases | Responses to specified invalid states; not a rate of successful agent tasks |
+| Check | Analyses | Recorded evidence | What it establishes |
+|---|---|---|---|
+| Statistical recovery | Four 2016 ATLAS searches: arXiv:1605.03814, arXiv:1604.07773, ATLAS-CONF-2016-054 and ATLAS-CONF-2016-037 | <!-- claim:benchmarks_reproduced -->7 observed S95 comparisons within 8.6% (statistical layer)<!-- /claim --> | Published S95 values recovered from the published counts |
+| Implementation comparison | Compressed sleptons, arXiv:1911.12606 (`EwkCompressed2018`), at a 200 GeV slepton and a 150 GeV neutralino | <!-- claim:arm64_output_parity -->141/141 signal regions identical; final limit delta 0.51%<!-- /claim --> | RAVEL's Python port matches ATLAS's code on the same detector-level events, and independent runs agree on the observed limit |
+| Selection fidelity | arXiv:1605.03814, arXiv:1806.02293 and arXiv:2211.08028 | Six scorable cases: four pass, one warning, one fail | Agreement with published acceptance times efficiency |
+| Workflow guards | Constructed fixtures, one per guardrail | <!-- claim:adversarial_gate_cases -->30<!-- /claim --> constructed gate cases | Each guardrail responds to the state it targets |
 
-The marked values in this table are checked against the [claim registry](evidence/claims.json) in CI. The [validation
-results](docs/validation/results.md) give the provenance and the limits of each check, [all nine benchmark
-cases](docs/validation/README.md) are listed separately, and each evidence bundle has an offline verifier ([evidence
-index](docs/validation/evidence.md)).
+CI checks the marked values against the [claim registry](evidence/claims.json). The
+[validation results](docs/validation/results.md) give the provenance of each check.
 
 ## Limitations
 
