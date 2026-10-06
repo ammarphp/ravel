@@ -1,4 +1,4 @@
-Ravel-HEP
+RAVEL
 Copyright 2026 Ammar Aziz
 
 Licensed under the Apache License, Version 2.0 (see LICENSE).
@@ -11,5 +11,5 @@ The public analysis catalogue contains factual identifiers, short metadata,
 source locations and hashes derived from the Rivet and ATLAS SimpleAnalysis
 projects and the pyhf public probability-model index. Upstream revisions and
 links are recorded in the catalogue. Their routines, learned model files and
-reference datasets are not incorporated as Ravel implementations. Catalogue
+reference datasets are not incorporated as RAVEL implementations. Catalogue
 availability does not imply upstream endorsement or scientific validation.

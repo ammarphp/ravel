@@ -1,0 +1,137 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ravel-figures}[2026/10/06 RAVEL documentation figures]
+\RequirePackage{fontspec}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric,shapes.misc,shadows}
+% A canvas layer under the background layer, so the page colour never covers group panels.
+\pgfdeclarelayer{canvas}
+\pgfsetlayers{canvas,background,main}
+% Typeface: Inter (SIL Open Font License). Proportional figures: Inter's tabular feature also widens
+% hyphens and commas, which spoils labels.
+\setsansfont{Inter}[BoldFont={Inter SemiBold}, BoldItalicFont={Inter SemiBold Italic}]
+\newfontfamily\ravelheavy{Inter}[UprightFont={Inter Bold}]
+\renewcommand\familydefault{\sfdefault}
+% Never hyphenate labels: names such as MadGraph5_aMC@NLO must stay whole.
+\AtBeginDocument{\frenchspacing\hyphenpenalty=10000 \exhyphenpenalty=10000 \uchyph=0 \lefthyphenmin=62 \righthyphenmin=62}
+% Type scale (points). Nothing below 9 pt: on the 170 mm canvas shown across GitHub's README column (about
+% 830 px), 9 pt is about 15.5 px.
+\newcommand\ravelTitleFont{\ravelheavy\fontsize{13}{15.5}\selectfont}
+\newcommand\ravelNodeTitleFont{\bfseries\fontsize{11}{13.2}\selectfont}
+\newcommand\ravelLabelFont{\fontsize{10}{12}\selectfont}
+\newcommand\ravelSmallFont{\fontsize{9}{10.8}\selectfont}
+% Colour mode: \def\ravelmode{dark} before loading selects the dark palette.
+\providecommand\ravelmode{light}
+\def\ravel@dark{dark}
+\ifx\ravelmode\ravel@dark
+%% palette:dark
+\definecolor{rvbackground}{HTML}{0D1117}
+\definecolor{rvtext}{HTML}{E6EDF3}
+\definecolor{rvmuted}{HTML}{9198A1}
+\definecolor{rvconnector}{HTML}{9198A1}
+\definecolor{rvpeoplefill}{HTML}{3A2C1B}\definecolor{rvpeopleline}{HTML}{F8B452}
+\definecolor{rvagentfill}{HTML}{3C2837}\definecolor{rvagentline}{HTML}{C775B3}
+\definecolor{rvguardfill}{HTML}{412822}\definecolor{rvguardline}{HTML}{E76B4F}
+\definecolor{rvravelfill}{HTML}{183142}\definecolor{rvravelline}{HTML}{80C8FD}
+\definecolor{rvhepfill}{HTML}{1A3327}\definecolor{rvhepline}{HTML}{7CE6B3}
+\definecolor{rvrecordsfill}{HTML}{292F33}\definecolor{rvrecordsline}{HTML}{C8D3DC}
+%% end palette:dark
+\else
+%% palette:light
+\definecolor{rvbackground}{HTML}{FFFFFF}
+\definecolor{rvtext}{HTML}{1F2328}
+\definecolor{rvmuted}{HTML}{59636E}
+\definecolor{rvconnector}{HTML}{59636E}
+\definecolor{rvpeoplefill}{HTML}{FDE8D1}\definecolor{rvpeopleline}{HTML}{9D6700}
+\definecolor{rvagentfill}{HTML}{FFE3F7}\definecolor{rvagentline}{HTML}{752865}
+\definecolor{rvguardfill}{HTML}{FFE6DF}\definecolor{rvguardline}{HTML}{8B190A}
+\definecolor{rvravelfill}{HTML}{DAEDFF}\definecolor{rvravelline}{HTML}{0A79AC}
+\definecolor{rvhepfill}{HTML}{D3F2E1}\definecolor{rvhepline}{HTML}{1E9365}
+\definecolor{rvrecordsfill}{HTML}{E5ECF2}\definecolor{rvrecordsline}{HTML}{78838B}
+%% end palette:light
+\fi
+% Public inputs share the external-software colours: both lie outside RAVEL.
+\colorlet{rvinputsfill}{rvhepfill}\colorlet{rvinputsline}{rvhepline}
+% Geometry (mm). One canvas width for every figure.
+\newlength\ravelCanvasWidth \setlength\ravelCanvasWidth{170mm}
+% The canvas is painted on the background layer so that group panels (also on that layer, drawn later) show.
+\newcommand\ravelcanvas[1]{%
+  \begin{pgfonlayer}{canvas}%
+    \path[use as bounding box,fill=rvbackground] (0,0) rectangle (\ravelCanvasWidth,-#1);%
+  \end{pgfonlayer}}
+\tikzset{
+  every node/.style={text=rvtext, font=\ravelLabelFont},
+  box/.style={rectangle, rounded corners=2mm, line width=0.8pt, inner xsep=3mm, inner ysep=2.4mm,
+              align=center, minimum width=#1, text width={#1-6mm}, minimum height=11mm},
+  box/.default=38mm,
+  layer/.style={box, draw=rv#1line, fill=rv#1fill},
+  record/.style={box, draw=rvrecordsline, fill=rvrecordsfill, double copy shadow={shadow xshift=0.9mm,
+                 shadow yshift=-0.9mm, draw=rvrecordsline, fill=rvrecordsfill}},
+  band/.style={rounded corners=3mm, line width=0.6pt, draw=rv#1line, fill=rv#1fill, inner sep=3mm},
+  member/.style={box, draw=rv#1line, fill=rvbackground},
+  chip/.style={rectangle, rounded corners=1.6mm, line width=0.8pt, draw=rv#1line, fill=rvbackground,
+               minimum height=8.2mm, inner xsep=2.4mm, inner ysep=1.2mm, align=center, font=\ravelLabelFont},
+  % A check-in: the one chamfered shape, always semibold, so that it reads the same in every figure.
+  chipgate/.style={chip=people, chamfered rectangle, chamfered rectangle xsep=2.2mm,
+                   chamfered rectangle ysep=0pt, sharp corners, fill=rvpeoplefill,
+                   font=\ravelLabelFont\bfseries},
+  stepbadge/.style={circle, fill=rv#1line, text=rvbackground, inner sep=0pt, minimum size=5.4mm,
+                    font=\ravelSmallFont\bfseries},
+  metro/.style={line width=2.2pt, draw=rvravelline},
+  station/.style={circle, fill=rvbackground, draw=rvravelline, line width=1.6pt, inner sep=0pt, minimum size=5.6mm,
+                  font=\ravelSmallFont\bfseries},
+  stationgate/.style={regular polygon, regular polygon sides=8, shape border rotate=22.5, fill=rvpeoplefill,
+                      draw=rvpeopleline, line width=1.4pt, inner sep=0pt, minimum size=7.6mm},
+  stationend/.style={circle, fill=rv#1line, draw=rv#1line, inner sep=0pt, minimum size=4.2mm},
+  stationlabel/.style={anchor=west, align=left, inner sep=0pt},
+  bandlabel/.style={font=\ravelSmallFont\bfseries, text=rvmuted, anchor=north west},
+  flow/.style={line width=1.0pt, draw=rvconnector, -{Stealth[length=2.4mm, width=1.8mm]}, rounded corners=1.5mm},
+  loop/.style={flow, dash pattern=on 3pt off 2pt},
+  flowlabel/.style={font=\ravelSmallFont, text=rvmuted, fill=rvbackground, inner sep=2pt},
+  title/.style={font=\ravelTitleFont, anchor=north west, text=rvtext},
+  nodetitle/.style={font=\ravelNodeTitleFont},
+}
+\newcommand\nodetitle[1]{{\ravelNodeTitleFont #1}}
+% A station label: bold title, then a plain description on the same line.
+\newcommand\stationtext[2]{{\ravelNodeTitleFont #1}\hspace{2.2mm}{\ravelLabelFont\color{rvmuted}#2}}
+\newcommand\nodesub[1]{\\[0.6mm]{\ravelSmallFont\mdseries\color{rvmuted} #1}}
+% ---- Layout helpers -------------------------------------------------------------------------------------------
+% \ravelchips[gap]{style}{name prefix}{anchor point}{width}{labels}: a column of chips hanging from the anchor point
+% (their top centre), each `gap' below the previous one (1.8 mm by default), so a wrapped label never overlaps its
+% neighbour. The last chip's name is left in \ravellast.
+\newcommand\ravelchips[6][1.8mm]{%
+  \foreach \lab [count=\i from 0, remember=\i as \prev (initially -1)] in {#6} {%
+    \ifnum\i=0
+      \node[#2, minimum width=#5, text width={#5-4.8mm}, anchor=north] (#3\i) at (#4) {\lab};
+    \else
+      \node[#2, minimum width=#5, text width={#5-4.8mm}, below=#1 of #3\prev] (#3\i) {\lab};
+    \fi
+    \xdef\ravellast{#3\i}}}
+% \ravelrow{style}{name prefix}{anchor point}{width}{labels}: a row of chips from the anchor point (top left), 3 mm apart.
+\newcommand\ravelrow[5]{%
+  \foreach \lab [count=\i from 0, remember=\i as \prev (initially -1)] in {#5} {%
+    \ifnum\i=0
+      \node[#1, minimum width=#4, text width={#4-4.8mm}, anchor=north west] (#2\i) at (#3) {\lab};
+    \else
+      \node[#1, minimum width=#4, text width={#4-4.8mm}, anchor=north west] (#2\i) at ([xshift=3mm]#2\prev.north east) {\lab};
+    \fi
+    \xdef\ravellast{#2\i}}}
+% \ravelpanelfit{layer}{name}{nodes to enclose}{label}: a group panel around nodes, with a top margin that holds the
+% label above the first node. The panel is a node called `name', so its anchors can be used afterwards.
+\newcommand\ravelpanelfit[4]{%
+  \begin{scope}[on background layer]
+    \node[fit=#3, inner xsep=2.6mm, inner ysep=2.6mm] (#2-inner) {};
+    \coordinate (#2-top) at ([yshift=5mm]#2-inner.north west);
+    \node[band=#1, inner sep=0pt, fit=(#2-top)(#2-inner.south east)] (#2) {};
+  \end{scope}
+  \node[bandlabel] at ([xshift=2.5mm, yshift=-1.4mm]#2.north west) {#4};}
+% \ravelheader{title}{one-line purpose}
+\newcommand\ravelheader[2]{%
+  \node[title] at (5,-5) {#1};
+  \node[anchor=north west, font=\ravelLabelFont, text=rvmuted] at (5,-12.4) {#2};}
+% \ravelcanvasfit: paint the 170 mm canvas down to 4 mm below the lowest drawing (use at the end).
+\newcommand\ravelcanvasfit{%
+  \coordinate (rv@low) at ([yshift=-4mm]current bounding box.south);
+  \begin{pgfonlayer}{canvas}
+    \path let \p1 = (rv@low) in [fill=rvbackground] (0,0) rectangle (\ravelCanvasWidth,\y1);
+  \end{pgfonlayer}}
+\endinput

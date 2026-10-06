@@ -147,7 +147,7 @@ HEADLINE_CLAIMS = [
                     "and 57.27 fb median expected; lower-cut high-region rate ratio 1.412 "
                     "with conditional 95% interval [1.146, 1.678], including printed "
                     "integration uncertainty; generation-cut equivalence not established",
-        "doc_source": "README.md",
+        "doc_source": "docs/validation/results.md",
         "artifacts": [
             "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
             "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
@@ -162,7 +162,7 @@ HEADLINE_CLAIMS = [
         "headline": "Completed 20k four-state m150/m140 waypoint: conditional inclusive "
                     "sigma95 48.83 fb observed and 54.69 fb median expected; "
                     "not acceptance, coverage or full mass-plane certification",
-        "doc_source": "README.md",
+        "doc_source": "docs/validation/results.md",
         "artifacts": [
             "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
             "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",

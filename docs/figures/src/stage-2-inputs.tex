@@ -1,0 +1,47 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Step 2: Inputs and route}{Find what has been published, choose how to run the analysis and plan the cost.}
+
+% What goes in.
+\node[chip=records, minimum width=38mm, text width=33.2mm, anchor=north] (in0) at (25,-30) {Task contract};
+\node[chip=inputs, minimum width=38mm, text width=33.2mm, below=1.8mm of in0] (in1) {HEPData};
+\node[chip=inputs, minimum width=38mm, text width=33.2mm, below=1.8mm of in1] (in2) {Papers and code};
+\node[chip=inputs, minimum width=38mm, text width=33.2mm, below=1.8mm of in2] (in3) {Routine catalogue};
+\ravelpanelfit{records}{inpanel}{(in0)(in3)}{What goes in}
+
+% What happens, in order.
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, anchor=north] (do0) at (85,-30) {Resource census};
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do0] (do1) {Physics-trap sweep};
+\draw[flow] (do0) -- (do1);
+\node[chip=agent, minimum width=48mm, text width=43.2mm, below=4.6mm of do1] (do2) {Choose the route};
+\draw[flow] (do1) -- (do2);
+\node[chip=agent, minimum width=48mm, text width=43.2mm, below=4.6mm of do2] (do3) {Choose the model cards};
+\draw[flow] (do2) -- (do3);
+\node[chip=agent, minimum width=48mm, text width=43.2mm, below=4.6mm of do3] (do4) {Declare the target figure};
+\draw[flow] (do3) -- (do4);
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do4] (do5) {Estimate the cost};
+\draw[flow] (do4) -- (do5);
+\ravelpanelfit{ravel}{dopanel}{(do0)(do5)}{What happens}
+
+% What comes out.
+\node[chip=records, minimum width=42mm, text width=37.2mm, anchor=north] (out0) at (144,-30) {Census record};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out0] (out1) {Route and statistics mode};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out1] (out2) {Figure target};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out2] (out3) {Plan for CHECK-IN 1};
+\ravelpanelfit{records}{outpanel}{(out0)(out3)}{What comes out}
+\draw[flow] (inpanel.east |- do0) -- (dopanel.west |- do0);
+\draw[flow] (dopanel.east |- out0) -- (outpanel.west |- out0);
+
+% Checks along the way, and your decision that follows, if any.
+\coordinate (low) at (current bounding box.south);
+\coordinate (cktop) at ([yshift=-10mm]low);
+\ravelrow{chip=guard}{ck}{7,0 |- cktop}{50.0mm}{{Every resource looked at}, {Traps swept and recorded}}
+\node[chipgate, text width=26mm, anchor=north] (gate) at (140.5,0 |- ck0.north) {CHECK-IN 1};
+\node[anchor=north, font=\ravelSmallFont, text=rvmuted, text width=44mm, align=center] (gatetext) at ([yshift=-1.6mm]gate.south) {you approve the plan, budget and assumptions};
+\ravelpanelfit{people}{gatepanel}{(gate)(gatetext)}{Your decision}
+\ravelpanelfit{guard}{ckpanel}{(ck0)(\ravellast)(ck0 |- gatetext.south)}{Checks}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

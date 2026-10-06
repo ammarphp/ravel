@@ -1,0 +1,58 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelcanvas{192.5mm}
+\tikzset{row/.style={minimum height=#1}}
+
+% Row 1: you, the coding agent and the instructions it follows.
+\node[layer=people, box=38mm, row=15mm] (phys) at (24,-13) {\nodetitle{You}\nodesub{ask and approve}};
+\node[layer=agent, box=44mm, row=15mm] (agent) at (86,-13) {\nodetitle{Coding agent}\nodesub{runs the workflow}};
+\node[layer=agent, box=38mm, row=15mm] (guide) at (147,-13) {\nodetitle{Workflow guide}\nodesub{nine steps and skills}};
+\draw[flow] ([yshift=3mm]phys.east) -- node[flowlabel, above] {request} ([yshift=3mm]agent.west);
+% Check-ins are not optional, so they use the solid flow style, in the colour of the person they return to.
+\draw[flow, draw=rvpeopleline] ([yshift=-3mm]agent.west) -- node[flowlabel, below] {check-ins} ([yshift=-3mm]phys.east);
+\draw[flow] (guide) -- node[flowlabel, above] {instructions} (agent);
+
+% Row 2: every agent action passes the guardrails; public inputs feed RAVEL.
+\node[layer=guard, box=44mm, row=15mm] (guard) at (86,-45) {\nodetitle{Guardrails}\nodesub{hooks and run checks}};
+\node[layer=inputs, box=38mm, row=15mm] (inputs) at (147,-45) {\nodetitle{Public inputs}\nodesub{HEPData and papers}};
+\draw[flow] (agent) -- node[flowlabel, right] {actions} (guard);
+
+% Row 3: the RAVEL package.
+\node[member=ravel, box=37mm, row=15mm] (cli) at (23.5,-82) {\nodetitle{Command line}\nodesub{initiate, plan, run}};
+\node[member=ravel, box=37mm, row=15mm] (workflow) at (64.5,-82) {\nodetitle{Workflow}\nodesub{contract, approvals}};
+\node[member=ravel, box=37mm, row=15mm] (physics) at (105.5,-82) {\nodetitle{Physics}\nodesub{yields, limits, scans}};
+\node[member=ravel, box=37mm, row=15mm] (checks) at (146.5,-82) {\nodetitle{Validation}\nodesub{figures and checks}};
+\begin{scope}[on background layer]
+  \node[band=ravel, fit=(cli)(checks), inner xsep=2mm, inner ysep=3mm, yshift=2.5mm, minimum height=26mm] (ravelband) {};
+\end{scope}
+\node[bandlabel] at ([xshift=2.5mm, yshift=-1.6mm]ravelband.north west) {RAVEL};
+\draw[flow] (guard.south) -- node[flowlabel, right] {checked actions} (guard.south |- ravelband.north);
+\draw[flow] (inputs.south) -- (inputs.south |- ravelband.north);
+\draw[loop] (phys.south) -- node[flowlabel, right, pos=0.47] {or run commands directly} (phys.south |- ravelband.north);
+
+% Row 4: the external HEP software that RAVEL runs. After the shower there are two analysis routes: Delphes then
+% SimpleAnalysis, or Rivet, which applies its own detector smearing to the shower output.
+\node[member=hep, box=52mm, row=17mm] (mg) at (31,-121) {\nodetitle{MadGraph5\_aMC@NLO}\nodesub{event generation}};
+\node[member=hep, box=52mm, row=17mm] (py8) at (31,-143) {\nodetitle{Pythia~8}\nodesub{parton shower}};
+\node[member=hep, box=24mm, row=17mm] (delphes) at (76,-121) {\nodetitle{Delphes}\nodesub{detector}};
+\node[member=hep, box=37mm, row=17mm] (sa) at (110.5,-121) {\nodetitle{SimpleAnalysis}\nodesub{selection}};
+\node[member=hep, box=65mm, row=17mm] (rivet) at (96.5,-143) {\nodetitle{Rivet}\nodesub{selection, own detector smearing}};
+\node[member=hep, box=24mm, row=17mm] (pyhf) at (153,-132) {\nodetitle{pyhf}\nodesub{statistics}};
+\draw[flow] (mg) -- (py8);
+\draw[flow] (py8) -- (rivet);
+\draw[flow] ([yshift=4mm]py8.east) -- ++(3.5,0) |- (delphes.west);
+\draw[flow] (delphes) -- (sa);
+\draw[flow] (sa.east) -- ++(6,0) |- ([yshift=3mm]pyhf.west);
+\draw[flow] (rivet.east) -- ++(6,0) |- ([yshift=-3mm]pyhf.west);
+\ravelpanelfit{hep}{hepband}{(mg)(py8)(sa)(rivet)(pyhf)}{External HEP software}
+\draw[flow] (ravelband.south -| workflow) -- node[flowlabel, right] {runs and supervises} (hepband.north -| workflow);
+
+% Row 5: what every run leaves behind.
+\node[record, box=58mm, row=15mm] (rundir) at (50,-178) {\nodetitle{Run directory}\nodesub{every input, log and output}};
+\node[record, box=58mm, row=15mm] (result) at (124,-178) {\nodetitle{Result}\nodesub{95\% CLs exclusion limit}};
+\draw[flow] (hepband.south -| rundir) -- node[flowlabel, right] {every step recorded} (rundir.north);
+\draw[flow] (rundir) -- (result);
+\end{tikzpicture}
+\end{document}

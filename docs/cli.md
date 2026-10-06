@@ -71,7 +71,7 @@ upstream code. PASS means source agreement only. See the [catalogue survey and s
 
 ```sh
 ravel initiate \
-  --prompt "Reproduce Figure 3 of ATLAS SUSY-2018-16 for a slepton-bino model." \
+  --prompt "Reproduce Figure 16a of arXiv:1911.12606 for a slepton-bino model." \
   --out /tmp/ravel-slepton-intake
 ravel validate /tmp/ravel-slepton-intake/inputs/task_contract.json --json
 ```

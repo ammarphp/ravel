@@ -121,3 +121,6 @@ named. No rate/shape ranking follows a failed gate. Equivalence alone is not sta
 agreement or accuracy: assess MC/integration uncertainty and independent physics references next.
 External tools still need an artifact-verifying import adapter before their receipts can enter
 this CLI gate; copying a claimed recipe into a Ravel run is not such an adapter.
+
+The executed controls for these routes, including retained failures, are recorded in
+[the scoped-workflow control records](../../../evidence/audits/2026-09-09-scoped-workflows/README.md).

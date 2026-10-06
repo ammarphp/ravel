@@ -205,3 +205,6 @@ prediction bands when available. A zero SM denominator stays a gap. These are
 linear quantity diagnostics without a published figure target; a paper comparison
 still requires the existing figure contract, matched axes and independent visual
 review. No experiment luminosity or detector-response uncertainty is invented.
+
+[The supplied-data control report](../../../evidence/audits/2026-09-26-scientific-studies/README.md) separates
+executed checks, retained failures and capabilities that still need validation.

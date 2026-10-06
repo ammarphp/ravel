@@ -1,0 +1,36 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Step 5: Visualize}{Draw the figures that compare the signal with the published data.}
+
+% What goes in.
+\node[chip=records, minimum width=38mm, text width=33.2mm, anchor=north] (in0) at (25,-30) {Per-region yields};
+\node[chip=records, minimum width=38mm, text width=33.2mm, below=1.8mm of in0] (in1) {Figure target};
+\node[chip=inputs, minimum width=38mm, text width=33.2mm, below=1.8mm of in1] (in2) {HEPData tables};
+\ravelpanelfit{records}{inpanel}{(in0)(in2)}{What goes in}
+
+% What happens, in order.
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, anchor=north] (do0) at (85,-30) {Choose the figures};
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do0] (do1) {Draw publication figures};
+\draw[flow] (do0) -- (do1);
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do1] (do2) {Index the figures};
+\draw[flow] (do1) -- (do2);
+\ravelpanelfit{ravel}{dopanel}{(do0)(do2)}{What happens}
+
+% What comes out.
+\node[chip=records, minimum width=42mm, text width=37.2mm, anchor=north] (out0) at (144,-30) {Figures};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out0] (out1) {Figure index};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out1] (out2) {Side-by-side view};
+\ravelpanelfit{records}{outpanel}{(out0)(out2)}{What comes out}
+\draw[flow] (inpanel.east |- do0) -- (dopanel.west |- do0);
+\draw[flow] (dopanel.east |- out0) -- (outpanel.west |- out0);
+
+% Checks along the way, and your decision that follows, if any.
+\coordinate (low) at (current bounding box.south);
+\coordinate (cktop) at ([yshift=-10mm]low);
+\ravelrow{chip=guard}{ck}{7,0 |- cktop}{50.0mm}{{Lint at save}, {Caption on every figure}, {Figure target fulfilled}}
+\ravelpanelfit{guard}{ckpanel}{(ck0)(\ravellast)}{Checks}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

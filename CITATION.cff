@@ -1,14 +1,16 @@
 cff-version: 1.2.0
-title: "Ravel-HEP: governed collider reinterpretation and validation"
+title: "RAVEL: agent-driven reinterpretation of LHC searches"
 message: "If you use this software, please cite it and the foundational tools listed under references."
 type: software
 authors:
   - given-names: Ammar
     family-names: Aziz
 abstract: >-
-  An agentic workflow that reinterprets a published ATLAS/CMS analysis against a user-specified
-  new-physics model, running MadGraph -> Pythia8 -> Rivet/SimpleAnalysis -> pyhf to produce the
-  signal-over-data overlay and a 95% CL exclusion limit. Validation records distinguish
+  RAVEL reinterprets published ATLAS and CMS searches. A coding agent plans each calculation and
+  stops for the physicist's approval at check-ins; the ravel package runs and checks
+  MadGraph5_aMC@NLO, Pythia 8, Delphes with SimpleAnalysis or Rivet, and pyhf, and reports a 95%
+  CLs exclusion limit with the evidence behind it. Likelihood-only and generation-only runs and
+  studies of supplied events or models are also supported. Validation records distinguish
   statistical S95 recovery, selection acceptance and efficiency, and end-to-end mass-plane
   fidelity. Failed and unscorable cases are retained.
 keywords:

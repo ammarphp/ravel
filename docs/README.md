@@ -8,6 +8,7 @@ workflow when you have an analysis question and a configured native toolchain.
 | I want to… | Read |
 |---|---|
 | Install Ravel and run the first example | [Installation](installation.md) |
+| See how a calculation is planned, run and checked | [Architecture](architecture/README.md) |
 | Validate a contract or replay cached inputs | [Command-line reference](cli.md) |
 | Reproduce or reinterpret a published analysis | [Start a physics workflow](workflow/start.md) |
 | Analyze supplied events or models | [Scientific studies](workflow/reference/scientific-studies.md), [quantity and measurement contracts](reference/quantities-and-measurements.md), [domain adapters](reference/domain-adapters.md) |

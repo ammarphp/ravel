@@ -1,0 +1,40 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Step 4: Analyze}{Apply the detector response and the analysis selection on the route chosen at step 2.}
+
+% What goes in.
+\node[chip=records, minimum width=38mm, text width=33.2mm, anchor=north] (in0) at (25,-30) {Showered events};
+\node[chip=records, minimum width=38mm, text width=33.2mm, below=1.8mm of in0] (in1) {Route and statistics mode};
+\ravelpanelfit{records}{inpanel}{(in0)(in1)}{What goes in}
+
+% What happens, in order.
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, anchor=north] (do0) at (85,-30) {Detector-fidelity check (Delphes and Rivet routes)};
+\node[chip=hep, minimum width=42mm, text width=37.2mm, below=12.6mm of do0] (alt0) {Rivet with its own smearing};
+\node[chip=hep, minimum width=42mm, text width=37.2mm, below=1.8mm of alt0] (alt1) {Delphes and SimpleAnalysis};
+\node[chip=ravel, minimum width=42mm, text width=37.2mm, below=1.8mm of alt1] (alt2) {Custom particle-level selection};
+\node[chip=ravel, minimum width=42mm, text width=37.2mm, below=1.8mm of alt2] (alt3) {Efficiency-map folding};
+\node[chip=ravel, minimum width=42mm, text width=37.2mm, below=1.8mm of alt3] (alt4) {Binned shape fit};
+\node[fit=(alt0)(alt4), inner xsep=2.4mm, inner ysep=2.4mm] (altinner) {};
+\coordinate (alttop) at ([yshift=4.6mm]altinner.north west);
+\node[fit=(alttop)(altinner.south east), inner sep=0pt, rounded corners=2.4mm, line width=0.8pt, draw=rvravelline, dash pattern=on 3pt off 2pt] (altgroup) {};
+\node[bandlabel] at ([xshift=2.4mm, yshift=-1.2mm]altgroup.north west) {One route, chosen at step 2};
+\draw[flow] (do0) -- (altgroup);
+\ravelpanelfit{ravel}{dopanel}{(do0)(altgroup)}{What happens}
+
+% What comes out.
+\node[chip=records, minimum width=42mm, text width=37.2mm, anchor=north] (out0) at (144,-30) {Per-region yields};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out0] (out1) {Signal histograms};
+\ravelpanelfit{records}{outpanel}{(out0)(out1)}{What comes out}
+\draw[flow] (inpanel.east |- do0) -- (dopanel.west |- do0);
+\draw[flow] (dopanel.east |- out0) -- (outpanel.west |- out0);
+
+% Checks along the way, and your decision that follows, if any.
+\coordinate (low) at (current bounding box.south);
+\coordinate (cktop) at ([yshift=-10mm]low);
+\ravelrow{chip=guard}{ck}{7,0 |- cktop}{50.0mm}{{Acceptance certified}, {Single-weight checks}, {Custom selections labelled}}
+\ravelpanelfit{guard}{ckpanel}{(ck0)(\ravellast)}{Checks}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

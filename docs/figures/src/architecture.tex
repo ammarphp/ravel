@@ -1,0 +1,49 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelcanvas{196.2mm}
+% Each panel is fitted around its chips by \ravelpanelfit, so every panel keeps the same margins and label band.
+% A panel's top is 7.6 mm above its first chip; its label row is about 3 mm below the panel's top. Panels in a column
+% are 6.5 mm apart, so a connector label fits between them without touching either border.
+
+% Left column: you, the coding agent and the guardrails.
+\ravelchips{chip=people}{you}{28.5,-11.6}{43mm}{Physicist}
+\ravelchips{chipgate}{ck}{28.5,-21.6}{38.6mm}{CHECK-IN 1, CHECK-IN 2, Deviation check-in, Final check-in}
+\ravelpanelfit{people}{youpanel}{(you0)(ck3)}{You}
+\ravelchips{chip=agent}{ag}{28.5,-76.5}{43mm}{Coding agent, Instructions, Workflow guide, Skills, Physics reviewer}
+\ravelpanelfit{agent}{agpanel}{(ag0)(ag4)}{Agent and guidance}
+\ravelchips{chip=guard}{gd}{28.5,-141.4}{43mm}{Session hooks, Compute gate, Deviation guard, Stop checks, Lifecycle validator}
+\ravelpanelfit{guard}{gdpanel}{(gd0)(gd4)}{Guardrails}
+
+% Middle column: the RAVEL package and where it runs.
+\ravelchips{chip=ravel}{rv}{83.5,-11.6}{43mm}{Command line, Intake and routing, Run ledger, Resource census, Supervised execution, Scans and contours, Statistics, Cross sections, Plotting, Validation}
+\ravelpanelfit{ravel}{rvpanel}{(rv0)(rv9)}{RAVEL}
+\ravelchips{chip=ravel}{ex}{83.5,-126.5}{43mm}{Native toolchain, Container fallback, Python only}
+\ravelpanelfit{ravel}{expanel}{(ex0)(ex2)}{Execution}
+
+% Right column: what lies outside RAVEL.
+\ravelchips{chip=inputs}{in}{140,-11.6}{46mm}{HEPData, Papers and code, Routine catalogue}
+\ravelpanelfit{inputs}{inpanel}{(in0)(in2)}{Public inputs}
+\ravelchips{chip=hep}{hp}{140,-56.5}{46mm}{MadGraph5\_aMC@NLO, Pythia~8, Delphes, SimpleAnalysis, Rivet, pyhf, SModelS (cross-check)}
+\ravelpanelfit{hep}{hppanel}{(hp0)(hp6)}{External HEP software}
+\ravelchips{chip=records}{rc}{140,-141.4}{46mm}{Run directory, Result pack, Curated evidence, Benchmarks, Continuous integration}
+\ravelpanelfit{records}{rcpanel}{(rc0)(rc4)}{Records and evidence}
+
+% Flows. Connectors between panels leave and enter at the panels' label rows, so they read as panel to panel.
+\draw[flow] (22,0 |- youpanel.south) -- node[flowlabel, left=1mm] {request} (22,0 |- agpanel.north);
+\draw[flow, draw=rvpeopleline] (35,0 |- agpanel.north) -- node[flowlabel, right=1mm] {check-ins} (35,0 |- youpanel.south);
+\draw[flow] (28.5,0 |- agpanel.south) -- (28.5,0 |- gdpanel.north);
+\path let \p1 = (gdpanel.east), \p2 = (rvpanel.west) in coordinate (gapL) at ({(\x1+\x2)/2}, 0);
+\path let \p1 = (rvpanel.east), \p2 = (inpanel.west) in coordinate (gapR) at ({(\x1+\x2)/2}, 0);
+\draw[flow] ([yshift=-3mm]gdpanel.north east) -- ([yshift=-3mm]gapL |- gdpanel.north)
+  -- node[flowlabel, rotate=90, pos=0.5] {checked actions} ([yshift=-3mm]gapL |- rvpanel.north)
+  -- ([yshift=-3mm]rvpanel.north west);
+\draw[flow] ([yshift=-3mm]inpanel.north west) -- ([yshift=-3mm]rvpanel.north east);
+\draw[flow] (83.5,0 |- rvpanel.south) -- (83.5,0 |- expanel.north);
+\draw[flow] ([yshift=-3mm]expanel.north east) -- ([yshift=-3mm]gapR |- expanel.north)
+  -- node[flowlabel, rotate=90, pos=0.5] {runs and supervises} ([yshift=-3mm]gapR |- hppanel.north)
+  -- ([yshift=-3mm]hppanel.north west);
+\draw[flow] (140,0 |- hppanel.south) -- (140,0 |- rcpanel.north);
+\end{tikzpicture}
+\end{document}

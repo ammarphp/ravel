@@ -1,0 +1,26 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Where the work runs}{Three ways to run a calculation, chosen by the route at step 2.}
+\tikzset{fact/.style={chip=ravel, minimum width=40mm, text width=35.2mm, minimum height=19.5mm, anchor=north},
+         rowhead/.style={anchor=west, inner sep=0pt, font=\ravelSmallFont\bfseries, text=rvmuted}}
+\foreach \x/\name/\where/\what/\cost [count=\i from 0] in {
+    44.6/{Native toolchain}/{macOS, with the native toolchain installed}/{The full event chain, with native analysis ports and Rivet}/{About 30 to 50 minutes per point},
+    93.8/{Container fallback}/{An x86 container under podman}/{SimpleAnalysis routines without a native port}/{About 9 hours per point, under emulation},
+    143/{Python only}/{macOS or Linux with Python 3.10 to 3.12}/{Replay, likelihood-only runs and supplied-data studies}/{Seconds to minutes}} {
+  \node[fact] (w\i) at (\x,-34) {\where};
+  \node[fact, below=2mm of w\i] (u\i) {\what};
+  \node[fact, below=2mm of u\i] (c\i) {\cost};
+  \ravelpanelfit{ravel}{p\i}{(w\i)(c\i)}{\name}
+}
+\node[rowhead] at (5,0 |- w0) {Where};
+\node[rowhead] at (5,0 |- u0) {What};
+\node[rowhead] at (5,0 |- c0) {Time};
+\coordinate (note) at ([yshift=-5mm]p1.south);
+\node[anchor=north west, font=\ravelSmallFont, text=rvmuted, text width=158mm] at (5,0 |- note)
+  {The native toolchain is the default. The container runs one point at a time. Long stages run under supervision;
+   a resumed stage reuses its output only when its recorded inputs, code and runtime match.};
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

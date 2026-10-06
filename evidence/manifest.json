@@ -834,7 +834,7 @@
     },
     {
       "claim_id": "HEADLINE_rrr_m150_m140_cut_controls",
-      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_rrr_m150_m140_cut_controls (stated in README.md)",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_rrr_m150_m140_cut_controls (stated in docs/validation/results.md)",
       "headline": "Completed 60k pooled m150/m140 conditional limits: 47.37 fb observed and 57.27 fb median expected; lower-cut high-region rate ratio 1.412 with conditional 95% interval [1.146, 1.678], including printed integration uncertainty; generation-cut equivalence not established",
       "status": "served",
       "gate": "curated",
@@ -884,7 +884,7 @@
     },
     {
       "claim_id": "HEADLINE_rrr_m150_m140_waypoint",
-      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_rrr_m150_m140_waypoint (stated in README.md)",
+      "source": "scripts/build_evidence.py:HEADLINE_CLAIMS.HEADLINE_rrr_m150_m140_waypoint (stated in docs/validation/results.md)",
       "headline": "Completed 20k four-state m150/m140 waypoint: conditional inclusive sigma95 48.83 fb observed and 54.69 fb median expected; not acceptance, coverage or full mass-plane certification",
       "status": "served",
       "gate": "curated",
