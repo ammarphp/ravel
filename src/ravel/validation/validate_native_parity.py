@@ -6,7 +6,7 @@ CONTAINER SimpleAnalysis for the routine on that exact input (`mapyde run simple
 derived TOML with [simpleanalysis].name switched), (2) diffs the container's per-SR integer
 `events` column against the NATIVE <Routine>.txt (produced by native_simpleanalysis.py or
 native_sa_generic.py --emit-container-txt), (3) prints a per-SR verdict table + BIT-FOR-BIT
-verdict. The flagship's own acceptance bar, mechanized.
+verdict: the bit-for-bit acceptance bar of the EwkCompressed2018 port, applied per routine.
 
   validate_native_parity.py --rundir <dir> --config <toml-rel> --routine <Name> --native-txt <path>
 
@@ -77,8 +77,7 @@ def main():
             l = "skip = false"
         if in_sa and s.startswith("outputtag"):
             l = 'outputtag = "_oracle"'   # container writes <Routine>_oracle.* — NEVER clobbers
-        out_lines.append(l)              # the native <Routine>.txt at the same path (learned the
-                                         # hard way on the flagship anchor run)
+        out_lines.append(l)              # the native <Routine>.txt at the same path
     vcfg = os.path.join(rundir, os.path.dirname(args.config),
                         f"cr005_validate_{args.routine}.toml")
     open(vcfg, "w").write("\n".join(out_lines) + "\n")

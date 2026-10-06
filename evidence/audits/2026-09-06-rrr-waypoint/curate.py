@@ -469,8 +469,8 @@ def units(folder):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--rebuild',action='store_true',help='recreate derived files from retained source root')
-    parser.add_argument('--source-root',type=Path,help='explicit retained checkout; checks original small files, not raw event ancestors')
+    parser.add_argument('--rebuild',action='store_true',help='recreate derived files from the original files under --source-root')
+    parser.add_argument('--source-root',type=Path,metavar='DIR',help='a directory holding the original files; checks the original small files, not raw event ancestors')
     parser.add_argument('--units',action='store_true',help='also run optional pyhf fixed-parameter identity, never a fit')
     args=parser.parse_args()
     if args.rebuild and args.source_root is None:parser.error('--rebuild requires --source-root')

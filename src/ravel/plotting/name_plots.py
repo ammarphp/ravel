@@ -16,7 +16,7 @@ NAMING CONVENTION (standardized; the same for every run):
 
 Label source, in priority order:
   1) an explicit --labels JSON  ({origID: {label, shows, definition, source}})
-     -- the [Opus] physics map (read from the routine .cc / the paper);
+     -- the [judgment] physics map (read from the routine .cc / the paper);
   2) the routine .plot file's per-id Title;  3) the plot .py file's title=...;
   4) fallback: the origID itself (flagged "unlabeled" in the legend).
 

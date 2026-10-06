@@ -285,7 +285,8 @@ def main():
     # often literally carry the paper's figure id ("Figure 16a Observed", "Figure 7 ..."),
     # which is the paper-agnostic figure<->data linkage. Group table names by that leading
     # figure id; figure_target.py `resolve` consumes manifest["figure_index"] to present
-    # ranked figure candidates for the declared figure target ([Opus] chooses -- never auto).
+    # ranked figure candidates for the declared figure target (the [judgment] step chooses --
+    # never auto).
     # (CR-008) table names come in BOTH styles: "Figure 16a Observed" AND
     # the underscore family "fig_01", "fig_03_jj", "fig_04a". Accept . _ - or space separators
     # after "fig(ure)" and strip leading zeros so "fig_01a" and "Figure 1a" share the key "1a".

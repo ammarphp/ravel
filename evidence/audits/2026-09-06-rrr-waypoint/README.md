@@ -89,14 +89,14 @@ python -m pytest evidence/audits/2026-09-06-rrr-waypoint/test_curate.py
 
 The default check uses only the standard library. It verifies bundle membership and hashes, lossless compressed likelihood operands, no local absolute home/scratch paths, reference/channel/event denominators, saved root-check tolerances, conditional cross-section arithmetic, and channel sumw/sumw² algebra. `--units` additionally requires NumPy, pyhf 0.7.6 and jsonpatch and runs the 54 fixed-parameter comparisons plus the negative control. It invokes no optimizer. Run the tests from a directory without a local `py.py`, which would shadow a pytest dependency.
 
-Retained-source verification and deterministic regeneration are explicit:
+Original-source verification and deterministic regeneration are explicit:
 
 ```sh
-python evidence/audits/2026-09-06-rrr-waypoint/curate.py --source-root /path/to/retained-checkout
-python evidence/audits/2026-09-06-rrr-waypoint/curate.py --rebuild --source-root /path/to/retained-checkout
+python evidence/audits/2026-09-06-rrr-waypoint/curate.py --source-root /path/to/original-records
+python evidence/audits/2026-09-06-rrr-waypoint/curate.py --rebuild --source-root /path/to/original-records
 ```
 
-`--source-root` checks the original small files listed in [source-provenance.json](source-provenance.json). Those campaign/local-review files are generally absent from the public export, so this mode should fail there rather than downgrade to public-only verification. Rebuilding regenerates transformed JSON/CSV from those sources and copies the already-produced figures; it does **not** rerun the physics or recreate plots from raw events.
+`--source-root` checks the original small files listed in [source-provenance.json](source-provenance.json). Those files are not included in this repository, so this mode fails here rather than downgrading to a check of the included files only. Rebuilding regenerates transformed JSON/CSV from those sources and copies the already-produced figures; it does **not** rerun the physics or recreate plots from raw events.
 
 [manifest.json](manifest.json) records each distributed file's hash, transformation and source mapping. Compressed background and signal patches recover their exact original JSON bytes. Saved fits retain all numerical fields but omit local execution provenance. Other selected JSON removes repository-root prefixes while preserving an exact original-source byte pin. Large ROOT/LHE/HepMC/trace files, binaries, toolchain environments, full external source trees and private authorization records are not distributed. Their existence or a recorded receipt hash is not proof available to a public reader. This bundle provides auditable derived evidence, **not complete public raw-event custody**; no source download, large-file rehash, full ancestor replay, new fits or certificate is implied by a green bundle check.
 

@@ -8,8 +8,8 @@ counterpart NEXT TO it. This tool owns that contract file, <rundir>/inputs/figur
 
   declare          write/merge a figure target (normalizes 'fig 16a' / 'Fig. 16(a)' -> 'Figure 16a')
   resolve          rank candidate figures from a hepdata_fetch.py manifest's figure_index by role +
-                   model keywords, PRINT them and exit -- it NEVER auto-picks ([Opus] chooses, then
-                   calls declare)
+                   model keywords, PRINT them and exit -- it NEVER auto-picks (the [judgment]
+                   step chooses, then calls declare)
   attach-image     record the extracted published image (route: arxiv-tex-map | pdf-page | none)
   attach-generated record this pipeline's counterpart figure (--step 05-visualize | 08-scan)
   show             print the CHECK-IN-ready block (paper ids, figure id, caption, image or its
@@ -379,7 +379,8 @@ def cmd_resolve(args):
     # Rank: a registry-hint match first (annotated -- it is a curated accelerator, and the hit is
     # shown, not silently trusted), then model-keyword hits counted in the table DESCRIPTIONS
     # (a table NAME that itself carries the model word would double-count it per table), then
-    # role-keyword hits. The ranking is a HINT; [Opus] reads the descriptions and chooses.
+    # role-keyword hits. The ranking is a HINT; the [judgment] step reads the descriptions and
+    # chooses.
     ranked = []
     for fid, names in sorted(fig_index.items()):
         blob = " ".join(n + " " + tables.get(n, "") for n in names).lower()
@@ -415,7 +416,7 @@ def cmd_resolve(args):
         for n in names:
             desc = tables.get(n, "").strip().replace("\n", " ")
             print(f"  - {n}: {desc[:110]}")
-    print(f"\n[Opus] CHOOSE one candidate above (read the descriptions -- the ranking is a hint, "
+    print(f"\n[judgment] CHOOSE one candidate above (read the descriptions -- the ranking is a hint, "
           f"not a decision), then declare it:\n"
           f"  figure_target.py declare --rundir <rundir> --role {args.role} "
           f"--figure-id 'Figure <N>' --source hepdata-table-name --caption '<table description>' "

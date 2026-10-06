@@ -53,7 +53,7 @@ python -B evidence/audits/2026-09-06-native-fidelity/check_retained_sr_parity.py
   --out /tmp/new-compressed-sr-parity.json
 ```
 
-This requires the original retained files and the source checkout's recorded current outputs. The six new CR raw counts, in VV-high/VV-low/tau-high/tau-low/top-high/top-low order, are **1, 1, 0, 0, 0, 0** and **13, 4, 1, 2, 3, 1**. The latter includes one mixed-flavour VV-high event. These are selection and weighted-moment transport checks. No executable ATLAS CR acceptance reference was established, and the sparse samples do not demonstrate sufficient MC precision. Earlier 38-channel patch checks retain 27 and 14 zero-selected bins with unresolved precision. They do not certify those bins to have zero uncertainty or establish the experimental/theory nuisance model.
+This requires the original retained files and their recorded current outputs, which this repository does not include. The six new CR raw counts, in VV-high/VV-low/tau-high/tau-low/top-high/top-low order, are **1, 1, 0, 0, 0, 0** and **13, 4, 1, 2, 3, 1**. The latter includes one mixed-flavour VV-high event. These are selection and weighted-moment transport checks. No executable ATLAS CR acceptance reference was established, and the sparse samples do not demonstrate sufficient MC precision. Earlier 38-channel patch checks retain 27 and 14 zero-selected bins with unresolved precision. They do not certify those bins to have zero uncertainty or establish the experimental/theory nuisance model.
 
 ## Current engineering checks and limits
 

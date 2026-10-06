@@ -9,7 +9,7 @@ AMBIGUITY LEDGER (transcription decisions; the oracle diff adjudicates each):
       container SA sees veto=0 for these samples; transcribed as the constant 0.
   A2  Lepton-ID bits (ELooseLH/ETightLH/iso/MuMedium...) are transcribed faithfully but are
       no-ops on Delphes2SA input (el_id/mu_id = 0x7FFFFFFF, all bits set) -- identical on both
-      sides of the diff (the flagship's MAINTAINER WARNING applies).
+      sides of the diff, as in the EwkCompressed2018 port.
   A3  `auto leptons = electrons + muons` etc.: SA's operator+ SORTS by pT after concatenation
       (AnalysisObject.cxx) -- transcribed via core.concat_sorted. Load-bearing for
       corrected_jets = goodJets + signalleptons1 (a hard lepton can outrank jets in [0]/[1]).

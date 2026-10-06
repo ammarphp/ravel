@@ -30,6 +30,21 @@ def sources():
     return verify.read_json(BUNDLE / "source-map.json")
 
 
+def standalone(tmp_path):
+    """A copy of the bundle directory on its own, with no repository around it."""
+    target = tmp_path/"bundle"
+    shutil.copytree(BUNDLE, target)
+    return target
+
+
+def in_place(tmp_path):
+    """A copy of the bundle at its repository path beside a copy of the repository curation record."""
+    target = tmp_path/"evidence/audits"/BUNDLE.name
+    shutil.copytree(BUNDLE, target)
+    shutil.copyfile(ROOT/"evidence/curation.json", tmp_path/"evidence/curation.json")
+    return target
+
+
 def mutate(data, path, value):
     for key in path[:-1]:
         data = data[key]
@@ -147,19 +162,87 @@ def test_source_path_rejections(tmp_path, path):
 
 
 def test_standalone_no_repository_or_site_imports(tmp_path):
-    target = tmp_path/"bundle"
-    shutil.copytree(BUNDLE,target)
+    # The bundle directory copied out on its own verifies from its own bytes: its curation record
+    # travels with it, so no repository file is read.
+    target = standalone(tmp_path)
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     env.pop("PYTHONPATH",None)
-    command = [sys.executable,"-I","-S","-B",str(target/"verify.py")]
-    result = subprocess.run(command,cwd=tmp_path,env=env,text=True,capture_output=True,timeout=20)
+    command = [sys.executable,"-I","-S","-B","verify.py"]
+    result = subprocess.run(command,cwd=target,env=env,text=True,capture_output=True,timeout=20)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)["source_artifacts"] >= 98
+    assert json.loads(result.stdout)["shipped_files"] == sum(1 for p in BUNDLE.rglob("*") if p.is_file())
     assert not list(target.rglob("*.pyc"))
 
 
 def test_actual_bundle_inventory():
     assert verify.verify_bundle()["status"] == "verified"
+
+
+def test_bundle_curation_record_is_the_repository_entries():
+    local = verify.read_json(BUNDLE/"curation.json")["records"]
+    shared = verify.read_json(ROOT/"evidence/curation.json")["records"]
+    assert local and local == {k: v for k, v in shared.items() if k.startswith(f"evidence/audits/{BUNDLE.name}/")}
+
+
+def test_standalone_copy_needs_its_curation_record(tmp_path):
+    target = standalone(tmp_path)
+    (target/"curation.json").unlink()
+    with pytest.raises(ValueError, match="Artifact bytes differ"):
+        verify.verify_bundle(target)
+
+
+@pytest.mark.parametrize("name", ["README.md", "curate.py", "verify.py", "verification.json"])
+def test_curated_file_matches_only_as_its_exact_curated_copy(tmp_path, name):
+    target = standalone(tmp_path)
+    path = target/name
+    path.write_bytes(path.read_bytes() + b"\n")
+    with pytest.raises(ValueError, match="Artifact bytes differ"):
+        verify.verify_bundle(target)
+
+
+def _rewrite_record(target, change):
+    record = verify.read_json(target/"curation.json")
+    change(record)
+    (target/"curation.json").write_bytes(verify.encode(record))
+
+
+@pytest.mark.parametrize("change,message", [
+    (lambda r: r["records"][f"evidence/audits/{BUNDLE.name}/README.md"].update(curated_sha256="0"*64),
+     "Artifact bytes differ"),
+    (lambda r: r["records"][f"evidence/audits/{BUNDLE.name}/README.md"].update(curated_bytes=1),
+     "Artifact bytes differ"),
+    (lambda r: r["records"][f"evidence/audits/{BUNDLE.name}/README.md"].update(original_sha256="0"*64),
+     "differs from the manifest"),
+    (lambda r: r["records"][f"evidence/audits/{BUNDLE.name}/README.md"].update(original_bytes=1),
+     "differs from the manifest"),
+    (lambda r: r["records"][f"evidence/audits/{BUNDLE.name}/README.md"].update(
+        curated_sha256=r["records"][f"evidence/audits/{BUNDLE.name}/README.md"]["original_sha256"]),
+     "differs from the manifest"),
+    (lambda r: r["records"].update({f"evidence/audits/{BUNDLE.name}/extra.md":
+                                    r["records"][f"evidence/audits/{BUNDLE.name}/README.md"]}),
+     "differs from the manifest"),
+    (lambda r: r["records"].update({"evidence/audits/other-bundle/README.md":
+                                    r["records"].pop(f"evidence/audits/{BUNDLE.name}/README.md")}),
+     "differs from the manifest"),
+    (lambda r: r.update(extra=True), "schema differs"),
+])
+def test_curation_record_tampering_rejects(tmp_path, change, message):
+    target = standalone(tmp_path)
+    _rewrite_record(target, change)
+    with pytest.raises(ValueError, match=message):
+        verify.verify_bundle(target)
+
+
+def test_in_place_curation_record_must_equal_the_repository_record(tmp_path):
+    target = in_place(tmp_path)
+    assert verify.verify_bundle(target)["status"] == "verified"
+    shared = tmp_path/"evidence/curation.json"
+    record = json.loads(shared.read_text())
+    record["records"][f"evidence/audits/{BUNDLE.name}/README.md"]["change"] += " Edited."
+    shared.write_text(json.dumps(record, indent=2) + "\n")
+    with pytest.raises(ValueError, match="differs from the repository record"):
+        verify.verify_bundle(target)
 
 
 def test_selected_source_archive_relocation_and_drift(tmp_path, sources):
@@ -172,8 +255,7 @@ def test_selected_source_archive_relocation_and_drift(tmp_path, sources):
     if not any((ROOT / pin["path"]).exists() for pin in private):
         pytest.skip("requires run records not included in this repository")
     assert all(available), "Selected original archive is partially missing"
-    target = tmp_path/"bundle"
-    shutil.copytree(BUNDLE,target)
+    target = standalone(tmp_path)
     original = tmp_path/"relocated-originals"
     for pin in sources["sources"].values():
         path = original/pin["path"]
@@ -195,6 +277,7 @@ def test_published_checkout_without_private_sources_or_bytecode_policy(tmp_path)
     root = tmp_path / "public"
     bundle = root / BUNDLE.relative_to(ROOT)
     shutil.copytree(BUNDLE, bundle)
+    shutil.copyfile(ROOT / "evidence/curation.json", root / "evidence/curation.json")
     sources = json.loads((BUNDLE / "source-map.json").read_text())
     # Exercise the real distribution shape, including its still-public source
     # commitment, rather than an empty ancestor archive that hid this failure.
@@ -214,6 +297,6 @@ def test_published_checkout_without_private_sources_or_bytecode_policy(tmp_path)
          "not published_checkout_without_private_sources_or_bytecode_policy"],
         cwd=tmp_path, env=env, text=True, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "63 passed, 1 skipped, 1 deselected" in result.stdout
+    assert "78 passed, 1 skipped, 1 deselected" in result.stdout
     assert not list(bundle.rglob("*.pyc"))
     assert not (bundle / "__pycache__").exists()

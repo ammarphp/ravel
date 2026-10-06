@@ -11,15 +11,10 @@ parser.out
 # OS cruft
 .DS_Store
 
-# ── Trial-run curation policy ──────
-# TRACKED  : RESULT.md, DEVIATIONS.md, RESUME.md, config/, inputs/ (cards,
-#            specs, contracts), logs/ (the evidence chain), plots/, curated
-#            result JSONs — outputs/*.json AND the native backend's
-#            output/{exclusion.json,exclusion.png,*.txt,*_patch.json}, and
-#            the hand-written build/*.cc|*.py analysis sources.
-# IGNORED  : heavy regenerables — event files (hepmc/lhe/root/yoda), MadGraph
-#            procdirs, Delphes trees, HEPData table downloads, published-figure
-#            fetches, feature CSVs, plots.zip bundles.
+# ── Run directories: heavy regenerables (ignored) ──────
+# Event files (hepmc/lhe/root/yoda), MadGraph procdirs, Delphes trees, HEPData
+# table downloads, published-figure fetches, feature CSVs and plots.zip bundles
+# regenerate from a run's records and stay out of git.
 trial-runs/**/*.hepmc
 trial-runs/**/*.hepmc.gz
 trial-runs/**/*.root

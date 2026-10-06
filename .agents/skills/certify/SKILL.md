@@ -73,7 +73,7 @@ plus the adversary (`verification-panel` skill) — which audits this cert's pre
 |---|---|
 | "The routine is certified; this run inherits it" | Catalogue B2: `ptj1min` silently dropped per-run — a ×2.14 σ_tag drift the routine-level cert can never see. The per-run gate exists for exactly this. |
 | "It's a WARN, basically a PASS" | A WARN is reportable ONLY with its attribution rows; an un-remediated FAIL on the driving SR is not a reportable reproduction. |
-| "Every SR is ~the same factor off — the detector model is uniformly bad" | Catalogue A4 (CR-140): a UNIFORM ratio is the σ-basis fingerprint — tagged-sample denominator vs the published INCLUSIVE denominator (uniform excess ≈ σ_incl/σ_tag; the flagship re-hit was ~2.7×). Heed the cert's `BASIS SUSPICION` line: rebase with f = σ_tag/σ_incl_LO before touching efficiencies. |
+| "Every SR is ~the same factor off — the detector model is uniformly bad" | Catalogue A4 (CR-140): a UNIFORM ratio is the σ-basis fingerprint — tagged-sample denominator vs the published INCLUSIVE denominator (uniform excess ≈ σ_incl/σ_tag; the compressed-slepton waypoint certification re-hit it at ~2.7×). Heed the cert's `BASIS SUSPICION` line: rebase with f = σ_tag/σ_incl_LO before touching efficiencies. |
 
 ## Stop conditions
 - No published acc×eff map / cutflow covers the point → the cert cannot run; that is a

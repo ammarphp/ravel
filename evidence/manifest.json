@@ -858,8 +858,8 @@
         },
         {
           "path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
-          "sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
-          "bytes": 7133,
+          "sha256": "47b288c1836632e2237a594ee129dcb118ff5d54718a157f82e6064410f8a040",
+          "bytes": 7105,
           "shipped": true,
           "dev_only": false,
           "role": "artifact"

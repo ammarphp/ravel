@@ -199,16 +199,19 @@ def main():
         res.update(sigma_nlo_nll_pb=round(sigma_nlo, 6), k_factor=k,
                    source=f"HEPi/{FILES[args.process]} ({d.get('order','NLO+NLL')}; {d.get('tool','')})",
                    lookup=how)
-        # physical-sanity guard: for SUSY pair/associated production NLO+NLL > LO always (k ~ 1.1-2).
-        # k<1 or k>3 ⇒ the LO and the reference σ are NOT like-for-like — almost always a normalisation
-        # mismatch: the HEPi EWKino files are a SINGLE charge combination (e.g. 1000023 -1000024 = N2+C1⁻),
-        # but `generate p p > x1+ n2` + `add p p > x1- n2` is BOTH charges (≈2× the file). Match them:
-        # supply a single-charge LO, or scale the reference by the number of charge states.
+        # basis guard: for SUSY pair/associated production k typically runs ~1.1-2. k<1 or k>3 most often
+        # means the LO and the reference σ are NOT like-for-like — a normalisation mismatch: the HEPi
+        # EWKino files are a SINGLE charge combination (e.g. 1000023 -1000024 = N2+C1⁻), but
+        # `generate p p > x1+ n2` + `add p p > x1- n2` is BOTH charges (≈2× the file). Match them: supply a
+        # single-charge LO, or scale the reference by the number of charge states. k<1 can be physical
+        # (e.g. an LO-PDF overshoot for squarks), but only on a matched basis and with a documented reason.
         if k < 1.0 or k > 3.0:
-            res["warning"] = (f"k={k} is unphysical for {args.process} (expect ~1.1-2). The LO σ "
+            res["warning"] = (f"k={k} is outside the usual range for {args.process} (~1.1-2). The LO σ "
                               f"({sigma_lo} pb) and the reference σ ({sigma_nlo:.4g} pb) are likely "
                               f"not like-for-like — check charge states / flavour sum / scale. The HEPi "
-                              f"EWKino file is ONE charge combination; MadGraph 'x1± n2' is two.")
+                              f"EWKino file is ONE charge combination; MadGraph 'x1± n2' is two. k<1 can be "
+                              f"physical (e.g. an LO-PDF overshoot) only on a matched basis with a documented "
+                              f"reason.")
             print("WARNING:", res["warning"])
         print(f"{args.process} m={args.mass:.0f}: σ_LO={sigma_lo} pb  "
               f"σ_NLO+NLL={sigma_nlo:.4g} pb  k={k}  [{how}]")

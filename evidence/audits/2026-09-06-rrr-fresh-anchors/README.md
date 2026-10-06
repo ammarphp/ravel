@@ -129,23 +129,23 @@ under the repository's ordinary `tests/` collection root.
 The PNG, PDF, anchors.csv and fractions.csv are byte-exact copies of independently
 reviewed originals. Actual PNG and rasterized PDF inspection is inherited from
 the pinned figure review. This verifier does not inspect pixels or refit a model.
-With the original source workspace, additionally verify all 90 selected small
-originals and reconstruct every projection and copied artifact:
+With the original run records, which this repository does not include, additionally
+verify all 90 selected small originals and reconstruct every projection and copied artifact:
 
 ```sh
-python -B -S verify.py --source-root /path/to/source-checkout
+python -B -S verify.py --source-root /path/to/original-records
 ```
 
 That optional check fails on any missing or changed selected original. It reads
 small metadata and source bytes only, imports no producer code, and does not
-rehash raw events or reconstruct full private execution receipts. The
+rehash raw events or reconstruct the full execution receipts of the original runs. The
 [source map](source-map.json) records repository-relative paths and SHA-256
 commitments. Fresh 50/45 and 100/98 receipt projections retain all twelve native
 stage identities and each separate inclusive four-stage prefix plus rate
 diagnostic. The 150/140 derivative and its native parents inherit their reviewed
 completion proof. An inclusive prefix is not full-native completion credit.
-Unshipped raw data, private process contexts and authorizations are unavailable
-in this public bundle. No current absolute-path legacy-validator validity is
+Raw data, process contexts and authorizations of the original runs are not included
+in this bundle. No current absolute-path legacy-validator validity is
 claimed. Hashes detect changes relative to this revision, not a coordinated
 rewrite of the evidence and all verification code.
 

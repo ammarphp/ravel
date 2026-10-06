@@ -134,7 +134,8 @@ def check(root=ROOT, audits=None):
         errors.append('scan comparison population or numerical residual drift')
     statistical = json.loads((paths['statistical'] / 'audit.json').read_text())
     for name, expected in statistical['engine_sha256'].items():
-        if sha(root / name) != expected:
+        # A curated copy (evidence/curation.json) matches the recorded engine only as exactly that copy.
+        if not pin_matches(root, name, expected, sha(root / name)):
             errors.append(f'statistical audit implementation changed: {name}')
     replay = statistical['cached_replay']
     if len(replay['cases']) != replay['population'] or sum(bool(c['gate_ok']) for c in replay['cases']) != replay['passed_cases']:

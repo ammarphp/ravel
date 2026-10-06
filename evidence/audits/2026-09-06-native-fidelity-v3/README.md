@@ -69,7 +69,7 @@ for this audit. The separate current RRR evidence bundles retain their own scope
 
 ## Verify
 
-From a source checkout or its public export, with Python 3.10 or later:
+From the repository root, with Python 3.10 or later:
 
 ```sh
 python -B -S evidence/audits/2026-09-06-native-fidelity-v3/verify.py

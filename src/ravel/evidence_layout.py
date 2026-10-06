@@ -5,8 +5,8 @@ the registry and the records themselves; this module never rewrites their bytes.
 Only the committed registry determines the selection. Filesystem validation is
 deliberately independent of optional scientific dependencies.
 
-A tree that carries `evidence/export-provenance.json` and a registry with only the distribution
-selection is a distributed tree, as this repository is, and the checks run in their public mode.
+In a tree that carries `evidence/export-provenance.json` and a registry with only the distribution
+selection (a distributed tree), the checks run in their public mode.
 The curation record (`evidence/curation.json`) maps each record whose wording was curated from its
 original identity to its curated one (`curation_errors`, `pin_matches`).
 """

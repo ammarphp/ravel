@@ -119,8 +119,7 @@ was background-INPUT fidelity, not machinery.
   against the run's `exclusion.json`). The C1N2 run's on-disk `nlo_xsec.json` records the unphysical
   single-charge k=0.421 — never read k from run dirs (`.claude/rules/statistics.md`).
 - **ins1458270 publishes no per-point σ-UL grids** (HEPData Tables 11–28 are contour curves) — hence
-  the s95-vs-S95 events-level metric, transcribed from the paper's Table 6 (arXiv:1605.03814, LaTeX
-  source on disk in the gluino run's `outputs/published/`).
+  the s95-vs-S95 events-level metric, transcribed from the paper's Table 6 (arXiv:1605.03814).
 - **Squark cases are LO** (k=1.0): the exclusion is conservative; A×ε and s95 are σ-convention-free.
 - **Merged case has no figure** (it was a merging demo) — its deliverables check covers RESULT.md +
   cert only; no merged overlay is produced.

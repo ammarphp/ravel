@@ -4,18 +4,18 @@
 this exits 1. The read-only counterpart to `scripts/build_evidence.py` (the writer).
 
 Runs against this tree by default (`--root` defaults to the repo root); `--root DIR` checks another
-tree. In this repository, historical artifacts that it does not carry (`trial-runs/2026-*`,
-`trial-runs/sleptonscan_*`) are EXPECTED to be absent by policy (the registry,
-`evidence/collections.json`) -- that absence is tolerated exactly when the
-claim still carries a present+matching `shipped:true` surrogate artifact.
+tree. A historical run record that the tree does not include (`trial-runs/2026-*`,
+`trial-runs/sleptonscan_*`; `evidence/collections.json` selects what is included) is recorded
+`shipped:false` -- its absence is tolerated exactly when the claim still carries a
+present+matching `shipped:true` surrogate artifact.
 
 Per-claim verdict (PASS / WARN / FAIL), evaluated over every artifact recorded for that claim:
   FAIL  1. any artifact recorded `shipped: true` is missing, or its sha256 no longer matches,
            under --root -- a `shipped:true` label is a hard promise in every tree.
         2. a served or refusal claim has ZERO present+sha-matching
-           artifacts under --root (an undistributed `dev_only:true` artifact absent under --root is fine
-           exactly when rule 1's shipped artifact/surrogate is intact -- THAT is the required
-           >=1 present+matching artifact).
+           artifacts under --root (a `dev_only:true` artifact -- a run record the tree does not
+           include -- absent under --root is fine exactly when rule 1's shipped artifact/surrogate is
+           intact -- THAT is the required >=1 present+matching artifact).
   WARN  a `partial`-status claim whose artifact list is ALL `dev_only` (no shipped artifact at
         all) -- structurally under-evidenced for public audit, but a partial claim is not held
         to the served bar.

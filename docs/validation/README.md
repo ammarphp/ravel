@@ -10,7 +10,7 @@ Acceptance is scorable in 6 cases and unscorable in 3; recorded cert verdicts ar
 Acceptance certification, the regression tier, and numerical stability are separate judgments.
 
 The end-to-end mass-plane result is recorded separately in the
-[flagship scan](../../evidence/scans/slepton-bino-figure-3/RESULT.md): 24.9% median same-basis
+[slepton-bino figure-3 scan](../../evidence/scans/slepton-bino-figure-3/RESULT.md): 24.9% median same-basis
 cross-section-limit residual over 50 reference-matched cells from a 52-point scan.
 
 | Case | Observed S95 deviation | Acceptance verdict | Baseline gate |

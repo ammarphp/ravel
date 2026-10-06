@@ -448,7 +448,7 @@ def sr_order():
 
 def main():
     ap = argparse.ArgumentParser(description="Native VM-free SimpleAnalysis (CR-005: "
-                                             "flagship + ported routines)")
+                                             "EwkCompressed2018 + ported routines)")
     ap.add_argument("--input", required=True, help="Delphes2SA.root (tree 'ntuple')")
     ap.add_argument("--output", required=True, help="output directory")
     ap.add_argument("--ngen", type=int, default=None, help="N_gen (default: ntuple entries)")

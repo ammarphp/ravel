@@ -740,7 +740,7 @@ def _compute(model, data, level=0.05, n_curve=11, poi_cap=128.0, *, root_rtol=1e
             # heartbeat (stall-guard interop): one line per fresh hypotest so the redirected log's
             # mtime advances during the multi-minute CLs scan -- stage_supervisor.py's progress-stall
             # watchdog keys on log writes and killed silent-but-progressing pyhf fits at 12 min
-            # (first seen: 2026-08-28 fresh-flagship smoke rung, pyhf.failure.json reason
+            # (first seen: 2026-08-28 compressed-slepton smoke rung, pyhf.failure.json reason
             # 'progress-stall'). stderr: line-buffered under redirection, and kept out of stdout
             # parsing. Numerics untouched.
             print(f"  [cls scan] mu={mu:.6g} CLs_obs={cache[mu][0]:.4g} ({len(cache)} pts)",

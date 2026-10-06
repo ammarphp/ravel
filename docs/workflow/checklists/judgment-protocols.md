@@ -20,6 +20,7 @@ the figure contract BEFORE building the counterpart.
 |---|---|
 | "The caption tells me what the figure shows" | Captions omit the visual grammar — the RRR Fig-3 color map was rebuilt as a smooth heatmap from its caption and looked nothing like the real sparse blocky lattice (A1). |
 | "I know what an exclusion contour looks like" | You know what a GENERIC one looks like. The published one has a specific form, and the physicist compares against THAT. |
+
 **Worked incident:** A1 (caption-imagined figure) — the counterpart was rejected until the published
 figure was actually extracted and looked at.
 
@@ -35,6 +36,7 @@ exists (on the published exclusion contour, UL/σ_model ≡ 1).
 |---|---|
 | "Both are 'the cross-section limit', just divide" | Ours was on the ISR-tagged 6-state SAMPLE σ, ATLAS's on the inclusive 4-state MODEL σ — a mass-dependent ×0.56→×1.01 spurious tilt that inflated the headline residual 33% vs the real 26% (A4). |
 | "Expected, observed — they're within a band anyway" | Pair like columns and contour roles (A3). Pin the reference role from primary data; a caption or dot style may not specify it. |
+
 **Worked incident:** A4 (σ-comparison-basis) — caught only by the UL/σ_model=1 on-contour identity
 (measured 1.10 on the right basis; 1.47/0.74 on wrong ones).
 
@@ -47,7 +49,8 @@ similarity to the last analysis.
 |---|---|
 | "It's a resonance search, overlay a Breit-Wigner" | A ~343 GeV A/H→tt̄ signal interferes with SM tt̄ — the signature is a peak–DIP; a naive bump limit is invalid (trap T1). |
 | "The paper's model is close enough to the request" | µ–M₂ with M₁=M₂, tanβ=50 is a MIXED wino–bino–higgsino sector, not the paper's pure-higgsino simplified model — σ×BR AND A×ε both move (trap T3). |
-**Worked incident:** the 2408.00049 audit's T5 catch (the
+
+**Worked incident:** the arXiv:2408.00049 shape-fit route (trap T5; `docs/reference/scope.md` §6.1 — the
 named shape-fit refusal instead of a silently-wrong counting product).
 
 ## P4 — anchor-chain
@@ -60,6 +63,7 @@ regime you can name a reason for, STOP and run P5 — do not proceed hoping it a
 |---|---|
 | "MadGraph ran clean, the σ is what it is" | 59.9 fb vs the 24 fb anchor was not parsing noise — the card prep had silently dropped ptj1min=50 (B2, a ×2.14 normalization error caught BY the anchor). |
 | "The fit converged, µ₉₅ is fine" | A converged fit on a floored bracket returned obs_limit=1.0 exactly — an artifact, not a limit (B1). Anchors catch what convergence flags don't. |
+
 **Worked incident:** B2 (ptj1min drop) — found because the anchor disagreed, not because anything
 errored.
 
@@ -74,6 +78,7 @@ decomposes the discrepancy into named parts + an honest irreducible remainder.
 |---|---|
 | "It's probably statistics, regenerate with more events" | The 33% residual decomposed into a σ-basis artifact (0…−44%, mass-dependent, fixed by a re-normalization costing NOTHING) + a genuine 26% acceptance/fast-sim floor. Regeneration would have spent hours and explained nothing. |
 | "One cause explains it" | Discrepancies are usually sums. Subtract the confirmed cause and LOOK at what remains before declaring victory. |
+
 **Worked incident:** the 33% → (basis + 26%) decomposition on the fig3 scan (A4 + RESULT.md §7).
 
 ## P6 — source-ladder
@@ -90,6 +95,7 @@ evidence + named options. Never invent the missing number; never stop at rung 1.
 |---|---|
 | "The paper doesn't provide it, so it's unavailable" | The RRR analysis's public GitHub repository was never checked; HEPData full tables were declared "impossible to download" although a working endpoint existed. |
 | "I checked HEPData" | You checked the TABLES. The resources tab is where reinterpretation material lives. |
+
 **Worked incident:** the HEPData-download "limitation" (the limitations registry's own resolved-item
 cautionary tale) + the unchecked RRR analysis repository (first row of the table above).
 
@@ -104,6 +110,7 @@ check-in + `DEVIATIONS.md`, with the expected sign+size of the bias.
 |---|---|
 | "LO σ is the conservative choice" | Not automatically: for the squark cases k<1 (LO-PDF overshoot) — bare LO OVER-excluded. Conservative means you CHECKED the sign, not that you picked the lower-order option (limitations registry, R2). |
 | "It's a small effect, no flag needed" | Unflagged assumptions are how 2% effects get stacked five deep into a 15% surprise. The flag costs one line. |
+
 **Worked incident:** the flat k=1.18 → per-mass k(m)=1.38–1.41 fix moved the contour OUTWARD —
 the "safe" LO-ish choice had been anti-conservative the whole time.
 
@@ -119,6 +126,7 @@ they seed the Tier-B adversary, which walks the failure-mode catalogue
 |---|---|
 | "It matches, we're done" | An early prototype SA port matched 141/141 only because it was RJR-CIRCULAR — it read R_ISR from the container it claimed to reproduce, so the agreement was the disguise. The shipped comparison recomputes R_ISR natively (`native/src/rjr_resolve.cc`). |
 | "The panel will catch anything I missed" | The panel is a NET, not a substitute — a drafted attack list is what makes Tier-B sharp instead of ceremonial. |
+
 **Worked incident:** the RJR-circularity catch; the panel's number-integrity rule (quoted-number
 vs artifact discrepancy = automatic FAIL) exists because prose drifted from artifacts twice.
 

@@ -3,8 +3,8 @@
 Each module transcribes ONE routine's ProcessEvent from the ATLAS SimpleAnalysis source
 (SimpleAnalysisCodes/src/ANA-*.cxx) line-faithfully, exposes NAME / BRANCHES / FLAVOUR_FLAGS /
 sr_order() / select(arrays, i), and is validated bit-for-bit against the container oracle
-(validate_native_parity.py) before it may serve results. Registry: REGISTRY below; the flagship
-EwkCompressed2018 stays in native_simpleanalysis.py (its RJR two-pass flow predates this layout
+(validate_native_parity.py) before it may serve results. Registry: REGISTRY below; the
+EwkCompressed2018 port stays in native_simpleanalysis.py (its RJR two-pass flow predates this layout
 and is equally oracle-validated).
 """
 REGISTRY = {

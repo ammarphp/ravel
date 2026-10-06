@@ -124,16 +124,17 @@ It does not fit a model, traverse raw events or independently validate detector
 selections. Replay hashes commit to a reported complete traversal; this public
 check does not perform that traversal again.
 
-With the original source workspace, also check the five selected input records
-and the three byte-identical copied artifacts, then reconstruct the projection:
+With the original run records, which this repository does not include, also check the
+five selected input records and the three byte-identical copied artifacts, then reconstruct
+the projection:
 
 ```sh
-python -B verify.py --source-root /path/to/source-checkout
+python -B verify.py --source-root /path/to/original-records
 ```
 
 The [source map](source-map.json) uses repository-relative paths. An explicitly
 requested source check fails if any selected original is missing or changed.
-It still does not reconstruct the full private receipt chain. The manifest
+It does not reconstruct the full receipt chain of the original runs. The manifest
 detects drift against this revision, not a coherent rewrite of all evidence and
 verification code together. Software CI and these checks do not certify the
 physics, scientific autonomy, statistical coverage or the remaining mass plane.

@@ -458,8 +458,8 @@ attack list.
   promised-artifact list; the step-9 panel attacked numbers, not the visual-completeness contract).
   Where the guard lives: not automated (CR-126) — validate_checkin does not cross-check deck figures[]
   against CHECK-IN 1's promised waypoint artifacts or require the composed side_by_side for the
-  primary figure-contract target on a run that generated samples; the guard is the D6 artifact
-  set pattern (waypoint pair + intermediate trio + staged summary + composites) as the deck's
+  primary figure-contract target on a run that generated samples; the manual practice is a fixed
+  deck figure set (waypoint pair + intermediate trio + staged summary + composites) as the deck's
   default figure complement.
 - **A8 — a digitized curve's first point placed at a mass outside the paper's stated derivation range.**
   What happened: the survey digitized ATLAS 1710.01123's qqA HVT limit with its first point at

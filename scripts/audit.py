@@ -79,8 +79,7 @@ def _survey_exempt(d):
 
 def _run_dirs():
     """Every candidate run dir — ANY trial-runs/* directory except the infrastructure/archive/
-    scratch underscore family. (The old '20*' glob made undated dirs like the flagship
-    sleptonscan_fig3_SCAN invisible to the audit — widened 2026-07-06.)"""
+    scratch underscore family, so an undated run dir such as sleptonscan_fig3_SCAN is included."""
     roots = [d for d in glob.glob(p("trial-runs", "*"))
              if os.path.isdir(d) and not os.path.basename(d).startswith("_")]
     registry = p("evidence", "collections.json")

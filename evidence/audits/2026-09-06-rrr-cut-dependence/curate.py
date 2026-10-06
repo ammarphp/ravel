@@ -265,8 +265,9 @@ def readme(data):
         "From this directory, with Python 3.10 or later and no installed Ravel package:", "",
         "```sh", "python -B verify.py", "```", "",
         "This offline standard-library check validates the exact bundle inventory, finite arithmetic, all six quantiles, pool lineage, sparse missingness, 120 ratio/interval calculations, CSVs and copied figure hashes. It does not read raw events or fit a model.", "",
-        "With the retained source workspace, an additional read-only check validates the selected original hashes and rebuilds the projections in memory:", "",
-        "```sh", "python -B verify.py --source-root /path/to/source-checkout", "```", "",
+        "Four files (this README, `curate.py`, `verify.py` and `verification.json`) carry wording curated after the bundle was built. The bundle's [curation record](curation.json) maps the original identity that `manifest.json` records for each of them to exactly one curated copy, and the check accepts no other bytes, so a copy of this directory verifies on its own. In place, that record must also equal this repository's `evidence/curation.json` entries for the bundle.", "",
+        "With the original run records, which this repository does not include, an additional read-only check validates the selected original hashes and rebuilds the projections in memory:", "",
+        "```sh", "python -B verify.py --source-root /path/to/original-records", "```", "",
         "The [source map](source-map.json) uses repository-relative original paths. It identifies selected small records, not an exhaustive raw-event custody replay. Private environment values, operator process/session identities, authorization quotes and raw LHE/HepMC/ROOT products are not shipped. Original receipt and plan hashes are commitments to originals; an offline reader cannot reconstruct or independently authenticate the complete unshipped receipts. Projected JSON is not byte-identical to the originals. The four figures are byte-identical copies; deterministic CSVs and JSON are projections. A hash manifest detects drift relative to this revision, not a coherent rewrite of the bundle and verifier together.", "",
         "The producer source/runtime commitments distinguish native v4/v5 execution from the current public source. Later fixes are not attributed retrospectively to pinned binaries. The existing [earlier waypoint](../2026-09-06-rrr-waypoint/README.md) remains unchanged.", "",
         "Primary references: [RRR, arXiv:2306.11055v2](https://arxiv.org/abs/2306.11055v2) and [ATLAS, arXiv:1911.12606](https://arxiv.org/abs/1911.12606). The exact published point and supplied-model identities are retained in the evidence and source map.", "",
@@ -279,7 +280,7 @@ def write_manifest(bundle=HERE):
     files = {}
     for path in sorted(bundle.rglob("*")):
         v.require(not path.is_symlink(), "Symlink artifact")
-        if path.is_file() and path.name != "manifest.json":
+        if path.is_file() and path.name != "manifest.json" and path.relative_to(bundle).as_posix() != v.CURATION:
             v.require("__pycache__" not in path.parts and path.suffix != ".pyc", "Bytecode in bundle")
             content = path.read_bytes()
             files[path.relative_to(bundle).as_posix()] = {"sha256":v.digest(content),"bytes":len(content)}

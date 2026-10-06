@@ -42,7 +42,7 @@ substrings, so 'centimeter' no longer reads as 'met' and 'meff' no longer needs 
 The lepton-count (B) branch is tested BEFORE the bare-MET (D) branch, and D requires a real monojet /
 MET-binning cue (monojet, inclusive MET bins, MET-threshold counters) -- the bare word 'threshold' is
 NOT enough. It scores every archetype and FLAGS an ambiguous multi-archetype match (e.g. leptons AND a
-monojet cue) for the [Opus] step rather than silently picking the first. It is a HINT, not a
+monojet cue) for the [judgment] step rather than silently picking the first. It is a HINT, not a
 substitute for reading the routine.
 
 If --archetype (or --analysis) disagrees with the KNOWN_ANALYSES registry, that is a mistake worth
@@ -145,7 +145,7 @@ ARCHETYPES = {
         "observable": "NN score / bespoke fiducial observable",
         "ref_table": "paper-specific; no generic mapping",
         "overlay_recipe": {
-            "primitive": "bespoke (flag for [Opus] judgement)",
+            "primitive": "bespoke (flag for the [judgment] step)",
             "tool": "overlay_on_data.py if a 1-D REF exists; else hand-built",
             "how": "FLAG: does not fit A-D. Inspect the routine + paper; the overlay observable is "
                    "the NN score or the fiducial variable. Do not auto-select.",
@@ -228,7 +228,8 @@ KNOWN_ANALYSES = {
 # canonical published figure id per role ("summary" = the exclusion contour figure, "overlay" = the
 # yield/distribution figure). NEVER required -- the resolution order (user prompt > this hint >
 # HEPData figure_index > paper inspection > description-only) works without an entry here; a hint
-# only short-circuits the search, and [Opus] still confirms it against the resolve candidates.
+# only short-circuits the search, and the [judgment] step still confirms it against the resolve
+# candidates.
 FIGURE_HINTS = {
     "ATLAS_2019_I1767649": {"summary": "Figure 16a"},   # slepton exclusion (obs) -- SUSY-2018-16
 }
@@ -296,10 +297,10 @@ def classify(description):
     Scores EVERY archetype on word-boundary keyword hits (not raw substrings), then resolves in a fixed
     priority -- ESCAPE patterns first, then the lepton-count branches (B then C) BEFORE the bare-MET (D)
     branch, then A, with D requiring a real monojet / MET-binning cue. When two independent archetypes
-    both match (e.g. a lepton cue AND a monojet cue), the result is FLAGGED as ambiguous so the [Opus]
+    both match (e.g. a lepton cue AND a monojet cue), the result is FLAGGED as ambiguous so the [judgment]
     step reads the routine instead of trusting a silent first-match.
 
-    This is a HINT for the [Opus] step, not a substitute for reading the routine -- when it lands on
+    This is a HINT for the [judgment] step, not a substitute for reading the routine -- when it lands on
     ESCAPE or is flagged ambiguous, fall back to human judgement.
     """
     d = description.lower()
@@ -319,12 +320,12 @@ def classify(description):
 
     # Ambiguity flag: a lepton-count archetype (B/C) AND the monojet (D) branch both fire -- these are
     # mutually exclusive final states, so a routine hitting both is described inconsistently. Surface it
-    # for [Opus] rather than letting the priority order silently swallow one of them.
+    # for the [judgment] step rather than letting the priority order silently swallow one of them.
     lepton_hit = hits["B"] or hits["C"]
     if lepton_hit and hits["D"]:
         chosen = "B" if hits["B"] else "C"
         return chosen, (f"AMBIGUOUS: matched both a lepton-count cue ({chosen}) and a monojet/MET-bin "
-                        f"cue (D) -- chose {chosen}; CONFIRM by reading the routine ([Opus])")
+                        f"cue (D) -- chose {chosen}; CONFIRM by reading the routine ([judgment])")
 
     # Fixed priority: B (multilepton/EW-ino) and C (1-lepton+jets) are tested BEFORE the bare-MET D
     # branch so "3-lepton + MET" is never mis-routed to D.
@@ -358,13 +359,13 @@ def recipe_for(archetype, analysis=None, susy=True):
     }
     # The FIGURE CONTRACT hook: which SPECIFIC published figure this run reproduces is declared
     # in <rundir>/inputs/figure_target.json (figure_target.py); the recipe carries the resolution
-    # precedence + the optional curated hint so the step-2 [Opus] pass knows how to fill it.
+    # precedence + the optional curated hint so the step-2 [judgment] pass knows how to fill it.
     rec["figure_target"] = {
         "resolution_order": ["user-prompt", "registry-hint", "hepdata-table-name (figure_index)",
                              "paper-inspection", "description-only + CHECK-IN"],
         "hint": FIGURE_HINTS.get(canon_analysis(analysis)) if analysis else None,
         "declare_with": "figure_target.py declare",
-        "note": "[Opus] picks among resolve candidates; never auto-select",
+        "note": "the [judgment] step picks among resolve candidates; never auto-select",
     }
     if susy:
         rec["summary_recipe"] = MASS_PLANE_SUMMARY
@@ -455,7 +456,7 @@ def main():
         else:
             print(f"archetype: {arch}\nreason   : {reason}")
         if arch == "ESCAPE" or reason.startswith("AMBIGUOUS"):
-            print("NOTE: ESCAPE / ambiguous -- confirm by reading the routine + paper ([Opus]).",
+            print("NOTE: ESCAPE / ambiguous -- confirm by reading the routine + paper ([judgment]).",
                   file=sys.stderr)
         return
 
@@ -470,7 +471,7 @@ def main():
         else:
             ap.error("give --archetype, or --analysis (a known id), or --classify, or --list")
     elif registered is not None and registered.upper() != archetype.upper():
-        # Defect 2: an explicit --archetype that contradicts the registry must NOT be obeyed silently.
+        # An explicit --archetype that contradicts the registry must NOT be obeyed silently.
         msg = (f"--archetype {archetype.upper()!r} contradicts the registry, which lists "
                f"{args.analysis} as archetype {registered!r}")
         if args.strict:

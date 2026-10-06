@@ -58,10 +58,12 @@ python -B verify.py
 
 This offline standard-library check validates the exact bundle inventory, finite arithmetic, all six quantiles, pool lineage, sparse missingness, 120 ratio/interval calculations, CSVs and copied figure hashes. It does not read raw events or fit a model.
 
-With the retained source workspace, an additional read-only check validates the selected original hashes and rebuilds the projections in memory:
+Four files (this README, `curate.py`, `verify.py` and `verification.json`) carry wording curated after the bundle was built. The bundle's [curation record](curation.json) maps the original identity that `manifest.json` records for each of them to exactly one curated copy, and the check accepts no other bytes, so a copy of this directory verifies on its own. In place, that record must also equal this repository's `evidence/curation.json` entries for the bundle.
+
+With the original run records, which this repository does not include, an additional read-only check validates the selected original hashes and rebuilds the projections in memory:
 
 ```sh
-python -B verify.py --source-root /path/to/source-checkout
+python -B verify.py --source-root /path/to/original-records
 ```
 
 The [source map](source-map.json) uses repository-relative original paths. It identifies selected small records, not an exhaustive raw-event custody replay. Private environment values, operator process/session identities, authorization quotes and raw LHE/HepMC/ROOT products are not shipped. Original receipt and plan hashes are commitments to originals; an offline reader cannot reconstruct or independently authenticate the complete unshipped receipts. Projected JSON is not byte-identical to the originals. The four figures are byte-identical copies; deterministic CSVs and JSON are projections. A hash manifest detects drift relative to this revision, not a coherent rewrite of the bundle and verifier together.

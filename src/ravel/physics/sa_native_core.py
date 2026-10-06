@@ -400,7 +400,7 @@ def write_root(path, ntuple_rows, sr_order, flavour_flags=("isee", "ismm")):
 def run_counting_routine(routine, input_path, output_dir, ngen=None):
     """Generic driver for plain counting routines: per event, routine.select(arrays, i) ->
     (accepted_set, flag1, flag2) or None. Writes <name>.txt + <name>.root. Routines needing a
-    mid-pass external resolver (the flagship's RJR) implement their own run() instead."""
+    mid-pass external resolver (the EwkCompressed2018 port's RJR) implement their own run() instead."""
     os.makedirs(output_dir, exist_ok=True)
     branches = getattr(routine, "BRANCHES", BASE_BRANCHES)
     arrays, events, Nread, w = load_ntuple(input_path, ngen, branches)

@@ -145,7 +145,7 @@ def write_run_state(rundir, **over):
 
 def run_validate(rundir, extra=()):
     cmd = [sys.executable, VRS_PY, "--rundir", rundir, "--json"] + list(extra)
-    p = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True)
+    p = subprocess.run(cmd, cwd=REPO, stdin=subprocess.DEVNULL, capture_output=True, text=True)
     if p.returncode in (2, 3) or not (p.stdout or "").strip():
         raise CaseSetupError(f"validate_run_state exit {p.returncode}: "
                              f"{(p.stderr or '').strip()[:300]}")
@@ -181,8 +181,9 @@ def tool_path(name):
 
 
 def run_tool(name, args, timeout=120):
+    # stdin from /dev/null: a tool that reads stdin (stop_dispatch.py) must never wait on the caller's.
     p = tool_path(name)
-    return subprocess.run([sys.executable, p] + list(args), cwd=REPO,
+    return subprocess.run([sys.executable, p] + list(args), cwd=REPO, stdin=subprocess.DEVNULL,
                           capture_output=True, text=True, timeout=timeout)
 
 
@@ -202,7 +203,9 @@ def drive_stop(rundir, branch, last_message="", extra=()):
     dp = tool_path("stop_dispatch.py")
     cmd = [sys.executable, dp, "--rundir", rundir, "--last-message", last_message,
            "--branch", branch] + list(extra)
-    return subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, timeout=120)
+    # stop_dispatch.py reads stdin; /dev/null keeps the board independent of the caller's stdin.
+    return subprocess.run(cmd, cwd=REPO, stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                          timeout=120)
 
 
 def spike_check(spk):

@@ -16,13 +16,12 @@ Claim sources:
      ...) but are not capability prompts (the 141/141 native-SR bit-for-bit claim, the
      native mu95 0.51% agreement, the Fig-3 52/52-point scan residual).
 
-`shipped` classification follows the explicit distribution registry (`evidence/collections.json`),
-the ground truth for what the distribution carries; material the registry declares undistributed
-is not shipped. See `is_shipped()`. An artifact whose run record is undistributed by
-policy (`trial-runs/2026-*/`, `trial-runs/sleptonscan_*/`) is marked
-`shipped:false, dev_only:true`; its claim then carries an additional `shipped:true` SURROGATE
-artifact (the matrix / the benchmark registry / the doc that states the claim) so the claim stays
-publicly auditable even though the raw run record itself does not ship.
+`shipped` classification follows the explicit selection registry (`evidence/collections.json`),
+the ground truth for what the repository carries; a file it does not select is not shipped. See
+`is_shipped()`. An artifact whose historical run record the repository does not include
+(`trial-runs/2026-*/`, `trial-runs/sleptonscan_*/`) is marked `shipped:false, dev_only:true`; its
+claim then carries an additional `shipped:true` SURROGATE artifact (the matrix / the benchmark
+registry / the doc that states the claim) so the claim stays auditable without the run record.
 
 Usage:
     python3 scripts/build_evidence.py [--write] [--timestamp T] [--commit SHA]

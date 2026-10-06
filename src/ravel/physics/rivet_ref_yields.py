@@ -9,7 +9,7 @@ counts are the integral of those distributions above the threshold. The signal
 yield is the routine's own SR counter (already scaled to the analysis luminosity).
 
 This step is necessarily routine-aware (which REF table maps to which SR, and the
-SR's threshold) -- that mapping is the [Opus] input, passed in as a small JSON
+SR's threshold) -- that mapping is the [judgment] input, passed in as a small JSON
 spec read from the routine's .cc (book(...) table indices + the SR cuts).
 
 Spec JSON:

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Offline arithmetic and inventory checks for one dated evidence bundle.
 
-Standard library only. This does not reconstruct private receipts, read events,
-fit a likelihood, or certify detector acceptance or statistical coverage.
+Standard library only. This does not reconstruct the original receipts, read events,
+fit a likelihood, or certify detector acceptance or statistical coverage. A file whose
+wording was curated after the bundle was built is accepted only as the exact copy that
+the bundle's curation.json maps from the original digest in manifest.json.
 """
 from __future__ import annotations
 
@@ -16,6 +18,8 @@ from pathlib import Path, PurePosixPath
 import re
 
 HERE = Path(__file__).resolve().parent
+BUNDLE_NAME = "2026-09-06-rrr-cut-dependence"
+CURATION = "curation.json"
 QUANTILES = ("observed", "expected_minus2", "expected_minus1", "expected_median",
              "expected_plus1", "expected_plus2")
 NATIVE_IDS = ("nominal_20k", "nominal_40k", "pooled_60k", "lower_20k")
@@ -470,6 +474,39 @@ def validate_data(data, source_map):
             "raw_event_replay":False, "new_fits":0, "physics_certified":False}
 
 
+def curated_copies(directory, manifest):
+    # Files whose wording was curated for the distribution after this bundle was built. The bundle's own
+    # curation record carries the repository curation record's entries for them, so a copy of this
+    # directory verifies on its own: each entry maps the original identity that the manifest records to
+    # exactly one curated copy. In place beside a repository record (evidence/curation.json), the two agree.
+    path = directory/CURATION
+    if not path.is_file():
+        return {}
+    require(not re.search(rb"/(?:Users|home|private/tmp)/|[A-Za-z]:\\\\", path.read_bytes()), "Private host path in bundle")
+    record = read_json(path)
+    require(type(record) is dict and set(record) == {"schema_version", "purpose", "records"}
+            and record["schema_version"] == 1 and type(record["purpose"]) is str
+            and type(record["records"]) is dict, "Curation record schema differs")
+    prefix = f"evidence/audits/{BUNDLE_NAME}/"
+    accepted = {}
+    for key, entry in record["records"].items():
+        row = manifest["files"].get(key[len(prefix):] if key.startswith(prefix) else None)
+        require(type(row) is dict and type(entry) is dict
+                and entry.get("original_sha256") == row["sha256"] and entry.get("original_bytes") == row["bytes"]
+                and type(entry.get("curated_sha256")) is str and SHA.match(entry["curated_sha256"])
+                and entry["curated_sha256"] != row["sha256"]
+                and type(entry.get("curated_bytes")) is int and entry["curated_bytes"] > 0,
+                "Curation record differs from the manifest")
+        accepted[key[len(prefix):]] = (entry["curated_sha256"], entry["curated_bytes"])
+    place = directory.resolve()
+    if place.parent.name == "audits" and (place.parents[1]/CURATION).is_file():
+        repository = read_json(place.parents[1]/CURATION)
+        require(type(repository) is dict and type(repository.get("records")) is dict
+                and {k: v for k, v in repository["records"].items() if k.startswith(prefix)} == record["records"],
+                "Curation record differs from the repository record")
+    return accepted
+
+
 def verify_bundle(directory=HERE):
     directory = Path(directory)
     manifest = read_json(directory/"manifest.json")
@@ -480,7 +517,7 @@ def verify_bundle(directory=HERE):
         if path.is_file():
             name = path.relative_to(directory).as_posix()
             require("__pycache__" not in path.parts and path.suffix != ".pyc", "Unmanifested bytecode")
-            if name != "manifest.json":
+            if name not in ("manifest.json", CURATION):
                 actual.add(name)
     require(actual == set(manifest["files"]), "Manifest inventory differs")
     required_files = {"README.md", "curate.py", "verify.py", "source-map.json", "data/evidence.json",
@@ -488,10 +525,12 @@ def verify_bundle(directory=HERE):
     required_files |= {f"figures/lower-{kind}.{extension}" for kind in ("ratios","decomposition")
                        for extension in ("png","pdf")}
     require(actual in (required_files, required_files | {"verification.json"}), "Dated bundle file population differs")
+    accepted = curated_copies(directory, manifest)
     for name, row in manifest["files"].items():
         content = path_under(directory, name).read_bytes()
-        require(len(content) < 5_000_000 and len(content) == integer(row["bytes"], minimum=1)
-                and digest(content) == row["sha256"], "Artifact bytes differ")
+        require(len(content) < 5_000_000 and integer(row["bytes"], minimum=1)
+                and (digest(content), len(content)) in ((row["sha256"], row["bytes"]), accepted.get(name)),
+                "Artifact bytes differ")
         if name.endswith((".json",".csv",".md",".py")):
             require(not re.search(rb"/(?:Users|home|private/tmp)/|[A-Za-z]:\\\\", content), "Private host path in bundle")
     sources = read_json(directory/"source-map.json")
@@ -505,7 +544,8 @@ def verify_bundle(directory=HERE):
             name = f"figures/lower-{kind}.{extension}"
             require(manifest["files"][name]["sha256"] == sources["sources"][f"figure_{kind}_{extension}"]["sha256"],
                     "Source figure bytes differ")
-    result.update(status="verified", source_artifacts=len(sources["sources"]), shipped_files=len(actual)+1)
+    result.update(status="verified", source_artifacts=len(sources["sources"]),
+                  shipped_files=len(actual)+1+(directory/CURATION).is_file())
     return result
 
 

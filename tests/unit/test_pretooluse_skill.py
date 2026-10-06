@@ -59,7 +59,7 @@ def test_ignores_ungated_skill(tmp_path):
     assert _run("judgment-protocols", tmp_path, tmp_path, session="SESS").returncode == 0
 
 
-# ------------------------------------------------------- A3: fan-out-before-routing guard
+# --------------------------------------------- Agent/Task fan-out is blocked before routing
 def _run_tool(tool_name, project_dir, cwd, session=None):
     env = dict(os.environ, CLAUDE_PROJECT_DIR=str(project_dir))
     payload = {"tool_name": tool_name, "tool_input": {}, "cwd": str(cwd)}

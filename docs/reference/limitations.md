@@ -8,7 +8,7 @@ compressed-slepton mass-plane fidelity remain unresolved.
 
 
 Honest registry of what the pipeline does not yet do (or does approximately). Each entry: the
-limitation, its impact, and the plan. The audit (`audit.py`) reads this; closing an item should flip
+limitation and its impact. The audit (`audit.py`) reads this; closing an item should flip
 the corresponding dimension.
 
 Compressed-slepton attribution, signal uncertainties and control-region signal

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "purpose": "Curation of hash-pinned and historical records for the public distribution (2026-10-04). Each entry maps the original record identity (sha256, bytes) to the curated public copy, names the records that pinned the original digest (pinned_by) and says what changed and why: wording, recorded machine paths and host names in records, and in two audit verifiers the acceptance of exactly these curated copies. Numbers, data and every other byte are unchanged; a gzip record is recompressed deterministically around its curated member. A check that pinned the original digest accepts the file only as exactly this curated copy (scripts/check_evidence.py verifies the record); the superseded native-fidelity-v2 verifier is the exception, since by design it rejects current sources that changed after its audit and so no longer passes.",
+  "purpose": "Curation of hash-pinned and historical records for the public distribution (2026-10-04). Each entry maps the original record identity (sha256, bytes) to the curated public copy, names the records that pinned the original digest (pinned_by) and says what changed and why: wording, recorded machine paths and host names in records, and in three audit verifiers (the native-fidelity-v3 and cut-dependence verifiers and the waypoint bundle check) the acceptance of exactly these curated copies. Numbers, data and every other byte are unchanged; a gzip record is recompressed deterministically around its curated member. A check that pinned the original digest accepts the file only as exactly this curated copy (scripts/check_evidence.py verifies the record); the superseded native-fidelity-v2 verifier is the exception, since by design it rejects current sources that changed after its audit and so no longer passes.",
   "records": {
     "benchmarks/cases.json": {
       "original_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
@@ -118,39 +118,39 @@
     "evidence/audits/2026-09-06-native-fidelity/README.md": {
       "original_sha256": "6e8b681d0f13920526c500efa0223eeb8214d40787a75755dec9d3b51eecb050",
       "original_bytes": 7449,
-      "curated_sha256": "f69f2e3870b558b88c3d07b834bb3229dad1bc46eb03d9c3154bc2380fd6fa7a",
-      "curated_bytes": 7414,
+      "curated_sha256": "761dd6398b13630870d739fda3a273a593df8610f3a233b48b4888ec25960a05",
+      "curated_bytes": 7438,
       "pinned_by": [
         "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
         "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
         "evidence/audits/2026-09-06-native-fidelity-v3/verify.py",
         "evidence/audits/2026-09-06-native-fidelity/manifest.json"
       ],
-      "change": "One sentence dates the earlier selection runs without an internal reference; the reported results and every other line are unchanged. A sentence on the raw ROOT files says they are not included instead of where they remain, and the replay instructions say that the retained input is not included and name the repository root.",
+      "change": "One sentence dates the earlier selection runs without an internal reference; the reported results and every other line are unchanged. A sentence on the raw ROOT files says they are not included instead of where they remain, and the replay instructions say that the retained input is not included and name the repository root. The retained-parity recheck says that its inputs are not included in this repository.",
       "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
     },
     "evidence/audits/2026-09-06-rrr-waypoint/README.md": {
       "original_sha256": "08aaea0d5ff23de9a4b2f3f7a719be20e1614f078ce543e49c32e846ec6022f1",
       "original_bytes": 16139,
-      "curated_sha256": "aae445fe8df0c6232fa7b2226a864a011d439a205406cd8ad24655b4e5f87626",
-      "curated_bytes": 16133,
+      "curated_sha256": "1f7a2fbc5e6cb06b1375bc1cc909611cefb578ff2dfff667e5c1d80b97c7f0f0",
+      "curated_bytes": 16106,
       "pinned_by": [
         "evidence/audits/2026-09-06-rrr-waypoint/manifest.json"
       ],
-      "change": "One sentence on where to run the tests no longer refers to a machine-local directory; the commands and every other line are unchanged.",
+      "change": "One sentence on where to run the tests no longer refers to a machine-local directory; the optional source check is introduced as an original-source check, says that its original files are not included in this repository, and its two commands name a directory of original records as their placeholder; every other line is unchanged.",
       "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
     },
     "evidence/audits/2026-09-06-rrr-waypoint/curate.py": {
       "original_sha256": "6f796ecbac91da3b9b8c72ed5dbfd019c92b351273928b30b6169e18e21253d0",
       "original_bytes": 37886,
-      "curated_sha256": "147b71e9baa854894d539008fd2a921cf84ec8f9004f338d678c82ef95eaed15",
-      "curated_bytes": 38795,
+      "curated_sha256": "da3fc5e374d682a598bce7ae24f78eb39e079fa6ef0635c8b3544b1584282a16",
+      "curated_bytes": 38843,
       "pinned_by": [
         "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",
         "evidence/audits/2026-09-06-rrr-waypoint/verification.json"
       ],
-      "change": "The bundle check accepts a file whose digest and size differ from the bundle manifest only when it is exactly the curated copy that this record maps from the recorded original (the bundle README and this script); every other check is unchanged.",
-      "reason": "Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests it pinned, and nothing else."
+      "change": "The bundle check accepts a file whose digest and size differ from the bundle manifest only when it is exactly the curated copy that this record maps from the recorded original (the bundle README and this script), and the command-line help describes --source-root as a directory holding the original files; every other check is unchanged.",
+      "reason": "Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests it pinned, and nothing else. Its help text follows the repository wording policy (2026-10-04)."
     },
     "evidence/audits/2026-09-06-statistical-fidelity/audit.json": {
       "original_sha256": "1f6458edf6437107bb285de24789c0bfe3dcab367fb4ff1f7f38f919d8373f59",
@@ -1291,8 +1291,8 @@
     "src/ravel/physics/sa_native_core.py": {
       "original_sha256": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
       "original_bytes": 20501,
-      "curated_sha256": "5d934c9152ea07360366894d77602076d901296f581716b1e6674661c8a82f8e",
-      "curated_bytes": 20483,
+      "curated_sha256": "17ad905cf1f65250978768aecbe706e32cf68ceb732461d224759ed4c21c5600",
+      "curated_bytes": 20497,
       "pinned_by": [
         "evidence/audits/2026-09-05-native-fidelity/erjr_differential.json",
         "evidence/audits/2026-09-05-native-fidelity/verification.json",
@@ -1307,7 +1307,7 @@
         "evidence/audits/2026-09-06-rrr-waypoint/diagnostics.json",
         "evidence/audits/2026-09-26-scientific-studies/manifest.json"
       ],
-      "change": "A docstring sentence cites the CR-005 container-diff procedure instead of the file name of a design note that this distribution does not include; the code is unchanged.",
+      "change": "Two docstring sentences cite the CR-005 container-diff procedure instead of the file name of a design note that this distribution does not include, and name the EwkCompressed2018 port instead of an internal shorthand; the code is unchanged.",
       "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
     },
     "src/ravel/physics/shape_fit.py": {
@@ -1412,6 +1412,158 @@
       "pinned_by": [],
       "change": "The evidence note describes the confirmed wake mechanism plainly, without the client tool names it probed and the client's background-task identifier is dropped; the timestamps, tolerance and mechanism are unchanged, the evidence fingerprint is recomputed over the curated evidence, and the checker re-derives the unchanged verdict (PASS) and decision.",
       "reason": "This repository carries no raw agent-client transcripts or client notifications (2026-10-04). The original record is kept outside this distribution."
+    },
+    "src/ravel/physics/pyhf_exclude.py": {
+      "original_sha256": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+      "original_bytes": 68269,
+      "curated_sha256": "2e3651fa93becd3ca8cbba305fa364abc5322b40f8d61ee79dab7d2bafa3715a",
+      "curated_bytes": 68273,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source_roles.py",
+        "evidence/audits/2026-09-06-rrr-template-controls/source_roles.py",
+        "evidence/audits/2026-09-06-rrr-template-controls/sources.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/diagnostics.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/audit.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/benchmark-provenance.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/focused-tests.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/m150-dm20-jax-refit.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/m150-dm20-numpy-lower-branch.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/root-precision.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/selftest.json",
+        "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+        "evidence/audits/2026-09-08-statistical-fidelity/audit.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A code comment on the CLs-scan heartbeat names the compressed-slepton smoke run instead of an internal shorthand; the code is unchanged. The records that pinned the original digest keep it, and a check that compares the file accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/native_simpleanalysis.py": {
+      "original_sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+      "original_bytes": 32247,
+      "curated_sha256": "16d38df8de0c321c9f1624d28686363dda6c7be95fb28250effabc68b32d3499",
+      "curated_bytes": 32256,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity/compressed-prior-verification.json",
+        "evidence/audits/2026-09-06-native-fidelity/compressed-sr-parity.json",
+        "evidence/audits/2026-09-06-native-fidelity/replay-execution.json",
+        "evidence/audits/2026-09-06-native-fidelity/verification.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/btag-source-pins.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/diagnostics.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The command-line description names the EwkCompressed2018 port instead of an internal shorthand; the code is unchanged. The records that pinned the original digest keep it, and a check that compares the file accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/native_sa_generic.py": {
+      "original_sha256": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
+      "original_bytes": 17646,
+      "curated_sha256": "6ece01571dec719f0b13198de3e75b41e4fd2ca7770bc3979ad47c3bd552559f",
+      "curated_bytes": 17655,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-native-fidelity/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity/replay-execution.json",
+        "evidence/audits/2026-09-06-native-fidelity/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A code comment names the EwkCompressed2018 port instead of an internal shorthand; the code is unchanged. The records that pinned the original digest keep it, and a check that compares the file accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/plotting/name_plots.py": {
+      "original_sha256": "bc4286d84d1dd5303410de92bfc372600bb078df6eb918b96d85dc3fbd79ef05",
+      "original_bytes": 6456,
+      "curated_sha256": "1b4fa0d2f7a1b2ff36efe7aa1aeae2cadbc553626b51f7e25919492517cc25e1",
+      "curated_bytes": 6460,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring tags the physics-map input as a [judgment] step, as the workflow documents do, instead of a model name; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/rivet_ref_yields.py": {
+      "original_sha256": "33558f559520f34a4e3505334e5613ef702d97d123fab3f7c10dccb8db007aa0",
+      "original_bytes": 9421,
+      "curated_sha256": "79b85468c71418154eee5cdc91713bbb1c644bdead5947d726026029094bddae",
+      "curated_bytes": 9425,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring tags the region-mapping input as a [judgment] step, as the workflow documents do, instead of a model name; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/plotting/figure_manifest.py": {
+      "original_sha256": "f987707b75451a11d624c897232dbd10a9b13474f3346b352d6f8add3f3d8274",
+      "original_bytes": 27292,
+      "curated_sha256": "704234d0eb49af1518b7ac1e8e2e7cbcdac0ee656e3f6547d020418028f6c017",
+      "curated_bytes": 27361,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring dates the archetype census instead of naming a development phase, a comment names the reference mass-plane anchor without an internal label, judgment steps in comments, docstrings and printed notes carry the [judgment] tag that the workflow documents use instead of a model name, and a comment drops a numbered defect label; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py": {
+      "original_sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d",
+      "original_bytes": 29843,
+      "curated_sha256": "c5202ed579ec55fe4d5907bf5bb7126d6ea52033695f8de6dae994aada2f09db",
+      "curated_bytes": 32451,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "change": "The verifier accepts a bundle file whose wording was curated for the distribution only as exactly the curated copy that the bundle's own curation record (curation.json, which carries this record's entries for the bundle) maps from the original identity in the bundle manifest, so a copy of the bundle directory verifies on its own; in place it also requires that record to equal these entries, and its inventory admits that record beside the manifest. Its docstring says so and no longer calls the original receipts private; the arithmetic checks are unchanged. The bundle manifest and verification record keep the original digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests that its bundle pinned, and nothing else."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/README.md": {
+      "original_sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58",
+      "original_bytes": 7933,
+      "curated_sha256": "395a4f00ed9161aafdca19df9eb624bce4726192adc67d7d2af7113a3b6967e4",
+      "curated_bytes": 8435,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json"
+      ],
+      "change": "The optional source check is described by the original run records it needs, which this repository does not include, instead of a retained workspace, and the command placeholder names those records; one added paragraph names the four curated files and the bundle's curation record through which the check accepts them. The bundle manifest keeps the original digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/curate.py": {
+      "original_sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940",
+      "original_bytes": 25467,
+      "curated_sha256": "2ce706d581f80a196454e740942abf8ee3c70defc7ef5d1c0c00ae1861e5950f",
+      "curated_bytes": 26037,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "change": "The README text that the curator renders carries the same curated wording as the shipped README, and its manifest writer leaves the bundle's curation record out of the manifest, as the verifier's inventory does; the projection code is unchanged. The bundle manifest and verification record keep the original digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json": {
+      "original_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
+      "original_bytes": 7133,
+      "curated_sha256": "47b288c1836632e2237a594ee129dcb118ff5d54718a157f82e6064410f8a040",
+      "curated_bytes": 7105,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json"
+      ],
+      "change": "Five integration-review texts describe the original records and a checkout without them in neutral terms; numbers, digests and every other field are unchanged. The bundle manifest keeps the original digest; the evidence manifest pins this copy.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-native-fidelity-v3/README.md": {
+      "original_sha256": "f424466bbdaecd09ad27a68973ef2688ec530cde3bc02e75a12b43fb5eeac7a6",
+      "original_bytes": 5429,
+      "curated_sha256": "0f6c4cf2534cb02d9507aa8100edfdbf27a81c647d6674c4369fae4c59bf1ef3",
+      "curated_bytes": 5410,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v3/manifest.json"
+      ],
+      "change": "The verification instructions name the repository root instead of describing where the repository came from; the commands are unchanged. The audit manifest keeps the original digest, and the audit verifier accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
     }
   }
 }

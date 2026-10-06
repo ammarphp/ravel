@@ -63,7 +63,8 @@ def discover_cases(cases_dir: Path) -> dict:
 
 def run_case(gate: str, path: Path, timeout: int = DEFAULT_TIMEOUT_S) -> dict:
     try:
-        r = subprocess.run([sys.executable, str(path)], cwd=REPO_ROOT,
+        # stdin from /dev/null: no case (or tool it starts) may wait on the caller's stdin.
+        r = subprocess.run([sys.executable, str(path)], cwd=REPO_ROOT, stdin=subprocess.DEVNULL,
                            capture_output=True, text=True, timeout=timeout)
         rc = r.returncode
         tail = (r.stderr or r.stdout)[-2000:] if rc != 0 else ""

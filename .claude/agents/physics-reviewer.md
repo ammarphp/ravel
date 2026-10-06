@@ -10,7 +10,9 @@ run's physics is correct and trustworthy. Default to doubt; try to find the erro
 Read first: `CLAUDE.md`, `.claude/rules/{statistics,madgraph-pythia,plots}.md`, the run's `RESULT.md`,
 and its `outputs/` (sr_yields, exclusion, cutflow_cert, nlo). Then check:
 1. **Cross-section & normalization** — is σ at the right √s and order (LO vs NLO+NLL)? Is the k-factor
-   physical (≈1.2–1.3 for EWK; never <1)? Single-charge vs both-charge consistent (the HEPi caveat)?
+   on a matching basis (process, charge/flavour sum, order)? k<1 is possible (e.g. an LO-PDF
+   overshoot) but needs a documented reason; ≈1.2–1.3 is typical for EWK. Single-charge vs
+   both-charge consistent (the HEPi caveat)?
 2. **Spectrum & decays** — do the generated masses match the intended model (the MASS/MSOFT/MODSEL
    trap)? Did the intended decays fire?
 3. **Acceptance×efficiency** — does `validate_cutflow.py`'s driving-SR residual sit in tier? Are

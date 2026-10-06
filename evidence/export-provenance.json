@@ -5,7 +5,7 @@
   "file_bindings_before_evidence_index_render": [
     {
       "public_path": ".agents/skills/certify/SKILL.md",
-      "export_sha256": "816137a5eb357800e2af9197ef85038fa66419f6088bdfd7c9cf0ed797f23254"
+      "export_sha256": "7948b3f120bd7b2cede041710dc60491713ff461d623bb6c4d9bd150303a57a5"
     },
     {
       "public_path": ".agents/skills/cost-preflight/SKILL.md",
@@ -57,7 +57,7 @@
     },
     {
       "public_path": ".claude/agents/physics-reviewer.md",
-      "export_sha256": "93d770059f13c7b9be518b7f55fe89c57808ac5bd9d3918394e8b1390c4a997c"
+      "export_sha256": "d26e4d6d111dec59e939bd5da990bf5a378bf283496a11625b1a38cbd2877292"
     },
     {
       "public_path": ".claude/hooks/deviations-guard.sh",
@@ -113,7 +113,7 @@
     },
     {
       "public_path": ".claude/skills/certify/SKILL.md",
-      "export_sha256": "816137a5eb357800e2af9197ef85038fa66419f6088bdfd7c9cf0ed797f23254"
+      "export_sha256": "7948b3f120bd7b2cede041710dc60491713ff461d623bb6c4d9bd150303a57a5"
     },
     {
       "public_path": ".claude/skills/cost-preflight/SKILL.md",
@@ -169,7 +169,7 @@
     },
     {
       "public_path": ".gitignore",
-      "export_sha256": "0d646cf4a87a58cb6323207b89e1ac3cafbb72b6a40161b6491e938c641e5294"
+      "export_sha256": "358315cb46a5d48305f8f4f61dcb46e20aeaa87a4714ff20729a039ff44ed312"
     },
     {
       "public_path": "AGENTS.md",
@@ -217,7 +217,7 @@
     },
     {
       "public_path": "benchmarks/capabilities.json",
-      "export_sha256": "e88b00e02832c5f3efa71ae9ad7b88f41e6aa27234cf064e5e17dfc3cf64f5f7"
+      "export_sha256": "ae58a8ef16ca6d79e655b36450f9086b4d656cf15537f59481f03e5600134acc"
     },
     {
       "public_path": "benchmarks/cases.json",
@@ -305,11 +305,11 @@
     },
     {
       "public_path": "docs/reference/failure-modes.md",
-      "export_sha256": "451daf4dce3d26e47347a168abc14ca38b317d9ec45e34a56f3fc32dec5dfecc"
+      "export_sha256": "1522b01fdbab36bdd605d1af71554b414bef6ca94c62a8ca540abc150312115d"
     },
     {
       "public_path": "docs/reference/limitations.md",
-      "export_sha256": "d82e5a913ac5c6d707cdc2e9961576d2c16dfc699664f30c2ba6e84ef529986f"
+      "export_sha256": "9bcf1d5ffd5da8f5305a771551281af507312e48b1c25c699782d17dc0554397"
     },
     {
       "public_path": "docs/reference/native-portability.md",
@@ -341,11 +341,11 @@
     },
     {
       "public_path": "docs/validation/README.md",
-      "export_sha256": "6ad26a3b35dceb6f5af03afbe3c6120f1d0a12ea36653329633a57342d4b9cc6"
+      "export_sha256": "a83439f797fee6647551c7c0c6fd20d01617ddf4a491c03fd54c05115c180411"
     },
     {
       "public_path": "docs/validation/benchmark-guide.md",
-      "export_sha256": "eb7b3de3a0f8f7f93660aec9c5f001d7c6b19012ef5a2a732bdafd4ae6dd6118"
+      "export_sha256": "5912a37d67e4f6775f701ac298f555b3592482fed791ac6c8404a73cfc6663f1"
     },
     {
       "public_path": "docs/validation/cases/conf2016037-gluino-2step-sleptons-1400-60.md",
@@ -485,7 +485,7 @@
     },
     {
       "public_path": "docs/workflow/checklists/judgment-protocols.md",
-      "export_sha256": "f2dd08de6d3851326c0ebd7e2acc30f236d3e40c215ae6083f42bb61b5ddb7fc"
+      "export_sha256": "2cdca4f2cfccb62e61b49b6f7fc1fb9c0e4af7bde39ce15f2dac854875652104"
     },
     {
       "public_path": "docs/workflow/checklists/merging.md",
@@ -501,7 +501,7 @@
     },
     {
       "public_path": "docs/workflow/checklists/physics-traps.md",
-      "export_sha256": "745d83f61061deb262ecd27a207402c11d1a6e6fe5cb456731adf3175219c51c"
+      "export_sha256": "c5104c3f7c7950386c48a51caf99133ba47369af4a5cca59b08b821010765987"
     },
     {
       "public_path": "docs/workflow/checklists/plot-criteria.md",
@@ -1077,7 +1077,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-native-fidelity-v3/README.md",
-      "export_sha256": "f424466bbdaecd09ad27a68973ef2688ec530cde3bc02e75a12b43fb5eeac7a6"
+      "export_sha256": "0f6c4cf2534cb02d9507aa8100edfdbf27a81c647d6674c4369fae4c59bf1ef3"
     },
     {
       "public_path": "evidence/audits/2026-09-06-native-fidelity-v3/check_override_guards.py",
@@ -1145,7 +1145,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-native-fidelity/README.md",
-      "export_sha256": "f69f2e3870b558b88c3d07b834bb3229dad1bc46eb03d9c3154bc2380fd6fa7a"
+      "export_sha256": "761dd6398b13630870d739fda3a273a593df8610f3a233b48b4888ec25960a05"
     },
     {
       "public_path": "evidence/audits/2026-09-06-native-fidelity/check_retained_sr_parity.py",
@@ -1193,11 +1193,15 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/README.md",
-      "export_sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58"
+      "export_sha256": "395a4f00ed9161aafdca19df9eb624bce4726192adc67d7d2af7113a3b6967e4"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/curate.py",
-      "export_sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940"
+      "export_sha256": "2ce706d581f80a196454e740942abf8ee3c70defc7ef5d1c0c00ae1861e5950f"
+    },
+    {
+      "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/curation.json",
+      "export_sha256": "6745b444b826befd293043ff38456da3ed9a7cb186a5adc1bc67ccdbf2eee45f"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
@@ -1241,15 +1245,15 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json",
-      "export_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0"
+      "export_sha256": "47b288c1836632e2237a594ee129dcb118ff5d54718a157f82e6064410f8a040"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
-      "export_sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d"
+      "export_sha256": "c5202ed579ec55fe4d5907bf5bb7126d6ea52033695f8de6dae994aada2f09db"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-event-identity/README.md",
-      "export_sha256": "95538efce99f7337bc2ffc2b831e4312a3901229e30aab4e13513dc7713bac3f"
+      "export_sha256": "0b9bb9b58f786125228dce5bffaa4af49aa2945b2695794139f7804b06763d82"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-event-identity/data/evidence.json",
@@ -1265,7 +1269,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-event-identity/manifest.json",
-      "export_sha256": "59e8866f6c623e765682742cd0b5ef29f6453daf345dc30c4095fc7b3074f76e"
+      "export_sha256": "4a1eb25a7759e42de87893c787213b5b0479bfdee2e85bb50165553eaddf8209"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-event-identity/source-map.json",
@@ -1285,7 +1289,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-fresh-anchors/README.md",
-      "export_sha256": "7e35db60dd76fbdbf01ffd510eb48fcabee094337709ff65be7da20c942bdb1f"
+      "export_sha256": "e59b0d2df5c1d067a4c51248e178d92276f7222f47b8f5ce44e58f651f9b08d3"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-fresh-anchors/curate.py",
@@ -1305,7 +1309,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-fresh-anchors/manifest.json",
-      "export_sha256": "cf747755e4316aa3da1370cb59f0b1269a21ba4cd7443b2c70040dbda0d02273"
+      "export_sha256": "10e10e9aa1ec81a622adff5b72e1396dd74a93d2c5432bdec3e04f1439b67620"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
@@ -1409,7 +1413,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-waypoint/README.md",
-      "export_sha256": "aae445fe8df0c6232fa7b2226a864a011d439a205406cd8ad24655b4e5f87626"
+      "export_sha256": "1f7a2fbc5e6cb06b1375bc1cc909611cefb578ff2dfff667e5c1d80b97c7f0f0"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-waypoint/btag-source-pins.json",
@@ -1421,7 +1425,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-waypoint/curate.py",
-      "export_sha256": "147b71e9baa854894d539008fd2a921cf84ec8f9004f338d678c82ef95eaed15"
+      "export_sha256": "da3fc5e374d682a598bce7ae24f78eb39e079fa6ef0635c8b3544b1584282a16"
     },
     {
       "public_path": "evidence/audits/2026-09-06-rrr-waypoint/diagnostics.json",
@@ -2301,7 +2305,7 @@
     },
     {
       "public_path": "evidence/audits/2026-09-26-analysis-landscape/changes/data-and-card-changes.md",
-      "export_sha256": "1b781ffe93a90ae4efba971e860cfc93605747f484f3251d5c3113de7f906560"
+      "export_sha256": "b43d949c6854e17642a6e6549155d63e5258eeef4508b5bf9cfcd950cea1a24d"
     },
     {
       "public_path": "evidence/audits/2026-09-26-analysis-landscape/changes/environment-changes.md",
@@ -3189,11 +3193,11 @@
     },
     {
       "public_path": "evidence/curation.json",
-      "export_sha256": "b872f5642422a04bd330ac1b6f5a9ce510b569cae5e8ed9f3587092720a41180"
+      "export_sha256": "72d5dfb5d77cd6f47aba3465875c4e77d712fc8ebc8b3ebab27f0ead4cb60220"
     },
     {
       "public_path": "evidence/manifest.json",
-      "export_sha256": "6807e16e9319e4a3ab980c426403cd3716afbf31d56651ec143e08a0337e7a72"
+      "export_sha256": "28331f9b5623569d97ef370987a26058c8199a0dae2018db12d546a35b6cd893"
     },
     {
       "public_path": "evidence/validation-summary.json",
@@ -3281,11 +3285,11 @@
     },
     {
       "public_path": "scripts/audit.py",
-      "export_sha256": "1c117e81c5e7386148ff04d82e114c9a65407f08dfee6ef38b5c36aefb363382"
+      "export_sha256": "3b2eed06c09a10da7ea8e269ee19ff69d5be9a9512eb2bb96a71d36862b8a782"
     },
     {
       "public_path": "scripts/build_evidence.py",
-      "export_sha256": "e7de330ae157908d768a4bb27ec3243aa505cc9e8f7ef12782e4c39ff2fb5827"
+      "export_sha256": "c0deabe7332077f6ec8c01c98f787dd44a0765634a8ab6216aad8be4df0e118f"
     },
     {
       "public_path": "scripts/catalogue/build_analysis_catalog.py",
@@ -3297,11 +3301,11 @@
     },
     {
       "public_path": "scripts/check_evidence.py",
-      "export_sha256": "a1c78f97119d7b1f441e231e8e173b74e42d1d8d859811dcd93c3b3c9ce727fc"
+      "export_sha256": "0e70da1371a92adea3bf7e3da6b2fdcaf5a1cee92dcadac13fd79bb8e4b4f0ea"
     },
     {
       "public_path": "scripts/check_fidelity_audits.py",
-      "export_sha256": "8f0724e5ad24f3a8f7b9f12c8b6388f07d6503041f1f07fd5e73eae15ee3d63b"
+      "export_sha256": "f7a3dab6c144014ead8e5e4f4419e7bf20e308242f0e630e4991e6dacb8ead71"
     },
     {
       "public_path": "scripts/check_publication.py",
@@ -3325,7 +3329,7 @@
     },
     {
       "public_path": "scripts/gen_validation_pages.py",
-      "export_sha256": "2157f7a83c76ad61be80f2b5020802153e7af9f62a2632c907fdce3f394f2eab"
+      "export_sha256": "db7f1e39cf155e6856ef4a9dcfdf663fdd9a7fdeb28d14fd85fbe9ff3c097acf"
     },
     {
       "public_path": "scripts/green_board.py",
@@ -3417,7 +3421,7 @@
     },
     {
       "public_path": "src/ravel/evidence_layout.py",
-      "export_sha256": "3d4da5bbba4e68a3f214d3101530086c3ea240e98c131ac4179e414ad04279d9"
+      "export_sha256": "845f9bcaaf4801f85c5f4aa473bc943a49bde4d8ac57e2bc32aa7726e76b1ee7"
     },
     {
       "public_path": "src/ravel/limits.py",
@@ -3489,15 +3493,15 @@
     },
     {
       "public_path": "src/ravel/physics/native_sa_generic.py",
-      "export_sha256": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e"
+      "export_sha256": "6ece01571dec719f0b13198de3e75b41e4fd2ca7770bc3979ad47c3bd552559f"
     },
     {
       "public_path": "src/ravel/physics/native_simpleanalysis.py",
-      "export_sha256": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1"
+      "export_sha256": "16d38df8de0c321c9f1624d28686363dda6c7be95fb28250effabc68b32d3499"
     },
     {
       "public_path": "src/ravel/physics/nlo_xsec.py",
-      "export_sha256": "0b1840975aa7897813660b62496f7866b47d229be0365dad971575796ed5a604"
+      "export_sha256": "e8ce6fa6b1227cf32dbaf9b414700bf22449a9e94992f4f307a21e0834687b0c"
     },
     {
       "public_path": "src/ravel/physics/pool_replicas.py",
@@ -3513,7 +3517,7 @@
     },
     {
       "public_path": "src/ravel/physics/pyhf_exclude.py",
-      "export_sha256": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466"
+      "export_sha256": "2e3651fa93becd3ca8cbba305fa364abc5322b40f8d61ee79dab7d2bafa3715a"
     },
     {
       "public_path": "src/ravel/physics/quantities.py",
@@ -3541,7 +3545,7 @@
     },
     {
       "public_path": "src/ravel/physics/rivet_ref_yields.py",
-      "export_sha256": "33558f559520f34a4e3505334e5613ef702d97d123fab3f7c10dccb8db007aa0"
+      "export_sha256": "79b85468c71418154eee5cdc91713bbb1c644bdead5947d726026029094bddae"
     },
     {
       "public_path": "src/ravel/physics/sa2json_native.py",
@@ -3549,11 +3553,11 @@
     },
     {
       "public_path": "src/ravel/physics/sa_native_core.py",
-      "export_sha256": "5d934c9152ea07360366894d77602076d901296f581716b1e6674661c8a82f8e"
+      "export_sha256": "17ad905cf1f65250978768aecbe706e32cf68ceb732461d224759ed4c21c5600"
     },
     {
       "public_path": "src/ravel/physics/sa_routines/__init__.py",
-      "export_sha256": "2df37899b21ba8bcdd07118383f56f3407999404b45982b5092e14920b1c5bcc"
+      "export_sha256": "8ee66d8950bc657a8fe60366768001920e921c6b3de7db068abdf4a174bb7ab2"
     },
     {
       "public_path": "src/ravel/physics/sa_routines/ewkthreeleptonerjr2018.py",
@@ -3561,7 +3565,7 @@
     },
     {
       "public_path": "src/ravel/physics/sa_routines/zeroleptondiscovery2018.py",
-      "export_sha256": "7180364cd2e66a02fc84e1e1b817e9159ff36d2c99a561d6a9408e0e58b6b767"
+      "export_sha256": "94e4cf0c95f75abaf0ac2eabee262370a3f5c92f8a7758c546e496d023809c3c"
     },
     {
       "public_path": "src/ravel/physics/science_worker.py",
@@ -3605,11 +3609,11 @@
     },
     {
       "public_path": "src/ravel/plotting/figure_manifest.py",
-      "export_sha256": "a30068d9717a371ff623d28b8d719b340aec4e9d804760aff0fd821af19cf08a"
+      "export_sha256": "704234d0eb49af1518b7ac1e8e2e7cbcdac0ee656e3f6547d020418028f6c017"
     },
     {
       "public_path": "src/ravel/plotting/figure_target.py",
-      "export_sha256": "1df92f767592a6fc9340ecdc1646af63838fcba0113ad392dbec427cf3a3994b"
+      "export_sha256": "6934ba2ee83199c3775bbce0cac1d9722f2496c806ea5a5f0a439bfdd84aff22"
     },
     {
       "public_path": "src/ravel/plotting/mass_plane_overlay.py",
@@ -3621,7 +3625,7 @@
     },
     {
       "public_path": "src/ravel/plotting/name_plots.py",
-      "export_sha256": "bc4286d84d1dd5303410de92bfc372600bb078df6eb918b96d85dc3fbd79ef05"
+      "export_sha256": "1b4fa0d2f7a1b2ff36efe7aa1aeae2cadbc553626b51f7e25919492517cc25e1"
     },
     {
       "public_path": "src/ravel/plotting/overlay_on_data.py",
@@ -3709,7 +3713,7 @@
     },
     {
       "public_path": "src/ravel/validation/validate_native_parity.py",
-      "export_sha256": "e95ce32ebada2c5d8ab041e4d0f5c61195892b741df89f5e83c8c298ceb9ee09"
+      "export_sha256": "4edd467ffc88f4c83d4ac23b2378136576ace34f3ed911b33e312b5bbe117f0c"
     },
     {
       "public_path": "src/ravel/validation/validate_parameters.py",
@@ -3753,7 +3757,7 @@
     },
     {
       "public_path": "src/ravel/workflow/hepdata_fetch.py",
-      "export_sha256": "35c6013ffa1a99f8c7793675ea2e45b4230d43afcccacfadcbca302a4968f479"
+      "export_sha256": "a3ccf818576e75b728beb4286a48b88b768ebf4d3044929b35104fe41ec15ff6"
     },
     {
       "public_path": "src/ravel/workflow/intake.py",
@@ -3837,7 +3841,7 @@
     },
     {
       "public_path": "tests/adversarial/_case_lib.py",
-      "export_sha256": "bde4c9ce7dc49840f54ea105d07620cdd805064e5cebbc30ec91df2637cdb982"
+      "export_sha256": "a791e1da909a23781186f207352e79b03aa8825549a0b0b8455d3543187bdae2"
     },
     {
       "public_path": "tests/adversarial/_probe_check.py",
@@ -3965,7 +3969,7 @@
     },
     {
       "public_path": "tests/adversarial/run_suite.py",
-      "export_sha256": "55ff376d8861ea5813fcdc799bad6ee8e5956e0b5edc6997df85adf748a7ae8f"
+      "export_sha256": "21234f7aaf1fbce8555ce0be258eb73864b4bf54618226a043e1fc1ed128078f"
     },
     {
       "public_path": "tests/conftest.py",
@@ -4173,7 +4177,7 @@
     },
     {
       "public_path": "tests/unit/test_pretooluse_skill.py",
-      "export_sha256": "22061a2399d3d7fbb8870340e9a13f4f78f442bd719620786d22fdadbefa924d"
+      "export_sha256": "fc786b577f4aa5c48ca384988c7d06a84b51e737560bd96f86a52937a44547d4"
     },
     {
       "public_path": "tests/unit/test_probe_check.py",
@@ -4245,7 +4249,7 @@
     },
     {
       "public_path": "tests/unit/test_rrr_cut_dependence_bundle.py",
-      "export_sha256": "695b99f0345d140ef23ecda4935ebb3d4444c0773da4badc3046693fa741c998"
+      "export_sha256": "233c5365642ce11f3680ca19dcb7bb991cc8e61818e6e83469ca0c717d95c398"
     },
     {
       "public_path": "tests/unit/test_rrr_event_identity_bundle.py",
@@ -4413,7 +4417,7 @@
     },
     {
       "public_path": "tests/unit/test_validate_run_state.py",
-      "export_sha256": "d1a79f10beb2c85172207264a8265cd253821e2dc50595b10fd08365d2c296fc"
+      "export_sha256": "cdacd5c7c781bd8298595e9d62717048f67d63874d79999c906273ec43b8ad78"
     },
     {
       "public_path": "tests/unit/test_validate_run_state_lifecycle.py",

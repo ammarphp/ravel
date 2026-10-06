@@ -153,15 +153,14 @@ def test_backfill_plan_writes_nothing(tmp_path):
 
 
 # --------------------------------------------------------------------------- #
-#  Lifecycle fix regressions (4 findings)
+#  Lifecycle regressions
 # --------------------------------------------------------------------------- #
 
 def test_non_date_prefixed_dir_with_inputs_is_not_legacy_and_hard_fails(tmp_path):
-    """Fix 1 [CRITICAL]: is_legacy() used to return True for ANY dir lacking a parseable date
-    prefix, waiving resource_census/trap_sweep/verification on genuinely current runs (the repo
-    has 60+ such active dirs). A non-date-prefixed dir that HAS an inputs/ dir must be held to
-    full requirements: a complete scan-style run missing resource_census.json must hard-FAIL,
-    not be silently waived as legacy."""
+    """is_legacy() used to return True for ANY dir lacking a parseable date prefix, waiving
+    resource_census/trap_sweep/verification on genuinely current runs. A non-date-prefixed dir
+    that HAS an inputs/ dir must be held to full requirements: a complete scan-style run missing
+    resource_census.json must hard-FAIL, not be silently waived as legacy."""
     vrs = _load_module()
     with tempfile.TemporaryDirectory() as td:
         rd = Path(td) / "sleptonscan_no_date_prefix"   # no YYYY-MM-DD prefix at all
@@ -183,7 +182,7 @@ def test_non_date_prefixed_dir_with_inputs_is_not_legacy_and_hard_fails(tmp_path
 
 
 def test_coverage_regex_ignores_incidental_ratio_but_catches_real_mismatch():
-    """Fix 2 [IMPORTANT]: the unanchored COVERAGE_RE matched incidental ratios in prose (e.g.
+    """The unanchored COVERAGE_RE matched incidental ratios in prose (e.g.
     "1.47/0.74" tokenized as "47/0"), producing a false coverage FAIL on real RESULT.md prose.
     A coverage-context word must now be within ~30 chars of the match. An incidental ratio next
     to a genuine, correct "52/52 grid points" claim must not trip the check; a genuinely wrong
@@ -217,7 +216,7 @@ def test_coverage_regex_ignores_incidental_ratio_but_catches_real_mismatch():
 
 
 def test_route_tbd_judgment_requires_naming_the_specific_field():
-    """Fix 3 [IMPORTANT]: check_route used to pass a TBD-judgment field if ANY escalate[] entry
+    """check_route used to pass a TBD-judgment field if ANY escalate[] entry
     merely contained the word "judgment", even if it never named the field. The escalate list
     must NAME the specific TBD field (or a defined synonym)."""
     vrs = _load_module()
@@ -238,7 +237,7 @@ def test_route_tbd_judgment_requires_naming_the_specific_field():
 
 
 def test_blocked_shape_fit_refusal_must_be_documented():
-    """Fix 4 [IMPORTANT]: stat_mode=="blocked-shape-fit" means statistics N/A + the refusal must
+    """stat_mode=="blocked-shape-fit" means statistics N/A + the refusal must
     be RECORDED (footnote 9), but nothing previously checked that the refusal was actually
     documented. Require blocking[] non-empty OR a DEVIATIONS.md with a refusal note."""
     vrs = _load_module()
@@ -354,11 +353,11 @@ def test_scan_aggregator_without_sibling_intermediates_passes_generation_and_ana
 
 
 # --------------------------------------------------------------------------- #
-#  Fix regression: summary_plot's figure_contract level R -> O
+#  Regression: summary_plot's figure_contract level R -> O
 # --------------------------------------------------------------------------- #
 
 def test_summary_plot_figure_contract_is_optional():
-    """Fix 3 [Important]: STAGE_MATRIX used to mark figure_contract R (required) for
+    """STAGE_MATRIX used to mark figure_contract R (required) for
     summary_plot, but a none-survey summary synthesizes MANY published limits into one overlay
     -- it does not reproduce a single published figure. figure_target.json is genuinely
     OPTIONAL here; completeness is carried by basis_manifest[R] + the separate

@@ -1,0 +1,52 @@
+{
+  "purpose": "The entries of the repository curation record (evidence/curation.json) for the files of this bundle whose wording was curated after the bundle was built. verify.py accepts such a file only as exactly the curated copy that its entry maps from the original identity in manifest.json, so a copy of this directory verifies on its own; in place beside the repository record, the two must agree.",
+  "records": {
+    "evidence/audits/2026-09-06-rrr-cut-dependence/README.md": {
+      "change": "The optional source check is described by the original run records it needs, which this repository does not include, instead of a retained workspace, and the command placeholder names those records; one added paragraph names the four curated files and the bundle's curation record through which the check accepts them. The bundle manifest keeps the original digest.",
+      "curated_bytes": 8435,
+      "curated_sha256": "395a4f00ed9161aafdca19df9eb624bce4726192adc67d7d2af7113a3b6967e4",
+      "original_bytes": 7933,
+      "original_sha256": "0935c5cabb530897af781cd04606c4968b47bd64cf3fd3030738a77c19e96d58",
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json"
+      ],
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/curate.py": {
+      "change": "The README text that the curator renders carries the same curated wording as the shipped README, and its manifest writer leaves the bundle's curation record out of the manifest, as the verifier's inventory does; the projection code is unchanged. The bundle manifest and verification record keep the original digest.",
+      "curated_bytes": 26037,
+      "curated_sha256": "2ce706d581f80a196454e740942abf8ee3c70defc7ef5d1c0c00ae1861e5950f",
+      "original_bytes": 25467,
+      "original_sha256": "c0848ed99982b58364c334421a45c6ed48f5b7ad0cfb0d7cbe6f5b12cf3cf940",
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json": {
+      "change": "Five integration-review texts describe the original records and a checkout without them in neutral terms; numbers, digests and every other field are unchanged. The bundle manifest keeps the original digest; the evidence manifest pins this copy.",
+      "curated_bytes": 7105,
+      "curated_sha256": "47b288c1836632e2237a594ee129dcb118ff5d54718a157f82e6064410f8a040",
+      "original_bytes": 7133,
+      "original_sha256": "95e5a34bf191e8a55000ffbcabda4f07f5f60e74c30f5536bb3138a7f3ad66c0",
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json"
+      ],
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-06-rrr-cut-dependence/verify.py": {
+      "change": "The verifier accepts a bundle file whose wording was curated for the distribution only as exactly the curated copy that the bundle's own curation record (curation.json, which carries this record's entries for the bundle) maps from the original identity in the bundle manifest, so a copy of the bundle directory verifies on its own; in place it also requires that record to equal these entries, and its inventory admits that record beside the manifest. Its docstring says so and no longer calls the original receipts private; the arithmetic checks are unchanged. The bundle manifest and verification record keep the original digest.",
+      "curated_bytes": 32451,
+      "curated_sha256": "c5202ed579ec55fe4d5907bf5bb7126d6ea52033695f8de6dae994aada2f09db",
+      "original_bytes": 29843,
+      "original_sha256": "a0ce7e797f9fb05cd304694a7f0f9caf1b6e7fca92de5a3ffdb50bfdea25042d",
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests that its bundle pinned, and nothing else."
+    }
+  },
+  "schema_version": 1
+}

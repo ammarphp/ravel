@@ -51,7 +51,7 @@ import sys
 
 
 # reuse the VALIDATED framework primitives -- never re-implement them. (CR-005: they now live in
-# sa_native_core, the shared layer under BOTH the flagship port and this engine.)
+# sa_native_core, the shared layer under BOTH the EwkCompressed2018 port and this engine.)
 from .sa_native_core import (Obj, filterObjects, overlapRemoval, invmass, calcMT,   # noqa: E402
                             minDphi, ELECTRON, MUON, ME, MMU, summarize_weights)
 JET = 2   # jet type tag (native_simpleanalysis types only leptons; jets are a separate collection)

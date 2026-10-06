@@ -27,11 +27,11 @@
         "repair": "Compile its inspected source directly into a module namespace; a nested public-checkout test uses ordinary Python with both bytecode and PYTHONPATH overrides removed."
       },
       {
-        "finding": "The source-archive relocation test assumed private originals existed in a public checkout.",
+        "finding": "The source-archive relocation test assumed the original records existed in a checkout without them.",
         "repair": "Skip only if every original is absent; fail on partial availability. Public-distribution execution is tested separately."
       },
       {
-        "finding": "The first actual public export retained a public predecessor manifest, which the private-archive test mistook for partial private-source availability. The run had 117 passes, one skip and one failure.",
+        "finding": "A checkout without the original records retained a predecessor manifest, which the original-record test mistook for partial availability of the originals. The run had 117 passes, one skip and one failure.",
         "independent_validation": {
           "actual_public_copy_passed": 64,
           "actual_public_copy_skipped": 1,
@@ -40,7 +40,7 @@
           "partial_private_archive_negative": "failed as required rather than skipped",
           "scientific_or_verifier_changes": false
         },
-        "repair": "Skip the private-archive test only when all private research originals are absent; require all selected originals if any private original exists. The nested fixture now includes the actual public predecessor manifest."
+        "repair": "Skip the original-record test only when all selected originals are absent; require all of them if any exists. The nested fixture now includes that predecessor manifest."
       }
     ],
     "limits": "No raw-event replay, independent optimizer, saved-parameter replay, acceptance, statistical coverage or contour certification.",
@@ -51,7 +51,7 @@
         "deselected": 1,
         "deselection": "Recursive isolation test",
         "passed": 63,
-        "skip": "Private selected-source archive absent",
+        "skip": "Selected original records absent",
         "skipped": 1
       },
       "passed": 83,
@@ -113,7 +113,7 @@
       "source_bundle_passed": 65,
       "source_bundle_seconds": 5.38,
       "stage": "First repaired source and integration review",
-      "status": "Precedes actual-export discovery that the predecessor manifest remains public",
+      "status": "Precedes the discovery that a checkout without the originals keeps the predecessor manifest",
       "test_sha256": "aabccfd1185988544832fdf75b14a162d3a945511a2de2db4dbd5e4cee205102"
     }
   ],
