@@ -90,10 +90,16 @@ def load_validations(rundir, must_exist=False):
             doc = json.load(fh)
     except (OSError, json.JSONDecodeError) as e:
         return None, f"{path} is not valid JSON: {e}"
-    if doc.get("schema_version") != SCHEMA_VERSION:
+    if not isinstance(doc, dict):
+        return None, f"{path} must be a JSON object"
+    if type(doc.get("schema_version")) is not int or doc.get("schema_version") != SCHEMA_VERSION:
         return None, f"{path} schema_version {doc.get('schema_version')!r} != {SCHEMA_VERSION}"
     if not isinstance(doc.get("params"), list):
         return None, f"{path} carries no 'params' list"
+    for param in doc["params"]:
+        if (not isinstance(param, dict) or not isinstance(param.get("name"), str) or not param["name"].strip()
+                or param.get("status") not in ("PENDING", "PASS", "FAIL")):
+            return None, f"{path} params must be objects with a nonblank name and PENDING/PASS/FAIL status"
     return doc, None
 
 

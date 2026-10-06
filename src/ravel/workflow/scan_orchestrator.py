@@ -724,7 +724,10 @@ def launch_point(mp, manifest, args, *, plan=None):
             return cmd
     os.makedirs(os.path.join(run_dir, "logs"), exist_ok=True)
     with open(os.path.join(run_dir, "logs", "orchestrator_launch.log"), "a") as log:
-        process = subprocess.Popen(cmd, cwd=run_dir, stdout=log, stderr=subprocess.STDOUT)
+        from ravel.workflow.launch_authorization import authorized_popen
+        process = authorized_popen(run_dir, plan["required_compute_plan"], cmd,
+                                   context={"kind": "scan-dispatch", "plan_sha256": plan["plan_sha256"]},
+                                   cwd=run_dir, stdout=log, stderr=subprocess.STDOUT)
     print(f"    -> backgrounded pid={process.pid}")
     return process
 

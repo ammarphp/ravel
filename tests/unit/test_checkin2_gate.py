@@ -15,7 +15,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "src"))
-from ravel.workflow import workflow_state  # noqa: E402
+from ravel.workflow import workflow_state, waypoint_evidence, launch_authorization  # noqa: E402
 
 WS = REPO / "src" / "ravel" / "workflow" / "workflow_state.py"
 VRS = REPO / "src" / "ravel" / "validation" / "validate_run_state.py"
@@ -56,6 +56,19 @@ def _write_inputs(rd, plan, session=None):
         (rd / "run_state.json").write_text(json.dumps({"schema_version": 1, "session_id": session}))
 
 
+def _write_checkin2(rd, *, status="pass"):
+    for name in ("produced.png", "reference.png"):
+        (rd / "inputs" / name).write_bytes(name.encode())
+    (rd / "inputs/comparison.json").write_text(json.dumps({
+        "status": status, "summary": "Smoke comparison reviewed", "diagnostics": {"relative_residual": 0.4}}))
+    manifest = waypoint_evidence.create(rd, produced="inputs/produced.png", reference="inputs/reference.png",
+                                       comparison="inputs/comparison.json", inputs=["inputs/cost_preflight.json"])
+    (rd / waypoint_evidence.MANIFEST).write_text(json.dumps(manifest))
+    checkin = json.loads(json.dumps(CHECKIN2))
+    checkin["sections"]["evidence_manifest"] = waypoint_evidence.MANIFEST
+    (rd / "inputs/checkin2.json").write_text(json.dumps(checkin))
+
+
 def _run(tmp_path, plan="full", approve=True, checkin2=True):
     rd = tmp_path / "2026-10-07_TEST_checkin2"
     _write_inputs(rd, plan)
@@ -63,7 +76,7 @@ def _run(tmp_path, plan="full", approve=True, checkin2=True):
         result = _ws("approve", "--rundir", rd, "--quote", "Yes, run the plan", "--plan", plan)
         assert result.returncode == 0, result.stderr
     if checkin2:
-        (rd / "inputs" / "checkin2.json").write_text(json.dumps(CHECKIN2))
+        _write_checkin2(rd)
     return rd
 
 
@@ -76,7 +89,7 @@ def test_go_refuses_without_a_checkin2_artefact(tmp_path):
 
 def test_go_refuses_an_invalid_checkin2(tmp_path):
     rd = _run(tmp_path)
-    bad = json.loads(json.dumps(CHECKIN2))
+    bad = json.loads((rd / "inputs/checkin2.json").read_text())
     bad["sections"]["ask"]["options"] = [{"name": "GO"}]
     (rd / "inputs" / "checkin2.json").write_text(json.dumps(bad))
     result = _ws("go", "--rundir", rd, "--quote", "GO")
@@ -94,7 +107,7 @@ def test_go_writes_a_record_bound_to_checkin2_and_the_approval(tmp_path):
     result = _ws("go", "--rundir", rd, "--quote", "GO: the background matches")
     assert result.returncode == 0, result.stderr
     doc = json.loads((rd / "inputs" / "checkin2_go.json").read_text())
-    assert doc["schema_version"] == 1 and doc["generated_by"] == "workflow_state.py go"
+    assert doc["schema_version"] == 2 and doc["generated_by"] == "workflow_state.py go"
     assert doc["decision"] == "GO" and doc["quote"] == "GO: the background matches"
     assert doc["checkin2"] == "inputs/checkin2.json"
     assert doc["checkin1_approval"] == "inputs/checkin1_approval.json"
@@ -148,7 +161,7 @@ def _project(tmp_path):
     _write_inputs(rd, "scan", session="S1")
     (rd / "inputs" / "generation_recipe.json").write_text("{}")
     assert _ws("approve", "--rundir", rd, "--quote", "Yes, run the scan", "--plan", "scan").returncode == 0
-    (rd / "inputs" / "checkin2.json").write_text(json.dumps(CHECKIN2))
+    _write_checkin2(rd)
     return rd
 
 
@@ -173,7 +186,11 @@ def _native_run(tmp_path, rung, go):
     rd = _run(tmp_path)
     if go:
         assert _ws("go", "--rundir", rd, "--quote", "GO").returncode == 0
-    (rd / "inputs" / "native_execution_plan.json").write_text(json.dumps({"required_compute_plan": rung}))
+        process = launch_authorization.authorized_popen(rd, rung, [sys.executable, "-c", "pass"],
+                       context={"kind": "native-generation", "plan_sha256": "test-plan"})
+        assert process.wait() == 0
+    (rd / "inputs" / "native_execution_plan.json").write_text(json.dumps({
+        "required_compute_plan": rung, "plan_sha256": "test-plan"}))
     (rd / "outputs").mkdir(exist_ok=True)
     (rd / "outputs" / "sr_yields.json").write_text(json.dumps({"srs": {"SR1": 1.0}}))
     contract = json.loads((rd / "inputs" / "task_contract.json").read_text())

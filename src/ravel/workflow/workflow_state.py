@@ -46,6 +46,7 @@ from ravel.workflow import session_lock             # noqa: E402
 from ravel.validation import validate_run_state       # noqa: E402
 from ravel.validation import validate_task_contract   # noqa: E402
 from ravel.workflow.state_io import atomic_json, file_lock, read_json
+from ravel.workflow.launch_authorization import operational_utc
 
 RUN_STATE_NAME = "run_state.json"
 SCHEMA_VERSION = 1
@@ -467,6 +468,11 @@ def verify_approval(rundir, record=None, *, required_plan=None):
     if plan not in APPROVAL_PLANS:
         errors.append("approval.approved_plan must be none|dry|smoke|full|scan")
     if required_plan is not None:
+        from ravel.workflow.launch_authorization import parse_utc
+        try:
+            parse_utc(record["generated_utc"])
+        except ValueError as exc:
+            errors.append(f"approval timestamp is invalid for live compute: {exc}")
         if required_plan not in APPROVAL_PLANS:
             errors.append("required_plan must be none|dry|smoke|full|scan")
         elif plan in APPROVAL_PLANS and (
@@ -528,10 +534,15 @@ def cmd_approve(args):
         print(f"workflow_state approve: not a directory: {rd}", file=sys.stderr)
         return 2
     paths = approval_input_paths(rd)
+    try:
+        stamp = operational_utc()
+    except ValueError as exc:
+        print(f"workflow_state approve: REFUSED -- {exc}", file=sys.stderr)
+        return 1
     # Fingerprint BEFORE validation; verify_approval recomputes after all reads. An edit
     # during validation cannot silently become part of the newly recorded approval.
     rec = {"schema_version": APPROVAL_VERSION,
-           "generated_utc": os.environ.get("WORKFLOW_STATE_UTC", ""),
+           "generated_utc": stamp,
            "approved_plan": args.plan, "quote": args.quote,
            "task_contract": os.path.relpath(paths[0], rd),
            "checkin1": "inputs/checkin1.json", "cost_preflight": "inputs/cost_preflight.json",
@@ -552,22 +563,23 @@ def cmd_approve(args):
     return 0
 
 
-CHECKIN2_GO_VERSION = 1
+CHECKIN2_GO_VERSION = 2
 CHECKIN2_GO_GENERATOR = "workflow_state.py go"
 
 
 def checkin2_go_input_paths(rundir):
-    """The ordered binding of a CHECK-IN 2 go: the CHECK-IN 2 artefact and the approval it follows."""
+    """Bind the check-in, first approval, manifest and every reviewed evidence file."""
+    from ravel.workflow.waypoint_evidence import bound_paths
     return [os.path.join(rundir, "inputs", "checkin2.json"),
-            os.path.join(rundir, "inputs", "checkin1_approval.json")]
+            os.path.join(rundir, "inputs", "checkin1_approval.json"), *bound_paths(rundir)]
 
 
 def verify_checkin2_go(rundir, record=None):
     """Return the errors that stop a CHECK-IN 2 go from authorising compute beyond the smoke run.
 
-    The go binds the bytes of the CHECK-IN 2 artefact and of the CHECK-IN 1 approval it follows, so
-    an edited artefact or a re-recorded approval voids it. Like the approval, this checks integrity,
-    not who answered.
+    The go binds the check-in, first approval and every file in the waypoint manifest.
+    Editing any reviewed evidence or re-recording the first approval voids it.
+    Like the first approval, this checks integrity, not who answered.
     """
     if record is None:
         try:
@@ -577,7 +589,7 @@ def verify_checkin2_go(rundir, record=None):
     if type(record) is not dict:
         return ["checkin2_go.json must be an object"]
     fields = {"schema_version", "generated_by", "generated_utc", "decision", "quote", "checkin2",
-              "checkin1_approval", "input_fingerprint"}
+              "checkin1_approval", "evidence_manifest", "input_fingerprint"}
     errors = [f"CHECK-IN 2 go missing required field {key!r}" for key in sorted(fields - record.keys())]
     errors += [f"CHECK-IN 2 go has unknown field {key!r}" for key in sorted(record.keys() - fields)]
     if type(record.get("schema_version")) is not int or record.get("schema_version") != CHECKIN2_GO_VERSION:
@@ -592,8 +604,13 @@ def verify_checkin2_go(rundir, record=None):
         errors.append(f"CHECK-IN 2 go generated_by must be {CHECKIN2_GO_GENERATOR!r}")
     if record["decision"] != "GO":
         errors.append("CHECK-IN 2 go decision must be GO; an ADJUST changes the plan instead")
-    paths = checkin2_go_input_paths(rundir)
-    for key, path in zip(("checkin2", "checkin1_approval"), paths):
+    try:
+        paths = checkin2_go_input_paths(rundir)
+        from ravel.workflow.launch_authorization import parse_utc
+        parse_utc(record["generated_utc"])
+    except (OSError, ValueError, TypeError) as exc:
+        return [f"invalid CHECK-IN 2 evidence or timestamp: {exc}"]
+    for key, path in zip(("checkin2", "checkin1_approval", "evidence_manifest"), paths):
         if record[key] != os.path.relpath(path, rundir):
             errors.append(f"CHECK-IN 2 go {key} must name {os.path.relpath(path, rundir)!r}")
     if errors:
@@ -601,6 +618,12 @@ def verify_checkin2_go(rundir, record=None):
     approval_errors = verify_approval(rundir)
     if approval_errors:
         return ["the CHECK-IN 1 approval this go follows is invalid: " + "; ".join(approval_errors)]
+    try:
+        approval = read_json(paths[1])
+        if parse_utc(approval["generated_utc"]) > parse_utc(record["generated_utc"]):
+            return ["stale CHECK-IN 2 GO: timestamp precedes the current first approval"]
+    except (OSError, ValueError) as exc:
+        return [f"first approval needs an operational timestamp before GO: {exc}"]
     try:
         from ravel.validation import validate_checkin
         checkin = validate_task_contract.load_contract(paths[0])
@@ -637,12 +660,18 @@ def cmd_go(args):
     if not os.path.isdir(rd):
         print(f"workflow_state go: not a directory: {rd}", file=sys.stderr)
         return 2
-    paths = checkin2_go_input_paths(rd)
+    try:
+        paths = checkin2_go_input_paths(rd)
+        stamp = operational_utc()
+    except (OSError, ValueError, TypeError) as exc:
+        print(f"workflow_state go: REFUSED -- invalid checkin2 evidence: {exc}", file=sys.stderr)
+        return 1
     # Fingerprint BEFORE validation, as for the approval: an edit during validation cannot slip in.
     rec = {"schema_version": CHECKIN2_GO_VERSION,
-           "generated_utc": os.environ.get("WORKFLOW_STATE_UTC", ""),
+           "generated_utc": stamp,
            "decision": "GO", "quote": args.quote,
            "checkin2": "inputs/checkin2.json", "checkin1_approval": "inputs/checkin1_approval.json",
+           "evidence_manifest": os.path.relpath(paths[2], rd),
            **provenance.provenance_pair(CHECKIN2_GO_GENERATOR, paths)}
     errors = verify_checkin2_go(rd, rec)
     if errors:

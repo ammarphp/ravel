@@ -95,15 +95,41 @@ should already match and what is expected to differ at this statistics/level. Th
 A mismatch caught here is a cheap catch — that is the waypoint's whole purpose. Never proceed to
 heavy compute past a mismatch without an explicit go.
 
-> **Mechanized (the CHECK-IN 2 gate):** the GO is an ARTIFACT — `workflow_state.py go --rundir <rd>
-> --quote '<the physicist reply>'` writes `inputs/checkin2_go.json`, bound to `inputs/checkin2.json` and
-> the current CHECK-IN 1 approval, so editing either voids it. It refuses without a valid CHECK-IN 2
-> artefact and a valid CHECK-IN 1 approval. Compute beyond the smoke run then waits for it: the native
-> pipeline refuses full and scan launches, the Bash guard refuses scan launches, the scan budget refuses
-> to extend a campaign, and the lifecycle validator FAILs a run whose recorded full or scan compute has
-> no valid GO (runs dated before 2026-10-07 are waived). An ADJUST is never recorded as a GO. A
-> single-point full sample launched outside the native pipeline does not record its size, so on that
-> path the rule stays written: do not launch it before the GO.
+The GO binds the actual waypoint evidence. Write a comparison JSON with `status`
+(`pass`, `fail`, `warning`, or `diagnostic`), a nonblank `summary`, and a nonempty
+`diagnostics` object containing the measured discrepancies. Create its manifest:
+
+```bash
+python -m ravel.workflow.waypoint_evidence --rundir <rd> \
+  --produced outputs/waypoint.png --reference inputs/published.png \
+  --comparison outputs/waypoint-comparison.json --input inputs/generation_recipe.json
+```
+
+Repeat `--input` for each relevant input (including a composed side-by-side figure if shown).
+Set `sections.evidence_manifest` in `inputs/checkin2.json` to `inputs/waypoint_evidence.json`.
+Then `workflow_state.py go --rundir <rd> --quote '<the physicist reply>'` writes the version-2
+`inputs/checkin2_go.json`. It binds the check-in, current first approval, manifest, both artifacts,
+comparison and inputs. Changing any of them invalidates GO. A physicist may explicitly accept a
+recorded failed comparison; ADJUST is never GO. Old version-1 GOs need renewed review and recording.
+
+| Execution path | Before launch | Retrospective evidence |
+|---|---|---|
+| Supervised native stages | First approval; evidence-bound GO for full/scan | Exact approvals and digests captured before Popen; separate process-launch event |
+| Native scan dispatch | Same checked launch interface; point and budget approval | Dispatch event plus each point's stage/generator events |
+| Bash scan guard / campaign budget | Valid current first approval and GO | These checks alone do not establish that a process launched |
+| Direct native generator entry without supervisor | Valid current first approval and GO | No automatic historical authorization proof; use supervised execution |
+| Other direct single-point commands / custom supervisor | Written CHECK-IN 2 rule; no universal size detection | No automatic historical authorization proof |
+| Scoped generate/likelihood route | First approval within scope; no CHECK-IN 2 | Its own scoped execution receipts |
+
+The lifecycle validator requires both a current evidence-bound GO and matching launch-time
+receipts for recorded native full/scan generation. Scan aggregates check every reported point's
+manifested run directory and generation receipts. A later GO cannot authorize an earlier launch.
+Operational approvals carry real UTC timestamps; tests can inject `WORKFLOW_STATE_UTC`. Launch
+events under `logs/authorization/` use exclusive creation, consecutive sequence numbers and a
+hash chain. These local records establish ordering for the checked interface; they do not
+authenticate the respondent or provide an external tamper-proof audit. Runs predating 2026-10-07
+with neither a version-2 GO nor launch records remain explicitly `waived-legacy`, never historically
+verified. Adding a version-2 GO cannot waive missing launch history, even under an older run name.
 
 ## DEVIATION CHECK-INS  (immediate · own message · never batched)
 

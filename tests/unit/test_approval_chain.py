@@ -375,8 +375,8 @@ def test_explicit_bulk_launch_requires_scan_approval(tmp_path, command):
     # A scan is compute beyond the smoke run, so it also waits for the CHECK-IN 2 go.
     held = _guard(command, proj, rd, session="S1")
     assert held.returncode == 2 and "CHECK-IN 2" in held.stderr
-    (rd / "inputs" / "checkin2.json").write_text(json.dumps({"schema_version": 1, "kind": "checkin2", "sections": {
-        "waypoint": "wp", "expectation": "match", "ask": {"options": [{"name": "GO"}, {"name": "ADJUST"}]}}}))
+    from test_checkin2_gate import _write_checkin2
+    _write_checkin2(rd)
     go = _ws("go", "--rundir", str(rd), "--quote", "GO after the waypoint")
     assert go.returncode == 0, go.stderr
     assert _guard(command, proj, rd, session="S1").returncode == 0

@@ -68,10 +68,13 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `src/ravel/workflow/preflight_watcher.py` | Checks a completion watcher's command before it is armed |
 | `src/ravel/workflow/progress_reporter.py` | One-line progress report for a long scan or point |
 | `src/ravel/workflow/provenance.py` | Run-state and lifecycle-artifact provenance |
+| `src/ravel/workflow/waypoint_evidence.py` | Software: hashed CHECK-IN 2 comparison and artifact manifest |
+| `src/ravel/workflow/launch_authorization.py` | Software: shared checked launch interface and retained approval event chain |
 | `src/ravel/workflow/stage_supervisor.py` | Watchdog around one pipeline stage command |
 | `src/ravel/workflow/stop_dispatch.py` | Stop-hook checks, one branch per workflow rule |
 | `src/ravel/workflow/workflow_state.py` | Per-run state machine and ledger (`run_state.json`) |
 | `tests/fixtures/hook-probes/hook-primacy.json` | Recorded hook-behaviour probes (regression fixture) |
+| `tests/unit/test_waypoint_authorization.py` | Software: adverse waypoint custody, launch ordering and validator regression probes |
 
 ## Curated evidence
 

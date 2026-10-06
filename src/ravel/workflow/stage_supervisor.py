@@ -258,7 +258,7 @@ def _recover_orphan(rundir, stage, grace):
 
 def supervise(stage, rundir, events, logrel, cmd, kill_secs=None, stall_secs=None,
               poll=POLL_SECS, grace=GRACE_SECS, *, inputs=None, outputs=None,
-              depends_on=None, resume=False, cwd=None):
+              depends_on=None, resume=False, cwd=None, authorization_plan=None):
     """Run one declared stage; resume only a content-identical successful attempt.
 
     Log silence is not a default failure signal. A caller may supply stall_secs only
@@ -303,8 +303,24 @@ def supervise(stage, rundir, events, logrel, cmd, kill_secs=None, stall_secs=Non
                 for sig in (signal.SIGTERM, signal.SIGINT):
                     previous_handlers[sig] = signal.signal(sig, interrupted)
             with logpath.open("wb") as log:
-                proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
-                                        cwd=cwd, start_new_session=True)
+                if authorization_plan is None and (root / "inputs/native_execution_plan.json").is_file():
+                    from ravel.physics.native_pipeline import load_plan
+                    authorization_plan = load_plan(root / "inputs/native_execution_plan.json")
+                if authorization_plan is None:
+                    proc = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT,
+                                            cwd=cwd, start_new_session=True)
+                else:
+                    from ravel.physics.native_pipeline import verify_execution_approval
+                    verify_execution_approval(authorization_plan)
+                    declared = next((s for s in authorization_plan["stages"] if s["stage"] == stage), None)
+                    if declared is None or list(cmd) != declared["command"] or events != authorization_plan["nevents"]:
+                        raise ValueError("supervised command or event scope differs from the approved native stage")
+                    from .launch_authorization import authorized_popen
+                    proc = authorized_popen(root, authorization_plan["required_compute_plan"], cmd,
+                                            context={"kind": "native-stage", "stage": stage,
+                                                     "plan_sha256": authorization_plan["plan_sha256"]},
+                                            stdout=log, stderr=subprocess.STDOUT, cwd=cwd, start_new_session=True)
+                    record["authorization_receipt"] = proc.ravel_authorization
                 execution.record_process(root, record, proc.pid)
                 while proc.poll() is None:
                     elapsed = time.monotonic() - t0

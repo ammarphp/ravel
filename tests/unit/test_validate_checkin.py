@@ -1,5 +1,6 @@
 # tests/unit/test_validate_checkin.py
 import importlib.util, subprocess, sys
+import pytest
 from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "src/ravel/validation/validate_checkin.py"
@@ -98,3 +99,49 @@ def test_backcompat_no_base_dir():
     vc = _mod()
     c = _valid_checkin1("cites plots/whatever.png but schema-only mode skips existence")
     assert vc.validate(c) == []
+
+
+def _checkin2(options):
+    return {"schema_version": 1, "kind": "checkin2", "sections": {
+        "waypoint": "comparison", "expectation": "smoke", "ask": {"options": options}}}
+
+
+@pytest.mark.parametrize("options", [
+    ["GO", "ADJUST", "OTHER"], ["GO", "ADJUST", "GO"], ["GO", "GO"],
+    [{"name": ["GO"]}, {"name": "ADJUST"}], [{"name": {}}, "ADJUST"],
+    [True, "ADJUST"], {"GO": 1, "ADJUST": 2}, None,
+])
+def test_exact_options_and_malformed_names(options):
+    assert _mod().validate(_checkin2(options))
+
+
+@pytest.mark.parametrize("options", [["GO", "ADJUST"], ["ADJUST", "GO"],
+                                      [{"name": "GO"}, {"name": "ADJUST"}]])
+def test_equivalent_valid_option_forms(options):
+    assert _mod().validate(_checkin2(options)) == []
+
+
+@pytest.mark.parametrize("version", [True, False, 1.0, "1", [], {}])
+def test_version_requires_integer(version):
+    checkin = _checkin2(["GO", "ADJUST"])
+    checkin["schema_version"] = version
+    assert _mod().validate(checkin)
+
+
+def test_missing_waypoint_file(tmp_path):
+    checkin = _checkin2(["GO", "ADJUST"])
+    checkin["sections"]["waypoint"] = "missing-waypoint.png"
+    assert any("missing" in error for error in _mod().validate(checkin, base_dir=tmp_path))
+
+
+def test_malformed_sibling_contract_is_a_validation_result(tmp_path):
+    (tmp_path / "inputs").mkdir()
+    (tmp_path / "inputs/task_contract.json").write_text("[]")
+    assert _mod().validate(_good_checkin1(), base_dir=tmp_path) == []
+
+
+def test_cli_rejects_duplicate_keys(tmp_path):
+    path = tmp_path / "checkin.json"
+    path.write_text('{"schema_version":true,"schema_version":1,"kind":"checkin2"}')
+    result = subprocess.run([sys.executable, str(SCRIPT), str(path)], capture_output=True, text=True)
+    assert result.returncode == 2 and "duplicate JSON key" in result.stderr

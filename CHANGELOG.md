@@ -4,6 +4,14 @@ Version headings record package versions; no release tags are published for them
 
 ## Unreleased — CHECK-IN 2 code gate
 
+- Bind version-2 GO to an explicit waypoint manifest, produced/reference artifacts,
+  comparison diagnostics and input hashes. Preserve explicit assent to a known discrepancy.
+- Retain approval snapshots before covered native and scan launches in a shared checked interface,
+  followed by append-only launch events. Lifecycle checks require historical receipts, so a later GO
+  cannot backfill authorization. Write real operational UTC timestamps with an injectable test clock.
+- Reject extra/duplicate GO options, boolean schema versions and malformed option names; harden
+  parameter and trap artifacts against malformed types. Document execution-path coverage in the
+  check-in checklist; direct commands outside the checked interface remain outside historical proof.
 - Make CHECK-IN 2 a gate in code. `workflow_state.py go` records the physicist's GO in
   `inputs/checkin2_go.json`, bound to the CHECK-IN 2 artefact and the current CHECK-IN 1 approval, so
   editing either voids it. Full and scan launches of the native pipeline, scan launches through the

@@ -23,6 +23,7 @@ if not __package__:
 
 import json
 import os, re, sys
+from ravel.workflow.state_io import read_json
 
 CHECKIN_KINDS = ("checkin1", "checkin2", "deck")
 CHECKIN1_SECTIONS = ("i", "i-b", "ii", "iii", "iv", "v", "vi")
@@ -42,7 +43,8 @@ SCHEMA = {
                        "(vi) names the THREE response modes (answer/ask/propose)",
                        "(iii) carries the declared figure contract + the waypoint"],
     "checkin2_sections": list(CHECKIN2_SECTIONS),
-    "checkin2_rules": ["ask.options names exactly the two options GO and ADJUST"],
+    "checkin2_rules": ["ask.options names exactly the two options GO and ADJUST",
+                       "sections.evidence_manifest is required for an operational GO; local validation checks its files"],
     "deck_sections": list(DECK_SECTIONS),
     "deck_rules": ["(7) panel_verdict carries the step-9 verification-panel verdict verbatim"],
 }
@@ -51,8 +53,7 @@ SCHEMA = {
 def _sibling_contract(base_dir):
     """Best-effort read of the rundir's inputs/task_contract.json (None on any failure)."""
     try:
-        with open(os.path.join(base_dir, "inputs", "task_contract.json")) as fh:
-            return json.load(fh)
+        return read_json(os.path.join(base_dir, "inputs", "task_contract.json"))
     except (OSError, ValueError):
         return None
 
@@ -68,7 +69,7 @@ def validate(c, base_dir=None):
     errs = []
     if not isinstance(c, dict):
         return ["check-in is not a JSON object"]
-    if c.get("schema_version") != 1:
+    if type(c.get("schema_version")) is not int or c.get("schema_version") != 1:
         errs.append(f"schema_version must be 1, got {c.get('schema_version')!r}")
     kind = c.get("kind")
     if kind not in CHECKIN_KINDS:
@@ -112,7 +113,7 @@ def validate(c, base_dir=None):
             # CR-134 (U1-leptoquark intake, item 6): an uncertified-custom-Delphes route must
             # be physicist-VISIBLE at CHECK-IN 1, never buried in a contract assumptions note
             contract = _sibling_contract(base_dir)
-            if (contract or {}).get("detector_mode") == "delphes-custom-uncertified" \
+            if isinstance(contract, dict) and contract.get("detector_mode") == "delphes-custom-uncertified" \
                     and "uncertified" not in json.dumps(secs).lower():
                 errs.append("contract detector_mode=delphes-custom-uncertified but no CHECK-IN 1 "
                             "section surfaces the uncertified-Delphes status -- state the "
@@ -125,11 +126,28 @@ def validate(c, base_dir=None):
                 errs.append(f"CHECK-IN 2 missing required section ({k})")
         ask = secs.get("ask") or {}
         opts = ask.get("options") if isinstance(ask, dict) else None
-        names = set()
+        names = []
         if isinstance(opts, list):
-            names = {(o.get("name") if isinstance(o, dict) else o) for o in opts}
-        if not {"GO", "ADJUST"}.issubset(names):
+            names = [(o.get("name") if isinstance(o, dict) else o) for o in opts]
+        if not (len(names) == 2 and all(isinstance(n, str) for n in names)
+                and set(names) == {"GO", "ADJUST"}):
             errs.append("CHECK-IN 2 ask must offer exactly the two named options GO and ADJUST")
+        if "evidence_manifest" in secs and not isinstance(secs["evidence_manifest"], str):
+            errs.append("CHECK-IN 2 evidence_manifest must be a path string")
+        if base_dir is not None:
+            bound = None
+            if "evidence_manifest" in secs:
+                from ravel.workflow import waypoint_evidence
+                try:
+                    bound = set(waypoint_evidence.bound_paths(base_dir))
+                except (OSError, ValueError, TypeError) as exc:
+                    errs.append(f"CHECK-IN 2 evidence_manifest: {exc}")
+            for tok in re.findall(r"[./]*[\w][\w./-]*\.(?:png|pdf)", json.dumps(secs.get("waypoint"))):
+                path = os.path.abspath(tok if os.path.isabs(tok) else os.path.join(base_dir, tok))
+                if not os.path.isfile(path):
+                    errs.append(f"waypoint references a missing file: {tok}")
+                elif bound is not None and os.path.realpath(path) not in bound:
+                    errs.append(f"waypoint figure is not bound by evidence_manifest: {tok}")
 
     elif kind == "deck":
         for k in DECK_SECTIONS:
@@ -184,8 +202,8 @@ def main(argv=None):
         selftest()
         return 0
     try:
-        obj = json.load(open(argv[0]))
-    except (OSError, json.JSONDecodeError) as e:
+        obj = read_json(argv[0])
+    except (OSError, ValueError) as e:
         print(f"validate_checkin: cannot read {argv[0]}: {e}", file=sys.stderr)
         return 2
     # A checkin under <rundir>/inputs/ is validated WITH gallery-file existence (base_dir =

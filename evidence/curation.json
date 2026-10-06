@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "purpose": "Curation of hash-pinned and historical records for the public distribution (2026-10-04). Each entry maps the original record identity (sha256, bytes) to the curated public copy, names the records that pinned the original digest (pinned_by) and says what changed and why: wording, recorded machine paths and host names in records, and in three audit verifiers (the native-fidelity-v3 and cut-dependence verifiers and the waypoint bundle check) the acceptance of exactly these curated copies. Numbers, data and every other byte are unchanged; a gzip record is recompressed deterministically around its curated member. A check that pinned the original digest accepts the file only as exactly this curated copy (scripts/check_evidence.py verifies the record); the superseded native-fidelity-v2 verifier is the exception, since by design it rejects current sources that changed after its audit and so no longer passes.",
+  "purpose": "Curation of hash-pinned and historical records for the public distribution (2026-10-04). Each entry maps the original record identity (sha256, bytes) to the curated public copy, names the records that pinned the original digest (pinned_by) and says what changed and why: wording, recorded machine paths and host names in records, and in three audit verifiers (the native-fidelity-v3 and cut-dependence verifiers and the waypoint bundle check) the acceptance of exactly these curated copies. Numbers, data and every other byte are unchanged; a gzip record is recompressed deterministically around its curated member. A check that pinned the original digest accepts the file only as exactly this curated copy (scripts/check_evidence.py verifies the record); the superseded native-fidelity-v2 verifier is the exception, since by design it rejects current sources that changed after its audit and so no longer passes. Implementation exception (2026-10-06): validate_parameters.py has the explicitly described malformed-type guards in its record. Historical controls apply to their original source; current input-validation regressions test this implementation separately.",
   "records": {
     "benchmarks/cases.json": {
       "original_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
@@ -1349,13 +1349,13 @@
     "src/ravel/validation/validate_parameters.py": {
       "original_sha256": "a7626ababd99fe0ee8883fa482b21c920e0733da3bfc392307a24ab3800c5906",
       "original_bytes": 13323,
-      "curated_sha256": "b9f77eac44c19513372913eefc863824720775bb66bd9664e3d9bbdd59b5098c",
-      "curated_bytes": 13317,
+      "curated_sha256": "4373aab667d48b9719bc1fc5e8886a4637131d7396e0521c83424dee3a18b7f2",
+      "curated_bytes": 13777,
       "pinned_by": [
         "evidence/audits/2026-09-26-scientific-studies/manifest.json"
       ],
-      "change": "A code comment drops an internal design-section code; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
-      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+      "change": "The original comment curation is retained. A later implementation change rejects boolean schema versions, non-object documents and malformed parameter rows. These input-validation changes are covered by current regression tests; the historical scientific-studies controls remain evidence for their original source, not a rerun of this implementation.",
+      "reason": "Targeted artifact-validator hardening (2026-10-06). The historical manifest keeps its original digest; this explicit bridge identifies the current validator without changing historical numbers or claiming renewed physics validation."
     },
     "src/ravel/workflow/progress_reporter.py": {
       "original_sha256": "c804d3082f129c946f6fd0e147a132528c8876329d04a7772083d782cc092485",

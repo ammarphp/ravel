@@ -592,7 +592,14 @@ def check_trap_sweep(rundir, contract, facts, level, legacy):
     if err:
         return "FAIL", path, [{"name": "parse", "level": "FAIL", "msg": f"invalid JSON: {err}"}]
     checks, status = [], "PASS"
-    checked = set(doc.get("traps_checked") or [])
+    if not isinstance(doc, dict):
+        return "FAIL", path, [{"name": "schema", "level": "FAIL", "msg": "trap sweep must be an object"}]
+    values = doc.get("traps_checked")
+    if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
+        return "FAIL", path, [{"name": "traps_checked", "level": "FAIL", "msg": "traps_checked must be a list of string IDs"}]
+    checked = set(values)
+    if len(checked) != len(values):
+        return "FAIL", path, [{"name": "traps_checked", "level": "FAIL", "msg": "traps_checked contains duplicate IDs"}]
     if checked != set(TRAP_IDS):
         checks.append({"name": "traps_checked", "level": "FAIL",
                         "msg": f"traps_checked != T1..T12 (missing {sorted(set(TRAP_IDS) - checked)}, "
@@ -601,9 +608,15 @@ def check_trap_sweep(rundir, contract, facts, level, legacy):
     else:
         checks.append({"name": "traps_checked", "level": "PASS", "msg": "all T1..T12 recorded"})
     verdicts = doc.get("verdicts") or []
-    esc_ids = {e.get("id") for e in (doc.get("escalations") or []) if isinstance(e, dict)}
-    bad = []
+    escalations = doc.get("escalations") or []
     hits = doc.get("traps_hit") or []
+    for key, rows in (("verdicts", verdicts), ("escalations", escalations), ("traps_hit", hits)):
+        if (not isinstance(rows, list) or not all(
+                isinstance(row, dict) and isinstance(row.get("id"), str)
+                or key == "traps_hit" and isinstance(row, str) for row in rows)):
+            return "FAIL", path, [{"name": key, "level": "FAIL", "msg": f"{key} must contain string IDs in declared rows"}]
+    esc_ids = {e["id"] for e in escalations}
+    bad = []
     for h in hits:
         hid = h if isinstance(h, str) else (h.get("id") if isinstance(h, dict) else None)
         if hid is None:
@@ -1528,11 +1541,11 @@ def inv_approval_before_compute(rundir, contract, facts, legacy, strict):
 
 
 def inv_checkin2_go_before_bulk_compute(rundir, contract, facts, legacy, strict):
-    """CHECK-IN 2 is a GATE: compute beyond the smoke run (a full sample or a scan) waits for the
-    physicist's recorded GO (inputs/checkin2_go.json, written only by `workflow_state.py go`, bound to
-    the CHECK-IN 2 artefact and the current CHECK-IN 1 approval). The size of the compute is read
-    where it is recorded: a native execution plan at full or scan with generation evidence, or a
-    completed scan. Other launch paths do not record their size, so this cannot see them."""
+    """Current evidence-bound GO and retained launch authorization are distinct requirements.
+
+    Covered native bulk generation needs a matching launched receipt. A later GO
+    cannot backfill missing history. Other paths without recorded size remain unseen.
+    """
     plan, _error = load_json_safe(rundir, find_first_existing(rundir, "inputs/native_execution_plan.json"))
     rung = plan.get("required_compute_plan") if isinstance(plan, dict) else None
     bulk = (rung in ("full", "scan") and bool(facts.get("generation_hits"))) or (
@@ -1541,13 +1554,21 @@ def inv_checkin2_go_before_bulk_compute(rundir, contract, facts, legacy, strict)
         return "PASS", "no compute beyond the smoke run is recorded"
     from ravel.workflow import workflow_state
     errors = workflow_state.verify_checkin2_go(rundir)
-    if not errors:
-        return "PASS", "a CHECK-IN 2 go binds the current CHECK-IN 2 artefact and approval"
     m = re.match(r"^(\d{4}-\d{2}-\d{2})", os.path.basename(os.path.normpath(rundir)))
-    if legacy or (m and m.group(1) < CHECKIN2_GATE_EPOCH):
-        return "waived-legacy", "no valid CHECK-IN 2 go (run predates the CHECK-IN 2 gate; waived)"
-    return "FAIL", ("compute beyond the smoke run with no valid CHECK-IN 2 go -- " + "; ".join(errors)
-                    + "; record it via `workflow_state.py go --rundir <rd> --quote '<the physicist reply>'`")
+    from ravel.workflow.launch_authorization import JOURNAL, audit_launches, audit_scan_launches
+    go, _ = load_json_safe(rundir, "inputs/checkin2_go.json")
+    modern_go = isinstance(go, dict) and type(go.get("schema_version")) is int and go["schema_version"] >= 2
+    if (not modern_go and not os.path.isdir(os.path.join(rundir, JOURNAL))
+            and (legacy or (m and m.group(1) < CHECKIN2_GATE_EPOCH))):
+        return "waived-legacy", "run predates the CHECK-IN 2 gate; historical launch authorization is unverified"
+    if rung not in ("full", "scan") and contract.get("task_mode") == "scan" and scan_json_ok(facts):
+        errors += audit_scan_launches(rundir, facts.get("scan_manifest_doc"), facts["scan_doc"])
+    else:
+        errors += audit_launches(rundir, plan_sha256=plan.get("plan_sha256") if isinstance(plan, dict) else None,
+                                require_generation=rung in ("full", "scan"))
+    if errors:
+        return "FAIL", "CHECK-IN 2 bulk authorization unverified -- " + "; ".join(errors)
+    return "PASS", "current evidence-bound GO and retained launch-time authorization verified"
 
 
 def inv_cost_preflight_recorded(rundir, contract, facts, legacy, strict):
