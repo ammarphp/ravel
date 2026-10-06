@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "scope": "Dated survey artifacts only; no scientific validation.",
+  "files": {
+    "catalog.json.gz": "916cdedb2ac66e086c3c8f2f9739494cd2fe04b0f9c090d3d9c5b27fe47957f2",
+    "routines.csv": "1fd928546998d295b99618913354eb9a866bd737242fbe77cd073c72d43ada58",
+    "index.html": "acac62cd117373e421380e7317d0e572ceb1f687e551e0c5563d5a42c58da7e3",
+    "probability-models.json": "1e941e8d60bf276ca435f1984e823db3a6ef355aa9d1185798e60780e9d70c15",
+    "retrieval.json": "0791a362eee0a6480a9dab71f108660315a96c00101831b7f3ed12d756b08c54",
+    "installed-cli-checks.json": "1cc4d789e351384948896014d5b518caa370234cca6559b81223f20e418fa0a2"
+  }
+}

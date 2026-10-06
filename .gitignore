@@ -1,0 +1,102 @@
+# Conda / Python cruft
+**/__pycache__/
+*.pyc
+.conda/
+
+# MadGraph scratch files sometimes dropped in the working dir
+py.py
+parser.out
+
+
+# OS cruft
+.DS_Store
+
+# ── Trial-run curation policy ──────
+# TRACKED  : RESULT.md, DEVIATIONS.md, RESUME.md, config/, inputs/ (cards,
+#            specs, contracts), logs/ (the evidence chain), plots/, curated
+#            result JSONs — outputs/*.json AND the native backend's
+#            output/{exclusion.json,exclusion.png,*.txt,*_patch.json}, and
+#            the hand-written build/*.cc|*.py analysis sources.
+# IGNORED  : heavy regenerables — event files (hepmc/lhe/root/yoda), MadGraph
+#            procdirs, Delphes trees, HEPData table downloads, published-figure
+#            fetches, feature CSVs, plots.zip bundles.
+trial-runs/**/*.hepmc
+trial-runs/**/*.hepmc.gz
+trial-runs/**/*.root
+trial-runs/**/*.lhe
+trial-runs/**/*.lhe.gz
+trial-runs/**/outputs/**/*.tar.gz
+
+# native/mapyde working output trees: bulky regenerables EXCEPT the curated
+# result set the native driver writes to output/ (the per-point evidence of a
+# scan lives there; a directory exclude would orphan it)
+trial-runs/**/output/**
+!trial-runs/**/output/exclusion.json
+!trial-runs/**/output/exclusion.png
+!trial-runs/**/output/*.txt
+!trial-runs/**/output/*_patch.json
+# ... but per-event intermediates dumped into output/ stay ignored (8 MB/point):
+trial-runs/**/output/native_objects.txt
+
+# Rivet/Pythia heavy + regenerable intermediates
+trial-runs/**/*.yoda
+trial-runs/**/*.yoda.gz
+trial-runs/**/build_madgraph/
+# trial-run build/: everything regenerable EXCEPT the hand-written analysis
+# sources that regenerate the rest
+trial-runs/**/build/**
+!trial-runs/**/build/*.cc
+!trial-runs/**/build/*.py
+*.hepmc
+!trial-runs/**/outputs/*.yoda.gz
+
+# MadGraph/MadEvent process directories — wherever they land (some runs put them under outputs/,
+# not build_madgraph/). Fully regenerable from the committed config/*.mg5 steering scripts.
+trial-runs/**/*_mg5/
+trial-runs/**/Source/
+trial-runs/**/SubProcesses/
+trial-runs/**/ufomodel/
+trial-runs/**/HTML/
+trial-runs/**/madevent/
+*.o
+
+# regenerable HEPData full-table downloads + published-figure fetches (any depth —
+# a single-level *.pdf pattern would let fetchable PDFs into git)
+trial-runs/**/outputs/hepdata/tables/
+trial-runs/**/outputs/published/**/*.tar.gz
+trial-runs/**/outputs/published/**/*.pdf
+trial-runs/**/outputs/published/**/*.png
+trial-runs/**/outputs/published/**/*.xml
+
+# regenerable bulk analysis products (sources in build/ regenerate them)
+trial-runs/**/outputs/features_*.csv
+trial-runs/**/plots.zip
+
+# fetchable inputs junk: extracted arXiv source trees + downloadable note PDFs
+trial-runs/**/inputs/*_src/
+trial-runs/**/inputs/*.pdf
+
+# benchmark scratch (fresh pyhf/cert re-runs by the benchmark runner; fully regenerable)
+benchmarks/.work/
+
+# scratch directories for in-flight generations (promoted to dated run dirs on success)
+trial-runs/_scratch-*/
+
+# session locks (session_lock.py, CR-022) — never tracked
+**/SESSION.lock
+
+# Repo-root session-ephemeral runtime droppings (route-pending markers from the
+# UserPromptSubmit router CR-118 + hook probe output).
+# Root-anchored: the tracked per-run evidence trial-runs/*/logs/ is unaffected.
+/logs/
+
+# Local Python build and test environments
+.venv*/
+/dist/
+/local-runs/
+/build/
+*.egg-info/
+.pytest_cache/
+
+# Native generated binaries and new tool installations
+/native/build/

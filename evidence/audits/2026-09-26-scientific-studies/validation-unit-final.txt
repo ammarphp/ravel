@@ -1,0 +1,85 @@
+........................................................................ [ 32%]
+........................................................................ [ 64%]
+........................................................................ [ 96%]
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+tests/unit/test_existing_events.py::test_mapping_keeps_control_signal_and_mc
+tests/unit/test_existing_events.py::test_mapping_keeps_control_signal_and_mc
+tests/unit/test_existing_events.py::test_mapping_keeps_control_signal_and_mc
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/pyhf/schema/validator.py:80: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    resolver = jsonschema.RefResolver(
+
+tests/unit/test_science_figures.py: 22 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+tests/unit/test_science_figures.py: 22 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2010: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    p.space          = oneOf(self._space_widths)("space")
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2012: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    p.style_literal  = oneOf(
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2020: PyparsingDeprecationWarning: 'leaveWhitespace' deprecated - use 'leave_whitespace'
+    )("sym").leaveWhitespace()
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2024: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    p.start_group    = Optional(r"\math" + oneOf(self._fontnames)("font")) + "{"
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2027: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    p.delim          = oneOf(self._delims)
+
+tests/unit/test_science_figures.py: 47 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:1984: PyparsingDeprecationWarning: 'setName' deprecated - use 'set_name'
+    val.setName(key)
+
+tests/unit/test_science_figures.py: 44 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:1987: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    val.setParseAction(getattr(self, key))
+
+tests/unit/test_science_figures.py: 16 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:1748: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    return Empty().setParseAction(raise_error)
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2088: PyparsingDeprecationWarning: 'endQuoteChar' argument is deprecated, use 'end_quote_char'
+    p.text = cmd(r"\text", QuotedString('{', '\\', endQuoteChar="}"))
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2097: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    + OneOrMore(oneOf(["_", "^"]) - p.placeable)("subsuper")
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2146: PyparsingDeprecationWarning: 'unquoteResults' argument is deprecated, use 'unquote_results'
+    p.math_string   = QuotedString('$', '\\', unquoteResults=False)
+
+tests/unit/test_science_figures.py::test_measurement_ratio_with_supplied_covariance[False]
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2147: PyparsingDeprecationWarning: 'leaveWhitespace' deprecated - use 'leave_whitespace'
+    p.non_math      = Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
+
+tests/unit/test_science_figures.py: 180 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2170: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    result = self._expression.parseString(s)
+
+tests/unit/test_science_figures.py: 180 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2197: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    return self._math_expression.parseString(toks[0][1:-1], parseAll=True)
+
+tests/unit/test_science_figures.py: 180 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/pyparsing/util.py:466: PyparsingDeprecationWarning: 'parseAll' argument is deprecated, use 'parse_all'
+    return fn(self, *args, **kwargs)
+
+tests/unit/test_science_figures.py: 180 warnings
+  /private/tmp/ravel-measurement-spey/lib/python3.12/site-packages/matplotlib/_mathtext.py:2178: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    ParserElement.resetCache()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+223 passed, 883 warnings in 28.77s

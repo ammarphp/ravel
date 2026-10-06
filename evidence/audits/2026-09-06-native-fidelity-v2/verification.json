@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "performed_utc": "2026-09-06T15:46:30.244604+00:00",
+  "scope": "Versioned source/IO and retained-artifact arithmetic revalidation. No new eRJR replay or compressed selection/ROOT read in this version; earlier actual selection observations are inherited with exact source/data commitments. No events, fit, acceptance promotion or physics certification.",
+  "engine_sha256": {
+    "sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+    "native_simpleanalysis.py": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+    "native_sa_generic.py": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
+    "sa_routines/ewkthreeleptonerjr2018.py": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec",
+    "compressed_validation.py": "4a5bcbacafa655c035306089976bd0abff46fa941325d453f52c6daa5bfdb46c",
+    "sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c"
+  },
+  "additional_engine_sha256": {
+    "src/ravel/physics/pool_replicas.py": "436f6572fb000f7bdef04d7d32a638d570e0a0097020cd4a1367c4eabf0a9edb",
+    "src/ravel/physics/native_event_io.py": "5a4293b3d62e037aa363edee5dc2dff327e08cd0471edf42edda15579ae837da",
+    "src/ravel/physics/lhe_provenance.py": "0c07fdda9cd146b41da72447ae3afea87a97a51a36cbc90432e9456ad642d837"
+  },
+  "retained_erjr_replay": {
+    "entries": 200000,
+    "sr_low_historical": 43,
+    "sr_low_paper": 95,
+    "sr_isr_historical": 19,
+    "sr_isr_paper": 19,
+    "changed_events": 73,
+    "sr_low_added": 52,
+    "sr_low_lost": 0,
+    "all_region_counts_and_cutflows_identical_to_previous": true,
+    "all_changed_event_records_identical_to_previous": true,
+    "source_event_sha256": "91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac",
+    "production_driver_all_paper_counts_agree": true,
+    "production_driver_counts": {
+      "Preselection": 1055,
+      "SRlow": 95,
+      "SRISR": 19,
+      "CRlow": 65,
+      "CRISR": 16,
+      "VRlow": 28,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    }
+  },
+  "retained_replay_provenance": {
+    "status": "inherited_unchanged_prior_actual_observation",
+    "repeated_in_this_version": false,
+    "predecessor": "evidence/audits/2026-09-06-native-fidelity/verification.json",
+    "predecessor_sha256": "d625c2755766ec89fa8f5335333217a28ab63a327507d35307031f1e83238105",
+    "original_input_sha256": "91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac",
+    "raw_input_available_in_public_bundle": false,
+    "new_raw_input_hash_claimed": false,
+    "copied_differential_sha256": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f"
+  },
+  "remaining_acceptance_discrepancy": {
+    "region": "SRlow",
+    "native": 0.000475,
+    "reference": 0.0006180500000000001,
+    "relative_difference": -0.2314537658765473,
+    "tolerance": 0.15,
+    "passes_existing_tolerance": false,
+    "new_certificate": false
+  },
+  "compressed_sr_parity": {
+    "status": "inherited_unchanged_selection_and_converter_source",
+    "prior_record": "evidence/audits/2026-09-06-native-fidelity/compressed-sr-parity.json",
+    "sha256": "59140655e70dc8789a8ddde43b0b9f99efb4a3eb92c0cb5b8e5b35a2db198f77",
+    "selection_repeated_in_this_version": false,
+    "root_branch_read_repeated_in_this_version": false,
+    "whole_output_byte_identity_claimed": false,
+    "scope": "Prior exact per-event141-SR-weight comparison for retained1000/10000inputs, with Event alignment and zero-only removed rows. No CR acceptance calibration or new parity claim."
+  },
+  "fresh_source_validation": {
+    "record": "default-event-io-parity.json",
+    "functions": [
+      "validate_hepmc",
+      "compress_events",
+      "shower",
+      "delphes"
+    ],
+    "old_source_sha256": "ad3e897adae8983e01b3758bd8820563009ce79f4cf2c93c727712e6c789eb2c",
+    "new_optional_interface": "shower-original / original-LHA sidecar and content verification",
+    "new_default_physics_claimed": false
+  },
+  "unit_tests": {
+    "record": "tests.json",
+    "new_integrated_passed": 316,
+    "new_integrated_skipped": 0,
+    "independent_source_passed": 86,
+    "independent_count_is_separate_not_added": true
+  },
+  "copied_artifacts": {
+    "erjr_differential.json": {
+      "origin": "evidence/audits/2026-09-06-native-fidelity/erjr_differential.json",
+      "sha256": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+      "kind": "unchanged inherited earlier observation, not freshly executed"
+    },
+    "comparisons.json": {
+      "origin": "evidence/audits/2026-09-06-native-fidelity/comparisons.json",
+      "sha256": "08f5364146960fdae210d0ba6157959d0abbed370286983bdfd9f5e4c61e992b",
+      "kind": "unchanged inherited earlier observation, not freshly executed"
+    },
+    "driver-counts.txt": {
+      "origin": "evidence/audits/2026-09-06-native-fidelity/driver-counts.txt",
+      "sha256": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0",
+      "kind": "unchanged inherited earlier observation, not freshly executed"
+    },
+    "reference.json": {
+      "origin": "evidence/audits/2026-09-06-native-fidelity/reference.json",
+      "sha256": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+      "kind": "unchanged inherited earlier observation, not freshly executed"
+    }
+  },
+  "predecessor_files_sha256": {
+    "evidence/audits/2026-09-05-native-fidelity/README.md": "f8ee1a13d14c053c5478be74a294666fae63f6449261d226f7bcd181b4c1ca99",
+    "evidence/audits/2026-09-05-native-fidelity/cutflow-comparison.pdf": "682c66d5fa173d94e4e7e10b8a93625d54d71179ddd5cd8e1c0447bc51b2ea0e",
+    "evidence/audits/2026-09-05-native-fidelity/cutflow-comparison.png": "5ef6d6ff0924cdb5e8c964089191802edeafc3c07c699626b6e6e5d47e90d852",
+    "evidence/audits/2026-09-05-native-fidelity/erjr_differential.json": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "evidence/audits/2026-09-05-native-fidelity/reference.json": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+    "evidence/audits/2026-09-05-native-fidelity/render.py": "db2e3586530622fd28e2a4ca7b1b35db5c4005cb9165c752dacd8f08e13c54f8",
+    "evidence/audits/2026-09-05-native-fidelity/verification.json": "e0d1dd1682d3fd8cb648dcb97dba5466c1deaf77a3ce488da0be6e2f8e3a49c4",
+    "evidence/audits/2026-09-05-native-fidelity/zero_lepton_cutflow.json": "965b3011bc83c2b66684b9f582dc7c818b1158602f0ffb6ae363914cb047edce",
+    "evidence/audits/2026-09-06-native-fidelity/README.md": "6e8b681d0f13920526c500efa0223eeb8214d40787a75755dec9d3b51eecb050",
+    "evidence/audits/2026-09-06-native-fidelity/check_retained_sr_parity.py": "8c89a0358dc4531183b6418ca9ab1e33891891c5ea1571f6a8489fe37108c981",
+    "evidence/audits/2026-09-06-native-fidelity/comparisons.json": "08f5364146960fdae210d0ba6157959d0abbed370286983bdfd9f5e4c61e992b",
+    "evidence/audits/2026-09-06-native-fidelity/compressed-prior-verification.json": "3c441a2ec3367a9c986ca37d427b38d0c211d476b502492d62bae28051015e1a",
+    "evidence/audits/2026-09-06-native-fidelity/compressed-sr-parity.json": "59140655e70dc8789a8ddde43b0b9f99efb4a3eb92c0cb5b8e5b35a2db198f77",
+    "evidence/audits/2026-09-06-native-fidelity/driver-counts.txt": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0",
+    "evidence/audits/2026-09-06-native-fidelity/erjr_differential.json": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "evidence/audits/2026-09-06-native-fidelity/manifest.json": "85b6f55cfc2cb962df9f3fe04e83068d62709ed3bcc9f332e70876f0fa10abd5",
+    "evidence/audits/2026-09-06-native-fidelity/reference.json": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+    "evidence/audits/2026-09-06-native-fidelity/replay-execution.json": "d7cf0b6c886a8cfca91e13ac32d1da909124b2e46afa82c59eff7721a35d3874",
+    "evidence/audits/2026-09-06-native-fidelity/tests.json": "dc1fd21b8423cef850a82bf0f7d7c492c11269df0a9d4d1a40b50b4556245363",
+    "evidence/audits/2026-09-06-native-fidelity/verification.json": "d625c2755766ec89fa8f5335333217a28ab63a327507d35307031f1e83238105"
+  },
+  "not_repeated": [
+    "200000-event eRJR differential and production-driver loops",
+    "compressed1000/10000event selection or ROOT branch traversal",
+    "zero-lepton checks",
+    "generation, shower, detector simulation, fit or physics certification",
+    "historical figure rendering or visual inspection"
+  ],
+  "physics_certified": false
+}

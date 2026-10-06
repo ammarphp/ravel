@@ -1,0 +1,109 @@
+{
+  "scope": "committed historical baseline; not a fresh replay or simulation",
+  "registry_cases": 9,
+  "statistical_layer": {
+    "metric": "driving-SR model-independent observed S95 in events",
+    "comparisons": 7,
+    "eligible_comparisons": 7,
+    "reference_unavailable": 2,
+    "missing_results": 0,
+    "distinct_searches": 4,
+    "worst_delta_pct": 8.6,
+    "cases": [
+      {
+        "case_id": "ins1458270_squark_800_100",
+        "analysis_id": "ins1458270",
+        "delta_pct": 0.21431818181817386,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "ins1458270_gluino_1000_100",
+        "analysis_id": "ins1458270",
+        "delta_pct": 5.437592592592599,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "ins1458270_squark_merged_800_100",
+        "analysis_id": "ins1458270",
+        "delta_pct": 0.2393181818181822,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "ins1458270_gluino_merged_1000_100",
+        "analysis_id": "ins1458270",
+        "delta_pct": 5.868333333333342,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "conf2016054_gluino_onestep_1500_60",
+        "analysis_id": "ATLAS-CONF-2016-054",
+        "delta_pct": 8.643636363636354,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "ins1452559_dm_axial_850_1",
+        "analysis_id": "ins1452559",
+        "delta_pct": 2.3240983606557464,
+        "baseline_status": "OK"
+      },
+      {
+        "case_id": "conf2016037_gluino_2step_sleptons_1400_60",
+        "analysis_id": "conf2016037",
+        "delta_pct": 8.17921568627451,
+        "baseline_status": "OK"
+      }
+    ]
+  },
+  "acceptance_layer": {
+    "scorable": 6,
+    "unscorable": 3,
+    "unscorable_cases": [
+      "conf2016054_gluino_onestep_1500_60",
+      "ins1452559_dm_axial_850_1",
+      "conf2016037_gluino_2step_sleptons_1400_60"
+    ],
+    "verdict_counts": {
+      "PASS": 4,
+      "WARN": 1,
+      "FAIL": 1
+    },
+    "cases": [
+      {
+        "case_id": "ins1458270_squark_800_100",
+        "verdict": "PASS",
+        "tier": "Ideal",
+        "residual_pct": 2.44824
+      },
+      {
+        "case_id": "ins1676551_c1n2_300_100",
+        "verdict": "PASS",
+        "tier": "Good",
+        "residual_pct": 6.445399999999999
+      },
+      {
+        "case_id": "ins1458270_gluino_1000_100",
+        "verdict": "WARN",
+        "tier": "Acceptable",
+        "residual_pct": 13.242799999999999
+      },
+      {
+        "case_id": "ins1458270_squark_merged_800_100",
+        "verdict": "PASS",
+        "tier": "Ideal",
+        "residual_pct": 3.9379699999999995
+      },
+      {
+        "case_id": "ins1458270_gluino_merged_1000_100",
+        "verdict": "PASS",
+        "tier": "Good",
+        "residual_pct": 8.07821
+      },
+      {
+        "case_id": "ins2182381_gbb_1900_1",
+        "verdict": "FAIL",
+        "tier": "Acceptable",
+        "residual_pct": 26.490000000000002
+      }
+    ]
+  }
+}

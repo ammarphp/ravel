@@ -1,0 +1,27 @@
+{
+  "scope": "fresh plotting of cached historical scan; no event generation or new likelihood fits",
+  "python": "3.14.5",
+  "command": "python benchmarks/plot_scan_demo.py --out NEW_DIRECTORY",
+  "inputs": {
+    "trial-runs/sleptonscan_fig3_SCAN/scan.json": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-limit-grid.yaml": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-observed-contour.yaml": "221b61e2aa3d7846847a5139363a3f2bcf1c4ded6d35b7780ecc1dc047813755",
+    "evidence/audits/2026-09-05-scan-fidelity/atlas-expected-contour.yaml": "71cb1d3923157c9ed2fdbde86ec9aa561615d27a521c0f412988313a5c345dbc",
+    "src/ravel/plotting/scan_contour.py": "735d3b694dcf5af92f0e620e448f6f12740cb76d235b5879636443de973de730",
+    "src/ravel/plotting/mplhep_style.py": "2e36211ea90aad6bfcf8a957f872db5410b9fe30c2e9c1a4f6c972dc87e49ab7",
+    "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+    "benchmarks/plot_scan_demo.py": "1a7b9aeaecafa88761f6419e3b44008184083f3f78ab52fa51396c6355b844fa"
+  },
+  "outputs": {
+    "render.log": "9522e6cc9953c10d8f5e0e6630c01d5e23ac7456e5a239f94b5c85d66db98a6e",
+    "scan.pdf": "df4119a5f2a9c2c29fdbb7faec78e0ec08177007a5cc04658a05a630da14076a",
+    "scan.png": "e756f7ef462c520616663afcc3ceda320b983293dcc2e05f2cdac374606e56d6",
+    "scan__fig3.pdf": "21a50f4f2f92557f9fe9263b981d9a069b288b803bb9b5b21ac7cf821fb99912",
+    "scan__fig3.png": "da0698142c1ae01eb0bfbc31ba1ba524cedf6231848d123b3d5f90ab903da6a3",
+    "scan__fig3_expected.pdf": "9f7d087a1de30e19f72024aed36c30cbf15400dd8fb1e9fc7006cd50e27e8b97",
+    "scan__fig3_expected.png": "21bf212c3c0c3cfcdbf739c8958dc5003a61e95aad0c87dab17ec79a6283f3ff",
+    "scan__reldiff.json": "c2ba06f394a4d6e94a7285e7622c63e4dc245aba2b5eb2b51128a1c93780cb6b",
+    "scan__reldiff.pdf": "e38e8ab8c6eea2d95528da6e75cf494a59a69f7596956c8726d61612c66b5ee3",
+    "scan__reldiff.png": "3266cd5a133130a2ecc1f26bb332643f4d98ade4ba560eec9eb6f12a19a73189"
+  }
+}

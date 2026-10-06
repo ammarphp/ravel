@@ -1,0 +1,212 @@
+{
+  "source_scan_sha256": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
+  "reference_sha256": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248",
+  "points": [
+    {
+      "tag": "m50_dm5",
+      "m_parent": 50.0,
+      "m_lsp": 45.0,
+      "dm": 5.0,
+      "mu95_obs": 0.09218967563621798,
+      "mu95_exp": 0.09255421837027976,
+      "mu95_exp_band": [
+        0.09215835473535755,
+        0.09218962729307979,
+        0.09255421837027976,
+        0.09576570968186562,
+        0.16927562868811086
+      ],
+      "sigma_ref_fb": 10736.3114,
+      "excluded_obs": true,
+      "source": "exclusion.json",
+      "mu95_obs_lo": 0.0959401485031872,
+      "k_nlo": 1.3807,
+      "sigma_ref_fb_lo": 5793.8,
+      "mu95_obs_tagged6": 0.0819931522198735,
+      "sigma_ref_fb_tagged6": 6779.322630592036,
+      "sigma_incl4_assumed_fb": 12071.460100000002
+    },
+    {
+      "tag": "m100_dm2",
+      "m_parent": 100.0,
+      "m_lsp": 98.0,
+      "dm": 2.0,
+      "mu95_obs": 0.4759664933796012,
+      "mu95_exp": 0.3859615436827147,
+      "mu95_exp_band": [
+        0.21168411417230085,
+        0.27532901162839996,
+        0.3859615436827147,
+        0.54603049364661,
+        0.7441297379734519
+      ],
+      "sigma_ref_fb": 731.442418,
+      "excluded_obs": true,
+      "source": "exclusion.json",
+      "mu95_obs_lo": 0.5110751762648298,
+      "k_nlo": 1.3858,
+      "sigma_ref_fb_lo": 518.61,
+      "mu95_obs_tagged6": 0.4351654515104621,
+      "sigma_ref_fb_tagged6": 609.075688896528,
+      "sigma_incl4_assumed_fb": 800.0223400000001
+    },
+    {
+      "tag": "m150_dm20",
+      "m_parent": 150.0,
+      "m_lsp": 130.0,
+      "dm": 20.0,
+      "mu95_obs": 0.5843210896760542,
+      "mu95_exp": 0.5289707700623568,
+      "mu95_exp_band": [
+        0.31802100274178363,
+        0.371492863608995,
+        0.5289707700623568,
+        0.7249049516752631,
+        1.0362706287000545
+      ],
+      "sigma_ref_fb": 174.232472,
+      "excluded_obs": true,
+      "source": "exclusion.json",
+      "mu95_obs_lo": 0.6400390399307568,
+      "k_nlo": 1.4,
+      "sigma_ref_fb_lo": 136.29,
+      "mu95_obs_tagged6": 0.5394643275540092,
+      "sigma_ref_fb_tagged6": 161.69914542390129,
+      "sigma_incl4_assumed_fb": 188.72
+    },
+    {
+      "tag": "m200_dm20",
+      "m_parent": 200.0,
+      "m_lsp": 180.0,
+      "dm": 20.0,
+      "mu95_obs": 0.7495752321389809,
+      "mu95_exp": 0.967878129462564,
+      "mu95_exp_band": [
+        0.6045100188602964,
+        0.7054378622059828,
+        0.967878129462564,
+        1.3754446394758129,
+        1.8114496128102524
+      ],
+      "sigma_ref_fb": 60.6287134,
+      "excluded_obs": true,
+      "source": "exclusion.json",
+      "mu95_obs_lo": 0.8318232061135574,
+      "k_nlo": 1.4035,
+      "sigma_ref_fb_lo": 50.39779999999999,
+      "mu95_obs_tagged6": 0.6993590063885757,
+      "sigma_ref_fb_tagged6": 59.943547154059566,
+      "sigma_incl4_assumed_fb": 64.98205
+    }
+  ],
+  "comparisons": {
+    "observed": [
+      {
+        "tag": "m50_dm5",
+        "m_parent": 50.0,
+        "dm": 5.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 526.9200000000001,
+        "limit_fb": 989.7770654954294,
+        "residual": 0.8784199982832863
+      },
+      {
+        "tag": "m100_dm2",
+        "m_parent": 100.0,
+        "dm": 2.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 238.13,
+        "limit_fb": 348.1420828045565,
+        "residual": 0.46198329821759754
+      },
+      {
+        "tag": "m150_dm20",
+        "m_parent": 150.0,
+        "dm": 20.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 128.33,
+        "limit_fb": 101.8077078959926,
+        "residual": -0.20667257931900107
+      },
+      {
+        "tag": "m200_dm20",
+        "m_parent": 200.0,
+        "dm": 20.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 78.76700000000001,
+        "limit_fb": 45.445781921092745,
+        "residual": -0.42303525688305077
+      }
+    ],
+    "expected": [
+      {
+        "tag": "m50_dm5",
+        "m_parent": 50.0,
+        "dm": 5.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 707.14,
+        "limit_fb": 993.6909098069241,
+        "residual": 0.40522514609119
+      },
+      {
+        "tag": "m100_dm2",
+        "m_parent": 100.0,
+        "dm": 2.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 203.96,
+        "limit_fb": 282.30864476629745,
+        "residual": 0.38413730518875
+      },
+      {
+        "tag": "m150_dm20",
+        "m_parent": 150.0,
+        "dm": 20.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 139.16,
+        "limit_fb": 92.16388488370802,
+        "residual": -0.33771281342549564
+      },
+      {
+        "tag": "m200_dm20",
+        "m_parent": 200.0,
+        "dm": 20.0,
+        "status": "matched",
+        "limit_status": "legacy_reported",
+        "limit_bracket": null,
+        "limit_origin": "legacy",
+        "historical_only": true,
+        "reference_fb": 78.862,
+        "limit_fb": 58.681205717313894,
+        "residual": -0.25590010756366943
+      }
+    ]
+  }
+}

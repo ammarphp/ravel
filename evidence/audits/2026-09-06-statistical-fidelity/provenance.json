@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-06T01:55:19.581543+00:00",
+  "scope": "Integrity of this dated audit; not physics certification",
+  "artifacts": {
+    "README.md": "b75abea609d5a1cf69ab8907e538fc2898446692700fa10bd9c3a8800c576f15",
+    "audit.json": "1f6458edf6437107bb285de24789c0bfe3dcab367fb4ff1f7f38f919d8373f59",
+    "benchmark-provenance.json": "bce2d335d91dfd5c31ca0f5781515b26f2a3732285bd579b7a94e4dbacf38fb6",
+    "benchmark-results.json": "9eb4cc6f7c59561fcb2f4114fb5eed72489129352dfb0e02fa6554a8b2a609a9",
+    "check_numerics.py": "48173d6ac62c11ee0b1d3ce9ffeb05271ac18c04a413efe06be7f5b0047a1db5",
+    "check_root_io.py": "878a1a1626f2a8a116334308aa3705b74fd6263b6fdad28ae4dc7234f816f1ac",
+    "focused-tests.json": "80ccba54566f94384d822c8c60fc8659a69023a4dfbedc03189d0ffe769b0ce2",
+    "m150-dm20-jax-refit.json": "42045d402a2b8b96f3a360d2b3b7fb79bf6b74b8c92d263eeb20e83039c75c21",
+    "m150-dm20-numpy-lower-branch.json": "2568e2eb51e729c91b652b2b55176edca873372e0250ff260a7822cba58860b6",
+    "missing-yoda-search.json": "ce725108bc0b2e6f2da82d647615bddc13eefad1eb74f9c3534b2ece59c7ce13",
+    "root-io-verification.json": "17070ae433901da191426495673797e8831f9f915fe4ded8c53fcab276480a78",
+    "root-precision.json": "03927bfce54401e45dbeef5f4ef1a6d20fe60e4d654b55d7f96608dc223baa8b",
+    "selftest.json": "02fc6636342219ac8fc43f641739300ec2e8ee61aa7d00cdeb9d76d306908545"
+  },
+  "unchanged_retained_inputs": {
+    "evidence/audits/2026-09-05-rrr-refits/inputs/background.json": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+    "evidence/audits/2026-09-05-rrr-refits/inputs/m150_dm20-patch.json": "375f59c906c94b54090b9c287886faf11e35d49094f6e8e73cff27e8fe2afc66"
+  }
+}

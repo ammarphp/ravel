@@ -1,0 +1,14 @@
+pipeline start 2026-06-07 13:11:19  config=config/sleptons_50k.toml
+===== STAGE madgraph START 13:11:19 =====
+PASS  madgraph  (28449s)
+===== STAGE delphes START 21:05:28 =====
+PASS  delphes  (2517s)
+===== STAGE analysis START 21:47:25 =====
+PASS  analysis  (42s)
+===== STAGE simpleanalysis START 21:48:07 =====
+PASS  simpleanalysis  (19s)
+===== STAGE sa2json START 21:48:26 =====
+PASS  sa2json  (20s)
+===== STAGE pyhf START 21:48:46 =====
+PASS  pyhf  (1057s)
+ALL_STAGES_COMPLETE 2026-06-07 22:06:23

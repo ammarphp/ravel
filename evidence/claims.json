@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "_doc": "Scoped README claims. Statistical baseline summaries are derived and checked against the committed benchmark records; historical evidence is distinguished from fresh replay and physics certification.",
+  "claims": [
+    {
+      "claim": "tests_collected",
+      "value": "344",
+      "detail": "Historical snapshot only; no longer advertised as a current count. pytest-collected test functions across the original test suite",
+      "command": "python -m pytest --collect-only -q tests | tail -1 (run in the original test directory)",
+      "verified": "2026-07-30: '344 tests collected in 0.36s'; full run 344 passed in ~3m15s",
+      "artifacts": [
+        "tests/unit/"
+      ],
+      "status": "HISTORICAL"
+    },
+    {
+      "claim": "test_modules",
+      "value": "59",
+      "detail": "Historical snapshot only; no longer advertised as a current count. test modules in the original test directory (test files, not source modules)",
+      "command": "ls tests/unit/*.py | wc -l",
+      "artifacts": [
+        "tests/unit/"
+      ],
+      "status": "HISTORICAL"
+    },
+    {
+      "claim": "adversarial_gate_cases",
+      "value": "29",
+      "detail": "per-gate adversarial cases (G0a-G27): each seeds a fixture that trips a workflow-adherence gate's trigger and asserts the gate FIRES; all 29 PASS",
+      "command": "python3 tests/adversarial/run_suite.py --require-all",
+      "verified": "2026-10-05: '29 PASS / 0 FAIL of 29 case(s)'",
+      "artifacts": [
+        "tests/adversarial/cases/",
+        "tests/adversarial/run_suite.py"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "benchmarks_reproduced",
+      "value": "7 observed S95 comparisons within 8.6% (statistical layer)",
+      "detail": "Observed model-independent S95 recovery in events at the driving SR. Seven comparisons across four searches; NOT seven end-to-end physics reproductions. See the separate acceptance and mass-plane evidence.",
+      "command": "python3 scripts/validation_summary.py",
+      "verified": "2026-07-30 from benchmarks/results.json: deltas 8.6, 8.2, 5.9, 5.4, 2.3, 0.2, 0.2 %",
+      "artifacts": [
+        "benchmarks/cases.json",
+        "benchmarks/results.json",
+        "docs/validation/",
+        "evidence/validation-summary.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "arm64_speedup",
+      "value": "12.8x",
+      "detail": "identical 50,000-event slepton (200,150) point, full chain: x86-container-under-emulation 8h55m04s (2026-06-07 13:11:19 -> 22:06:23) vs native arm64 41m47s (2026-06-16 04:55:56 -> 05:37:43); 32104s/2507s = 12.8",
+      "command": "head -1 trial-runs/2026-06-06_slepton_200-150_50k/logs/STATUS.txt; grep ALL_STAGES trial-runs/2026-06-06_slepton_200-150_50k/logs/STATUS.txt; (same for trial-runs/2026-06-16_slepton_200-150_native)",
+      "artifacts": [
+        "trial-runs/2026-06-06_slepton_200-150_50k/logs/STATUS.txt",
+        "trial-runs/2026-06-16_slepton_200-150_native/logs/STATUS.txt",
+        "docs/validation/native-performance.md"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "arm64_output_parity",
+      "value": "141/141 signal regions identical; final limit delta 0.51%",
+      "detail": "native reimplementation vs upstream container: per-SR event counts bit-identical across all 141 EwkCompressed2018 signal regions on the shared input; independent fresh-generation end-to-end observed mu95 within 0.51% of the container reference",
+      "command": "diff <(native EwkCompressed2018.txt) <(container EwkCompressed2018.txt); see docs/validation/native-performance.md for the methodology",
+      "artifacts": [
+        "trial-runs/2026-06-16_slepton_200-150_native/output/",
+        "docs/validation/native-performance.md"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "scan_scale",
+      "value": "2.08M events across two 52-point scans",
+      "detail": "two full 52-point scans of the ATLAS slepton-bino mass plane (the record cteq6l1 scan + the CR-004 NNPDF2.3 paired rescan), 20,000 events/point x 104 points = 2,080,000 generated events, each point run through the full native chain to a pyhf CLs limit",
+      "command": "python3 -c \"import json; print(sum(len(json.load(open(m))['points']) for m in ['trial-runs/sleptonscan_fig3_SCAN/scan_manifest.json','trial-runs/CR004rescan_SCAN/scan_manifest.json']))\"",
+      "verified": "2026-07-30: 104 points; nevents=20000 in every point TOML",
+      "artifacts": [
+        "trial-runs/sleptonscan_fig3_SCAN/scan_manifest.json",
+        "trial-runs/CR004rescan_SCAN/scan_manifest.json",
+        "trial-runs/sleptonscan_fig3_SCAN/scan.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "fig3_residual",
+      "value": "24.9% median same-basis residual",
+      "detail": "52/52-point native reproduction of the RRR Fig-3 comparison vs the published ATLAS contour: median |sigma_UL(ours)-sigma_UL(ATLAS)|/sigma_UL(ATLAS) over the 50 honest reference-matched cells, on the inclusive model-sigma basis",
+      "command": "see trial-runs/sleptonscan_fig3_SCAN/RESULT.md (generated-from scan.json); sha-pinned in evidence/manifest.json",
+      "artifacts": [
+        "trial-runs/sleptonscan_fig3_SCAN/scan.json",
+        "trial-runs/sleptonscan_fig3_SCAN/plots/",
+        "evidence/manifest.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "execution_stages",
+      "value": "8",
+      "detail": "distinct gated execution stages in the native chain: madgraph, lhe_check, pythia, delphes, analysis (Delphes2SA), simpleanalysis, sa2json, pyhf (each with PASS/FAIL status lines in the run's STATUS.txt)",
+      "command": "grep -oE 'STAGE [a-z_0-9]+' trial-runs/CR004smoke_m200_dm50/logs/STATUS.txt | sort -u",
+      "artifacts": [
+        "native/scripts/run-pipeline-native.sh"
+      ],
+      "status": "VERIFIED",
+      "note": "an earlier draft claimed '11 stages'; the artifact-verified count is 8 execution stages (the control plane's intake/approval/verification layers are documented separately, not padded into the stage count)"
+    },
+    {
+      "claim": "stat_models_102",
+      "value": "UNVERIFIED \u2014 DO NOT USE",
+      "detail": "'102 statistical models' traced to a failure-mode catalogue incident line ('8/102 hard FailedMinimization crashes' in one projection engine's mu-scan, catalogue B5) \u2014 an incident count, not a capability figure. Replaced in the README by the verifiable statement: 112 per-point pyhf exclusion computations committed as artifacts.",
+      "command": "ls trial-runs/*/output/exclusion.json trial-runs/*/outputs/*exclusion*.json | wc -l",
+      "artifacts": [
+        "docs/reference/failure-modes.md"
+      ],
+      "status": "UNVERIFIED"
+    },
+    {
+      "claim": "exclusion_computations",
+      "value": "112",
+      "detail": "Historical snapshot only; no longer advertised as a current count. per-point pyhf CLs exclusion artifacts (exclusion.json) committed across scan points and standalone runs",
+      "command": "ls trial-runs/*/output/exclusion.json trial-runs/*/outputs/*exclusion*.json 2>/dev/null | wc -l",
+      "verified": "2026-07-30: 112",
+      "artifacts": [
+        "trial-runs/"
+      ],
+      "status": "HISTORICAL"
+    },
+    {
+      "claim": "native_ported_routines",
+      "value": "3",
+      "detail": "SimpleAnalysis routines reproduced natively and validated BIT-FOR-BIT against the containerized ATLAS original on shared inputs: EwkCompressed2018 (141/141 signal regions, three-way old-code/new-code/container), ZeroLeptonDiscovery2018 (10/10), EwkThreeLeptonERJR2018 (9/9) \u2014 each on a freshly generated physics sample; the container oracle is provisioned per-validation and removed after",
+      "command": "python3 src/ravel/validation/validate_native_parity.py --rundir <dir> --config <toml> --routine <Name> --native-txt <path>",
+      "verified": "2026-08-16: all three first-try PASS",
+      "artifacts": [
+        "trial-runs/CR005_refactor_smoke/output/EwkCompressed2018.txt",
+        "trial-runs/CR005_refactor_smoke/output/EwkCompressed2018_container_oracle.txt",
+        "trial-runs/CR005_c1n2_sample/output/EwkThreeLeptonERJR2018.txt",
+        "trial-runs/CR005_squark_sample/output/ZeroLeptonDiscovery2018.txt",
+        "src/ravel/physics/sa_native_core.py",
+        "src/ravel/validation/validate_native_parity.py"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_anchor_limits",
+      "value": "48.83 fb observed and 54.69 fb median expected at 150/140 GeV",
+      "detail": "Completed20k four-state anchor; conditional inclusive cross-section conversion. Onepoint only; no acceptance, coverage or fullRRR reproduction claim. Large raw event artifacts not distributed.",
+      "command": "python evidence/audits/2026-09-06-rrr-waypoint/curate.py --units",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-waypoint/waypoint.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/manifest.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_pool_limits",
+      "value": "47.37 fb observed and 57.27 fb median expected from the 60,000-event pool at 150/140 GeV",
+      "detail": "One-point four-state inclusive-basis limits from original-exposure pooling of independent 20k/40k parents. The pool adds zero events and is not independent of its parents. All six numerical roots resolve and both primary-region MC floors pass. Acceptance, coverage and the full plane remain open.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "verified": "2026-09-06: independent selected-original/projection, unit arithmetic and standalone checks",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/manifest.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/verification.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_cut_rate_ratio",
+      "value": "a high-region rate ratio of 1.412 (conditional 95% interval 1.146\u20131.678)",
+      "detail": "Lower leading-parton cut of 20 GeV with 20k events versus the nominal 50 GeV pooled 60k sample at 150/140 GeV. The interval combines fixed-N delta-method selection variance with printed generator-integration variance under explicit independence assumptions. It fails the prespecified \u00b110% equivalence criterion. This is not coverage calibration or proof that the lower cut is correct. The nominal 50 GeV cut matches the pinned RRR recipe.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-cut-dependence/verify.py",
+      "verified": "2026-09-06: all 40 categories and 120 ratios/intervals independently checked; failures and sparse missingness retained",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-cut-dependence/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/tables/lower-rates.csv",
+        "evidence/audits/2026-09-06-rrr-cut-dependence/README.md"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh100_limits",
+      "value": "210.00 fb observed and 169.09 fb median expected at 100/98 GeV",
+      "detail": "Completed20k four-state point and separate1000-event inclusive normalization. Observed/median residuals remain -11.81%/-17.09%; sparse signal populations and22 zero-selected bins do not establish acceptance, precision, coverage or full-plane reproduction.",
+      "command": "python -B evidence/audits/2026-09-06-rrr-event-identity/verify.py",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-event-identity/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-event-identity/source-map.json",
+        "evidence/audits/2026-09-06-rrr-event-identity/manifest.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh50_limits",
+      "value": "615.63 fb observed and 755.34 fb median expected at 50/45 GeV",
+      "detail": "Completed four-state 20,000-event point with its own 1,000-event inclusive normalization and K=1.18 applied once. Residuals are +16.84%/+6.82%; 24/33 selected SR events remain sparse. No acceptance, coverage or full-plane certification.",
+      "command": "python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py",
+      "verified": "2026-09-06: independent original-model/reference and Decimal arithmetic review; portable checks and selected-source projection",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/manifest.json"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim": "rrr_fresh_anchor_coverage",
+      "value": "3 of 52 nominal mass points with completed fresh native evidence",
+      "detail": "The nominal points are 50/45,100/98 and150/140 GeV. The 150/140 pool reuses its independent 20k and40k parents; replicas, controls and inclusive prefixes do not increase nominal-plane coverage. Forty-nine points remain uncompleted.",
+      "command": "python -B -S evidence/audits/2026-09-06-rrr-fresh-anchors/verify.py",
+      "verified": "2026-09-06: independent original-model/reference and Decimal arithmetic review; portable checks and selected-source projection",
+      "artifacts": [
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/data/evidence.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/source-map.json",
+        "evidence/audits/2026-09-06-rrr-fresh-anchors/manifest.json"
+      ],
+      "status": "VERIFIED"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "files": {
+    "README.md": "0cfb1da8f39bd9f3082c3aba5431ae205b478c3349a7d57d0340202304e7ef17",
+    "background.json.gz": "c251c38af3994a413b1497d0d1d815541691761801e978e1621835061e694142",
+    "baseline_patch.json": "20e717223a3d4329b8e68b7a3ec2d6719484950104ee586358c9e68dc5d1be5d",
+    "compiled.json": "f58aabb206bce767804b4750319b2352d0762059704916aef4f02147a0b811dd",
+    "curate.py": "e00cdcb5955cbabff512d341394951a881908b104276fcd8ed801e80ca4fd4cc",
+    "independent_review.json": "51d5ee6f6a6e8d467b46d91be36be2c14c704e5b6551268bc35d618ed21ce6b8",
+    "limits_and_ratios.csv": "6a869e72fa8a63d371abb978b53041d409059aad0a462692f9feb67a9baab253",
+    "model_changes.json": "c04dd60fb443b2576fba59ca899ac687554ef65755f87398b123e33c8c0923ab",
+    "precision.json": "f20720cefeff7db2dbc46b0df003d3675c20d1cf7c2d5960c7adb6e8422d6ff9",
+    "results.json": "a50c09e3f652edb6a73487396e0ee7434557280cbf336b0da666fae0c6df832a",
+    "signal_mc_and_CR_off_patch.json": "2234fa7412882068bbbbdc761ccbc0f87638fbda5a6b0fe6817ab983f968e553",
+    "signal_mc_off_patch.json": "515fb855d421e3a5115b5962e1401a1b6ff0e2839f3672e9c3d686a734df10c7",
+    "source_roles.py": "ab6db6693a3c44decb8be1592fd466f6133fac1649097b8da8cbab4ff72e6c92",
+    "sources.json": "74cd1e0452258e1e2ffe2c2ebd97429b6955fefc19b58a7f09ffd9f0c3cb6f56",
+    "test_verify.py": "1dcd92abe540791912010ed0d99b0a76813f2d10f03ec44bc9d5196e68f11e3a",
+    "verify.py": "3d7f00f04ea8395ce35eec90a0cb24250aa067ac07551c874c07411f26738c2f"
+  }
+}

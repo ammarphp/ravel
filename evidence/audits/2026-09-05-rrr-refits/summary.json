@@ -1,0 +1,830 @@
+{
+  "schema_version": 1,
+  "scope": "retained fixed-template numerical diagnosis; no global physics closure",
+  "inference_or_simulation_performed_by_summarizer": false,
+  "alpha": 0.05,
+  "retained_root_check_absolute_tolerance": 0.0005,
+  "native_anchor_count": 4,
+  "native_resolved_count": 3,
+  "native_failed_count": 1,
+  "native_anchors": [
+    {
+      "tag": "m50_dm5",
+      "mass_GeV": 50.0,
+      "lsp_mass_GeV": 45.0,
+      "splitting_GeV": 5.0,
+      "historical_normalization_fb_per_raw_mu": 10316.609687784132,
+      "normalization_scope": "historical mapping held fixed, not independently physics-certified",
+      "legacy_source": {
+        "path": "inputs/m50_dm5-legacy.json",
+        "sha256": "e54c1d822b3960e7c9f32f5310cab9c87e143b67e0134d9757fa6a23826c5f06"
+      },
+      "legacy_status": "legacy_reported_uncertified",
+      "legacy_raw": {
+        "observed": 0.0959401485031872,
+        "expected": 0.09631952161411618
+      },
+      "status": "resolved_fixed_template",
+      "refit": {
+        "source": {
+          "path": "results/m50_dm5-jax-refit.json",
+          "sha256": "bf85b514cb3c463f6dd9cebc7c000c9d75a2da3f4bc67bc8945169b9e86344c2"
+        },
+        "input_binding": "embedded_input_hashes_only_execution_versions_not_recorded",
+        "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+        "patch_sha256": "e91b80ae59bf0c348c498dd67047a8d3e832afc75f3e0c50dbd0168e5184d4fd",
+        "observed": 0.04786379281674364,
+        "expected": 0.0683306298829176,
+        "expected_quantiles": [
+          0.03626207789963803,
+          0.04888111665575558,
+          0.0683306298829176,
+          0.09615328271179199,
+          0.1308851877679058
+        ],
+        "limit_status": "resolved",
+        "all_six_roots_resolved": true,
+        "retained_root_cls_max_absolute_error": 1.9022244095584506e-06,
+        "retained_scan_evaluations": 44,
+        "inference": {
+          "method": "asymptotic CLs",
+          "test_stat": "qtilde",
+          "level": 0.05,
+          "root_solver": "scipy.brentq",
+          "root_rtol": 0.0001,
+          "root_atol": 1e-10,
+          "omitted_low_mu_nonfinite": [],
+          "coverage_validated": false,
+          "scope": "statistical inversion of the supplied model; no acceptance certification"
+        },
+        "execution_versions": {
+          "backend": "jax"
+        }
+      },
+      "comparisons": {
+        "observed": {
+          "legacy_raw_mu": 0.0959401485031872,
+          "refit_raw_mu": 0.04786379281674364,
+          "refit_over_legacy": 0.4988922110658769,
+          "fractional_change": -0.5011077889341231,
+          "legacy_sigma_limit_fb": 989.7770654954294,
+          "refit_sigma_limit_fb_with_historical_normalization": 493.79206866731,
+          "published_reference_fb": 526.9200000000001,
+          "legacy_fractional_residual_to_reference": 0.8784199982832863,
+          "refit_fractional_residual_to_reference": -0.06287089374609067
+        },
+        "expected": {
+          "legacy_raw_mu": 0.09631952161411618,
+          "refit_raw_mu": 0.0683306298829176,
+          "refit_over_legacy": 0.709416209069952,
+          "fractional_change": -0.29058379093004805,
+          "legacy_sigma_limit_fb": 993.6909098069241,
+          "refit_sigma_limit_fb_with_historical_normalization": 704.9404382224997,
+          "published_reference_fb": 707.14,
+          "legacy_fractional_residual_to_reference": 0.40522514609119,
+          "refit_fractional_residual_to_reference": -0.0031105039702185033
+        }
+      }
+    },
+    {
+      "tag": "m100_dm2",
+      "mass_GeV": 100.0,
+      "lsp_mass_GeV": 98.0,
+      "splitting_GeV": 2.0,
+      "historical_normalization_fb_per_raw_mu": 681.1954463312763,
+      "normalization_scope": "historical mapping held fixed, not independently physics-certified",
+      "legacy_source": {
+        "path": "inputs/m100_dm2-legacy.json",
+        "sha256": "33579e338f3e62c28f0a8d0ec52a8add5df5e237eef0c36b75b0257f09e011a7"
+      },
+      "legacy_status": "legacy_reported_uncertified",
+      "legacy_raw": {
+        "observed": 0.5110751762648298,
+        "expected": 0.4144311978107473
+      },
+      "status": "resolved_fixed_template",
+      "refit": {
+        "source": {
+          "path": "results/m100_dm2-jax-refit.json",
+          "sha256": "0cbd6587de495ba1bc4010a42c1d7660d9a0c3c08783e6caf341da7fb2e57be3"
+        },
+        "input_binding": "embedded_input_hashes_only_execution_versions_not_recorded",
+        "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+        "patch_sha256": "8bf237a56ca24b50b9086ec2573a8192806e68d472132de041130e5ece47db66",
+        "observed": 0.5077418829787923,
+        "expected": 0.4098641391956141,
+        "expected_quantiles": [
+          0.21607624198758982,
+          0.2919333565521454,
+          0.4098641391956141,
+          0.5809576883982004,
+          0.7985351647528373
+        ],
+        "limit_status": "resolved",
+        "all_six_roots_resolved": true,
+        "retained_root_cls_max_absolute_error": 1.7533998898644487e-06,
+        "retained_scan_evaluations": 42,
+        "inference": {
+          "method": "asymptotic CLs",
+          "test_stat": "qtilde",
+          "level": 0.05,
+          "root_solver": "scipy.brentq",
+          "root_rtol": 0.0001,
+          "root_atol": 1e-10,
+          "omitted_low_mu_nonfinite": [],
+          "coverage_validated": false,
+          "scope": "statistical inversion of the supplied model; no acceptance certification"
+        },
+        "execution_versions": {
+          "backend": "jax"
+        }
+      },
+      "comparisons": {
+        "observed": {
+          "legacy_raw_mu": 0.5110751762648298,
+          "refit_raw_mu": 0.5077418829787923,
+          "refit_over_legacy": 0.993477880670318,
+          "fractional_change": -0.006522119329682052,
+          "legacy_sigma_limit_fb": 348.1420828045565,
+          "refit_sigma_limit_fb_with_historical_normalization": 345.8714585968211,
+          "published_reference_fb": 238.13,
+          "legacy_fractional_residual_to_reference": 0.46198329821759754,
+          "refit_fractional_residual_to_reference": 0.4524480686886203
+        },
+        "expected": {
+          "legacy_raw_mu": 0.4144311978107473,
+          "refit_raw_mu": 0.4098641391956141,
+          "refit_over_legacy": 0.9889799352962352,
+          "fractional_change": -0.01102006470376482,
+          "legacy_sigma_limit_fb": 282.30864476629745,
+          "refit_sigma_limit_fb_with_historical_normalization": 279.1975852345407,
+          "published_reference_fb": 203.96,
+          "legacy_fractional_residual_to_reference": 0.38413730518875,
+          "refit_fractional_residual_to_reference": 0.3688840225266754
+        }
+      }
+    },
+    {
+      "tag": "m150_dm20",
+      "mass_GeV": 150.0,
+      "lsp_mass_GeV": 130.0,
+      "splitting_GeV": 20.0,
+      "historical_normalization_fb_per_raw_mu": 159.06484064941844,
+      "normalization_scope": "historical mapping held fixed, not independently physics-certified",
+      "legacy_source": {
+        "path": "inputs/m150_dm20-legacy.json",
+        "sha256": "50940784909f03d025450d13a2a2b70f5aa103d418b8fe84a9cf5042aa2ebc09"
+      },
+      "legacy_status": "legacy_reported_uncertified",
+      "legacy_raw": {
+        "observed": 0.6400390399307568,
+        "expected": 0.5794107893826692
+      },
+      "status": "failed_nonmonotonic",
+      "refit": null,
+      "comparisons": null,
+      "attempts": [
+        {
+          "status": "failed_nonmonotonic",
+          "log": {
+            "path": "logs/m150_dm20-jax-refit.log",
+            "sha256": "82e416ffe475186feeb791654750275cb28adf27669f8a812ab4f3578f11c2ab"
+          },
+          "declared_fit_tolerance": 1e-07,
+          "execution_input_binding": "not embedded in failure log; retrospective association"
+        },
+        {
+          "status": "failed_nonmonotonic",
+          "log": {
+            "path": "logs/m150_dm20-tight-refit.log",
+            "sha256": "8c13242f9bfa9e84ae8d5aeabc634ef716206719dadd80924eb061ed828f3565"
+          },
+          "declared_fit_tolerance": 1e-09,
+          "execution_input_binding": "not embedded in failure log; retrospective association"
+        }
+      ]
+    },
+    {
+      "tag": "m200_dm20",
+      "mass_GeV": 200.0,
+      "lsp_mass_GeV": 180.0,
+      "splitting_GeV": 20.0,
+      "historical_normalization_fb_per_raw_mu": 54.63394335128546,
+      "normalization_scope": "historical mapping held fixed, not independently physics-certified",
+      "legacy_source": {
+        "path": "inputs/m200_dm20-legacy.json",
+        "sha256": "8b0dc44738bfb9d553a19ebbd2b875f27002fada70da0186b0c9dc10bf83d38b"
+      },
+      "legacy_status": "legacy_reported_uncertified",
+      "legacy_raw": {
+        "observed": 0.8318232061135574,
+        "expected": 1.0740796310455816
+      },
+      "status": "resolved_fixed_template",
+      "refit": {
+        "source": {
+          "path": "results/m200_dm20-jax-refit.json",
+          "sha256": "31fd17fde878e8ec983975ed5172e69801fc4bae06fed3ae2b24a1cc742ebf9f"
+        },
+        "input_binding": "embedded_input_hashes_only_execution_versions_not_recorded",
+        "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+        "patch_sha256": "bf2a51893642976c3ecb3f8000bead09401d913263083b4255d4bdba6da578a0",
+        "observed": 0.8225996693843644,
+        "expected": 1.0581281283132515,
+        "expected_quantiles": [
+          0.5643500212266926,
+          0.7592643613964064,
+          1.0581281283132515,
+          1.4823215503374627,
+          2.005960830152645
+        ],
+        "limit_status": "resolved",
+        "all_six_roots_resolved": true,
+        "retained_root_cls_max_absolute_error": 4.150202057962016e-06,
+        "retained_scan_evaluations": 39,
+        "inference": {
+          "method": "asymptotic CLs",
+          "test_stat": "qtilde",
+          "level": 0.05,
+          "root_solver": "scipy.brentq",
+          "root_rtol": 0.0001,
+          "root_atol": 1e-10,
+          "omitted_low_mu_nonfinite": [],
+          "coverage_validated": false,
+          "scope": "statistical inversion of the supplied model; no acceptance certification"
+        },
+        "execution_versions": {
+          "backend": "jax"
+        }
+      },
+      "comparisons": {
+        "observed": {
+          "legacy_raw_mu": 0.8318232061135574,
+          "refit_raw_mu": 0.8225996693843644,
+          "refit_over_legacy": 0.9889116621640225,
+          "fractional_change": -0.011088337835977513,
+          "legacy_sigma_limit_fb": 45.445781921092745,
+          "refit_sigma_limit_fb_with_historical_normalization": 44.94186373793151,
+          "published_reference_fb": 78.76700000000001,
+          "legacy_fractional_residual_to_reference": -0.42303525688305077,
+          "refit_fractional_residual_to_reference": -0.42943283687417944
+        },
+        "expected": {
+          "legacy_raw_mu": 1.0740796310455816,
+          "refit_raw_mu": 1.0581281283132515,
+          "refit_over_legacy": 0.985148677741145,
+          "fractional_change": -0.014851322258854993,
+          "legacy_sigma_limit_fb": 58.681205717313894,
+          "refit_sigma_limit_fb_with_historical_normalization": 57.8097122206679,
+          "published_reference_fb": 78.862,
+          "legacy_fractional_residual_to_reference": -0.25590010756366943,
+          "refit_fractional_residual_to_reference": -0.26695097485902075
+        }
+      }
+    }
+  ],
+  "independent_backend_observed_checks": [
+    {
+      "tag": "m50_dm5",
+      "source": {
+        "path": "results/m50_dm5-numpy-check.json",
+        "sha256": "e81d71d2677c3c1dc71dc1db4d27fb95e21355d51e20f9bc26a3f965c385ba03"
+      },
+      "mu": 0.04786379281674364,
+      "observed_cls": 0.05000191698444267,
+      "absolute_error_from_0_05": 1.916984442663916e-06,
+      "backend": "numpy/guarded optimizer",
+      "fallback_count": 1,
+      "scope": "observed root only",
+      "execution_input_binding": "not embedded; retrospective tag/root/source association",
+      "expected_quantile_roots_independently_checked": false
+    },
+    {
+      "tag": "m100_dm2",
+      "source": {
+        "path": "results/m100_dm2-numpy-check.json",
+        "sha256": "8966de3818dcb529772f1260979e7820cc09fac6bba3d774782722d5b63a77a5"
+      },
+      "mu": 0.5077418829787923,
+      "observed_cls": 0.049999920054545566,
+      "absolute_error_from_0_05": 7.994545443701373e-08,
+      "backend": "numpy/guarded optimizer",
+      "fallback_count": 1,
+      "scope": "observed root only",
+      "execution_input_binding": "not embedded; retrospective tag/root/source association",
+      "expected_quantile_roots_independently_checked": false
+    }
+  ],
+  "legacy_m50_observed_probe": {
+    "source": {
+      "path": "results/m50_dm5-jax.json",
+      "sha256": "07eefdb42a783d27cc9a9d459afaea7fb2c9050383be28c10aae690ec07e7682"
+    },
+    "raw_mu": 0.0959401485031872,
+    "cls_at_legacy_limit": 0.0006037915682167335,
+    "absolute_error_from_0_05": 0.049396208431783266,
+    "execution_input_binding": "not embedded; retrospective tag/root/source association"
+  },
+  "incomplete_attempts": [
+    {
+      "tag": "m50_dm5",
+      "status": "incomplete_log_no_completed_result",
+      "log": {
+        "path": "logs/m50_dm5-refit.log",
+        "sha256": "b8aa8252f51843591df0756d21ef1bfce9dbbb79ba839b92542d487de7534981"
+      },
+      "reason": "retained log stops after four scan evaluations; no failure diagnosis inferred"
+    },
+    {
+      "tag": "m100_dm2",
+      "status": "incomplete_log_no_completed_result",
+      "log": {
+        "path": "logs/m100_dm2-refit.log",
+        "sha256": "a15d13f2922c6dd84743f0919fbe321b4f1cddce995ccc8950eb78cafc843d6f"
+      },
+      "reason": "retained log stops after four scan evaluations; no failure diagnosis inferred"
+    }
+  ],
+  "atlas_anchor": {
+    "parent_mass_GeV": 150,
+    "lsp_mass_GeV": 130,
+    "model": "degenerate selectron/smuon left and right chiralities",
+    "reference_sigma_fb": 174.232472,
+    "metadata": {
+      "patch_metadata": {
+        "name": "MGPy8EG_A14N23LO_SlepSlep_direct_degenerate_150p0_130p0_2L2MET75_excl_AllSys_HghMETLowMET_V2_sepNF_prun",
+        "values": [
+          "degenerate",
+          150.0,
+          130.0
+        ]
+      },
+      "patchset_metadata": {
+        "analysis_id": "ANA-SUSY-2018-16",
+        "description": "signal patchset for the ATLAS SUSY Compressed analysis for Sleptons (degenerate, left-handed, right-handed chiralities) where m(smuon) == m(selectron)",
+        "digests": {
+          "sha256": "7f3c55fc8985618b8190047100942847c8ee6e2f4db261356e3ea3394855bc42"
+        },
+        "labels": [
+          "chirality",
+          "mL",
+          "mN1"
+        ],
+        "references": {
+          "hepdata": "ins1767649"
+        }
+      }
+    },
+    "variants": [
+      {
+        "variant": "full",
+        "fit": {
+          "source": {
+            "path": "results/atlas-m150_dm20-jax-refit.json",
+            "sha256": "7b1a50bd4d044d34a0a16578102a087310227c79a7761f623cac4c399b303a73"
+          },
+          "input_binding": "embedded_input_hashes_and_execution_versions",
+          "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+          "patch_sha256": "747156e6add2a43f166db63de8dfc45d5c1abd473769a65a9cba487a0deb303b",
+          "observed": 0.7363356850527608,
+          "expected": 0.8061058733783046,
+          "expected_quantiles": [
+            0.4100109862077338,
+            0.5604141644462239,
+            0.8061058733783046,
+            1.1936656262918433,
+            1.7488380324887371
+          ],
+          "limit_status": "resolved",
+          "all_six_roots_resolved": true,
+          "retained_root_cls_max_absolute_error": 1.014378877561839e-06,
+          "retained_scan_evaluations": 43,
+          "inference": {
+            "method": "asymptotic CLs",
+            "test_stat": "qtilde",
+            "level": 0.05,
+            "root_solver": "scipy.brentq",
+            "root_rtol": 0.0001,
+            "root_atol": 1e-10,
+            "omitted_low_mu_nonfinite": [],
+            "coverage_validated": false,
+            "scope": "statistical inversion of the supplied model; no acceptance certification"
+          },
+          "execution_versions": {
+            "python": "3.14.5",
+            "backend": "jax",
+            "optimizer": "Ravel robust_optimizer",
+            "dependencies": {
+              "pyhf": "0.7.6",
+              "numpy": "2.4.6",
+              "scipy": "1.17.1",
+              "jax": "0.10.1",
+              "jaxlib": "0.10.1",
+              "jsonpatch": "1.33"
+            },
+            "engine": {
+              "src/ravel/physics/pyhf_exclude.py": "4bfdbdbf6455eca8a3a996bdd32a1bdc837ab10f8adeab4ba0af646a06864158",
+              "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+              "evidence/audits/2026-09-05-rrr-refits/refit.py": "55190de0d728c08ea952671111d5b719d21543683d88fa7d509e6d321b6922a3"
+            }
+          }
+        },
+        "observed": {
+          "raw_mu": 0.7363356850527608,
+          "sigma_limit_fb": 128.29358662855597,
+          "published_reference_fb": 128.33,
+          "published_reference_mu": 0.7365446780781484,
+          "fractional_residual_to_reference": -0.0002837479267827625,
+          "fractional_change_from_full": 0.0,
+          "fractional_change_from_previous": 0.0
+        },
+        "expected": {
+          "raw_mu": 0.8061058733783046,
+          "sigma_limit_fb": 140.44981901242102,
+          "published_reference_fb": 139.16,
+          "published_reference_mu": 0.798703010997858,
+          "fractional_residual_to_reference": 0.009268604573304362,
+          "fractional_change_from_full": 0.0,
+          "fractional_change_from_previous": 0.0
+        }
+      },
+      {
+        "variant": "no_signal_nuisances",
+        "fit": {
+          "source": {
+            "path": "results/atlas-m150_dm20-no-signal-nuisances-refit.json",
+            "sha256": "26507039b0cf91051cc7679a67f7de0d7d39dc2185d5a2bc3cf061f845abd875"
+          },
+          "input_binding": "embedded_input_hashes_and_execution_versions",
+          "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+          "patch_sha256": "71b8100b69cdd37c9e757129d3031e0490423c4ddbb0388469622e79f67550cf",
+          "observed": 0.6965319201254819,
+          "expected": 0.7681459307966281,
+          "expected_quantiles": [
+            0.41003863878256114,
+            0.5515765215621338,
+            0.7681459307966281,
+            1.0740622113199112,
+            1.4489205633957307
+          ],
+          "limit_status": "resolved",
+          "all_six_roots_resolved": true,
+          "retained_root_cls_max_absolute_error": 3.569957133520152e-06,
+          "retained_scan_evaluations": 43,
+          "inference": {
+            "method": "asymptotic CLs",
+            "test_stat": "qtilde",
+            "level": 0.05,
+            "root_solver": "scipy.brentq",
+            "root_rtol": 0.0001,
+            "root_atol": 1e-10,
+            "omitted_low_mu_nonfinite": [],
+            "coverage_validated": false,
+            "scope": "statistical inversion of the supplied model; no acceptance certification"
+          },
+          "execution_versions": {
+            "python": "3.14.5",
+            "backend": "jax",
+            "optimizer": "Ravel robust_optimizer",
+            "fit_tolerance": 1e-07,
+            "dependencies": {
+              "pyhf": "0.7.6",
+              "numpy": "2.4.6",
+              "scipy": "1.17.1",
+              "jax": "0.10.1",
+              "jaxlib": "0.10.1",
+              "jsonpatch": "1.33"
+            },
+            "engine": {
+              "src/ravel/physics/pyhf_exclude.py": "4bfdbdbf6455eca8a3a996bdd32a1bdc837ab10f8adeab4ba0af646a06864158",
+              "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+              "evidence/audits/2026-09-05-rrr-refits/refit.py": "7277cf114f1be2767f99a187f35a74aaf6862a1793494ab4877e655a300f957b"
+            }
+          }
+        },
+        "observed": {
+          "raw_mu": 0.6965319201254819,
+          "sigma_limit_fb": 121.35847827036926,
+          "published_reference_fb": 128.33,
+          "published_reference_mu": 0.7365446780781484,
+          "fractional_residual_to_reference": -0.05432495698301831,
+          "fractional_change_from_full": -0.05405654748951472,
+          "fractional_change_from_previous": -0.05405654748951472
+        },
+        "expected": {
+          "raw_mu": 0.7681459307966281,
+          "sigma_limit_fb": 133.83596437943743,
+          "published_reference_fb": 139.16,
+          "published_reference_mu": 0.798703010997858,
+          "fractional_residual_to_reference": -0.03825837611786831,
+          "fractional_change_from_full": -0.04709051730710068,
+          "fractional_change_from_previous": -0.04709051730710068
+        }
+      },
+      {
+        "variant": "nominal_sr_only",
+        "fit": {
+          "source": {
+            "path": "results/atlas-m150_dm20-nominal-sr-only-refit.json",
+            "sha256": "62f1aa90540ebc6cfed601fe3dfb0e6ada2587102a446e83f69ec18c5a2a4b3e"
+          },
+          "input_binding": "embedded_input_hashes_and_execution_versions",
+          "background_sha256": "a7a7203f782e78d4856e22cdd0f145ecab3aa7201f63218751cf31aea0f77ff7",
+          "patch_sha256": "083b77a86d3a5724cdefb6006ec71ad8bb801c369625b0f00232fe5fab38e064",
+          "observed": 0.6356051638155629,
+          "expected": 0.7097688883506135,
+          "expected_quantiles": [
+            0.37780529946511715,
+            0.5087469723854839,
+            0.7097688883506135,
+            0.995308709836579,
+            1.3479900830225482
+          ],
+          "limit_status": "resolved",
+          "all_six_roots_resolved": true,
+          "retained_root_cls_max_absolute_error": 6.845972882377205e-06,
+          "retained_scan_evaluations": 37,
+          "inference": {
+            "method": "asymptotic CLs",
+            "test_stat": "qtilde",
+            "level": 0.05,
+            "root_solver": "scipy.brentq",
+            "root_rtol": 0.0001,
+            "root_atol": 1e-10,
+            "omitted_low_mu_nonfinite": [],
+            "coverage_validated": false,
+            "scope": "statistical inversion of the supplied model; no acceptance certification"
+          },
+          "execution_versions": {
+            "python": "3.14.5",
+            "backend": "jax",
+            "optimizer": "Ravel robust_optimizer",
+            "fit_tolerance": 1e-07,
+            "dependencies": {
+              "pyhf": "0.7.6",
+              "numpy": "2.4.6",
+              "scipy": "1.17.1",
+              "jax": "0.10.1",
+              "jaxlib": "0.10.1",
+              "jsonpatch": "1.33"
+            },
+            "engine": {
+              "src/ravel/physics/pyhf_exclude.py": "4bfdbdbf6455eca8a3a996bdd32a1bdc837ab10f8adeab4ba0af646a06864158",
+              "src/ravel/limits.py": "ccf9d320965f8062c9e63b26db073f8a43918067c656505a20681bc3b0291e17",
+              "evidence/audits/2026-09-05-rrr-refits/refit.py": "7277cf114f1be2767f99a187f35a74aaf6862a1793494ab4877e655a300f957b"
+            }
+          }
+        },
+        "observed": {
+          "raw_mu": 0.6356051638155629,
+          "sigma_limit_fb": 110.74305890755048,
+          "published_reference_fb": 128.33,
+          "published_reference_mu": 0.7365446780781484,
+          "fractional_residual_to_reference": -0.13704465902321772,
+          "fractional_change_from_full": -0.13679972773556437,
+          "fractional_change_from_previous": -0.08747159254229575
+        },
+        "expected": {
+          "raw_mu": 0.7097688883506135,
+          "sigma_limit_fb": 123.66478796601939,
+          "published_reference_fb": 139.16,
+          "published_reference_mu": 0.798703010997858,
+          "fractional_residual_to_reference": -0.11134817500704652,
+          "fractional_change_from_full": -0.11950909701718593,
+          "fractional_change_from_previous": -0.0759973334565126
+        }
+      }
+    ],
+    "control_integrity": {
+      "nominal_signal_values_identical_after_modifier_removal": true,
+      "sr_signal_values_identical_after_cr_signal_removal": true,
+      "background_workspace_identical_all_controls": true,
+      "control_regions_still_in_likelihood": true,
+      "full_signal_channels": 32,
+      "sr_signal_channels": 26,
+      "cr_signal_channels": 6,
+      "cr_channels": [
+        "CRVV_MT2_hghmet_cuts",
+        "CRVV_MT2_lowmet_cuts",
+        "CRtau_MT2_hghmet_cuts",
+        "CRtau_MT2_lowmet_cuts",
+        "CRtop_MT2_hghmet_cuts",
+        "CRtop_MT2_lowmet_cuts"
+      ],
+      "nominal_cr_signal_sum_at_mu_1": 49.131134271621704,
+      "nominal_sr_signal_sum_at_mu_1": 63.276830084621906,
+      "removed_signal_modifier_instances": 867,
+      "removed_modifier_types": [
+        "histosys",
+        "lumi",
+        "normsys",
+        "staterror"
+      ],
+      "native_signal_modifiers": "mu_SIG normfactor only; no signal MC-statistical nuisance"
+    },
+    "published_background_identity": {
+      "digest_method": "pyhf.utils.digest: SHA256 of json.dumps(workspace, sort_keys=True)",
+      "patchset_declared_sha256": "7f3c55fc8985618b8190047100942847c8ee6e2f4db261356e3ea3394855bc42",
+      "retained_background_canonical_sha256": "0c95a4e37ce618c77789e243c0f161e09ebe61a84e32527428740ef180e45a1e",
+      "matches_patchset_declared_background": false,
+      "official_background": {
+        "path": "inputs/background-official.json",
+        "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+      },
+      "official_background_canonical_sha256": "7f3c55fc8985618b8190047100942847c8ee6e2f4db261356e3ea3394855bc42",
+      "official_matches_patchset_declared_background": true,
+      "retained_and_official_numeric_structure_equal": true,
+      "representation_difference_count": 24,
+      "representation_differences": [
+        {
+          "path": "/channels/22/samples/3/modifiers/32/data/lo_data/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 0,
+          "official_value": 0.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/0/auxdata/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/0/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/2/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 0,
+          "official_value": 0.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/2/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/2/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/3/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/3/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/3/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/4/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/4/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/4/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/5/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/5/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/5/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/6/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/6/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/6/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/7/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/7/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/7/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/8/bounds/0/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": -5,
+          "official_value": -5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/8/bounds/0/1",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 5,
+          "official_value": 5.0
+        },
+        {
+          "path": "/measurements/0/config/parameters/8/inits/0",
+          "retained_type": "int",
+          "official_type": "float",
+          "retained_value": 1,
+          "official_value": 1.0
+        }
+      ],
+      "equivalence_evidence": {
+        "path": "inputs/background-equivalence.json",
+        "sha256": "5237fd99f5706d07742a46d6b5d8d3f694edfeca3b51abbefb53e026d4ae6266"
+      },
+      "scope": "published signal patch on a numerically identical background; raw/canonical byte spellings differ"
+    },
+    "scope": "one official-template counterfactual, not a global correction or permission to borrow nuisances"
+  },
+  "context_source": {
+    "path": "inputs/comparison-context.json",
+    "sha256": "032257aa600b8fcc10a5e8aa63925972456b054ccb06f9fd83ebe2762d514367"
+  },
+  "limitations": [
+    "Native refits keep historical event samples, signal templates and normalization unchanged.",
+    "Resolved numerical roots do not certify acceptance, normalization, MC precision, systematic completeness or coverage.",
+    "Native signal samples have only a POI normfactor, no signal MC-statistical nuisance.",
+    "NumPy checks re-evaluate two observed roots; they are not independent six-curve refits or physics validation.",
+    "Native m150_dm20 remains unresolved after two nonmonotonic attempts.",
+    "Background serialization differs from the published digest only through equal integer/float spellings; explicit numerical-structure equivalence is checked.",
+    "The official anchor and native m150 use different signal templates; omission effects are not a native correction.",
+    "Native/check records have weaker execution provenance than the versioned ATLAS results; the manifest binds retained bytes only."
+  ]
+}

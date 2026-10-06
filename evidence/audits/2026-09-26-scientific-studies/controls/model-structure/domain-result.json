@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "domain": "ufo",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "counts": {
+      "Parameter": 2,
+      "Particle": 1,
+      "Coupling": 1,
+      "CouplingOrder": 1,
+      "Vertex": 1
+    },
+    "external_defaults": {
+      "mass": 100.0,
+      "width": 1.0
+    },
+    "declared_parameters": {
+      "mass": 100
+    },
+    "declared_orders": {
+      "NP": 2
+    },
+    "benchmarks": [
+      {
+        "name": "width control",
+        "actual": 1,
+        "reference": 1,
+        "unit": "GeV",
+        "atol": 1e-09,
+        "rtol": 0,
+        "source": "analytic fixture",
+        "passed": true
+      }
+    ],
+    "checks_passed": true
+  },
+  "limitations": [
+    "Static UFO structure and supplied benchmark arithmetic only; no model code imported or FeynRules executed.",
+    "Dynamic anti-particles, expression values, vertices, gauge identities and actual generator parameter application are not validated.",
+    "Benchmark values and source identifiers are supplied evidence, not independent recomputation or proof of reference provenance."
+  ],
+  "inputs": [
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/bench.json",
+      "size": 204,
+      "sha256": "ad0f15c99be7eccc954c1083995b44b82be1eeccf9aa793520573420127713bb"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/__init__.py",
+      "size": 193,
+      "sha256": "b7b161afb4ee8fef3ba31afc66b2f1df4e58b6dce36e48a162482cadd2c69f2d"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/coupling_orders.py",
+      "size": 62,
+      "sha256": "39fc83bd3ab58fc431b041ea79e7cb2f156b674aa088ace2d5547fc68c368694"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/couplings.py",
+      "size": 63,
+      "sha256": "6d86a2ec345d74c2872a0076202049fa9adb46ed6252b506434af6cbc05d969e"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/lorentz.py",
+      "size": 39,
+      "sha256": "93b00eed5541d7b4856f3439975d6913ad1dbed9e9c64fbb8b6f9e092ec381c8"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/object_library.py",
+      "size": 26,
+      "sha256": "f28768d993b95fb8ae6950fda01a961cf772c0a053895c6e10dc12204edb7e6d"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/parameters.py",
+      "size": 187,
+      "sha256": "a090590174544fc1802bd9d26b41dd8ead17ffff86b46dee9143f1f54cb1a7b7"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/particles.py",
+      "size": 80,
+      "sha256": "4d4c3db95eacf0bcb37d3027141c6e32d9569898f7a6e1b1217abd5df1a32820"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/ufo/model/vertices.py",
+      "size": 92,
+      "sha256": "712802af9680a703c4694e1b708ab903c06d2beb8e4760327b6faca3d932a87d"
+    }
+  ]
+}

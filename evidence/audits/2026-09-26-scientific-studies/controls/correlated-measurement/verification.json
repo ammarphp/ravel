@@ -1,0 +1,9 @@
+{
+  "expert_review": false,
+  "original_result_sha256": "9025e2fa8a9a15452325fa20d332af7972a99e0959a0e85a60663a3ea283a43d",
+  "passed": true,
+  "physics_validated": false,
+  "public_transformation": "Only operator-home and workspace-root path redaction; original result hash retained.",
+  "result_sha256": "6d749724dc66aa4142861752be0de62fe91b43c552818d82cd964d79c8738223",
+  "scope": "measurement"
+}

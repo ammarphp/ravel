@@ -1,0 +1,128 @@
+{
+  "scope": "Installed dependency-free wheel, isolated Python, outside source checkout; no simulation/fit.",
+  "wheel_sha256": "342a778f49e4f6b17560cc5dbdcf1d6cb767f60cd6bfe583d9f2d7c7fe0a3c5f",
+  "checks": [
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "summary"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "list",
+        "--framework",
+        "simpleanalysis",
+        "--json"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "list",
+        "--query",
+        "SUSY-2018-16",
+        "--json"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "show",
+        "EwkCompressed2018"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "show",
+        "SUSY-2018-16"
+      ],
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "show",
+        "not-an-analysis"
+      ],
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "check-source",
+        "ATLAS_2019_I1734263",
+        "--source",
+        "UPSTREAM_CHECKOUT"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "check-source",
+        "EwkCompressed2018",
+        "--source",
+        "UPSTREAM_CHECKOUT"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "check-source",
+        "ATLAS_2019_I1734263",
+        "--source",
+        "UPSTREAM_CHECKOUT"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "pass": true
+    },
+    {
+      "command": [
+        "ravel",
+        "analyses",
+        "check-source",
+        "TriHiggs6b",
+        "--source",
+        "UPSTREAM_CHECKOUT"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "pass": true
+    }
+  ],
+  "passes": 10
+}

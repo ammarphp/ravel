@@ -1,0 +1,15 @@
+Ravel-HEP
+Copyright 2026 Ammar Aziz
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product orchestrates independent upstream physics tools (MadGraph5_aMC@NLO, Pythia8,
+Delphes, Rivet, ATLAS SimpleAnalysis, RestFrames, pyhf, SModelS, MadAnalysis 5, LHAPDF),
+each the work of its own authors under its own license — see docs/reference/third-party.md.
+
+The public analysis catalogue contains factual identifiers, short metadata,
+source locations and hashes derived from the Rivet and ATLAS SimpleAnalysis
+projects and the pyhf public probability-model index. Upstream revisions and
+links are recorded in the catalogue. Their routines, learned model files and
+reference datasets are not incorporated as Ravel implementations. Catalogue
+availability does not imply upstream endorsement or scientific validation.

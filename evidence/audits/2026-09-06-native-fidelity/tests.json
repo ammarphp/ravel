@@ -1,0 +1,1392 @@
+{
+  "schema_version": 1,
+  "scope": "Targeted engineering regressions; no acceptance certification or full-suite claim",
+  "source_sha256": {
+    "tests/unit/test_native_fidelity.py": "ab1cb78eeaa9a77fb4fa0f7703b9ababafae4b10573077093a2c46df939cd7f6",
+    "tests/unit/test_compressed_signal_model.py": "c01f70a984c044e1dae2dafbf55c36f970201e946a13aff1a15664a02f04f423",
+    "tests/unit/test_compressed_validation.py": "37011feb0cb61b50bae3838bdf41187545d4d64e8bd6b7ad542a9285e6572e2c",
+    "tests/unit/test_native_event_io.py": "e81e7208527557b60c79e1c326781e5092fcae6767debdb130a085ad0f8cc36c",
+    "tests/unit/test_replica_pooling.py": "b895be5c00af3216257d14f8690b322e4bd2da6dcb67f2e26def34bdc4a750a6"
+  },
+  "runs": [
+    {
+      "environment": "locked-python312",
+      "command": "env -u PYTHONPATH PYTHONDONTWRITEBYTECODE=1 /private/tmp/ravel-cli-clean-env/bin/python -B -m pytest <repo>/tests/unit/test_native_fidelity.py <repo>/tests/unit/test_compressed_signal_model.py <repo>/tests/unit/test_compressed_validation.py <repo>/tests/unit/test_native_event_io.py <repo>/tests/unit/test_replica_pooling.py -q --junitxml=<repo>/local-runs/rrr-closure/verification/native-refresh-20260906/unit-tests.xml > <repo>/local-runs/rrr-closure/verification/native-refresh-20260906/unit-tests.log 2>&1",
+      "working_directory": "parent of <repo>",
+      "population": 130,
+      "passed": 120,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 10,
+      "junit_elapsed_seconds": 2.52,
+      "pytest_summary": "120 passed, 10 skipped, 32 warnings in 2.53s",
+      "by_test_file": {
+        "tests.unit.test_native_fidelity": {
+          "passed": 15
+        },
+        "tests.unit.test_compressed_signal_model": {
+          "passed": 63
+        },
+        "tests.unit.test_compressed_validation": {
+          "passed": 14
+        },
+        "tests.unit.test_native_event_io": {
+          "passed": 11
+        },
+        "tests.unit.test_replica_pooling": {
+          "passed": 17,
+          "skipped": 10
+        }
+      },
+      "cases": [
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_massless_sum_equals_invariant_mass_in_common_rest_frame",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_is_invariant_under_common_longitudinal_boost[-1.2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_is_invariant_under_common_longitudinal_boost[0.8]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_low_mass_selection_uses_paper_defined_invisible_boost",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_generic_signal_selection_applies_eta_and_quality_mask",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_generic_and_container_text_preserve_signed_weighted_yields",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_uniform_positive_weight_acceptance_is_preserved",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_missing_or_misaligned_weights_are_never_silently_unity",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_delphes_reader_preserves_nominal_signed_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_counting_driver_passes_actual_weight_moments_to_writer",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_VV_high-changes0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_VV_low-changes1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_tau_high-changes2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_tau_low-changes3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_top_high-changes4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_top_low-changes5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes6]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes7]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes8]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes9]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes10]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes11]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes12]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes13]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes14]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes15]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes16]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[met]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[mt2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[risr]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[mtautau]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_low_vv_requires_leading_transverse_mass_and_one_or_two_jets",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_tau_and_top_controls_replace_only_their_declared_orthogonality_cuts",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_opposite_flavour_separation_and_no_invented_mass_floor",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_mixed_flavour_objects_follow_original_cpp_pt_sorting",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_region_driver_uses_actual_mixed_flavour_leading_lepton",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_all_38_workspace_channels_are_mapped_without_cr_flavour_mask",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_unknown_full_compressed_channel_fails_without_guessing",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_weight_moments_apply_flavour_mask_without_dropping_negative_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_actual_moments_define_independent_mc_constraints_and_scale[shapesys-poisson]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_actual_moments_define_independent_mc_constraints_and_scale[staterror-normal]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_full_cr_signal_combines_ee_mm_and_opposite_flavour_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_missing_cr_branch_cannot_be_treated_as_zero",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_archival_sr_only_mode_is_explicit_and_labeled",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_zero_selected_bin_never_becomes_a_certified_zero_error[shapesys]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_zero_selected_bin_never_becomes_a_certified_zero_error[staterror]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_cancellation_does_not_silently_disable_mc_uncertainty[shapesys]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_cancellation_does_not_silently_disable_mc_uncertainty[staterror]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_overlapping_channels_cannot_get_independent_mc_constraints",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_existing_background_nuisance_cannot_be_reused_for_native_mc",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_cli_binds_patch_and_moments_to_actual_input_bytes",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_cli_rejects_duplicate_content_even_at_different_paths",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,0\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,nan,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,2\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,1\\n1,1,2,.9,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[9,1,2,.9,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_cannot_overwrite_event_join_with_duplicate_id",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_retains_actual_signed_cr_moments",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_repeated_normalized_streams_cannot_silently_double_a_signal",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_explicit_independent_components_sum_moments_without_exposure_guessing",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_replica_pooling_refuses_missing_generated_exposure_and_process_evidence",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_nested_weighted_covariance_and_all_input_population",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_early_rejection_and_unknown_are_distinct",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[duplicate]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[weight]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[predicate]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[promote_trigger]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[membership]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_public_reference_requires_matching_declared_point",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_public_reference_preserves_missing_rows_and_luminosity",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_hook_keeps_original_selection_and_records_early_no_jet",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_trace_hook_preserves_sr_and_cr_return_shape",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_trace_preserves_signed_and_zero_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_zero_selection_never_reports_certified_zero_uncertainty",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_truncated_population_cannot_be_an_honest_smaller_denominator",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_compression_is_lossless_and_deterministic",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_shower_storage_receipt_and_cleanup",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_failed_or_empty_shower_has_no_success_receipt[raise SystemExit(3)\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_failed_or_empty_shower_has_no_success_receipt[pass\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[E 0 0 0\\n-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\n-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\nHepMC::Asciiv3-END_EVENT_LISTING\\n-2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\nE 0 0 0\\nHepMC::Asciiv3-END_EVENT_LISTING\\n-2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_detector_gets_exact_decompressed_stream",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_corrupt_gzip_is_not_success_when_detector_exits_zero",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_detector_failure_is_not_hidden_by_valid_gzip",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_original_exposure_not_selected_rows_or_additive_yields",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_zero_selected_precision_unresolved",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[mg_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[shower_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[detector_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[lhe_sha256]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_additive_processes_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[True]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[1.5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_unresolved_seed_and_tcl_include_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_real_root_source_receipts_and_moment_roundtrip",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_existing_output_preserved",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_tampered_root_rejected_by_receipt",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_missing_receipt_rejected",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_unpinned_and_additive_manifest_rejected",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_changed_card_rejected_before_root_pooling",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_predecessor_output_not_allowed",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_manifest_write_failure_does_not_publish_success_root",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_cli_emits_coherent_pair",
+          "status": "skipped"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_ancestor_source_change_during_write_fails_closed",
+          "status": "skipped"
+        }
+      ],
+      "original_log": {
+        "path": "local-runs/rrr-closure/verification/native-refresh-20260906/unit-tests.log",
+        "sha256": "93ff5743e603473faea8e430b8de0219f4fef01d159be57390c0a6d8317b7762"
+      },
+      "original_junit": {
+        "path": "local-runs/rrr-closure/verification/native-refresh-20260906/unit-tests.xml",
+        "sha256": "8263af7d6988d8f00b0db7b43cae1904e852d3810f9d16ccdaf1951d7c24a25c"
+      }
+    },
+    {
+      "environment": "existing-rivet",
+      "command": "env -u PYTHONPATH PYTHONDONTWRITEBYTECODE=1 <repo>/stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python -B -m pytest <repo>/tests/unit/test_native_fidelity.py <repo>/tests/unit/test_compressed_signal_model.py <repo>/tests/unit/test_compressed_validation.py <repo>/tests/unit/test_native_event_io.py <repo>/tests/unit/test_replica_pooling.py -q --junitxml=<repo>/local-runs/rrr-closure/verification/native-refresh-20260906/root-tests.xml > <repo>/local-runs/rrr-closure/verification/native-refresh-20260906/root-tests.log 2>&1",
+      "working_directory": "parent of <repo>",
+      "population": 130,
+      "passed": 130,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_elapsed_seconds": 7.969,
+      "pytest_summary": "130 passed, 35 warnings in 7.99s",
+      "by_test_file": {
+        "tests.unit.test_native_fidelity": {
+          "passed": 15
+        },
+        "tests.unit.test_compressed_signal_model": {
+          "passed": 63
+        },
+        "tests.unit.test_compressed_validation": {
+          "passed": 14
+        },
+        "tests.unit.test_native_event_io": {
+          "passed": 11
+        },
+        "tests.unit.test_replica_pooling": {
+          "passed": 27
+        }
+      },
+      "cases": [
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_massless_sum_equals_invariant_mass_in_common_rest_frame",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_is_invariant_under_common_longitudinal_boost[-1.2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_hboost_is_invariant_under_common_longitudinal_boost[0.8]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_low_mass_selection_uses_paper_defined_invisible_boost",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_generic_signal_selection_applies_eta_and_quality_mask",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_generic_and_container_text_preserve_signed_weighted_yields",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_uniform_positive_weight_acceptance_is_preserved",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_unusable_weight_normalizations_fail_explicitly[weights4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_missing_or_misaligned_weights_are_never_silently_unity",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_delphes_reader_preserves_nominal_signed_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_fidelity",
+          "name": "test_counting_driver_passes_actual_weight_moments_to_writer",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_VV_high-changes0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_VV_low-changes1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_tau_high-changes2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_tau_low-changes3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_top_high-changes4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_six_controls_and_all_flavours[CR_S_top_low-changes5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes6]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes7]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes8]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes9]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes10]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes11]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes12]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes13]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes14]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes15]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_control_boundaries_are_explicit_and_do_not_leak[changes16]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[met]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[mt2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[risr]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_controls_reject_undefined_kinematics[mtautau]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_low_vv_requires_leading_transverse_mass_and_one_or_two_jets",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_tau_and_top_controls_replace_only_their_declared_orthogonality_cuts",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_opposite_flavour_separation_and_no_invented_mass_floor",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_mixed_flavour_objects_follow_original_cpp_pt_sorting",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_region_driver_uses_actual_mixed_flavour_leading_lepton",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_all_38_workspace_channels_are_mapped_without_cr_flavour_mask",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_unknown_full_compressed_channel_fails_without_guessing",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_weight_moments_apply_flavour_mask_without_dropping_negative_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_nonfinite_or_overflowing_weight_moments_fail[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_actual_moments_define_independent_mc_constraints_and_scale[shapesys-poisson]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_actual_moments_define_independent_mc_constraints_and_scale[staterror-normal]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_full_cr_signal_combines_ee_mm_and_opposite_flavour_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_missing_cr_branch_cannot_be_treated_as_zero",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_archival_sr_only_mode_is_explicit_and_labeled",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_zero_selected_bin_never_becomes_a_certified_zero_error[shapesys]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_zero_selected_bin_never_becomes_a_certified_zero_error[staterror]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_cancellation_does_not_silently_disable_mc_uncertainty[shapesys]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_signed_cancellation_does_not_silently_disable_mc_uncertainty[staterror]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_overlapping_channels_cannot_get_independent_mc_constraints",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_existing_background_nuisance_cannot_be_reused_for_native_mc",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_cli_binds_patch_and_moments_to_actual_input_bytes",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_cli_rejects_duplicate_content_even_at_different_paths",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,0\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,nan,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,2\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[1,1,2,.9,1,0,0,0,0,1,1\\n1,1,2,.9,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_rejects_incomplete_or_invalid_rjr_before_yield_output[9,1,2,.9,1,0,0,0,0,1,1\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_cannot_overwrite_event_join_with_duplicate_id",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_native_driver_retains_actual_signed_cr_moments",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_repeated_normalized_streams_cannot_silently_double_a_signal",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_explicit_independent_components_sum_moments_without_exposure_guessing",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_signal_model",
+          "name": "test_replica_pooling_refuses_missing_generated_exposure_and_process_evidence",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_nested_weighted_covariance_and_all_input_population",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_early_rejection_and_unknown_are_distinct",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[duplicate]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[weight]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[predicate]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[promote_trigger]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_inconsistent_or_fabricated_trace_fails[membership]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_public_reference_requires_matching_declared_point",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_public_reference_preserves_missing_rows_and_luminosity",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_hook_keeps_original_selection_and_records_early_no_jet",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_trace_hook_preserves_sr_and_cr_return_shape",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_trace_preserves_signed_and_zero_weights",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_zero_selection_never_reports_certified_zero_uncertainty",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_compressed_validation",
+          "name": "test_truncated_population_cannot_be_an_honest_smaller_denominator",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_compression_is_lossless_and_deterministic",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_shower_storage_receipt_and_cleanup",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_failed_or_empty_shower_has_no_success_receipt[raise SystemExit(3)\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_failed_or_empty_shower_has_no_success_receipt[pass\\n]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[E 0 0 0\\n-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\n-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\nHepMC::Asciiv3-END_EVENT_LISTING\\n-2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_incomplete_or_duplicate_event_exposure_fails[HepMC::Asciiv3-START_EVENT_LISTING\\nE 0 0 0\\nE 0 0 0\\nHepMC::Asciiv3-END_EVENT_LISTING\\n-2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_detector_gets_exact_decompressed_stream",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_corrupt_gzip_is_not_success_when_detector_exits_zero",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_native_event_io",
+          "name": "test_detector_failure_is_not_hidden_by_valid_gzip",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_original_exposure_not_selected_rows_or_additive_yields",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_zero_selected_precision_unresolved",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[mg_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[shower_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[detector_seed]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_duplicate_streams_rejected[lhe_sha256]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_additive_processes_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[True]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[-1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_invalid_original_exposure_rejected[1.5]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights0]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights1]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights2]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights3]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_nonuniform_signed_missing_weights_rejected[weights4]",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_unresolved_seed_and_tcl_include_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_real_root_source_receipts_and_moment_roundtrip",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_existing_output_preserved",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_tampered_root_rejected_by_receipt",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_missing_receipt_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_unpinned_and_additive_manifest_rejected",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_changed_card_rejected_before_root_pooling",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_predecessor_output_not_allowed",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_manifest_write_failure_does_not_publish_success_root",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_cli_emits_coherent_pair",
+          "status": "passed"
+        },
+        {
+          "suite": "tests.unit.test_replica_pooling",
+          "name": "test_ancestor_source_change_during_write_fails_closed",
+          "status": "passed"
+        }
+      ],
+      "original_log": {
+        "path": "local-runs/rrr-closure/verification/native-refresh-20260906/root-tests.log",
+        "sha256": "5546b2c0957c1e1ee597e3c44bc2c03a720b507b11a51df2f03211142e9fffd2"
+      },
+      "original_junit": {
+        "path": "local-runs/rrr-closure/verification/native-refresh-20260906/root-tests.xml",
+        "sha256": "f361601c0f8dbd7d612a5607db15912216702fab45487227ac7003df10fbb314"
+      }
+    }
+  ]
+}

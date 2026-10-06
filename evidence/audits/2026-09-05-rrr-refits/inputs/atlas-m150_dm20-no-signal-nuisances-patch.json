@@ -1,0 +1,546 @@
+[
+  {
+    "op": "add",
+    "path": "/channels/0/samples/5",
+    "value": {
+      "data": [
+        18.9348201751709
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/1/samples/5",
+    "value": {
+      "data": [
+        4.918098449707031
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/2/samples/5",
+    "value": {
+      "data": [
+        2.3912882804870605
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/3/samples/5",
+    "value": {
+      "data": [
+        3.856783628463745
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/4/samples/6",
+    "value": {
+      "data": [
+        12.742356300354004
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/5/samples/6",
+    "value": {
+      "data": [
+        6.287787437438965
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/6/samples/4",
+    "value": {
+      "data": [
+        0.5238341093063354
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/7/samples/5",
+    "value": {
+      "data": [
+        0.6777860522270203
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/8/samples/5",
+    "value": {
+      "data": [
+        0.29273557662963867
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/9/samples/5",
+    "value": {
+      "data": [
+        0.539239764213562
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/10/samples/5",
+    "value": {
+      "data": [
+        1.2065826654434204
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/11/samples/5",
+    "value": {
+      "data": [
+        0.4520403742790222
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/12/samples/5",
+    "value": {
+      "data": [
+        3.627870798110962
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/13/samples/5",
+    "value": {
+      "data": [
+        3.5751070976257324
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/14/samples/5",
+    "value": {
+      "data": [
+        3.8045480251312256
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/15/samples/5",
+    "value": {
+      "data": [
+        4.856399059295654
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/16/samples/5",
+    "value": {
+      "data": [
+        1.5304934978485107
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/17/samples/5",
+    "value": {
+      "data": [
+        3.274566173553467
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/19/samples/5",
+    "value": {
+      "data": [
+        0.08502078801393509
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/22/samples/5",
+    "value": {
+      "data": [
+        1.265087604522705
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/23/samples/5",
+    "value": {
+      "data": [
+        0.4741421937942505
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/24/samples/5",
+    "value": {
+      "data": [
+        0.9672999978065491
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/25/samples/5",
+    "value": {
+      "data": [
+        0.997169017791748
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/26/samples/5",
+    "value": {
+      "data": [
+        1.6057480573654175
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/27/samples/5",
+    "value": {
+      "data": [
+        1.841813325881958
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/28/samples/5",
+    "value": {
+      "data": [
+        6.8440656661987305
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/29/samples/5",
+    "value": {
+      "data": [
+        3.275271415710449
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/30/samples/5",
+    "value": {
+      "data": [
+        5.600839614868164
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/31/samples/6",
+    "value": {
+      "data": [
+        7.8091020584106445
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/32/samples/5",
+    "value": {
+      "data": [
+        3.1076977252960205
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/33/samples/5",
+    "value": {
+      "data": [
+        4.784492492675781
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  },
+  {
+    "op": "add",
+    "path": "/channels/35/samples/5",
+    "value": {
+      "data": [
+        0.2578769326210022
+      ],
+      "modifiers": [
+        {
+          "data": null,
+          "name": "mu_SIG",
+          "type": "normfactor"
+        }
+      ],
+      "name": "MGPy8EG_A14N23LO_SlepSlep_direct_150p0_130p0_2L2MET75"
+    }
+  }
+]

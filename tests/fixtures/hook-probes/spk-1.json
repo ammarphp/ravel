@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-09T06:51:13Z",
+  "generator": "spike_probe.py",
+  "generated_by": "spike_probe.py",
+  "input_fingerprint": "671794fe4114de61be529255e4b40e9ed1ea8a104e1e6d4bee7da1c90f6915af",
+  "spike": "SPK-1",
+  "verdict": "unproven",
+  "decision": "fallback-primary",
+  "evidence": {
+    "probe_log": "USERPROMPTSUBMIT 2026-07-09T06:50:49Z\n",
+    "transcript": "[headless client transcript not included: the recorded probe run reported that the client was not logged in, so no agent turn ran]"
+  },
+  "checks": [
+    {
+      "name": "UserPromptSubmit fired",
+      "ok": true,
+      "detail": "sentinel in probe log"
+    },
+    {
+      "name": "PostToolUse fired",
+      "ok": false,
+      "detail": "sentinel in probe log"
+    },
+    {
+      "name": "Stop fired",
+      "ok": false,
+      "detail": "STOP sentinels=0"
+    },
+    {
+      "name": "Stop exit-2 blocked then released",
+      "ok": false,
+      "detail": "needs >=2 STOP lines (block, then allow); got 0"
+    },
+    {
+      "name": "exit-2 reason fed back",
+      "ok": false,
+      "detail": "reason string SPK1-STOP-BLOCK present in the -p transcript"
+    }
+  ],
+  "exit": 1
+}

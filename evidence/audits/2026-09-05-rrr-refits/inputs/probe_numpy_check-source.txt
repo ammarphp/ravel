@@ -1,0 +1,14 @@
+import sys,json,time
+from pathlib import Path
+root=Path(__file__).resolve().parents[2];sys.path.insert(0,str(root/'src'))
+from ravel.physics.pyhf_exclude import model_from_likelihood,robust_optimizer
+import pyhf
+p=root/'evidence/audits/2026-09-05-rrr-refits/inputs'
+tag=sys.argv[1];r=json.loads((root/f'local-runs/rrr-diagnosis/{tag}-jax-refit.json').read_text())
+m,data=model_from_likelihood(str(p/'background.json'),str(p/f'{tag}-patch.json'))
+init=m.config.suggested_init();init[m.config.poi_index]=0.
+bounds=m.config.suggested_bounds();bounds[m.config.poi_index]=[0.,2.]
+t=time.monotonic();mu=r['result']['obs_limit']
+o,e=pyhf.infer.hypotest(mu,data,m,test_stat='qtilde',return_expected_set=True,init_pars=init,par_bounds=bounds)
+v={'tag':tag,'mu':mu,'cls':float(o),'expected_cls':list(map(float,e)),'wall_seconds':time.monotonic()-t,'backend':'numpy/guarded optimizer','initial_poi':0.0,'n_fallback':robust_optimizer.n_fallback}
+print(json.dumps(v),flush=True);(root/f'local-runs/rrr-diagnosis/{tag}-numpy-check.json').write_text(json.dumps(v,indent=2)+'\n')

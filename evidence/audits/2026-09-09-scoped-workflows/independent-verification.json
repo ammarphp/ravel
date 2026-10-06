@@ -1,0 +1,129 @@
+{
+  "likelihoods": {
+    "counting": {
+      "roots": [
+        43.65137159144958,
+        29.727473681709835,
+        39.75701968550589,
+        54.884400506918254,
+        75.84013287562489,
+        100.92355225856862
+      ],
+      "cls_minus_0_05": [
+        -3.7436059192874627e-07,
+        -2.809059486484633e-06,
+        6.647014223482017e-07,
+        5.751701834547096e-06,
+        -1.329433360897081e-07,
+        -4.075556930271951e-07
+      ],
+      "max_abs_residual": 5.751701834547096e-06,
+      "optimizer": "upstream pyhf SciPy",
+      "passed": true,
+      "scope": "fresh numerical crossing evaluation, not toy coverage"
+    },
+    "counting-replica": {
+      "roots": [
+        43.65137159144958,
+        29.727473681709835,
+        39.75701968550589,
+        54.884400506918254,
+        75.84013287562489,
+        100.92355225856862
+      ],
+      "cls_minus_0_05": [
+        -3.7436059192874627e-07,
+        -2.809059486484633e-06,
+        6.647014223482017e-07,
+        5.751701834547096e-06,
+        -1.329433360897081e-07,
+        -4.075556930271951e-07
+      ],
+      "max_abs_residual": 5.751701834547096e-06,
+      "optimizer": "upstream pyhf SciPy",
+      "passed": true,
+      "scope": "fresh numerical crossing evaluation, not toy coverage"
+    },
+    "two-bin": {
+      "roots": [
+        1.3565467553820167,
+        0.743946752063765,
+        1.002366598875907,
+        1.4005074763720986,
+        1.9707808088451948,
+        2.6861861070246618
+      ],
+      "cls_minus_0_05": [
+        -7.522657054365167e-07,
+        3.828501095655412e-06,
+        -6.928724340105052e-07,
+        -5.800525945051649e-07,
+        -2.9157673107904625e-07,
+        -7.4666383223925825e-06
+      ],
+      "max_abs_residual": 7.4666383223925825e-06,
+      "optimizer": "upstream pyhf SciPy",
+      "passed": true,
+      "scope": "fresh numerical crossing evaluation, not toy coverage"
+    }
+  },
+  "events": {
+    "drell-yan": {
+      "events": 100,
+      "cross_section_pb": 760.535,
+      "passed": true,
+      "event_blocks_sha256": "ebc9245d302f6fb53a50bf13b8c89e6fd3322f32eda7cdb295c6c0b29b0bb6b3"
+    },
+    "drell-yan-replica": {
+      "events": 100,
+      "cross_section_pb": 761.52,
+      "passed": true,
+      "event_blocks_sha256": "f7e3cb2344735872ecee737d7e4671252dbe21eadcaf2a296d074ffa4f37fa08"
+    },
+    "different-scale": {
+      "events": 100,
+      "cross_section_pb": 605.07,
+      "passed": true,
+      "event_blocks_sha256": "cc7acf6c48c2b1d7414426552ab38f8c38cf556baddce77cde79a099d401b43e"
+    },
+    "dimuon": {
+      "events": 100,
+      "cross_section_pb": 760.535,
+      "passed": true,
+      "event_blocks_sha256": "1bce94efd98c0145b9c82fbd75b70a5be4f2bdc3545f62336b624e8d0e10a7ca"
+    },
+    "supplied-card": {
+      "events": 100,
+      "cross_section_pb": 760.535,
+      "passed": true,
+      "event_blocks_sha256": "ebc9245d302f6fb53a50bf13b8c89e6fd3322f32eda7cdb295c6c0b29b0bb6b3"
+    }
+  },
+  "comparisons": {
+    "same-likelihood.json": {
+      "comparable": true,
+      "passed": true
+    },
+    "different-likelihood.json": {
+      "comparable": false,
+      "passed": true
+    },
+    "same-physics-new-seed.json": {
+      "comparable": true,
+      "passed": true
+    },
+    "scale-mismatch.json": {
+      "comparable": false,
+      "passed": true
+    },
+    "process-mismatch.json": {
+      "comparable": false,
+      "passed": true
+    }
+  },
+  "unresolved_bound": {
+    "passed": true,
+    "scope": "retained bound, failed delivery, no converted limit"
+  },
+  "passed": true
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "generated_utc": "",
+  "approved_plan": "full",
+  "quote": "YES under the explicitly authorized scripted experimental policy to CHECK-IN 1 SHA256 4857ac6a622ef4f9f4c67ee8aa515672c20f955f985dfd88c3388cfab06af4e1",
+  "task_contract": "inputs/task_contract.json",
+  "checkin1": "inputs/checkin1.json",
+  "cost_preflight": "inputs/cost_preflight.json",
+  "generated_by": "workflow_state.py approve",
+  "input_fingerprint": "55afa6cb79ddf93cd91f9f508429ec0e2d8c36e42af802df1316dd1b73c39ff9"
+}

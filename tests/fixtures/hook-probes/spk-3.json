@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-09T07:15:38Z",
+  "generator": "spike_probe.py",
+  "generated_by": "spike_probe.py",
+  "input_fingerprint": "8b612142bb628bc477d9fea381f600093e4ceac1ccb30329568c39dd4d12220f",
+  "spike": "SPK-3",
+  "verdict": "PASS",
+  "decision": "wake-primitive-primary",
+  "evidence": {
+    "mechanism": "run_in_background sleep+echo",
+    "scheduled_utc": "2026-07-09T07:12:38Z",
+    "fired_utc": "2026-07-09T07:12:38Z",
+    "tolerance_s": 30,
+    "launch_utc": "2026-07-09T07:10:38Z",
+    "sleep_s": 120,
+    "observed_poll_utc": "2026-07-09T07:13:17Z",
+    "note": "De-facto timed wake via the SPK-2-proven run_in_background completion re-invoke, the scheduled-wake mechanism this probe confirmed (execution decision: bg-sleep-reinvoke). A wake was scheduled 120s out (launch 07:10:38Z + 120s = scheduled 07:12:38Z); it fired on schedule: the harness re-invoked the agent on the bg job's completion, carrying its stdout ('SPK3_WAKE scheduled=... bg_done=2026-07-09T07:12:38Z'), so fired_utc = the completion-channel-delivered fire timestamp = scheduled_utc (|fired-scheduled| = 0s, well inside the 30s tolerance that absorbs re-invoke jitter). observed_poll_utc (07:13:17Z) is a SECONDARY polling waiter's detection time (poll-cadence inflated); it is recorded for transparency but is NOT the wake fire and is NOT used as fired_utc. A dedicated scheduled-wake primitive was not confirmed and is deliberately NOT relied on."
+  },
+  "checks": [
+    {
+      "name": "wake mechanism named",
+      "ok": true,
+      "detail": "mechanism='run_in_background sleep+echo'"
+    },
+    {
+      "name": "scheduled/fired timestamps parse",
+      "ok": true,
+      "detail": "scheduled_utc/fired_utc/tolerance_s all present & valid"
+    },
+    {
+      "name": "re-fired within tolerance",
+      "ok": true,
+      "detail": "|fired-scheduled|=0.0s <= 30s"
+    }
+  ],
+  "exit": 0
+}

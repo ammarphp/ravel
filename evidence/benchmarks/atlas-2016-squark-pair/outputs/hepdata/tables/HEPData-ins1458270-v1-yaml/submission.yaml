@@ -1,0 +1,2004 @@
+comment: |
+  CERN-LHC.  A search for squarks and gluinos in final states containing hadronic jets, missing transverse momentum but no electrons or muons is presented. The data were recorded in 2015 by the ATLAS experiment in $\sqrt{s}=$ 13 TeV proton--proton collisions at the Large Hadron Collider. No excess above the Standard Model background expectation was observed in 3.2 fb$^{-1}$ of analyzed data. Results are interpreted within simplified models that assume R-parity is conserved and the neutralino is the lightest supersymmetric particle. An exclusion limit at the 95% confidence level on the mass of the gluino is set at 1.51 TeV for a simplified model incorporating only a gluino octet and the lightest neutralino, assuming the lightest neutralino is massless. For a simplified model involving the strong production of mass-degenerate first- and second-generation squarks, squark masses below 1.03 TeV are excluded for a massless lightest neutralino. These limits substantially extend the region of supersymmetric parameter space excluded by previous measurements with the ATLAS detector.
+dateupdated: 30/09/2016 13:50:56
+hepdata_doi: 10.17182/hepdata.74253.v1
+modifications:
+- {action: Encoded, date: 29 SEP 2016, who: Takashi Yamanaka for ATLAS}
+record_ids:
+- {id: 1458270, type: inspire}
+- {id: 6690, type: red}
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure2a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure2a.png}
+data_file: Table1.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 2a
+name: Table 1
+table_doi: 10.17182/hepdata.74253.v1/t1
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure2b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure2b.png}
+data_file: Table2.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 2b
+name: Table 2
+table_doi: 10.17182/hepdata.74253.v1/t2
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure2c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure2c.png}
+data_file: Table3.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 2c
+name: Table 3
+table_doi: 10.17182/hepdata.74253.v1/t3
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure5a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure5a.png}
+data_file: Table4.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR2jl. For signal, a squark direct decay model with $m(\tilde q)=800$ GeV and $m(\tilde\chi^0_1)=400$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 5a
+name: Table 4
+table_doi: 10.17182/hepdata.74253.v1/t4
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure5b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure5b.png}
+data_file: Table5.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR2jm. For signal, a gluino direct decay model with $m(\tilde g)=750$ GeV and $m(\tilde\chi^0_1)=660$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 5b
+name: Table 5
+table_doi: 10.17182/hepdata.74253.v1/t5
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure5c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure5c.png}
+data_file: Table6.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR2jt. For signal, a squark direct decay model with $m(\tilde q)=1200$ GeV and $m(\tilde\chi^0_1)=0$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 5c
+name: Table 6
+table_doi: 10.17182/hepdata.74253.v1/t6
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure6a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure6a.png}
+data_file: Table7.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR4jt. For signal, a gluino direct decay model with $m(\tilde g)=1400$ GeV and $m(\tilde\chi^0_1)=0$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 6a
+name: Table 7
+table_doi: 10.17182/hepdata.74253.v1/t7
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure6b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure6b.png}
+data_file: Table8.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR5j. For signal, a gluino one-step decay model with $m(\tilde g)=1265$ GeV, $m(\tilde\chi^\pm_1)=945$ GeV and $m(\tilde\chi^0_1)=625$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 6b
+name: Table 8
+table_doi: 10.17182/hepdata.74253.v1/t8
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure6c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure6c.png}
+data_file: Table9.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR6jm. For signal, a gluino one-step decay model with $m(\tilde g)=1265$ GeV, $m(\tilde\chi^\pm_1)=945$ GeV and $m(\tilde\chi^0_1)=625$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 6c
+name: Table 9
+table_doi: 10.17182/hepdata.74253.v1/t9
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure6d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure6d.png}
+data_file: Table10.yaml
+description: |
+  Observed and expected background and signal effective mass distributions for SR6jt. For signal, a gluino one-step decay model with $m(\tilde g)=1385$ GeV, $m(\tilde\chi^\pm_1)=705$ GeV and $m(\tilde\chi^0_1)=25$ GeV is shown.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 6d
+name: Table 10
+table_doi: 10.17182/hepdata.74253.v1/t10
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table11.yaml
+description: |
+  Expected limit at 95% CL for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 11
+table_doi: 10.17182/hepdata.74253.v1/t11
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table12.yaml
+description: |
+  Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 12
+table_doi: 10.17182/hepdata.74253.v1/t12
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table13.yaml
+description: |
+  Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 13
+table_doi: 10.17182/hepdata.74253.v1/t13
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table14.yaml
+description: |
+  Observed limits at 95% CL for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 14
+table_doi: 10.17182/hepdata.74253.v1/t14
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table15.yaml
+description: |
+  Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 15
+table_doi: 10.17182/hepdata.74253.v1/t15
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7a.png}
+data_file: Table16.yaml
+description: |
+  Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7a
+name: Table 16
+table_doi: 10.17182/hepdata.74253.v1/t16
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table17.yaml
+description: |
+  Expected limit at 95% CL for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 17
+table_doi: 10.17182/hepdata.74253.v1/t17
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table18.yaml
+description: |
+  Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 18
+table_doi: 10.17182/hepdata.74253.v1/t18
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table19.yaml
+description: |
+  Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 19
+table_doi: 10.17182/hepdata.74253.v1/t19
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table20.yaml
+description: |
+  Observed limits at 95% CL for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 20
+table_doi: 10.17182/hepdata.74253.v1/t20
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table21.yaml
+description: |
+  Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 21
+table_doi: 10.17182/hepdata.74253.v1/t21
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure7b.png}
+data_file: Table22.yaml
+description: |
+  Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 7b
+name: Table 22
+table_doi: 10.17182/hepdata.74253.v1/t22
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table23.yaml
+description: |
+  Expected limit at 95% CL for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 23
+table_doi: 10.17182/hepdata.74253.v1/t23
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table24.yaml
+description: |
+  Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 24
+table_doi: 10.17182/hepdata.74253.v1/t24
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table25.yaml
+description: |
+  Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 25
+table_doi: 10.17182/hepdata.74253.v1/t25
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table26.yaml
+description: |
+  Observed limits at 95% CL for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 26
+table_doi: 10.17182/hepdata.74253.v1/t26
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table27.yaml
+description: |
+  Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 27
+table_doi: 10.17182/hepdata.74253.v1/t27
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figFigure8.png}
+data_file: Table28.yaml
+description: |
+  Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [CLS]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Figure 8
+name: Table 28
+table_doi: 10.17182/hepdata.74253.v1/t28
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure1a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure1a.png}
+data_file: Table29.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR2jl.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 1a
+name: Table 29
+table_doi: 10.17182/hepdata.74253.v1/t29
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure1b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure1b.png}
+data_file: Table30.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR2jl.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 1b
+name: Table 30
+table_doi: 10.17182/hepdata.74253.v1/t30
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure1c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure1c.png}
+data_file: Table31.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR2jl.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 1c
+name: Table 31
+table_doi: 10.17182/hepdata.74253.v1/t31
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure1d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure1d.png}
+data_file: Table32.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR2jl.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 1d
+name: Table 32
+table_doi: 10.17182/hepdata.74253.v1/t32
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure2a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure2a.png}
+data_file: Table33.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR2jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 2a
+name: Table 33
+table_doi: 10.17182/hepdata.74253.v1/t33
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure2b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure2b.png}
+data_file: Table34.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR2jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 2b
+name: Table 34
+table_doi: 10.17182/hepdata.74253.v1/t34
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure2c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure2c.png}
+data_file: Table35.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR2jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 2c
+name: Table 35
+table_doi: 10.17182/hepdata.74253.v1/t35
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure2d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure2d.png}
+data_file: Table36.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR2jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 2d
+name: Table 36
+table_doi: 10.17182/hepdata.74253.v1/t36
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure3a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure3a.png}
+data_file: Table37.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR2jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 3a
+name: Table 37
+table_doi: 10.17182/hepdata.74253.v1/t37
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure3b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure3b.png}
+data_file: Table38.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR2jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 3b
+name: Table 38
+table_doi: 10.17182/hepdata.74253.v1/t38
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure3c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure3c.png}
+data_file: Table39.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR2jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 3c
+name: Table 39
+table_doi: 10.17182/hepdata.74253.v1/t39
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure3d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure3d.png}
+data_file: Table40.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR2jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 3d
+name: Table 40
+table_doi: 10.17182/hepdata.74253.v1/t40
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure4a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure4a.png}
+data_file: Table41.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 4a
+name: Table 41
+table_doi: 10.17182/hepdata.74253.v1/t41
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure4b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure4b.png}
+data_file: Table42.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 4b
+name: Table 42
+table_doi: 10.17182/hepdata.74253.v1/t42
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure4c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure4c.png}
+data_file: Table43.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 4c
+name: Table 43
+table_doi: 10.17182/hepdata.74253.v1/t43
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure4d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure4d.png}
+data_file: Table44.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR4jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 4d
+name: Table 44
+table_doi: 10.17182/hepdata.74253.v1/t44
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure5a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure5a.png}
+data_file: Table45.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR5j.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 5a
+name: Table 45
+table_doi: 10.17182/hepdata.74253.v1/t45
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure5b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure5b.png}
+data_file: Table46.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR5j.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 5b
+name: Table 46
+table_doi: 10.17182/hepdata.74253.v1/t46
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure5c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure5c.png}
+data_file: Table47.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR5j.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 5c
+name: Table 47
+table_doi: 10.17182/hepdata.74253.v1/t47
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure5d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure5d.png}
+data_file: Table48.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR5j.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 5d
+name: Table 48
+table_doi: 10.17182/hepdata.74253.v1/t48
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure6a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure6a.png}
+data_file: Table49.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR6jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 6a
+name: Table 49
+table_doi: 10.17182/hepdata.74253.v1/t49
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure6b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure6b.png}
+data_file: Table50.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR6jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 6b
+name: Table 50
+table_doi: 10.17182/hepdata.74253.v1/t50
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure6c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure6c.png}
+data_file: Table51.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR6jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 6c
+name: Table 51
+table_doi: 10.17182/hepdata.74253.v1/t51
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure6d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure6d.png}
+data_file: Table52.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR6jm.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 6d
+name: Table 52
+table_doi: 10.17182/hepdata.74253.v1/t52
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure7a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure7a.png}
+data_file: Table53.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRgamma for SR6jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 7a
+name: Table 53
+table_doi: 10.17182/hepdata.74253.v1/t53
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure7b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure7b.png}
+data_file: Table54.yaml
+description: |
+  Observed and expected background effective mass distributions in validation region VRZ for SR6jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 7b
+name: Table 54
+table_doi: 10.17182/hepdata.74253.v1/t54
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure7c.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure7c.png}
+data_file: Table55.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRW for SR6jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 7c
+name: Table 55
+table_doi: 10.17182/hepdata.74253.v1/t55
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure7d.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure7d.png}
+data_file: Table56.yaml
+description: |
+  Observed and expected background effective mass distributions in control region CRT for SR6jt.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 7d
+name: Table 56
+table_doi: 10.17182/hepdata.74253.v1/t56
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure8.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure8.png}
+data_file: Table57.yaml
+description: |
+  Observed and expected event yields in VRZ as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 8
+name: Table 57
+table_doi: 10.17182/hepdata.74253.v1/t57
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure9.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure9.png}
+data_file: Table58.yaml
+description: |
+  Observed and expected event yields in VRW as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 9
+name: Table 58
+table_doi: 10.17182/hepdata.74253.v1/t58
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure10.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure10.png}
+data_file: Table59.yaml
+description: |
+  Observed and expected event yields in VRWv as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 10
+name: Table 59
+table_doi: 10.17182/hepdata.74253.v1/t59
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure11.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure11.png}
+data_file: Table60.yaml
+description: |
+  Observed and expected event yields in VRT as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 11
+name: Table 60
+table_doi: 10.17182/hepdata.74253.v1/t60
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure12.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure12.png}
+data_file: Table61.yaml
+description: |
+  Observed and expected event yields in VRTv as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 12
+name: Table 61
+table_doi: 10.17182/hepdata.74253.v1/t61
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure13.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure13.png}
+data_file: Table62.yaml
+description: |
+  Observed and expected event yields in VRQa as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 13
+name: Table 62
+table_doi: 10.17182/hepdata.74253.v1/t62
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure14.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure14.png}
+data_file: Table63.yaml
+description: |
+  Observed and expected event yields in VRQb as a function of signal region.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X/SQUARK SQUARK X]
+- name: observables
+  values: [N]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 14
+name: Table 63
+table_doi: 10.17182/hepdata.74253.v1/t63
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure19a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure19a.png}
+data_file: Table64.yaml
+description: |
+  Signal acceptance for SR2jl in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 19a
+name: Table 64
+table_doi: 10.17182/hepdata.74253.v1/t64
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure19b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure19b.png}
+data_file: Table65.yaml
+description: |
+  Signal acceptance times efficiency for SR2jl in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 19b
+name: Table 65
+table_doi: 10.17182/hepdata.74253.v1/t65
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure20a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure20a.png}
+data_file: Table66.yaml
+description: |
+  Signal acceptance for SR2jm in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 20a
+name: Table 66
+table_doi: 10.17182/hepdata.74253.v1/t66
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure20b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure20b.png}
+data_file: Table67.yaml
+description: |
+  Signal acceptance times efficiency for SR2jm in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 20b
+name: Table 67
+table_doi: 10.17182/hepdata.74253.v1/t67
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure21a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure21a.png}
+data_file: Table68.yaml
+description: |
+  Signal acceptance for SR2jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 21a
+name: Table 68
+table_doi: 10.17182/hepdata.74253.v1/t68
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure21b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure21b.png}
+data_file: Table69.yaml
+description: |
+  Signal acceptance times efficiency for SR2jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 21b
+name: Table 69
+table_doi: 10.17182/hepdata.74253.v1/t69
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure22a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure22a.png}
+data_file: Table70.yaml
+description: |
+  Signal acceptance for SR4jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 22a
+name: Table 70
+table_doi: 10.17182/hepdata.74253.v1/t70
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure22b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure22b.png}
+data_file: Table71.yaml
+description: |
+  Signal acceptance times efficiency for SR4jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 22b
+name: Table 71
+table_doi: 10.17182/hepdata.74253.v1/t71
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure23a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure23a.png}
+data_file: Table72.yaml
+description: |
+  Signal acceptance for SR5j in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 23a
+name: Table 72
+table_doi: 10.17182/hepdata.74253.v1/t72
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure23b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure23b.png}
+data_file: Table73.yaml
+description: |
+  Signal acceptance times efficiency for SR5j in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 23b
+name: Table 73
+table_doi: 10.17182/hepdata.74253.v1/t73
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure24a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure24a.png}
+data_file: Table74.yaml
+description: |
+  Signal acceptance for SR6jm in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 24a
+name: Table 74
+table_doi: 10.17182/hepdata.74253.v1/t74
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure24b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure24b.png}
+data_file: Table75.yaml
+description: |
+  Signal acceptance times efficiency for SR6jm in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 24b
+name: Table 75
+table_doi: 10.17182/hepdata.74253.v1/t75
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure25a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure25a.png}
+data_file: Table76.yaml
+description: |
+  Signal acceptance for SR6jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 25a
+name: Table 76
+table_doi: 10.17182/hepdata.74253.v1/t76
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure25b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure25b.png}
+data_file: Table77.yaml
+description: |
+  Signal acceptance times efficiency for SR6jt in squark direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> SQUARK SQUARK X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 25b
+name: Table 77
+table_doi: 10.17182/hepdata.74253.v1/t77
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure26a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure26a.png}
+data_file: Table78.yaml
+description: |
+  Signal acceptance for SR2jl in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 26a
+name: Table 78
+table_doi: 10.17182/hepdata.74253.v1/t78
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure26b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure26b.png}
+data_file: Table79.yaml
+description: |
+  Signal acceptance times efficiency for SR2jl in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 26b
+name: Table 79
+table_doi: 10.17182/hepdata.74253.v1/t79
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure27a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure27a.png}
+data_file: Table80.yaml
+description: |
+  Signal acceptance for SR2jm in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 27a
+name: Table 80
+table_doi: 10.17182/hepdata.74253.v1/t80
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure27b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure27b.png}
+data_file: Table81.yaml
+description: |
+  Signal acceptance times efficiency for SR2jm in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 27b
+name: Table 81
+table_doi: 10.17182/hepdata.74253.v1/t81
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure28a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure28a.png}
+data_file: Table82.yaml
+description: |
+  Signal acceptance for SR2jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 28a
+name: Table 82
+table_doi: 10.17182/hepdata.74253.v1/t82
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure28b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure28b.png}
+data_file: Table83.yaml
+description: |
+  Signal acceptance times efficiency for SR2jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 28b
+name: Table 83
+table_doi: 10.17182/hepdata.74253.v1/t83
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure29a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure29a.png}
+data_file: Table84.yaml
+description: |
+  Signal acceptance for SR4jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 29a
+name: Table 84
+table_doi: 10.17182/hepdata.74253.v1/t84
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure29b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure29b.png}
+data_file: Table85.yaml
+description: |
+  Signal acceptance times efficiency for SR4jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 29b
+name: Table 85
+table_doi: 10.17182/hepdata.74253.v1/t85
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure30a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure30a.png}
+data_file: Table86.yaml
+description: |
+  Signal acceptance for SR5j in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 30a
+name: Table 86
+table_doi: 10.17182/hepdata.74253.v1/t86
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure30b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure30b.png}
+data_file: Table87.yaml
+description: |
+  Signal acceptance times efficiency for SR5j in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 30b
+name: Table 87
+table_doi: 10.17182/hepdata.74253.v1/t87
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure31a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure31a.png}
+data_file: Table88.yaml
+description: |
+  Signal acceptance for SR6jm in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 31a
+name: Table 88
+table_doi: 10.17182/hepdata.74253.v1/t88
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure31b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure31b.png}
+data_file: Table89.yaml
+description: |
+  Signal acceptance times efficiency for SR6jm in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 31b
+name: Table 89
+table_doi: 10.17182/hepdata.74253.v1/t89
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure32a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure32a.png}
+data_file: Table90.yaml
+description: |
+  Signal acceptance for SR6jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 32a
+name: Table 90
+table_doi: 10.17182/hepdata.74253.v1/t90
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure32b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure32b.png}
+data_file: Table91.yaml
+description: |
+  Signal acceptance times efficiency for SR6jt in gluino direct decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 32b
+name: Table 91
+table_doi: 10.17182/hepdata.74253.v1/t91
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure33a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure33a.png}
+data_file: Table92.yaml
+description: |
+  Signal acceptance for SR2jl in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 33a
+name: Table 92
+table_doi: 10.17182/hepdata.74253.v1/t92
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure33b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure33b.png}
+data_file: Table93.yaml
+description: |
+  Signal acceptance times efficiency for SR2jl in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 33b
+name: Table 93
+table_doi: 10.17182/hepdata.74253.v1/t93
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure34a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure34a.png}
+data_file: Table94.yaml
+description: |
+  Signal acceptance for SR2jm in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 34a
+name: Table 94
+table_doi: 10.17182/hepdata.74253.v1/t94
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure34b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure34b.png}
+data_file: Table95.yaml
+description: |
+  Signal acceptance times efficiency for SR2jm in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 34b
+name: Table 95
+table_doi: 10.17182/hepdata.74253.v1/t95
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure35a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure35a.png}
+data_file: Table96.yaml
+description: |
+  Signal acceptance for SR2j5 in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 35a
+name: Table 96
+table_doi: 10.17182/hepdata.74253.v1/t96
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure35b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure35b.png}
+data_file: Table97.yaml
+description: |
+  Signal acceptance times efficiency for SR2jt in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 35b
+name: Table 97
+table_doi: 10.17182/hepdata.74253.v1/t97
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure36a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure36a.png}
+data_file: Table98.yaml
+description: |
+  Signal acceptance for SR4jt in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 36a
+name: Table 98
+table_doi: 10.17182/hepdata.74253.v1/t98
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure36b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure36b.png}
+data_file: Table99.yaml
+description: |
+  Signal acceptance times efficiency for SR4jt in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 36b
+name: Table 99
+table_doi: 10.17182/hepdata.74253.v1/t99
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure37a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure37a.png}
+data_file: Table100.yaml
+description: |
+  Signal acceptance for SR5j in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 37a
+name: Table 100
+table_doi: 10.17182/hepdata.74253.v1/t100
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure37b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure37b.png}
+data_file: Table101.yaml
+description: |
+  Signal acceptance times efficiency for SR5j in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 37b
+name: Table 101
+table_doi: 10.17182/hepdata.74253.v1/t101
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure38a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure38a.png}
+data_file: Table102.yaml
+description: |
+  Signal acceptance for SR6jm in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 38a
+name: Table 102
+table_doi: 10.17182/hepdata.74253.v1/t102
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure38b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure38b.png}
+data_file: Table103.yaml
+description: |
+  Signal acceptance times efficiency for SR6jm in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 38b
+name: Table 103
+table_doi: 10.17182/hepdata.74253.v1/t103
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure39a.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure39a.png}
+data_file: Table104.yaml
+description: |
+  Signal acceptance for SR6jt in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 39a
+name: Table 104
+table_doi: 10.17182/hepdata.74253.v1/t104
+---
+additional_resources:
+- {description: Image file, location: /resource/1458270/figAuxiliaryFigure39b.png}
+- {description: Thumbnail image file, location: /resource/1458270/thumb_figAuxiliaryFigure39b.png}
+data_file: Table105.yaml
+description: |
+  Signal acceptance times efficiency for SR6jt in gluino one-step decay model grid.
+keywords:
+- name: reactions
+  values: [P P --> GLUINO GLUINO X]
+- name: observables
+  values: [ACC*EFF]
+- name: phrases
+  values: [Inclusive, Proton-Proton Scattering, Supersymmetry]
+- name: cmenergies
+  values: [13000.0]
+location: Data from Auxiliary Figure 39b
+name: Table 105
+table_doi: 10.17182/hepdata.74253.v1/t105

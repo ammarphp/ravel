@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_utc": "",
+  "generator": "validate_parameters.py",
+  "generated_by": "validate_parameters.py",
+  "input_fingerprint": "afe79d7ac93980e61396bfc6d384b3b8e1bc860b3d9633293c972a513d6caf51",
+  "params": [
+    {
+      "name": "m_slepton",
+      "kind": "param_validation",
+      "role": "varied",
+      "trap": null,
+      "check": "physics value validated before it reaches the scan grid",
+      "status": "PASS",
+      "expected": null,
+      "observed": null,
+      "evidence": "backfill: scan predates the param-validation gate; masses verified in-grid at scan time",
+      "utc": ""
+    },
+    {
+      "name": "T6",
+      "kind": "trap_obligation",
+      "role": "varied",
+      "trap": "T6",
+      "check": "ME/PS/ISR treatment declared + run-card jet cuts audited vs the anchor sigma (compressed-spectrum acceptance)",
+      "status": "PASS",
+      "expected": null,
+      "observed": null,
+      "evidence": "backfill: compressed-spectrum ME/PS/ISR treatment audited at scan time (see RESULT.md)",
+      "utc": ""
+    }
+  ]
+}

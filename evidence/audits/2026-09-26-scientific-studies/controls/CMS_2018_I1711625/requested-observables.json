@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/CMS_2018_I1711625/d06-x01-y01",
+    "axes": [
+      {
+        "name": "mass",
+        "unit": "GeV"
+      }
+    ],
+    "representation": "differential",
+    "normalization": "absolute",
+    "unit": "pb/GeV"
+  }
+]

@@ -1,0 +1,334 @@
+[
+  {
+    "run": "CR005cert_ss_1200_600",
+    "entries": 14462,
+    "input_sha256": "f7a763dbda4222766304da0dac5bdedc6a9ed3131b99f3025e12a5e5b3b4498b",
+    "counts": {
+      "lepton_veto": 13359,
+      "common": 9600,
+      "2j1600_dphi3": 7625,
+      "2j1600_dphiRest": 7247,
+      "2j2200_dphi3": 8676,
+      "2j2200_dphiRest": 8457,
+      "2j2800_dphi3": 7625,
+      "2j2800_dphiRest": 7247,
+      "2j1600_jet_pt": 4499,
+      "2j1600_jet_eta": 4398,
+      "2j1600_MET_sqrtHT": 2798,
+      "2j2800_jet_pt": 4499,
+      "2j2800_jet_eta": 3374,
+      "2j2800_MET_sqrtHT": 2148,
+      "2j2200_jet_pt": 2725,
+      "2j2200_jet_eta": 2725,
+      "2j2200_MET_sqrtHT": 1787,
+      "2j1600_meff": 1711,
+      "2j2200_meff": 469,
+      "2j2800_meff": 55
+    },
+    "region_counts": {
+      "SR2j_1600_SR": 1711,
+      "SR4j_1000_SR": 239,
+      "SR5j_1600_SR": 134,
+      "SR2j_2200_SR": 469,
+      "SR2j_2800_SR": 55,
+      "SR4j_2200_SR": 83,
+      "SR4j_3400_SR": 10,
+      "SR6j_1000_SR": 15,
+      "SR6j_2200_SR": 7,
+      "SR6j_3400_SR": 1
+    },
+    "reference_header": "M(Squark)=1200 GeV, M(LSP)=600 GeV",
+    "reference_cutflow": [
+      {
+        "value": "10000",
+        "selection": ""
+      },
+      {
+        "value": "1902",
+        "selection": ""
+      },
+      {
+        "value": "1423",
+        "selection": "Pre-selection, ${E_{\\textrm{T}}^{\\textrm{miss}}}>300\\mathrm{\\ Ge\\kern -0.1em V}$, ${p_{\\textrm{T}}}(\\mathrm{jet_{1}})>200\\mathrm{\\ Ge\\kern -0.1em V}$, ${m_{\\mathrm{eff}}}>800\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "1423",
+        "selection": "jet multiplicity$\\geq2$"
+      },
+      {
+        "value": "1406",
+        "selection": "Cleaning Cuts"
+      },
+      {
+        "value": "1146",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.8"
+      },
+      {
+        "value": "1097",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "714",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_2)>$250$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "696",
+        "selection": "$|\\eta(j_{1, 2})|<2.0$"
+      },
+      {
+        "value": "474",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "319",
+        "selection": "${m_{\\mathrm{eff}}}>$1600$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "1278",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "1246",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.2"
+      },
+      {
+        "value": "414",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_1)>$600$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "280",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "87.1",
+        "selection": "${m_{\\mathrm{eff}}}>$2200$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "1146",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.8"
+      },
+      {
+        "value": "1097",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "714",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_2)>$250$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "547",
+        "selection": "$|\\eta(j_{1, 2})|<1.2$"
+      },
+      {
+        "value": "368",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "12.8",
+        "selection": "${m_{\\mathrm{eff}}}>$2800$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      }
+    ],
+    "reference_sha256": "0b5392a62135d7a38591bd68928a43aa6a1040f3b2efe99552f520ae42b8539a",
+    "weights_min": 5.956188715572353e-07,
+    "weights_max": 5.956188715572353e-07
+  },
+  {
+    "run": "CR005cert_gg_2200_600",
+    "entries": 15799,
+    "input_sha256": "b46eb59a97c26c5d5c02085924313957a0591c2e75b16e4b732fe20cd9c9dde5",
+    "counts": {
+      "lepton_veto": 13550,
+      "common": 12166,
+      "4j1000_njet": 10734,
+      "4j1000_dphi3": 8916,
+      "4j1000_dphiRest": 7944,
+      "4j1000_jet_pt": 6624,
+      "4j1000_jet_eta": 5874,
+      "4j1000_aplanarity": 4140,
+      "4j1000_MET_sqrtHT": 2419,
+      "4j1000_meff": 2419,
+      "4j2200_njet": 10734,
+      "4j2200_dphi3": 8916,
+      "4j2200_dphiRest": 7944,
+      "4j2200_jet_pt": 6624,
+      "4j2200_jet_eta": 5874,
+      "4j2200_aplanarity": 4140,
+      "4j2200_MET_sqrtHT": 2419,
+      "4j2200_meff": 2326,
+      "4j3400_njet": 10734,
+      "4j3400_dphi3": 8916,
+      "4j3400_dphiRest": 7944,
+      "4j3400_jet_pt": 6624,
+      "4j3400_jet_eta": 5874,
+      "4j3400_aplanarity": 4140,
+      "4j3400_MET_sqrtHT": 3616,
+      "5j1600_njet": 6692,
+      "5j1600_dphi3": 5594,
+      "5j1600_dphiRest": 4815,
+      "5j1600_jet_pt": 3970,
+      "5j1600_jet_eta": 3970,
+      "5j1600_aplanarity": 3970,
+      "5j1600_MET_sqrtHT": 2333,
+      "5j1600_meff": 2333,
+      "4j3400_meff": 1091
+    },
+    "region_counts": {
+      "SR2j_2200_SR": 4716,
+      "SR4j_2200_SR": 2326,
+      "SR4j_1000_SR": 2419,
+      "SR5j_1600_SR": 2333,
+      "SR2j_2800_SR": 2517,
+      "SR2j_1600_SR": 4083,
+      "SR4j_3400_SR": 1091,
+      "SR6j_2200_SR": 253,
+      "SR6j_1000_SR": 255,
+      "SR6j_3400_SR": 198
+    },
+    "reference_header": "M(Gluino)=2200 GeV, M(LSP)=600 GeV",
+    "reference_cutflow": [
+      {
+        "value": "50000",
+        "selection": ""
+      },
+      {
+        "value": "49.5",
+        "selection": ""
+      },
+      {
+        "value": "43.8",
+        "selection": "Pre-selection, ${E_{\\textrm{T}}^{\\textrm{miss}}}>300\\mathrm{\\ Ge\\kern -0.1em V}$, ${p_{\\textrm{T}}}(\\mathrm{jet_{1}})>200\\mathrm{\\ Ge\\kern -0.1em V}$, ${m_{\\mathrm{eff}}}>800\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "43.8",
+        "selection": "jet multiplicity$\\geq2$"
+      },
+      {
+        "value": "43.2",
+        "selection": "Cleaning Cuts"
+      },
+      {
+        "value": "40.6",
+        "selection": "jet multiplicity$\\geq4$"
+      },
+      {
+        "value": "34.0",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "30.2",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.2"
+      },
+      {
+        "value": "26.8",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_4)>$100$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "24.4",
+        "selection": "$|\\eta(j_{1, 2, 3, 4})|<2.0$"
+      },
+      {
+        "value": "16.9",
+        "selection": "Aplanarity$>$0.04"
+      },
+      {
+        "value": "10.5",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "10.5",
+        "selection": "${m_{\\mathrm{eff}}}>$1000$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "40.6",
+        "selection": "jet multiplicity$\\geq4$"
+      },
+      {
+        "value": "34.0",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "30.2",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.2"
+      },
+      {
+        "value": "26.8",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_4)>$100$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "24.4",
+        "selection": "$|\\eta(j_{1, 2, 3, 4})|<2.0$"
+      },
+      {
+        "value": "16.9",
+        "selection": "Aplanarity$>$0.04"
+      },
+      {
+        "value": "10.5",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "10.3",
+        "selection": "${m_{\\mathrm{eff}}}>$2200$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "40.6",
+        "selection": "jet multiplicity$\\geq4$"
+      },
+      {
+        "value": "34.0",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "30.2",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.2"
+      },
+      {
+        "value": "26.8",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_4)>$100$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "24.4",
+        "selection": "$|\\eta(j_{1, 2, 3, 4})|<2.0$"
+      },
+      {
+        "value": "16.9",
+        "selection": "Aplanarity$>$0.04"
+      },
+      {
+        "value": "14.8",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$10$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "6.07",
+        "selection": "${m_{\\mathrm{eff}}}>$3400$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "28.8",
+        "selection": "jet multiplicity$\\geq5$"
+      },
+      {
+        "value": "24.1",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{1,2,(3)},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.4"
+      },
+      {
+        "value": "20.9",
+        "selection": "$\\Delta\\phi(\\textrm{jet}_{i>3},{{\\textbf E}_{\\textrm{T}}^{\\textrm{miss}}})_\\mathrm{min}>$0.2"
+      },
+      {
+        "value": "17.7",
+        "selection": "${p_{\\textrm{T}}}(\\textrm{jet}_1)>$600$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      },
+      {
+        "value": "10.9",
+        "selection": "${E_{\\textrm{T}}^{\\textrm{miss}}}/\\sqrt{H_{\\textrm T}}>$16$\\mathrm{\\ Ge\\kern -0.1em V}^{1/2}$"
+      },
+      {
+        "value": "10.9",
+        "selection": "${m_{\\mathrm{eff}}}>$1600$\\mathrm{\\ Ge\\kern -0.1em V}$"
+      }
+    ],
+    "reference_sha256": "a61be0c995a5d5ad9aff7496ad648137500b9ee7f1931a6296d20c7ac2daead1",
+    "weights_min": 1.0594784605189034e-08,
+    "weights_max": 1.0594784605189034e-08
+  }
+]

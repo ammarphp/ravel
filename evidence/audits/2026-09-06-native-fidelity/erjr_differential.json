@@ -1,0 +1,1332 @@
+{
+  "schema_version": 1,
+  "analysis": "EwkThreeLeptonERJR2018",
+  "input_name": "Delphes2SA.root",
+  "input_sha256": "91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac",
+  "selection_sha256": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec",
+  "core_sha256": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+  "reference": "https://arxiv.org/pdf/1912.08479v2#page=9",
+  "historical_reference_commit": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+  "entries": 200000,
+  "sum_weights": 0.3122999942206661,
+  "weights_min": 1.5614999711033306e-06,
+  "weights_max": 1.5614999711033306e-06,
+  "counts": {
+    "historical": {
+      "Preselection": 1055,
+      "SRlow": 43,
+      "SRISR": 19,
+      "CRlow": 50,
+      "CRISR": 16,
+      "VRlow": 22,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    },
+    "paper": {
+      "Preselection": 1055,
+      "SRlow": 95,
+      "SRISR": 19,
+      "CRlow": 65,
+      "CRISR": 16,
+      "VRlow": 28,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    }
+  },
+  "acceptance": {
+    "historical": {
+      "Preselection": 0.005275,
+      "SRlow": 0.000215,
+      "SRISR": 9.5e-05,
+      "CRlow": 0.00025,
+      "CRISR": 8e-05,
+      "VRlow": 0.00011,
+      "VRISR": 9.5e-05,
+      "VRISRsmallPTsoft": 1e-05,
+      "VRISRsmallRjetsinv": 7.5e-05
+    },
+    "paper": {
+      "Preselection": 0.005275,
+      "SRlow": 0.000475,
+      "SRISR": 9.5e-05,
+      "CRlow": 0.000325,
+      "CRISR": 8e-05,
+      "VRlow": 0.00014,
+      "VRISR": 9.5e-05,
+      "VRISRsmallPTsoft": 1e-05,
+      "VRISRsmallRjetsinv": 7.5e-05
+    }
+  },
+  "cutflow_order": [
+    "preselection",
+    "lepton_pt_and_jet_veto",
+    "Hboost",
+    "pTratio",
+    "HTratio",
+    "mTW"
+  ],
+  "cutflow": {
+    "historical": {
+      "preselection": 1055,
+      "lepton_pt_and_jet_veto": 327,
+      "Hboost": 318,
+      "pTratio": 194,
+      "HTratio": 65,
+      "mTW": 43
+    },
+    "paper": {
+      "preselection": 1055,
+      "lepton_pt_and_jet_veto": 327,
+      "Hboost": 314,
+      "pTratio": 193,
+      "HTratio": 149,
+      "mTW": 95
+    }
+  },
+  "changed_events": [
+    {
+      "entry": 6295,
+      "event": 6295,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 541.5423811622363,
+      "Hboost_paper": 428.7619251045547,
+      "HTratio_historical": 0.7747831489688249,
+      "HTratio_paper": 0.9785801555831666,
+      "mTW": 116.90443488095029,
+      "pTratio": 0.026785074135758587
+    },
+    {
+      "entry": 8103,
+      "event": 8103,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 530.8814819529923,
+      "Hboost_paper": 400.9438274139273,
+      "HTratio_historical": 0.7221048640876476,
+      "HTratio_paper": 0.9561242103287165,
+      "mTW": 149.89736213475706,
+      "pTratio": 0.03504878432729473
+    },
+    {
+      "entry": 8863,
+      "event": 8863,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1185.806540769001,
+      "Hboost_paper": 581.1754790228476,
+      "HTratio_historical": 0.4829684456832372,
+      "HTratio_paper": 0.9854289496851019,
+      "mTW": 461.11249320307724,
+      "pTratio": 0.0025428832321508156
+    },
+    {
+      "entry": 14821,
+      "event": 14821,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 745.9356234112315,
+      "Hboost_paper": 652.6088832076745,
+      "HTratio_historical": 0.8419710064661894,
+      "HTratio_paper": 0.962377595161661,
+      "mTW": 327.94905411258424,
+      "pTratio": 0.015196695093488309
+    },
+    {
+      "entry": 17290,
+      "event": 17290,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 553.103970928709,
+      "Hboost_paper": 452.92497472302944,
+      "HTratio_historical": 0.789696778156784,
+      "HTratio_paper": 0.9643637427925571,
+      "mTW": 223.4290213461015,
+      "pTratio": 0.014030814868903245
+    },
+    {
+      "entry": 21489,
+      "event": 21489,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 607.639353469647,
+      "Hboost_paper": 486.7876884582361,
+      "HTratio_historical": 0.7429110112356868,
+      "HTratio_paper": 0.9273487749505072,
+      "mTW": 242.66335620983494,
+      "pTratio": 0.025926879748277606
+    },
+    {
+      "entry": 21646,
+      "event": 21646,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 558.4165222381826,
+      "Hboost_paper": 544.8031736990492,
+      "HTratio_historical": 0.8885187176561556,
+      "HTratio_paper": 0.9107207083400035,
+      "mTW": 237.60243772268802,
+      "pTratio": 0.022787290293904933
+    },
+    {
+      "entry": 22184,
+      "event": 22184,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 506.9417435626475,
+      "Hboost_paper": 329.8891632430282,
+      "HTratio_historical": 0.5917416772162082,
+      "HTratio_paper": 0.9093313482555254,
+      "mTW": 95.17898823227691,
+      "pTratio": 0.04401446984361564
+    },
+    {
+      "entry": 24135,
+      "event": 24135,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 619.7655667526782,
+      "Hboost_paper": 499.83406129632635,
+      "HTratio_historical": 0.7381989523077125,
+      "HTratio_paper": 0.9153243595817852,
+      "mTW": 265.18430866871796,
+      "pTratio": 0.03402432564553274
+    },
+    {
+      "entry": 26464,
+      "event": 26464,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 820.7301215733701,
+      "Hboost_paper": 608.9468336895944,
+      "HTratio_historical": 0.7108104009348829,
+      "HTratio_paper": 0.9580204288775024,
+      "mTW": 168.17783930387685,
+      "pTratio": 0.01902107444459815
+    },
+    {
+      "entry": 30205,
+      "event": 30205,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 401.3770738297493,
+      "Hboost_paper": 396.88893417326733,
+      "HTratio_historical": 0.8920406036162081,
+      "HTratio_paper": 0.9021280675477023,
+      "mTW": 190.06178503517313,
+      "pTratio": 0.029224300442377477
+    },
+    {
+      "entry": 31820,
+      "event": 31820,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 870.467647395064,
+      "Hboost_paper": 619.2155116208611,
+      "HTratio_historical": 0.6738805325363237,
+      "HTratio_paper": 0.9473134809668495,
+      "mTW": 30.547073700673586,
+      "pTratio": 0.030144280740525428
+    },
+    {
+      "entry": 34795,
+      "event": 34795,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 415.4489327041433,
+      "Hboost_paper": 261.1285637052165,
+      "HTratio_historical": 0.6067786641310219,
+      "HTratio_paper": 0.965369490123853,
+      "mTW": 2.632279500368438,
+      "pTratio": 0.016374213861302826
+    },
+    {
+      "entry": 36043,
+      "event": 36043,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 357.73322502469443,
+      "Hboost_paper": 304.53262620122274,
+      "HTratio_historical": 0.8016716799780202,
+      "HTratio_paper": 0.9417204293243981,
+      "mTW": 129.92899058193586,
+      "pTratio": 0.03924931288111578
+    },
+    {
+      "entry": 39519,
+      "event": 39519,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 973.5737486780121,
+      "Hboost_paper": 811.0611928238771,
+      "HTratio_historical": 0.7811885551944086,
+      "HTratio_paper": 0.9377155223725931,
+      "mTW": 472.2029862794088,
+      "pTratio": 0.012661509822240338
+    },
+    {
+      "entry": 43695,
+      "event": 43695,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 423.83480896722835,
+      "Hboost_paper": 347.8488152740687,
+      "HTratio_historical": 0.8085511438605937,
+      "HTratio_paper": 0.9851754686253075,
+      "mTW": 175.42385196721438,
+      "pTratio": 0.04728733621052584
+    },
+    {
+      "entry": 48925,
+      "event": 48925,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1193.425013384315,
+      "Hboost_paper": 881.5007013576002,
+      "HTratio_historical": 0.7382516018815203,
+      "HTratio_paper": 0.9994863605888713,
+      "mTW": 157.24593580855952,
+      "pTratio": 0.020540005153180284
+    },
+    {
+      "entry": 49172,
+      "event": 49172,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 624.669589643265,
+      "Hboost_paper": 497.84728783584126,
+      "HTratio_historical": 0.7792549514144375,
+      "HTratio_paper": 0.9777634279049191,
+      "mTW": 154.04639459441444,
+      "pTratio": 0.02857738013752716
+    },
+    {
+      "entry": 49648,
+      "event": 49648,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 856.4140489814675,
+      "Hboost_paper": 462.63150399755597,
+      "HTratio_historical": 0.5217048694729438,
+      "HTratio_paper": 0.9657694639858168,
+      "mTW": 363.31351900075214,
+      "pTratio": 0.04048524204298068
+    },
+    {
+      "entry": 51343,
+      "event": 51343,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 451.3435738750178,
+      "Hboost_paper": 345.89500728956216,
+      "HTratio_historical": 0.7260778067626216,
+      "HTratio_paper": 0.9474278185843744,
+      "mTW": 6.84954299773535,
+      "pTratio": 0.0990148211664914
+    },
+    {
+      "entry": 52866,
+      "event": 52866,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 442.05155125935573,
+      "Hboost_paper": 312.20666837307584,
+      "HTratio_historical": 0.6861542266950731,
+      "HTratio_paper": 0.9715216586958657,
+      "mTW": 41.722729790913405,
+      "pTratio": 0.0020225768943451447
+    },
+    {
+      "entry": 53211,
+      "event": 53211,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 378.0297475208058,
+      "Hboost_paper": 362.0357299644674,
+      "HTratio_historical": 0.8967141378787079,
+      "HTratio_paper": 0.9363291826856294,
+      "mTW": 232.53106046657823,
+      "pTratio": 0.008867829448442452
+    },
+    {
+      "entry": 54291,
+      "event": 54291,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 345.2870213472159,
+      "Hboost_paper": 295.900956993543,
+      "HTratio_historical": 0.8345272495281401,
+      "HTratio_paper": 0.9738103963920067,
+      "mTW": 190.17100630319828,
+      "pTratio": 0.01535990334614037
+    },
+    {
+      "entry": 60127,
+      "event": 60127,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 694.9382932160781,
+      "Hboost_paper": 450.92687005749286,
+      "HTratio_historical": 0.591098108307194,
+      "HTratio_paper": 0.910960818231746,
+      "mTW": 162.91887305044156,
+      "pTratio": 0.038392291012082524
+    },
+    {
+      "entry": 60837,
+      "event": 60837,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 793.1406124671921,
+      "Hboost_paper": 479.2617704384398,
+      "HTratio_historical": 0.5710158327559988,
+      "HTratio_paper": 0.9449863837589988,
+      "mTW": 346.1555813504109,
+      "pTratio": 0.048720476488490025
+    },
+    {
+      "entry": 63630,
+      "event": 63630,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 592.067239090379,
+      "Hboost_paper": 411.28038491371507,
+      "HTratio_historical": 0.6634325537989767,
+      "HTratio_paper": 0.9550581424709729,
+      "mTW": 173.89787491787462,
+      "pTratio": 0.01502917850413622
+    },
+    {
+      "entry": 73551,
+      "event": 73551,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 658.8926322083262,
+      "Hboost_paper": 425.5009133716037,
+      "HTratio_historical": 0.624140158773659,
+      "HTratio_paper": 0.9664875894688114,
+      "mTW": 8.143376166548036,
+      "pTratio": 0.037482218345446745
+    },
+    {
+      "entry": 73975,
+      "event": 73975,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 435.1371571670519,
+      "Hboost_paper": 339.61374981935097,
+      "HTratio_historical": 0.749270419729883,
+      "HTratio_paper": 0.9600182576943701,
+      "mTW": 43.493721430581225,
+      "pTratio": 0.05601193640770753
+    },
+    {
+      "entry": 74026,
+      "event": 74026,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 910.365426618346,
+      "Hboost_paper": 706.2573610500524,
+      "HTratio_historical": 0.7334515726697809,
+      "HTratio_paper": 0.9454187533913737,
+      "mTW": 32.079962096636464,
+      "pTratio": 0.08434406388417115
+    },
+    {
+      "entry": 74195,
+      "event": 74195,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 623.2962614872748,
+      "Hboost_paper": 438.0485850883763,
+      "HTratio_historical": 0.6828230696808768,
+      "HTratio_paper": 0.9715841600161554,
+      "mTW": 21.3478536986992,
+      "pTratio": 0.08736343677169722
+    },
+    {
+      "entry": 74326,
+      "event": 74326,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 382.4654957575075,
+      "Hboost_paper": 255.75777975842306,
+      "HTratio_historical": 0.6631240247334907,
+      "HTratio_paper": 0.9916494391997297,
+      "mTW": 155.6452773541749,
+      "pTratio": 0.03786207658378417
+    },
+    {
+      "entry": 75267,
+      "event": 75267,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 514.0807187601275,
+      "Hboost_paper": 456.0304779119778,
+      "HTratio_historical": 0.8578498480373073,
+      "HTratio_paper": 0.9670495456499005,
+      "mTW": 205.49075800877534,
+      "pTratio": 0.030105496349050815
+    },
+    {
+      "entry": 75588,
+      "event": 75588,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 391.13263443949484,
+      "Hboost_paper": 320.0372063869206,
+      "HTratio_historical": 0.8027731768177873,
+      "HTratio_paper": 0.9811071376697775,
+      "mTW": 167.88817526372264,
+      "pTratio": 0.03732554082385081
+    },
+    {
+      "entry": 78562,
+      "event": 78562,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 627.0048304156644,
+      "Hboost_paper": 554.0076928077277,
+      "HTratio_historical": 0.8745551471733196,
+      "HTratio_paper": 0.9897882445702113,
+      "mTW": 197.5550606729741,
+      "pTratio": 0.00940654638226237
+    },
+    {
+      "entry": 78916,
+      "event": 78916,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 525.9642198443466,
+      "Hboost_paper": 358.8189034005281,
+      "HTratio_historical": 0.6371671317137549,
+      "HTratio_paper": 0.9339728486049209,
+      "mTW": 148.7816491080546,
+      "pTratio": 0.04068094811737979
+    },
+    {
+      "entry": 88777,
+      "event": 88777,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1151.9824458169483,
+      "Hboost_paper": 655.300586199409,
+      "HTratio_historical": 0.5632608399483606,
+      "HTratio_paper": 0.9901816261143552,
+      "mTW": 223.8499098912096,
+      "pTratio": 0.019597528965787675
+    },
+    {
+      "entry": 93701,
+      "event": 93701,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 513.1656908930283,
+      "Hboost_paper": 450.8000977380489,
+      "HTratio_historical": 0.6900402923287955,
+      "HTratio_paper": 0.7855033863872343,
+      "mTW": 73.71409776255129,
+      "pTratio": 0.060432732074039305
+    },
+    {
+      "entry": 93811,
+      "event": 93811,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 550.6769182061462,
+      "Hboost_paper": 419.9537914577177,
+      "HTratio_historical": 0.7485009936528405,
+      "HTratio_paper": 0.9814942235150274,
+      "mTW": 33.14919295630545,
+      "pTratio": 0.016472347090474633
+    },
+    {
+      "entry": 94607,
+      "event": 94607,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1067.108067120954,
+      "Hboost_paper": 689.9870134498177,
+      "HTratio_historical": 0.6322425946192672,
+      "HTratio_paper": 0.9778027121444822,
+      "mTW": 142.19858082254905,
+      "pTratio": 0.028418864809804455
+    },
+    {
+      "entry": 96450,
+      "event": 96450,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 600.4544029670595,
+      "Hboost_paper": 461.24022219318476,
+      "HTratio_historical": 0.7106138698472271,
+      "HTratio_paper": 0.9250954414390039,
+      "mTW": 212.16675195932174,
+      "pTratio": 0.014263795313899737
+    },
+    {
+      "entry": 99539,
+      "event": 99539,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 879.9575838808742,
+      "Hboost_paper": 472.67421174990574,
+      "HTratio_historical": 0.5206803907634684,
+      "HTratio_paper": 0.9693286564844258,
+      "mTW": 272.71985935583325,
+      "pTratio": 0.009950978295763548
+    },
+    {
+      "entry": 100087,
+      "event": 100087,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 662.5717159417927,
+      "Hboost_paper": 607.445626074492,
+      "HTratio_historical": 0.8946833429253402,
+      "HTratio_paper": 0.9758764444109884,
+      "mTW": 227.7449194420126,
+      "pTratio": 0.0028375480023257495
+    },
+    {
+      "entry": 112688,
+      "event": 112688,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 355.0105585415994,
+      "Hboost_paper": 275.6546385826742,
+      "HTratio_historical": 0.746814211177185,
+      "HTratio_paper": 0.9618083395948358,
+      "mTW": 23.933492218032725,
+      "pTratio": 0.049424876321296836
+    },
+    {
+      "entry": 113909,
+      "event": 113909,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 611.2664545125317,
+      "Hboost_paper": 476.8922854488186,
+      "HTratio_historical": 0.7358903804372658,
+      "HTratio_paper": 0.9432425675253288,
+      "mTW": 250.37581815210757,
+      "pTratio": 0.025326317462537575
+    },
+    {
+      "entry": 118824,
+      "event": 118824,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 941.5917478965321,
+      "Hboost_paper": 693.509492836075,
+      "HTratio_historical": 0.6883293548120047,
+      "HTratio_paper": 0.9345585706050678,
+      "mTW": 514.6684225938478,
+      "pTratio": 0.010011947323354045
+    },
+    {
+      "entry": 125094,
+      "event": 125094,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 760.3088049405325,
+      "Hboost_paper": 532.1447838316998,
+      "HTratio_historical": 0.6487576744803788,
+      "HTratio_paper": 0.9269209943739236,
+      "mTW": 170.58334481497818,
+      "pTratio": 0.03425395560266961
+    },
+    {
+      "entry": 125393,
+      "event": 125393,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 648.3807499416864,
+      "Hboost_paper": 433.8352965566092,
+      "HTratio_historical": 0.6099805245759307,
+      "HTratio_paper": 0.9116354365665549,
+      "mTW": 89.85256367368693,
+      "pTratio": 0.044179749406507714
+    },
+    {
+      "entry": 127166,
+      "event": 127166,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 921.1421030962515,
+      "Hboost_paper": 765.8637523121428,
+      "HTratio_historical": 0.6525651059389113,
+      "HTratio_paper": 0.7848722338367108,
+      "mTW": 37.34469643098548,
+      "pTratio": 0.018232985378850316
+    },
+    {
+      "entry": 134042,
+      "event": 134042,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 916.4474428397443,
+      "Hboost_paper": 634.3160046693085,
+      "HTratio_historical": 0.6472602659307021,
+      "HTratio_paper": 0.9351490600859278,
+      "mTW": 157.5395404034102,
+      "pTratio": 0.009425775253707093
+    },
+    {
+      "entry": 138321,
+      "event": 138321,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 426.3989580683906,
+      "Hboost_paper": 369.62766752912955,
+      "HTratio_historical": 0.8416398594325344,
+      "HTratio_paper": 0.9709077286606995,
+      "mTW": 246.38761459764112,
+      "pTratio": 0.027204164685924247
+    },
+    {
+      "entry": 138547,
+      "event": 138547,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 932.6505314928552,
+      "Hboost_paper": 914.6948482623122,
+      "HTratio_historical": 0.8907776087097449,
+      "HTratio_paper": 0.9082637906875249,
+      "mTW": 288.4444324443165,
+      "pTratio": 0.012951449048333414
+    },
+    {
+      "entry": 139130,
+      "event": 139130,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1176.16836535827,
+      "Hboost_paper": 974.9065499471278,
+      "HTratio_historical": 0.8241805575912168,
+      "HTratio_paper": 0.9943261733493339,
+      "mTW": 177.6852416534379,
+      "pTratio": 0.019114503978465206
+    },
+    {
+      "entry": 139826,
+      "event": 139826,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 768.4440172287499,
+      "Hboost_paper": 473.25866041735617,
+      "HTratio_historical": 0.5633246203890918,
+      "HTratio_paper": 0.9146867675150501,
+      "mTW": 125.41520992315326,
+      "pTratio": 0.03906828218907184
+    },
+    {
+      "entry": 141775,
+      "event": 141775,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 665.0881215914821,
+      "Hboost_paper": 389.22763322128196,
+      "HTratio_historical": 0.5691559709020699,
+      "HTratio_paper": 0.9725385436974583,
+      "mTW": 34.94558034972437,
+      "pTratio": 0.01369003858771799
+    },
+    {
+      "entry": 141882,
+      "event": 141882,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1046.4488061319462,
+      "Hboost_paper": 922.9726226916943,
+      "HTratio_historical": 0.8760168211001903,
+      "HTratio_paper": 0.9932112113123962,
+      "mTW": 251.33486482947345,
+      "pTratio": 0.049900232520740974
+    },
+    {
+      "entry": 141885,
+      "event": 141885,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 576.2351663942261,
+      "Hboost_paper": 474.46689047869177,
+      "HTratio_historical": 0.8133069124172836,
+      "HTratio_paper": 0.9877528936392558,
+      "mTW": 234.79939619737326,
+      "pTratio": 0.019616277110503122
+    },
+    {
+      "entry": 146414,
+      "event": 146414,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 637.1341667065166,
+      "Hboost_paper": 588.3067235288158,
+      "HTratio_historical": 0.876236248749503,
+      "HTratio_paper": 0.9489608563987685,
+      "mTW": 184.60651499649575,
+      "pTratio": 0.03185463373011751
+    },
+    {
+      "entry": 151619,
+      "event": 151619,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 398.32008546059546,
+      "Hboost_paper": 366.92342443753074,
+      "HTratio_historical": 0.836617213098842,
+      "HTratio_paper": 0.9082043217332688,
+      "mTW": 192.08597542163844,
+      "pTratio": 0.024469089613545412
+    },
+    {
+      "entry": 153940,
+      "event": 153940,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 687.668513522623,
+      "Hboost_paper": 467.8810553374015,
+      "HTratio_historical": 0.6536174015459078,
+      "HTratio_paper": 0.9606546403326106,
+      "mTW": 63.12457554988351,
+      "pTratio": 0.018580656487949012
+    },
+    {
+      "entry": 156560,
+      "event": 156560,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1252.625083501424,
+      "Hboost_paper": 850.2834354274144,
+      "HTratio_historical": 0.6581687781619359,
+      "HTratio_paper": 0.9696045887201156,
+      "mTW": 244.30265261851008,
+      "pTratio": 0.01675507008479166
+    },
+    {
+      "entry": 171182,
+      "event": 171182,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 552.0869063422818,
+      "Hboost_paper": 420.5905225804556,
+      "HTratio_historical": 0.7383016919981295,
+      "HTratio_paper": 0.9691295338319175,
+      "mTW": 71.39255828529419,
+      "pTratio": 0.025158483845256645
+    },
+    {
+      "entry": 171244,
+      "event": 171244,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 741.9180380737504,
+      "Hboost_paper": 441.00719296166824,
+      "HTratio_historical": 0.568774542546511,
+      "HTratio_paper": 0.9568644218215294,
+      "mTW": 164.4443127864767,
+      "pTratio": 0.03898659674998954
+    },
+    {
+      "entry": 175503,
+      "event": 175503,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 578.8776838009769,
+      "Hboost_paper": 382.2961662086751,
+      "HTratio_historical": 0.616253227441616,
+      "HTratio_paper": 0.9331384211202278,
+      "mTW": 167.9133128623788,
+      "pTratio": 0.028478473186152087
+    },
+    {
+      "entry": 175775,
+      "event": 175775,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 562.4507948753962,
+      "Hboost_paper": 466.0154590680439,
+      "HTratio_historical": 0.7701107688157125,
+      "HTratio_paper": 0.929474346041501,
+      "mTW": 284.75271651753917,
+      "pTratio": 0.01451970969553632
+    },
+    {
+      "entry": 181762,
+      "event": 181762,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 501.4989878249537,
+      "Hboost_paper": 434.81863564168697,
+      "HTratio_historical": 0.7068548805622826,
+      "HTratio_paper": 0.8152525629863503,
+      "mTW": 45.44847434820111,
+      "pTratio": 0.0349237151612071
+    },
+    {
+      "entry": 186038,
+      "event": 186038,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 559.5682014442086,
+      "Hboost_paper": 478.3851045069148,
+      "HTratio_historical": 0.8291278825798666,
+      "HTratio_paper": 0.969832868230024,
+      "mTW": 185.01940666473413,
+      "pTratio": 0.008230277265152106
+    },
+    {
+      "entry": 186238,
+      "event": 186238,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 431.45832166391,
+      "Hboost_paper": 344.4110901581891,
+      "HTratio_historical": 0.7738702103816935,
+      "HTratio_paper": 0.9694599032906416,
+      "mTW": 120.66712546955047,
+      "pTratio": 0.04883369128915951
+    },
+    {
+      "entry": 187155,
+      "event": 187155,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 461.521459113656,
+      "Hboost_paper": 348.6720150706725,
+      "HTratio_historical": 0.753711052317103,
+      "HTratio_paper": 0.9976534094512055,
+      "mTW": 214.89124844776657,
+      "pTratio": 0.037756595079970166
+    },
+    {
+      "entry": 190660,
+      "event": 190660,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "CRlow",
+        "Preselection"
+      ],
+      "Hboost_historical": 387.6213646261664,
+      "Hboost_paper": 315.61886993840017,
+      "HTratio_historical": 0.698796822560044,
+      "HTratio_paper": 0.8582141429313753,
+      "mTW": 5.737316462634827,
+      "pTratio": 0.016865459336012578
+    },
+    {
+      "entry": 194180,
+      "event": 194180,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 786.145423075612,
+      "Hboost_paper": 446.47033020010696,
+      "HTratio_historical": 0.5499904301675687,
+      "HTratio_paper": 0.9684237230676286,
+      "mTW": 245.8779436889326,
+      "pTratio": 0.026126470018437573
+    },
+    {
+      "entry": 197356,
+      "event": 197356,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "SRlow"
+      ],
+      "Hboost_historical": 1521.8570214682518,
+      "Hboost_paper": 839.609381756636,
+      "HTratio_historical": 0.543970831248867,
+      "HTratio_paper": 0.9859892552391274,
+      "mTW": 102.72685517922571,
+      "pTratio": 0.023130312899580212
+    },
+    {
+      "entry": 197516,
+      "event": 197516,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 2489.967701448294,
+      "Hboost_paper": 1128.411580717545,
+      "HTratio_historical": 0.4502779910013381,
+      "HTratio_paper": 0.9935892837553232,
+      "mTW": 72.859218746548,
+      "pTratio": 0.010738460042633364
+    },
+    {
+      "entry": 198125,
+      "event": 198125,
+      "historical": [
+        "Preselection"
+      ],
+      "paper": [
+        "Preselection",
+        "VRlow"
+      ],
+      "Hboost_historical": 436.75927474229525,
+      "Hboost_paper": 251.18479443806538,
+      "HTratio_historical": 0.5730563806725426,
+      "HTratio_paper": 0.9964285050331652,
+      "mTW": 81.66379302866115,
+      "pTratio": 0.018685791583708065
+    }
+  ],
+  "scope": "Cached detector-event reanalysis. Only the invisible Hboost contribution changes frame. No fresh generation, detector simulation, fit, or acceptance certification."
+}

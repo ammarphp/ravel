@@ -1,0 +1,25 @@
+{
+  "patch_metadata": {
+    "name": "MGPy8EG_A14N23LO_SlepSlep_direct_degenerate_150p0_130p0_2L2MET75_excl_AllSys_HghMETLowMET_V2_sepNF_prun",
+    "values": [
+      "degenerate",
+      150.0,
+      130.0
+    ]
+  },
+  "patchset_metadata": {
+    "analysis_id": "ANA-SUSY-2018-16",
+    "description": "signal patchset for the ATLAS SUSY Compressed analysis for Sleptons (degenerate, left-handed, right-handed chiralities) where m(smuon) == m(selectron)",
+    "digests": {
+      "sha256": "7f3c55fc8985618b8190047100942847c8ee6e2f4db261356e3ea3394855bc42"
+    },
+    "labels": [
+      "chirality",
+      "mL",
+      "mN1"
+    ],
+    "references": {
+      "hepdata": "ins1767649"
+    }
+  }
+}

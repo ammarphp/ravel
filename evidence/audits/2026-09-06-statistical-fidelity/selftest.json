@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "engine_sha256": "a85206eee4c40c18e893d1ea93c4ede9c741a782c3b0d367a53fa7011bc0e466",
+  "command": "env -u PYTHONPATH <locked-python> -B scripts/run.py ravel.physics.pyhf_exclude selftest",
+  "original_log_sha256": "d952f109a8331865f4f81575d3607220210207797321a8809804c3aa6332cece",
+  "passed": 5,
+  "failed": 0,
+  "lines": [
+    "selftest normal          obs_limit=0.7492  at_mu_floor=False at_poi_cap=False  -> PASS",
+    "selftest hyper-excluded  obs_limit=0.0002997  at_mu_floor=False at_poi_cap=False  -> PASS",
+    "selftest unconstrained   obs_limit=32  at_mu_floor=False at_poi_cap=True  -> PASS",
+    "selftest nan-pocket      obs_limit=2.421 (ref 2.4359)  n_fallback=1 escalated=True  -> PASS",
+    "selftest 2018-06-freefit twice_nll=271.7864 (true 271.79; stuck-SLSQP 302.52) mu_hat=0.2451  -> PASS"
+  ],
+  "scope": "CLs regimes, legacy NaN-pocket fallback and published workspace free-fit numerical control; not toy calibration"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "script_sha256": "c21f2ed824ff01732250b7c52f1a739df7cec23494e2969718f39aa149b3e732",
+  "source_snapshot_sha256": "0cce2a6965f3e73974d11ae55d9df77717dcffa4474b3b46a61c35ab6e9acee3",
+  "source_commit_at_capture": "ce2338575f66b17b6ec63f1042412d39279f3cb8",
+  "outputs": {
+    "diagnosis.json": "f3c87b3dd9e3349b5509d75d59b98fd9df5d63a13702d59bd67467221ff9757a",
+    "paired-changes.png": "b567f5e7b458539022f1b4131e10e59b7369a17bc080be7cf3be1d9c3773914b",
+    "points.csv": "cf4b10a7f4d8a58861d9e1a88954e533657dffa7e338ce4c1b721bf20716cfb9",
+    "retained-inputs.json": "0cce2a6965f3e73974d11ae55d9df77717dcffa4474b3b46a61c35ab6e9acee3",
+    "signed-residuals.png": "add18f29f6d6a68d45b78ac0af27fc4109f8648e6331efd401de14e7731b16c1"
+  },
+  "python": "3.12.13",
+  "original_sources_count": 1633
+}

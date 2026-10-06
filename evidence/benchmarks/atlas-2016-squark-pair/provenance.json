@@ -1,0 +1,13 @@
+{
+  "routine": "ATLAS_2016_I1458270 (Rivet 4.1.3)",
+  "model": "squark-pair q~->q chi10 (800,100), 8 deg.",
+  "sigma_pb": 0.3044,
+  "sigma_source": "MadGraph 2.9.27 LO",
+  "lumi_fb": 3.2,
+  "generator": "MadGraph 2.9.27",
+  "shower": "Pythia8 8.312 (pythia_shower)",
+  "data_source": "Rivet bundled REF + HEPData full tables (hepdata-cli)",
+  "exclusion": "pyhf 0.7.6 counting, most-sensitive SR 2jl, mu95=0.28",
+  "validation": "A*e vs published: sensitive SR 2jl/2jm within 2%, high-mult ~35% low (no merging)",
+  "recorded_by": "framework provenance stamp"
+}

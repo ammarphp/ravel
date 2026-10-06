@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "performed_utc": "2026-09-06T01:46:00.399009+00:00",
+  "scope": "New retained-event eRJR replay plus read-only recheck of current-source compressed outputs and targeted tests. No generation, detector retuning, fit, new acceptance certification or physics closure.",
+  "engine_sha256": {
+    "sa_native_core.py": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+    "native_simpleanalysis.py": "bba841fe7d8b3fbfaee2141b0264fdcf0ee08e0f3c7fb505cd120760e23ad7a1",
+    "native_sa_generic.py": "cd900b79d7ec80fd002b01b36e18c18d51162331cbcc4f9b91e332b99730414e",
+    "sa_routines/ewkthreeleptonerjr2018.py": "beb9c22bf066be147fb5fd63d7613544f7c9529a3bc12b029b8263552b16feec",
+    "compressed_validation.py": "4a5bcbacafa655c035306089976bd0abff46fa941325d453f52c6daa5bfdb46c",
+    "sa2json_native.py": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c"
+  },
+  "additional_engine_sha256": {
+    "src/ravel/physics/pool_replicas.py": "436f6572fb000f7bdef04d7d32a638d570e0a0097020cd4a1367c4eabf0a9edb",
+    "src/ravel/physics/native_event_io.py": "ad3e897adae8983e01b3758bd8820563009ce79f4cf2c93c727712e6c789eb2c"
+  },
+  "git_head_at_refresh": "b2ce048a15a45502980c7f27f8949d77e91f17dd",
+  "working_tree_changes_present": true,
+  "retained_erjr_replay": {
+    "entries": 200000,
+    "sr_low_historical": 43,
+    "sr_low_paper": 95,
+    "sr_isr_historical": 19,
+    "sr_isr_paper": 19,
+    "changed_events": 73,
+    "sr_low_added": 52,
+    "sr_low_lost": 0,
+    "all_region_counts_and_cutflows_identical_to_previous": true,
+    "all_changed_event_records_identical_to_previous": true,
+    "source_event_sha256": "91c8ed8887601986f401971007a25754c38d3bf01d33c0bfa8456443ac09f8ac",
+    "production_driver_all_paper_counts_agree": true,
+    "production_driver_counts": {
+      "Preselection": 1055,
+      "SRlow": 95,
+      "SRISR": 19,
+      "CRlow": 65,
+      "CRISR": 16,
+      "VRlow": 28,
+      "VRISR": 19,
+      "VRISRsmallPTsoft": 2,
+      "VRISRsmallRjetsinv": 15
+    }
+  },
+  "remaining_acceptance_discrepancy": {
+    "region": "SRlow",
+    "native": 0.000475,
+    "reference": 0.0006180500000000001,
+    "relative_difference": -0.2314537658765473,
+    "tolerance": 0.15,
+    "passes_existing_tolerance": false,
+    "new_certificate": false
+  },
+  "compressed_sr_parity": {
+    "record": "compressed-sr-parity.json",
+    "previous_actual_selection_verification": "compressed-prior-verification.json",
+    "source_hashes_still_match_current": true,
+    "selection_repeated_in_this_dated_refresh": false,
+    "readonly_branch_comparison_repeated": true,
+    "cases": [
+      {
+        "label": "m150_dm20",
+        "input_events": 1000,
+        "old_rows": 685,
+        "new_rows": 685,
+        "sr_branches_equal": 141,
+        "original_only_rows": 0,
+        "all_original_only_sr_weights_zero": true,
+        "historical_dtype": "float64",
+        "current_dtype": "float64",
+        "whole_output_byte_identity_claimed": false
+      },
+      {
+        "label": "m200_dm50",
+        "input_events": 10000,
+        "old_rows": 10000,
+        "new_rows": 7164,
+        "sr_branches_equal": 141,
+        "original_only_rows": 2836,
+        "all_original_only_sr_weights_zero": true,
+        "historical_dtype": "float32",
+        "current_dtype": "float64",
+        "whole_output_byte_identity_claimed": false
+      }
+    ],
+    "scope": "Exact numerical per-event SR weight parity with Event alignment; new six-CR outputs and float32/float64 storage differences prevent a whole-output byte-identity claim. CR acceptance remains unvalidated."
+  },
+  "unit_tests": {
+    "record": "tests.json",
+    "locked_python312": {
+      "passed": 120,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 10,
+      "pytest_summary": "120 passed, 10 skipped, 32 warnings in 2.53s"
+    },
+    "existing_rivet": {
+      "passed": 130,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_summary": "130 passed, 35 warnings in 7.99s"
+    }
+  },
+  "refresh": {
+    "working_directory": "repository root",
+    "commands": [
+      {
+        "name": "differential",
+        "argv": [
+          "<repo>/stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python",
+          "-B",
+          "scripts/run.py",
+          "ravel.physics.sa_routines.ewkthreeleptonerjr2018",
+          "--input",
+          "trial-runs/CR005cert_c1n2_300_100/output/analysis/Delphes2SA.root",
+          "--out",
+          "<repo>/local-runs/rrr-closure/verification/native-refresh-20260906/erjr_differential.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": null
+        },
+        "returncode": 0,
+        "elapsed_seconds": 7.733507625001948,
+        "log": "local-runs/rrr-closure/verification/native-refresh-20260906/differential.log"
+      },
+      {
+        "name": "driver",
+        "argv": [
+          "<repo>/stages/01-event-generation/build/tools/miniforge3/envs/rivet/bin/python",
+          "-B",
+          "scripts/run.py",
+          "ravel.physics.native_simpleanalysis",
+          "--input",
+          "trial-runs/CR005cert_c1n2_300_100/output/analysis/Delphes2SA.root",
+          "--output",
+          "<repo>/local-runs/rrr-closure/verification/native-refresh-20260906/driver",
+          "--ngen",
+          "200000",
+          "--routine",
+          "EwkThreeLeptonERJR2018"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": null
+        },
+        "returncode": 0,
+        "elapsed_seconds": 6.161787999997614,
+        "log": "local-runs/rrr-closure/verification/native-refresh-20260906/driver.log"
+      }
+    ],
+    "runtime": {
+      "python": "3.14.5 | packaged by conda-forge | (main, May 20 2026, 00:45:47) [Clang 20.1.8 ]",
+      "numpy": "2.4.6",
+      "uproot": "5.7.4"
+    },
+    "differential_sha256": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+    "differential_byte_identical_to_original": true,
+    "production_driver_txt_sha256": "1a786f3c11b895bd31f6f21ead11051c880f39e6b647d5708066ebc4a1d1edb0"
+  },
+  "historical_checks_not_repeated": [
+    "zero-lepton cached-output comparisons and cutflows",
+    "direct Delphes nominal-weight read",
+    "historical rendered figure visual inspection",
+    "earlier independent pre-edit instrumentation itself",
+    "compressed selection loops in this dated refresh; their retained current-source outputs were instead rechecked read-only"
+  ],
+  "preservation": {
+    "old_audit_all_files_sha256": {
+      "evidence/audits/2026-09-05-native-fidelity/README.md": "f8ee1a13d14c053c5478be74a294666fae63f6449261d226f7bcd181b4c1ca99",
+      "evidence/audits/2026-09-05-native-fidelity/cutflow-comparison.pdf": "682c66d5fa173d94e4e7e10b8a93625d54d71179ddd5cd8e1c0447bc51b2ea0e",
+      "evidence/audits/2026-09-05-native-fidelity/cutflow-comparison.png": "5ef6d6ff0924cdb5e8c964089191802edeafc3c07c699626b6e6e5d47e90d852",
+      "evidence/audits/2026-09-05-native-fidelity/erjr_differential.json": "90f1c87a55d3f17b1a97094e127dc7b72e040df3899b8d4135b4dade0745f62f",
+      "evidence/audits/2026-09-05-native-fidelity/reference.json": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+      "evidence/audits/2026-09-05-native-fidelity/render.py": "db2e3586530622fd28e2a4ca7b1b35db5c4005cb9165c752dacd8f08e13c54f8",
+      "evidence/audits/2026-09-05-native-fidelity/verification.json": "e0d1dd1682d3fd8cb648dcb97dba5466c1deaf77a3ce488da0be6e2f8e3a49c4",
+      "evidence/audits/2026-09-05-native-fidelity/zero_lepton_cutflow.json": "965b3011bc83c2b66684b9f582dc7c818b1158602f0ffb6ae363914cb047edce"
+    },
+    "old_audit_before_after_identical": true,
+    "retained_erjr_input_before_after_identical": true,
+    "old_compressed_inputs_and_existing_outputs_before_after_identical": true
+  },
+  "copied_artifacts": {
+    "reference.json": {
+      "origin": "evidence/audits/2026-09-05-native-fidelity/reference.json",
+      "sha256": "d636f7a6a1a7ef4617fd507805c09eca35a126b33dbacae5b43b6e83362ce1c2",
+      "kind": "unchanged historical reference metadata, not a newly validated reference"
+    },
+    "compressed-prior-verification.json": {
+      "origin": "local-runs/rrr-closure/signal-model/retained-event-verification.json",
+      "original_sha256": "8dc8f763273c68ead61ebc104a3f6f4541b02356428cd2d02fa87015f0ead06e",
+      "kind": "earlier actual ROOT selection/transport proof; sanitized source checkout path only"
+    }
+  },
+  "attempts": {
+    "storage_identity_probe": {
+      "status": "failed-as-designed-for-overstrong-claim",
+      "log": "local-runs/rrr-closure/verification/native-refresh-20260906/compressed-parity.log",
+      "sha256": "52cc32cb40346d2e3ff14b92c0111afb162c590410199afa438d7916f02af98a",
+      "finding": "float32 historical container storage versus float64 native storage; exact numerical equality confirmed, storage-identity wording rejected"
+    },
+    "final_compressed_parity": {
+      "status": "passed",
+      "log": "local-runs/rrr-closure/verification/native-refresh-20260906/compressed-parity-final.log",
+      "sha256": "f9cdda04176639f810c40abcc7ba5efc8bee675773bc43ed675a57b20a3ab6d7"
+    }
+  }
+}

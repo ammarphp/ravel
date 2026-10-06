@@ -1,0 +1,636 @@
+{
+  "schema_version": 1,
+  "scope": "Selected small original artifacts; raw event products and private execution context are not copied or replayed. Original paths are repository-relative.",
+  "sources": {
+    "failed_pool_finalization": {
+      "bytes": 1454,
+      "path": "local-runs/rrr-closure/physics-review/pooled-timeout-supervision/failure-finalization.json",
+      "role": "projection_input",
+      "sha256": "6555e02106e0b630d7096b5cb20e3cdb18d0e2420ae50a03da5e235c7a361376"
+    },
+    "failed_reader_v1": {
+      "bytes": 64,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v1/result-v1/FAILED.json",
+      "role": "projection_input",
+      "sha256": "35c1b60bf36f1c0f6b164b98a739fc058cee48f6c557bf20cae02594dbe80390"
+    },
+    "failed_reader_v2": {
+      "bytes": 71,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v2/result-v1/FAILED.json",
+      "role": "projection_input",
+      "sha256": "29f3fa70e8e68b43b5ddaec9cfde22e8aa917161f6f4c5b56ceb5cdfd4298376"
+    },
+    "figure_contract": {
+      "bytes": 3347,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/chart-contract.json",
+      "role": "projection_input",
+      "sha256": "6284c507ef0e169661e1154c1c8ecae4c32e36456c88c99029adc76f1effbcda"
+    },
+    "figure_data": {
+      "bytes": 216910,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/result-v1/figure-data.json",
+      "role": "projection_input",
+      "sha256": "dcb13905e3091d360283072100210933c2cfd57ff15f2101062e8f58da723ea3"
+    },
+    "figure_decomposition_pdf": {
+      "bytes": 23509,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/result-v1/EwkCompressed2018__lower-parton__decomposition.pdf",
+      "role": "byte_identical_copy",
+      "sha256": "4556b6ef15680ca4a2bcd5bc306bd81e1a75f78d25dea16dfada1b3d24d2dffe"
+    },
+    "figure_decomposition_png": {
+      "bytes": 240284,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/result-v1/EwkCompressed2018__lower-parton__decomposition.png",
+      "role": "byte_identical_copy",
+      "sha256": "6b044ccd807e5543891431ec03ab08240846b15be55b0aa5c895d62cddd5535c"
+    },
+    "figure_qa": {
+      "bytes": 2630,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/actual-visual-verification.json",
+      "role": "projection_input",
+      "sha256": "117e794c9bde4b6fa741a680d39d0d63718546a0f0e28fbe5e837355a695d11a"
+    },
+    "figure_ratios_pdf": {
+      "bytes": 22087,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/result-v1/EwkCompressed2018__lower-parton__ratios.pdf",
+      "role": "byte_identical_copy",
+      "sha256": "ec5720ec48c699d6061710d4a3af4370c9d04b4f23b825339633d2ec58932f3b"
+    },
+    "figure_ratios_png": {
+      "bytes": 226310,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/result-v1/EwkCompressed2018__lower-parton__ratios.png",
+      "role": "byte_identical_copy",
+      "sha256": "1d40a955bd105f7d72c7e20d4a1984e22d7d44e8b7c8626be90accdd2c0003d2"
+    },
+    "figure_renderer": {
+      "bytes": 21495,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-figures-v1/render.py",
+      "role": "projection_input",
+      "sha256": "5013070967cf10d78ac285dcca6c2edc49c3b6e876c503eb6d7b59a4a075977e"
+    },
+    "inclusive_control": {
+      "bytes": 5260,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json",
+      "role": "projection_input",
+      "sha256": "6c8b76ea1bde50250c48577151c77f87661b2f56c53f33dc68ba107f5482fd05"
+    },
+    "lower_20k_integration_log": {
+      "bytes": 109121,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/madgraph.log",
+      "role": "projection_input",
+      "sha256": "f1b87e022d29a25eaa6fc064de2d8df1fe0f552ca66868b92f1b367f45df8e12"
+    },
+    "lower_20k_normalization": {
+      "bytes": 1323,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/output/normalization.json",
+      "role": "projection_input",
+      "sha256": "0b79d9a4084c15c23e1a86899ef4e48b0a701d7fb466325d7eccd4bfc9e01568"
+    },
+    "lower_20k_plan": {
+      "bytes": 101776,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/inputs/native_execution_plan.json",
+      "role": "projection_input",
+      "sha256": "875bd0507e7796df4c92680f747dcace5bc5e22fae12741a0558f9471a453b21"
+    },
+    "lower_20k_receipt_analysis": {
+      "bytes": 61137,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/analysis/1a01a3ba70c841dfba941a047c229000/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "dac0bdc0819989cc65a1b5d4e403e167d28133cbe8d5b45c76df332c15a6705d"
+    },
+    "lower_20k_receipt_delphes": {
+      "bytes": 59802,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/delphes/50ac09ff1a934aefb40db5ec0286432f/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "a2379d448439a135ce659de0c4f5baea8a91ea142c58c8a572162eec27a451b0"
+    },
+    "lower_20k_receipt_lhe_check": {
+      "bytes": 60448,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/lhe_check/053865adcd464d8e93207063792e8479/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "5a7daa9636bea9880c2b1be102e1e256b7385d5408583377f1a217684758c13f"
+    },
+    "lower_20k_receipt_madgraph": {
+      "bytes": 61052,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/madgraph/905b6a305a3e4a50bf904580e318f52a/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "d85716e33795b547ca9c01896a32f4f49a6c08baace4d073a0b05b6e78d51679"
+    },
+    "lower_20k_receipt_native_report": {
+      "bytes": 61106,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/native_report/16639ad665b546bc98c80066bc6c2bae/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "ea6cdf3702df810a26f53c5e413ce845b645da0348d59c67e33baa7dc14b4783"
+    },
+    "lower_20k_receipt_normalization": {
+      "bytes": 61097,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/normalization/75630c4c320f4714b0154771afb46f63/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "9d65f4d784279e1274d3f53ac6b55e9f05784cf04264757e2ca88fa96a2852e9"
+    },
+    "lower_20k_receipt_prepare": {
+      "bytes": 60913,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/prepare/ac660499bcde40cb86838e46e0913758/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "6f8ef1baae6348484b4a50d4f4bc37bbb43dbf28c938de67abe079fb0d512725"
+    },
+    "lower_20k_receipt_pyhf": {
+      "bytes": 59970,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/pyhf/44a6c913173b48aca11a87ec3dca0fa0/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "8091052d25c5f829a2be66f792219adb907b64a21c7b4d468bcb618b7badb9c7"
+    },
+    "lower_20k_receipt_pythia": {
+      "bytes": 61284,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/pythia/7b183f49f01d4aa29e871609736beefa/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "f841a8750eaf48dd76b65ddd4baf05ffc14fd89e3fc6b3712dcc42be7ed355f5"
+    },
+    "lower_20k_receipt_sa2json": {
+      "bytes": 60487,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/sa2json/464df3ee1ea2432798a82a64e38b3154/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "a5ea1df6d6db5dab7d38f83e6da12271c343ebdc9f21f6186a194f7050636f41"
+    },
+    "lower_20k_receipt_simpleanalysis": {
+      "bytes": 62810,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/simpleanalysis/2de37f3f6bd744b1b35d7921133002bd/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "b90fd0bb27d11a9e737c5e4094d9abd4cd66c651e512c9ea7fb0da7b54a6822a"
+    },
+    "lower_20k_receipt_unpack_lhe": {
+      "bytes": 59674,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/logs/execution/unpack_lhe/3092bfb498ad4d2996d73c73dba9e826/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "ebf94ee7f42555549ed4ce7d875d1eeefc22dc6b8a82293b3a4abbdc506bd694"
+    },
+    "lower_20k_result": {
+      "bytes": 91058,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/output/exclusion.json",
+      "role": "projection_input",
+      "sha256": "867b473d8cd9a7e2ef267ce715a33b5523e272ec305c1e819568a4f275bdfe05"
+    },
+    "lower_20k_signal_model": {
+      "bytes": 25143,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/output/signal_model.json",
+      "role": "projection_input",
+      "sha256": "c73b86b5979644f75175ce437a22cc8813b4fe2becedb5bcf0087cfaa72330da"
+    },
+    "lower_20k_state": {
+      "bytes": 791353,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_ptj20_20k/execution_state.json",
+      "role": "projection_input",
+      "sha256": "ab06e86a34acf77b8cbc2abe37ebded0236ba19f74f89e335bab8c46b3d98f8e"
+    },
+    "lower_comparison": {
+      "bytes": 379520,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v3/result-v1/comparison.json",
+      "role": "projection_input",
+      "sha256": "0c224d63231f1c7fd61197b4480f6b719e0f9be5b0758442604853092478ef21"
+    },
+    "lower_completion": {
+      "bytes": 828,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v3/result-v1/COMPLETE.json",
+      "role": "projection_input",
+      "sha256": "8e33fdbd1420c464c46091d883e297935b8626b43afd77adef83165ef3689b78"
+    },
+    "lower_csv": {
+      "bytes": 8718,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v3/result-v1/rates.csv",
+      "role": "projection_input",
+      "sha256": "22f7fd39906778aaedebea1345136a61f9fb4579ddcff5a17f70679a6085db88"
+    },
+    "lower_full_completion": {
+      "bytes": 1512,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/lower20k-completion-verification.json",
+      "role": "projection_input",
+      "sha256": "8fc733061fcea726f31ca828e4371c0aa9db8186b27b4960aaa2ba69c64557f1"
+    },
+    "lower_protocol": {
+      "bytes": 27970,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v3/protocol.json",
+      "role": "projection_input",
+      "sha256": "fbf0d8608b629162a980f963c34e728b990a09587f7660472128864570fcbc61"
+    },
+    "lower_reader": {
+      "bytes": 47682,
+      "path": "local-runs/rrr-closure/physics-review/lower-parton-comparison-v3/compare.py",
+      "role": "projection_input",
+      "sha256": "61402450d0310460ab487303ab2f5cbc6c9dcb97a0e9d81b31f112a698b13d56"
+    },
+    "native_table": {
+      "bytes": 21217,
+      "path": "local-runs/rrr-closure/physics-review/m150-limit-comparison-v2/summary.json",
+      "role": "projection_input",
+      "sha256": "b669d9f50527c0c716360bac44bdcca291f01b3d4e194c209882ff86f2d8d0f8"
+    },
+    "native_table_builder": {
+      "bytes": 9483,
+      "path": "local-runs/rrr-closure/physics-review/m150-limit-comparison-v2/summarize.py",
+      "role": "projection_input",
+      "sha256": "440057339cf1a2e61e0f1e36c846adb663dba417c2d256f8f2eff7f94e728660"
+    },
+    "nominal_20k_integration_log": {
+      "bytes": 106614,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/madgraph.log",
+      "role": "projection_input",
+      "sha256": "6d57fca3aeffc0e83d2f8ed6fe9410accf8c7a3e381f41abb6157bc07c11f2ad"
+    },
+    "nominal_20k_normalization": {
+      "bytes": 1315,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/normalization.json",
+      "role": "projection_input",
+      "sha256": "f7c33116e488ce4b1bbba876e1180218fdca206a8ed077dba7dd1ad9aafb91d2"
+    },
+    "nominal_20k_plan": {
+      "bytes": 100516,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/native_execution_plan.json",
+      "role": "projection_input",
+      "sha256": "9f308e89d3a5c308a07793d82e4326752bd7a208608ac64d21ce6c090e28d36a"
+    },
+    "nominal_20k_receipt_analysis": {
+      "bytes": 60408,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/analysis/189449e6dbdd4697a4669158d1d9b343/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "78abb5ed88899aaf7af435186e9863151eddfecd3fb6d7bd334324d0f15f613b"
+    },
+    "nominal_20k_receipt_delphes": {
+      "bytes": 59097,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/delphes/90503525efd9430d9f47d1a0454088db/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "92ee2480cec848c730d1f76a1c5651851f821b9202d2b965bfe44599695d187f"
+    },
+    "nominal_20k_receipt_lhe_check": {
+      "bytes": 59731,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/lhe_check/3d4369e2d85b47329a82bb3c09dd0049/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "3a6ce665e1840fd81bb5de04007f2dd55667c3e6345c178c07d4e7d4eeee20cb"
+    },
+    "nominal_20k_receipt_madgraph": {
+      "bytes": 60323,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/madgraph/9908ec30feb04c22810faa4e14cf3ef0/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "79036184ea0527e965a3805728cbb83a3da61c7ae16c7ee9d679013e01ca1fbd"
+    },
+    "nominal_20k_receipt_native_report": {
+      "bytes": 60377,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/native_report/8a008616b0414366ba9dd6995112d97e/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "4acac48412c36833a922d97fe9e64ec55f1ea08a33f1d31b3f227a306980000b"
+    },
+    "nominal_20k_receipt_normalization": {
+      "bytes": 60362,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/normalization/cc6ccaa8f1444c4e92bb388d1ff5a441/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "e27226887d7082da102d3f4cac965173d7796fd0778c69191b9a0f94f210fcaa"
+    },
+    "nominal_20k_receipt_prepare": {
+      "bytes": 60184,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/prepare/9d6016a28dce41459dd2da76ff1cfd8f/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "2adc4edc8574bd1f5852d6e60f1ca4a31aacd8fccf3ed72a05f567855d4fd9dd"
+    },
+    "nominal_20k_receipt_pyhf": {
+      "bytes": 59259,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pyhf/6a769b87e9144ef893cfd617a7ef239c/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "47942fe3f203f68e4fa0bb92f80181365ad5aef7836ccaa2e17ba8f1e1db5f6d"
+    },
+    "nominal_20k_receipt_pythia": {
+      "bytes": 60549,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pythia/f31a6ffe9162451ab009c604c602b205/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "f994de9d8b1c2c5d01eb34d1f878cc3728d36403de3696208e83ab059940e16d"
+    },
+    "nominal_20k_receipt_sa2json": {
+      "bytes": 59770,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/sa2json/ce88b3e91d3d461b93ec9d97da754ff8/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "d62f5bf3bad877167da04ba61faa9e9315b76d4bd9f56e619fbb6b0607abdf98"
+    },
+    "nominal_20k_receipt_simpleanalysis": {
+      "bytes": 62051,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/simpleanalysis/877559f9c1e647bea3255023705113d5/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "5e694eecaa51005d52cf694374fbdcd9370783d34df3361db4c648b28786f793"
+    },
+    "nominal_20k_receipt_unpack_lhe": {
+      "bytes": 58975,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/unpack_lhe/8267138a5392494eaa4ce20e514b9ffd/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "93dc40ecf4cf79a32b5bef28a25d2e7fedeffd8b72bd17b02e5d30789c4359a8"
+    },
+    "nominal_20k_result": {
+      "bytes": 86175,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json",
+      "role": "projection_input",
+      "sha256": "35442efff5bff6d853fcd93cf7ebdcf0c2c738ab3816faf445953d8faef71227"
+    },
+    "nominal_20k_signal_model": {
+      "bytes": 25040,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/signal_model.json",
+      "role": "projection_input",
+      "sha256": "d73cf3bd4e5eff05e687250c6b10b5df7639adafcc397aae8d6c9ffd575327f8"
+    },
+    "nominal_20k_state": {
+      "bytes": 782131,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/execution_state.json",
+      "role": "projection_input",
+      "sha256": "360e0c0d90b2e4ab9a09687e95ffb11d002b4beda63f3c524e9c2f2576e4fcc5"
+    },
+    "nominal_40k_integration_log": {
+      "bytes": 113357,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/madgraph.log",
+      "role": "projection_input",
+      "sha256": "30b2702213aa38459e4928c6f1427e2125140321074189cda139337b1541a032"
+    },
+    "nominal_40k_normalization": {
+      "bytes": 1314,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/output/normalization.json",
+      "role": "projection_input",
+      "sha256": "dbc5860ee743b273361eb6e0b3da69f258f86a3a3ca30fc3e789c141740d78ef"
+    },
+    "nominal_40k_plan": {
+      "bytes": 100516,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/inputs/native_execution_plan.json",
+      "role": "projection_input",
+      "sha256": "a31bdf6b08f686de9ded59544c2cca13affb30c35b499ee7dcdd9ed01fe83a7c"
+    },
+    "nominal_40k_receipt_analysis": {
+      "bytes": 60408,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/analysis/ac663ba8f1cc40f9bc62c00f2a16851b/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "3db3e40daa8f45f4631cd20af415fdadaf778080dc208f04be3b7f9b6ef9692f"
+    },
+    "nominal_40k_receipt_delphes": {
+      "bytes": 59097,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/delphes/ad7eccf238214a96a10b029dde144556/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "a27450c1d4ed55772eab5687955a67b3246d5ab907bbdccae894fd4a17a49c52"
+    },
+    "nominal_40k_receipt_lhe_check": {
+      "bytes": 59731,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/lhe_check/c5d314c5796947248b7b193d846c52f1/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "2b46ed3532f6e84fc9c703291d0333d038a425719e7e888c21ee94677dce6538"
+    },
+    "nominal_40k_receipt_madgraph": {
+      "bytes": 60323,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/madgraph/9fa91420d44c46e8aa8389d078415e1d/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "8ab9757b3a0665c20e03c70bb746a4405fb18f4d4759f7ee2d24e8eeceaf1fa5"
+    },
+    "nominal_40k_receipt_native_report": {
+      "bytes": 60377,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/native_report/03da3c81e4e74b729b0e63bd54d117a6/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "36c0a0b8347e51d60798b698d2e40feb25ec53c8cb8c8cec2bc2fe5c717f3e6b"
+    },
+    "nominal_40k_receipt_normalization": {
+      "bytes": 60362,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/normalization/608d3e8aa49c46d586c4a5ff73b5ab2f/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "de760fa5f509a1f9b06b916bed71d0958dbf1c12bc1521f4a18efb43fc68588e"
+    },
+    "nominal_40k_receipt_prepare": {
+      "bytes": 60184,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/prepare/e47f9a53711a4f41924034261d70f88d/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "b1e0670884b94778441ef744c0a4e075ed27ef86d11da7b13aeb9e0455bd1e89"
+    },
+    "nominal_40k_receipt_pyhf": {
+      "bytes": 59259,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/pyhf/387726c932e646e2828866bdd41d8a63/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "2238b11c2b262cdfea62849278c238b53253478f012946ce830ea97e2fe1e3d6"
+    },
+    "nominal_40k_receipt_pythia": {
+      "bytes": 60549,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/pythia/a1c5fcd569044ce7aa5b92bd94ec8693/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "c7e449fb2d48f33b04a25bb47738ed979f6dd4b9d683f086ac873af1bbb030e8"
+    },
+    "nominal_40k_receipt_sa2json": {
+      "bytes": 59770,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/sa2json/3d1a210aa999442f9618c879d2dfd54e/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "8d27d9b3c73a36a4d8147e141facef14aa3a518e23e40206b3651d4180c0bddb"
+    },
+    "nominal_40k_receipt_simpleanalysis": {
+      "bytes": 62052,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/simpleanalysis/87fb37103231488dbcfcbbbc20070f75/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "8d691f74a6a96c366da9f77fb31137f58088894e294fdd7633e310d21774cb65"
+    },
+    "nominal_40k_receipt_unpack_lhe": {
+      "bytes": 58975,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/logs/execution/unpack_lhe/3c80b688cedc453f955a56fc50f00d4f/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "6c91bb6b3ada9b21894166d27de81a1b5426d9d65d3b37990090f97e170844bc"
+    },
+    "nominal_40k_result": {
+      "bytes": 86064,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/output/exclusion.json",
+      "role": "projection_input",
+      "sha256": "477f5bed33091365966a0ab5ababb7b28adf73c82526e0380dd70aba5fc35a8b"
+    },
+    "nominal_40k_signal_model": {
+      "bytes": 25053,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/output/signal_model.json",
+      "role": "projection_input",
+      "sha256": "1a7cea0188c2cd035b0cb866cc2431aecfb04ac58d3bc0583102a186ca40854d"
+    },
+    "nominal_40k_state": {
+      "bytes": 782132,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_40k/execution_state.json",
+      "role": "projection_input",
+      "sha256": "6c9149f8f75fed5d189cac0c698f48eb15247b6e20514e6f7c353ca3a905a88b"
+    },
+    "official_csv": {
+      "bytes": 1237,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-three-arm-results-v1/result-v2/limits-and-ratios.csv",
+      "role": "projection_input",
+      "sha256": "e31251357cec5469d955e8f46daf4ed1b53a877a63ba083020ebabdcc3a951ec"
+    },
+    "official_full_receipt": {
+      "bytes": 67865,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/full/logs/execution/fit/b277eeb769264145b833fe73c451c5a4/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "62a938c4e27e501f5310125d18228d55606f4624e7f569fe3646139d10b99995"
+    },
+    "official_full_result": {
+      "bytes": 146514,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/full/output/result.json",
+      "role": "projection_input",
+      "sha256": "6f33d9f55b7752a96b2bf93d45f6804f52e99c6d117ac85caaedc3ce678544a3"
+    },
+    "official_full_state": {
+      "bytes": 73699,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/full/execution_state.json",
+      "role": "projection_input",
+      "sha256": "1ef0548e224e56d01149bb3ce6ba864f74d9a5eb4fab51779b30c638064d68ee"
+    },
+    "official_input_background": {
+      "bytes": 1988103,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/inputs/background.json",
+      "role": "projection_input",
+      "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+    },
+    "official_input_full": {
+      "bytes": 198379,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/inputs/full.json",
+      "role": "projection_input",
+      "sha256": "b076cb9b8fc56a5259398ad0a655bb7bd945732e7b2572554990aac96fc67dfa"
+    },
+    "official_input_signal_mc_only": {
+      "bytes": 13747,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/inputs/signal_mc_only.json",
+      "role": "projection_input",
+      "sha256": "354ae472101ec973f80ae34c9ffd5755827ddc8ed29691cac78f12b903df7534"
+    },
+    "official_input_signal_nominal_only": {
+      "bytes": 9160,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/inputs/signal_nominal_only.json",
+      "role": "projection_input",
+      "sha256": "2b927f4bdb399ec98b7a30eabe448d9779dd280a6207cebfef378cf08d940e78"
+    },
+    "official_protocol": {
+      "bytes": 134767,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/manifest.json",
+      "role": "projection_input",
+      "sha256": "44fc2cd52aa166482beb179f0f801bc38a04a2f8c68ef9567c312868271fd793"
+    },
+    "official_reporter": {
+      "bytes": 18445,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-three-arm-results-v1/report.py",
+      "role": "projection_input",
+      "sha256": "576ff2a69bff0b038301c8d8ebadc2453ba56f82b1de08d86efb41dd75cc0a1c"
+    },
+    "official_signal_mc_only_receipt": {
+      "bytes": 67905,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_mc_only/logs/execution/fit/174fd063099543c38c7d046644e567c4/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "272edea08014b45e45fbec75959e7134fd149b4d8d2efb9ad2859d6f6b5d1c85"
+    },
+    "official_signal_mc_only_result": {
+      "bytes": 145732,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_mc_only/output/result.json",
+      "role": "projection_input",
+      "sha256": "b0b134cd95b8e704e7c5e1d5bda1179a6b4583ff2d67ec4512e958e472189ad6"
+    },
+    "official_signal_mc_only_state": {
+      "bytes": 73739,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_mc_only/execution_state.json",
+      "role": "projection_input",
+      "sha256": "0eb245584f2edec91a98833c929ee3cba761905350b47e88a647995db75c6a7b"
+    },
+    "official_signal_nominal_only_receipt": {
+      "bytes": 67925,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_nominal_only/logs/execution/fit/f1c03668b0ce4f309e096d04cde8d096/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "7c078684e3934c556a36d5baa2bb56dd11e10635d0e0d6139cd469399a5b4c40"
+    },
+    "official_signal_nominal_only_result": {
+      "bytes": 139936,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_nominal_only/output/result.json",
+      "role": "projection_input",
+      "sha256": "11525059a0a4db0563dbca26aaa515c3c99758c371f910c2e0a6b12b8b3dfaff"
+    },
+    "official_signal_nominal_only_state": {
+      "bytes": 73759,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-nuisance-controls-v2/arms/signal_nominal_only/execution_state.json",
+      "role": "projection_input",
+      "sha256": "211e74135bbd58e41158c395a6f9523f8aeaf370d454d28cbe57f360de3cef2e"
+    },
+    "official_table": {
+      "bytes": 63278,
+      "path": "local-runs/rrr-closure/physics-review/official150-140-three-arm-results-v1/result-v2/results.json",
+      "role": "projection_input",
+      "sha256": "35e0fcebc004af531afea842fe6dcfa97852d7ef3d82b4a6574265efb2f55d4b"
+    },
+    "old_waypoint_manifest": {
+      "bytes": 25326,
+      "path": "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",
+      "role": "preserved_predecessor",
+      "sha256": "4b10f2634c3ba8045804945b86c5ae5c937c9bb0d5c7ac83496ec787e3105191"
+    },
+    "pool_completion": {
+      "bytes": 1928,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/pooled-v5-completion-verification.json",
+      "role": "projection_input",
+      "sha256": "908caf334395b8b9343217303b2f196454f5b0dd115a850345e3c8d386e93520"
+    },
+    "pool_metadata": {
+      "bytes": 131323,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/output/pool/pooling.json",
+      "role": "projection_input",
+      "sha256": "629e23ba196b28a6f36ad1d4fe59d9812f1d88d650b2b097668343dc74880857"
+    },
+    "pool_replica_manifest": {
+      "bytes": 706,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/inputs/replicas.json",
+      "role": "projection_input",
+      "sha256": "eab324ad1a8039d84a9e67dd848537b771a3f43569db45519dac16cb1a4db818"
+    },
+    "pooled_60k_plan": {
+      "bytes": 247448,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/inputs/execution-plan.json",
+      "role": "projection_input",
+      "sha256": "1bee722a31ff135b3bc3cb4d26107770adb0096de9dae9117d03998ee5cdde52"
+    },
+    "pooled_60k_receipt_exclusion": {
+      "bytes": 244494,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/logs/execution/exclusion/32943c7b74bf4e5faa00ba04ae771cca/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "bbfb487459106874e9439718296e82d7bc58037ec24baff396520b6f56aa602a"
+    },
+    "pooled_60k_receipt_patch": {
+      "bytes": 242714,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/logs/execution/patch/67a6c3ba157c4bb082a62dd40f49f6b9/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "4f299ab6583a94053d8be1c547f4f673d0f160fa2b62f53270e502c9da0d1e68"
+    },
+    "pooled_60k_receipt_pool": {
+      "bytes": 241458,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/logs/execution/pool/2d3ae3bf909b42c693b9231ff825e955/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "e9a098e90dd100ffce827b6b36f8714c271f2d8581d2e69709c1694f02d76ed9"
+    },
+    "pooled_60k_receipt_pyhf": {
+      "bytes": 242275,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/logs/execution/pyhf/dfd2b0571b7c41348ff2a29a9e1245d9/record.json",
+      "role": "receipt_projection_input",
+      "sha256": "58d94ba786ed35eb531a09758b7bd0f846cecd0ca19a1d8207ff78bff3bf1876"
+    },
+    "pooled_60k_result": {
+      "bytes": 95599,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/output/exclusion.json",
+      "role": "projection_input",
+      "sha256": "7f75f5d107496941cc47c63ab3a5212206a3813f1cc70e48f0d810cd9d7a673d"
+    },
+    "pooled_60k_state": {
+      "bytes": 1050610,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/derivatives/pooled_m150_dm10_60k_retry_v5_storage_v3/execution_state.json",
+      "role": "projection_input",
+      "sha256": "a9c67e5979d66832c27381ab77033a59c8f1bb37007425d38cab40b58146d10a"
+    },
+    "reference_52": {
+      "bytes": 45478,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json",
+      "role": "projection_input",
+      "sha256": "b2b460fc9ee178a92228409a91aed80a8ed33d6fff5e66d7fbe5b4aeae05e5a2"
+    },
+    "runtime_v4": {
+      "bytes": 14411,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v4/manifest.json",
+      "role": "projection_input",
+      "sha256": "104cffb689dc1a76977a763a78f38be6e6b4d4c7a38a74be3c1ef7178717e395"
+    },
+    "runtime_v5": {
+      "bytes": 16388,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v5/manifest.json",
+      "role": "projection_input",
+      "sha256": "76e7880734d3a4d3bd96834065f4dc15f638fc7b860f42736113afaa4b5a6a34"
+    }
+  }
+}

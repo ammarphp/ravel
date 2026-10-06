@@ -1,0 +1,264 @@
+{
+  "anchor20k": {
+    "definitions": {
+      "ancestry": "stored Delphes M1/M2 indices; mother endpoints can omit additional incoming particles at vertices with more than two parents",
+      "bins": {
+        "interval": "lower inclusive, upper exclusive; final null is infinity",
+        "truth_abs_eta": [
+          0,
+          0.8,
+          1.37,
+          1.52,
+          2.0,
+          2.47,
+          2.5,
+          null
+        ],
+        "truth_pt_gev": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          7,
+          10,
+          15,
+          20,
+          30,
+          50,
+          100,
+          null
+        ]
+      },
+      "denominator": "all direct stable bare leptons in every input event, including out-of-acceptance leptons and unmatched leptons",
+      "direct_lepton": "status=1, abs(PID)=11 or 13; only same signed lepton PID copies between the stable lepton and one same-flavour, same-sign charged slepton parent",
+      "dressing": {
+        "primary": "stable bare post-shower leptons",
+        "status": "not_computed"
+      },
+      "four_state_policy": "when requested: the campaign assumes two same-species/opposite-sign eL/eR/muL/muR root sleptons, two stable binos and two direct stable leptons; inconsistent rows are retained and flagged, not discarded; this is not a universal slepton topology requirement",
+      "matching": "stored reco Particle TRef UID -> unique same-event Particle.fUniqueID; stable, same flavour required; no geometric fallback; uproot path requires one stored TProcessID namespace",
+      "native_join": "event-level predicates only; the native trace has no per-lepton Particle UID, so individual native lepton survival is not asserted",
+      "native_source_scope": "selection and diagnostic source bytes verified; RJR binary hash retained as producer metadata, not independently checked by this diagnostic",
+      "omitted": [
+        "photon dressing",
+        "truth jets",
+        "GenJet acceptance",
+        "experimental trigger",
+        "author16",
+        "experimental truth matching"
+      ],
+      "scope": "source-bound response diagnostic; not an ATLAS acceptance, reconstruction efficiency calibration, trigger emulation, statistical coverage test, or physics certification",
+      "uncertainty": "shared-event delta-method ratio moments; leptons in an event are not independent; boundary counts remain precision unresolved",
+      "weight": "raw nominal Delphes Event.Weight; no luminosity, cross-section rebase, or K factor applied"
+    },
+    "four_state_population_status": "consistent_with_declared_four_state_population",
+    "four_state_violating_events": 0,
+    "input_events": 20000,
+    "native_join_status": "verified_full_population_event_level",
+    "particle_entries": 28170257,
+    "physics_certified": false,
+    "raw_weights": {
+      "negative_events": 0,
+      "sumw": 691.3343071937561,
+      "sumw2": 23.89715621516121
+    },
+    "reader_runtime": {
+      "awkward": "2.9.0",
+      "python": "3.14.5",
+      "uproot": "5.7.4"
+    },
+    "reco_origin_counts": {
+      "electron": {
+        "direct_slepton": 9690,
+        "other_origin": 317,
+        "other_slepton_descendant": 1,
+        "tau_ancestor": 4
+      },
+      "muon": {
+        "direct_slepton": 14033,
+        "other_origin": 343,
+        "other_slepton_descendant": 4,
+        "tau_ancestor": 7
+      }
+    },
+    "root_slepton_counts_both_charges": {
+      "1000011": 13980,
+      "1000013": 14058,
+      "1000015": 0,
+      "2000011": 6022,
+      "2000013": 5940,
+      "2000015": 0
+    },
+    "schema_version": 1,
+    "signed_weight_caution": false,
+    "status": "diagnostic_complete",
+    "topology": [
+      {
+        "direct_leptons": 2,
+        "events": 20000,
+        "root_sleptons": 2,
+        "stable_lsp": 2
+      }
+    ],
+    "total_response": {
+      "electron": {
+        "contributing_events": 10001,
+        "event_matched_sumw2": 17.31826910912112,
+        "event_truth_matched_cross": 23.15634437248078,
+        "event_truth_sumw2": 47.79909186154271,
+        "matched_sumw": 334.95147183537483,
+        "precision_status": "event_cluster_delta_approximation",
+        "ratio": 0.4844515548445156,
+        "raw_matched": 9690,
+        "raw_truth": 20002,
+        "standard_error": 0.003572221981652228,
+        "truth_sumw": 691.4034406244755
+      },
+      "muon": {
+        "contributing_events": 9999,
+        "event_matched_sumw2": 28.68495146285954,
+        "event_truth_matched_cross": 33.53487931672082,
+        "event_truth_sumw2": 47.789532999056654,
+        "matched_sumw": 485.07471664249897,
+        "precision_status": "event_cluster_delta_approximation",
+        "ratio": 0.7017201720172017,
+        "raw_matched": 14033,
+        "raw_truth": 19998,
+        "standard_error": 0.00328381800877057,
+        "truth_sumw": 691.2651737630367
+      }
+    }
+  },
+  "smoke2": {
+    "definitions": {
+      "ancestry": "stored Delphes M1/M2 indices; mother endpoints can omit additional incoming particles at vertices with more than two parents",
+      "bins": {
+        "interval": "lower inclusive, upper exclusive; final null is infinity",
+        "truth_abs_eta": [
+          0,
+          0.8,
+          1.37,
+          1.52,
+          2.0,
+          2.47,
+          2.5,
+          null
+        ],
+        "truth_pt_gev": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          7,
+          10,
+          15,
+          20,
+          30,
+          50,
+          100,
+          null
+        ]
+      },
+      "denominator": "all direct stable bare leptons in every input event, including out-of-acceptance leptons and unmatched leptons",
+      "direct_lepton": "status=1, abs(PID)=11 or 13; only same signed lepton PID copies between the stable lepton and one same-flavour, same-sign charged slepton parent",
+      "dressing": {
+        "primary": "stable bare post-shower leptons",
+        "status": "not_computed"
+      },
+      "four_state_policy": "when requested: the campaign assumes two same-species/opposite-sign eL/eR/muL/muR root sleptons, two stable binos and two direct stable leptons; inconsistent rows are retained and flagged, not discarded; this is not a universal slepton topology requirement",
+      "matching": "stored reco Particle TRef UID -> unique same-event Particle.fUniqueID; stable, same flavour required; no geometric fallback; uproot path requires one stored TProcessID namespace",
+      "native_join": "event-level predicates only; the native trace has no per-lepton Particle UID, so individual native lepton survival is not asserted",
+      "native_source_scope": "selection and diagnostic source bytes verified; RJR binary hash retained as producer metadata, not independently checked by this diagnostic",
+      "omitted": [
+        "photon dressing",
+        "truth jets",
+        "GenJet acceptance",
+        "experimental trigger",
+        "author16",
+        "experimental truth matching"
+      ],
+      "scope": "source-bound response diagnostic; not an ATLAS acceptance, reconstruction efficiency calibration, trigger emulation, statistical coverage test, or physics certification",
+      "uncertainty": "shared-event delta-method ratio moments; leptons in an event are not independent; boundary counts remain precision unresolved",
+      "weight": "raw nominal Delphes Event.Weight; no luminosity, cross-section rebase, or K factor applied"
+    },
+    "four_state_population_status": "consistent_with_declared_four_state_population",
+    "four_state_violating_events": 0,
+    "input_events": 1000,
+    "native_join_status": "verified_full_population_event_level",
+    "particle_entries": 1380400,
+    "physics_certified": false,
+    "raw_weights": {
+      "negative_events": 0,
+      "sumw": 34.83330458402634,
+      "sumw2": 1.2133591082435176
+    },
+    "reader_runtime": {
+      "awkward": "2.9.0",
+      "python": "3.14.5",
+      "uproot": "5.7.4"
+    },
+    "reco_origin_counts": {
+      "electron": {
+        "direct_slepton": 511,
+        "other_origin": 15,
+        "other_slepton_descendant": 0,
+        "tau_ancestor": 1
+      },
+      "muon": {
+        "direct_slepton": 664,
+        "other_origin": 26,
+        "other_slepton_descendant": 0,
+        "tau_ancestor": 0
+      }
+    },
+    "root_slepton_counts_both_charges": {
+      "1000011": 740,
+      "1000013": 642,
+      "1000015": 0,
+      "2000011": 302,
+      "2000013": 316,
+      "2000015": 0
+    },
+    "schema_version": 1,
+    "signed_weight_caution": false,
+    "status": "diagnostic_complete",
+    "topology": [
+      {
+        "direct_leptons": 2,
+        "events": 1000,
+        "root_sleptons": 2,
+        "stable_lsp": 2
+      }
+    ],
+    "total_response": {
+      "electron": {
+        "contributing_events": 521,
+        "event_matched_sumw2": 0.9039525356414377,
+        "event_truth_matched_cross": 1.2400530086249046,
+        "event_truth_sumw2": 2.5286403815795344,
+        "matched_sumw": 17.799818642437458,
+        "precision_status": "event_cluster_delta_approximation",
+        "ratio": 0.4904030710172745,
+        "raw_matched": 511,
+        "raw_truth": 1042,
+        "standard_error": 0.014984984970141642,
+        "truth_sumw": 36.29630337655544
+      },
+      "muon": {
+        "contributing_events": 479,
+        "event_matched_sumw2": 1.3735225105316924,
+        "event_truth_matched_cross": 1.6113408957474316,
+        "event_truth_sumw2": 2.3247960513946273,
+        "matched_sumw": 23.129314243793488,
+        "precision_status": "event_cluster_delta_approximation",
+        "ratio": 0.6931106471816284,
+        "raw_matched": 664,
+        "raw_truth": 958,
+        "standard_error": 0.015182386441180288,
+        "truth_sumw": 33.37030579149723
+      }
+    }
+  }
+}

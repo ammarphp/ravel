@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: "Ravel-HEP: governed collider reinterpretation and validation"
+message: "If you use this software, please cite it and the foundational tools listed under references."
+type: software
+authors:
+  - given-names: Ammar
+    family-names: Aziz
+abstract: >-
+  An agentic workflow that reinterprets a published ATLAS/CMS analysis against a user-specified
+  new-physics model, running MadGraph -> Pythia8 -> Rivet/SimpleAnalysis -> pyhf to produce the
+  signal-over-data overlay and a 95% CL exclusion limit. Validation records distinguish
+  statistical S95 recovery, selection acceptance and efficiency, and end-to-end mass-plane
+  fidelity. Failed and unscorable cases are retained.
+keywords:
+  - high-energy physics
+  - LHC reinterpretation
+  - recasting
+  - supersymmetry
+  - agentic workflow
+license: Apache-2.0
+repository-code: "https://github.com/ammarphp/ravel"
+version: 0.4.0
+references:
+  - type: article
+    title: "Reduce, Reuse, Reinterpret: an end-to-end pipeline for recycling particle physics results"
+    authors:
+      - family-names: Stark
+        given-names: Giordon
+      - family-names: Aristimuno Ots
+        given-names: Camila
+      - family-names: Hance
+        given-names: Mike
+    notes: "the mapyde package; arXiv:2306.11055; SciPost Phys. Codebases 27 (2024)"
+  - type: software
+    title: "Rivet"
+    notes: "particle-level analysis framework"
+  - type: software
+    title: "pyhf"
+    notes: "pure-Python HistFactory; public ATLAS likelihoods"
+  - type: software
+    title: "SModelS"
+  - type: software
+    title: "MadAnalysis 5"

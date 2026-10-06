@@ -1,0 +1,60 @@
+{
+  "description": "sigma_LO(p p > chsleptons chsleptons / susystrong) vs m_slepton at 13 TeV, chsleptons = el er mul mur ta1 ta2 (+- each) -- the UNTAGGED inclusive sigma of the SAME 6-state content the fig3 scan samples (mapyde isrslep, explicit ISR j) produce. DIAGNOSTIC table for the comparison-basis decomposition: f_tag(m) = sigma_tagged6_LO/this; the 4-state model fraction slepton_incl4_lo_cteq6l1.json/this = 0.666-0.668 (=2/3 exactly: ta1+ta2 sum to one more flavour of L+R regardless of stau mixing).",
+  "process": "p p > chsleptons chsleptons / susystrong (6 species x both charges, no ISR jet)",
+  "model": "MSSM_SLHA2, param card = mapyde SleptonBino.slha rendered per mass (MSLEP=m, MN1=m-2) -- same cards as the scan samples and the other slepton_*_lo_cteq6l1.json tables",
+  "pdf": "cteq6l1 (MadGraph-internal)",
+  "generator": "MG5_aMC 2.9.27 LO, nevents=2000, iseed=1, ebeam=6500+6500, use_syst=False (run card = the slepton_selL_lo_cteq6l1.json reference run card)",
+  "ecom_gev": 13000,
+  "generated": "2026-07-04 (comparison-basis fix)",
+  "mc_unc_note": "MC integration errors ~0.15-0.25%.",
+  "data": {
+    "50": {
+      "xsec_pb": 13.1,
+      "unc_pb": 0.02228
+    },
+    "60": {
+      "xsec_pb": 5.632,
+      "unc_pb": 0.01038
+    },
+    "70": {
+      "xsec_pb": 3.115,
+      "unc_pb": 0.006134
+    },
+    "90": {
+      "xsec_pb": 1.258,
+      "unc_pb": 0.002588
+    },
+    "100": {
+      "xsec_pb": 0.8649,
+      "unc_pb": 0.001799
+    },
+    "125": {
+      "xsec_pb": 0.3902,
+      "unc_pb": 0.000842
+    },
+    "150": {
+      "xsec_pb": 0.2019,
+      "unc_pb": 0.0004372
+    },
+    "175": {
+      "xsec_pb": 0.1147,
+      "unc_pb": 0.0002496
+    },
+    "200": {
+      "xsec_pb": 0.06947,
+      "unc_pb": 0.000145
+    },
+    "225": {
+      "xsec_pb": 0.04424,
+      "unc_pb": 9.154e-05
+    },
+    "250": {
+      "xsec_pb": 0.02939,
+      "unc_pb": 6.199e-05
+    },
+    "300": {
+      "xsec_pb": 0.01418,
+      "unc_pb": 3.268e-05
+    }
+  }
+}

@@ -1,0 +1,216 @@
+{
+ "schema_version": 3,
+ "updated": "2026-09-09",
+ "source": "maintainer capability census",
+ "note": "Capability inventory, not a measured autonomous success rate. served requires the complete requested deliverable chain and a currently green evidence gate. partial is component coverage (0.5 inventory credit), never successful task delivery. refused and the legacy served-with-refusal spelling receive zero delivery credit: a justified refusal is still an unmet product request. Refusal validity and unsupported-claim avoidance are assessed separately. A missing, red, decision or deferred gate cannot establish complete delivery.",
+ "prompts": {
+  "P1_hvt_zprime_ww_summary": {
+   "task_mode": "summary_plot",
+   "requires": [
+    "G1_summary_track",
+    "G4_basis_manifest",
+    "T4_trigger_floor_judgment"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "Complete the approved P1 deliverable lifecycle and independent physics review; a summary_audit PASS alone is component evidence"
+   },
+   "evidence_artifacts": [
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.png",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/hvt_zprime_ww_summary.pdf",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/survey.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/summary_audit.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/inputs/basis_manifest.json",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/VERIFICATION-LADDER.md",
+    "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/plots/qa_1710.01123_digitize_overlay.png"
+   ],
+   "evidence": "Component functionality is implemented, but the retained evidence does not establish the full requested deliverable chain. The survey run trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass passes summary_audit.py (all 8 rules R-SA1..8; outputs/summary_audit.json) after four defects in its own records were corrected: the fully-leptonic low-mass channel ATLAS_1710.01123 (e-nu-mu-nu; no HEPData auxiliary file exists for this paper) is digitized from figures/Limit_HVT.pdf (approximate/summary-reach, provenance=digitized, 24 observed plus partial expected/theory points, cross-checked against ATLAS_2004.14636's independently digitized theory line at m=1000 GeV to <1%); the l-nu-qq channel is labelled semileptonic; a superseded curve is drawn as a cross-check only (disposition.state=superseded, draw=crosscheck); and the coverage annotation shows the true [150,200] GeV floor. Every candidate carries a disposition and reviewer, and every drawn curve carries survey_id, provenance and draw; the re-rendered plot (plots/hvt_zprime_ww_summary.{png,pdf}) passes plot-lint. Records: the run's VERIFICATION-LADDER.md (R6 per curve) and RESULT.md. verify_pack.py passes; validate_run_state.py fails on an unrelated gap (inputs/figure_target.json is not declared before the run's pending CHECK-IN 1 approval). This covers the mechanical summary_audit.py gate (the track's Tier-A equivalent; VERIFICATION-LADDER.md R0), not a step-9 Tier-B adversarial physics review, which has not been run.",
+   "blocking": [
+    "figure target and current approved lifecycle completion",
+    "independent physics verification of the full requested summary deliverable"
+   ]
+  },
+  "P2_toponium_heavy_higgs_summary": {
+   "task_mode": "summary_plot",
+   "requires": [
+    "G1_summary_track",
+    "G4_basis_manifest",
+    "T1_interference_trap"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "first summary_audit PASS on a P2 (toponium/heavy-Higgs) run through the G1 track"
+   },
+   "evidence": "Intake routes it with the interference-aware candidate set (trap T1 is catalogued). The summary-plot track (G1) is implemented and exercised by P1; no P2 run has yet completed through it (T1 basis care applies).",
+   "blocking": [
+    "first execution through the now-built G1 track (T1 interference basis care)"
+   ]
+  },
+  "P3_svj_expansion_tagger": {
+   "task_mode": "projection",
+   "requires": [
+    "G3_generator_config_gates",
+    "G2_extension_beyond_grid",
+    "hypothetical_upgrade_mode"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "published-projection bracket-contains round-trip within tol (run_roundtrip) + the SVJ cutflow/effmap certs"
+   },
+   "evidence": "intake + survey done (HiddenValley module confirmed compiled; missing t-channel UFO identified); dark-shower validation gates + extension protocol unbuilt",
+   "blocking": [
+    "UFO acquisition",
+    "G3 truth-level gates",
+    "extension-beyond-grid certification protocol"
+   ]
+  },
+  "P4_dijet_photon_widths": {
+   "task_mode": "reproduce",
+   "requires": [
+    "G2b_shape_fit_engine_OR_refusal",
+    "T8_wide_width"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "Close the analysis-specific approved R5 comparison and exercise the complete requested width-study delivery chain; engine selftest alone is component evidence"
+   },
+   "evidence_artifacts": [
+    "src/ravel/physics/shape_fit.py"
+   ],
+   "evidence": "Component functionality is implemented, but the retained evidence does not establish the full requested deliverable chain. The scoped shape-fit policy (docs/reference/scope.md section 6) applies: the scoped shape_fit.py engine is implemented (CR-027), and routing sends shape-fit prompts to stat_mode=shape-fit with the two per-analysis gates (representability and R5) through route_prompt (routing selftest -> shape-fit/smoke), docs/reference/scope.md section 6.1, the route-analysis skill and step-4 Option E. The R5 closure for 2408.00049 itself (dijet-family turnover and the A/e-convention chain) is open, so the gate holds that limit and the generator-level shape comparison with widths is offered instead.",
+   "blocking": [
+    "2408.00049 artifact-bound per-instance R5 closure",
+    "requested width-study deliverable with current lifecycle and independent physics verification"
+   ]
+  },
+  "P5_cms_abc_dijet": {
+   "task_mode": "reproduce",
+   "requires": [
+    "option_c_no_routine",
+    "G6_ladder"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "Reproduce the requested analysis with validated selection and statistical interpretation; a sensitivity-only fallback remains partial even when its refusal is justified."
+   },
+   "evidence": "Method ordering is reproduced with sensitivity-only labels, including the panel that the first run lacked; the verification ladder attributes the remaining gaps. 'partial' because the deliverable is sensitivity-only by design.",
+   "blocking": []
+  },
+  "P6_atlas_model_agnostic_ad": {
+   "task_mode": "anomaly_search",
+   "requires": [
+    "option_c_no_routine",
+    "ad_study_framing"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "same as P5 \u2014 CWoLa expected-only panel-green with trigger-floor honesty"
+   },
+   "evidence": "CWoLa reproduction plus an additional low-mass window (expected-only); a recorded agent run reports the trigger floor honestly.",
+   "blocking": []
+  },
+  "P7_displaced_run3_replane": {
+   "task_mode": "projection+reinterpret",
+   "requires": [
+    "G2a_effmap_folding",
+    "G2c_projection",
+    "G2d_replane",
+    "T2_llp",
+    "T3_mixed_spectrum"
+   ],
+   "status": "partial",
+   "gate": {
+    "kind": "decision",
+    "flip_when": "effmap >=2 published (m,ctau) points reproduced + replane round-trips a paper's OWN plane + a projection round-trip"
+   },
+   "evidence": "Intake review catches trap T3. G2c projection is implemented (selftest). G2a: the D1 fold is in use; the D2 per-object tool is implemented (selftest 5/5), and its reader and statistics half are validated on real ATLAS-SUSY-2016-06 disappearing-track data (the reader parses the published Fig18b map; pyhf reproduces the published sigma_vis 0.204/0.253 vs 0.22/0.28 fb; recorded with the LLP validation run). Replane: both legs are implemented (spectrum_mix 18/18; replane.py fold 4/4 including round-trip identity and a 36-point mu-M2 demonstration; CR-025). Remaining: the D2 truth-event-maker, an analysis-specific likelihood-projection round-trip and the R5 replane validation run on the published limit.",
+   "blocking": [
+    "D2 truth-event-maker for full end-to-end R5 (reader + statistics-half already validated on real data)",
+    "R5 replane validation run (round-trip the paper's own plane)",
+    "analysis-specific likelihood-projection reference round-trip (implementation exists)"
+   ]
+  }
+ },
+ "capabilities": {
+  "G1_summary_track": {
+   "status": "built",
+   "implementation": "checklist + summary_overlay.py + the executed P1 acceptance run",
+   "gate": ""
+  },
+  "G2a_effmap_folding": {
+   "status": "built",
+   "implementation": "D1 fold + D2 per-object tool (selftest 5/5); validated with the LLP validation run",
+   "gate": ""
+  },
+  "G2b_shape_fit": {
+   "status": "built",
+   "implementation": "scoped shape-fit policy (docs/reference/scope.md section 6) -> CR-027 shape_fit.py engine + routing wired (route_prompt shape-fit, docs/reference/scope.md 6.1, route-analysis, step-4 Option E)",
+   "gate": "per-analysis: representability + R5 closure (unbinned/ML fits downgrade to blocked-shape-fit)"
+  },
+  "G2c_projection": {
+   "status": "built",
+   "implementation": "project_limits.py, selftest PASS: identity/ordering/improvement",
+   "gate": ""
+  },
+  "G2d_replane": {
+   "status": "built",
+   "implementation": "spectrum leg (18/18) + CR-025 replane.py fold (4/4 incl. round-trip identity, 36-point mu-M2 demonstration); the R5 validation run on the published limit remains",
+   "gate": ""
+  },
+  "G3_generator_config_gates": {
+   "status": "partial",
+   "implementation": "traps T7/T6/T8 catalogued; truth-level gates unbuilt",
+   "gate": ""
+  },
+  "G4_basis_manifest": {
+   "status": "built",
+   "implementation": "schema + first live manifest (the P1 run)",
+   "gate": ""
+  },
+  "G5_trap_sweep": {
+   "status": "built",
+   "implementation": "physics-traps.md T1-T12 + route-analysis wiring",
+   "gate": ""
+  },
+  "G6_ladder": {
+   "status": "built",
+   "implementation": "checklist + retrofits",
+   "gate": ""
+  },
+  "resource_sweep": {
+   "status": "built",
+   "implementation": "CR-017; the resource-sweep skill and resource_census.py",
+   "gate": ""
+  },
+  "plot_lint": {
+   "status": "built",
+   "implementation": "CR-016; plot_lint.py selftest, also applied by the house renderers at save",
+   "gate": ""
+  }
+ },
+ "scoped_workflows": {
+  "status": "implemented_bounded",
+  "note": "Separate from the historical prompt census and its denominator. Scripted experiment assent is not expert review; these controls are not RRR or detector certification.",
+  "modes": [
+   "generate",
+   "likelihood"
+  ],
+  "guide": "docs/workflow/reference/scoped-workflows.md",
+  "evidence": "evidence/audits/2026-09-09-scoped-workflows/verification.json",
+  "comparison": "verified executed recipe equivalence; external receipt import remains unimplemented",
+  "remaining_gaps": [
+   "NLO and signed or variable nominal weights",
+   "merging and shower/detector adapters within the scoped route",
+   "other PDF provisioning and lepton beams",
+   "arbitrary observables and spectrum generation",
+   "external-framework receipt import",
+   "RRR acceptance, shape and generator-cut closure"
+  ]
+ }
+}

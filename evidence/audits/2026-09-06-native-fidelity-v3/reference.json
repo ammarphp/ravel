@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "analysis": "ATLAS-SUSY-2018-06",
+  "m_parent_GeV": 300,
+  "m_neutralino_GeV": 100,
+  "generated_events": 200000,
+  "source_run_id": "CR005cert_c1n2_300_100",
+  "historical_certification_sha256": "b855dee9529c5491a7c3595add36dd755197b2cb46f2329fdaba55ba8140a25c",
+  "published_dataset": "https://www.hepdata.net/record/ins1771533?version=2",
+  "paper": "https://arxiv.org/abs/1912.08479",
+  "driving_relative_tolerance": 0.15,
+  "regions": {
+    "SRlow": {
+      "acceptance_times_efficiency": 0.0006180500000000001,
+      "role": "driving"
+    },
+    "SRISR": {
+      "acceptance_times_efficiency": 8.530500000000001e-05,
+      "role": "contributing"
+    }
+  },
+  "note": "Published acceptance-times-efficiency values carried by the existing pinned certification; this metadata is not a new certification."
+}

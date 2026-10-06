@@ -1,0 +1,402 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 16139,
+      "sha256": "08aaea0d5ff23de9a4b2f3f7a719be20e1614f078ce543e49c32e846ec6022f1",
+      "sources": [],
+      "transformation": "authored public documentation or verification code"
+    },
+    "btag-source-pins.json": {
+      "bytes": 4988,
+      "sha256": "5e442427213fcf5299b92b3f10c21d1fc88931a2c2f3838788f75f1dcde48623",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/btag-working-point/source-pins.json"
+      ],
+      "transformation": "Repository-root prefix removal only"
+    },
+    "channels.csv": {
+      "bytes": 20366,
+      "sha256": "f962d8ab3f353aaa6ca8f5309f168006e4b9e8d10f16f8a563b03fca9e5e798a",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/shape-likelihood/smoke2/diagnosis.json",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/20k/diagnosis.json"
+      ],
+      "transformation": "selected scalar rows; empty cell means unavailable/null, never zero"
+    },
+    "curate.py": {
+      "bytes": 37886,
+      "sha256": "6f796ecbac91da3b9b8c72ed5dbfd019c92b351273928b30b6169e18e21253d0",
+      "sources": [],
+      "transformation": "authored public documentation or verification code"
+    },
+    "diagnostics.json": {
+      "bytes": 30307,
+      "sha256": "701894456a141ffaccf84ad3555ca3ec7b7d0754a3f4fd418d540fc7b83cc567",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/btag-working-point/audit.json",
+        "local-runs/rrr-closure/physics-review/btag-working-point/check_transfer.json",
+        "local-runs/rrr-closure/physics-review/risr-differential/summary.json",
+        "local-runs/rrr-closure/physics-review/risr-differential/candidate-verification.json",
+        "local-runs/rrr-closure/physics-review/check_signal_units.json",
+        "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.json",
+        "local-runs/rrr-closure/physics-review/waypoint-independent/reference-agreement.json",
+        "local-runs/rrr-closure/physics-review/truth-response-independent/verification.json"
+      ],
+      "transformation": "Repository-root prefix removal; existing check results retained, not newly performed"
+    },
+    "execution-provenance.json": {
+      "bytes": 23128,
+      "sha256": "99922f4a452f7cd0c84eb7c8c00f60c293c8d2542cd483412403531e9541ea14",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/execution_state.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/execution_state.json"
+      ],
+      "transformation": "Selected statuses/receipt assertions; no private approval content, absolute home paths, or raw event bytes"
+    },
+    "figures/response-by-pt.png": {
+      "bytes": 103777,
+      "sha256": "355f54481b297b332fc420cd2a03f9bb310b07aabd9a78e8025dd68f564726b6",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.png"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "figures/sr-normalized-shapes.png": {
+      "bytes": 210713,
+      "sha256": "a76546c819bf6b2b2f49d5854102bf6892282e935b5450b8e122711dd6af739e",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/shape-likelihood/sr-normalized-shapes.png"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "fits/anchor20k.json": {
+      "bytes": 85232,
+      "sha256": "68eebe6fac598b6b4573011a9dab5686b0ed7e3ca9f851d7c37d1a5767fd5c80",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json"
+      ],
+      "transformation": "Drop execution_provenance containing local paths; preserve all numerical fit/scan records"
+    },
+    "fits/smoke2.json": {
+      "bytes": 82017,
+      "sha256": "ab189747ccecfd5458636e0b6161f4b5d11be110aeb14d65d5bdeb2cb61ca28e",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/exclusion.json"
+      ],
+      "transformation": "Drop execution_provenance containing local paths; preserve all numerical fit/scan records"
+    },
+    "inclusive-normalization.json": {
+      "bytes": 4512,
+      "sha256": "a57b5191005d85384919a958469e9cdf6e064b4f404f662426756a3863de8151",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json"
+      ],
+      "transformation": "Selected rate/process/event checks; historical table comparison omitted"
+    },
+    "likelihood/anchor20k-patch.json.gz": {
+      "bytes": 1301,
+      "sha256": "559c5ce40183f0e77fb8c35c667840974fbd7da0222de928d3c4066afbf06b74",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json"
+      ],
+      "transformation": "lossless gzip; original JSON bytes recover exactly",
+      "uncompressed_sha256": "a79cd0141b3a0a8fd05026a157aaa0b9e5a09ae369e777ce8bd558d9239fa4fa"
+    },
+    "likelihood/anchor20k-signal-model.json": {
+      "bytes": 24820,
+      "sha256": "293b1afc2cbcf476ba5dbef9511ed36f17ad082fb1a1c3ade91d140724d03797",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/signal_model.json"
+      ],
+      "transformation": "JSON reformat and repository-root prefix removal; source bytes separately pinned"
+    },
+    "likelihood/background.json.gz": {
+      "bytes": 71824,
+      "sha256": "c251c38af3994a413b1497d0d1d815541691761801e978e1621835061e694142",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json"
+      ],
+      "transformation": "lossless gzip; original JSON bytes recover exactly",
+      "uncompressed_sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+    },
+    "likelihood/official-m150-m140-patch.json.gz": {
+      "bytes": 7876,
+      "sha256": "2c56ffe1d68a4dfe73bfc1e0a9fdc415d09759299dbcfa2377f8b09756693310",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/official-patches/m150_m140.json"
+      ],
+      "transformation": "lossless gzip; original JSON bytes recover exactly",
+      "uncompressed_sha256": "b076cb9b8fc56a5259398ad0a655bb7bd945732e7b2572554990aac96fc67dfa"
+    },
+    "likelihood/smoke2-patch.json.gz": {
+      "bytes": 753,
+      "sha256": "e7cc9ed49b2445ff67fa75f0c3dee741acbd58dd3136d10c969dc2c87841d5e4",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018_patch.json"
+      ],
+      "transformation": "lossless gzip; original JSON bytes recover exactly",
+      "uncompressed_sha256": "57cd6ab1408baf3fed01085cb23d136050c77db7450d1a5c8d801405d1beba86"
+    },
+    "likelihood/smoke2-signal-model.json": {
+      "bytes": 25173,
+      "sha256": "3dc9961ee453e6c20bf4103af4d0261da2a4eb6fdb7b0be5fa0c8fbb656eaa54",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/signal_model.json"
+      ],
+      "transformation": "JSON reformat and repository-root prefix removal; source bytes separately pinned"
+    },
+    "native-cutflows.csv": {
+      "bytes": 13505,
+      "sha256": "ba0a200225573ed3d21d74285e2615f05268c623c3b954317a531d3e34956186",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/compressed_validation.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_validation.json"
+      ],
+      "transformation": "selected scalar rows; empty cell means unavailable/null, never zero"
+    },
+    "public-acceptance-efficiency-52.json": {
+      "bytes": 200999,
+      "sha256": "19eb8889d503db07e49c841d24a060ad1763adb0988a341d40c8348ab6afc446",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/acceptance-efficiency-52.json"
+      ],
+      "transformation": "JSON reformat only; null definitions and uncertainties preserved"
+    },
+    "public-cutflows-m150-m140.json": {
+      "bytes": 37490,
+      "sha256": "9cf43e77fa74475cf462427fa2266a584b5c54cb2d17eb2b4e4f3ffdf0f80472",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/cutflows-m150-m140.json"
+      ],
+      "transformation": "JSON reformat only; raw and weighted columns remain distinct"
+    },
+    "published-limits-52.json": {
+      "bytes": 45478,
+      "sha256": "b2b460fc9ee178a92228409a91aed80a8ed33d6fff5e66d7fbe5b4aeae05e5a2",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json"
+      ],
+      "transformation": "JSON reformat only"
+    },
+    "recipe/README.md": {
+      "bytes": 3100,
+      "sha256": "d7f48da4ab0729e88966aa47fcac38e108233f51e6d7d5afc3a23ba10efe99c6",
+      "sources": [],
+      "transformation": "authored public documentation or verification code"
+    },
+    "recipe/config.toml.template": {
+      "bytes": 738,
+      "sha256": "a10cfe56f2f21571cc3bf7b507f108479e80b5762615d5b58342d4f721b6e053",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/config.toml"
+      ],
+      "transformation": "Only statistics_python and likelihood path values replaced; all other original config bytes preserved"
+    },
+    "recipe/inputs/cards/detector.tcl": {
+      "bytes": 24371,
+      "sha256": "3e21edf3f2fa021e2f6b8534a4287448928e93d5f44d8ea53c93f4653be40a31",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "recipe/inputs/cards/param.dat": {
+      "bytes": 21324,
+      "sha256": "d159412f5329c0cb805fc531f1ede05e4d3d52bf662158d5b61eac91ed0a8786",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/param.dat"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "recipe/inputs/cards/process.dat": {
+      "bytes": 374,
+      "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "recipe/inputs/cards/run.dat": {
+      "bytes": 16945,
+      "sha256": "f19e158f1a6be405817187d0759ce4c9141ac07d43d38d4e8dc73df88955ed43",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/run.dat"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "recipe/inputs/cards/shower.cfg": {
+      "bytes": 322,
+      "sha256": "ec0265679ac3918452c640e520dba743ea2d80e0cb9c8bec3f36caae22f7b8f0",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/shower.cfg"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "recipe/recipe.json": {
+      "bytes": 3068,
+      "sha256": "3ce0dcc9c2fed2d48b9b78532017033aa572a53c43fb4f4151f2e4cd8b86f944",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/config.toml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/param.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/run.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/shower.cfg",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl"
+      ],
+      "transformation": "Exact card inventory plus path-only configuration transformation declaration"
+    },
+    "reco-fraction-diagnostics.json": {
+      "bytes": 7406,
+      "sha256": "cdd9c3d2bbb5dc89dc570d83f451530f2e93c66b5a1918099a5c04bcdabe91e6",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/smoke2-reco-fraction-diagnostic.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/anchor20k-reco-fraction-diagnostic.json"
+      ],
+      "transformation": "Repository-root prefix removal; original-rate, selected-population and public-product source pins checked"
+    },
+    "response-by-pt.csv": {
+      "bytes": 9030,
+      "sha256": "9d2cfa12a3d79a3a7d59fe8a85bf9b474c4f0e1c01a907a321c0861f779c7734",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.csv"
+      ],
+      "transformation": "byte-for-byte copy"
+    },
+    "shape-diagnostics.json": {
+      "bytes": 6647,
+      "sha256": "61b19990b63d2813041d355ed37e579f58fbf717b657c9c57e06fc31b6e94f1b",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/shape-likelihood/smoke2/diagnosis.json",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/20k/diagnosis.json"
+      ],
+      "transformation": "Selected channel-group diagnostics; prepared omission controls are not reported as executed fits"
+    },
+    "source-provenance.json": {
+      "bytes": 34115,
+      "sha256": "9255b411cb845b253f2a12333b02aaa144dc847a1475a711b401167b2334f69c",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/cutflows-m150-m140.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/acceptance-efficiency-52.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32a.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32b.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32c.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32d.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32e.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32f.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/manifest.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/extract_control.py",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/source-pins.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/slepton_xsec_UL.yaml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/official-patches/m150_m140.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/config.toml",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/param.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/run.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/shower.cfg",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/exclusion.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/normalization.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/signal_model.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018_patch.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/execution_state.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/prepare/e382da915bf2484cb980fd37daf0e305/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/madgraph/f7a3c71400c2490c9a332fb7dd4146c8/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/unpack_lhe/15a62e05a9574963b6e05c0518aaffd6/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/lhe_check/20066821456545eaa4dbd9c0f776c398/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/pythia/341245880080434fbb87920ee53401c4/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/normalization/d015618827384d49b4dcde41374e7735/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/delphes/c59bac04f48941409020d89275f43cb9/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/analysis/8ae325566dcb4f79a72917e5f2da7510/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/simpleanalysis/5db43e44866243aa8dd6fafbb7ebc39a/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/sa2json/ad0bb3859c4940689d31f722d1ebc08f/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/pyhf/8d4ad53eb81d4273902696e0ea6b1fac/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/native_report/f85a619be59c4a18a08e1222f8d3fe64/record.json",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/smoke2/diagnosis.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/compressed_validation.json",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/smoke2/truth_reco_response.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/smoke2-reco-fraction-diagnostic.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/native_execution_plan.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/cards/process.dat",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/compare_reco_efficiency.py",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/normalization.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/signal_model.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/execution_state.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/prepare/9d6016a28dce41459dd2da76ff1cfd8f/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/madgraph/9908ec30feb04c22810faa4e14cf3ef0/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/unpack_lhe/8267138a5392494eaa4ce20e514b9ffd/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/lhe_check/3d4369e2d85b47329a82bb3c09dd0049/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pythia/f31a6ffe9162451ab009c604c602b205/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/normalization/cc6ccaa8f1444c4e92bb388d1ff5a441/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/delphes/90503525efd9430d9f47d1a0454088db/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/analysis/189449e6dbdd4697a4669158d1d9b343/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/simpleanalysis/877559f9c1e647bea3255023705113d5/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/sa2json/ce88b3e91d3d461b93ec9d97da754ff8/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pyhf/6a769b87e9144ef893cfd617a7ef239c/record.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/native_report/8a008616b0414366ba9dd6995112d97e/record.json",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/20k/diagnosis.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_validation.json",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/anchor20k/truth_reco_response.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/anchor20k-reco-fraction-diagnostic.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/native_execution_plan.json",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.csv",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.png",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/sr-normalized-shapes.png",
+        "local-runs/rrr-closure/physics-review/btag-working-point/audit.json",
+        "local-runs/rrr-closure/physics-review/btag-working-point/check_transfer.json",
+        "local-runs/rrr-closure/physics-review/risr-differential/summary.json",
+        "local-runs/rrr-closure/physics-review/risr-differential/candidate-verification.json",
+        "local-runs/rrr-closure/physics-review/check_signal_units.json",
+        "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.json",
+        "local-runs/rrr-closure/physics-review/waypoint-independent/reference-agreement.json",
+        "local-runs/rrr-closure/physics-review/truth-response-independent/verification.json",
+        "local-runs/rrr-closure/physics-review/btag-working-point/source-pins.json",
+        "local-runs/rrr-closure/physics-review/btag-working-point/review.md",
+        "local-runs/rrr-closure/physics-review/risr-differential/README.md",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/manifest.json",
+        "local-runs/rrr-closure/physics-review/shape-likelihood/verification.json",
+        "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.py",
+        "local-runs/rrr-closure/physics-review/check_signal_units.py"
+      ],
+      "transformation": "Inventory of actually read source bytes; unavailable raw external custody explicitly excluded"
+    },
+    "test_curate.py": {
+      "bytes": 6758,
+      "sha256": "b22649e1735d6f8a43d60c998a44b784e81da07fbfea9c38c24bad312183b5ea",
+      "sources": [],
+      "transformation": "authored public documentation or verification code"
+    },
+    "truth-response.json": {
+      "bytes": 9744,
+      "sha256": "4f85ef8137b1bb43be467de6455e04eea6704c10df6f47820ba0aa5ee0ce82b6",
+      "sources": [
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/smoke2/truth_reco_response.json",
+        "local-runs/rrr-closure/physics-review/truth-reco-response-v1/anchor20k/truth_reco_response.json"
+      ],
+      "transformation": "Selected all-population definitions/totals; raw event rows and two-dimensional matrices omitted"
+    },
+    "verification.json": {
+      "bytes": 3078,
+      "sha256": "8bd578d16a31fd00d9eb48cc87a28664ed97782ae906e5a77549712e7a901bde",
+      "sources": [],
+      "transformation": "authored public documentation or verification code"
+    },
+    "waypoint.json": {
+      "bytes": 8586,
+      "sha256": "7855f55235ab1cd9256d0a8985423339d473cf1d9d870f635d2f55613fa95377",
+      "sources": [
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/exclusion.json",
+        "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json"
+      ],
+      "transformation": "Conditional unit conversion and explicitly scoped completion/diagnosis summary"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Bundle integrity, not a signature, external provenance proof or physics certificate."
+}

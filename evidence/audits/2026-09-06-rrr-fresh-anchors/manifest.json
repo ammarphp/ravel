@@ -1,0 +1,18 @@
+{
+  "files": {
+    "README.md": "7e35db60dd76fbdbf01ffd510eb48fcabee094337709ff65be7da20c942bdb1f",
+    "curate.py": "dde42f137fca3ab76b4d891e051fb6264947d00874ef678ccc6bb447cfa947ee",
+    "data/evidence.json": "98c2db1c8b4f3775eede4d4195633c249364f84a7f203525c633cd6ecb42a0f3",
+    "figures/fresh-anchor-diagnostics.pdf": "8b661c86e06df263da108c781a90f0d7845c203d338eab5955d8bfeada33508b",
+    "figures/fresh-anchor-diagnostics.png": "eae8f0a361759a5e6fb959574477e77fc1bf1d3e02a3058854de01ea6f1f1d68",
+    "source-map.json": "06de9fba532ea6c9b38be8b82c64352ceac2e7254192be58d6d8931037724b04",
+    "source_roles.py": "6fa3e5dde54df29960f59ed64dcbaeb3624a6301aff435ca3ebc80f3e9ad1381",
+    "tables/anchors.csv": "8f128a8d6bc83f185e5b5f807df7940a15bf3178eab2ac0ec85828a731c5d345",
+    "tables/channel-moments.csv": "d36eb2de2349a7c5aacbb58f71cf411818e36ff8395ecb0d1b7dceb72fa746bd",
+    "tables/fractions.csv": "dd2cc57731c422e3f0aebb18bdc030ce23baecdb843eaf05c01e2467c195bbd4",
+    "tables/limits.csv": "488c1653d1dd8d2160dc2150595b37f2e0a71ae0013c3ef2d157f9cb3d563401",
+    "test_verify.py": "2b5fa29b43035c04722175d1b796d0a2b2f5bf9c62b92c043effaad88bdd9185",
+    "verify.py": "5de6cad9fc2cfab5c65ce875700fca29befd34aa7b37bf63300846c9b3ba943c"
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "generated_by": "stage_supervisor.py",
+  "generator": "stage_supervisor.py",
+  "generated_utc": "2026-09-09T03:57:40.113779+00:00",
+  "input_fingerprint": "8d33544fdd639687b6af6c2f33eca8f1f3549c104c9a3e630374e993bc501299",
+  "stage": "likelihood",
+  "status": "open",
+  "reason": "exit-1",
+  "elapsed_s": 0.4,
+  "kill_threshold_s": 120,
+  "logfile": "logs/scoped-worker.log",
+  "next_action": "stage 'likelihood' failed after 0s (exit-1). Inspect logs/scoped-worker.log and execution_state.json; fix the input or tool and resume the declared pipeline. Earlier attempts are retained; deleting a status file is not evidence of recovery.",
+  "cleanup": {
+    "process_group": 4947,
+    "signals": [],
+    "errors": [],
+    "census_scope": "non-zombie process-group members reported by ps; zombies excluded",
+    "remaining_group_members": [],
+    "group_state": "empty",
+    "leader_returncode": 1,
+    "requires_recovery": false
+  }
+}

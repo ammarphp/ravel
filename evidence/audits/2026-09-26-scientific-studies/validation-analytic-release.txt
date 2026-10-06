@@ -1,0 +1,30 @@
+CONTROL signed-density
+passed
+CONTROL correlated-measurement
+passed
+CONTROL normalized-measurement
+passed
+CONTROL bounded-measurement
+failed
+CONTROL eft-interference
+passed
+CONTROL eft-failed-control
+failed
+CONTROL model-structure
+passed
+CONTROL classifier
+passed
+CONTROL llp-decay
+passed
+CONTROL llp-reweight
+passed
+CONTROL efficiency-map
+passed
+CONTROL nuclear-normalization
+passed
+CONTROL forward-acceptance
+passed
+CONTROL neutrino-fold
+passed
+CONTROL reconstructed-selection
+passed

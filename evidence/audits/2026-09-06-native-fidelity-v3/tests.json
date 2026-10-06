@@ -1,0 +1,59 @@
+{
+  "current": {
+    "argv": [
+      "env",
+      "-u",
+      "PYTHONPATH",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "<locked-python312-env>/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "<publication-stage>/tests/unit/test_native_lhapdf.py",
+      "<publication-stage>/tests/unit/test_native_lhapdf_linker.py",
+      "-q"
+    ],
+    "failed": 0,
+    "log": "current-tests.log",
+    "log_sha256": "6eb6a751d499460ca0b088f8cbed74117d021a30e9e2ea4702ab83299a6381e8",
+    "origin": "local-runs/rrr-closure/physics-review/lhapdf-override-diagnostics-independent-v1/tests.log",
+    "original_sha256": "6eb6a751d499460ca0b088f8cbed74117d021a30e9e2ea4702ab83299a6381e8",
+    "passed": 180,
+    "path_translation_only": true,
+    "seconds": 9.44,
+    "skipped": 0,
+    "working_directory": "parent of <source-repo>"
+  },
+  "engineering_source_sha256": {
+    "native/src/pythia_shower.cc": "db41c3bff1ae8733881ae3d32f8a7050947de3c27eb3c1c5e486e65a2d996342",
+    "src/ravel/paths.py": "f16c6399121c5e57427021fe1fc1e5c166594588683a7b905b844f9a695cd89a",
+    "src/ravel/physics/native_build.py": "1d45bc49d91456b8180f002dcb2c130ab5813fbdd7527b1cfc6e9e47fed18a82",
+    "src/ravel/physics/native_lhapdf.py": "91d76171c0a815f5a937a83a5ec09de61430d12ff75ea65de523a7abe488d5b4",
+    "src/ravel/physics/native_pipeline.py": "5fe3631c2f07d33cb64d94ba54e9ab16cfca0c9883585b41402bfd72efdd05f8",
+    "src/ravel/validation/native_doctor.py": "304a3e058c177e503d3e9997614da7fbb77f1ea82f4d6c52832fba25fa2c51bb"
+  },
+  "independent_guard_review": {
+    "cases": 295,
+    "current_source_sha256": "91d76171c0a815f5a937a83a5ec09de61430d12ff75ea65de523a7abe488d5b4",
+    "fields": 19,
+    "original_source": "local-runs/rrr-closure/physics-review/lhapdf-override-diagnostics-independent-v1/check.py",
+    "original_source_sha256": "89426807cd4fd1cdb27ad7736a99294b2cd007dac755ba78b8361b7959cd635f",
+    "record": "independent-override-checks.json",
+    "scope": "Separate early-guard source/privacy review with all filesystem/linker probes stopped; no successful generation decision or physics execution.",
+    "sha256": "4f51112dfa4c12c8d0dc7a30791d97d3561301477c68712b2189f6f23c11a0b8"
+  },
+  "inherited": {
+    "applies_to_original_source_pins_only": true,
+    "independent_source_passed": 86,
+    "integrated_passed": 316,
+    "record": "evidence/audits/2026-09-06-native-fidelity-v2/tests.json",
+    "repeated_in_v3": false,
+    "sha256": "5a1baad7076b42f4f53956fdc640fb5e4bf6888f7c30eff773a1594ed73d27a0"
+  },
+  "schema_version": 1,
+  "scope": "Current refusal diagnostic and unchanged-path engineering controls; inherited populations are not relabeled as current tests.",
+  "test_source_sha256": {
+    "tests/unit/test_native_lhapdf.py": "dd750acfac03bd8a4419d1a3ea01e48a66b9f088bc30c33343afe3fc93ca6051",
+    "tests/unit/test_native_lhapdf_linker.py": "8067fd4fac2e190b6db7e258b5e74805ec2fd9b8bf78e4b6ae3999abd9643636"
+  }
+}

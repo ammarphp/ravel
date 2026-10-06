@@ -1,0 +1,1620 @@
+{
+  "analysis": "SUSY-2018-16",
+  "certified": false,
+  "coordinate_units": "GeV",
+  "expected_family": "median-only; expected bands not supplied in this table",
+  "point_count": 52,
+  "points": [
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 48.0,
+      "m_parent_GeV": 50.0,
+      "median_expected_sigma95_fb": 1078.7,
+      "median_expected_sigma95_pb": 1.0787,
+      "observed_sigma95_fb": 1083.3999999999999,
+      "observed_sigma95_pb": 1.0834,
+      "point_id": "m50_m48",
+      "source_row_index": 57,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 1.0834
+          },
+          "value": 1.0834
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 1.0787
+          },
+          "value": 1.0787
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 45.0,
+      "m_parent_GeV": 50.0,
+      "median_expected_sigma95_fb": 707.14,
+      "median_expected_sigma95_pb": 0.70714,
+      "observed_sigma95_fb": 526.9200000000001,
+      "observed_sigma95_pb": 0.52692,
+      "point_id": "m50_m45",
+      "source_row_index": 56,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.52692
+          },
+          "value": 0.52692
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.70714
+          },
+          "value": 0.70714
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 58.0,
+      "m_parent_GeV": 60.0,
+      "median_expected_sigma95_fb": 630.88,
+      "median_expected_sigma95_pb": 0.63088,
+      "observed_sigma95_fb": 707.51,
+      "observed_sigma95_pb": 0.70751,
+      "point_id": "m60_m58",
+      "source_row_index": 63,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.70751
+          },
+          "value": 0.70751
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.63088
+          },
+          "value": 0.63088
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 55.0,
+      "m_parent_GeV": 60.0,
+      "median_expected_sigma95_fb": 357.53000000000003,
+      "median_expected_sigma95_pb": 0.35753,
+      "observed_sigma95_fb": 286.21000000000004,
+      "observed_sigma95_pb": 0.28621,
+      "point_id": "m60_m55",
+      "source_row_index": 62,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.28621
+          },
+          "value": 0.28621
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.35753
+          },
+          "value": 0.35753
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 68.0,
+      "m_parent_GeV": 70.0,
+      "median_expected_sigma95_fb": 441.85999999999996,
+      "median_expected_sigma95_pb": 0.44186,
+      "observed_sigma95_fb": 568.9300000000001,
+      "observed_sigma95_pb": 0.56893,
+      "point_id": "m70_m68",
+      "source_row_index": 69,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.56893
+          },
+          "value": 0.56893
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.44186
+          },
+          "value": 0.44186
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 65.0,
+      "m_parent_GeV": 70.0,
+      "median_expected_sigma95_fb": 238.41000000000003,
+      "median_expected_sigma95_pb": 0.23841,
+      "observed_sigma95_fb": 183.73999999999998,
+      "observed_sigma95_pb": 0.18374,
+      "point_id": "m70_m65",
+      "source_row_index": 68,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.18374
+          },
+          "value": 0.18374
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.23841
+          },
+          "value": 0.23841
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 70.0,
+      "m_parent_GeV": 90.0,
+      "median_expected_sigma95_fb": 396.76,
+      "median_expected_sigma95_pb": 0.39676,
+      "observed_sigma95_fb": 358.95,
+      "observed_sigma95_pb": 0.35895,
+      "point_id": "m90_m70",
+      "source_row_index": 74,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.35895
+          },
+          "value": 0.35895
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.39676
+          },
+          "value": 0.39676
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 50.0,
+      "m_parent_GeV": 90.0,
+      "median_expected_sigma95_fb": 1342.7,
+      "median_expected_sigma95_pb": 1.3427,
+      "observed_sigma95_fb": 2499.2999999999997,
+      "observed_sigma95_pb": 2.4993,
+      "point_id": "m90_m50",
+      "source_row_index": 73,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 2.4993
+          },
+          "value": 2.4993
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 1.3427
+          },
+          "value": 1.3427
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 98.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 203.96,
+      "median_expected_sigma95_pb": 0.20396,
+      "observed_sigma95_fb": 238.13,
+      "observed_sigma95_pb": 0.23813,
+      "point_id": "m100_m98",
+      "source_row_index": 5,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.23813
+          },
+          "value": 0.23813
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.20396
+          },
+          "value": 0.20396
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 95.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 105.47,
+      "median_expected_sigma95_pb": 0.10547,
+      "observed_sigma95_fb": 90.003,
+      "observed_sigma95_pb": 0.090003,
+      "point_id": "m100_m95",
+      "source_row_index": 4,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.090003
+          },
+          "value": 0.090003
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.10547
+          },
+          "value": 0.10547
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 90.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 122.23,
+      "median_expected_sigma95_pb": 0.12223,
+      "observed_sigma95_fb": 96.834,
+      "observed_sigma95_pb": 0.096834,
+      "point_id": "m100_m90",
+      "source_row_index": 3,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.096834
+          },
+          "value": 0.096834
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.12223
+          },
+          "value": 0.12223
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 80.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 328.34000000000003,
+      "median_expected_sigma95_pb": 0.32834,
+      "observed_sigma95_fb": 320.95,
+      "observed_sigma95_pb": 0.32095,
+      "point_id": "m100_m80",
+      "source_row_index": 2,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.32095
+          },
+          "value": 0.32095
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.32834
+          },
+          "value": 0.32834
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 70.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 663.75,
+      "median_expected_sigma95_pb": 0.66375,
+      "observed_sigma95_fb": 920.14,
+      "observed_sigma95_pb": 0.92014,
+      "point_id": "m100_m70",
+      "source_row_index": 1,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.92014
+          },
+          "value": 0.92014
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.66375
+          },
+          "value": 0.66375
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 60.0,
+      "m_parent_GeV": 100.0,
+      "median_expected_sigma95_fb": 1117.1,
+      "median_expected_sigma95_pb": 1.1171,
+      "observed_sigma95_fb": 1134.2,
+      "observed_sigma95_pb": 1.1342,
+      "point_id": "m100_m60",
+      "source_row_index": 0,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 1.1342
+          },
+          "value": 1.1342
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 1.1171
+          },
+          "value": 1.1171
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 123.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 168.04,
+      "median_expected_sigma95_pb": 0.16804,
+      "observed_sigma95_fb": 168.15,
+      "observed_sigma95_pb": 0.16815,
+      "point_id": "m125_m123",
+      "source_row_index": 12,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.16815
+          },
+          "value": 0.16815
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.16804
+          },
+          "value": 0.16804
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 120.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 80.829,
+      "median_expected_sigma95_pb": 0.080829,
+      "observed_sigma95_fb": 76.247,
+      "observed_sigma95_pb": 0.076247,
+      "point_id": "m125_m120",
+      "source_row_index": 11,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.076247
+          },
+          "value": 0.076247
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.080829
+          },
+          "value": 0.080829
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 115.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 80.844,
+      "median_expected_sigma95_pb": 0.080844,
+      "observed_sigma95_fb": 66.653,
+      "observed_sigma95_pb": 0.066653,
+      "point_id": "m125_m115",
+      "source_row_index": 10,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.066653
+          },
+          "value": 0.066653
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.080844
+          },
+          "value": 0.080844
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 105.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 195.14999999999998,
+      "median_expected_sigma95_pb": 0.19515,
+      "observed_sigma95_fb": 204.88,
+      "observed_sigma95_pb": 0.20488,
+      "point_id": "m125_m105",
+      "source_row_index": 9,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.20488
+          },
+          "value": 0.20488
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.19515
+          },
+          "value": 0.19515
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 95.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 450.15,
+      "median_expected_sigma95_pb": 0.45015,
+      "observed_sigma95_fb": 498.28,
+      "observed_sigma95_pb": 0.49828,
+      "point_id": "m125_m95",
+      "source_row_index": 17,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.49828
+          },
+          "value": 0.49828
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.45015
+          },
+          "value": 0.45015
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 85.0,
+      "m_parent_GeV": 125.0,
+      "median_expected_sigma95_fb": 552.63,
+      "median_expected_sigma95_pb": 0.55263,
+      "observed_sigma95_fb": 552.63,
+      "observed_sigma95_pb": 0.55263,
+      "point_id": "m125_m85",
+      "source_row_index": 16,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.55263
+          },
+          "value": 0.55263
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.55263
+          },
+          "value": 0.55263
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 148.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 126.6,
+      "median_expected_sigma95_pb": 0.1266,
+      "observed_sigma95_fb": 121.06,
+      "observed_sigma95_pb": 0.12106,
+      "point_id": "m150_m148",
+      "source_row_index": 24,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.12106
+          },
+          "value": 0.12106
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.1266
+          },
+          "value": 0.1266
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 145.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 50.94,
+      "median_expected_sigma95_pb": 0.05094,
+      "observed_sigma95_fb": 51.446,
+      "observed_sigma95_pb": 0.051446,
+      "point_id": "m150_m145",
+      "source_row_index": 23,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.051446
+          },
+          "value": 0.051446
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.05094
+          },
+          "value": 0.05094
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 140.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 56.526,
+      "median_expected_sigma95_pb": 0.056526,
+      "observed_sigma95_fb": 46.633,
+      "observed_sigma95_pb": 0.046633,
+      "point_id": "m150_m140",
+      "source_row_index": 22,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.046633
+          },
+          "value": 0.046633
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.056526
+          },
+          "value": 0.056526
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 130.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 139.16,
+      "median_expected_sigma95_pb": 0.13916,
+      "observed_sigma95_fb": 128.33,
+      "observed_sigma95_pb": 0.12833,
+      "point_id": "m150_m130",
+      "source_row_index": 21,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.12833
+          },
+          "value": 0.12833
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.13916
+          },
+          "value": 0.13916
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 25.7,
+      "expected_bands": null,
+      "m_lsp_GeV": 124.3,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 174.35,
+      "median_expected_sigma95_pb": 0.17435,
+      "observed_sigma95_fb": 200.2,
+      "observed_sigma95_pb": 0.2002,
+      "point_id": "m150_m124p3",
+      "source_row_index": 20,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.2002
+          },
+          "value": 0.2002
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.17435
+          },
+          "value": 0.17435
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 120.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 277.72,
+      "median_expected_sigma95_pb": 0.27772,
+      "observed_sigma95_fb": 334.09,
+      "observed_sigma95_pb": 0.33409,
+      "point_id": "m150_m120",
+      "source_row_index": 19,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.33409
+          },
+          "value": 0.33409
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.27772
+          },
+          "value": 0.27772
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 110.0,
+      "m_parent_GeV": 150.0,
+      "median_expected_sigma95_fb": 455.66,
+      "median_expected_sigma95_pb": 0.45566,
+      "observed_sigma95_fb": 545.11,
+      "observed_sigma95_pb": 0.54511,
+      "point_id": "m150_m110",
+      "source_row_index": 18,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.54511
+          },
+          "value": 0.54511
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.45566
+          },
+          "value": 0.45566
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 173.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 102.28,
+      "median_expected_sigma95_pb": 0.10228,
+      "observed_sigma95_fb": 82.24199999999999,
+      "observed_sigma95_pb": 0.082242,
+      "point_id": "m175_m173",
+      "source_row_index": 32,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.082242
+          },
+          "value": 0.082242
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.10228
+          },
+          "value": 0.10228
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 170.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 49.037,
+      "median_expected_sigma95_pb": 0.049037,
+      "observed_sigma95_fb": 49.546,
+      "observed_sigma95_pb": 0.049546,
+      "point_id": "m175_m170",
+      "source_row_index": 31,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.049546
+          },
+          "value": 0.049546
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.049037
+          },
+          "value": 0.049037
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 165.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 40.709,
+      "median_expected_sigma95_pb": 0.040709,
+      "observed_sigma95_fb": 33.589,
+      "observed_sigma95_pb": 0.033589,
+      "point_id": "m175_m165",
+      "source_row_index": 30,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.033589
+          },
+          "value": 0.033589
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.040709
+          },
+          "value": 0.040709
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 155.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 89.132,
+      "median_expected_sigma95_pb": 0.089132,
+      "observed_sigma95_fb": 85.084,
+      "observed_sigma95_pb": 0.085084,
+      "point_id": "m175_m155",
+      "source_row_index": 29,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.085084
+          },
+          "value": 0.085084
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.089132
+          },
+          "value": 0.089132
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 145.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 212.5,
+      "median_expected_sigma95_pb": 0.2125,
+      "observed_sigma95_fb": 302.47,
+      "observed_sigma95_pb": 0.30247,
+      "point_id": "m175_m145",
+      "source_row_index": 28,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.30247
+          },
+          "value": 0.30247
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.2125
+          },
+          "value": 0.2125
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 135.0,
+      "m_parent_GeV": 175.0,
+      "median_expected_sigma95_fb": 332.21,
+      "median_expected_sigma95_pb": 0.33221,
+      "observed_sigma95_fb": 268.23,
+      "observed_sigma95_pb": 0.26823,
+      "point_id": "m175_m135",
+      "source_row_index": 27,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.26823
+          },
+          "value": 0.26823
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.33221
+          },
+          "value": 0.33221
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 198.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 111.42,
+      "median_expected_sigma95_pb": 0.11142,
+      "observed_sigma95_fb": 79.242,
+      "observed_sigma95_pb": 0.079242,
+      "point_id": "m200_m198",
+      "source_row_index": 39,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.079242
+          },
+          "value": 0.079242
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.11142
+          },
+          "value": 0.11142
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 195.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 39.230000000000004,
+      "median_expected_sigma95_pb": 0.03923,
+      "observed_sigma95_fb": 38.733,
+      "observed_sigma95_pb": 0.038733,
+      "point_id": "m200_m195",
+      "source_row_index": 38,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.038733
+          },
+          "value": 0.038733
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.03923
+          },
+          "value": 0.03923
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 190.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 39.374,
+      "median_expected_sigma95_pb": 0.039374,
+      "observed_sigma95_fb": 37.495,
+      "observed_sigma95_pb": 0.037495,
+      "point_id": "m200_m190",
+      "source_row_index": 37,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.037495
+          },
+          "value": 0.037495
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.039374
+          },
+          "value": 0.039374
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 180.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 78.862,
+      "median_expected_sigma95_pb": 0.078862,
+      "observed_sigma95_fb": 78.76700000000001,
+      "observed_sigma95_pb": 0.078767,
+      "point_id": "m200_m180",
+      "source_row_index": 36,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.078767
+          },
+          "value": 0.078767
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.078862
+          },
+          "value": 0.078862
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 170.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 117.41,
+      "median_expected_sigma95_pb": 0.11741,
+      "observed_sigma95_fb": 147.31,
+      "observed_sigma95_pb": 0.14731,
+      "point_id": "m200_m170",
+      "source_row_index": 35,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.14731
+          },
+          "value": 0.14731
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.11741
+          },
+          "value": 0.11741
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 160.0,
+      "m_parent_GeV": 200.0,
+      "median_expected_sigma95_fb": 170.58,
+      "median_expected_sigma95_pb": 0.17058,
+      "observed_sigma95_fb": 150.01,
+      "observed_sigma95_pb": 0.15001,
+      "point_id": "m200_m160",
+      "source_row_index": 34,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.15001
+          },
+          "value": 0.15001
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.17058
+          },
+          "value": 0.17058
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 223.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 85.545,
+      "median_expected_sigma95_pb": 0.085545,
+      "observed_sigma95_fb": 53.833,
+      "observed_sigma95_pb": 0.053833,
+      "point_id": "m225_m223",
+      "source_row_index": 46,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.053833
+          },
+          "value": 0.053833
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.085545
+          },
+          "value": 0.085545
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 220.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 40.007,
+      "median_expected_sigma95_pb": 0.040007,
+      "observed_sigma95_fb": 35.82,
+      "observed_sigma95_pb": 0.03582,
+      "point_id": "m225_m220",
+      "source_row_index": 45,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.03582
+          },
+          "value": 0.03582
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.040007
+          },
+          "value": 0.040007
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 215.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 35.812999999999995,
+      "median_expected_sigma95_pb": 0.035813,
+      "observed_sigma95_fb": 30.735,
+      "observed_sigma95_pb": 0.030735,
+      "point_id": "m225_m215",
+      "source_row_index": 44,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.030735
+          },
+          "value": 0.030735
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.035813
+          },
+          "value": 0.035813
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 205.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 68.232,
+      "median_expected_sigma95_pb": 0.068232,
+      "observed_sigma95_fb": 77.102,
+      "observed_sigma95_pb": 0.077102,
+      "point_id": "m225_m205",
+      "source_row_index": 43,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.077102
+          },
+          "value": 0.077102
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.068232
+          },
+          "value": 0.068232
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 30.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 195.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 134.47,
+      "median_expected_sigma95_pb": 0.13447,
+      "observed_sigma95_fb": 189.95999999999998,
+      "observed_sigma95_pb": 0.18996,
+      "point_id": "m225_m195",
+      "source_row_index": 42,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.18996
+          },
+          "value": 0.18996
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.13447
+          },
+          "value": 0.13447
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 40.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 185.0,
+      "m_parent_GeV": 225.0,
+      "median_expected_sigma95_fb": 247.29000000000002,
+      "median_expected_sigma95_pb": 0.24729,
+      "observed_sigma95_fb": 304.34,
+      "observed_sigma95_pb": 0.30434,
+      "point_id": "m225_m185",
+      "source_row_index": 41,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.30434
+          },
+          "value": 0.30434
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.24729
+          },
+          "value": 0.24729
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 248.0,
+      "m_parent_GeV": 250.0,
+      "median_expected_sigma95_fb": 68.85,
+      "median_expected_sigma95_pb": 0.06885,
+      "observed_sigma95_fb": 39.794000000000004,
+      "observed_sigma95_pb": 0.039794,
+      "point_id": "m250_m248",
+      "source_row_index": 51,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.039794
+          },
+          "value": 0.039794
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.06885
+          },
+          "value": 0.06885
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 245.0,
+      "m_parent_GeV": 250.0,
+      "median_expected_sigma95_fb": 32.089,
+      "median_expected_sigma95_pb": 0.032089,
+      "observed_sigma95_fb": 35.652,
+      "observed_sigma95_pb": 0.035652,
+      "point_id": "m250_m245",
+      "source_row_index": 50,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.035652
+          },
+          "value": 0.035652
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.032089
+          },
+          "value": 0.032089
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 240.0,
+      "m_parent_GeV": 250.0,
+      "median_expected_sigma95_fb": 27.233,
+      "median_expected_sigma95_pb": 0.027233,
+      "observed_sigma95_fb": 22.349999999999998,
+      "observed_sigma95_pb": 0.02235,
+      "point_id": "m250_m240",
+      "source_row_index": 49,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.02235
+          },
+          "value": 0.02235
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.027233
+          },
+          "value": 0.027233
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 20.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 230.0,
+      "m_parent_GeV": 250.0,
+      "median_expected_sigma95_fb": 60.28,
+      "median_expected_sigma95_pb": 0.06028,
+      "observed_sigma95_fb": 61.205000000000005,
+      "observed_sigma95_pb": 0.061205,
+      "point_id": "m250_m230",
+      "source_row_index": 48,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.061205
+          },
+          "value": 0.061205
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.06028
+          },
+          "value": 0.06028
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 2.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 298.0,
+      "m_parent_GeV": 300.0,
+      "median_expected_sigma95_fb": 78.499,
+      "median_expected_sigma95_pb": 0.078499,
+      "observed_sigma95_fb": 53.641,
+      "observed_sigma95_pb": 0.053641,
+      "point_id": "m300_m298",
+      "source_row_index": 55,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.053641
+          },
+          "value": 0.053641
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.078499
+          },
+          "value": 0.078499
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 5.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 295.0,
+      "m_parent_GeV": 300.0,
+      "median_expected_sigma95_fb": 28.293,
+      "median_expected_sigma95_pb": 0.028293,
+      "observed_sigma95_fb": 32.372,
+      "observed_sigma95_pb": 0.032372,
+      "point_id": "m300_m295",
+      "source_row_index": 54,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.032372
+          },
+          "value": 0.032372
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.028293
+          },
+          "value": 0.028293
+        }
+      ]
+    },
+    {
+      "delta_m_GeV": 10.0,
+      "expected_bands": null,
+      "m_lsp_GeV": 290.0,
+      "m_parent_GeV": 300.0,
+      "median_expected_sigma95_fb": 26.811,
+      "median_expected_sigma95_pb": 0.026811,
+      "observed_sigma95_fb": 22.643,
+      "observed_sigma95_pb": 0.022643,
+      "point_id": "m300_m290",
+      "source_row_index": 53,
+      "source_values": [
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.022643
+          },
+          "value": 0.022643
+        },
+        {
+          "public_uncertainty": null,
+          "public_uncertainty_status": "not supplied in public source",
+          "source_entry": {
+            "value": 0.026811
+          },
+          "value": 0.026811
+        }
+      ]
+    }
+  ],
+  "quantity": "inclusive model production cross-section 95% CLs upper limit",
+  "schema_version": 1,
+  "source_alias_verified": "campaign slepton_xsec_UL.yaml is byte-identical to original figure_44ab.yaml",
+  "source_file": "../reference/slepton_xsec_UL.yaml",
+  "source_metadata": {
+    "additional_resources": [
+      {
+        "description": "Image file",
+        "location": "figaux_44b.png"
+      },
+      {
+        "description": "Thumbnail image file",
+        "location": "thumb_figaux_44b.png"
+      },
+      {
+        "description": "Image file",
+        "location": "figaux_44a.png"
+      },
+      {
+        "description": "Thumbnail image file",
+        "location": "thumb_figaux_44a.png"
+      }
+    ],
+    "data_file": "figure_44ab.yaml",
+    "description": "Observed and Expected upper cross-section limits for direct slepton scenarios.",
+    "keywords": [
+      {
+        "name": "reactions",
+        "values": [
+          "P P --> SLEPTON SLEPTON"
+        ]
+      },
+      {
+        "name": "cmenergies",
+        "values": [
+          13000
+        ]
+      },
+      {
+        "name": "phrases",
+        "values": [
+          "SUSY",
+          "Proton-Proton Scattering"
+        ]
+      }
+    ],
+    "location": "Figure 44ab",
+    "name": "Figure 44ab",
+    "table_doi": "10.17182/hepdata.91374.v5/t91"
+  },
+  "subset_definition": "All 52 retained reference-matched points with delta_m>=2 GeV; not the RRR author's simulation lattice"
+}

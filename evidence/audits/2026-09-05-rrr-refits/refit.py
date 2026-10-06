@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Refit one retained workspace/patch pair, or independently check its roots.
+
+No simulation is generated. Inputs are read-only; --out must not exist. JAX is an
+optional audit backend, not a new native-pipeline default. The same Ravel guarded
+optimizer and typed limit computation are used with either tensor backend.
+"""
+import argparse
+import hashlib
+import importlib.metadata
+import json
+import math
+from pathlib import Path
+import platform
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "src"))
+
+
+def pin(path):
+    return {"name": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--background", type=Path, required=True)
+    parser.add_argument("--patch", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--backend", choices=["numpy", "jax"], default="numpy")
+    parser.add_argument("--fit-tolerance", type=float, default=1e-9)
+    parser.add_argument("--check-result", type=Path,
+                        help="re-evaluate all six roots from an earlier result")
+    args = parser.parse_args()
+    if args.out.exists():
+        parser.error("output already exists; preserve it and choose a new path")
+    if not math.isfinite(args.fit_tolerance) or not 0 < args.fit_tolerance < 1:
+        parser.error("fit tolerance must be finite and between zero and one")
+    from ravel.physics.pyhf_exclude import compute, model_from_likelihood, robust_optimizer
+    from ravel.limits import read_limits
+    import pyhf
+    pyhf.set_backend(args.backend, robust_optimizer(maxiter=200000, tolerance=args.fit_tolerance),
+                     precision="64b")
+    before = {"background": pin(args.background), "patch": pin(args.patch)}
+    model, data = model_from_likelihood(str(args.background), str(args.patch))
+    started = time.monotonic()
+    output = {"schema_version": 1, "scope": "fixed-template statistical diagnosis; no physics certification",
+              "inputs": before, "python": platform.python_version(),
+              "backend": args.backend, "optimizer": "Ravel robust_optimizer",
+              "fit_tolerance": args.fit_tolerance,
+              "dependencies": {}, "engine": {str(p.relative_to(ROOT)): pin(p)["sha256"] for p in
+                  [ROOT / "src/ravel/physics/pyhf_exclude.py", ROOT / "src/ravel/limits.py",
+                   Path(__file__)]}}
+    for name in ("pyhf", "numpy", "scipy", "jax", "jaxlib", "iminuit", "jsonpatch"):
+        try:
+            output["dependencies"][name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            pass
+    if args.check_result:
+        previous = json.loads(args.check_result.read_text())
+        if previous["inputs"] != before:
+            raise ValueError("root check requires exactly the same background and patch bytes")
+        output["check_source"] = pin(args.check_result)
+        limits = read_limits(previous["result"])
+        curves = [limits.observed, *limits.expected]
+        if any(curve.status != "resolved" for curve in curves):
+            raise ValueError("all six roots must be resolved before checking")
+        init = model.config.suggested_init()
+        init[model.config.poi_index] = 0.0
+        bounds = model.config.suggested_bounds()
+        bounds[model.config.poi_index] = [0.0, max(2.0, 2 * max(c.value for c in curves))]
+        output["initial_poi"] = 0.0
+        output["checks"] = []
+        for index, curve in enumerate(curves):
+            observed, expected = pyhf.infer.hypotest(
+                curve.value, data, model, test_stat="qtilde", return_expected_set=True,
+                init_pars=init, par_bounds=bounds)
+            value = float(observed if index == 0 else expected[index - 1])
+            output["checks"].append({"curve": index, "mu": curve.value, "cls": value,
+                                      "absolute_error_from_0_05": abs(value - 0.05)})
+            print(output["checks"][-1], flush=True)
+        output["pass"] = all(row["absolute_error_from_0_05"] < 5e-4 for row in output["checks"])
+    else:
+        output["result"] = compute(model, data, n_curve=3)
+    if {"background": pin(args.background), "patch": pin(args.patch)} != before:
+        raise ValueError("input bytes changed during inference")
+    output["wall_seconds"] = time.monotonic() - started
+    # Exclusive creation also protects against a concurrent run using this name.
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    with args.out.open("x") as stream:
+        json.dump(output, stream, indent=2, allow_nan=False)
+        stream.write("\n")
+    return 0 if output.get("pass", True) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

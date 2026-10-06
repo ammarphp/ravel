@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/_bootstrap.py", line 18, in <module>
+    main()
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/_bootstrap.py", line 14, in main
+    runpy.run_module(module, run_name="__main__", alter_sys=True)
+  File "<frozen runpy>", line 226, in run_module
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/physics/scoped.py", line 415, in <module>
+    main()
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/physics/scoped.py", line 377, in main
+    verify_worker(rd)
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/workflow/scoped.py", line 209, in verify_worker
+    proposal = verify_plan(rd, require_approval=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/ravel-cli-clean-env/lib/python3.12/site-packages/ravel/workflow/scoped.py", line 182, in verify_plan
+    raise ValueError("stale plan: source, runtime or scientific input bytes changed; create a new plan")
+ValueError: stale plan: source, runtime or scientific input bytes changed; create a new plan

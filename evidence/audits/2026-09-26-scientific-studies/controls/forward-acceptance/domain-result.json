@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "domain": "applicability",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "family": "forward",
+    "events": [
+      {
+        "event_id": "one",
+        "x_at_plane_mm": 10.0,
+        "y_at_plane_mm": 0.0,
+        "selected": true,
+        "contribution": 2
+      }
+    ],
+    "selected_sumw": 2.0,
+    "selected_sumw2": 4.0,
+    "checks_passed": true
+  },
+  "limitations": [
+    "Geometric neutral single-particle acceptance only; no beam optics, material, interactions, magnetic field or detector efficiency is inferred."
+  ],
+  "inputs": [
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/forward-acceptance.json",
+      "size": 327,
+      "sha256": "82a20be80fc03eaa82b2ada0863a57a639927be6fafeaa02861eb5484e55e113"
+    }
+  ]
+}

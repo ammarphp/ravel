@@ -1,0 +1,1417 @@
+{
+  "schema_version": 1,
+  "purpose": "Curation of hash-pinned and historical records for the public distribution (2026-10-04). Each entry maps the original record identity (sha256, bytes) to the curated public copy, names the records that pinned the original digest (pinned_by) and says what changed and why: wording, recorded machine paths and host names in records, and in two audit verifiers the acceptance of exactly these curated copies. Numbers, data and every other byte are unchanged; a gzip record is recompressed deterministically around its curated member. A check that pinned the original digest accepts the file only as exactly this curated copy (scripts/check_evidence.py verifies the record); the superseded native-fidelity-v2 verifier is the exception, since by design it rejects current sources that changed after its audit and so no longer passes.",
+  "records": {
+    "benchmarks/cases.json": {
+      "original_sha256": "94365e1257c8abbbad70493df1b9630535bf157990eb8f93b57133ae1168f46c",
+      "original_bytes": 35016,
+      "curated_sha256": "e29990b254dcf704b31c6d5f65a52239738c0d9366889e2062a2b6bffa55ad81",
+      "curated_bytes": 34967,
+      "pinned_by": [
+        "evidence/audits/2026-09-08-statistical-fidelity/atlas-controls.json",
+        "evidence/audits/2026-09-06-statistical-fidelity/benchmark-provenance.json"
+      ],
+      "change": "Historical case notes: a pointer to a shower review and the location of a change list, neither of which this repository includes, are dropped (the CR-044 identifier stays); the former benchmark runner is named generically; the registry description points to docs/validation/benchmark-guide.md instead of two design documents; internal reference codes are dropped from eight notes, and three notes describe the seeded survey and a review verdict in plain words without draw indices. Every case, number and other byte is unchanged; the evidence manifest pins the curated digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "benchmarks/results.json": {
+      "original_sha256": "5a7b83b514d6e16f1855e0cb9c610e559ef5be7420b848bc9f30e4dc3d6c30ba",
+      "original_bytes": 12361,
+      "curated_sha256": "352ad4815a0d01b7c690637a7667f412b27c391d42cf75e7b35f5cc1d9497b48",
+      "curated_bytes": 12306,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-statistical-fidelity/benchmark-provenance.json"
+      ],
+      "change": "The recorded absolute path of the case registry that the baseline run read (a machine path in the original repository layout) is shortened to its repository-relative path; every case, number and other byte of the locked baseline is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original baseline is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-05-native-fidelity/verification.json": {
+      "original_sha256": "e0d1dd1682d3fd8cb648dcb97dba5466c1deaf77a3ce488da0be6e2f8e3a49c4",
+      "original_bytes": 5938,
+      "curated_sha256": "3cb4ad120de36df853dbb5a1546d59c0e11633fb6efb80c733027d4a328f1cd2",
+      "curated_bytes": 5912,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verify.py",
+        "evidence/audits/2026-09-06-native-fidelity/replay-execution.json",
+        "evidence/audits/2026-09-06-native-fidelity/verification.json"
+      ],
+      "change": "The preservation note no longer points to the Git history for the earlier bytes of this record; previous_verification_sha256 still identifies them. Every other byte is unchanged.",
+      "reason": "Repository wording policy (2026-10-05): the repository is distributed as a single commit without release tags, so records do not point to an earlier Git history."
+    },
+    "evidence/audits/2026-09-05-post-layout-replay.json": {
+      "original_sha256": "558fdbc471bd0ab1df2a31a6fa8c7a304cebb5e308b9c2d223ad4ece82d90c56",
+      "original_bytes": 12691,
+      "curated_sha256": "3af027e77e17ccd36673ef0647b32e1411bba41b89c7dcafab2feeb043398dfa",
+      "curated_bytes": 12636,
+      "pinned_by": [],
+      "change": "The recorded absolute path of the case registry that the replay read (a machine path in the original repository layout) is shortened to its repository-relative path; every case, number and other byte of the replay record is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-05-rrr-diagnosis/diagnose.py": {
+      "original_sha256": "c21f2ed824ff01732250b7c52f1a739df7cec23494e2969718f39aa149b3e732",
+      "original_bytes": 26556,
+      "curated_sha256": "e7065ea87e84538414ea95498cfaaf4af7b0aa37c21079ce38326e9ff7838234",
+      "curated_bytes": 26572,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/provenance.json",
+        "evidence/audits/2026-09-05-rrr-diagnosis/verification.json"
+      ],
+      "change": "The capture step's list of extra source files names one source record generically instead of by its path, and the module docstring says that capture reads the original run records, which this repository does not include, instead of describing where they are kept. Capture cannot run here; the analysis code that the audit check executes is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json": {
+      "original_sha256": "0cce2a6965f3e73974d11ae55d9df77717dcffa4474b3b46a61c35ab6e9acee3",
+      "original_bytes": 3165553,
+      "curated_sha256": "06cd059cc474d9a339f3c116d0cb2b1516bf370a24358bbfe65787c33b9cc92b",
+      "curated_bytes": 3165462,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/provenance.json",
+        "evidence/audits/2026-09-05-rrr-diagnosis/verification.json"
+      ],
+      "change": "The snapshot's source inventory keys one source record generically instead of by its path, its three embedded copies of a scan's k-factor note name the reference cross-section table by file name instead of by its location in the original repository layout, and one certification note gives its date without session narration; the recorded sha256 and size of every source, the inventory count and every analysed value are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "evidence/audits/2026-09-05-rrr-diagnosis/verification.json": {
+      "original_sha256": "788137a5c9f40939c7d7f3d27e0a48e9c481938bf96d9ebec7ae21bc072df87f",
+      "original_bytes": 2380,
+      "curated_sha256": "0ed4cb93a4fa1c9cad9a6b26fceeaa3063dd0bcc70a8d79ee5506603c19dbbbd",
+      "curated_bytes": 2344,
+      "pinned_by": [],
+      "change": "The recorded pytest commands name the checkout directory as <source-repo> instead of by its original directory name; the commands, results and counts are unchanged. The replay scope note drops the word that described the archives as private.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-05-statistical-fidelity/audit.json": {
+      "original_sha256": "7bceda58059037ad0a4070894b2b6951647950758a7165d423b8e3ce28551af4",
+      "original_bytes": 11914,
+      "curated_sha256": "b05b736bc74cb64d90fedd601e08ddff4e896aacd769c45a75ecae2e0ca1ad77",
+      "curated_bytes": 11906,
+      "pinned_by": [],
+      "change": "The source-state note describes the tested source as uncommitted without naming the working-tree arrangement it was tested in; the engine digests, results and every other field are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-06-native-fidelity-v2/README.md": {
+      "original_sha256": "1d459b4882983580407c893341d78c7f632d47b696686ecebeac07fbe2cc6299",
+      "original_bytes": 4443,
+      "curated_sha256": "73908c4b43e0bf65bb4aaf2f504dfde09d0965145a821b72d020373f43e5bd09",
+      "curated_bytes": 4508,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v2/manifest.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verify.py"
+      ],
+      "change": "One sentence on where to run the tests no longer describes the directory layout the tests first ran in, and the run instruction for this superseded verifier, which by design no longer passes, points to the native-fidelity-v3 verifier instead; the reported results and every other line are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-06-native-fidelity-v3/verify.py": {
+      "original_sha256": "f166ffa76870a05bf63ed176c42dfe1f5b4b532b54febb716cb4d16468b09a7a",
+      "original_bytes": 25420,
+      "curated_sha256": "9465a7f41837dd56790bf920b586bcfb1c72f4130792024832f1294916be2523",
+      "curated_bytes": 26264,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v3/manifest.json"
+      ],
+      "change": "The verifier accepts a source or predecessor file whose digest differs from its pin, and a file of its own bundle whose digest differs from the bundle manifest, only when the file is exactly the curated copy that this record maps from the pinned digest (the native core source and two predecessor READMEs, and this verifier itself); every other check is unchanged.",
+      "reason": "Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests it pinned, and nothing else."
+    },
+    "evidence/audits/2026-09-06-native-fidelity/README.md": {
+      "original_sha256": "6e8b681d0f13920526c500efa0223eeb8214d40787a75755dec9d3b51eecb050",
+      "original_bytes": 7449,
+      "curated_sha256": "f69f2e3870b558b88c3d07b834bb3229dad1bc46eb03d9c3154bc2380fd6fa7a",
+      "curated_bytes": 7414,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verify.py",
+        "evidence/audits/2026-09-06-native-fidelity/manifest.json"
+      ],
+      "change": "One sentence dates the earlier selection runs without an internal reference; the reported results and every other line are unchanged. A sentence on the raw ROOT files says they are not included instead of where they remain, and the replay instructions say that the retained input is not included and name the repository root.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-06-rrr-waypoint/README.md": {
+      "original_sha256": "08aaea0d5ff23de9a4b2f3f7a719be20e1614f078ce543e49c32e846ec6022f1",
+      "original_bytes": 16139,
+      "curated_sha256": "aae445fe8df0c6232fa7b2226a864a011d439a205406cd8ad24655b4e5f87626",
+      "curated_bytes": 16133,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-waypoint/manifest.json"
+      ],
+      "change": "One sentence on where to run the tests no longer refers to a machine-local directory; the commands and every other line are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-06-rrr-waypoint/curate.py": {
+      "original_sha256": "6f796ecbac91da3b9b8c72ed5dbfd019c92b351273928b30b6169e18e21253d0",
+      "original_bytes": 37886,
+      "curated_sha256": "147b71e9baa854894d539008fd2a921cf84ec8f9004f338d678c82ef95eaed15",
+      "curated_bytes": 38795,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-rrr-waypoint/manifest.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/verification.json"
+      ],
+      "change": "The bundle check accepts a file whose digest and size differ from the bundle manifest only when it is exactly the curated copy that this record maps from the recorded original (the bundle README and this script); every other check is unchanged.",
+      "reason": "Re-keying of the hash-pinned records (2026-10-04): the verifier accepts exactly the curated copies that this record maps from the digests it pinned, and nothing else."
+    },
+    "evidence/audits/2026-09-06-statistical-fidelity/audit.json": {
+      "original_sha256": "1f6458edf6437107bb285de24789c0bfe3dcab367fb4ff1f7f38f919d8373f59",
+      "original_bytes": 12546,
+      "curated_sha256": "5a59efacb1a8871cf8a71eb5a3553bb41d9d6f62ca364a7d2d27fae423644bf3",
+      "curated_bytes": 12538,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-statistical-fidelity/provenance.json",
+        "evidence/audits/2026-09-08-statistical-fidelity/audit.json"
+      ],
+      "change": "The source-state note describes the tested source as uncommitted without naming the working-tree arrangement it was tested in; the engine digests, results and every other field are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-06-statistical-fidelity/missing-yoda-search.json": {
+      "original_sha256": "ce725108bc0b2e6f2da82d647615bddc13eefad1eb74f9c3534b2ece59c7ce13",
+      "original_bytes": 2030,
+      "curated_sha256": "b0d929a11d30dc4eafce88010ca9dc61c58219e955b78f436aa5dec56fb629e5",
+      "curated_bytes": 2012,
+      "pinned_by": [
+        "evidence/audits/2026-09-06-statistical-fidelity/provenance.json"
+      ],
+      "change": "The search-scope sentence describes the searched locations generically instead of naming machine-local directories; the path counts and the findings are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/commands.json": {
+      "original_sha256": "e188f429648dd591e4bb4d7e875e760977f07c8d6f52a560d5511436bc9c2eca",
+      "original_bytes": 28983,
+      "curated_sha256": "77bb219ca248e6ab9d1fc83ef7ddc1d4626cdb54b953d28ae1c59a2783cbd7ee",
+      "curated_bytes": 26019,
+      "pinned_by": [],
+      "change": "The 76 recorded output, run-directory and specification paths name the run location relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; every command, argument, exit code and timing is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/counting-replica/spec.json": {
+      "original_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e",
+      "original_bytes": 912,
+      "curated_sha256": "b3480275899b2ca5084b2e48a51563786d7b31b6b2125277bdf07c47a6190d4a",
+      "curated_bytes": 847,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer points to a record directory that this distribution does not include; the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/counting/spec.json": {
+      "original_sha256": "c619a02b6a332e7a4aa540b5781dea09dd5ba8a115c27c290bb917615d03083e",
+      "original_bytes": 912,
+      "curated_sha256": "b3480275899b2ca5084b2e48a51563786d7b31b6b2125277bdf07c47a6190d4a",
+      "curated_bytes": 847,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer points to a record directory that this distribution does not include; the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/different-likelihood.json": {
+      "original_sha256": "bd387a07b68f8d37dd734753ac8745d79e87d702c88a4f1ade7bf2b0dfc61542",
+      "original_bytes": 4041,
+      "curated_sha256": "fc1336e1fe6caf8e4daa78b5aaf7e1669a367d983aa825e2abbb8a5202131e51",
+      "curated_bytes": 3963,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/different-scale/events.lhe.gz": {
+      "original_sha256": "7797070149ee53539003412a1bead320112ccc44dcf2922d85122ca86a939c13",
+      "original_bytes": 17800,
+      "curated_sha256": "50235431fd18add7c8c071cc37453100137a5401eee7a378018c874c624be1ed",
+      "curated_bytes": 17781,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/event-projection.json"
+      ],
+      "change": "In the event file's header (its copy of the process card), the MadGraph output directory names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); the file is recompressed deterministically (gzip level 9, no file name, time stamp 0). Every event block (event_blocks_sha256 in event-projection.json), the run card and the cross section are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/different-scale/proc_card.dat": {
+      "original_sha256": "d170103ce433473749586665bfc3669c950682c36c1cb3b7a4b48d056c73fa7f",
+      "original_bytes": 2197,
+      "curated_sha256": "6cf2c71266c6da385651a592764ca6e0e07cae6a0516e00e360e2c16ffa2191a",
+      "curated_bytes": 2158,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/card-projection.json"
+      ],
+      "change": "The MadGraph output directory in the recorded process card names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); every model, definition and process line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/different-scale/spec.json": {
+      "original_sha256": "5d13d971a2145fefa83e6390cf2ab6e6b6a1a89c44ad46ca86d0eeebbf835ae3",
+      "original_bytes": 2512,
+      "curated_sha256": "67b1ab9f2a12a63dc6b575524b0ab9e1e94780f45d18ef5f5682527a7954690b",
+      "curated_bytes": 2306,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer names a study that this distribution does not include, and the two machine-local tool paths are shortened to a neutral toolchain-root token ($TOOLCHAIN/envs/mg5/...); the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/dimuon/events.lhe.gz": {
+      "original_sha256": "ced1abc79bf7966d4401692facc3b678b0b6aaeaced74ed565e297b808e965e9",
+      "original_bytes": 17566,
+      "curated_sha256": "3999fabf24091405c8daf959c92e263fb66941a92df83574a51cdb1e46d291e6",
+      "curated_bytes": 17546,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/event-projection.json"
+      ],
+      "change": "In the event file's header (its copy of the process card), the MadGraph output directory names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); the file is recompressed deterministically (gzip level 9, no file name, time stamp 0). Every event block (event_blocks_sha256 in event-projection.json), the run card and the cross section are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/dimuon/proc_card.dat": {
+      "original_sha256": "e5bda62fc422c653537a1f6e8b574151b9bc90e1059a08381e6d525206037aac",
+      "original_bytes": 2190,
+      "curated_sha256": "51cea1ed5281597bb975b16cefdf368dee78eebe5d6746048afb2cb90f80038e",
+      "curated_bytes": 2151,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/card-projection.json"
+      ],
+      "change": "The MadGraph output directory in the recorded process card names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); every model, definition and process line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/dimuon/spec.json": {
+      "original_sha256": "0170b8105518224ebfb6cb30ca3c4a2a3d105c7878914add274b9c4791a6d6f3",
+      "original_bytes": 2514,
+      "curated_sha256": "407233913c838fac9157c1aafa4ae8af6716d31a8ed906411406a72b9477ad56",
+      "curated_bytes": 2308,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer names a study that this distribution does not include, and the two machine-local tool paths are shortened to a neutral toolchain-root token ($TOOLCHAIN/envs/mg5/...); the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/events.lhe.gz": {
+      "original_sha256": "c8c7330fa387e5b4c864c771b6374fcbad9dbea6cffb6f104ad9275ffff4109a",
+      "original_bytes": 17547,
+      "curated_sha256": "101304876d38f714e2babcb52a15f276af9f276aced3dea49fb8857dafc90f1b",
+      "curated_bytes": 17527,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/event-projection.json"
+      ],
+      "change": "In the event file's header (its copy of the process card), the MadGraph output directory names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); the file is recompressed deterministically (gzip level 9, no file name, time stamp 0). Every event block (event_blocks_sha256 in event-projection.json), the run card and the cross section are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/proc_card.dat": {
+      "original_sha256": "617e8b53d4894439e48e7bb50cb9aabaab48572f95883e51f00e501049a17d1a",
+      "original_bytes": 2199,
+      "curated_sha256": "28f371fe0921e89236d53652b164b07094dc5883f1c61ca1008e9b54738b6ec1",
+      "curated_bytes": 2160,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/card-projection.json"
+      ],
+      "change": "The MadGraph output directory in the recorded process card names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); every model, definition and process line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan-replica/spec.json": {
+      "original_sha256": "18d32024595feb7662a54e903dbdda0e16ab72d9a1889db5be7fa44f5a6aa5fa",
+      "original_bytes": 2512,
+      "curated_sha256": "859cbf4fef9ed21c9f9eb88f23dd94b447d6581372b754b0653af7d9fbdc6ece",
+      "curated_bytes": 2306,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer names a study that this distribution does not include, and the two machine-local tool paths are shortened to a neutral toolchain-root token ($TOOLCHAIN/envs/mg5/...); the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan/events.lhe.gz": {
+      "original_sha256": "875f06a5e8752ae754dddb7765ba980009ab61388ea14f653f43a07fa8519276",
+      "original_bytes": 17571,
+      "curated_sha256": "58c6997ec85c2c3434aba6d6c14b6b65e28edaa7d1fe3b6107b7c0e2af64293f",
+      "curated_bytes": 17553,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/event-projection.json"
+      ],
+      "change": "In the event file's header (its copy of the process card), the MadGraph output directory names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); the file is recompressed deterministically (gzip level 9, no file name, time stamp 0). Every event block (event_blocks_sha256 in event-projection.json), the run card and the cross section are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan/proc_card.dat": {
+      "original_sha256": "0c18cb3526019f846a7f39ad1395b516cec8ac8d073bb160f87327f6f6ca8ba4",
+      "original_bytes": 2191,
+      "curated_sha256": "09b6c72480b1667a143756216dcf4aa6a15962033086e11f129353b2b7c0a660",
+      "curated_bytes": 2152,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/card-projection.json"
+      ],
+      "change": "The MadGraph output directory in the recorded process card names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); every model, definition and process line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/drell-yan/spec.json": {
+      "original_sha256": "f7534db5010a4104e7d94a55052b666dc58fc1763c926809642803001a0bd8f6",
+      "original_bytes": 2512,
+      "curated_sha256": "50d56d8f370e8f51d41520aa7fa7030fea392b361bd118fe42a35628934b8a98",
+      "curated_bytes": 2306,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer names a study that this distribution does not include, and the two machine-local tool paths are shortened to a neutral toolchain-root token ($TOOLCHAIN/envs/mg5/...); the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/process-mismatch.json": {
+      "original_sha256": "f336564cf4f23d697117ac0e980f5c50cacd17ddee7825a5f06f2a31c9e320da",
+      "original_bytes": 2425,
+      "curated_sha256": "a5ecb494f546b8fd833e96a62216190c5cdab49b129d60d188d56f1bd3f56793",
+      "curated_bytes": 2347,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/same-likelihood.json": {
+      "original_sha256": "7a0a0ce59d003616da7c274a95287856ac4ce65cb6faf4abb7a6fa74ca75d383",
+      "original_bytes": 455,
+      "curated_sha256": "93abd9e07980941204f052d58150a8db1e7a74095e10490fbfe4ba13572a740d",
+      "curated_bytes": 377,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/same-physics-new-seed.json": {
+      "original_sha256": "221ae4ea1205d45b39dae30d15f7d6f3bec72f9c41a6b54eea2aa633868e4cc3",
+      "original_bytes": 457,
+      "curated_sha256": "48b46148c31481eb3a4a9238f4f0b17ca3868034be55c9ad707e7efe43cb7ff6",
+      "curated_bytes": 379,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/scale-mismatch.json": {
+      "original_sha256": "b2d3d24c51907e7fcfa48f222f364438acfe76f00c8307b40693d991eea76d32",
+      "original_bytes": 570,
+      "curated_sha256": "d07cc82466c6f43fd2a52c2e3774b114c0d1ca427454bb88bcb4072839b3f4f5",
+      "curated_bytes": 492,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/supplied-card-comparison.json": {
+      "original_sha256": "9e532a3898418d35bcab74cd81740747373bfdfcd7e4c0fea9130a20214c5900",
+      "original_bytes": 453,
+      "curated_sha256": "59e55b141271b32b01445fbd6048d4b4bb8d230eec3d9918ce228b4013143855",
+      "curated_bytes": 375,
+      "pinned_by": [],
+      "change": "The two compared run directories are recorded relative to $SOURCE_ROOT instead of by an absolute path on the machine that ran the controls; the comparison outcome, its differences and its errors are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/supplied-card/events.lhe.gz": {
+      "original_sha256": "14db841958f796e31c57972cabbdc76e00bdc41351963c3b108a4776efdbfa8a",
+      "original_bytes": 17571,
+      "curated_sha256": "a5ba03fccd7d7d66d89d91ac9c59beedc5dbddb9380e31c10ba5d896d65893cb",
+      "curated_bytes": 17551,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/event-projection.json"
+      ],
+      "change": "In the event file's header (its copy of the process card), the MadGraph output directory names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); the file is recompressed deterministically (gzip level 9, no file name, time stamp 0). Every event block (event_blocks_sha256 in event-projection.json), the run card and the cross section are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/supplied-card/proc_card.dat": {
+      "original_sha256": "287b8653d4fedfc3f74bde4c146df1b32a058c4d3790bed2b1d9731948622b75",
+      "original_bytes": 2195,
+      "curated_sha256": "f410e7cf2fe24732d8ce3959b3709f2f89200a07b3cb08a861fdeffb5a69ed66",
+      "curated_bytes": 2156,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/card-projection.json"
+      ],
+      "change": "The MadGraph output directory in the recorded process card names the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already home-redacted); every model, definition and process line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/supplied-card/spec.json": {
+      "original_sha256": "efc9af5c11d182ae2f1ea2ebbb38f4c901ca2ca8ec35b6c855968e4261261565",
+      "original_bytes": 2559,
+      "curated_sha256": "0fdce86e13fadce2aab8d17f5d248d950657974de652c3a2b21b794c4b37bade",
+      "curated_bytes": 2353,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer names a study that this distribution does not include, and the two machine-local tool paths are shortened to a neutral toolchain-root token ($TOOLCHAIN/envs/mg5/...); the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-09-scoped-workflows/unresolved-bound/spec.json": {
+      "original_sha256": "5c73b825c2698a0095d3fa9ba2536e8b1f16c4869e8c4eaf9a57847cd4fa5c04",
+      "original_bytes": 911,
+      "curated_sha256": "9d86891ab6908281ff78a89680f81abc6471b5d7be0238b184516342f8a53349",
+      "curated_bytes": 846,
+      "pinned_by": [
+        "evidence/audits/2026-09-09-scoped-workflows/original-record-hashes.json"
+      ],
+      "change": "The provenance sentence no longer points to a record directory that this distribution does not include; the specification is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original-record digest stays in original-record-hashes.json."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2010_I871366/build.log": {
+      "original_sha256": "ceb287d95a6348a24e422ce23d391af9b01345fd09a2630fe6b3732ff5e7ca38",
+      "original_bytes": 1677,
+      "curated_sha256": "87382e7ff088b7e942efba4b8b1c71b1b25e2fbbaf110b9a6661c57e5e4787da",
+      "curated_bytes": 1183,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2010_I871366/rivet.log": {
+      "original_sha256": "d8e4d22f33de1d9b811a2d9d7a006fca41fb5bd1a51a343d84b872ee4bcb66d0",
+      "original_bytes": 763,
+      "curated_sha256": "8ec646ba898633c94a74a0f6baf84cb7109410bd22749a6692adde02eaf58c52",
+      "curated_bytes": 693,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2010_I871366/verification.json": {
+      "original_sha256": "a85486f64c7adcc6048a6df5d4e6c3cbd840ae2e73131bd123164f05f6a2cdcb",
+      "original_bytes": 394,
+      "curated_sha256": "607a20732ecbb02be47636f34af1c2e79feb06cecc2d8f212f62a32dd8e69437",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2013_I1234228/build.log": {
+      "original_sha256": "577dcbbafdde8d7783199941a87088f8b916ba9e013a4b0de7d447841d4f7e25",
+      "original_bytes": 1680,
+      "curated_sha256": "574bf35855b19d41a6b7eeefc00f419c42f31ec9dd6c5abdcdd16ea6be77a434",
+      "curated_bytes": 1186,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2013_I1234228/rivet.log": {
+      "original_sha256": "ba612bb63fdc8cccf335a0ecc7a10095318483064ff3b786d0c62a537b4df7fb",
+      "original_bytes": 908,
+      "curated_sha256": "d73dda0183f7c95b96263524973dac2354fb0131acc6707ab1588a1a1688be59",
+      "curated_bytes": 838,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2013_I1234228/verification.json": {
+      "original_sha256": "b6ec911c2217a0aaf90ba4c4c9e4e4a46e48e827b255ba5fc487f7948f905fd4",
+      "original_bytes": 394,
+      "curated_sha256": "46316af5935a50b37ab7d665e2fdbccc372262dd364cc560f832129345482b47",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2016_I1494075/build.log": {
+      "original_sha256": "dd3ef2a5b6d384886a42839c50b94e46ea4b3234a9689a94074c518d1a6ccb2d",
+      "original_bytes": 1680,
+      "curated_sha256": "c17ed6b9eaf6842f1119457665cd4e8a45b1e333183b068dc3ea7cdce056f4b7",
+      "curated_bytes": 1186,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2016_I1494075/rivet.log": {
+      "original_sha256": "a6cc2fa39264e98fd531800a0334bc9761ca27e9e9eebeb43e13ea1897f4a05c",
+      "original_bytes": 765,
+      "curated_sha256": "91b7daf116b03041235155e6216b1a138f7945d466dc90999531858cf41d27f3",
+      "curated_bytes": 695,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/ATLAS_2016_I1494075/verification.json": {
+      "original_sha256": "34bfc1774110b7b60ddf5ba3f72c24055d3ae666b850466ffe822ac3d6225be8",
+      "original_bytes": 394,
+      "curated_sha256": "9cc423d16c7c3d6f8666f1e9491928bff6e7e323cc7305e3367642d8518dcaff",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2012_I1298807/build.log": {
+      "original_sha256": "dbfa1399c65b2852490fcb84cbdded0357ff0b96cb9f2a2ea08fd6aeeae39adc",
+      "original_bytes": 1674,
+      "curated_sha256": "4c2b05a4d0439812d230ea41a0562721b73937c6157acebe777e29c6abaecf37",
+      "curated_bytes": 1180,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2012_I1298807/export.log": {
+      "original_sha256": "43451eb4476c1935d7fac8b6655a84aa04dbbd225ec4609cf5dbe71c26f8cecd",
+      "original_bytes": 1082,
+      "curated_sha256": "605896614bc7a4f567eb8e77be1c77c8816b27f5972b2e0ad5aadc0cb85f64ca",
+      "curated_bytes": 1018,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2012_I1298807/rivet.log": {
+      "original_sha256": "3ec490cc46ab7d79c5dd71c1787f9bd3cc2a5a377819a9c92590466dac26cc3a",
+      "original_bytes": 761,
+      "curated_sha256": "ce6d99adcabe003eddc860c0d0ac0a76b26a70824acceb5b52043d9c5a83aab5",
+      "curated_bytes": 691,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2016_I1459051/build.log": {
+      "original_sha256": "326728d69397f0d7e68759b9b2dba6c3bd31b155c6c315149a5a20b9c091a35d",
+      "original_bytes": 1674,
+      "curated_sha256": "c66655372b1476e39e6c9981e3c6e3e8b6259cb0048bd1a8266ebf3d79570cfa",
+      "curated_bytes": 1180,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2016_I1459051/rivet.log": {
+      "original_sha256": "2489393d02e58da1be84a73a87268177e288aa308f039480bb5b51c9fa0bbf2f",
+      "original_bytes": 761,
+      "curated_sha256": "406ccc52d23c32d4e78066544fe49a643ba9e8ad62fec6fccffcde33af9229e8",
+      "curated_bytes": 691,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2016_I1459051/verification.json": {
+      "original_sha256": "bf2e111eaa0c7056e6705edd472f40cffe077ac17fa6e11b21fbe46a3f5582d9",
+      "original_bytes": 394,
+      "curated_sha256": "03635c32b60c508849636f0152a6a1417ad9ffcb431651da34dc5eccc0d3a912",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2018_I1711625/build.log": {
+      "original_sha256": "7f94c159ab3cf50d235ca7ce59c238759f6a11382b68a697dc26c678f0137277",
+      "original_bytes": 1674,
+      "curated_sha256": "78de95179fef84bf21313a74fd3a69d0c4ee2cdc9d217c12debfa9ad3dc3032f",
+      "curated_bytes": 1180,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded compiler, input and output paths name the run location relative to $SOURCE_ROOT and the conda toolchain as $TOOLCHAIN instead of by absolute machine paths (already redacted to a root-directory token); every flag, message and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2018_I1711625/rivet.log": {
+      "original_sha256": "a86f6853355f3e2f51acc7713360bfca321a88b1941f5859a092fc36d8a70443",
+      "original_bytes": 761,
+      "curated_sha256": "93adff6973d39e8eca4bbf885944933034a0a2d3017213a3d20f933622f2b3fc",
+      "curated_bytes": 691,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The recorded input and output paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token), and the host name in Rivet's start line is replaced by $HOST; every message, time and number is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/CMS_2018_I1711625/verification.json": {
+      "original_sha256": "293fb3694fb51c19f54e90aa1bbda670a6f2596551f1a47860a12c90d70e7587",
+      "original_bytes": 394,
+      "curated_sha256": "14a602e021b4ab0e591cdd937fe95b55dc35e5d97c015afa9b3116839ec8d363",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/bounded-measurement/measurement/measurement.json": {
+      "original_sha256": "3e79d67b98475834a5da243a8b410e61ac3645395a47613b89fd9574ea2d7367",
+      "original_bytes": 4916,
+      "curated_sha256": "ab1baad035fc90fda29e200bdf42f8601452b256b265e93307f11cfc4709c2ef",
+      "curated_bytes": 4888,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/bounded-measurement/result.json": {
+      "original_sha256": "a454d6d2e1bd7cafa239273048627daf36e5384a606bb1898b063b06c7e45b0b",
+      "original_bytes": 4916,
+      "curated_sha256": "6c6cb6b86fd8ec6851972704d963dd8393d6d076f167d5b314ad0eb58b7e1878",
+      "curated_bytes": 4888,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/bounded-measurement/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/bounded-measurement/verification.json": {
+      "original_sha256": "234cbc37af0676ca38ce8cde2329caab8c2928b862471d1ca59a78819ccc4544",
+      "original_bytes": 399,
+      "curated_sha256": "4f7f06133cfb81bb8036aef90c99cd71a1a5e6bc889e1fa4a29fe0119a17cb1e",
+      "curated_bytes": 402,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/classifier/domain-result.json": {
+      "original_sha256": "d05f94881c20810bec5a05ec1980f92185d9b6164d310239dc527e6d835e3c2d",
+      "original_bytes": 1571,
+      "curated_sha256": "0f043ca1b28df8437ad46786af04d9fc861e0c64921fa84273a37003f09dad3d",
+      "curated_bytes": 1487,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/classifier/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/classifier/result.json": {
+      "original_sha256": "d05f94881c20810bec5a05ec1980f92185d9b6164d310239dc527e6d835e3c2d",
+      "original_bytes": 1571,
+      "curated_sha256": "0f043ca1b28df8437ad46786af04d9fc861e0c64921fa84273a37003f09dad3d",
+      "curated_bytes": 1487,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/classifier/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/classifier/verification.json": {
+      "original_sha256": "b42e5b5eec5fcaed5242a9cd4b3f394eac1c1082b301d898d1dadb41e08b7a62",
+      "original_bytes": 393,
+      "curated_sha256": "bfff4198861e50819acecf8a5362b554a6c7dad9c0d1a2f876776221f8733a0d",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/correlated-measurement/measurement/measurement.json": {
+      "original_sha256": "93a14a611e2c2a9d7b5aac3e61ed6069a1ac5fbc05fd5789984ea4b460e0aadf",
+      "original_bytes": 5810,
+      "curated_sha256": "3b82a0150970820e46c073b621ea57692b53ef0eef6ecb99043ba307b5455b78",
+      "curated_bytes": 5782,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/correlated-measurement/result.json": {
+      "original_sha256": "6d749724dc66aa4142861752be0de62fe91b43c552818d82cd964d79c8738223",
+      "original_bytes": 5810,
+      "curated_sha256": "73043ca8f3af5c73859c1d8fc216c1264ec0f72f97f721a65d5ff135e3878ea6",
+      "curated_bytes": 5782,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/correlated-measurement/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/correlated-measurement/verification.json": {
+      "original_sha256": "7cec783d1fe277e0f35262bb4594c3236a5e6cd29cfe2a6a64dbe2ea88fc18ae",
+      "original_bytes": 398,
+      "curated_sha256": "387ea4cd721a4eeabf9e94751d2f8bde2042065ff4e85a7cde09da5c0783db73",
+      "curated_bytes": 401,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/efficiency-map/domain-result.json": {
+      "original_sha256": "a7a43a62e805306ac190dae7e0cc40da32ae364068e66d9b7683082bbe1abc76",
+      "original_bytes": 3341,
+      "curated_sha256": "eb2d7924dd7d9ec1f841886d455effd95a8e631bfd56eba07768bc1a7964546d",
+      "curated_bytes": 3285,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/efficiency-map/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/efficiency-map/result.json": {
+      "original_sha256": "a7a43a62e805306ac190dae7e0cc40da32ae364068e66d9b7683082bbe1abc76",
+      "original_bytes": 3341,
+      "curated_sha256": "eb2d7924dd7d9ec1f841886d455effd95a8e631bfd56eba07768bc1a7964546d",
+      "curated_bytes": 3285,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/efficiency-map/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/efficiency-map/verification.json": {
+      "original_sha256": "0485e12720d1a0f75bb8b95385fb0fc134f14ded2a50733e355768e36a748e7a",
+      "original_bytes": 393,
+      "curated_sha256": "29122b9a3e74a37356bf1ae952e19f50acd10289f48fc44cd7be9ca5151aeac9",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-failed-control/domain-result.json": {
+      "original_sha256": "c34414d1a594eadbb94c165a58b34da8717296c8b9ce4725290747dd65bd1c79",
+      "original_bytes": 2305,
+      "curated_sha256": "b7340044f83abcb439df2807b59ce2b0c48b635e118513f614e1ecc490562232",
+      "curated_bytes": 2277,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/eft-failed-control/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-failed-control/result.json": {
+      "original_sha256": "c34414d1a594eadbb94c165a58b34da8717296c8b9ce4725290747dd65bd1c79",
+      "original_bytes": 2305,
+      "curated_sha256": "b7340044f83abcb439df2807b59ce2b0c48b635e118513f614e1ecc490562232",
+      "curated_bytes": 2277,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/eft-failed-control/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-failed-control/verification.json": {
+      "original_sha256": "f3f9aab75f13b0133779f3950a009ee3c9f2db4bddcfae1cb52a103e9f74b72b",
+      "original_bytes": 394,
+      "curated_sha256": "21739a612c41545ebb488e8686cfdbd0065e1309282c9d2157ba1a7568b3292d",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-interference/domain-result.json": {
+      "original_sha256": "3fb31c4847b14bac50331e2657beba50dcbbc6d0e3f6a7df82229146db7b910f",
+      "original_bytes": 2296,
+      "curated_sha256": "105f0715acd6f98afb0137b9cca9410f0895c1179f57ef05ee044b63de86353d",
+      "curated_bytes": 2268,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/eft-interference/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-interference/result.json": {
+      "original_sha256": "3fb31c4847b14bac50331e2657beba50dcbbc6d0e3f6a7df82229146db7b910f",
+      "original_bytes": 2296,
+      "curated_sha256": "105f0715acd6f98afb0137b9cca9410f0895c1179f57ef05ee044b63de86353d",
+      "curated_bytes": 2268,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/eft-interference/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/eft-interference/verification.json": {
+      "original_sha256": "fd0339bda57cf6c09ddac3bd55295db481e708e587cfc7fb13090512878bbabd",
+      "original_bytes": 393,
+      "curated_sha256": "42cd976eabf09797c086db12fa6b60d20e311cf6ce7b625e05cb430b1500f40e",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/forward-acceptance/domain-result.json": {
+      "original_sha256": "211afdfed2405cfb9f7a3d7baea6ae837b6bf8e721993e2c7ad96360798a7add",
+      "original_bytes": 840,
+      "curated_sha256": "092334aa1543f49a3bbf26cb07009265f55f4633f6b887dbfbc0546dca0b649d",
+      "curated_bytes": 812,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/forward-acceptance/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/forward-acceptance/result.json": {
+      "original_sha256": "211afdfed2405cfb9f7a3d7baea6ae837b6bf8e721993e2c7ad96360798a7add",
+      "original_bytes": 840,
+      "curated_sha256": "092334aa1543f49a3bbf26cb07009265f55f4633f6b887dbfbc0546dca0b649d",
+      "curated_bytes": 812,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/forward-acceptance/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/forward-acceptance/verification.json": {
+      "original_sha256": "34810c01ca6e235308f93e67ded2dcdb98e4cbcb5097964cc9827fa1aca41908",
+      "original_bytes": 393,
+      "curated_sha256": "8a9f9885128308309d7d49b53cc7d2af4955601f7706bbd1d01e267df5738d87",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-decay/domain-result.json": {
+      "original_sha256": "1b343e2d76277b4034e898e311a9b3661a033536b69d9525bc734644b09a5165",
+      "original_bytes": 1168,
+      "curated_sha256": "ad848a154d1ef572b362e40845d7c8f8b157b68897dadc124c717cb28293ebb0",
+      "curated_bytes": 1140,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/llp-decay/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-decay/result.json": {
+      "original_sha256": "1b343e2d76277b4034e898e311a9b3661a033536b69d9525bc734644b09a5165",
+      "original_bytes": 1168,
+      "curated_sha256": "ad848a154d1ef572b362e40845d7c8f8b157b68897dadc124c717cb28293ebb0",
+      "curated_bytes": 1140,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/llp-decay/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-decay/verification.json": {
+      "original_sha256": "414f3001c927ff6f9e467145a7e23c024eca4e4e3a73c1ae83b480f72c4f0866",
+      "original_bytes": 393,
+      "curated_sha256": "b5a22bad39248cf32230cf06e29655924316db4dea2102e2fdfb49d7aa157f9a",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-reweight/domain-result.json": {
+      "original_sha256": "c94b1234abccb1cb72dd9c634d1c18d856f1bbab2edc101ec0788f3874e755c3",
+      "original_bytes": 1143,
+      "curated_sha256": "b771897ce3ae2abaa4f824ad60d5b2117640614be8a37fa13be1a548e58c54da",
+      "curated_bytes": 1115,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/llp-reweight/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-reweight/result.json": {
+      "original_sha256": "c94b1234abccb1cb72dd9c634d1c18d856f1bbab2edc101ec0788f3874e755c3",
+      "original_bytes": 1143,
+      "curated_sha256": "b771897ce3ae2abaa4f824ad60d5b2117640614be8a37fa13be1a548e58c54da",
+      "curated_bytes": 1115,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/llp-reweight/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/llp-reweight/verification.json": {
+      "original_sha256": "57796804b95d2fbfbe37c9d2378a68a6f16206042a8625121047b4a145b666c0",
+      "original_bytes": 393,
+      "curated_sha256": "f9b23508356195bbc00601252a009c2138b74735107ac223f32c8f2ee18f7222",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/model-structure/domain-result.json": {
+      "original_sha256": "97ff3022dcd1e665595c9912730e7abee9cbe95658c4964fad7602e925dc8cf2",
+      "original_bytes": 3268,
+      "curated_sha256": "f6d75639d7df40e7ec87dd4d854e478f0b37d3a8d920cfb50c11f1be8500efa1",
+      "curated_bytes": 3016,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/model-structure/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/model-structure/result.json": {
+      "original_sha256": "97ff3022dcd1e665595c9912730e7abee9cbe95658c4964fad7602e925dc8cf2",
+      "original_bytes": 3268,
+      "curated_sha256": "f6d75639d7df40e7ec87dd4d854e478f0b37d3a8d920cfb50c11f1be8500efa1",
+      "curated_bytes": 3016,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/model-structure/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/model-structure/verification.json": {
+      "original_sha256": "3e2193938600144814c021f496a126aeb307459e6be3fb06d74e593ced95999e",
+      "original_bytes": 393,
+      "curated_sha256": "7681c401480ee95e667c37c0a35886f9d128b97edde9b12719c4da51aa441d65",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/neutrino-fold/domain-result.json": {
+      "original_sha256": "5cfb46e0428fea608b5c6c92a4ef6791b9f68f312f2f687b88d510f0813e7aa6",
+      "original_bytes": 879,
+      "curated_sha256": "4bee74cf2a57dfe8f623ae4f2ec6308d846efcd829cba45c853000a023f43c2a",
+      "curated_bytes": 851,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/neutrino-fold/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/neutrino-fold/result.json": {
+      "original_sha256": "5cfb46e0428fea608b5c6c92a4ef6791b9f68f312f2f687b88d510f0813e7aa6",
+      "original_bytes": 879,
+      "curated_sha256": "4bee74cf2a57dfe8f623ae4f2ec6308d846efcd829cba45c853000a023f43c2a",
+      "curated_bytes": 851,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/neutrino-fold/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/neutrino-fold/verification.json": {
+      "original_sha256": "eaca01d19ae51bf4d4882e8ec7e3c48ace0ee90b5d0254cdb3f71ac5e435ab3b",
+      "original_bytes": 393,
+      "curated_sha256": "efbeb8ea5a245d05b4725f189867c37c74840f62787e861549d7a99ae3d0c0ec",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/normalized-measurement/measurement/measurement.json": {
+      "original_sha256": "981d95afc0e4891c95376096c21e4c402de8724bcc97fc1813bf27f7edef5ba4",
+      "original_bytes": 5929,
+      "curated_sha256": "f4bbf9ce209a89263902dca6136440e5d25f8ad3558e7dc107e88a049fd302e2",
+      "curated_bytes": 5901,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/normalized-measurement/result.json": {
+      "original_sha256": "8cb0cea6040334c0df17b67cab05af8276b3952f856788c126fce25906beb0e7",
+      "original_bytes": 5929,
+      "curated_sha256": "a43bb08549b284a0e9bb9016c23b1ac3acd8e45caa45f096f76cf6b4b6e1d0a5",
+      "curated_bytes": 5901,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/normalized-measurement/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/normalized-measurement/verification.json": {
+      "original_sha256": "99a1ae01fbddb818a713cf01013256d18ed496eff7acad8f3de0b3287edda13a",
+      "original_bytes": 398,
+      "curated_sha256": "1066a66057db7d1fe94aec03683ed4c471f606c6cb90b11896197ccb89a60fb8",
+      "curated_bytes": 401,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/nuclear-normalization/domain-result.json": {
+      "original_sha256": "2e02bca8521bb309e56e2f43fe79826a79545517ea3e9942fb94e242fbc01a1f",
+      "original_bytes": 1056,
+      "curated_sha256": "f68201b2a6de645b21314c102dc4f17150bf177a399d83e3a6867968a6d33cdd",
+      "curated_bytes": 1028,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/nuclear-normalization/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/nuclear-normalization/result.json": {
+      "original_sha256": "2e02bca8521bb309e56e2f43fe79826a79545517ea3e9942fb94e242fbc01a1f",
+      "original_bytes": 1056,
+      "curated_sha256": "f68201b2a6de645b21314c102dc4f17150bf177a399d83e3a6867968a6d33cdd",
+      "curated_bytes": 1028,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/controls/nuclear-normalization/verification.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "Recorded input paths name the run location relative to $SOURCE_ROOT instead of by an absolute machine path (already redacted to a root-directory token); every value, digest and status is unchanged; the run directory is labelled `local-runs/science/`.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/nuclear-normalization/verification.json": {
+      "original_sha256": "afb99ca9a78a3a5e0a580f4c874b988bdcbed70aa1c6c092a89018cd0d41726f",
+      "original_bytes": 393,
+      "curated_sha256": "894796dd85c02681ddf5e94cd465d71dd64e2faf4b8f5964646c4d657c7067fb",
+      "curated_bytes": 396,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/reconstructed-selection/verification.json": {
+      "original_sha256": "2ff25375b3df1bd44504718bd45fc3c583895d568b1c8838fb084b668cc060cb",
+      "original_bytes": 394,
+      "curated_sha256": "8738fee674bc4f038d71592ac7a93a86172eec3c4b7667aaa7dd0b814cc89e96",
+      "curated_bytes": 397,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/audits/2026-09-26-scientific-studies/controls/signed-density/verification.json": {
+      "original_sha256": "ba67c347cbf7a699c23b493b8b4e47b6c13f2f58afef5dccb1dc69bd3a26db6e",
+      "original_bytes": 397,
+      "curated_sha256": "f451ec1f7b72acf9a5e958ddcd20787699516661a6d771bb503d0dfdab8f8c76",
+      "curated_bytes": 400,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The redaction note describes the earlier path redaction generically (a root directory) instead of by a machine-local directory name; the result digests, verdict and scope are unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/benchmarks/atlas-2016-squark-pair/RESULT.md": {
+      "original_sha256": "ac305717f7b018d2d6dddaf102571f0db9ff21d770c906253a8f78c0572bf1c0",
+      "original_bytes": 6202,
+      "curated_sha256": "377abc8f5da69821ea8fc4a591f8b72151c248241fde794a0c2c115e04a08313",
+      "curated_bytes": 6066,
+      "pinned_by": [
+        "evidence/manifest.json"
+      ],
+      "change": "The title and two passages describe the run as an agent run without an internal label and without pointing to a log that this repository does not include, one heading drops an internal reference code, and the benchmark registry is cited at its current location (benchmarks/cases.json); every input, number, verdict and other line is unchanged. The evidence manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/case-studies/hvt-zprime-ww-low-mass-summary/VERIFICATION-LADDER.md": {
+      "original_sha256": "7714896e5e2faf50607438d43467c4cdf2bfc45360b6dcdd1c91b5e8e4d4aee3",
+      "original_bytes": 5895,
+      "curated_sha256": "e7961a15ee438e304bffd305f531f47a9088e1038b578814a0d64a270009f3d7",
+      "curated_bytes": 5844,
+      "pinned_by": [
+        "evidence/manifest.json"
+      ],
+      "change": "The recorded audit command names the audit script without its directory in the original repository layout, and four notes describe the work of this run without session narration; every verdict and other line is unchanged. The evidence manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/case-studies/hvt-zprime-ww-low-mass-summary/outputs/survey.json": {
+      "original_sha256": "916a90ef75ed4c3a082735d974588bea31b5a4870ca4ed6d252e7f6e96a0973c",
+      "original_bytes": 10173,
+      "curated_sha256": "b31847bd0c23f944d319dcf679214260cbe9e73b54c7d831a5b38ebddf3ed9e9",
+      "curated_bytes": 10103,
+      "pinned_by": [
+        "evidence/manifest.json"
+      ],
+      "change": "The five candidate dispositions name their reviewer as an agent without a development task code, and one exclusion note says the record was fetched before the survey without session narration; every candidate, disposition and other field is unchanged. The evidence manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/crosschecks/gluino-slha.dat.smodels": {
+      "original_sha256": "c1635595bd9b1f9c57105b47b19706981d4f310fd5c1f6bac3ded0b9c6f2821e",
+      "original_bytes": 4103,
+      "curated_sha256": "2fe04932afc9781358a5399dea515f3e1240fa693fcf8c2286a4daa9d3ddc205",
+      "curated_bytes": 4082,
+      "pinned_by": [],
+      "change": "The SModelS output header names its input SLHA file by file name instead of by its location in the original repository layout; every result line is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original record is kept outside this distribution."
+    },
+    "evidence/native-validation/slepton-200-150/RESULT.md": {
+      "original_sha256": "925415b86eab6d39a2eec9be4add8dbcf338dd14195cab191c89a1f3574b8d8b",
+      "original_bytes": 1882,
+      "curated_sha256": "183e5484550057aca5c5bf025c908edbef4f50550c075f6141242b4649239e13",
+      "curated_bytes": 1828,
+      "pinned_by": [],
+      "change": "A citation of a document that this repository does not include is replaced by a neutral phrase, a workflow document is cited at its current path, the stage-evidence and configuration lines say which artifacts this repository includes, the record-hygiene note drops an internal reference code, and the failure-mode catalogue is cited by its current name; every result and number of this historical run record is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/RESULT.md": {
+      "original_sha256": "994ff2f6bd4aefff8a732779c2e296b124d37d8fd998a312ebc15015630dc05b",
+      "original_bytes": 18851,
+      "curated_sha256": "b85bf8b8957ac314d809d0352e59f4853774dccc8260d1b478e04e68e8b38b4e",
+      "curated_bytes": 18666,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json"
+      ],
+      "change": "Two citations of a document that this repository does not include are dropped, a forward-looking note is reduced to the limitation it records, two file references name the file without its directory in the original repository layout, and a change-request citation keeps its CR-001 identifier without naming the document that lists it, and the wall-time note names the hardware generically; every result, number and other line of this historical run record is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/inputs/basis_manifest.json": {
+      "original_sha256": "4f2318ee840dfce7e4e02c7a4b33a497bfcea2135dcd344ee0c077bebb1ae9a2",
+      "original_bytes": 3769,
+      "curated_sha256": "255374742c88219bef1556f7dcaea8899510b567f4f5374e1f985bf81b5106de",
+      "curated_bytes": 3758,
+      "pinned_by": [],
+      "change": "An internal reference code is dropped from the generator note; the basis manifest is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/inputs/figure_target.json": {
+      "original_sha256": "2e304a2b8b7fc5172bec80e24795fd437e4317b6c636f11407df8b38ad14375c",
+      "original_bytes": 2189,
+      "curated_sha256": "8b2b0cea3ddc01bdcb4a2649e7bc3f265c0da551d721057fa83ede83d85ae5be",
+      "curated_bytes": 2100,
+      "pinned_by": [],
+      "change": "The recorded locations of the published paper and of the generated figure are a file name and a repository-relative path instead of absolute paths on the machine that ran the scan; every other field of this historical figure contract is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/inputs/task_contract.json": {
+      "original_sha256": "afe79d7ac93980e61396bfc6d384b3b8e1bc860b3d9633293c972a513d6caf51",
+      "original_bytes": 4296,
+      "curated_sha256": "399c09eb4280262bc29a86f4185b74b2cec74bea66570926ebc2d84d4cfcab7a",
+      "curated_bytes": 4216,
+      "pinned_by": [
+        "evidence/scans/slepton-bino-figure-3/inputs/validations.json"
+      ],
+      "change": "The recorded request's citation of a document that this repository does not include is dropped, the grid note names its scan specification by file name instead of by its location in the original repository layout, and a change-request citation keeps its CR-001 identifier without naming the document that lists it; every other field of this historical task contract is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/inputs/trap_sweep.json": {
+      "original_sha256": "308e098feacff17251f0b59865d27cf01189b3a70df4bb06d783fa41fa7bca53",
+      "original_bytes": 6472,
+      "curated_sha256": "b73e98413ec132b1131570c50a3bf1fb054528c30eae2d2fe43554bac8da0825",
+      "curated_bytes": 6416,
+      "pinned_by": [],
+      "change": "An internal reference code is dropped from the generator note and from the notes, and two change-request citations keep their CR-001 and CR-002 identifiers without naming the document that lists it; the trap-sweep record is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/scan.json": {
+      "original_sha256": "95137f98bacadd85de6fa042c8bf37011f033164ffc4c2e6eee7718e04395c78",
+      "original_bytes": 42776,
+      "curated_sha256": "e6c14ee85e45a87b2e408ed7e3808b994b0f20a41bc4fbadc1203a4c8814f011",
+      "curated_bytes": 42749,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json",
+        "evidence/audits/2026-09-05-rrr-refits/inputs/comparison-context.json",
+        "evidence/audits/2026-09-05-scan-fidelity/provenance.json",
+        "evidence/audits/2026-09-08-scan-fidelity/provenance.json",
+        "evidence/manifest.json"
+      ],
+      "change": "The k-factor provenance note names its reference cross-section table by file name instead of by its location in the original repository layout; every point, limit and number is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/scan_manifest.json": {
+      "original_sha256": "623cd2fd1d5c429a0707f379498002607f2144f44125b094fdb1d723a8afd4a6",
+      "original_bytes": 11384,
+      "curated_sha256": "818c91a877339f3fcc6f3eb8033dbb25d9524b0913e4092405d99bd132dd4b06",
+      "curated_bytes": 11347,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json"
+      ],
+      "change": "The recorded scan template is named by its file name instead of by its location in the original repository layout; every point and setting is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-figure-3/verification.json": {
+      "original_sha256": "2b77689cd4dbad3ea4d0da58013ad45ddaa77f17e59c0eec130d13c330f5f694",
+      "original_bytes": 2426,
+      "curated_sha256": "95d171d967e573e5ce429e7201e94cb78b008c1c3786582ec1aeeef3ee786e77",
+      "curated_bytes": 2403,
+      "pinned_by": [],
+      "change": "Two internal reference codes are dropped from the generator note; the verification record is otherwise unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-pdf-rescan/scan.json": {
+      "original_sha256": "c8263704baf8928f60e8a1bb6a45bfa44f1b6c400ffeb7168263e1e1731de4cb",
+      "original_bytes": 42766,
+      "curated_sha256": "1e0d882e0a1e7b87ad2b9986926b0354ce1cb59917951c2d89137d4f3ef9eff1",
+      "curated_bytes": 42739,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json"
+      ],
+      "change": "The k-factor provenance note names its reference cross-section table by file name instead of by its location in the original repository layout; every point, limit and number is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "evidence/scans/slepton-bino-pdf-rescan/scan_manifest.json": {
+      "original_sha256": "b6614e7420b3b3ef944b0ab586e11251b4c2c6f126d91fcd65d4437952f7fc73",
+      "original_bytes": 11122,
+      "curated_sha256": "e8df552c5e3761011c12cb84e95a2e6130942c8fb395247e5a0f8c60c6bc77d7",
+      "curated_bytes": 11085,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json"
+      ],
+      "change": "The recorded scan template is named by its file name instead of by its location in the original repository layout; every point and setting is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names. The original run record is kept outside this distribution."
+    },
+    "src/ravel/physics/delphes2sa_native.py": {
+      "original_sha256": "a772f2c40e46c82e75b923325fbb27a9ce49fa918a2524ad398fb53b352631dd",
+      "original_bytes": 7092,
+      "curated_sha256": "463482dc0d9656f058046d721e0af075dbbdf9e3771110abce987b8409112658",
+      "curated_bytes": 7068,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring drops a citation of findings that this repository does not include; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/prepare_native_slepton.py": {
+      "original_sha256": "fdac931f7000e4ebbfad911c970261c78a5101e428d49a86a9361c311325843c",
+      "original_bytes": 11961,
+      "curated_sha256": "ba40438e720a6b05ca86d1a235d4001a5eeec433221c74c9f9cfee009b27d5c8",
+      "curated_bytes": 11966,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-rrr-diagnosis/retained-inputs.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A docstring cites the failure-mode catalogue by its current name instead of an obsolete file name; the code is unchanged. The retained RRR-diagnosis inputs and the scientific-studies manifest keep the original digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/sa_native_core.py": {
+      "original_sha256": "0b084ec847ef1b77d5c227b4cdd719c63ea32ff67af140671b754fa385e475a3",
+      "original_bytes": 20501,
+      "curated_sha256": "5d934c9152ea07360366894d77602076d901296f581716b1e6674661c8a82f8e",
+      "curated_bytes": 20483,
+      "pinned_by": [
+        "evidence/audits/2026-09-05-native-fidelity/erjr_differential.json",
+        "evidence/audits/2026-09-05-native-fidelity/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v2/erjr_differential.json",
+        "evidence/audits/2026-09-06-native-fidelity-v2/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/erjr_differential.json",
+        "evidence/audits/2026-09-06-native-fidelity-v3/verification.json",
+        "evidence/audits/2026-09-06-native-fidelity/erjr_differential.json",
+        "evidence/audits/2026-09-06-native-fidelity/replay-execution.json",
+        "evidence/audits/2026-09-06-native-fidelity/verification.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/btag-source-pins.json",
+        "evidence/audits/2026-09-06-rrr-waypoint/diagnostics.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A docstring sentence cites the CR-005 container-diff procedure instead of the file name of a design note that this distribution does not include; the code is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/physics/shape_fit.py": {
+      "original_sha256": "f2c41ca548ea710f120854c3398cfe01ddea1b5d2ce768c3df0df06aff570c59",
+      "original_bytes": 36435,
+      "curated_sha256": "18ccde506ca70258fb98425a98b5d7b655bf55c8298b224f8c912b7d8c357bc0",
+      "curated_bytes": 36502,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring, one function docstring and one printed reminder cite the public scope policy (docs/reference/scope.md section 6) instead of the former names of a decision record and of that document, the docstring's scope note and R5-gate line cite that policy too, and the title line drops a decision-option label; the code and its computation are unchanged. The evidence manifest pins the curated digest.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/plotting/mplhep_style.py": {
+      "original_sha256": "2e36211ea90aad6bfcf8a957f872db5410b9fe30c2e9c1a4f6c972dc87e49ab7",
+      "original_bytes": 26632,
+      "curated_sha256": "44aad57c9c4fb6192508a05d5ab7b8ae6c26d1bc165c8ea7fb94b9eede722ea3",
+      "curated_bytes": 26608,
+      "pinned_by": [
+        "evidence/audits/2026-09-08-scan-fidelity/provenance.json",
+        "evidence/audits/2026-09-05-scan-fidelity/provenance.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A docstring's citation of a document that this repository does not include is dropped; the code is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/plotting/scan_contour.py": {
+      "original_sha256": "735d3b694dcf5af92f0e620e448f6f12740cb76d235b5879636443de973de730",
+      "original_bytes": 56765,
+      "curated_sha256": "ba0e348815ae042d9afe65d149bed6c85550bc59e697aadf18f82480654f53d6",
+      "curated_bytes": 56742,
+      "pinned_by": [
+        "evidence/audits/2026-09-08-scan-fidelity/provenance.json",
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A code comment no longer names a figure-review note that this repository does not include; the code is unchanged.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/validation/validate_parameters.py": {
+      "original_sha256": "a7626ababd99fe0ee8883fa482b21c920e0733da3bfc392307a24ab3800c5906",
+      "original_bytes": 13323,
+      "curated_sha256": "b9f77eac44c19513372913eefc863824720775bb66bd9664e3d9bbdd59b5098c",
+      "curated_bytes": 13317,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "A code comment drops an internal design-section code; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "src/ravel/workflow/progress_reporter.py": {
+      "original_sha256": "c804d3082f129c946f6fd0e147a132528c8876329d04a7772083d782cc092485",
+      "original_bytes": 4605,
+      "curated_sha256": "cbe870c57c923591787d1875f04b7d7b9a82df8bc6d4fb619b70f5062564e497",
+      "curated_bytes": 4570,
+      "pinned_by": [
+        "evidence/audits/2026-09-26-scientific-studies/manifest.json"
+      ],
+      "change": "The module docstring drops a note on the development history of the reporter; the code is unchanged. The scientific-studies manifest keeps the original digest and accepts exactly this copy through this record.",
+      "reason": "Repository wording policy (2026-10-04): records cite only files that this repository includes and carry no internal reference codes, obsolete tool names, machine-local paths or host names."
+    },
+    "tests/fixtures/hook-probes/spk-1.json": {
+      "original_sha256": "7cf2cfd3078548219df3016eb89c2cdb81bf65175ddcfbc850fc77c95e0d0eab",
+      "original_bytes": 1827,
+      "curated_sha256": "a09bf25945c1a9737f620e7c28805b20c6de65da0e0073649ad708daa8e2bdf7",
+      "curated_bytes": 1181,
+      "pinned_by": [],
+      "change": "The evidence transcript (a raw headless-client result record with session, cost and usage fields) is replaced by a one-line description, and the evidence fingerprint is recomputed over the curated evidence; the recorded probe log, verdict (unproven), decision (fallback-primary) and checks are unchanged, and the checker re-derives them from the curated evidence.",
+      "reason": "This repository carries no raw agent-client transcripts (2026-10-04). The original record is kept outside this distribution."
+    },
+    "tests/fixtures/hook-probes/spk-2.evidence.json": {
+      "original_sha256": "ca6d61eff48ec6aeec6b39e26b6bd9968094add0fc9a02fb759f04bd34270a2a",
+      "original_bytes": 742,
+      "curated_sha256": "0409a57cf7d42999e8e858a58d2a3bbb72c10a24efb6477cdba7764f19e47922",
+      "curated_bytes": 370,
+      "pinned_by": [],
+      "change": "The probe's evidence input, curated exactly as the evidence inside spk-2.json: the job's stdout line with the probe token stays, the client notification around it is replaced by a short description.",
+      "reason": "This repository carries no raw agent-client transcripts or client notifications (2026-10-04). The original record is kept outside this distribution."
+    },
+    "tests/fixtures/hook-probes/spk-2.json": {
+      "original_sha256": "c917ce6ba0c156127c1c4df48218b44cf5c7d246f0023107043d3677d1d748e5",
+      "original_bytes": 1488,
+      "curated_sha256": "441194d78c4ab7f948774822ccc309e3cc2e6a962b95cffa6a12340437f7b382",
+      "curated_bytes": 1116,
+      "pinned_by": [],
+      "change": "The recorded re-invocation text keeps the job's stdout line, which carries the probe token the checker needs; the client notification around it (its identifiers and a temporary output-file path) is replaced by a short description, and the evidence fingerprint is recomputed over the curated evidence. The verdict (PASS), decision and checks are unchanged, and the checker re-derives them from the curated evidence.",
+      "reason": "This repository carries no raw agent-client transcripts or client notifications (2026-10-04). The original record is kept outside this distribution."
+    },
+    "tests/fixtures/hook-probes/spk-3.evidence.json": {
+      "original_sha256": "c5360a691e41b77fba655a2df5df0af085a7a420cc6ff086b4d805698c336c29",
+      "original_bytes": 1314,
+      "curated_sha256": "c4e458f35f0827e3f0668f15ff141b87924696bb19e63d4eaecf75c051823543",
+      "curated_bytes": 1128,
+      "pinned_by": [],
+      "change": "The probe's evidence input, curated exactly as the evidence inside spk-3.json: the note describes the confirmed wake mechanism plainly, and the client's background-task identifier is dropped.",
+      "reason": "This repository carries no raw agent-client transcripts or client notifications (2026-10-04). The original record is kept outside this distribution."
+    },
+    "tests/fixtures/hook-probes/spk-3.json": {
+      "original_sha256": "53f2e515c304d7d237576cf9bd3421b42bd29077156f8308ec1c629785e0f59a",
+      "original_bytes": 2094,
+      "curated_sha256": "42a3fea77e667eaed5085153b1851eaf04704821c40a445c1bf9a7e759bf021d",
+      "curated_bytes": 1906,
+      "pinned_by": [],
+      "change": "The evidence note describes the confirmed wake mechanism plainly, without the client tool names it probed and the client's background-task identifier is dropped; the timestamps, tolerance and mechanism are unchanged, the evidence fingerprint is recomputed over the curated evidence, and the checker re-derives the unchanged verdict (PASS) and decision.",
+      "reason": "This repository carries no raw agent-client transcripts or client notifications (2026-10-04). The original record is kept outside this distribution."
+    }
+  }
+}

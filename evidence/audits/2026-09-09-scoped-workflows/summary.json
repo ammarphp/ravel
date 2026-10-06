@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "commands": 56,
+  "native_events_requested": 400,
+  "workers": 1,
+  "approval_mode": "scripted_yes",
+  "expert_review": false,
+  "scope": "CLI workflow and recipe controls, not an agent comparison or paper reproduction"
+}

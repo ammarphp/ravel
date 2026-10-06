@@ -1,0 +1,151 @@
+{
+  "events": {
+    "all_1000_events_have_only_one_intended_opposite_charge_parent_pair": true,
+    "complete_gzip_roundtrip": true,
+    "cross_section_pb": 0.1350625,
+    "effective_count": 999.9999999999999,
+    "final_state_pdg_counts": {
+      "-1000011": 348,
+      "-1000013": 372,
+      "-2000011": 154,
+      "-2000013": 126,
+      "1000011": 348,
+      "1000013": 372,
+      "2000011": 154,
+      "2000013": 126
+    },
+    "idwtup": -4,
+    "incoming_pdg_counts": {
+      "-1": 225,
+      "-2": 710,
+      "-3": 37,
+      "-4": 28,
+      "1": 225,
+      "2": 710,
+      "3": 37,
+      "4": 28
+    },
+    "max_four_momentum_residual_gev": 1.4099987311055884e-07,
+    "max_parent_mass_residual_gev": 0.0,
+    "n_events": 1000,
+    "negative_weights": 0,
+    "sumw": 135.0625,
+    "sumw2": 18.24187890625
+  },
+  "generator": {
+    "name": "MadGraph5_aMC@NLO",
+    "version": "2.9.27"
+  },
+  "kind": "inclusive_generator_rate_control",
+  "limitations": [
+    "No theory, PDF, scale or higher-order uncertainty was evaluated.",
+    "The seed labels independent generator attempts; it does not establish paired random events with the one-jet control.",
+    "Four-state inclusive rates cannot remove a stau contribution from an existing six-state selected template.",
+    "A K-factor or inclusive denominator change alone does not determine signal acceptance or the change in an exclusion limit."
+  ],
+  "process": {
+    "ecms_gev": 13000.0,
+    "lsp_mass_gev": 140.0,
+    "matrix_element_jets": 0,
+    "model": "MSSM_SLHA2",
+    "parent_mass_gev": 150.0,
+    "process_commands": [
+      "generate p p > el- el+ / susystrong @1",
+      "add process p p > er- er+ / susystrong @2",
+      "add process p p > mul- mul+ / susystrong @3",
+      "add process p p > mur- mur+ / susystrong @4"
+    ]
+  },
+  "rate": {
+    "covariance": "Not exported; quadrature is a reconciliation check of the published generator total, not a new assumption about physical/theory covariance.",
+    "cross_section_pb": 0.1350625,
+    "init_errors_quadrature_pb": 0.0003702672896348123,
+    "integration_uncertainty_pb": 0.0003703,
+    "kfactor_applied": false,
+    "luminosity_applied": false,
+    "quadrature_matches_reported_precision": true,
+    "relative_integration_uncertainty": 0.002741693660342434,
+    "uncertainty_source": "MadGraph final Cross-section line; printed precision retained"
+  },
+  "schema_version": 1,
+  "scope": "Unmerged LO four-state inclusive production rate; no shower, detector, likelihood, physics or coverage certification.",
+  "settings": {
+    "dynamical_scale_choice": "-1",
+    "ebeam1": "6500",
+    "ebeam2": "6500",
+    "fixed_fac_scale": "False",
+    "fixed_ren_scale": "False",
+    "ickkw": "0",
+    "iseed": "1739",
+    "lhaid": "260000",
+    "nevents": "1000",
+    "pdlabel": "cteq6l1",
+    "ptj": "20",
+    "ptj1min": "0",
+    "scalefact": "1.0",
+    "use_syst": "False"
+  },
+  "status": "integrated_and_process_checked",
+  "subprocesses": [
+    {
+      "cross_section_pb": 0.047419,
+      "event_count": 348,
+      "integration_uncertainty_pb": 0.0002541491,
+      "maximum_weight": 0.1350625,
+      "parent_abs_pdg": 1000011,
+      "process_id": 1,
+      "state": "selectron_L"
+    },
+    {
+      "cross_section_pb": 0.0202716,
+      "event_count": 154,
+      "integration_uncertainty_pb": 0.0001019542,
+      "maximum_weight": 0.1350625,
+      "parent_abs_pdg": 2000011,
+      "process_id": 2,
+      "state": "selectron_R"
+    },
+    {
+      "cross_section_pb": 0.047233,
+      "event_count": 372,
+      "integration_uncertainty_pb": 0.0002265465,
+      "maximum_weight": 0.1350625,
+      "parent_abs_pdg": 1000013,
+      "process_id": 3,
+      "state": "smuon_L"
+    },
+    {
+      "cross_section_pb": 0.0201389,
+      "event_count": 126,
+      "integration_uncertainty_pb": 0.0001038659,
+      "maximum_weight": 0.1350625,
+      "parent_abs_pdg": 2000013,
+      "process_id": 4,
+      "state": "smuon_R"
+    }
+  ],
+  "verification": {
+    "failed_attempt": "Original ptj1min50GeV required ajet; zero-rate/noLHE attempt preserved. Corrected only ptj1min to0.",
+    "lhe_check_verdict": "PASS",
+    "madgraph_attempt_statuses": [
+      "failed",
+      "succeeded"
+    ],
+    "runtime_v3_reader_agrees": true,
+    "successful_stages": [
+      "prepare",
+      "madgraph",
+      "unpack_lhe",
+      "lhe_check"
+    ],
+    "unexecuted_stages": [
+      "pythia",
+      "normalization",
+      "delphes",
+      "delphes2sa",
+      "rjr",
+      "simpleanalysis",
+      "native_report"
+    ]
+  }
+}

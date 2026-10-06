@@ -1,0 +1,338 @@
+{
+ "schema_version": 1,
+ "analysis_id": "ATLAS-SUSY-2018-16",
+ "inspire": "1767649",
+ "arxiv": "1911.12606",
+ "rungs": {
+  "R1_hepdata": {
+   "status": "OK",
+   "url": "https://www.hepdata.net/record/ins1767649",
+   "n_tables": 106,
+   "table_names_sample": [
+    "Figure 14a Expected",
+    "Figure 14a Observed",
+    "Figure 14b Expected",
+    "Figure 14b Observed",
+    "Figure 14c Expected",
+    "Figure 14c Observed",
+    "Figure 15b Expected",
+    "Figure 15b Observed",
+    "Figure 16a Expected",
+    "Figure 16a Observed",
+    "Figure 2b smuon Expected",
+    "Figure 2b smuon Observed"
+   ],
+   "n_resources": 14,
+   "resources": [
+    {
+     "name": "Webpage with all figures and tables",
+     "type": "html",
+     "url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-16/"
+    },
+    {
+     "name": "SLHA file for direct Higgsino production",
+     "type": "dat",
+     "url": "https://www.hepdata.net/record/resource/3063264?landing_page=true"
+    },
+    {
+     "name": "SLHA file for VBF Higgsino production",
+     "type": "dat",
+     "url": "https://www.hepdata.net/record/resource/3063265?landing_page=true"
+    },
+    {
+     "name": "SLHA file for direct Slepton production",
+     "type": "dat",
+     "url": "https://www.hepdata.net/record/resource/3063266?landing_page=true"
+    },
+    {
+     "name": "Example code for selecting events in the non-VBF channels.",
+     "type": "C++",
+     "url": "https://www.hepdata.net/record/resource/3063267?landing_page=true"
+    },
+    {
+     "name": "Example code for selecting events in the VBF channels.",
+     "type": "C++",
+     "url": "https://www.hepdata.net/record/resource/3063268?landing_page=true"
+    },
+    {
+     "name": "Archive of full likelihoods in the HistFactory JSON format. See the README.md for more details.",
+     "type": "HistFactory",
+     "url": "https://www.hepdata.net/record/resource/3063269?landing_page=true"
+    },
+    {
+     "name": "HackAnalysis analysis",
+     "type": "HackAnalysis",
+     "url": "https://goodsell.pages.in2p3.fr/hackanalysis/page/analyses/atlas_susy_2018_16/"
+    },
+    {
+     "name": "CheckMATE analysis",
+     "type": "CheckMATE",
+     "url": "https://checkmate.hepforge.org/AnalysesList/ATLAS_13TeV.html#atlas_1911_12606"
+    },
+    {
+     "name": "MadAnalysis 5 analysis",
+     "type": "MadAnalysis",
+     "url": "https://doi.org/10.14428/DVN/1CPXHX"
+    },
+    {
+     "name": "SimpleAnalysis analysis",
+     "type": "SimpleAnalysis",
+     "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/tree/master/SimpleAnalysisCodes/src/ANA-SUSY-2018-16.cxx"
+    },
+    {
+     "name": "SimpleAnalysis analysis",
+     "type": "SimpleAnalysis",
+     "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis/-/tree/master/SimpleAnalysisCodes/src/ANA-SUSY-2018-16_VBF.cxx"
+    },
+    {
+     "name": "SModelS analysis",
+     "type": "SModelS",
+     "url": "https://github.com/SModelS/smodels-database-release/tree/main/13TeV/ATLAS/ATLAS-SUSY-2018-16/"
+    },
+    {
+     "name": "SModelS analysis",
+     "type": "SModelS",
+     "url": "https://github.com/SModelS/smodels-database-release/tree/main/13TeV/ATLAS/ATLAS-SUSY-2018-16-eff/"
+    }
+   ],
+   "likelihood_candidates": [
+    {
+     "name": "Archive of full likelihoods in the HistFactory JSON format. See the README.md for more details.",
+     "type": "HistFactory",
+     "url": "https://www.hepdata.net/record/resource/3063269?landing_page=true"
+    }
+   ],
+   "efficiency_map_candidates": [
+    {
+     "name": "SModelS analysis",
+     "type": "SModelS",
+     "url": "https://github.com/SModelS/smodels-database-release/tree/main/13TeV/ATLAS/ATLAS-SUSY-2018-16-eff/"
+    }
+   ]
+  },
+  "R2_routines": {
+   "status": "OK",
+   "query": "ins1767649",
+   "report": "query: ins1767649\n\n== Rivet routines (0 match) ==\n  (none \u2014 try a different code/keyword, or it may be CMS/other)\n\n== SimpleAnalysis routines (0 match) ==\n  (no ANA-*.cxx in the cloned SA src matched. NOTE: match on the analysis CODE (e.g. 'SUSY-2018-16'), not the Inspire/arXiv id \u2014 SA .cxx files key on the code, not the id. If the code is right and still no hit, the routine may live only in the :master image: list it with `podman run --rm gitlab-registry.cern.ch/atlas-sa/simple-analysis:master simpleAnalysis --list`, or fetch the submodules (git submodule update --init) so SimpleAnalysisCodes/src/ is fully populated.)"
+  },
+  "R3_arxiv": {
+   "status": "ERROR",
+   "reason": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1020)>"
+  },
+  "R4_github": {
+   "status": "OK",
+   "hits": {
+    "ATLAS-SUSY-2018-16": {
+     "repos": [],
+     "code": [
+      {
+       "html_url": "https://github.com/SModelS/smodels-utils/blob/abc8de4f05d5af2265046b1d5b722c41e16ba12c/smodels_utils/bibtexs/ATLAS-SUSY-2018-16.tex",
+       "path": "smodels_utils/bibtexs/ATLAS-SUSY-2018-16.tex",
+       "repo": "SModelS/smodels-utils"
+      },
+      {
+       "html_url": "https://github.com/SModelS/smodels-database-release/blob/94acf1d51df45d6b9e9abb1403e6ce782d09291c/13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "path": "13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "repo": "SModelS/smodels-database-release"
+      },
+      {
+       "html_url": "https://github.com/andlessa/RDM/blob/ac6b242871894fee492e089d378806c2c2e7aad8/smodels-database/13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "path": "smodels-database/13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "repo": "andlessa/RDM"
+      }
+     ]
+    },
+    "1911.12606": {
+     "repos": [],
+     "code": [
+      {
+       "html_url": "https://github.com/misho104/simple_lhc_bound/blob/e74a2d77d457fa7bce230e7929e871d6461bb9ab/1911.12606/init.m",
+       "path": "1911.12606/init.m",
+       "repo": "misho104/simple_lhc_bound"
+      },
+      {
+       "html_url": "https://github.com/hreyes91/ML_LHClikelihoods/blob/3cffc20c5979d760e6eba998fd5d96a98d502e5b/sampling/name_dict.py",
+       "path": "sampling/name_dict.py",
+       "repo": "hreyes91/ML_LHClikelihoods"
+      },
+      {
+       "html_url": "https://github.com/misho104/notes/blob/cb1721501234bf7cee5b8371ad39ca346ac6d992/MSSM/non-colored-susy-at-LHC.txt",
+       "path": "MSSM/non-colored-susy-at-LHC.txt",
+       "repo": "misho104/notes"
+      },
+      {
+       "html_url": "https://github.com/SModelS/smodels-database-release/blob/94acf1d51df45d6b9e9abb1403e6ce782d09291c/13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "path": "13TeV/ATLAS/ATLAS-SUSY-2018-16/globalInfo.txt",
+       "repo": "SModelS/smodels-database-release"
+      },
+      {
+       "html_url": "https://github.com/lawrenceleejr/ElusiveSUSYPaperPlots/blob/70d7dbd1094456cc2e9ebfbbd29fdef91fac000e/plot_sleptons/makePromptLepObj.py",
+       "path": "plot_sleptons/makePromptLepObj.py",
+       "repo": "lawrenceleejr/ElusiveSUSYPaperPlots"
+      }
+     ]
+    },
+    "ins1767649": {
+     "repos": [],
+     "code": [
+      {
+       "html_url": "https://github.com/scikit-hep/pyhf/blob/3ce86e3160f05c9a687a90fe8b40fdeeb492fdfa/docs/bib/HEPData_likelihoods.bib",
+       "path": "docs/bib/HEPData_likelihoods.bib",
+       "repo": "scikit-hep/pyhf"
+      },
+      {
+       "html_url": "https://github.com/misho104/simple_lhc_bound/blob/e74a2d77d457fa7bce230e7929e871d6461bb9ab/1911.12606/init.m",
+       "path": "1911.12606/init.m",
+       "repo": "misho104/simple_lhc_bound"
+      },
+      {
+       "html_url": "https://github.com/ku-cms/Limits/blob/c21dc68fc1402817d8e37ddb333f17c162904edf/python/makePlots.py",
+       "path": "python/makePlots.py",
+       "repo": "ku-cms/Limits"
+      },
+      {
+       "html_url": "https://github.com/lawrenceleejr/ElusiveSUSYPaperPlots/blob/70d7dbd1094456cc2e9ebfbbd29fdef91fac000e/plot_sleptons/makePromptLepObj.py",
+       "path": "plot_sleptons/makePromptLepObj.py",
+       "repo": "lawrenceleejr/ElusiveSUSYPaperPlots"
+      },
+      {
+       "html_url": "https://github.com/andlessa/RDM/blob/ac6b242871894fee492e089d378806c2c2e7aad8/smodels-database/13TeV/ATLAS/ATLAS-SUSY-2018-16/convert.py",
+       "path": "smodels-database/13TeV/ATLAS/ATLAS-SUSY-2018-16/convert.py",
+       "repo": "andlessa/RDM"
+      },
+      {
+       "html_url": "https://github.com/SModelS/smodels.github.io/blob/e3c401d5c74f6fba6c25ddcc966ca0c0fe5aa950/validation/300-beta/13TeV/ATLAS/ATLAS-SUSY-2018-16-eff/validation/validation_EqMassAx_EqMassBx-y__EqmassAx-yd2_EqmassBx-y.ipynb",
+       "path": "validation/300-beta/13TeV/ATLAS/ATLAS-SUSY-2018-16-eff/validation/validation_EqMassAx_EqMassBx-y__EqmassAx-yd2_EqmassBx-y.ipynb",
+       "repo": "SModelS/smodels.github.io"
+      },
+      {
+       "html_url": "https://github.com/scipp-atlas/mapyde-tutorial/blob/d70f3e3d045d540307ccc0f9d939463fccb24fc8/book/RealWorldExample.ipynb",
+       "path": "book/RealWorldExample.ipynb",
+       "repo": "scipp-atlas/mapyde-tutorial"
+      }
+     ]
+    }
+   }
+  },
+  "R5_citations": {
+   "status": "OK",
+   "inspire": {
+    "total_citations": 389,
+    "recent_sample": [
+     {
+      "title": "Can blind spots save neutralino dark matter in natural supersymmetry models?",
+      "type": "article"
+     },
+     {
+      "title": "Complementary Probes of Light Higgsinos: Electroweak Precision Measurements and Dark Matter Direct Detection",
+      "type": "article"
+     },
+     {
+      "title": "Soft-Dimuon Signature from Two-Component Scalar Dark Matter at the LHC",
+      "type": "article"
+     },
+     {
+      "title": "Light Neutralino Dark Matter in a Supersymmetric Pati-Salam Framework",
+      "type": "article"
+     },
+     {
+      "title": "BSMArt 2: simpler and faster parameter space scans",
+      "type": "article"
+     },
+     {
+      "title": "Interpreting Light Scalar Excesses and Heavy Scalar Cascades in the $\u03bc$-Term Extended NMSSM",
+      "type": "article"
+     },
+     {
+      "title": "Current Status and Prospects of Light Bino\u2013Higgsino Dark Matter in Natural SUSY",
+      "type": "article"
+     },
+     {
+      "title": "Twilight of the WIMP: Comprehensive Phenomenology of Electroweak Triplet Dark Matter",
+      "type": "article"
+     },
+     {
+      "title": "Symbolic Classification-Enabled LHC Limits Online BSM Global Fits",
+      "type": "article"
+     },
+     {
+      "title": "Interactions of exotic neutralino dark matter with nucleons in $U(1)$ extensions of the MSSM originating from ",
+      "type": "article"
+     },
+     {
+      "title": "Distinguishing Higgs portal and neutralino dark matter via vector boson fusion",
+      "type": "article"
+     },
+     {
+      "title": "Search for electroweakinos in compressed-spectrum scenarios with low-momentum isolated tracks in proton-proton",
+      "type": "article"
+     },
+     {
+      "title": "Neutron star with dark matter using vector portal",
+      "type": "article"
+     },
+     {
+      "title": "Reinterpretation of searches for supersymmetry in models with variable R-parity-violating coupling strength us",
+      "type": "article"
+     },
+     {
+      "title": "Tracking the Invisible. a Search for Supersymmetric Higgsinos With the ATLAS Detector",
+      "type": "thesis"
+     },
+     {
+      "title": "Current status and prospects of light bino-higgsino dark matter in natural SUSY",
+      "type": "article"
+     },
+     {
+      "title": "Fermionic Dark Matter and New Scalar Production in $e^+e^- \\to H^+H^-$ at Colliders",
+      "type": "article"
+     },
+     {
+      "title": "Charting the flavor structure of dark matter",
+      "type": "article"
+     },
+     {
+      "title": "Rare and Experimentally Challenging Supersymmetry Signatures",
+      "type": "article"
+     },
+     {
+      "title": "Measurement of the production cross-section for W bosons in association with jets in proton-proton collisions ",
+      "type": "thesis"
+     }
+    ],
+    "theses_in_sample": [
+     {
+      "title": "Tracking the Invisible. a Search for Supersymmetric Higgsinos With the ATLAS Detector",
+      "type": "thesis"
+     },
+     {
+      "title": "Measurement of the production cross-section for W bosons in association with jets in proton-proton collisions ",
+      "type": "thesis"
+     }
+    ],
+    "recast_like_in_sample": [
+     {
+      "title": "Reinterpretation of searches for supersymmetry in models with variable R-parity-violating coupling strength us",
+      "type": "article"
+     }
+    ],
+    "note": "sample = 20 most recent only; walk the full list for a deep hunt"
+   },
+   "zenodo": {
+    "n": 0,
+    "sample": []
+   }
+  }
+ },
+ "manual_rungs": [
+  "Collaboration public pages (ATLAS glance / CMS public results): JS-walled -- use the browser (Chrome MCP) when the record above lacks something the paper says exists.",
+  "Recast DB listings not queried live here: MadAnalysis5 PAD, CheckMATE, SModelS (SModelS is installed locally -- reinterpret_db.py).",
+  "Analysis TWiki / auxiliary-material page linked from the paper's footnotes."
+ ],
+ "rungs_ok": [
+  "R1_hepdata",
+  "R2_routines",
+  "R4_github",
+  "R5_citations"
+ ]
+}

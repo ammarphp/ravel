@@ -1,0 +1,750 @@
+{
+  "acceptance_certified": false,
+  "additional_scale": 1.0,
+  "background": {
+    "bytes": 1988103,
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json",
+    "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+  },
+  "channels": [
+    {
+      "channel": "CRVV_MT2_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "region": "CR_S_VV_high"
+      },
+      "mc_stat_error": 8.079909308401009,
+      "mc_stat_modifier": "native_signal_mcstat_b396cffffabbefe07ab7",
+      "negative_weights": 0,
+      "nominal_yield": 11.42671732668532,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.220659947255626e-05,
+      "sumw2": 3.378962498420644e-09,
+      "workspace_index": 0
+    },
+    {
+      "channel": "CRVV_MT2_lowmet_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "region": "CR_S_VV_low"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_1653498669cdadda59b8",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 1
+    },
+    {
+      "channel": "CRtau_MT2_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "region": "CR_S_tau_high"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 2
+    },
+    {
+      "channel": "CRtau_MT2_lowmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "region": "CR_S_tau_low"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 3
+    },
+    {
+      "channel": "CRtop_MT2_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "region": "CR_S_top_high"
+      },
+      "mc_stat_error": 8.079909308401009,
+      "mc_stat_modifier": "native_signal_mcstat_ec7d0c59ca297439bea6",
+      "negative_weights": 0,
+      "nominal_yield": 11.42671732668532,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.220659947255626e-05,
+      "sumw2": 3.378962498420644e-09,
+      "workspace_index": 4
+    },
+    {
+      "channel": "CRtop_MT2_lowmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "region": "CR_S_top_low"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 5
+    },
+    {
+      "channel": "SRee_eMT2a_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2a"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 6
+    },
+    {
+      "channel": "SRee_eMT2a_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2a"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 7
+    },
+    {
+      "channel": "SRee_eMT2b_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2b"
+      },
+      "mc_stat_error": 8.079909308401009,
+      "mc_stat_modifier": "native_signal_mcstat_f61b781180018823750c",
+      "negative_weights": 0,
+      "nominal_yield": 11.42671732668532,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.220659947255626e-05,
+      "sumw2": 3.378962498420644e-09,
+      "workspace_index": 8
+    },
+    {
+      "channel": "SRee_eMT2b_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2b"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 9
+    },
+    {
+      "channel": "SRee_eMT2c_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2c"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 10
+    },
+    {
+      "channel": "SRee_eMT2c_lowmet_V2_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2c"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_f585d6c565bdbecdb281",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 11
+    },
+    {
+      "channel": "SRee_eMT2d_hghmet_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2d"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_542f1b246768f1cf3a52",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 12
+    },
+    {
+      "channel": "SRee_eMT2d_lowmet_V2_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2d"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_29e22767a04695cdb5b3",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 13
+    },
+    {
+      "channel": "SRee_eMT2e_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2e"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 14
+    },
+    {
+      "channel": "SRee_eMT2e_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2e"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 15
+    },
+    {
+      "channel": "SRee_eMT2f_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 16
+    },
+    {
+      "channel": "SRee_eMT2f_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 17
+    },
+    {
+      "channel": "SRee_eMT2g_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 18
+    },
+    {
+      "channel": "SRee_eMT2g_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 19
+    },
+    {
+      "channel": "SRee_eMT2h_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_high_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 20
+    },
+    {
+      "channel": "SRee_eMT2h_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "isee",
+        "region": "SR_S_low_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 21
+    },
+    {
+      "channel": "SRmm_eMT2a_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2a"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 22
+    },
+    {
+      "channel": "SRmm_eMT2a_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2a"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 23
+    },
+    {
+      "channel": "SRmm_eMT2b_hghmet_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2b"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_0e24fe51f58107cd7eb5",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 24
+    },
+    {
+      "channel": "SRmm_eMT2b_lowmet_V2_cuts",
+      "effective_events": 3.0000000000000004,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2b"
+      },
+      "mc_stat_error": 9.895827486773296,
+      "mc_stat_modifier": "native_signal_mcstat_1439fdf580908b0e12e8",
+      "negative_weights": 0,
+      "nominal_yield": 17.14007599002798,
+      "nonzero_weights": 3,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 0.0001233098992088344,
+      "sumw2": 5.068443747630966e-09,
+      "workspace_index": 25
+    },
+    {
+      "channel": "SRmm_eMT2c_hghmet_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2c"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_4c7ec4c69a221d5eba59",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 26
+    },
+    {
+      "channel": "SRmm_eMT2c_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2c"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 27
+    },
+    {
+      "channel": "SRmm_eMT2d_hghmet_cuts",
+      "effective_events": 4.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2d"
+      },
+      "mc_stat_error": 11.42671732668532,
+      "mc_stat_modifier": "native_signal_mcstat_0711ef13a2db9e244910",
+      "negative_weights": 0,
+      "nominal_yield": 22.85343465337064,
+      "nonzero_weights": 4,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 0.00016441319894511253,
+      "sumw2": 6.757924996841288e-09,
+      "workspace_index": 28
+    },
+    {
+      "channel": "SRmm_eMT2d_lowmet_V2_cuts",
+      "effective_events": 4.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2d"
+      },
+      "mc_stat_error": 11.42671732668532,
+      "mc_stat_modifier": "native_signal_mcstat_50587eba1ecf26adec16",
+      "negative_weights": 0,
+      "nominal_yield": 22.85343465337064,
+      "nonzero_weights": 4,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 0.00016441319894511253,
+      "sumw2": 6.757924996841288e-09,
+      "workspace_index": 29
+    },
+    {
+      "channel": "SRmm_eMT2e_hghmet_cuts",
+      "effective_events": 2.0000000000000004,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2e"
+      },
+      "mc_stat_error": 8.079909308401009,
+      "mc_stat_modifier": "native_signal_mcstat_f63795eeb8c84626cfa5",
+      "negative_weights": 0,
+      "nominal_yield": 11.42671732668532,
+      "nonzero_weights": 2,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 8.220659947255626e-05,
+      "sumw2": 3.378962498420644e-09,
+      "workspace_index": 30
+    },
+    {
+      "channel": "SRmm_eMT2e_lowmet_V2_cuts",
+      "effective_events": 1.0,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2e"
+      },
+      "mc_stat_error": 5.71335866334266,
+      "mc_stat_modifier": "native_signal_mcstat_a207e295dabbb5600764",
+      "negative_weights": 0,
+      "nominal_yield": 5.71335866334266,
+      "nonzero_weights": 1,
+      "precision_status": "estimated-from-weight-moments",
+      "status": "nominal-signal",
+      "sumw": 4.110329973627813e-05,
+      "sumw2": 1.689481249210322e-09,
+      "workspace_index": 31
+    },
+    {
+      "channel": "SRmm_eMT2f_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 32
+    },
+    {
+      "channel": "SRmm_eMT2f_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2f"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 33
+    },
+    {
+      "channel": "SRmm_eMT2g_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 34
+    },
+    {
+      "channel": "SRmm_eMT2g_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2g"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 35
+    },
+    {
+      "channel": "SRmm_eMT2h_hghmet_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_high_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 36
+    },
+    {
+      "channel": "SRmm_eMT2h_lowmet_V2_cuts",
+      "effective_events": null,
+      "mapping": {
+        "flavour": "ismm",
+        "region": "SR_S_low_eMT2h"
+      },
+      "mc_stat_error": 0.0,
+      "mc_stat_modifier": null,
+      "negative_weights": 0,
+      "nominal_yield": 0.0,
+      "nonzero_weights": 0,
+      "precision_note": "No nonzero selected weights; zero-weight selected events are indistinguishable. No finite-MC precision is certified.",
+      "precision_status": "zero-selected/precision-unresolved",
+      "status": "nominal-signal",
+      "sumw": 0.0,
+      "sumw2": 0.0,
+      "workspace_index": 37
+    }
+  ],
+  "compressed_signal_model": "full",
+  "control_region_definition": {
+    "acceptance_validated": false,
+    "different_flavour_mass_floor": "none supplied by Table 2; no additional floor invented",
+    "interval_policy": "strict/open, matching native SR convention",
+    "source": "https://arxiv.org/abs/1911.12606v2",
+    "tables": [
+      2,
+      5,
+      8
+    ]
+  },
+  "converter": {
+    "bytes": 20165,
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/runtime-v3/ravel/physics/sa2json_native.py",
+    "sha256": "42fc181e402ca0a58078e95b00da3c4ab98551820c27db71f737a8d2104f193c"
+  },
+  "detector_trigger_ISR_theory_variations": "not supplied",
+  "input_combination": "sum-independent-components",
+  "input_combination_note": "Additive independent physical components. Independent seeds of the same process are not pooled.",
+  "inputs": [
+    {
+      "bytes": 39568,
+      "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018.root",
+      "sha256": "5278dd7d1e802e1d824f214a654c3281d74a0b49087bc278369e315773a0a720"
+    }
+  ],
+  "luminosity_pb_inverse": 139000.0,
+  "mc_stat_interpretation": "effective-Poisson approximation from selected sumw and sumw2",
+  "mc_stat_policy": "shapesys",
+  "patch": {
+    "path": "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018_patch.json",
+    "sha256": "57cd6ab1408baf3fed01085cb23d136050c77db7450d1a5c8d801405d1beba86"
+  },
+  "poi": "mu_SIG",
+  "sample": "native_signal",
+  "schema_version": 1
+}

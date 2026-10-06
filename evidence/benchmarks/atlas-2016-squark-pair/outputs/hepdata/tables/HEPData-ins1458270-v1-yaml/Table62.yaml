@@ -1,0 +1,49 @@
+dependent_variables:
+- header: {name: EVENTS}
+  qualifiers:
+  - {name: SQRT(S), units: GeV, value: '13000.0'}
+  - {name: '', value: DATA}
+  values:
+  - {value: 167.0}
+  - {value: 133.0}
+  - {value: 13.0}
+  - {value: 38.0}
+  - {value: 32.0}
+  - {value: 8.0}
+  - {value: 20.0}
+- header: {name: EVNTS}
+  qualifiers:
+  - {name: SQRT(S), units: GeV, value: '13000.0'}
+  - {name: '', value: SM BACKGROUND}
+  values:
+  - errors:
+    - {symerror: 19.78}
+    value: 187.8
+  - errors:
+    - {symerror: 12.72}
+    value: 140.2
+  - errors:
+    - {symerror: 2.408}
+    value: 15.05
+  - errors:
+    - {symerror: 7.638}
+    value: 37.36
+  - errors:
+    - {symerror: 4.866}
+    value: 32.19
+  - errors:
+    - {symerror: 2.38}
+    value: 12.9
+  - errors:
+    - {symerror: 4.526}
+    value: 18.88
+independent_variables:
+- header: {name: VR}
+  values:
+  - {value: 2jl}
+  - {value: 2jm}
+  - {value: 2jt}
+  - {value: 4jt}
+  - {value: 5j}
+  - {value: 6jm}
+  - {value: 6jt}

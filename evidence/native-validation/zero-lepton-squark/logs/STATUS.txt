@@ -1,0 +1,16 @@
+pipeline start 2026-08-16 17:27:57  config=config/sample.toml  (NATIVE)
+===== STAGE madgraph START 17:28:09 =====
+PASS  madgraph  (50s)
+===== STAGE lhe_check START 17:28:59 =====
+PASS  lhe_check  (5s)
+===== STAGE pythia START 17:29:04 =====
+PASS  pythia  (100s)
+===== STAGE delphes START 17:30:44 =====
+PASS  delphes  (155s)
+===== STAGE analysis START 17:33:20 =====
+PASS  analysis  (10s)
+===== STAGE simpleanalysis START 17:33:30 =====
+PASS  simpleanalysis  (11s)
+===== STAGE sa2json START 17:33:41 =====
+FAIL  sa2json  rc=1  (10s) -> logs/sa2json.log
+STOPPED at stage: sa2json

@@ -1,0 +1,196 @@
+{
+  "background_channels": 38,
+  "baseline_signal_channels": 38,
+  "mc_off_signal_channels": 38,
+  "mc_and_CR_off_signal_channels": 32,
+  "removed_signal_shapesys": [
+    {
+      "channel": "CRVV_MT2_hghmet_cuts",
+      "modifier": {
+        "data": [
+          2.4366052170693897
+        ],
+        "name": "native_signal_mcstat_b396cffffabbefe07ab7",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "CRVV_MT2_lowmet_cuts",
+      "modifier": {
+        "data": [
+          0.9947399144039082
+        ],
+        "name": "native_signal_mcstat_1653498669cdadda59b8",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "CRtop_MT2_hghmet_cuts",
+      "modifier": {
+        "data": [
+          1.7229400720642851
+        ],
+        "name": "native_signal_mcstat_ec7d0c59ca297439bea6",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2a_hghmet_cuts",
+      "modifier": {
+        "data": [
+          1.4067746779838586
+        ],
+        "name": "native_signal_mcstat_1a8dbfc41d8e138b9257",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2a_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          0.9947399144039082
+        ],
+        "name": "native_signal_mcstat_11d62d30fa5a88e8e2d0",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2b_hghmet_cuts",
+      "modifier": {
+        "data": [
+          1.9894798288078164
+        ],
+        "name": "native_signal_mcstat_f61b781180018823750c",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2c_hghmet_cuts",
+      "modifier": {
+        "data": [
+          2.9842197432117246
+        ],
+        "name": "native_signal_mcstat_47ee905e79246835bb51",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2c_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          1.4067746779838586
+        ],
+        "name": "native_signal_mcstat_f585d6c565bdbecdb281",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRee_eMT2d_hghmet_cuts",
+      "modifier": {
+        "data": [
+          1.4067746779838586
+        ],
+        "name": "native_signal_mcstat_542f1b246768f1cf3a52",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2a_hghmet_cuts",
+      "modifier": {
+        "data": [
+          1.9894798288078164
+        ],
+        "name": "native_signal_mcstat_e898736df4f32cc1e7a2",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2a_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          0.9947399144039082
+        ],
+        "name": "native_signal_mcstat_2069ebd6c4f3a1f142d4",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2b_hghmet_cuts",
+      "modifier": {
+        "data": [
+          2.9842197432117246
+        ],
+        "name": "native_signal_mcstat_0e24fe51f58107cd7eb5",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2b_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          0.9947399144039082
+        ],
+        "name": "native_signal_mcstat_1439fdf580908b0e12e8",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2c_hghmet_cuts",
+      "modifier": {
+        "data": [
+          5.356838379299916
+        ],
+        "name": "native_signal_mcstat_4c7ec4c69a221d5eba59",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2c_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          2.224306068539461
+        ],
+        "name": "native_signal_mcstat_0b3c74cafd466ec0ef44",
+        "type": "shapesys"
+      }
+    },
+    {
+      "channel": "SRmm_eMT2d_lowmet_V2_cuts",
+      "modifier": {
+        "data": [
+          0.9947399144039082
+        ],
+        "name": "native_signal_mcstat_50587eba1ecf26adec16",
+        "type": "shapesys"
+      }
+    }
+  ],
+  "removed_CR_signal": [
+    {
+      "channel": "CRVV_MT2_hghmet_cuts",
+      "nominal_signal_yield": 5.968439486423449
+    },
+    {
+      "channel": "CRVV_MT2_lowmet_cuts",
+      "nominal_signal_yield": 0.9947399144039082
+    },
+    {
+      "channel": "CRtau_MT2_hghmet_cuts",
+      "nominal_signal_yield": 0.0
+    },
+    {
+      "channel": "CRtau_MT2_lowmet_cuts",
+      "nominal_signal_yield": 0.0
+    },
+    {
+      "channel": "CRtop_MT2_hghmet_cuts",
+      "nominal_signal_yield": 2.9842197432117246
+    },
+    {
+      "channel": "CRtop_MT2_lowmet_cuts",
+      "nominal_signal_yield": 0.0
+    }
+  ],
+  "background_and_observations": "Same byte-exact background input for all three models; patches contain signal additions only",
+  "zero_selected_signal_bins": 22
+}

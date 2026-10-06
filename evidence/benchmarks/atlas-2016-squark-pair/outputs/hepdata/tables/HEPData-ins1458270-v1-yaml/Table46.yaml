@@ -1,0 +1,112 @@
+dependent_variables:
+- header: {name: EVENTS / 200 GEV}
+  qualifiers:
+  - {name: SQRT(S), units: GeV, value: '13000.0'}
+  - {name: '', value: DATA}
+  values:
+  - {value: 0.0}
+  - {value: 4.0}
+  - {value: 8.0}
+  - {value: 7.0}
+  - {value: 4.0}
+  - {value: 1.0}
+  - {value: 4.0}
+  - {value: 0.0}
+  - {value: 2.0}
+  - {value: 0.0}
+  - {value: 1.0}
+  - {value: 0.0}
+  - {value: 0.0}
+  - {value: 0.0}
+- header: {name: EVENTS / 200 GEV}
+  qualifiers:
+  - {name: SQRT(S), units: GeV, value: '13000.0'}
+  - {name: '', value: SM BACKGROUND}
+  values:
+  - errors:
+    - {label: stat, symerror: 0.3243}
+    - asymerror: {minus: -0.337, plus: 0.6055}
+      label: sys
+    value: 1.577
+  - errors:
+    - {label: stat, symerror: 0.629}
+    - asymerror: {minus: -0.9966, plus: 1.337}
+      label: sys
+    value: 6.452
+  - errors:
+    - {label: stat, symerror: 0.6206}
+    - asymerror: {minus: -0.9444, plus: 1.501}
+      label: sys
+    value: 8.278
+  - errors:
+    - {label: stat, symerror: 0.4488}
+    - asymerror: {minus: -0.7561, plus: 0.9145}
+      label: sys
+    value: 5.79
+  - errors:
+    - {label: stat, symerror: 0.3464}
+    - asymerror: {minus: -0.4558, plus: 0.4102}
+      label: sys
+    value: 3.964
+  - errors:
+    - {label: stat, symerror: 0.466}
+    - asymerror: {minus: -0.5397, plus: 0.5747}
+      label: sys
+    value: 3.257
+  - errors:
+    - {label: stat, symerror: 0.2164}
+    - asymerror: {minus: -0.4712, plus: 0.4819}
+      label: sys
+    value: 1.572
+  - errors:
+    - {label: stat, symerror: 0.1078}
+    - asymerror: {minus: -0.1519, plus: 0.1792}
+      label: sys
+    value: 0.7997
+  - errors:
+    - {label: stat, symerror: 0.1255}
+    - asymerror: {minus: -0.1988, plus: 0.1186}
+      label: sys
+    value: 0.6204
+  - errors:
+    - {label: stat, symerror: 0.04462}
+    - asymerror: {minus: -0.02038, plus: 0.1492}
+      label: sys
+    value: 0.2345
+  - errors:
+    - {label: stat, symerror: 0.0391}
+    - asymerror: {minus: -0.04705, plus: 0.03106}
+      label: sys
+    value: 0.1613
+  - errors:
+    - {label: stat, symerror: 0.104}
+    - asymerror: {minus: -0.08389, plus: 0.0874}
+      label: sys
+    value: 0.1654
+  - errors:
+    - {label: stat, symerror: 0.1037}
+    - asymerror: {minus: -0.06218, plus: 0.06454}
+      label: sys
+    value: 0.1307
+  - errors:
+    - {label: stat, symerror: 0.08964}
+    - asymerror: {minus: -0.06068, plus: 0.0607}
+      label: sys
+    value: 0.2109
+independent_variables:
+- header: {name: EFFECTIVE MASS, units: GEV}
+  values:
+  - {high: 1000.0, low: 800.0}
+  - {high: 1200.0, low: 1000.0}
+  - {high: 1400.0, low: 1200.0}
+  - {high: 1600.0, low: 1400.0}
+  - {high: 1800.0, low: 1600.0}
+  - {high: 2000.0, low: 1800.0}
+  - {high: 2200.0, low: 2000.0}
+  - {high: 2400.0, low: 2200.0}
+  - {high: 2600.0, low: 2400.0}
+  - {high: 2800.0, low: 2600.0}
+  - {high: 3000.0, low: 2800.0}
+  - {high: 3200.0, low: 3000.0}
+  - {high: 3400.0, low: 3200.0}
+  - {high: 3600.0, low: 3400.0}

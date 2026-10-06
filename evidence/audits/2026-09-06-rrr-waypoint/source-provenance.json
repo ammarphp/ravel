@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "scope": "Exact original small-file byte hashes checked during curation. Source originals may be private/local or external and are not implied to ship. Nonbundled raw-event hashes are separately labelled retained receipt assertions.",
+  "sources": {
+    "local-runs/rrr-closure/physics-review/btag-working-point/audit.json": {
+      "bytes": 3317,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "644145fbd23ccb2135f6e3ecf342f10b3bb3c231b940fce64d80196717d0b68c"
+    },
+    "local-runs/rrr-closure/physics-review/btag-working-point/check_transfer.json": {
+      "bytes": 4893,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "698954fe9b35cebf00acfa38d483274130259eeaf42b909cd411091d9b8fde1c"
+    },
+    "local-runs/rrr-closure/physics-review/btag-working-point/review.md": {
+      "bytes": 8649,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "17ffc216df9f73627e63ebfa71572ed6f97310a1e99561268a2b7f4517fce67c"
+    },
+    "local-runs/rrr-closure/physics-review/btag-working-point/source-pins.json": {
+      "bytes": 4988,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary-source location/byte pins; calibration remains unresolved",
+      "sha256": "b1d4bb32c4d0378a16095d63635554bb23b730de094a00f6fa3c220bac05e87a"
+    },
+    "local-runs/rrr-closure/physics-review/check_signal_units.json": {
+      "bytes": 2237,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "20e66717d3b9344a7308516687b0c6d9267b505a19f1267feb20b4f7a2aa7076"
+    },
+    "local-runs/rrr-closure/physics-review/check_signal_units.py": {
+      "bytes": 5590,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "b97ba140bab07390db5d6889b6da3e0bec8f9f24f1232e028afcd6c3da24449d"
+    },
+    "local-runs/rrr-closure/physics-review/risr-differential/README.md": {
+      "bytes": 8590,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "3ea9a470519117db2cbca937e496feab46890d2affc9636da20b8dabf941b9cc"
+    },
+    "local-runs/rrr-closure/physics-review/risr-differential/candidate-verification.json": {
+      "bytes": 1749,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "871cc7b1deca4a384cd976cd8e250ed9d60516e436af96fc9e8bbf7a47ad7af8"
+    },
+    "local-runs/rrr-closure/physics-review/risr-differential/summary.json": {
+      "bytes": 5040,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "596401b42b5d71255559e202305760860507549d06cc12849feee8b1a9af1e35"
+    },
+    "local-runs/rrr-closure/physics-review/shape-likelihood/20k/diagnosis.json": {
+      "bytes": 119871,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Actual ROOT channel moments reconciled to native template, full published channel denominator",
+      "sha256": "e06eb1c41a77dd0f4978d3168f601e1cc288608fc084eb2182cafb6e5068703e"
+    },
+    "local-runs/rrr-closure/physics-review/shape-likelihood/smoke2/diagnosis.json": {
+      "bytes": 118316,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Actual ROOT channel moments reconciled to native template, full published channel denominator",
+      "sha256": "94869e3c3ab2ff46be1f4cd1e22d2957a882a033b331e3f956c60ba824391a9d"
+    },
+    "local-runs/rrr-closure/physics-review/shape-likelihood/sr-normalized-shapes.png": {
+      "bytes": 210713,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Existing diagnostic figure/table, exact bytes; not regenerated during curation",
+      "sha256": "a76546c819bf6b2b2f49d5854102bf6892282e935b5450b8e122711dd6af739e"
+    },
+    "local-runs/rrr-closure/physics-review/shape-likelihood/verification.json": {
+      "bytes": 509,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "ccd07d91d419bc650eec562c43062fe63ec740e788640d5889cdb9118a882210"
+    },
+    "local-runs/rrr-closure/physics-review/truth-reco-response-v1/anchor20k/truth_reco_response.json": {
+      "bytes": 107930,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Full raw Delphes population, bare-direct-lepton ancestry and same-event TRef/native joins",
+      "sha256": "c3c8219847fd067b030a8d1bc4427a0b3df7af833257dda19c85c112ee8b5884"
+    },
+    "local-runs/rrr-closure/physics-review/truth-reco-response-v1/manifest.json": {
+      "bytes": 1568,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "894cdcb305f3906e24069e1a912ba713c7859406ef18c9fee3630fbce9b20de0"
+    },
+    "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.csv": {
+      "bytes": 9030,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Existing diagnostic figure/table, exact bytes; not regenerated during curation",
+      "sha256": "9d2cfa12a3d79a3a7d59fe8a85bf9b474c4f0e1c01a907a321c0861f779c7734"
+    },
+    "local-runs/rrr-closure/physics-review/truth-reco-response-v1/response-by-pt.png": {
+      "bytes": 103777,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Existing diagnostic figure/table, exact bytes; not regenerated during curation",
+      "sha256": "355f54481b297b332fc420cd2a03f9bb310b07aabd9a78e8025dd68f564726b6"
+    },
+    "local-runs/rrr-closure/physics-review/truth-reco-response-v1/smoke2/truth_reco_response.json": {
+      "bytes": 101955,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Full raw Delphes population, bare-direct-lepton ancestry and same-event TRef/native joins",
+      "sha256": "fd746560113fdbba2d432ffbda89a899016cfb7171e9fde9784a32c0e1ca385a"
+    },
+    "local-runs/rrr-closure/physics-review/truth-response-independent/verification.json": {
+      "bytes": 3537,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "251db83b32a6188df8a64fcbccbe71b3d1db326953996b61f352733b74e57d3b"
+    },
+    "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.json": {
+      "bytes": 6361,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "bdc02da7c8f51e62dc10c615c0a3d3f3002a6ab0083d140469888183452834b1"
+    },
+    "local-runs/rrr-closure/physics-review/waypoint-independent/check_fixed.py": {
+      "bytes": 12653,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Diagnostic implementation/primary-source lineage, not copied external implementation",
+      "sha256": "104c57fa915dd354c9f8f08fdcd76e51cc005259d2c67bf60d109409d27c68d9"
+    },
+    "local-runs/rrr-closure/physics-review/waypoint-independent/reference-agreement.json": {
+      "bytes": 1841,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Scoped existing diagnosis/review; no fresh physics execution during curation",
+      "sha256": "7750b7d7cb82329c0c73aeb04a90bf296eb678ee974cc390defa5e9a37e69af5"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/build/compare_reco_efficiency.py": {
+      "bytes": 4563,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Reconstructed-fraction producer, read-only; not rerun during curation",
+      "sha256": "d188802d497299ee169d2319bc46fa6b90c0cd2e91ac1d7bbd692bfd61f9a094"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/background-official.json": {
+      "bytes": 1988103,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact scientific likelihood operand; raw event files excluded",
+      "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32a.yaml": {
+      "bytes": 4515,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "041f676053585e428d70cdaf49aec1ff4cf22c153a03dcd9105db3bb4018d62a"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32b.yaml": {
+      "bytes": 4507,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "c0ba526d6afcbc50bc244fdf2a33a54feca27dfdfec073785d9106b14ca81534"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32c.yaml": {
+      "bytes": 4522,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "5e08af8bad45fc4458d24ec6f5075c366b38e0e9feac5c67318648ff0beb1473"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32d.yaml": {
+      "bytes": 4510,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "c2fec72fbf1a7851e7fc9debcdb440f20f252a0161ee9547f445e791ad168d3b"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32e.yaml": {
+      "bytes": 4529,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "9a04a5dacd06c8672afe8fbb016671a4cae198b7e907bb858f3548f9b7222fc5"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/figure_32f.yaml": {
+      "bytes": 4487,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Primary numerical acceptance/efficiency table; source units and row preserved in derived reference",
+      "sha256": "6483a860279e35983daa0058db411921bb46aef63bb1a331ca32d7bca9474ef4"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/reference/slepton_xsec_UL.yaml": {
+      "bytes": 6182,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Upstream source evidence pin; retained original not bundled",
+      "sha256": "22512c78fe0febd8103aa4efeb050d4b8b50c21dd79e649815ca9104aa151248"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/acceptance-efficiency-52.json": {
+      "bytes": 200999,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "19eb8889d503db07e49c841d24a060ad1763adb0988a341d40c8348ab6afc446"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/cutflows-m150-m140.json": {
+      "bytes": 37490,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Published raw counts versus weighted 140/fb yields; uncertainties not supplied",
+      "sha256": "9cf43e77fa74475cf462427fa2266a584b5c54cb2d17eb2b4e4f3ffdf0f80472"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/official-patches/m150_m140.json": {
+      "bytes": 198379,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact scientific likelihood operand; raw event files excluded",
+      "sha256": "b076cb9b8fc56a5259398ad0a655bb7bd945732e7b2572554990aac96fc67dfa"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/published-limits-52.json": {
+      "bytes": 45478,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "52 reference-matched published observed/median-expected cross-section limits; not author lattice",
+      "sha256": "b2b460fc9ee178a92228409a91aed80a8ed33d6fff5e66d7fbe5b4aeae05e5a2"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/inputs/references-derived/source-pins.json": {
+      "bytes": 4602,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Upstream source evidence pin; retained original not bundled",
+      "sha256": "d600350e2d434ad6e167941d569135af71fbe32c9c776448fc55609619ebf026"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/anchor20k-reco-fraction-diagnostic.json": {
+      "bytes": 3882,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Conditional inclusive-rate-weighted reconstructed fraction versus unresolved public algebraic A times efficiency",
+      "sha256": "16a59c6bca13f0972f92515476ecd78d23e5698f8b6dfa53e6da55596b673920"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/extract_control.py": {
+      "bytes": 10712,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Upstream source evidence pin; retained original not bundled",
+      "sha256": "e2163643a3ab48b656f7d8f5958f80d80aa63269ce35048ca92f294d0db3e95f"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/manifest.json": {
+      "bytes": 26227,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Upstream source evidence pin; retained original not bundled",
+      "sha256": "885bf6c0d2bff7c851bd15c4a3fe433d7a8ae2a5685c91fd4d09f2808a29747e"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/inclusive-normalization/summary.json": {
+      "bytes": 5260,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "6c8b76ea1bde50250c48577151c77f87661b2f56c53f33dc68ba107f5482fd05"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/outputs/smoke2-reco-fraction-diagnostic.json": {
+      "bytes": 3884,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Conditional inclusive-rate-weighted reconstructed fraction versus unresolved public algebraic A times efficiency",
+      "sha256": "95a516ec72680a320107a98f589c17dc9014035438c85051b9004b0f3a167970"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/config.toml": {
+      "bytes": 936,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Original completed anchor configuration; only two path fields changed in public template",
+      "sha256": "48bee43b9cd950cd99c4876875f090fa0da6e2f62951bf59c1b425571a212e6d"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/execution_state.json": {
+      "bytes": 782131,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained complete execution ledger; curation checks recorded statuses, not full raw ancestry replay",
+      "sha256": "360e0c0d90b2e4ab9a09687e95ffb11d002b4beda63f3c524e9c2f2576e4fcc5"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/detector.tcl": {
+      "bytes": 24371,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact completed anchor physics card; no tuning or path edits",
+      "sha256": "3e21edf3f2fa021e2f6b8534a4287448928e93d5f44d8ea53c93f4653be40a31"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/param.dat": {
+      "bytes": 21324,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact completed anchor physics card; no tuning or path edits",
+      "sha256": "d159412f5329c0cb805fc531f1ede05e4d3d52bf662158d5b61eac91ed0a8786"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/process.dat": {
+      "bytes": 374,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/run.dat": {
+      "bytes": 16945,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact completed anchor physics card; no tuning or path edits",
+      "sha256": "f19e158f1a6be405817187d0759ce4c9141ac07d43d38d4e8dc73df88955ed43"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/cards/shower.cfg": {
+      "bytes": 322,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact completed anchor physics card; no tuning or path edits",
+      "sha256": "ec0265679ac3918452c640e520dba743ea2d80e0cb9c8bec3f36caae22f7b8f0"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/inputs/native_execution_plan.json": {
+      "bytes": 100516,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "9f308e89d3a5c308a07793d82e4326752bd7a208608ac64d21ce6c090e28d36a"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/analysis/189449e6dbdd4697a4669158d1d9b343/record.json": {
+      "bytes": 60408,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "78abb5ed88899aaf7af435186e9863151eddfecd3fb6d7bd334324d0f15f613b"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/delphes/90503525efd9430d9f47d1a0454088db/record.json": {
+      "bytes": 59097,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "92ee2480cec848c730d1f76a1c5651851f821b9202d2b965bfe44599695d187f"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/lhe_check/3d4369e2d85b47329a82bb3c09dd0049/record.json": {
+      "bytes": 59731,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "3a6ce665e1840fd81bb5de04007f2dd55667c3e6345c178c07d4e7d4eeee20cb"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/madgraph/9908ec30feb04c22810faa4e14cf3ef0/record.json": {
+      "bytes": 60323,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "79036184ea0527e965a3805728cbb83a3da61c7ae16c7ee9d679013e01ca1fbd"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/native_report/8a008616b0414366ba9dd6995112d97e/record.json": {
+      "bytes": 60377,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "4acac48412c36833a922d97fe9e64ec55f1ea08a33f1d31b3f227a306980000b"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/normalization/cc6ccaa8f1444c4e92bb388d1ff5a441/record.json": {
+      "bytes": 60362,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "e27226887d7082da102d3f4cac965173d7796fd0778c69191b9a0f94f210fcaa"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/prepare/9d6016a28dce41459dd2da76ff1cfd8f/record.json": {
+      "bytes": 60184,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "2adc4edc8574bd1f5852d6e60f1ca4a31aacd8fccf3ed72a05f567855d4fd9dd"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pyhf/6a769b87e9144ef893cfd617a7ef239c/record.json": {
+      "bytes": 59259,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "47942fe3f203f68e4fa0bb92f80181365ad5aef7836ccaa2e17ba8f1e1db5f6d"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/pythia/f31a6ffe9162451ab009c604c602b205/record.json": {
+      "bytes": 60549,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "f994de9d8b1c2c5d01eb34d1f878cc3728d36403de3696208e83ab059940e16d"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/sa2json/ce88b3e91d3d461b93ec9d97da754ff8/record.json": {
+      "bytes": 59770,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "d62f5bf3bad877167da04ba61faa9e9315b76d4bd9f56e619fbb6b0607abdf98"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/simpleanalysis/877559f9c1e647bea3255023705113d5/record.json": {
+      "bytes": 62051,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "5e694eecaa51005d52cf694374fbdcd9370783d34df3361db4c648b28786f793"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/logs/execution/unpack_lhe/8267138a5392494eaa4ce20e514b9ffd/record.json": {
+      "bytes": 58975,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "93dc40ecf4cf79a32b5bef28a25d2e7fedeffd8b72bd17b02e5d30789c4359a8"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/EwkCompressed2018_patch.json": {
+      "bytes": 21516,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact scientific likelihood operand; raw event files excluded",
+      "sha256": "a79cd0141b3a0a8fd05026a157aaa0b9e5a09ae369e777ce8bd558d9239fa4fa"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/compressed_validation.json": {
+      "bytes": 55431,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "8930e749cca07f4426d18bf0622a0bc62c532dd86f553977bc876a22cece2dad"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/exclusion.json": {
+      "bytes": 86175,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Saved asymptotic six-root result; no refit during curation",
+      "sha256": "35442efff5bff6d853fcd93cf7ebdcf0c2c738ab3816faf445953d8faef71227"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/normalization.json": {
+      "bytes": 1315,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "f7c33116e488ce4b1bbba876e1180218fdca206a8ed077dba7dd1ad9aafb91d2"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_20k/output/signal_model.json": {
+      "bytes": 25040,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Signal model, all 32 SR + 6 CR moments, opt-in shapesys policy",
+      "sha256": "d73cf3bd4e5eff05e687250c6b10b5df7639adafcc397aae8d6c9ffd575327f8"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/execution_state.json": {
+      "bytes": 783261,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained complete execution ledger; curation checks recorded statuses, not full raw ancestry replay",
+      "sha256": "3a92081132e44a746b412cd01afa050b61036235e26fb749daea4a8839d9161e"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/cards/process.dat": {
+      "bytes": 374,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "33e8005354460f68bd7fc4e264c047f66e9f7e3ec5e4d35e099b4bf3f7344d9a"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/inputs/native_execution_plan.json": {
+      "bytes": 101143,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "59aa356cb8925160843e963db0aaadf6b6d5609e35100e072070ed3f511c93e6"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/analysis/8ae325566dcb4f79a72917e5f2da7510/record.json": {
+      "bytes": 60504,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "260b96d659cb4590fb4e23698ae2157524713ce61a77de6f52b207711bfd171f"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/delphes/c59bac04f48941409020d89275f43cb9/record.json": {
+      "bytes": 59180,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "eac38f0058cb41567a7bc454b3f72b147831cd38556138466df648eb7f729ae7"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/lhe_check/20066821456545eaa4dbd9c0f776c398/record.json": {
+      "bytes": 59822,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "1e4bd7975f46a9baad6928f9e0f0368f5686c7889cc13d2b7cdf3ffc07b2cc4a"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/madgraph/f7a3c71400c2490c9a332fb7dd4146c8/record.json": {
+      "bytes": 60421,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "1cca6149554c05c9e627c3f02faad969c79d7a8c9c1e705cbfebc585cb5602f5"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/native_report/f85a619be59c4a18a08e1222f8d3fe64/record.json": {
+      "bytes": 60475,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "531a83a4bd23941139890a811f7331b200cfbfa1f8d832d3e983862e7b3b1f25"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/normalization/d015618827384d49b4dcde41374e7735/record.json": {
+      "bytes": 60459,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "cca2fd4469422954272775a03efe4fa4e5c213887d9f83c91465ea2198f6a517"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/prepare/e382da915bf2484cb980fd37daf0e305/record.json": {
+      "bytes": 60283,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "2a2b3221696a03c10fc3f467b7463cddbac080d2b888b03996708e293f98e5f2"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/pyhf/8d4ad53eb81d4273902696e0ea6b1fac/record.json": {
+      "bytes": 59349,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "fc50b5a08496b8159e9d4a8f5b0aa0cffa7df6735eeb8fec12e6a6cc79d00b3e"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/pythia/341245880080434fbb87920ee53401c4/record.json": {
+      "bytes": 60646,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "c3a93f1f6d127d2573bb10dd23a8ddd9ba813618a4b4d1b290ed7ff10334d305"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/sa2json/ad0bb3859c4940689d31f722d1ebc08f/record.json": {
+      "bytes": 59862,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "2bb6bcc748e66d7c76d10266ce5a44e0528a219a5ee389ddbcbd5c44e07625c0"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/simpleanalysis/5db43e44866243aa8dd6fafbb7ebc39a/record.json": {
+      "bytes": 62159,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "7e47cd774ca11c24ec63f7cb3f6ebaca39f91c96a3d2b91b69d766dbcc9840b3"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/logs/execution/unpack_lhe/15a62e05a9574963b6e05c0518aaffd6/record.json": {
+      "bytes": 59056,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Retained stage attempt record; path/approval content not bundled",
+      "sha256": "fd86263ecbdbfde9c74ef21ed5864f6696914a5b63a8e99c21aca732abaa3156"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/EwkCompressed2018_patch.json": {
+      "bytes": 18373,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Exact scientific likelihood operand; raw event files excluded",
+      "sha256": "57cd6ab1408baf3fed01085cb23d136050c77db7450d1a5c8d801405d1beba86"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/compressed_validation.json": {
+      "bytes": 50194,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "0109d7d02ad1cee14f808673c2d0bf6be492e02436c6376fea120154dcfb1d69"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/exclusion.json": {
+      "bytes": 82963,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Saved asymptotic six-root result; no refit during curation",
+      "sha256": "39c1208a456f0975f1c979014cb092ed70d7a718f1fbeaee4159ee9a5596862c"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/normalization.json": {
+      "bytes": 1326,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Pinned operand of reconstructed-fraction diagnostic",
+      "sha256": "606f574fbb2369c22c01893a4c2555c266261a14cea39baa60307368caa4b130"
+    },
+    "trial-runs/2026-09-05_SUSY-2018-16_rrr-closure/runs/nominal_m150_dm10_smoke2/output/signal_model.json": {
+      "bytes": 25393,
+      "public_original_availability": "not_assumed; see bundled derivatives",
+      "scope": "Signal model, all 32 SR + 6 CR moments, opt-in shapesys policy",
+      "sha256": "13f4e8a0f62be5cb0787305ef91270fa828055e93fe8bb3146ff63c6a67ba833"
+    }
+  }
+}

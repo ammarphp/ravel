@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "domain": "classifier",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "events": [
+      {
+        "event_id": "one",
+        "score": 2.5,
+        "selected": true,
+        "weight": -2.0
+      }
+    ],
+    "controls": [
+      {
+        "event_id": "one",
+        "score": 2.5,
+        "selected": true,
+        "weight": -2.0
+      }
+    ],
+    "checks_passed": true,
+    "selected_sumw": -2.0,
+    "selected_sumw2": 4.0,
+    "runtime": "1.30.0",
+    "provider": "CPUExecutionProvider"
+  },
+  "limitations": [
+    "Classifier inference and supplied reference scores only; no training, calibration, domain-shift or analysis-efficiency certification.",
+    "Feature ordering, units and affine preprocessing are explicit; nonlinear preprocessing must be in the supplied graph."
+  ],
+  "inputs": [
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/classifier/control.json",
+      "size": 136,
+      "sha256": "654e45596c913515817f103ad6da736ccb80debab2245bf12db36469a4c12209"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/classifier/features.json",
+      "size": 110,
+      "sha256": "de359b0f3fbc3651792b40ff1f18483558ead9e29cdbb0d1fce0d28d1000ac02"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/classifier/model.onnx",
+      "size": 191,
+      "sha256": "25d4ce95f6b0202c1980d76b6104ca18265a053a20e71158efa294310ccccbd2"
+    }
+  ]
+}

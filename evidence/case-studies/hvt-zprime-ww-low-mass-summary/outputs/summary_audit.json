@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generator": "summary_audit.py",
+  "n_candidates": 5,
+  "n_curves": 3,
+  "rules": [
+    {
+      "id": "R-SA1",
+      "name": "bijection",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA2",
+      "name": "disposition completeness",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA3",
+      "name": "no keyword-only exclusion",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA4",
+      "name": "label<->channel",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA5",
+      "name": "supersession not co-equal",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA6",
+      "name": "provenance labelled + consistent",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA7",
+      "name": "coverage annotation<->reach",
+      "status": "PASS",
+      "offenders": []
+    },
+    {
+      "id": "R-SA8",
+      "name": "transformation present",
+      "status": "PASS",
+      "offenders": []
+    }
+  ],
+  "verdict": "PASS",
+  "survey_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/outputs/survey.json",
+  "manifest_path": "trial-runs/2026-07-06_SURVEY_hvt-zprime-ww-lowmass/inputs/basis_manifest.json"
+}

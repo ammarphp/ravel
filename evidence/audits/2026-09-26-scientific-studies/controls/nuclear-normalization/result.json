@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "domain": "applicability",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "family": "heavy-ion",
+    "bins": [
+      {
+        "low": 0,
+        "high": 1,
+        "sumw": 100,
+        "sumw2": 100,
+        "per_event_density": 1.0,
+        "conditional_variance": 0.01
+      },
+      {
+        "low": 1,
+        "high": 3,
+        "sumw": 100,
+        "sumw2": 100,
+        "per_event_density": 0.5,
+        "conditional_variance": 0.0025
+      }
+    ],
+    "density_unit": "1/GeV",
+    "checks_passed": true
+  },
+  "limitations": [
+    "Supplied selected-event exposure and fixed-denominator weighted-bin errors only; no centrality calibration, nuclear generator, event-exposure uncertainty, nuclear PDF or R_AA reference is inferred."
+  ],
+  "inputs": [
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/nuclear-normalization.json",
+      "size": 438,
+      "sha256": "a1a33b0e9f2780bcf7bb44d227234a133590ff2d8fc0252eeb53fcc56e38f4c5"
+    }
+  ]
+}

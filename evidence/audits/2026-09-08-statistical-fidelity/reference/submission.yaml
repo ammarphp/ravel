@@ -1,0 +1,140 @@
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_iMT2h_acc_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_iMT2h_acc_final.png
+data_file: figure_32a.yaml
+description: Acceptance (note the $z$-axis is in units of $10^{-3}$) for the slepton
+  process in the SR-S region.  Truth stransverse mass is constrained to be within
+  the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32a
+name: Figure 32a
+table_doi: 10.17182/hepdata.91374.v5/t57
+---
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_iMT2h_eff_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_iMT2h_eff_final.png
+data_file: figure_32b.yaml
+description: Efficiency for the slepton process in the SR-S region.  Truth stransverse
+  mass is constrained to be within the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32b
+name: Figure 32b
+table_doi: 10.17182/hepdata.91374.v5/t58
+---
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_high_iMT2h_acc_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_high_iMT2h_acc_final.png
+data_file: figure_32c.yaml
+description: Acceptance (note the $z$-axis is in units of $10^{-3}$) for the slepton
+  process in the SR-S-high region.  Truth stransverse mass is constrained to be within
+  the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32c
+name: Figure 32c
+table_doi: 10.17182/hepdata.91374.v5/t59
+---
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_high_iMT2h_eff_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_high_iMT2h_eff_final.png
+data_file: figure_32d.yaml
+description: Efficiency for the slepton process in the SR-S-high region.  Truth stransverse
+  mass is constrained to be within the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32d
+name: Figure 32d
+table_doi: 10.17182/hepdata.91374.v5/t60
+---
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_low_iMT2h_acc_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_low_iMT2h_acc_final.png
+data_file: figure_32e.yaml
+description: Acceptance (note the $z$-axis is in units of $10^{-3}$) for the slepton
+  process in the SR-S-low region.  Truth stransverse mass is constrained to be within
+  the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32e
+name: Figure 32e
+table_doi: 10.17182/hepdata.91374.v5/t61
+---
+additional_resources:
+- description: Image file
+  location: Slep_SR_S_low_iMT2h_eff_final.png
+- description: Thumbnail image file
+  location: thumb_Slep_SR_S_low_iMT2h_eff_final.png
+data_file: figure_32f.yaml
+description: Efficiency for the slepton process in the SR-S-low region.  Truth stransverse
+  mass is constrained to be within the range [100,140] GeV.
+keywords:
+- name: reactions
+  values:
+  - P P --> SLEPTON SLEPTON
+- name: cmenergies
+  values:
+  - 13000
+- name: phrases
+  values:
+  - SUSY
+  - Proton-Proton Scattering
+location: Figure 32f
+name: Figure 32f
+table_doi: 10.17182/hepdata.91374.v5/t62

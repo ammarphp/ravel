@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "physics_validated": false,
+  "scope": "Declared reconstructed-object selection and optional same-event decision agreement",
+  "events": 3,
+  "independent_groups": 3,
+  "region_names": [
+    "dilepton",
+    "zero_lepton"
+  ],
+  "weight_names": [
+    "nominal"
+  ],
+  "sumw_all_events": [
+    1.5
+  ],
+  "yields": {
+    "nominal": [
+      1.0,
+      0.5
+    ]
+  },
+  "covariance": {
+    "nominal": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.25
+      ]
+    ]
+  },
+  "raw_selected": {
+    "dilepton": 1,
+    "zero_lepton": 2
+  },
+  "region_overlap_counts": {
+    "dilepton": {
+      "dilepton": 1,
+      "zero_lepton": 0
+    },
+    "zero_lepton": {
+      "dilepton": 0,
+      "zero_lepton": 2
+    }
+  },
+  "reference_comparison": {
+    "performed": true,
+    "source": "analytic boundary expectation",
+    "matched_events": 3,
+    "mismatches": []
+  },
+  "response_evidence_supplied": 0,
+  "limitations": [
+    "Object flags and efficiencies are supplied, not calibrated by this adapter.",
+    "Region covariance is conditional Poisson group MC covariance, not experimental background covariance.",
+    "Decision agreement does not establish detector response or paper reproduction."
+  ]
+}

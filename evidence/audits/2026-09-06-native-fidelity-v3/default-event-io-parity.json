@@ -1,0 +1,34 @@
+{
+  "scope": "Fresh source-only exact AST comparison, not event execution or whole-module identity. The new original-LHA command is explicitly opt-in.",
+  "prior_source": {
+    "path": "prior_native_event_io.py",
+    "sha256": "ad3e897adae8983e01b3758bd8820563009ce79f4cf2c93c727712e6c789eb2c",
+    "origin": "src/ravel/physics/native_event_io.py in the unchanged source checkout, bound by predecessor audit"
+  },
+  "current_source": {
+    "path": "src/ravel/physics/native_event_io.py",
+    "sha256": "5a4293b3d62e037aa363edee5dc2dff327e08cd0471edf42edda15579ae837da"
+  },
+  "functions": [
+    {
+      "function": "validate_hepmc",
+      "ast_sha256": "379044f0c993b75132a7de6cf834d4b79bc2af4151acccd38c7f5b6fb4b152ab",
+      "identical": true
+    },
+    {
+      "function": "compress_events",
+      "ast_sha256": "31146fa101abe06f1f0af8f21762568e652307e7217cbff92c40bb721c3ab902",
+      "identical": true
+    },
+    {
+      "function": "shower",
+      "ast_sha256": "4ddf98dfbf45fe5f1a2741e2e4275c53e062c76d3aadac51c1bb14affccebf29",
+      "identical": true
+    },
+    {
+      "function": "delphes",
+      "ast_sha256": "0a7656f997cad1017d01f90dad6e13c844d8f325145d557b7ee71c2b5fcab523",
+      "identical": true
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "name": "2jl",
+    "n": 263,
+    "b": 283.0,
+    "db": 24.0,
+    "s": 232.4268,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "2jm",
+    "n": 191,
+    "b": 191.0,
+    "db": 21.0,
+    "s": 146.5088,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "2jt",
+    "n": 26,
+    "b": 23.0,
+    "db": 4.0,
+    "s": 18.2162,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "4jt",
+    "n": 7,
+    "b": 4.6,
+    "db": 1.1,
+    "s": 5.1629,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "5j",
+    "n": 7,
+    "b": 13.2,
+    "db": 2.2,
+    "s": 10.3257,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "6jm",
+    "n": 4,
+    "b": 6.9,
+    "db": 1.5,
+    "s": 3.5069,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  },
+  {
+    "name": "6jt",
+    "n": 3,
+    "b": 4.2,
+    "db": 1.2,
+    "s": 2.0457,
+    "_bkg_source": "published CR-fit (arXiv:1605.03814 Table 6 (tab:p0_UL): CR-fitted total background per SR, transcribed from the on-disk LaTeX source 2026-06-09)"
+  }
+]

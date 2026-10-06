@@ -1,0 +1,874 @@
+{
+  "certified": false,
+  "cutflows": [
+    {
+      "luminosity_fb_inverse": 140.0,
+      "metadata": {
+        "additional_resources": [
+          {
+            "description": "Image file",
+            "location": "tabaux_22.png"
+          },
+          {
+            "description": "Thumbnail image file",
+            "location": "thumb_tabaux_22.png"
+          }
+        ],
+        "data_file": "table_22.yaml",
+        "description": "Number of signal events in SR-S-high for the (m($\\tilde{\\ell}$),m($\\tilde{\\chi}_{1}^{0}$)) = (150 GeV, 140 GeV) Slepton signal model at different stages of selection before and after weighting events to correspond to 140/fb.",
+        "keywords": [
+          {
+            "name": "reactions",
+            "values": [
+              "P P --> SLEPTON SLEPTON"
+            ]
+          },
+          {
+            "name": "cmenergies",
+            "values": [
+              13000
+            ]
+          },
+          {
+            "name": "phrases",
+            "values": [
+              "SUSY",
+              "Proton-Proton Scattering"
+            ]
+          }
+        ],
+        "location": "Table 22",
+        "name": "Table 22",
+        "table_doi": "10.17182/hepdata.91374.v5/t104"
+      },
+      "model": {
+        "m_lsp_GeV": 140.0,
+        "m_parent_GeV": 150.0
+      },
+      "normalization": {
+        "generated_filters_weighted_fraction": 0.18663883003032947,
+        "inclusive_raw_generated_count": null,
+        "inferred_from_rounded_initial_row_cross_section_pb": 0.17192142857142856,
+        "initial_row_definition": "L times inclusive production cross section",
+        "use_warning": "Do not multiply this filter fraction into a cross section that already includes generator cuts. Raw counts do not supply weighted sumw2."
+      },
+      "region": "SR-S-high",
+      "rows": [
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": null,
+          "raw_count": null,
+          "raw_source_text": "--",
+          "selection_source_text": "Initial number of events ($\\mathcal{L}\\times\\sigma$)",
+          "source_row_index": 0,
+          "weighted_conditional_ratio_to_previous_row": null,
+          "weighted_cumulative_fraction_from_inclusive": 1.0,
+          "weighted_events_140_fb": 24069.0,
+          "weighted_source_text": "24069.0"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": null,
+          "raw_count": 30000,
+          "raw_source_text": "30000",
+          "selection_source_text": "Generator Filters",
+          "source_row_index": 1,
+          "weighted_conditional_ratio_to_previous_row": 0.18663883003032947,
+          "weighted_cumulative_fraction_from_inclusive": 0.18663883003032947,
+          "weighted_events_140_fb": 4492.21,
+          "weighted_source_text": "4492.21"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.5562666666666667,
+          "raw_count": 16688,
+          "raw_source_text": "16688",
+          "selection_source_text": "${E_{\\mathrm{T}}^{\\mathrm{miss}}}$ trigger",
+          "source_row_index": 2,
+          "weighted_conditional_ratio_to_previous_row": 0.524323217302842,
+          "weighted_cumulative_fraction_from_inclusive": 0.09785907183514063,
+          "weighted_events_140_fb": 2355.37,
+          "weighted_source_text": "2355.37"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.4348034515819751,
+          "raw_count": 7256,
+          "raw_source_text": "7256",
+          "selection_source_text": "2 leptons",
+          "source_row_index": 3,
+          "weighted_conditional_ratio_to_previous_row": 0.43073911954385086,
+          "weighted_cumulative_fraction_from_inclusive": 0.04215173044164693,
+          "weighted_events_140_fb": 1014.55,
+          "weighted_source_text": "1014.55"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9986218302094818,
+          "raw_count": 7246,
+          "raw_source_text": "7246",
+          "selection_source_text": "veto $3 \\text{GeV} < m_{\\ell\\ell} < 3.2 \\text{GeV}$",
+          "source_row_index": 4,
+          "weighted_conditional_ratio_to_previous_row": 0.9986792173870189,
+          "weighted_cumulative_fraction_from_inclusive": 0.04209605716897254,
+          "weighted_events_140_fb": 1013.21,
+          "weighted_source_text": "1013.21"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9966878277670439,
+          "raw_count": 7222,
+          "raw_source_text": "7222",
+          "selection_source_text": "Lepton author 16 veto",
+          "source_row_index": 5,
+          "weighted_conditional_ratio_to_previous_row": 0.9963186308859959,
+          "weighted_cumulative_fraction_from_inclusive": 0.04194108604428934,
+          "weighted_events_140_fb": 1009.48,
+          "weighted_source_text": "1009.48"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9590141235114926,
+          "raw_count": 6926,
+          "raw_source_text": "6926",
+          "selection_source_text": "${\\min(\\Delta\\phi(\\mathrm{any~jet},\\mathbf{p}_{\\mathrm{T}}^{\\mathrm{miss}}))} > 0.4$",
+          "source_row_index": 6,
+          "weighted_conditional_ratio_to_previous_row": 0.9612473748860799,
+          "weighted_cumulative_fraction_from_inclusive": 0.040315758859944324,
+          "weighted_events_140_fb": 970.36,
+          "weighted_source_text": "970.36"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9887380883626913,
+          "raw_count": 6848,
+          "raw_source_text": "6848",
+          "selection_source_text": "${\\Delta\\phi(j_1,\\mathbf{p}_{\\mathrm{T}}^{\\mathrm{miss}})} > 2.0$",
+          "source_row_index": 7,
+          "weighted_conditional_ratio_to_previous_row": 0.99050867719197,
+          "weighted_cumulative_fraction_from_inclusive": 0.0399331089783539,
+          "weighted_events_140_fb": 961.15,
+          "weighted_source_text": "961.15"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9976635514018691,
+          "raw_count": 6832,
+          "raw_source_text": "6832",
+          "selection_source_text": "lepton truth matching",
+          "source_row_index": 8,
+          "weighted_conditional_ratio_to_previous_row": 0.9977526920876034,
+          "weighted_cumulative_fraction_from_inclusive": 0.039843366986580246,
+          "weighted_events_140_fb": 958.99,
+          "weighted_source_text": "958.99"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8798302107728337,
+          "raw_count": 6011,
+          "raw_source_text": "6011",
+          "selection_source_text": "$1 < {m_{\\ell\\ell}} < 60$ GeV",
+          "source_row_index": 9,
+          "weighted_conditional_ratio_to_previous_row": 0.8632623906401526,
+          "weighted_cumulative_fraction_from_inclusive": 0.0343952802359882,
+          "weighted_events_140_fb": 827.86,
+          "weighted_source_text": "827.86"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.998003659956746,
+          "raw_count": 5999,
+          "raw_source_text": "5999",
+          "selection_source_text": "$\\Delta R_{ee} >$ 0.30, $\\Delta R_{\\mu\\mu} >$ 0.05, $\\Delta R_{e\\mu} >$ 0.20",
+          "source_row_index": 10,
+          "weighted_conditional_ratio_to_previous_row": 0.9979827507066412,
+          "weighted_cumulative_fraction_from_inclusive": 0.03432589638123728,
+          "weighted_events_140_fb": 826.19,
+          "weighted_source_text": "826.19"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9966661110185031,
+          "raw_count": 5979,
+          "raw_source_text": "5979",
+          "selection_source_text": "Leading lepton $p_{\\mathrm{T}}$ $>$ 5 GeV",
+          "source_row_index": 11,
+          "weighted_conditional_ratio_to_previous_row": 0.9969861654098936,
+          "weighted_cumulative_fraction_from_inclusive": 0.0342224438073871,
+          "weighted_events_140_fb": 823.7,
+          "weighted_source_text": "823.7"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9846128115069409,
+          "raw_count": 5887,
+          "raw_source_text": "5887",
+          "selection_source_text": "Number of jets $\\geq$ 1",
+          "source_row_index": 12,
+          "weighted_conditional_ratio_to_previous_row": 0.9840840111691149,
+          "weighted_cumulative_fraction_from_inclusive": 0.033677759773983136,
+          "weighted_events_140_fb": 810.59,
+          "weighted_source_text": "810.59"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8839816544929505,
+          "raw_count": 5204,
+          "raw_source_text": "5204",
+          "selection_source_text": "Leading jet $p_{\\mathrm{T}}$ $>$100 GeV",
+          "source_row_index": 13,
+          "weighted_conditional_ratio_to_previous_row": 0.8707978139379957,
+          "weighted_cumulative_fraction_from_inclusive": 0.029326519589513482,
+          "weighted_events_140_fb": 705.86,
+          "weighted_source_text": "705.86"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8706764027671022,
+          "raw_count": 4531,
+          "raw_source_text": "4531",
+          "selection_source_text": "Number of b-tagged jets = 0",
+          "source_row_index": 14,
+          "weighted_conditional_ratio_to_previous_row": 0.8656815799166973,
+          "weighted_cumulative_fraction_from_inclusive": 0.025387427811708003,
+          "weighted_events_140_fb": 611.05,
+          "weighted_source_text": "611.05"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8719929375413816,
+          "raw_count": 3951,
+          "raw_source_text": "3951",
+          "selection_source_text": "$m_{\\tau\\tau}$ $<$ 0 or $>$ 160 GeV",
+          "source_row_index": 15,
+          "weighted_conditional_ratio_to_previous_row": 0.8727436380001636,
+          "weighted_cumulative_fraction_from_inclusive": 0.022156716107856578,
+          "weighted_events_140_fb": 533.29,
+          "weighted_source_text": "533.29"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9984813971146546,
+          "raw_count": 3945,
+          "raw_source_text": "3945",
+          "selection_source_text": "ee or $\\mu\\mu$",
+          "source_row_index": 16,
+          "weighted_conditional_ratio_to_previous_row": 0.9981998537381164,
+          "weighted_cumulative_fraction_from_inclusive": 0.022116830778179403,
+          "weighted_events_140_fb": 532.33,
+          "weighted_source_text": "532.33"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.4423320659062104,
+          "raw_count": 1745,
+          "raw_source_text": "1745",
+          "selection_source_text": "${E_{\\mathrm{T}}^{\\mathrm{miss}}}$ $>$ 200",
+          "source_row_index": 17,
+          "weighted_conditional_ratio_to_previous_row": 0.4317058967182011,
+          "weighted_cumulative_fraction_from_inclusive": 0.009547966263658648,
+          "weighted_events_140_fb": 229.81,
+          "weighted_source_text": "229.81"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.6991404011461319,
+          "raw_count": 1220,
+          "raw_source_text": "1220",
+          "selection_source_text": "$\\max(0.85, 0.98-0.02\\times m_{\\text{T2}}^{100}) < {R_{\\mathrm{ISR}}} < 1.0$",
+          "source_row_index": 18,
+          "weighted_conditional_ratio_to_previous_row": 0.6975327444410601,
+          "weighted_cumulative_fraction_from_inclusive": 0.006660019111720471,
+          "weighted_events_140_fb": 160.3,
+          "weighted_source_text": "160.3"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.43934426229508194,
+          "raw_count": 536,
+          "raw_source_text": "536",
+          "selection_source_text": "sub-leading lepton $p_{\\mathrm{T}} > \\min(20, 2.5 + 2.5\\times(m_{\\text{T2}}^{100}-100))$",
+          "source_row_index": 19,
+          "weighted_conditional_ratio_to_previous_row": 0.4411104179663131,
+          "weighted_cumulative_fraction_from_inclusive": 0.00293780381403465,
+          "weighted_events_140_fb": 70.71,
+          "weighted_source_text": "70.71"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 536,
+          "raw_source_text": "536",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 140$ GeV",
+          "source_row_index": 20,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.00293780381403465,
+          "weighted_events_140_fb": 70.71,
+          "weighted_source_text": "70.71"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 536,
+          "raw_source_text": "536",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 130$ GeV",
+          "source_row_index": 21,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.00293780381403465,
+          "weighted_events_140_fb": 70.71,
+          "weighted_source_text": "70.71"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 536,
+          "raw_source_text": "536",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 120$ GeV",
+          "source_row_index": 22,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.00293780381403465,
+          "weighted_events_140_fb": 70.71,
+          "weighted_source_text": "70.71"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 536,
+          "raw_source_text": "536",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 110$ GeV",
+          "source_row_index": 23,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.00293780381403465,
+          "weighted_events_140_fb": 70.71,
+          "weighted_source_text": "70.71"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.7649253731343284,
+          "raw_count": 410,
+          "raw_source_text": "410",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 105$ GeV",
+          "source_row_index": 24,
+          "weighted_conditional_ratio_to_previous_row": 0.7597228114835243,
+          "weighted_cumulative_fraction_from_inclusive": 0.0022319165731854254,
+          "weighted_events_140_fb": 53.72,
+          "weighted_source_text": "53.72"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.3853658536585366,
+          "raw_count": 158,
+          "raw_source_text": "158",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 102$ GeV",
+          "source_row_index": 25,
+          "weighted_conditional_ratio_to_previous_row": 0.37620997766195086,
+          "weighted_cumulative_fraction_from_inclusive": 0.0008396692841414268,
+          "weighted_events_140_fb": 20.21,
+          "weighted_source_text": "20.21"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.4620253164556962,
+          "raw_count": 73,
+          "raw_source_text": "73",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 101$ GeV",
+          "source_row_index": 26,
+          "weighted_conditional_ratio_to_previous_row": 0.4641266699653637,
+          "weighted_cumulative_fraction_from_inclusive": 0.0003897129087207612,
+          "weighted_events_140_fb": 9.38,
+          "weighted_source_text": "9.38"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.5068493150684932,
+          "raw_count": 37,
+          "raw_source_text": "37",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 100.5$ GeV",
+          "source_row_index": 27,
+          "weighted_conditional_ratio_to_previous_row": 0.49893390191897646,
+          "weighted_cumulative_fraction_from_inclusive": 0.0001944409821762433,
+          "weighted_events_140_fb": 4.68,
+          "weighted_source_text": "4.68"
+        }
+      ],
+      "source_label_notes": [
+        {
+          "note": "The high-region HEPData R_ISR label omits the (mT2-100) subtraction. Paper Table 5 and original analysis code retain it; source text is not rewritten.",
+          "source_row_index": 18
+        }
+      ]
+    },
+    {
+      "luminosity_fb_inverse": 140.0,
+      "metadata": {
+        "additional_resources": [
+          {
+            "description": "Image file",
+            "location": "tabaux_23.png"
+          },
+          {
+            "description": "Thumbnail image file",
+            "location": "thumb_tabaux_23.png"
+          }
+        ],
+        "data_file": "table_23.yaml",
+        "description": "Number of signal events in SR-S-low for the (m($\\tilde{\\ell}$),m($\\tilde{\\chi}_{1}^{0}$)) = (150 GeV, 140 GeV) Slepton signal model at different stages of selection before and after weighting events to correspond to 140/fb.",
+        "keywords": [
+          {
+            "name": "reactions",
+            "values": [
+              "P P --> SLEPTON SLEPTON"
+            ]
+          },
+          {
+            "name": "cmenergies",
+            "values": [
+              13000
+            ]
+          },
+          {
+            "name": "phrases",
+            "values": [
+              "SUSY",
+              "Proton-Proton Scattering"
+            ]
+          }
+        ],
+        "location": "Table 23",
+        "name": "Table 23",
+        "table_doi": "10.17182/hepdata.91374.v5/t105"
+      },
+      "model": {
+        "m_lsp_GeV": 140.0,
+        "m_parent_GeV": 150.0
+      },
+      "normalization": {
+        "generated_filters_weighted_fraction": 0.18663883003032947,
+        "inclusive_raw_generated_count": null,
+        "inferred_from_rounded_initial_row_cross_section_pb": 0.17192142857142856,
+        "initial_row_definition": "L times inclusive production cross section",
+        "use_warning": "Do not multiply this filter fraction into a cross section that already includes generator cuts. Raw counts do not supply weighted sumw2."
+      },
+      "region": "SR-S-low",
+      "rows": [
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": null,
+          "raw_count": null,
+          "raw_source_text": "--",
+          "selection_source_text": "Initial number of events ($\\mathcal{L}\\times\\sigma$)",
+          "source_row_index": 0,
+          "weighted_conditional_ratio_to_previous_row": null,
+          "weighted_cumulative_fraction_from_inclusive": 1.0,
+          "weighted_events_140_fb": 24069.0,
+          "weighted_source_text": "24069.0"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": null,
+          "raw_count": 30000,
+          "raw_source_text": "30000",
+          "selection_source_text": "Generator Filters",
+          "source_row_index": 1,
+          "weighted_conditional_ratio_to_previous_row": 0.18663883003032947,
+          "weighted_cumulative_fraction_from_inclusive": 0.18663883003032947,
+          "weighted_events_140_fb": 4492.21,
+          "weighted_source_text": "4492.21"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.5562666666666667,
+          "raw_count": 16688,
+          "raw_source_text": "16688",
+          "selection_source_text": "$E_{\\text{T}}^{\\text{miss}}$ trigger",
+          "source_row_index": 2,
+          "weighted_conditional_ratio_to_previous_row": 0.524323217302842,
+          "weighted_cumulative_fraction_from_inclusive": 0.09785907183514063,
+          "weighted_events_140_fb": 2355.37,
+          "weighted_source_text": "2355.37"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.4348034515819751,
+          "raw_count": 7256,
+          "raw_source_text": "7256",
+          "selection_source_text": "2 leptons",
+          "source_row_index": 3,
+          "weighted_conditional_ratio_to_previous_row": 0.43073911954385086,
+          "weighted_cumulative_fraction_from_inclusive": 0.04215173044164693,
+          "weighted_events_140_fb": 1014.55,
+          "weighted_source_text": "1014.55"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9986218302094818,
+          "raw_count": 7246,
+          "raw_source_text": "7246",
+          "selection_source_text": "veto $3 \\text{GeV} < m_{\\ell\\ell} < 3.2 \\text{GeV}$",
+          "source_row_index": 4,
+          "weighted_conditional_ratio_to_previous_row": 0.9986792173870189,
+          "weighted_cumulative_fraction_from_inclusive": 0.04209605716897254,
+          "weighted_events_140_fb": 1013.21,
+          "weighted_source_text": "1013.21"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9966878277670439,
+          "raw_count": 7222,
+          "raw_source_text": "7222",
+          "selection_source_text": "Lepton author 16 veto",
+          "source_row_index": 5,
+          "weighted_conditional_ratio_to_previous_row": 0.9963186308859959,
+          "weighted_cumulative_fraction_from_inclusive": 0.04194108604428934,
+          "weighted_events_140_fb": 1009.48,
+          "weighted_source_text": "1009.48"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9590141235114926,
+          "raw_count": 6926,
+          "raw_source_text": "6926",
+          "selection_source_text": "${\\min(\\Delta\\phi(\\mathrm{any~jet},\\mathbf{p}_{\\mathrm{T}}^{\\mathrm{miss}}))} > 0.4$",
+          "source_row_index": 6,
+          "weighted_conditional_ratio_to_previous_row": 0.9612473748860799,
+          "weighted_cumulative_fraction_from_inclusive": 0.040315758859944324,
+          "weighted_events_140_fb": 970.36,
+          "weighted_source_text": "970.36"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9887380883626913,
+          "raw_count": 6848,
+          "raw_source_text": "6848",
+          "selection_source_text": "${\\Delta\\phi(j_1,\\mathbf{p}_{\\mathrm{T}}^{\\mathrm{miss}})} > 2.0$",
+          "source_row_index": 7,
+          "weighted_conditional_ratio_to_previous_row": 0.99050867719197,
+          "weighted_cumulative_fraction_from_inclusive": 0.0399331089783539,
+          "weighted_events_140_fb": 961.15,
+          "weighted_source_text": "961.15"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9976635514018691,
+          "raw_count": 6832,
+          "raw_source_text": "6832",
+          "selection_source_text": "lepton truth matching",
+          "source_row_index": 8,
+          "weighted_conditional_ratio_to_previous_row": 0.9977526920876034,
+          "weighted_cumulative_fraction_from_inclusive": 0.039843366986580246,
+          "weighted_events_140_fb": 958.99,
+          "weighted_source_text": "958.99"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8798302107728337,
+          "raw_count": 6011,
+          "raw_source_text": "6011",
+          "selection_source_text": "$1 < {m_{\\ell\\ell}} < 60$ GeV",
+          "source_row_index": 9,
+          "weighted_conditional_ratio_to_previous_row": 0.8632623906401526,
+          "weighted_cumulative_fraction_from_inclusive": 0.0343952802359882,
+          "weighted_events_140_fb": 827.86,
+          "weighted_source_text": "827.86"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.998003659956746,
+          "raw_count": 5999,
+          "raw_source_text": "5999",
+          "selection_source_text": "$\\Delta R_{ee} >$ 0.30, $\\Delta R_{\\mu\\mu} >$ 0.05, $\\Delta R_{e\\mu} >$ 0.20",
+          "source_row_index": 10,
+          "weighted_conditional_ratio_to_previous_row": 0.9979827507066412,
+          "weighted_cumulative_fraction_from_inclusive": 0.03432589638123728,
+          "weighted_events_140_fb": 826.19,
+          "weighted_source_text": "826.19"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9966661110185031,
+          "raw_count": 5979,
+          "raw_source_text": "5979",
+          "selection_source_text": "Leading lepton $p_{\\mathrm{T}}$ $>$ 5 GeV",
+          "source_row_index": 11,
+          "weighted_conditional_ratio_to_previous_row": 0.9969861654098936,
+          "weighted_cumulative_fraction_from_inclusive": 0.0342224438073871,
+          "weighted_events_140_fb": 823.7,
+          "weighted_source_text": "823.7"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9846128115069409,
+          "raw_count": 5887,
+          "raw_source_text": "5887",
+          "selection_source_text": "Number of jets $\\geq$ 1",
+          "source_row_index": 12,
+          "weighted_conditional_ratio_to_previous_row": 0.9840840111691149,
+          "weighted_cumulative_fraction_from_inclusive": 0.033677759773983136,
+          "weighted_events_140_fb": 810.59,
+          "weighted_source_text": "810.59"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8839816544929505,
+          "raw_count": 5204,
+          "raw_source_text": "5204",
+          "selection_source_text": "Leading jet $p_{T}$ $>$100 GeV",
+          "source_row_index": 13,
+          "weighted_conditional_ratio_to_previous_row": 0.8707978139379957,
+          "weighted_cumulative_fraction_from_inclusive": 0.029326519589513482,
+          "weighted_events_140_fb": 705.86,
+          "weighted_source_text": "705.86"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8706764027671022,
+          "raw_count": 4531,
+          "raw_source_text": "4531",
+          "selection_source_text": "Number of b-tagged jets = 0",
+          "source_row_index": 14,
+          "weighted_conditional_ratio_to_previous_row": 0.8656815799166973,
+          "weighted_cumulative_fraction_from_inclusive": 0.025387427811708003,
+          "weighted_events_140_fb": 611.05,
+          "weighted_source_text": "611.05"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.8719929375413816,
+          "raw_count": 3951,
+          "raw_source_text": "3951",
+          "selection_source_text": "$m_{\\tau\\tau}$ $<$ 0 or $>$ 160 GeV",
+          "source_row_index": 15,
+          "weighted_conditional_ratio_to_previous_row": 0.8727436380001636,
+          "weighted_cumulative_fraction_from_inclusive": 0.022156716107856578,
+          "weighted_events_140_fb": 533.29,
+          "weighted_source_text": "533.29"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.9984813971146546,
+          "raw_count": 3945,
+          "raw_source_text": "3945",
+          "selection_source_text": "ee or $\\mu\\mu$",
+          "source_row_index": 16,
+          "weighted_conditional_ratio_to_previous_row": 0.9981998537381164,
+          "weighted_cumulative_fraction_from_inclusive": 0.022116830778179403,
+          "weighted_events_140_fb": 532.33,
+          "weighted_source_text": "532.33"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.26514575411913816,
+          "raw_count": 1046,
+          "raw_source_text": "1046",
+          "selection_source_text": "$150 < {E_{\\mathrm{T}}^{\\mathrm{miss}}} <200$ GeV",
+          "source_row_index": 17,
+          "weighted_conditional_ratio_to_previous_row": 0.27494223507974375,
+          "weighted_cumulative_fraction_from_inclusive": 0.006080850887033114,
+          "weighted_events_140_fb": 146.36,
+          "weighted_source_text": "146.36"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.731357552581262,
+          "raw_count": 765,
+          "raw_source_text": "765",
+          "selection_source_text": "$0.8 < {R_{\\mathrm{ISR}}} < 1.0$",
+          "source_row_index": 18,
+          "weighted_conditional_ratio_to_previous_row": 0.7366766876195681,
+          "weighted_cumulative_fraction_from_inclusive": 0.004479621089368066,
+          "weighted_events_140_fb": 107.82,
+          "weighted_source_text": "107.82"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.4823529411764706,
+          "raw_count": 369,
+          "raw_source_text": "369",
+          "selection_source_text": "sub-leading lepton $p_{\\mathrm{T}} > \\min(15.0, 7.5 + 0.75\\times(m_{\\text{T2}}^{100}-100))$",
+          "source_row_index": 19,
+          "weighted_conditional_ratio_to_previous_row": 0.4891485809682805,
+          "weighted_cumulative_fraction_from_inclusive": 0.0021912002991399727,
+          "weighted_events_140_fb": 52.74,
+          "weighted_source_text": "52.74"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 369,
+          "raw_source_text": "369",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 140$ GeV",
+          "source_row_index": 20,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.0021912002991399727,
+          "weighted_events_140_fb": 52.74,
+          "weighted_source_text": "52.74"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 369,
+          "raw_source_text": "369",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 130$ GeV",
+          "source_row_index": 21,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.0021912002991399727,
+          "weighted_events_140_fb": 52.74,
+          "weighted_source_text": "52.74"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 1.0,
+          "raw_count": 369,
+          "raw_source_text": "369",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 120$ GeV",
+          "source_row_index": 22,
+          "weighted_conditional_ratio_to_previous_row": 1.0,
+          "weighted_cumulative_fraction_from_inclusive": 0.0021912002991399727,
+          "weighted_events_140_fb": 52.74,
+          "weighted_source_text": "52.74"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.997289972899729,
+          "raw_count": 368,
+          "raw_source_text": "368",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 110$ GeV",
+          "source_row_index": 23,
+          "weighted_conditional_ratio_to_previous_row": 0.9981039059537353,
+          "weighted_cumulative_fraction_from_inclusive": 0.0021870455772986,
+          "weighted_events_140_fb": 52.64,
+          "weighted_source_text": "52.64"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.7364130434782609,
+          "raw_count": 271,
+          "raw_source_text": "271",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 105$ GeV",
+          "source_row_index": 24,
+          "weighted_conditional_ratio_to_previous_row": 0.7228343465045592,
+          "weighted_cumulative_fraction_from_inclusive": 0.00158087166064232,
+          "weighted_events_140_fb": 38.05,
+          "weighted_source_text": "38.05"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.44649446494464945,
+          "raw_count": 121,
+          "raw_source_text": "121",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 102$ GeV",
+          "source_row_index": 25,
+          "weighted_conditional_ratio_to_previous_row": 0.43784494086727993,
+          "weighted_cumulative_fraction_from_inclusive": 0.0006921766587726952,
+          "weighted_events_140_fb": 16.66,
+          "weighted_source_text": "16.66"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.5371900826446281,
+          "raw_count": 65,
+          "raw_source_text": "65",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 101$ GeV",
+          "source_row_index": 26,
+          "weighted_conditional_ratio_to_previous_row": 0.5222088835534213,
+          "weighted_cumulative_fraction_from_inclusive": 0.0003614608001994266,
+          "weighted_events_140_fb": 8.7,
+          "weighted_source_text": "8.7"
+        },
+        {
+          "public_mc_uncertainty": null,
+          "public_sumw2": null,
+          "raw_conditional_ratio_to_previous_row": 0.46153846153846156,
+          "raw_count": 30,
+          "raw_source_text": "30",
+          "selection_source_text": "$m_{\\text{T2}}^{100} < 100.5$ GeV",
+          "source_row_index": 27,
+          "weighted_conditional_ratio_to_previous_row": 0.5045977011494253,
+          "weighted_cumulative_fraction_from_inclusive": 0.0001823922888362624,
+          "weighted_events_140_fb": 4.39,
+          "weighted_source_text": "4.39"
+        }
+      ],
+      "source_label_notes": []
+    }
+  ],
+  "schema_version": 1,
+  "source_consistency_diagnostics": [
+    {
+      "cutflow_139_fb_rescaled_diagnostic_only": 70.20492857142857,
+      "cutflow_selected_source_row_index": 20,
+      "cutflow_weighted_events_140_fb": 70.71,
+      "figure_product_times_cutflow_inclusive_events": 70.691525404974,
+      "official_over_cutflow_minus_one": -2.280955367905957e-05,
+      "official_template_events": 70.70838713645935,
+      "region": "SR-S-high",
+      "status": "source-consistency-diagnostic; not a native acceptance result"
+    },
+    {
+      "cutflow_139_fb_rescaled_diagnostic_only": 52.363285714285716,
+      "cutflow_selected_source_row_index": 20,
+      "cutflow_weighted_events_140_fb": 52.74,
+      "figure_product_times_cutflow_inclusive_events": 52.72266723579901,
+      "official_over_cutflow_minus_one": -0.008791479799482582,
+      "official_template_events": 52.27633735537529,
+      "region": "SR-S-low",
+      "status": "source-consistency-diagnostic; not a native acceptance result"
+    }
+  ],
+  "uncertainty_status": "No public weighted sumw2 or MC covariance supplied; raw counts are not weighted variances"
+}

@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "domain": "efficiency-map",
+  "status": "passed",
+  "physics_validated": false,
+  "details": {
+    "map_id": "analytic-two-point-v1",
+    "topology": "supplied-neutral-pair",
+    "node_ids": [
+      "m100",
+      "m200"
+    ],
+    "coordinate_units": {
+      "mass": "GeV"
+    },
+    "weight_unit": "events",
+    "node_semantics": "alternative-model-points",
+    "events": [
+      {
+        "event_id": "a",
+        "group_id": "g1",
+        "node_id": "m100",
+        "weight": 3.0,
+        "efficiency": 0.5,
+        "contribution": 1.5
+      },
+      {
+        "event_id": "b",
+        "group_id": "g1",
+        "node_id": "m100",
+        "weight": -1.0,
+        "efficiency": 0.5,
+        "contribution": -0.5
+      },
+      {
+        "event_id": "c",
+        "group_id": "g1",
+        "node_id": "m200",
+        "weight": -2.0,
+        "efficiency": 0.25,
+        "contribution": -0.5
+      },
+      {
+        "event_id": "d",
+        "group_id": "g2",
+        "node_id": "m200",
+        "weight": 3.0,
+        "efficiency": 0.25,
+        "contribution": 0.75
+      }
+    ],
+    "independent_groups": 2,
+    "input_sumw_by_node": [
+      2.0,
+      1.0
+    ],
+    "input_subevents_by_node": [
+      2,
+      2
+    ],
+    "nodes_without_input_events": [],
+    "input_group_second_moments": [
+      [
+        4.0,
+        -4.0
+      ],
+      [
+        -4.0,
+        13.0
+      ]
+    ],
+    "yield_by_node": [
+      1.0,
+      0.25
+    ],
+    "total_yield": null,
+    "conditional_mc_covariance": [
+      [
+        1.0,
+        -0.5
+      ],
+      [
+        -0.5,
+        0.8125
+      ]
+    ],
+    "supplied_response_covariance": [
+      [
+        0.04,
+        0.01
+      ],
+      [
+        0.01,
+        0.04
+      ]
+    ],
+    "conditional_mc_total_variance": null,
+    "supplied_response_total_variance": null,
+    "nonnegative_for_poisson": true,
+    "interpolation_applied": false,
+    "clipping_applied": false,
+    "checks_passed": true
+  },
+  "limitations": [
+    "Exact supplied topology and node identity only; the physical validity envelope, lifetime, detector response and topology completeness are not established.",
+    "The map is an event-selection probability, not a per-object efficiency; no independence, branching ratio, luminosity or cross-section factor is inferred. Alternative model points are never summed into one physical total.",
+    "Independent-group Poisson MC moments are conditional on the central map. Response covariance is propagated with fixed supplied event weights. They are reported separately; no missing cross-covariance, mixed term or joint uncertainty model is invented.",
+    "Map provenance and uncertainty are supplied declarations, not detector validation. No interpolation, extrapolation, probability clipping or stochastic detector sampling occurs."
+  ],
+  "inputs": [
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/efficiency-map/map-events.json",
+      "size": 627,
+      "sha256": "19d470e02fdbc5058fc35e1a467875650d594384018e8de77a38b0ea58e84c49"
+    },
+    {
+      "path": "$SOURCE_ROOT/local-runs/science/analytic-release/inputs/efficiency-map/map.json",
+      "size": 540,
+      "sha256": "fec2760879957e06dcb641eb5fa1242c39e48632dc06db529fd442c305ffe713"
+    }
+  ]
+}

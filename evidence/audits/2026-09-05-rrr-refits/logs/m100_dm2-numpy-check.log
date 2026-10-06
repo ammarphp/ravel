@@ -1,0 +1,2 @@
+  note: SLSQP result untrusted (objective non-finite 32x during the minimization) -- re-minimizing with NaN-guarded iminuit MIGRAD and ESCALATING: all further fits on this model go straight to MIGRAD (CR-005; totals in exclusion.json 'optimizer')
+{"tag": "m100_dm2", "mu": 0.5077418829787923, "cls": 0.049999920054545566, "expected_cls": [0.00023473019309663173, 0.002101079227225768, 0.016264681950344362, 0.09546637865153845, 0.3514996800610766], "wall_seconds": 98.86364895800943, "backend": "numpy/guarded optimizer", "initial_poi": 0.0, "n_fallback": 1}

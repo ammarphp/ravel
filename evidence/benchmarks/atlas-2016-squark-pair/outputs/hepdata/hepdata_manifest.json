@@ -1,0 +1,1294 @@
+{
+  "inspire": "ins1458270",
+  "routine": null,
+  "tables": [
+    {
+      "name": "Table 1",
+      "doi": "10.17182/hepdata.74253.v1/t1",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 1/json"
+    },
+    {
+      "name": "Table 2",
+      "doi": "10.17182/hepdata.74253.v1/t2",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 2/json"
+    },
+    {
+      "name": "Table 3",
+      "doi": "10.17182/hepdata.74253.v1/t3",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 3/json"
+    },
+    {
+      "name": "Table 4",
+      "doi": "10.17182/hepdata.74253.v1/t4",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jl. For signal, a squark direct decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 4/json"
+    },
+    {
+      "name": "Table 5",
+      "doi": "10.17182/hepdata.74253.v1/t5",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jm. For signal, a gluino direct decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 5/json"
+    },
+    {
+      "name": "Table 6",
+      "doi": "10.17182/hepdata.74253.v1/t6",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jt. For signal, a squark direct decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 6/json"
+    },
+    {
+      "name": "Table 7",
+      "doi": "10.17182/hepdata.74253.v1/t7",
+      "description": "Observed and expected background and signal effective mass distributions for SR4jt. For signal, a gluino direct decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 7/json"
+    },
+    {
+      "name": "Table 8",
+      "doi": "10.17182/hepdata.74253.v1/t8",
+      "description": "Observed and expected background and signal effective mass distributions for SR5j. For signal, a gluino one-step decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 8/json"
+    },
+    {
+      "name": "Table 9",
+      "doi": "10.17182/hepdata.74253.v1/t9",
+      "description": "Observed and expected background and signal effective mass distributions for SR6jm. For signal, a gluino one-step decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 9/json"
+    },
+    {
+      "name": "Table 10",
+      "doi": "10.17182/hepdata.74253.v1/t10",
+      "description": "Observed and expected background and signal effective mass distributions for SR6jt. For signal, a gluino one-step decay model with $m(\\tilde...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 10/json"
+    },
+    {
+      "name": "Table 11",
+      "doi": "10.17182/hepdata.74253.v1/t11",
+      "description": "Expected limit at 95% CL for squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 11/json"
+    },
+    {
+      "name": "Table 12",
+      "doi": "10.17182/hepdata.74253.v1/t12",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for squark direct decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 12/json"
+    },
+    {
+      "name": "Table 13",
+      "doi": "10.17182/hepdata.74253.v1/t13",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for squark direct decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 13/json"
+    },
+    {
+      "name": "Table 14",
+      "doi": "10.17182/hepdata.74253.v1/t14",
+      "description": "Observed limits at 95% CL for squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 14/json"
+    },
+    {
+      "name": "Table 15",
+      "doi": "10.17182/hepdata.74253.v1/t15",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 15/json"
+    },
+    {
+      "name": "Table 16",
+      "doi": "10.17182/hepdata.74253.v1/t16",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 16/json"
+    },
+    {
+      "name": "Table 17",
+      "doi": "10.17182/hepdata.74253.v1/t17",
+      "description": "Expected limit at 95% CL for gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 17/json"
+    },
+    {
+      "name": "Table 18",
+      "doi": "10.17182/hepdata.74253.v1/t18",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino direct decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 18/json"
+    },
+    {
+      "name": "Table 19",
+      "doi": "10.17182/hepdata.74253.v1/t19",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino direct decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 19/json"
+    },
+    {
+      "name": "Table 20",
+      "doi": "10.17182/hepdata.74253.v1/t20",
+      "description": "Observed limits at 95% CL for gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 20/json"
+    },
+    {
+      "name": "Table 21",
+      "doi": "10.17182/hepdata.74253.v1/t21",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 21/json"
+    },
+    {
+      "name": "Table 22",
+      "doi": "10.17182/hepdata.74253.v1/t22",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 22/json"
+    },
+    {
+      "name": "Table 23",
+      "doi": "10.17182/hepdata.74253.v1/t23",
+      "description": "Expected limit at 95% CL for gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 23/json"
+    },
+    {
+      "name": "Table 24",
+      "doi": "10.17182/hepdata.74253.v1/t24",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino one-step decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 24/json"
+    },
+    {
+      "name": "Table 25",
+      "doi": "10.17182/hepdata.74253.v1/t25",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluino one-step decay model...",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 25/json"
+    },
+    {
+      "name": "Table 26",
+      "doi": "10.17182/hepdata.74253.v1/t26",
+      "description": "Observed limits at 95% CL for gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 26/json"
+    },
+    {
+      "name": "Table 27",
+      "doi": "10.17182/hepdata.74253.v1/t27",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 27/json"
+    },
+    {
+      "name": "Table 28",
+      "doi": "10.17182/hepdata.74253.v1/t28",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 28/json"
+    },
+    {
+      "name": "Table 29",
+      "doi": "10.17182/hepdata.74253.v1/t29",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jl.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 29/json"
+    },
+    {
+      "name": "Table 30",
+      "doi": "10.17182/hepdata.74253.v1/t30",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jl.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 30/json"
+    },
+    {
+      "name": "Table 31",
+      "doi": "10.17182/hepdata.74253.v1/t31",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jl.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 31/json"
+    },
+    {
+      "name": "Table 32",
+      "doi": "10.17182/hepdata.74253.v1/t32",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jl.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 32/json"
+    },
+    {
+      "name": "Table 33",
+      "doi": "10.17182/hepdata.74253.v1/t33",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 33/json"
+    },
+    {
+      "name": "Table 34",
+      "doi": "10.17182/hepdata.74253.v1/t34",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 34/json"
+    },
+    {
+      "name": "Table 35",
+      "doi": "10.17182/hepdata.74253.v1/t35",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 35/json"
+    },
+    {
+      "name": "Table 36",
+      "doi": "10.17182/hepdata.74253.v1/t36",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 36/json"
+    },
+    {
+      "name": "Table 37",
+      "doi": "10.17182/hepdata.74253.v1/t37",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 37/json"
+    },
+    {
+      "name": "Table 38",
+      "doi": "10.17182/hepdata.74253.v1/t38",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 38/json"
+    },
+    {
+      "name": "Table 39",
+      "doi": "10.17182/hepdata.74253.v1/t39",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 39/json"
+    },
+    {
+      "name": "Table 40",
+      "doi": "10.17182/hepdata.74253.v1/t40",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 40/json"
+    },
+    {
+      "name": "Table 41",
+      "doi": "10.17182/hepdata.74253.v1/t41",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 41/json"
+    },
+    {
+      "name": "Table 42",
+      "doi": "10.17182/hepdata.74253.v1/t42",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 42/json"
+    },
+    {
+      "name": "Table 43",
+      "doi": "10.17182/hepdata.74253.v1/t43",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 43/json"
+    },
+    {
+      "name": "Table 44",
+      "doi": "10.17182/hepdata.74253.v1/t44",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR4jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 44/json"
+    },
+    {
+      "name": "Table 45",
+      "doi": "10.17182/hepdata.74253.v1/t45",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR5j.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 45/json"
+    },
+    {
+      "name": "Table 46",
+      "doi": "10.17182/hepdata.74253.v1/t46",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR5j.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 46/json"
+    },
+    {
+      "name": "Table 47",
+      "doi": "10.17182/hepdata.74253.v1/t47",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR5j.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 47/json"
+    },
+    {
+      "name": "Table 48",
+      "doi": "10.17182/hepdata.74253.v1/t48",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR5j.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 48/json"
+    },
+    {
+      "name": "Table 49",
+      "doi": "10.17182/hepdata.74253.v1/t49",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR6jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 49/json"
+    },
+    {
+      "name": "Table 50",
+      "doi": "10.17182/hepdata.74253.v1/t50",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR6jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 50/json"
+    },
+    {
+      "name": "Table 51",
+      "doi": "10.17182/hepdata.74253.v1/t51",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR6jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 51/json"
+    },
+    {
+      "name": "Table 52",
+      "doi": "10.17182/hepdata.74253.v1/t52",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR6jm.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 52/json"
+    },
+    {
+      "name": "Table 53",
+      "doi": "10.17182/hepdata.74253.v1/t53",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR6jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 53/json"
+    },
+    {
+      "name": "Table 54",
+      "doi": "10.17182/hepdata.74253.v1/t54",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR6jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 54/json"
+    },
+    {
+      "name": "Table 55",
+      "doi": "10.17182/hepdata.74253.v1/t55",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR6jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 55/json"
+    },
+    {
+      "name": "Table 56",
+      "doi": "10.17182/hepdata.74253.v1/t56",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR6jt.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 56/json"
+    },
+    {
+      "name": "Table 57",
+      "doi": "10.17182/hepdata.74253.v1/t57",
+      "description": "Observed and expected event yields in VRZ as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 57/json"
+    },
+    {
+      "name": "Table 58",
+      "doi": "10.17182/hepdata.74253.v1/t58",
+      "description": "Observed and expected event yields in VRW as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 58/json"
+    },
+    {
+      "name": "Table 59",
+      "doi": "10.17182/hepdata.74253.v1/t59",
+      "description": "Observed and expected event yields in VRWv as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 59/json"
+    },
+    {
+      "name": "Table 60",
+      "doi": "10.17182/hepdata.74253.v1/t60",
+      "description": "Observed and expected event yields in VRT as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 60/json"
+    },
+    {
+      "name": "Table 61",
+      "doi": "10.17182/hepdata.74253.v1/t61",
+      "description": "Observed and expected event yields in VRTv as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 61/json"
+    },
+    {
+      "name": "Table 62",
+      "doi": "10.17182/hepdata.74253.v1/t62",
+      "description": "Observed and expected event yields in VRQa as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 62/json"
+    },
+    {
+      "name": "Table 63",
+      "doi": "10.17182/hepdata.74253.v1/t63",
+      "description": "Observed and expected event yields in VRQb as a function of signal region.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 63/json"
+    },
+    {
+      "name": "Table 64",
+      "doi": "10.17182/hepdata.74253.v1/t64",
+      "description": "Signal acceptance for SR2jl in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 64/json"
+    },
+    {
+      "name": "Table 65",
+      "doi": "10.17182/hepdata.74253.v1/t65",
+      "description": "Signal acceptance times efficiency for SR2jl in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 65/json"
+    },
+    {
+      "name": "Table 66",
+      "doi": "10.17182/hepdata.74253.v1/t66",
+      "description": "Signal acceptance for SR2jm in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 66/json"
+    },
+    {
+      "name": "Table 67",
+      "doi": "10.17182/hepdata.74253.v1/t67",
+      "description": "Signal acceptance times efficiency for SR2jm in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 67/json"
+    },
+    {
+      "name": "Table 68",
+      "doi": "10.17182/hepdata.74253.v1/t68",
+      "description": "Signal acceptance for SR2jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 68/json"
+    },
+    {
+      "name": "Table 69",
+      "doi": "10.17182/hepdata.74253.v1/t69",
+      "description": "Signal acceptance times efficiency for SR2jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 69/json"
+    },
+    {
+      "name": "Table 70",
+      "doi": "10.17182/hepdata.74253.v1/t70",
+      "description": "Signal acceptance for SR4jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 70/json"
+    },
+    {
+      "name": "Table 71",
+      "doi": "10.17182/hepdata.74253.v1/t71",
+      "description": "Signal acceptance times efficiency for SR4jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 71/json"
+    },
+    {
+      "name": "Table 72",
+      "doi": "10.17182/hepdata.74253.v1/t72",
+      "description": "Signal acceptance for SR5j in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 72/json"
+    },
+    {
+      "name": "Table 73",
+      "doi": "10.17182/hepdata.74253.v1/t73",
+      "description": "Signal acceptance times efficiency for SR5j in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 73/json"
+    },
+    {
+      "name": "Table 74",
+      "doi": "10.17182/hepdata.74253.v1/t74",
+      "description": "Signal acceptance for SR6jm in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 74/json"
+    },
+    {
+      "name": "Table 75",
+      "doi": "10.17182/hepdata.74253.v1/t75",
+      "description": "Signal acceptance times efficiency for SR6jm in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 75/json"
+    },
+    {
+      "name": "Table 76",
+      "doi": "10.17182/hepdata.74253.v1/t76",
+      "description": "Signal acceptance for SR6jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 76/json"
+    },
+    {
+      "name": "Table 77",
+      "doi": "10.17182/hepdata.74253.v1/t77",
+      "description": "Signal acceptance times efficiency for SR6jt in squark direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 77/json"
+    },
+    {
+      "name": "Table 78",
+      "doi": "10.17182/hepdata.74253.v1/t78",
+      "description": "Signal acceptance for SR2jl in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 78/json"
+    },
+    {
+      "name": "Table 79",
+      "doi": "10.17182/hepdata.74253.v1/t79",
+      "description": "Signal acceptance times efficiency for SR2jl in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 79/json"
+    },
+    {
+      "name": "Table 80",
+      "doi": "10.17182/hepdata.74253.v1/t80",
+      "description": "Signal acceptance for SR2jm in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 80/json"
+    },
+    {
+      "name": "Table 81",
+      "doi": "10.17182/hepdata.74253.v1/t81",
+      "description": "Signal acceptance times efficiency for SR2jm in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 81/json"
+    },
+    {
+      "name": "Table 82",
+      "doi": "10.17182/hepdata.74253.v1/t82",
+      "description": "Signal acceptance for SR2jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 82/json"
+    },
+    {
+      "name": "Table 83",
+      "doi": "10.17182/hepdata.74253.v1/t83",
+      "description": "Signal acceptance times efficiency for SR2jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 83/json"
+    },
+    {
+      "name": "Table 84",
+      "doi": "10.17182/hepdata.74253.v1/t84",
+      "description": "Signal acceptance for SR4jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 84/json"
+    },
+    {
+      "name": "Table 85",
+      "doi": "10.17182/hepdata.74253.v1/t85",
+      "description": "Signal acceptance times efficiency for SR4jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 85/json"
+    },
+    {
+      "name": "Table 86",
+      "doi": "10.17182/hepdata.74253.v1/t86",
+      "description": "Signal acceptance for SR5j in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 86/json"
+    },
+    {
+      "name": "Table 87",
+      "doi": "10.17182/hepdata.74253.v1/t87",
+      "description": "Signal acceptance times efficiency for SR5j in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 87/json"
+    },
+    {
+      "name": "Table 88",
+      "doi": "10.17182/hepdata.74253.v1/t88",
+      "description": "Signal acceptance for SR6jm in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 88/json"
+    },
+    {
+      "name": "Table 89",
+      "doi": "10.17182/hepdata.74253.v1/t89",
+      "description": "Signal acceptance times efficiency for SR6jm in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 89/json"
+    },
+    {
+      "name": "Table 90",
+      "doi": "10.17182/hepdata.74253.v1/t90",
+      "description": "Signal acceptance for SR6jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 90/json"
+    },
+    {
+      "name": "Table 91",
+      "doi": "10.17182/hepdata.74253.v1/t91",
+      "description": "Signal acceptance times efficiency for SR6jt in gluino direct decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 91/json"
+    },
+    {
+      "name": "Table 92",
+      "doi": "10.17182/hepdata.74253.v1/t92",
+      "description": "Signal acceptance for SR2jl in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 92/json"
+    },
+    {
+      "name": "Table 93",
+      "doi": "10.17182/hepdata.74253.v1/t93",
+      "description": "Signal acceptance times efficiency for SR2jl in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 93/json"
+    },
+    {
+      "name": "Table 94",
+      "doi": "10.17182/hepdata.74253.v1/t94",
+      "description": "Signal acceptance for SR2jm in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 94/json"
+    },
+    {
+      "name": "Table 95",
+      "doi": "10.17182/hepdata.74253.v1/t95",
+      "description": "Signal acceptance times efficiency for SR2jm in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 95/json"
+    },
+    {
+      "name": "Table 96",
+      "doi": "10.17182/hepdata.74253.v1/t96",
+      "description": "Signal acceptance for SR2j5 in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 96/json"
+    },
+    {
+      "name": "Table 97",
+      "doi": "10.17182/hepdata.74253.v1/t97",
+      "description": "Signal acceptance times efficiency for SR2jt in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 97/json"
+    },
+    {
+      "name": "Table 98",
+      "doi": "10.17182/hepdata.74253.v1/t98",
+      "description": "Signal acceptance for SR4jt in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 98/json"
+    },
+    {
+      "name": "Table 99",
+      "doi": "10.17182/hepdata.74253.v1/t99",
+      "description": "Signal acceptance times efficiency for SR4jt in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 99/json"
+    },
+    {
+      "name": "Table 100",
+      "doi": "10.17182/hepdata.74253.v1/t100",
+      "description": "Signal acceptance for SR5j in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 100/json"
+    },
+    {
+      "name": "Table 101",
+      "doi": "10.17182/hepdata.74253.v1/t101",
+      "description": "Signal acceptance times efficiency for SR5j in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 101/json"
+    },
+    {
+      "name": "Table 102",
+      "doi": "10.17182/hepdata.74253.v1/t102",
+      "description": "Signal acceptance for SR6jm in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 102/json"
+    },
+    {
+      "name": "Table 103",
+      "doi": "10.17182/hepdata.74253.v1/t103",
+      "description": "Signal acceptance times efficiency for SR6jm in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 103/json"
+    },
+    {
+      "name": "Table 104",
+      "doi": "10.17182/hepdata.74253.v1/t104",
+      "description": "Signal acceptance for SR6jt in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 104/json"
+    },
+    {
+      "name": "Table 105",
+      "doi": "10.17182/hepdata.74253.v1/t105",
+      "description": "Signal acceptance times efficiency for SR6jt in gluino one-step decay model grid.",
+      "data_url": "https://www.hepdata.net/download/table/ins1458270/Table 105/json"
+    }
+  ],
+  "resources": [
+    {
+      "description": "MadAnalysis 5 analysis",
+      "url": "https://doi.org/10.14428/DVN/MHPXX4",
+      "type": ""
+    },
+    {
+      "description": "SModelS analysis",
+      "url": "https://github.com/SModelS/smodels-database-release/tree/main/13TeV/ATLAS/ATLAS-SUSY-2015-06-eff/",
+      "type": ""
+    },
+    {
+      "description": "Rivet analysis",
+      "url": "https://rivet.hepforge.org/analyses/ATLAS_2016_I1458270",
+      "type": ""
+    }
+  ],
+  "likelihoods": [],
+  "table_files": [
+    {
+      "name": "Table 1",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table1.yaml"
+    },
+    {
+      "name": "Table 2",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table2.yaml"
+    },
+    {
+      "name": "Table 3",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table3.yaml"
+    },
+    {
+      "name": "Table 4",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jl. For signal, a squark direct decay mo",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table4.yaml"
+    },
+    {
+      "name": "Table 5",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jm. For signal, a gluino direct decay mo",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table5.yaml"
+    },
+    {
+      "name": "Table 6",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR2jt. For signal, a squark direct decay mo",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table6.yaml"
+    },
+    {
+      "name": "Table 7",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR4jt. For signal, a gluino direct decay mo",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table7.yaml"
+    },
+    {
+      "name": "Table 8",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR5j. For signal, a gluino one-step decay m",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table8.yaml"
+    },
+    {
+      "name": "Table 9",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR6jm. For signal, a gluino one-step decay ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table9.yaml"
+    },
+    {
+      "name": "Table 10",
+      "kind": "table",
+      "description": "Observed and expected background and signal effective mass distributions for SR6jt. For signal, a gluino one-step decay ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table10.yaml"
+    },
+    {
+      "name": "Table 11",
+      "kind": "table",
+      "description": "Expected limit at 95% CL for squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table11.yaml"
+    },
+    {
+      "name": "Table 12",
+      "kind": "table",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for squar",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table12.yaml"
+    },
+    {
+      "name": "Table 13",
+      "kind": "table",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for squar",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table13.yaml"
+    },
+    {
+      "name": "Table 14",
+      "kind": "table",
+      "description": "Observed limits at 95% CL for squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table14.yaml"
+    },
+    {
+      "name": "Table 15",
+      "kind": "table",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model g",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table15.yaml"
+    },
+    {
+      "name": "Table 16",
+      "kind": "table",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for squark direct decay model g",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table16.yaml"
+    },
+    {
+      "name": "Table 17",
+      "kind": "table",
+      "description": "Expected limit at 95% CL for gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table17.yaml"
+    },
+    {
+      "name": "Table 18",
+      "kind": "table",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluin",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table18.yaml"
+    },
+    {
+      "name": "Table 19",
+      "kind": "table",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluin",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table19.yaml"
+    },
+    {
+      "name": "Table 20",
+      "kind": "table",
+      "description": "Observed limits at 95% CL for gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table20.yaml"
+    },
+    {
+      "name": "Table 21",
+      "kind": "table",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model g",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table21.yaml"
+    },
+    {
+      "name": "Table 22",
+      "kind": "table",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino direct decay model g",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table22.yaml"
+    },
+    {
+      "name": "Table 23",
+      "kind": "table",
+      "description": "Expected limit at 95% CL for gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table23.yaml"
+    },
+    {
+      "name": "Table 24",
+      "kind": "table",
+      "description": "Expected limits at 95% CL +1 sigma excursion due to experimental and background-only theoretical uncertainties for gluin",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table24.yaml"
+    },
+    {
+      "name": "Table 25",
+      "kind": "table",
+      "description": "Expected limits at 95% CL -1 sigma excursion due to experimental and background-only theoretical uncertainties for gluin",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table25.yaml"
+    },
+    {
+      "name": "Table 26",
+      "kind": "table",
+      "description": "Observed limits at 95% CL for gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table26.yaml"
+    },
+    {
+      "name": "Table 27",
+      "kind": "table",
+      "description": "Observed limits at 95% CL +1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table27.yaml"
+    },
+    {
+      "name": "Table 28",
+      "kind": "table",
+      "description": "Observed limits at 95% CL -1 sigma excursion due to the signal cross-section uncertainty for gluino one-step decay model",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table28.yaml"
+    },
+    {
+      "name": "Table 29",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jl. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table29.yaml"
+    },
+    {
+      "name": "Table 30",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jl. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table30.yaml"
+    },
+    {
+      "name": "Table 31",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jl. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table31.yaml"
+    },
+    {
+      "name": "Table 32",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jl. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table32.yaml"
+    },
+    {
+      "name": "Table 33",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table33.yaml"
+    },
+    {
+      "name": "Table 34",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table34.yaml"
+    },
+    {
+      "name": "Table 35",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table35.yaml"
+    },
+    {
+      "name": "Table 36",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table36.yaml"
+    },
+    {
+      "name": "Table 37",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR2jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table37.yaml"
+    },
+    {
+      "name": "Table 38",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR2jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table38.yaml"
+    },
+    {
+      "name": "Table 39",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR2jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table39.yaml"
+    },
+    {
+      "name": "Table 40",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR2jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table40.yaml"
+    },
+    {
+      "name": "Table 41",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table41.yaml"
+    },
+    {
+      "name": "Table 42",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table42.yaml"
+    },
+    {
+      "name": "Table 43",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table43.yaml"
+    },
+    {
+      "name": "Table 44",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR4jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table44.yaml"
+    },
+    {
+      "name": "Table 45",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR5j. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table45.yaml"
+    },
+    {
+      "name": "Table 46",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR5j. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table46.yaml"
+    },
+    {
+      "name": "Table 47",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR5j. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table47.yaml"
+    },
+    {
+      "name": "Table 48",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR5j. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table48.yaml"
+    },
+    {
+      "name": "Table 49",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR6jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table49.yaml"
+    },
+    {
+      "name": "Table 50",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR6jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table50.yaml"
+    },
+    {
+      "name": "Table 51",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR6jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table51.yaml"
+    },
+    {
+      "name": "Table 52",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR6jm. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table52.yaml"
+    },
+    {
+      "name": "Table 53",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRgamma for SR6jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table53.yaml"
+    },
+    {
+      "name": "Table 54",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in validation region VRZ for SR6jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table54.yaml"
+    },
+    {
+      "name": "Table 55",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRW for SR6jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table55.yaml"
+    },
+    {
+      "name": "Table 56",
+      "kind": "table",
+      "description": "Observed and expected background effective mass distributions in control region CRT for SR6jt. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table56.yaml"
+    },
+    {
+      "name": "Table 57",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRZ as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table57.yaml"
+    },
+    {
+      "name": "Table 58",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRW as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table58.yaml"
+    },
+    {
+      "name": "Table 59",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRWv as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table59.yaml"
+    },
+    {
+      "name": "Table 60",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRT as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table60.yaml"
+    },
+    {
+      "name": "Table 61",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRTv as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table61.yaml"
+    },
+    {
+      "name": "Table 62",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRQa as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table62.yaml"
+    },
+    {
+      "name": "Table 63",
+      "kind": "sr-yields",
+      "description": "Observed and expected event yields in VRQb as a function of signal region. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table63.yaml"
+    },
+    {
+      "name": "Table 64",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jl in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table64.yaml"
+    },
+    {
+      "name": "Table 65",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jl in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table65.yaml"
+    },
+    {
+      "name": "Table 66",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jm in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table66.yaml"
+    },
+    {
+      "name": "Table 67",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jm in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table67.yaml"
+    },
+    {
+      "name": "Table 68",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table68.yaml"
+    },
+    {
+      "name": "Table 69",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table69.yaml"
+    },
+    {
+      "name": "Table 70",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR4jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table70.yaml"
+    },
+    {
+      "name": "Table 71",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR4jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table71.yaml"
+    },
+    {
+      "name": "Table 72",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR5j in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table72.yaml"
+    },
+    {
+      "name": "Table 73",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR5j in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table73.yaml"
+    },
+    {
+      "name": "Table 74",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jm in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table74.yaml"
+    },
+    {
+      "name": "Table 75",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jm in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table75.yaml"
+    },
+    {
+      "name": "Table 76",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table76.yaml"
+    },
+    {
+      "name": "Table 77",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jt in squark direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table77.yaml"
+    },
+    {
+      "name": "Table 78",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jl in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table78.yaml"
+    },
+    {
+      "name": "Table 79",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jl in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table79.yaml"
+    },
+    {
+      "name": "Table 80",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jm in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table80.yaml"
+    },
+    {
+      "name": "Table 81",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jm in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table81.yaml"
+    },
+    {
+      "name": "Table 82",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table82.yaml"
+    },
+    {
+      "name": "Table 83",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table83.yaml"
+    },
+    {
+      "name": "Table 84",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR4jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table84.yaml"
+    },
+    {
+      "name": "Table 85",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR4jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table85.yaml"
+    },
+    {
+      "name": "Table 86",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR5j in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table86.yaml"
+    },
+    {
+      "name": "Table 87",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR5j in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table87.yaml"
+    },
+    {
+      "name": "Table 88",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jm in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table88.yaml"
+    },
+    {
+      "name": "Table 89",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jm in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table89.yaml"
+    },
+    {
+      "name": "Table 90",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table90.yaml"
+    },
+    {
+      "name": "Table 91",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jt in gluino direct decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table91.yaml"
+    },
+    {
+      "name": "Table 92",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jl in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table92.yaml"
+    },
+    {
+      "name": "Table 93",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jl in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table93.yaml"
+    },
+    {
+      "name": "Table 94",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2jm in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table94.yaml"
+    },
+    {
+      "name": "Table 95",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jm in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table95.yaml"
+    },
+    {
+      "name": "Table 96",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR2j5 in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table96.yaml"
+    },
+    {
+      "name": "Table 97",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR2jt in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table97.yaml"
+    },
+    {
+      "name": "Table 98",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR4jt in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table98.yaml"
+    },
+    {
+      "name": "Table 99",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR4jt in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table99.yaml"
+    },
+    {
+      "name": "Table 100",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR5j in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table100.yaml"
+    },
+    {
+      "name": "Table 101",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR5j in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table101.yaml"
+    },
+    {
+      "name": "Table 102",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jm in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table102.yaml"
+    },
+    {
+      "name": "Table 103",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jm in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table103.yaml"
+    },
+    {
+      "name": "Table 104",
+      "kind": "acceptance",
+      "description": "Signal acceptance for SR6jt in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table104.yaml"
+    },
+    {
+      "name": "Table 105",
+      "kind": "acc-eff",
+      "description": "Signal acceptance times efficiency for SR6jt in gluino one-step decay model grid. ",
+      "file": "tables/HEPData-ins1458270-v1-yaml/Table105.yaml"
+    }
+  ],
+  "bundled_note": null,
+  "errors": [],
+  "table_kinds": {
+    "table": 56,
+    "sr-yields": 7,
+    "acceptance": 21,
+    "acc-eff": 21
+  }
+}

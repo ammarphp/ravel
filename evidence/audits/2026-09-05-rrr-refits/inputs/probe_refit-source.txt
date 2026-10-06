@@ -1,0 +1,17 @@
+import sys,json,time,hashlib
+from pathlib import Path
+root=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(root/'src'))
+from ravel.physics.pyhf_exclude import model_from_likelihood,compute,robust_optimizer
+import pyhf
+backend=sys.argv[2] if len(sys.argv)>2 else "numpy"
+if backend=="jax": pyhf.set_backend("jax",robust_optimizer(maxiter=10000,tolerance=1e-7),precision="64b")
+bkg=root/'stages/01-event-generation/build/tools/miniforge3/envs/pipeline/share/mapyde/likelihoods/Slepton_bkgonly.json'
+tag=sys.argv[1]
+patch=root/f'trial-runs/sleptonscan_fig3_{tag}/output/EwkCompressed2018_patch.json'
+model,data=model_from_likelihood(str(bkg),str(patch))
+print(tag,model.config.npars,'parameters',flush=True)
+t=time.monotonic();result=compute(model,data,n_curve=3)
+record={'tag':tag,'backend':backend,'wall_seconds':time.monotonic()-t,'background_sha256':hashlib.sha256(bkg.read_bytes()).hexdigest(),'patch_sha256':hashlib.sha256(patch.read_bytes()).hexdigest(),'result':result}
+(root/f'local-runs/rrr-diagnosis/{tag}-{backend}-refit.json').write_text(json.dumps(record,indent=2,allow_nan=False)+'\n')
+print(tag,record['wall_seconds'],result['obs_limit'],result['exp_limits'],flush=True)

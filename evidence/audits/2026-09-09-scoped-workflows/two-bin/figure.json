@@ -1,0 +1,15 @@
+{
+  "observable": "asymptotic CLs",
+  "normalization": {
+    "kind": "signal_strength"
+  },
+  "root_source": "verified Brent crossings in result.json; curve samples are display only",
+  "expected_convention": "conditional background-only Asimov; no toy coverage validation",
+  "png_dpi": 220,
+  "plot_lint": "PASS",
+  "formats": [
+    "PDF",
+    "PNG"
+  ],
+  "source": "result.json"
+}

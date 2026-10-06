@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "focused_suite": {
+    "passed": 223,
+    "failed": 0,
+    "seconds": 28.77,
+    "includes_catalogue_regressions": 41
+  },
+  "native_yoda": {
+    "passed": 6,
+    "failed": 0
+  },
+  "frozen_evidence_tests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "end_to_end": {
+    "total": 21,
+    "successful_deliveries": 18,
+    "expected_failures": 3,
+    "unexpected_failures": 0
+  },
+  "installed_wheel": {
+    "status": "PASS",
+    "outside_checkout": true,
+    "import_from_site_packages": true,
+    "commands": [
+      "plan",
+      "approve",
+      "run",
+      "status --write",
+      "run --resume"
+    ],
+    "sha256": "d06d1d88cc5beff5c727fec95c35a615c3204e9bf0c9395efd9e2c47a077705b"
+  },
+  "physics_validated": false,
+  "expert_review": false,
+  "upstream_simpleanalysis_executed": false,
+  "notes": [
+    "Matplotlib/Pyparsing and pyhf emit dependency deprecation warnings. No test failures remain.",
+    "Historical RRR measurements and protected cards were not changed."
+  ]
+}

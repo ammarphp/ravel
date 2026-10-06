@@ -1,0 +1,41 @@
+{
+  "observable": "final-state invariant mass",
+  "bin_edges_gev": [
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    140,
+    160,
+    200
+  ],
+  "counts": [
+    4,
+    0,
+    3,
+    2,
+    22,
+    65,
+    1,
+    0,
+    1,
+    1,
+    1
+  ],
+  "normalization": "raw generated counts divided by bin width in GeV; x errors show bin extents",
+  "underflow": 0,
+  "overflow": 0,
+  "uncertainty": "sqrt(N) MC counting only; integration error separately in result.json",
+  "png_dpi": 220,
+  "plot_lint": "PASS",
+  "formats": [
+    "PDF",
+    "PNG"
+  ],
+  "source": "result.json"
+}

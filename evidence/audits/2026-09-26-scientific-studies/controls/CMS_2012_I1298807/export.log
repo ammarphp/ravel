@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "$SOURCE_ROOT/src/ravel/_bootstrap.py", line 22, in <module>
+    main()
+    ~~~~^^
+  File "$SOURCE_ROOT/src/ravel/_bootstrap.py", line 18, in main
+    runpy.run_module(module, run_name="__main__", alter_sys=True)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 231, in run_module
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$SOURCE_ROOT/src/ravel/physics/rivet_export.py", line 103, in <module>
+    atomic_json(Path(sys.argv[3]), export(sys.argv[1], read_json(sys.argv[2])))
+                                   ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$SOURCE_ROOT/src/ravel/physics/rivet_export.py", line 88, in export
+    raise ValueError('normalized observable does not have unit integrated area over its finite bins: ' + name)
+ValueError: normalized observable does not have unit integrated area over its finite bins: /CMS_2012_I1298807/d01-x01-y04
