@@ -33,5 +33,5 @@ def test_require_all_board_is_green():
     bad = [x for x in payload["results"] if x["status"] != "PASS"]
     assert r.returncode == 0, json.dumps(bad, indent=2)
     assert not bad, json.dumps(bad, indent=2)
-    assert len(payload["results"]) == 29
+    assert len(payload["results"]) == 30
     assert {x["gate"] for x in payload["results"]} == set(_load().EXPECTED_GATES)

@@ -179,7 +179,7 @@ first turn: start sessions in the repository root.
 
 > Each class below is a failure mode of long agent-driven runs. Each names the gate that FIRES on
 > its trigger and the adversarial case (`tests/adversarial/`) that re-fires it on every `make green`. These CONTINUE the D-series above; the map is authoritative in
-> `tests/adversarial/README.md` (G0a–G27).
+> `tests/adversarial/README.md` (G0a–G28).
 
 **D4 — Narrate-without-execute; nothing forces the next compute (no DRIVE).** The agent ends a turn by
 *describing* the next stage ("next I'll generate…") without launching it — no mechanism forces the

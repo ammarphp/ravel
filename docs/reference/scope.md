@@ -211,7 +211,7 @@ scope and their bar are stated here like any other:
 
 | scope item | verification mechanism | bar (and its non-goal) |
 |---|---|---|
-| Verification of the workflow gates | the adversarial gate board: the per-gate harness (`tests/adversarial/`, one case for each of the 29 gates G0a-G27) run by `make green` | every gate case fires and the board is green; NOT a measure of agent task success and NOT a physicist-vetted full-physics run (an explicit non-goal) |
+| Verification of the workflow gates | the adversarial gate board: the per-gate harness (`tests/adversarial/`, one case for each of the 30 gates G0a-G28) run by `make green` | every gate case fires and the board is green; NOT a measure of agent task success and NOT a physicist-vetted full-physics run (an explicit non-goal) |
 
 ## Supplied-data scientific operations
 

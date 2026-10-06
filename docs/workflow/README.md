@@ -84,7 +84,8 @@ physicist sessions enter via `docs/workflow/start.md`. The sequence:
   published-figure GALLERY, the figure target(s) + the EARLY-VERIFICATION WAYPOINT, the plan,
   numbered flagged assumptions, and the three-response-mode footer.
 - **CHECK-IN 2 "EARLY VERIFICATION"** (at the declared waypoint, before the bulk of compute): the
-  published-element | produced-element side-by-side + a go/adjust ask.
+  published-element | produced-element side-by-side + a go/adjust ask. The GO is recorded with
+  `workflow_state.py go`; full and scan compute waits for it (the CHECK-IN 2 gate).
 - **DEVIATION check-ins** (immediate, own message, never batched): any mid-run change of course —
   reasoning + alternatives + impact, mirrored into the run's `DEVIATIONS.md` ledger.
 - **FINAL "RESULTS DECK"** (after step 7/8, gated by the step-9 panel): headline figures with
@@ -168,6 +169,6 @@ Verified by the settings-wiring test (`tests/unit/test_settings_wiring.py`).
 the `make green` aggregate board (the adversarial board `--require-all` + check_agent_surface +
 validate_run_state `--selftest` + informational audit — three gating checks, exit 0). The
 adversarial board's completeness test (`tests/unit/test_spine_sim_complete.py`, CR-108) pins that
-every one of the 29 gates G0a–G27 has a case AND `--require-all` is green.
+every one of the 30 gates G0a–G28 has a case AND `--require-all` is green.
 
 > **Delivery detection is artifact-keyed:** a freshly written `inputs/checkin2.json` / `outputs/results_deck.*` / `RESULT.md` makes the turn a DELIVERY turn (the D18 umbrella + open-defect gates fire) regardless of the prose; SessionStart injects the active run's state summary on every session start.

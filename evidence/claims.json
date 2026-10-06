@@ -25,10 +25,10 @@
     },
     {
       "claim": "adversarial_gate_cases",
-      "value": "29",
-      "detail": "per-gate adversarial cases (G0a-G27): each seeds a fixture that trips a workflow-adherence gate's trigger and asserts the gate FIRES; all 29 PASS",
+      "value": "30",
+      "detail": "per-gate adversarial cases (G0a-G28): each seeds a fixture that trips a workflow-adherence gate's trigger and asserts the gate FIRES; all 30 PASS",
       "command": "python3 tests/adversarial/run_suite.py --require-all",
-      "verified": "2026-10-05: '29 PASS / 0 FAIL of 29 case(s)'",
+      "verified": "2026-10-06: '30 PASS / 0 FAIL of 30 case(s)'",
       "artifacts": [
         "tests/adversarial/cases/",
         "tests/adversarial/run_suite.py"

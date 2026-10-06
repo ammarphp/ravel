@@ -37,10 +37,10 @@ _ERR = "import sys\nsys.stderr.write('[SETUP-ERROR] boom\\n')\nsys.exit(2)\n"
 
 def test_expected_gates_is_the_full_set(tmp_path):
     mod = _load()
-    # G0a/G0b/G0c + G1..G20 + G22..G27 = 29 distinct rows
-    assert len(mod.EXPECTED_GATES) == 29
-    assert mod.EXPECTED_GATES[0] == "G0a" and "G27" in mod.EXPECTED_GATES
-    assert len(set(mod.EXPECTED_GATES)) == 29
+    # G0a/G0b/G0c + G1..G20 + G22..G28 = 30 distinct rows
+    assert len(mod.EXPECTED_GATES) == 30
+    assert mod.EXPECTED_GATES[0] == "G0a" and "G28" in mod.EXPECTED_GATES
+    assert len(set(mod.EXPECTED_GATES)) == 30
 
 
 def test_all_pass_board_exits_0(tmp_path, capsys):
@@ -89,7 +89,7 @@ def test_only_selects_a_subset(tmp_path, capsys):
 def test_require_all_fails_on_a_missing_gate(tmp_path, capsys):
     mod = _load()
     cases = tmp_path / "cases"; cases.mkdir()
-    _write_case(cases, "G0a", _PASS)  # only one of the 29 present
+    _write_case(cases, "G0a", _PASS)  # only one of the 30 present
     rc = mod.main(["--cases", str(cases), "--require-all"])
     out = capsys.readouterr().out
     assert rc == 1

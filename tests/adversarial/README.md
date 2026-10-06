@@ -1,8 +1,8 @@
 # Adversarial workflow tests
 
 The suite constructs invalid workflow states and checks the expected response
-from hooks, validators, and stage supervisors. All 29 registered gate IDs
-(`G0a`–`G27`) have a lowercase `cases/case_g*.py` file. Gate IDs in reports retain
+from hooks, validators, and stage supervisors. All 30 registered gate IDs
+(`G0a`–`G28`) have a lowercase `cases/case_g*.py` file. Gate IDs in reports retain
 their uppercase spelling.
 
 From the repository root, with the development environment active:
@@ -45,7 +45,7 @@ runs and must pass. It tests the gates, not whether an agent completes a task.
 
 The table preserves the seeded trigger and expected response for every case.
 Unit and integration checks in `tests/unit/test_spine_sim*.py` enforce the exact
-29-case set.
+30-case set.
 
 | Gate | Trigger seeded (bad fixture) | Mechanism (enforcement that FIRES) | Case | GREEN assertion (harness verdict) |
 |---|---|---|---|---|
@@ -78,3 +78,4 @@ Unit and integration checks in `tests/unit/test_spine_sim*.py` enforce the exact
 | G25 | a real `.lhe.gz` whose banner `nevents` (3) ≠ its counted `<event>` records (2), Cross-section line present (N4, grabbed mid-write) | inv `producer-complete` FAIL | `case_g25.py` | `case_g25.py` exits 0 — the gate FIRED |
 | G26 | a DELIVERY turn-end with an unresolved `open_defect_notes[]` (read_yoda.py) — `stop_dispatch.py --branch open-defect` shells `verify_pack.py`, gated on `is_delivery` (N5) | stop `open-defect` branch (exit 2 + `G26-OPEN-DEFECT`) | `case_g26.py` | `case_g26.py` exits 0 — the gate FIRED |
 | G27 | a `bg_kind=detached` `compute_launched` entry missing `logfile`/`done_condition`/`next_action` and with no live heartbeat (N6) | stop `detach` branch (exit 2 + `DETACH`) | `case_g27.py` | `case_g27.py` exits 0 — the gate FIRED |
+| G28 | a run dated after the CHECK-IN 2 gate with a valid CHECK-IN 1 approval, a CHECK-IN 2 artefact, a full-size native execution plan and generation output, but no recorded CHECK-IN 2 GO | inv `checkin2-go-before-bulk-compute` FAIL | `case_g28.py` | `case_g28.py` exits 0 — the gate FIRED |

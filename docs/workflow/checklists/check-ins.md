@@ -95,6 +95,16 @@ should already match and what is expected to differ at this statistics/level. Th
 A mismatch caught here is a cheap catch — that is the waypoint's whole purpose. Never proceed to
 heavy compute past a mismatch without an explicit go.
 
+> **Mechanized (the CHECK-IN 2 gate):** the GO is an ARTIFACT — `workflow_state.py go --rundir <rd>
+> --quote '<the physicist reply>'` writes `inputs/checkin2_go.json`, bound to `inputs/checkin2.json` and
+> the current CHECK-IN 1 approval, so editing either voids it. It refuses without a valid CHECK-IN 2
+> artefact and a valid CHECK-IN 1 approval. Compute beyond the smoke run then waits for it: the native
+> pipeline refuses full and scan launches, the Bash guard refuses scan launches, the scan budget refuses
+> to extend a campaign, and the lifecycle validator FAILs a run whose recorded full or scan compute has
+> no valid GO (runs dated before 2026-10-07 are waived). An ADJUST is never recorded as a GO. A
+> single-point full sample launched outside the native pipeline does not record its size, so on that
+> path the rule stays written: do not launch it before the GO.
+
 ## DEVIATION CHECK-INS  (immediate · own message · never batched)
 
 Whenever a mid-run judgment CHANGES COURSE from the approved plan — physics level (a cut, a

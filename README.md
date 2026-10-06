@@ -340,7 +340,7 @@ evidence. In the table, S95 is the 95% CL upper limit on the number of signal ev
 | Statistical recovery | <!-- claim:benchmarks_reproduced -->7 observed S95 comparisons within 8.6% (statistical layer)<!-- /claim --> | Recovery of published limits from published statistical inputs, across four searches |
 | Implementation comparison | <!-- claim:arm64_output_parity -->141/141 signal regions identical; final limit delta 0.51%<!-- /claim --> | For one routine (`EwkCompressed2018`), native and container chains agree on a shared detector-level input (regions) and from independent generation (limit) |
 | Selection fidelity | Six scorable cases: four pass, one warning, one fail; three cases cannot be scored | Agreement with published acceptance times efficiency where comparable evidence exists |
-| Workflow guards | <!-- claim:adversarial_gate_cases -->29<!-- /claim --> constructed gate cases | Responses to specified invalid states; not a rate of successful agent tasks |
+| Workflow guards | <!-- claim:adversarial_gate_cases -->30<!-- /claim --> constructed gate cases | Responses to specified invalid states; not a rate of successful agent tasks |
 
 The marked values in this table are checked against the [claim registry](evidence/claims.json) in CI. The [validation
 results](docs/validation/results.md) give the provenance and the limits of each check, [all nine benchmark

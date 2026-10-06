@@ -125,6 +125,6 @@ Attach to the final check-in: the panel verdict, the itemized findings (with dis
 
 ## The workflow gates are themselves verified
 Beyond this per-run panel, the workflow-adherence gates are regression-verified *as software* by the
-adversarial gate board (`tests/adversarial/`, run on demand with `make green`): each of the 29 gates G0a–G27 has a `cases/case_<G>.py` that seeds the bad
+adversarial gate board (`tests/adversarial/`, run on demand with `make green`): each of the 30 gates G0a–G28 has a `cases/case_<G>.py` that seeds the bad
 fixture and asserts the gate FIRES. The board never launches an agent: it verifies the gates, not
 whether an agent completes a task unaided (catalogue D17).

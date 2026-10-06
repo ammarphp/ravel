@@ -41,11 +41,11 @@
     },
     {
       "public_path": ".agents/skills/run-scan/SKILL.md",
-      "export_sha256": "eb489a4b4a3b929af94498eecee9d686100233d546ef31f01daabe5dfad9db16"
+      "export_sha256": "ba6014149cfe02117f83038b5d44baaf60b09283fe665804627f1d3d33016d05"
     },
     {
       "public_path": ".agents/skills/run-stage/SKILL.md",
-      "export_sha256": "7e83debe2455bee46f622dd66487cb3401c3d0fbd3bb95d694f3c57ac720cd3b"
+      "export_sha256": "9e957dc28c0318c60e9b10e29d95259101d6eba9218061bf92a7daf325d6624b"
     },
     {
       "public_path": ".agents/skills/stage-recovery/SKILL.md",
@@ -149,11 +149,11 @@
     },
     {
       "public_path": ".claude/skills/run-scan/SKILL.md",
-      "export_sha256": "eb489a4b4a3b929af94498eecee9d686100233d546ef31f01daabe5dfad9db16"
+      "export_sha256": "ba6014149cfe02117f83038b5d44baaf60b09283fe665804627f1d3d33016d05"
     },
     {
       "public_path": ".claude/skills/run-stage/SKILL.md",
-      "export_sha256": "7e83debe2455bee46f622dd66487cb3401c3d0fbd3bb95d694f3c57ac720cd3b"
+      "export_sha256": "9e957dc28c0318c60e9b10e29d95259101d6eba9218061bf92a7daf325d6624b"
     },
     {
       "public_path": ".claude/skills/stage-recovery/SKILL.md",
@@ -165,7 +165,7 @@
     },
     {
       "public_path": ".github/workflows/ci.yml",
-      "export_sha256": "d0caee0eb2e41db05ab703eb2c63aa98adbe14c8931557a79eb885ebd86341a6"
+      "export_sha256": "b3d134bb7e4059860174cbe968b39360ff771f2535ed9555495b3ca50f89b726"
     },
     {
       "public_path": ".gitignore",
@@ -177,7 +177,7 @@
     },
     {
       "public_path": "CHANGELOG.md",
-      "export_sha256": "39c8715e43500a35bfced371889c65b174a305b1751c71a3948c88b9c984fa31"
+      "export_sha256": "3e55d4021583e383f7957617a1eecfb2ed727d437109f4b415973f473766d4fc"
     },
     {
       "public_path": "CITATION.cff",
@@ -209,7 +209,7 @@
     },
     {
       "public_path": "README.md",
-      "export_sha256": "f37431fb288ddf15ab4fe9c9450665f3a3c0ea61dd4209ee05be6ddef6678969"
+      "export_sha256": "cadfb8858e00bad46a1c57a51cdf6cdd1df40177795f5adfb30fe85d3aac71cb"
     },
     {
       "public_path": "benchmarks/README.md",
@@ -713,7 +713,7 @@
     },
     {
       "public_path": "docs/reference/failure-modes.md",
-      "export_sha256": "1522b01fdbab36bdd605d1af71554b414bef6ca94c62a8ca540abc150312115d"
+      "export_sha256": "f4aa46b2469b1463c90108a827f9f11a8f7a322570a41bca052e210447004b29"
     },
     {
       "public_path": "docs/reference/limitations.md",
@@ -737,7 +737,7 @@
     },
     {
       "public_path": "docs/reference/scope.md",
-      "export_sha256": "7a11e1a61acc4b5a16a4e3bfaa9d8f9fee92bb80ee7446977b9f15134a091f5b"
+      "export_sha256": "232fcfbea5d2b7647580182e1d92acb7e6b9066b5a23d4ad4ee32bf9b2e84917"
     },
     {
       "public_path": "docs/reference/task-contract.md",
@@ -801,7 +801,7 @@
     },
     {
       "public_path": "docs/validation/results.md",
-      "export_sha256": "264ebd335c0071a5a2c0c6186846a0240070bc31ba20546c67a1521ff1a9d1c9"
+      "export_sha256": "4d28bc03c67d12c45e58e433169d4763f1936da9944be38ebe9159aedbc730bc"
     },
     {
       "public_path": "docs/validation/studies/atlas-2016-i1458270-fidelity.md",
@@ -829,7 +829,7 @@
     },
     {
       "public_path": "docs/workflow/README.md",
-      "export_sha256": "e7ac742bebe21bf7fc0f6cb25840bd853d903f4579dad41c200ffcaa8b0fcc1d"
+      "export_sha256": "114175a1f4aecece49f2775168958f4ee75275489be5e1f509c2aa6d8da5c026"
     },
     {
       "public_path": "docs/workflow/analysis-simpleanalysis/01-container-runtime.md",
@@ -861,7 +861,7 @@
     },
     {
       "public_path": "docs/workflow/checklists/check-ins.md",
-      "export_sha256": "5623d814e0825054aaa251c8c3cadd7086e72898b7715a1afbe4c27878d663ce"
+      "export_sha256": "7dfbf29f938786a57909cf6cbc0945076e763a2f34b34a956b5b0196325368a9"
     },
     {
       "public_path": "docs/workflow/checklists/choosing-routine.md",
@@ -1037,11 +1037,11 @@
     },
     {
       "public_path": "docs/workflow/steps/08-scan.md",
-      "export_sha256": "d7b832fb2f8025f577e3376c2d974fb7a70dc90111cbe909a7e9d1dff5ace3dd"
+      "export_sha256": "ce137b6d7a1dda6e8a3312d374b34860a4d0920e98e6c42d55a70fcc09e6f197"
     },
     {
       "public_path": "docs/workflow/steps/09-verify.md",
-      "export_sha256": "08c132b84ed7106324f5733769fe8a4d059fd276713595a798494d9085838edf"
+      "export_sha256": "b75fbabcd72cca91c72e29b3fd4b5b0ba2e1755c7864e5970ed44cbc9749ee8b"
     },
     {
       "public_path": "environment/README.md",
@@ -3585,7 +3585,7 @@
     },
     {
       "public_path": "evidence/claims.json",
-      "export_sha256": "039d2dd41c4d76c1281b8a06b59df1147682c95c730a290ce4a7f415cfffb320"
+      "export_sha256": "489897e9d4209cc309921293567dea0c4a0c2e69063c22f58727655c42f98be7"
     },
     {
       "public_path": "evidence/collections.json",
@@ -4133,7 +4133,7 @@
     },
     {
       "public_path": "src/ravel/validation/validate_run_state.py",
-      "export_sha256": "568005da3593fed11544bd3af38b1e0157f3065661033dc1090a775dcb64fd38"
+      "export_sha256": "a68925215ee67da97777876218782b6714e91ca50ad27272a1293e1feac455bc"
     },
     {
       "public_path": "src/ravel/validation/validate_task_contract.py",
@@ -4245,11 +4245,11 @@
     },
     {
       "public_path": "src/ravel/workflow/workflow_state.py",
-      "export_sha256": "935e557c264b5b43304a73497479863a09a1f27a4226a8146270b4fe932d142c"
+      "export_sha256": "09ba8ea24033ec98a29ac50d6e52747083aedb2e351d066c54cd1be7f8cb7802"
     },
     {
       "public_path": "tests/adversarial/README.md",
-      "export_sha256": "e8b058257fc26e5ad72847fd3789155a630bec75015db68a899bcfe64aef92a4"
+      "export_sha256": "2d43dc89bb50eac859cb3eb6ef04b9c4b9ac9badbdb121a4b58da48d8613f58f"
     },
     {
       "public_path": "tests/adversarial/_case_lib.py",
@@ -4352,6 +4352,10 @@
       "export_sha256": "074e853f3d378da1d0f4cfa48e9d2b406d1ae113ab0fff7908fc7c38c9012a4d"
     },
     {
+      "public_path": "tests/adversarial/cases/case_g28.py",
+      "export_sha256": "c1aeb5cf1a19c506d9546e19ebac4471ce5b03b474c4e08025c98a72db564d56"
+    },
+    {
       "public_path": "tests/adversarial/cases/case_g3.py",
       "export_sha256": "7c6a64890858c348ee09aea5a1f3199b0be1b77f134666a1a953fd0fdf45c859"
     },
@@ -4381,7 +4385,7 @@
     },
     {
       "public_path": "tests/adversarial/run_suite.py",
-      "export_sha256": "21234f7aaf1fbce8555ce0be258eb73864b4bf54618226a043e1fc1ed128078f"
+      "export_sha256": "d95b81e0583a3852e69bb107fa4887768c31fe0705d6f4da63d74a092ed75aff"
     },
     {
       "public_path": "tests/conftest.py",
@@ -4421,7 +4425,7 @@
     },
     {
       "public_path": "tests/unit/test_approval_chain.py",
-      "export_sha256": "1f4c464410ef58eb13c30972e6db35d2b529ba475791e5381588d879d8b6c0ed"
+      "export_sha256": "8166e75530a05a469f1a1deef78c5a2f00ce15732657b9b586d8d810a4310049"
     },
     {
       "public_path": "tests/unit/test_audit_readonly.py",
@@ -4442,6 +4446,10 @@
     {
       "public_path": "tests/unit/test_check_evidence.py",
       "export_sha256": "be3a7b1aba334f02e370c119dc8a612ea6ef833841e0b17504944d0027204074"
+    },
+    {
+      "public_path": "tests/unit/test_checkin2_gate.py",
+      "export_sha256": "61cf73ec0f5b7390211249e26c585fa90a6572f13a7c857d6954da27df676b02"
     },
     {
       "public_path": "tests/unit/test_cli_initiate.py",
@@ -4741,7 +4749,7 @@
     },
     {
       "public_path": "tests/unit/test_spine_sim.py",
-      "export_sha256": "fe9a1790602d0e483e861e0be3a01ad4fc81d5a720e79c01c7d80ab81f08febd"
+      "export_sha256": "523ff885cb80f7c0ecaa9b9aa1e86720614137ee64f7e0ccaf4691611b23f20a"
     },
     {
       "public_path": "tests/unit/test_spine_sim_caselib.py",
@@ -4749,7 +4757,7 @@
     },
     {
       "public_path": "tests/unit/test_spine_sim_complete.py",
-      "export_sha256": "43f87af06b6f64ec8952072f4f9815b61405afd8d522e77ec5b0fcf52ac78569"
+      "export_sha256": "75351b47cd7f61f7fa4d0579341c210857e46007d591f42f7664cbc44b6a8f5f"
     },
     {
       "public_path": "tests/unit/test_spine_sim_hooks_tools.py",

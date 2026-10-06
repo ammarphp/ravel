@@ -418,6 +418,11 @@ def cmd_advance(args):
 APPROVAL_VERSION = 2
 APPROVAL_GENERATOR = "workflow_state.py approve"
 APPROVAL_PLANS = ("none", "dry", "smoke", "full", "scan")
+# Compute beyond the smoke run: the bulk of the compute that CHECK-IN 2 gates.
+BULK_PLANS = ("full", "scan")
+# The scoped routes (`ravel plan`/`ravel run`) carry one fixed, bounded calculation with no waypoint,
+# so CHECK-IN 2 does not apply to them.
+NO_CHECKIN2_TASK_MODES = ("generate", "likelihood")
 
 
 def approval_input_paths(rundir):
@@ -508,6 +513,10 @@ def verify_approval(rundir, record=None, *, required_plan=None):
     matches, reason = provenance.verify_pair(record, APPROVAL_GENERATOR, paths)
     if not matches:
         return ["stale or unbound approval: " + reason + "; re-record approval for the current inputs"]
+    # Compute beyond the smoke run also waits for the CHECK-IN 2 go. Every launch path that names its
+    # size (the native pipeline, the scan budget, the Bash guard's scan launches) checks it here.
+    if required_plan in BULK_PLANS and contract.get("task_mode") not in NO_CHECKIN2_TASK_MODES:
+        return checkin2_gate_errors(rundir, required_plan)
     return []
 
 
@@ -540,6 +549,113 @@ def cmd_approve(args):
              "utc": rec["generated_utc"]})
         write_state(rd, state)
     print(f"approval recorded -> {out} (plan={args.plan})")
+    return 0
+
+
+CHECKIN2_GO_VERSION = 1
+CHECKIN2_GO_GENERATOR = "workflow_state.py go"
+
+
+def checkin2_go_input_paths(rundir):
+    """The ordered binding of a CHECK-IN 2 go: the CHECK-IN 2 artefact and the approval it follows."""
+    return [os.path.join(rundir, "inputs", "checkin2.json"),
+            os.path.join(rundir, "inputs", "checkin1_approval.json")]
+
+
+def verify_checkin2_go(rundir, record=None):
+    """Return the errors that stop a CHECK-IN 2 go from authorising compute beyond the smoke run.
+
+    The go binds the bytes of the CHECK-IN 2 artefact and of the CHECK-IN 1 approval it follows, so
+    an edited artefact or a re-recorded approval voids it. Like the approval, this checks integrity,
+    not who answered.
+    """
+    if record is None:
+        try:
+            record = validate_task_contract.load_contract(os.path.join(rundir, "inputs", "checkin2_go.json"))
+        except (OSError, ValueError, UnicodeError, RecursionError) as e:
+            return [f"checkin2_go.json cannot be read: {e}"]
+    if type(record) is not dict:
+        return ["checkin2_go.json must be an object"]
+    fields = {"schema_version", "generated_by", "generated_utc", "decision", "quote", "checkin2",
+              "checkin1_approval", "input_fingerprint"}
+    errors = [f"CHECK-IN 2 go missing required field {key!r}" for key in sorted(fields - record.keys())]
+    errors += [f"CHECK-IN 2 go has unknown field {key!r}" for key in sorted(record.keys() - fields)]
+    if type(record.get("schema_version")) is not int or record.get("schema_version") != CHECKIN2_GO_VERSION:
+        errors.append(f"CHECK-IN 2 go schema_version must be integer {CHECKIN2_GO_VERSION}")
+    for key in fields - {"schema_version"}:
+        value = record.get(key)
+        if type(value) is not str or (key != "generated_utc" and not value.strip()):
+            errors.append(f"CHECK-IN 2 go {key} must be a " + ("string" if key == "generated_utc" else "nonblank string"))
+    if errors:
+        return errors
+    if record["generated_by"] != CHECKIN2_GO_GENERATOR:
+        errors.append(f"CHECK-IN 2 go generated_by must be {CHECKIN2_GO_GENERATOR!r}")
+    if record["decision"] != "GO":
+        errors.append("CHECK-IN 2 go decision must be GO; an ADJUST changes the plan instead")
+    paths = checkin2_go_input_paths(rundir)
+    for key, path in zip(("checkin2", "checkin1_approval"), paths):
+        if record[key] != os.path.relpath(path, rundir):
+            errors.append(f"CHECK-IN 2 go {key} must name {os.path.relpath(path, rundir)!r}")
+    if errors:
+        return errors
+    approval_errors = verify_approval(rundir)
+    if approval_errors:
+        return ["the CHECK-IN 1 approval this go follows is invalid: " + "; ".join(approval_errors)]
+    try:
+        from ravel.validation import validate_checkin
+        checkin = validate_task_contract.load_contract(paths[0])
+        errors = validate_checkin.validate(checkin, base_dir=rundir)
+        if type(checkin) is dict and checkin.get("kind") != "checkin2":
+            errors.append("checkin2.kind must be checkin2")
+    except (OSError, ValueError, UnicodeError, RecursionError) as e:
+        errors = [str(e)]
+    if errors:
+        return ["invalid checkin2.json: " + "; ".join(errors)]
+    matches, reason = provenance.verify_pair(record, CHECKIN2_GO_GENERATOR, paths)
+    if not matches:
+        return ["stale or unbound CHECK-IN 2 go: " + reason
+                + "; record the go again for the current CHECK-IN 2 and approval"]
+    return []
+
+
+def checkin2_gate_errors(rundir, required_plan):
+    """Errors that block a launch at `required_plan`. Compute beyond the smoke run (full, scan) waits
+    for a valid CHECK-IN 2 go; the smoke run that produces the waypoint, and anything smaller, never does."""
+    if required_plan not in BULK_PLANS:
+        return []
+    errors = verify_checkin2_go(rundir)
+    if not errors:
+        return []
+    return [f"CHECK-IN 2: a {required_plan} launch waits for the physicist's recorded GO -- "
+            + "; ".join(errors) + "; record it with `workflow_state.py go --rundir <rd> --quote '<the reply>'`"]
+
+
+@retry_conflict
+def cmd_go(args):
+    """Record the physicist's CHECK-IN 2 GO, bound to the CHECK-IN 2 artefact and the current approval."""
+    rd = args.rundir.rstrip("/")
+    if not os.path.isdir(rd):
+        print(f"workflow_state go: not a directory: {rd}", file=sys.stderr)
+        return 2
+    paths = checkin2_go_input_paths(rd)
+    # Fingerprint BEFORE validation, as for the approval: an edit during validation cannot slip in.
+    rec = {"schema_version": CHECKIN2_GO_VERSION,
+           "generated_utc": os.environ.get("WORKFLOW_STATE_UTC", ""),
+           "decision": "GO", "quote": args.quote,
+           "checkin2": "inputs/checkin2.json", "checkin1_approval": "inputs/checkin1_approval.json",
+           **provenance.provenance_pair(CHECKIN2_GO_GENERATOR, paths)}
+    errors = verify_checkin2_go(rd, rec)
+    if errors:
+        print("workflow_state go: REFUSED -- " + "; ".join(errors), file=sys.stderr)
+        return 1
+    out = os.path.join(rd, "inputs", "checkin2_go.json")
+    atomic_json(out, rec)
+    state, _ = load_state(rd)
+    if state is not None:
+        state.setdefault("checkins", []).append(
+            {"id": "CHECKIN2-GO", "artifact": "inputs/checkin2_go.json", "utc": rec["generated_utc"]})
+        write_state(rd, state)
+    print(f"CHECK-IN 2 go recorded -> {out}")
     return 0
 
 
@@ -647,6 +763,12 @@ def build_parser():
                     help="the physicist's go-ahead reply, quoted verbatim")
     pv.add_argument("--plan", default="smoke", choices=APPROVAL_PLANS)
     pv.set_defaults(func=cmd_approve)
+
+    pg = sub.add_parser("go")
+    pg.add_argument("--rundir", required=True)
+    pg.add_argument("--quote", required=True,
+                    help="the physicist's CHECK-IN 2 GO reply, quoted verbatim")
+    pg.set_defaults(func=cmd_go)
 
     ps = sub.add_parser("status")
     ps.add_argument("--rundir", required=True)

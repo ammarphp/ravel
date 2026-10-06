@@ -59,6 +59,8 @@ from ravel.workflow import provenance              # noqa: E402
 from ravel.limits import claim_errors, read_limits, prose_errors, source_errors  # noqa: E402
 
 GATE_EPOCH = "2026-07-08"
+# Runs dated before this day predate the CHECK-IN 2 code gate; the gate is not applied to them.
+CHECKIN2_GATE_EPOCH = "2026-10-07"
 SKIP_DIRS = {"build", "logs", "__pycache__", ".git", "Events"}
 
 STAGE_ORDER = (
@@ -1525,6 +1527,29 @@ def inv_approval_before_compute(rundir, contract, facts, legacy, strict):
     return "PASS", "v2 approval binds the current task contract, check-in, and cost inputs"
 
 
+def inv_checkin2_go_before_bulk_compute(rundir, contract, facts, legacy, strict):
+    """CHECK-IN 2 is a GATE: compute beyond the smoke run (a full sample or a scan) waits for the
+    physicist's recorded GO (inputs/checkin2_go.json, written only by `workflow_state.py go`, bound to
+    the CHECK-IN 2 artefact and the current CHECK-IN 1 approval). The size of the compute is read
+    where it is recorded: a native execution plan at full or scan with generation evidence, or a
+    completed scan. Other launch paths do not record their size, so this cannot see them."""
+    plan, _error = load_json_safe(rundir, find_first_existing(rundir, "inputs/native_execution_plan.json"))
+    rung = plan.get("required_compute_plan") if isinstance(plan, dict) else None
+    bulk = (rung in ("full", "scan") and bool(facts.get("generation_hits"))) or (
+        contract.get("task_mode") == "scan" and scan_json_ok(facts))
+    if not bulk:
+        return "PASS", "no compute beyond the smoke run is recorded"
+    from ravel.workflow import workflow_state
+    errors = workflow_state.verify_checkin2_go(rundir)
+    if not errors:
+        return "PASS", "a CHECK-IN 2 go binds the current CHECK-IN 2 artefact and approval"
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})", os.path.basename(os.path.normpath(rundir)))
+    if legacy or (m and m.group(1) < CHECKIN2_GATE_EPOCH):
+        return "waived-legacy", "no valid CHECK-IN 2 go (run predates the CHECK-IN 2 gate; waived)"
+    return "FAIL", ("compute beyond the smoke run with no valid CHECK-IN 2 go -- " + "; ".join(errors)
+                    + "; record it via `workflow_state.py go --rundir <rd> --quote '<the physicist reply>'`")
+
+
 def inv_cost_preflight_recorded(rundir, contract, facts, legacy, strict):
     """The budget must be an ARTIFACT before compute -- a run once ran
     cost_preflight but recorded nothing; the budget lived only in the hand-editable contract."""
@@ -1676,6 +1701,7 @@ INVARIANTS = (
     ("lhe-check-before-shower", "generation", inv_lhe_check_before_shower),
     ("cost-preflight-recorded", "generation", inv_cost_preflight_recorded),
     ("approval-before-compute", "generation", inv_approval_before_compute),
+    ("checkin2-go-before-bulk-compute", "generation", inv_checkin2_go_before_bulk_compute),
     ("outputs-in-tree", "generation", inv_outputs_in_tree),
     ("trap-obligations-discharged", "generation", inv_trap_obligations),
     ("certify-before-limit", "statistics", inv_certify_before_limit),

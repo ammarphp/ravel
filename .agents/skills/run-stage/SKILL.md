@@ -65,7 +65,8 @@ detached entries).
   python3 scripts/run.py ravel.physics.native_pipeline plan \
     --rundir <abs> --config <config.toml> --write
   # Review the exact plan, pin its path/SHA256 in the task contract, and record
-  # the user's actual CHECK-IN 1 approval with workflow_state approve.
+  # the user's actual CHECK-IN 1 approval with workflow_state approve. A full or scan
+  # plan (beyond the smoke run) also needs the CHECK-IN 2 GO: workflow_state go.
   python3 scripts/run.py ravel.physics.native_pipeline run \
     --plan <abs>/inputs/native_execution_plan.json
   ```

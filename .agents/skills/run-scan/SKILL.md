@@ -40,6 +40,10 @@ python3 scripts/run.py ravel.validation.validate_parameters check  --rundir <sca
 hit — record those PASS too. Skipping this makes `validate_run_state.py`'s
 `param-validated-before-scan` invariant hard-FAIL the moment `scan.json`/`scan_manifest.json` ships.
 
+**CHECK-IN 2 first.** A scan is compute beyond the smoke run: `launch --go` is refused until the
+physicist's GO is recorded with `python3 scripts/run.py ravel.workflow.workflow_state go --rundir <rd>
+--quote '<the reply>'`, bound to `inputs/checkin2.json` and the current CHECK-IN 1 approval.
+
 ## 2. The loop (declarative, resumable, fail-loud)
 ```bash
 CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda

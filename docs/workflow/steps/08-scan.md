@@ -10,6 +10,10 @@ reference paper reports. **mapyde's actual deliverable is a CONTOUR**, produced 
 model points and interpolating the µ₉₅ = 1 boundary. This step is the **outer loop** that turns the
 per-point pipeline into that contour.
 
+**CHECK-IN 2 gates this step.** A scan is compute beyond the smoke run, so `scan_orchestrator launch
+--go` refuses until the physicist's GO is recorded: `python3 scripts/run.py ravel.workflow.workflow_state
+go --rundir <rd> --quote '<the reply>'` (see `docs/workflow/checklists/check-ins.md`, CHECK-IN 2).
+
 ## The mental model — two spaces, do not conflate them
 A single run *does* produce a distribution, and it *does* collapse to a single point — in **different
 spaces**. Confusing the two is the error this step exists to prevent.

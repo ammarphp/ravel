@@ -2,6 +2,17 @@
 
 Version headings record package versions; no release tags are published for them.
 
+## Unreleased — CHECK-IN 2 code gate
+
+- Make CHECK-IN 2 a gate in code. `workflow_state.py go` records the physicist's GO in
+  `inputs/checkin2_go.json`, bound to the CHECK-IN 2 artefact and the current CHECK-IN 1 approval, so
+  editing either voids it. Full and scan launches of the native pipeline, scan launches through the
+  Bash guard and campaign budget extensions refuse without it. The lifecycle validator fails a run
+  whose recorded full or scan compute has no valid GO; runs dated before 2026-10-07 are waived. A
+  single-point full sample launched outside the native pipeline does not record its size, so on that
+  path the rule stays written.
+- Add adversarial gate case G28. The board now has 30 cases.
+
 ## Unreleased — supplied-data scientific studies
 
 - Add approved, bounded `analyze`, `quantities`, `measurement` and `domain` studies

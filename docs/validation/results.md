@@ -14,7 +14,7 @@ rerun on a fresh installation.
 | Native output comparison | <!-- claim:arm64_output_parity -->141/141 signal regions identical; final limit delta 0.51%<!-- /claim --> | [Native performance study](native-performance.md); implementation comparison |
 | Mass-plane comparison | <!-- claim:fig3_residual -->24.9% median same-basis residual<!-- /claim --> | [Scan record](../../evidence/scans/slepton-bino-figure-3/RESULT.md); 50 matched cells from 52 points |
 | Selection acceptance × efficiency | Six scorable baseline cases: four PASS, one WARN, one FAIL; three further cases unscorable | [All nine cases](README.md) |
-| Adversarial workflow checks | <!-- claim:adversarial_gate_cases -->29<!-- /claim --> gate cases | [Adversarial suite](../../tests/adversarial/README.md); synthetic violations, not agent-task outcomes |
+| Adversarial workflow checks | <!-- claim:adversarial_gate_cases -->30<!-- /claim --> gate cases | [Adversarial suite](../../tests/adversarial/README.md); synthetic violations, not agent-task outcomes |
 | Native analysis ports | <!-- claim:native_ported_routines -->3<!-- /claim --> routines with recorded bit-for-bit comparisons | [Native pipeline](../workflow/reference/native-pipeline.md); 141/141, 10/10, and 9/9 signal regions |
 | Historical simulation scale | <!-- claim:scan_scale -->2.08M events across two 52-point scans<!-- /claim --> | [Claim registry](../../evidence/claims.json); generation record |
 | Recorded pipeline structure | <!-- claim:execution_stages -->8<!-- /claim --> gated execution stages | [Claim registry](../../evidence/claims.json); structural inventory |
