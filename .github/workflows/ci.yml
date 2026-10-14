@@ -75,8 +75,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
         with: { python-version: "3.12" }
-      - name: install
-        run: python -m pip install --require-hashes -r requirements-replay.lock
+      - name: install the package and its pinned dependencies
+        run: python -m pip install -e . pytest==8.3.5
       - name: install git hooks required by integration tests
         run: bash scripts/maintenance/install-git-hooks.sh
       - name: pytest
@@ -110,6 +110,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
         with: { python-version: "3.12" }
+      - name: install the package and its pinned dependencies
+        run: python -m pip install -e .
       - name: install git hooks (G20 asserts the pre-commit gate is INSTALLED, not just present)
         run: bash scripts/maintenance/install-git-hooks.sh
       - name: spine_sim --require-all

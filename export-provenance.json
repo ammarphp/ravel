@@ -1509,7 +1509,7 @@
     },
     {
       "public_path": ".github/workflows/ci.yml",
-      "export_sha256": "a518c4321ae6f3e77ee90540b9f95e775b7e3f21e81a57f7e4c7ca1c6e633e5f"
+      "export_sha256": "c3a90319f07eed498c8abdcd31a5dbca3be1b5694c7d60981210d73ea625353a"
     },
     {
       "public_path": ".gitignore",
