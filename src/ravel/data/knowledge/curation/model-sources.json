@@ -1,0 +1,25 @@
+{
+ "id": "op:model-sources",
+ "op": {
+  "do_not_use_when": [
+   "Validating a UFO: use model-tool-bridge or model-ward.",
+   "Authoring a model: use model-authoring."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-sources-example --spec specs/model-sources.json",
+    "phrase": "Detect and export symbolic model sources from a pinned configuration.",
+    "spec": {
+     "mode": "model-sources",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Detect and export symbolic model sources from a supplied bundle.",
+   "The model format of a supplied source must be identified."
+  ]
+ }
+}

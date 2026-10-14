@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "kind": "consequential-sinks",
+  "owner": "graph-substrate (seed list); the tripwire curates",
+  "sinks": [
+    {"sink": "ravel.workflow.launch_authorization:authorized_popen", "gates": ["launch"],
+     "action_digest_of": "the launch command and its retained plan approval", "broker_actions": ["exec"]},
+    {"sink": "ravel.workflow.backends.native:launch", "gates": ["launch"],
+     "action_digest_of": "the native job description and argv"},
+    {"sink": "ravel.workflow.stage_supervisor:supervise", "gates": ["launch"],
+     "action_digest_of": "the supervised stage command, run directory and limits"},
+    {"sink": "ravel.workflow.agent_graph:deliver_external", "gates": ["delivery"],
+     "action_digest_of": "the sealed external response bytes"},
+    {"sink": "ravel.workflow.work_dispatch:adopt", "gates": ["delivery"],
+     "action_digest_of": "the worker attempt's workspace manifest adopted into the run tree"},
+    {"sink": "ravel.workflow.science:approve", "gates": ["approve_plan"],
+     "action_digest_of": "the quoted plan approval and the plan bytes it names"},
+    {"sink": "ravel.workflow.hypothesis_board:reveal", "gates": ["research_choice"],
+     "action_digest_of": "the revealed commitment payload"},
+    {"sink": "ravel.workflow.run_ceilings:charge", "gates": ["spend_above_ceiling"],
+     "action_digest_of": "the invocation kind and count charged"},
+    {"sink": "ravel.workflow.research_cycle:reserve_operation", "gates": ["spend_above_ceiling"],
+     "action_digest_of": "the campaign operation identity and reserved amount"},
+    {"sink": "ravel.workflow.submission_export:export", "gates": ["export"],
+     "action_digest_of": "the export request and the exported tree manifest"},
+    {"sink": "ravel.workflow.procedure_export:export", "gates": ["export"],
+     "action_digest_of": "the run directory and the exported procedure tree manifest"}
+  ]
+}

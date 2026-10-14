@@ -1,0 +1,25 @@
+{
+ "id": "op:model-portfolio",
+ "op": {
+  "do_not_use_when": [
+   "Full event-level reinterpretation: use analyze.",
+   "Spectrum generation: use generated-spectrum."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-portfolio-example --spec specs/model-portfolio.json",
+    "phrase": "Decompose a supplied SLHA spectrum into simplified-model topologies.",
+    "spec": {
+     "mode": "model-portfolio",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "SModelS simplified-model decomposition of a supplied spectrum.",
+   "A spectrum must be matched against a database of simplified-model results."
+  ]
+ }
+}

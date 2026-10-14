@@ -1,0 +1,1608 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "type": {
+      "const": "pythia_initialized_settings"
+    },
+    "phase": {
+      "const": "after_successful_init_before_first_next"
+    },
+    "snapshot_complete": {
+      "const": true
+    },
+    "event_generation_complete": {
+      "const": false
+    },
+    "producer": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "compiled_header_version_integer": {
+          "const": 8312
+        },
+        "compiled_source_path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pid",
+        "compiled_header_version_integer",
+        "compiled_source_path"
+      ],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "config_path": {
+          "type": "string"
+        },
+        "count_override": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "argv": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "config_path",
+        "count_override",
+        "argv"
+      ],
+      "additionalProperties": false
+    },
+    "pre_init_settings": {
+      "type": "object",
+      "properties": {
+        "flags": {
+          "type": "object",
+          "properties": {
+            "PartonLevel:MPI": {
+              "type": "boolean"
+            },
+            "PartonLevel:ISR": {
+              "type": "boolean"
+            },
+            "PartonLevel:FSR": {
+              "type": "boolean"
+            },
+            "HadronLevel:all": {
+              "type": "boolean"
+            },
+            "HadronLevel:Decay": {
+              "type": "boolean"
+            },
+            "ProcessLevel:resonanceDecays": {
+              "type": "boolean"
+            },
+            "Random:setSeed": {
+              "type": "boolean"
+            },
+            "SLHA:useDecayTable": {
+              "type": "boolean"
+            },
+            "SLHA:allowUserOverride": {
+              "type": "boolean"
+            },
+            "SLHA:allowOnlyOffShell": {
+              "type": "boolean"
+            },
+            "Beams:readLHEFheaders": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "PartonLevel:MPI",
+            "PartonLevel:ISR",
+            "PartonLevel:FSR",
+            "HadronLevel:all",
+            "HadronLevel:Decay",
+            "ProcessLevel:resonanceDecays",
+            "Random:setSeed",
+            "SLHA:useDecayTable",
+            "SLHA:allowUserOverride",
+            "SLHA:allowOnlyOffShell",
+            "Beams:readLHEFheaders"
+          ],
+          "additionalProperties": false
+        },
+        "modes": {
+          "type": "object",
+          "properties": {
+            "Tune:pp": {
+              "type": "integer"
+            },
+            "SLHA:readFrom": {
+              "type": "integer"
+            },
+            "SLHA:meMode": {
+              "type": "integer"
+            },
+            "Beams:frameType": {
+              "type": "integer"
+            },
+            "Beams:idA": {
+              "type": "integer"
+            },
+            "Beams:idB": {
+              "type": "integer"
+            },
+            "Random:seed": {
+              "type": "integer"
+            },
+            "Main:numberOfEvents": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "Tune:pp",
+            "SLHA:readFrom",
+            "SLHA:meMode",
+            "Beams:frameType",
+            "Beams:idA",
+            "Beams:idB",
+            "Random:seed",
+            "Main:numberOfEvents"
+          ],
+          "additionalProperties": false
+        },
+        "parms": {
+          "type": "object",
+          "properties": {
+            "Beams:eCM": {
+              "type": "number"
+            },
+            "Beams:eA": {
+              "type": "number"
+            },
+            "Beams:eB": {
+              "type": "number"
+            },
+            "SLHA:minMassSM": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "Beams:eCM",
+            "Beams:eA",
+            "Beams:eB",
+            "SLHA:minMassSM"
+          ],
+          "additionalProperties": false
+        },
+        "words": {
+          "type": "object",
+          "properties": {
+            "Beams:LHEF": {
+              "type": "string"
+            },
+            "Beams:LHEFheader": {
+              "type": "string"
+            },
+            "SLHA:file": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Beams:LHEF",
+            "Beams:LHEFheader",
+            "SLHA:file"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "flags",
+        "modes",
+        "parms",
+        "words"
+      ],
+      "additionalProperties": false
+    },
+    "post_init_settings": {
+      "type": "object",
+      "properties": {
+        "flags": {
+          "type": "object",
+          "properties": {
+            "PartonLevel:MPI": {
+              "type": "boolean"
+            },
+            "PartonLevel:ISR": {
+              "type": "boolean"
+            },
+            "PartonLevel:FSR": {
+              "type": "boolean"
+            },
+            "HadronLevel:all": {
+              "type": "boolean"
+            },
+            "HadronLevel:Decay": {
+              "type": "boolean"
+            },
+            "ProcessLevel:resonanceDecays": {
+              "type": "boolean"
+            },
+            "Random:setSeed": {
+              "type": "boolean"
+            },
+            "SLHA:useDecayTable": {
+              "type": "boolean"
+            },
+            "SLHA:allowUserOverride": {
+              "type": "boolean"
+            },
+            "SLHA:allowOnlyOffShell": {
+              "type": "boolean"
+            },
+            "Beams:readLHEFheaders": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "PartonLevel:MPI",
+            "PartonLevel:ISR",
+            "PartonLevel:FSR",
+            "HadronLevel:all",
+            "HadronLevel:Decay",
+            "ProcessLevel:resonanceDecays",
+            "Random:setSeed",
+            "SLHA:useDecayTable",
+            "SLHA:allowUserOverride",
+            "SLHA:allowOnlyOffShell",
+            "Beams:readLHEFheaders"
+          ],
+          "additionalProperties": false
+        },
+        "modes": {
+          "type": "object",
+          "properties": {
+            "Tune:pp": {
+              "type": "integer"
+            },
+            "SLHA:readFrom": {
+              "type": "integer"
+            },
+            "SLHA:meMode": {
+              "type": "integer"
+            },
+            "Beams:frameType": {
+              "type": "integer"
+            },
+            "Beams:idA": {
+              "type": "integer"
+            },
+            "Beams:idB": {
+              "type": "integer"
+            },
+            "Random:seed": {
+              "type": "integer"
+            },
+            "Main:numberOfEvents": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "Tune:pp",
+            "SLHA:readFrom",
+            "SLHA:meMode",
+            "Beams:frameType",
+            "Beams:idA",
+            "Beams:idB",
+            "Random:seed",
+            "Main:numberOfEvents"
+          ],
+          "additionalProperties": false
+        },
+        "parms": {
+          "type": "object",
+          "properties": {
+            "Beams:eCM": {
+              "type": "number"
+            },
+            "Beams:eA": {
+              "type": "number"
+            },
+            "Beams:eB": {
+              "type": "number"
+            },
+            "SLHA:minMassSM": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "Beams:eCM",
+            "Beams:eA",
+            "Beams:eB",
+            "SLHA:minMassSM"
+          ],
+          "additionalProperties": false
+        },
+        "words": {
+          "type": "object",
+          "properties": {
+            "Beams:LHEF": {
+              "type": "string"
+            },
+            "Beams:LHEFheader": {
+              "type": "string"
+            },
+            "SLHA:file": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "Beams:LHEF",
+            "Beams:LHEFheader",
+            "SLHA:file"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "flags",
+        "modes",
+        "parms",
+        "words"
+      ],
+      "additionalProperties": false
+    },
+    "post_init_particles": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 1000011
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 2000011
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 1000013
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 2000013
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 1000015
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 2000015
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 1000022
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": true
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "has_anti": {
+                      "type": "boolean"
+                    },
+                    "m0_GeV": {
+                      "type": "number"
+                    },
+                    "mWidth_GeV": {
+                      "type": "number"
+                    },
+                    "mMin_GeV": {
+                      "type": "number"
+                    },
+                    "mMax_GeV": {
+                      "type": "number"
+                    },
+                    "tau0_mm": {
+                      "type": "number"
+                    },
+                    "may_decay": {
+                      "type": "boolean"
+                    },
+                    "can_decay": {
+                      "type": "boolean"
+                    },
+                    "is_resonance": {
+                      "type": "boolean"
+                    },
+                    "external_decay": {
+                      "type": "boolean"
+                    },
+                    "channel_count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    },
+                    "channels": {
+                      "type": "array",
+                      "maxItems": 1000,
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 999
+                          },
+                          "on_mode": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3
+                          },
+                          "branching_ratio": {
+                            "type": "number"
+                          },
+                          "me_mode": {
+                            "type": "integer"
+                          },
+                          "products": {
+                            "type": "array",
+                            "maxItems": 8,
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "required": [
+                          "index",
+                          "on_mode",
+                          "branching_ratio",
+                          "me_mode",
+                          "products"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present",
+                    "name",
+                    "has_anti",
+                    "m0_GeV",
+                    "mWidth_GeV",
+                    "mMin_GeV",
+                    "mMax_GeV",
+                    "tau0_mm",
+                    "may_decay",
+                    "can_decay",
+                    "is_resonance",
+                    "external_decay",
+                    "channel_count",
+                    "channels"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "pdg_id": {
+                      "type": "integer"
+                    },
+                    "present": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "pdg_id",
+                    "present"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "properties": {
+                "pdg_id": {
+                  "const": 15
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "info_beams": {
+      "type": "object",
+      "properties": {
+        "idA": {
+          "type": "integer"
+        },
+        "idB": {
+          "type": "integer"
+        },
+        "eA_GeV": {
+          "type": "number"
+        },
+        "eB_GeV": {
+          "type": "number"
+        },
+        "eCM_GeV": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "idA",
+        "idB",
+        "eA_GeV",
+        "eB_GeV",
+        "eCM_GeV"
+      ],
+      "additionalProperties": false
+    },
+    "lha_beams": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "idA": {
+              "type": "integer"
+            },
+            "idB": {
+              "type": "integer"
+            },
+            "eA_GeV": {
+              "type": "number"
+            },
+            "eB_GeV": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "idA",
+            "idB",
+            "eA_GeV",
+            "eB_GeV"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "lhe_slha_header_nonempty": {
+      "type": "boolean"
+    },
+    "internal_rng": {
+      "type": "object",
+      "properties": {
+        "seed": {
+          "type": "integer"
+        },
+        "sequence": {
+          "type": "integer"
+        },
+        "unchanged_by_snapshot": {
+          "const": true
+        }
+      },
+      "required": [
+        "seed",
+        "sequence",
+        "unchanged_by_snapshot"
+      ],
+      "additionalProperties": false
+    },
+    "semantics": {
+      "type": "object",
+      "properties": {
+        "pre_init": {
+          "const": "resolved settings after card and count override, including defaults"
+        },
+        "post_init": {
+          "const": "stored selected settings and particle tables after init"
+        },
+        "decay_origin": {
+          "const": "not identified per channel by this observation"
+        },
+        "branching_ratios": {
+          "const": "stored table entries, not sampled decay fractions"
+        },
+        "rng": {
+          "const": "internal saved seed and sequence, not an external-engine attestation"
+        },
+        "identity": {
+          "const": "source, binary, runtime and card hashes are external producer-receipt obligations"
+        }
+      },
+      "required": [
+        "pre_init",
+        "post_init",
+        "decay_origin",
+        "branching_ratios",
+        "rng",
+        "identity"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "type",
+    "phase",
+    "snapshot_complete",
+    "event_generation_complete",
+    "producer",
+    "request",
+    "pre_init_settings",
+    "post_init_settings",
+    "post_init_particles",
+    "info_beams",
+    "lha_beams",
+    "lhe_slha_header_nonempty",
+    "internal_rng",
+    "semantics"
+  ],
+  "additionalProperties": false
+}

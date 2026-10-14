@@ -1,0 +1,1624 @@
+{
+ "_meta": {
+  "description": "Structure-preserving synthetic siblings, one per reference plan; shape counts match, content is synthetic.",
+  "synthetic": true,
+  "note": "Every request and number is invented. No held-out identifier, reference value or task text."
+ },
+ "plans": [
+  {
+   "case_id": "TS-s01",
+   "kind": "sibling",
+   "request": "Synthetic sibling 1: a toy study of invented model Q1 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:acquire-published → op:classifier-inputs",
+    "op:cosmic-evolution → op:differential-likelihood",
+    "op:figure-comparison → op:generation-reconciliation",
+    "op:joint-fit → op:likelihood-parity",
+    "op:ma5-saf → op:model-sources",
+    "(optional) op:native-likelihood → op:prescribed-statistic",
+    "(optional) op:research-comparison",
+    "(optional) op:sfitter-native-fit"
+   ],
+   "expected_checks": [
+    "check:coherent-amplitude-square (NEW: TS-sib00a)",
+    "check:physics.amplitude_store.read_block",
+    "check:physics.columnar.recipe.compile_recipe",
+    "check:physics.delphes2sa_native.read_weights",
+    "check:physics.inference.prescribed_statistic.load",
+    "check:physics.model_authoring.adjudicate_gauge_checks",
+    "check:physics.model_events.check_cards",
+    "check:physics.native_statistical_construction.validate_document",
+    "check:physics.pyhf_exclude.profile_fit_consistency",
+    "check:physics.routine_build.verify_loader_observation",
+    "check:physics.ufo_interop.convert_text",
+    "check:regression/nuisance-pulls"
+   ],
+   "expected_roles": [
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator"
+   ],
+   "expected_knowledge": [
+    "hb:columnar-analysis",
+    "hb:delphes-cards",
+    "hb:hepdata-retrieval",
+    "hb:lhapdf-pdf-sets",
+    "hb:madgraph-launch"
+   ],
+   "forbidden_operations": [
+    "op:amplitude-crosscheck",
+    "op:amplitude-integration",
+    "op:analysis-lifecycle"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 8,
+    "ordering_arrows": 6,
+    "optional": 3,
+    "checks": 12,
+    "roles": 15,
+    "knowledge": 5,
+    "forbidden": 3,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s02",
+   "kind": "sibling",
+   "request": "Synthetic sibling 2: a toy study of invented model Q2 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:contur-companion → op:derived-quantities",
+    "op:eft-functions → op:formula-grid",
+    "op:initialized-settings-qualification → op:lifecycle-scan-aggregation",
+    "(optional) op:tree-array-export"
+   ],
+   "expected_checks": [
+    "check:physics.cross_sections.k_factor (NEW: TS-sib01a)",
+    "check:physics.inference.intervals.allowed_regions",
+    "check:physics.ma5_saf_reader.regions (NEW: TS-sib01a)",
+    "check:physics.model_derivation_bridge.mass_witness",
+    "check:physics.native_statistical_construction._template_native_geometry",
+    "check:physics.pdf_variations.validate_records"
+   ],
+   "expected_roles": [
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator"
+   ],
+   "expected_knowledge": [
+    "hb:feynrules",
+    "hb:inference-engines",
+    "hb:ma5-expert",
+    "hb:madgraph-model-import",
+    "hb:model-authoring"
+   ],
+   "forbidden_operations": [
+    "op:amplitude-integration",
+    "op:analysis-lifecycle",
+    "op:analyze",
+    "op:authored-analysis"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 4,
+    "ordering_arrows": 3,
+    "optional": 1,
+    "checks": 6,
+    "roles": 14,
+    "knowledge": 5,
+    "forbidden": 4,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s03",
+   "kind": "sibling",
+   "request": "Synthetic sibling 3: a toy study of invented model Q3 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:domain → op:fill-template",
+    "op:group-composition → op:joint-qualification",
+    "op:likelihood-profile-probe → op:mc-closure",
+    "op:model-tool-bridge → op:native-statistical-construction",
+    "op:published-model → op:resonance-lineshape",
+    "(optional) op:sfitter-observed-events → op:stage/figure_contract",
+    "(optional) op:stage/trap_sweep → op:width-inputs",
+    "(optional) op:authored-analysis",
+    "(optional) op:checkmate-events"
+   ],
+   "expected_checks": [
+    "check:physics.model_authoring.charge_census",
+    "check:physics.model_events.inputs",
+    "check:physics.normalization_ledger.check",
+    "check:physics.pythia_cards.compare",
+    "check:physics.spin0_amplitudes.closure",
+    "check:regression/closure",
+    "check:regression/open-at-edge",
+    "check:regression/validity-status"
+   ],
+   "expected_roles": [
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee"
+   ],
+   "expected_knowledge": [
+    "hb:lhapdf-pdf-sets",
+    "hb:madgraph-launch",
+    "hb:mcfm-amplitudes",
+    "hb:pyhf-workspace-patching",
+    "hb:rivet-routine",
+    "hb:smodels-input"
+   ],
+   "forbidden_operations": [
+    "op:analysis-lifecycle",
+    "op:analyze",
+    "op:cosmology-solver"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 9,
+    "ordering_arrows": 7,
+    "optional": 4,
+    "checks": 8,
+    "roles": 14,
+    "knowledge": 6,
+    "forbidden": 3,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s04",
+   "kind": "sibling",
+   "request": "Synthetic sibling 4: a toy study of invented model Q4 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:full-auxiliary-calibration → op:initialized-settings-retained",
+    "op:lifecycle-summary-overlay → op:llp-plane-recipe",
+    "op:model-portfolio → op:mssm-observable-map",
+    "op:numerical-reference-check → op:ratio-measurement",
+    "op:scientific-delivery → op:source-tables",
+    "op:stage/route → op:svj-recipe",
+    "(optional) op:amplitude-integration",
+    "(optional) op:asimov-sensitivity",
+    "(optional) op:contrast"
+   ],
+   "expected_checks": [
+    "check:physics.published_model.load_published_model (NEW: TS-sib03a)",
+    "check:physics.routine_build.verify_compiler_invocations",
+    "check:physics.ufo_check.check",
+    "check:regression/goodness-of-fit",
+    "check:regression/systematic-dominance",
+    "check:review/census",
+    "check:review/fit_alarms",
+    "check:review/known_answer_tests",
+    "check:review/numerical_reference",
+    "check:review/summary_complete",
+    "check:validation.benchmark",
+    "check:validation.certificates.validate_pack_certificates",
+    "check:validation.check_agent_surface.check_handbooks",
+    "check:validation.check_agent_surface.check_refs"
+   ],
+   "expected_roles": [
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer"
+   ],
+   "expected_knowledge": [
+    "hb:madgraph-model-import",
+    "hb:model-authoring",
+    "hb:pythia-shower-cards",
+    "hb:roofit-histfactory",
+    "trap:T1",
+    "trap:T11",
+    "trap:T2"
+   ],
+   "forbidden_operations": [
+    "op:authored-analysis",
+    "op:cosmology-solver"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 9,
+    "ordering_arrows": 6,
+    "optional": 3,
+    "checks": 14,
+    "roles": 17,
+    "knowledge": 7,
+    "forbidden": 2,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s05",
+   "kind": "sibling",
+   "request": "Synthetic sibling 5: a toy study of invented model Q5 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:joint-score → op:likelihood-step-refinement → op:mc-expected-construction",
+    "op:model-ward → op:nmssm-yukawa-map",
+    "op:published-summary → op:resonance-width",
+    "op:sfitter-scan-extraction → op:stage/generation",
+    "(optional) op:stage/verification → op:mass-width-grid"
+   ],
+   "expected_checks": [
+    "check:regression/excluded-bins (NEW: TS-sib04a)",
+    "check:regression/parameter-at-bound",
+    "check:review/acceptance_certificate (NEW: TS-sib04a)",
+    "check:review/deviations",
+    "check:review/invisible_card",
+    "check:review/limit_status",
+    "check:review/routine_validation",
+    "check:validation.analysis_witness._check_contract",
+    "check:validation.certificates._check_binding",
+    "check:validation.check_agent_surface.check_dirmap",
+    "check:validation.check_agent_surface.check_mirror"
+   ],
+   "expected_roles": [
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier"
+   ],
+   "expected_knowledge": [
+    "hb:pyhf-workspace-patching",
+    "hb:rivet-routine",
+    "hb:smodels-input",
+    "trap:T10",
+    "trap:T12",
+    "trap:T3"
+   ],
+   "forbidden_operations": [
+    "op:authored-analysis",
+    "op:cosmology-solver",
+    "op:eft-toolchain",
+    "op:event-production"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 5,
+    "ordering_arrows": 6,
+    "optional": 1,
+    "checks": 11,
+    "roles": 15,
+    "knowledge": 6,
+    "forbidden": 4,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s06",
+   "kind": "sibling",
+   "request": "Synthetic sibling 6: a toy study of invented model Q6 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:ma5-pad → op:model-provider-bridge",
+    "op:native-group-acquisition",
+    "op:pdf-variations",
+    "op:reco-ntuple-routine",
+    "op:search-statistics",
+    "op:stage/analysis",
+    "(optional) op:stage/statistics"
+   ],
+   "expected_checks": [
+    "check:review/closure",
+    "check:review/formula_check_value",
+    "check:review/lhe_check",
+    "check:review/prose",
+    "check:two-body-width",
+    "check:validation.benchmark.gate_case",
+    "check:validation.certify_acceptance",
+    "check:validation.check_agent_surface.check_hygiene",
+    "check:validation.check_agent_surface.check_skill_collisions",
+    "check:validation.check_agent_surface.check_statefresh_counts"
+   ],
+   "expected_roles": [
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer"
+   ],
+   "expected_knowledge": [
+    "hb:roofit-histfactory",
+    "trap:T1",
+    "trap:T11",
+    "trap:T2"
+   ],
+   "forbidden_operations": [
+    "op:cosmology-solver",
+    "op:eft-toolchain",
+    "op:event-production",
+    "op:generate"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 1,
+    "optional": 1,
+    "checks": 10,
+    "roles": 15,
+    "knowledge": 4,
+    "forbidden": 4,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s07",
+   "kind": "sibling",
+   "request": "Synthetic sibling 7: a toy study of invented model Q7 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:mpi-observer → op:normalized-measurement",
+    "op:quantitative-predictive → op:retained-shower",
+    "op:signal-template → op:stage/resource_census",
+    "op:statistical-model → op:workspace-combination-study",
+    "op:amplitude-predictions → op:columnar-analysis",
+    "(optional) op:coupling-morphing → op:domain",
+    "(optional) op:fill-template → op:group-composition",
+    "(optional) op:joint-qualification → op:likelihood-profile-probe",
+    "(optional) op:mc-closure"
+   ],
+   "expected_checks": [
+    "check:review/normalization_ledger (NEW: TS-sib06a)",
+    "check:review/statistic_matches_claim",
+    "check:validation.analysis_witness._check_program (NEW: TS-sib06a)",
+    "check:validation.certificates.validate_certificate",
+    "check:validation.check_agent_surface.check_fork",
+    "check:validation.check_agent_surface.check_readiness",
+    "check:validation.check_agent_surface.check_statefresh",
+    "check:validation.check_agent_surface.check_stepcount",
+    "check:validation.cr_signal_study",
+    "check:validation.initialized_settings_checks"
+   ],
+   "expected_roles": [
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph"
+   ],
+   "expected_knowledge": [
+    "trap:T10",
+    "trap:T12",
+    "trap:T3",
+    "trap:T5",
+    "trap:T7",
+    "trap:T9"
+   ],
+   "forbidden_operations": [
+    "op:eft-toolchain",
+    "op:event-production",
+    "op:generate",
+    "op:lifecycle-routine-recast"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 9,
+    "ordering_arrows": 8,
+    "optional": 4,
+    "checks": 10,
+    "roles": 16,
+    "knowledge": 6,
+    "forbidden": 4,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s08",
+   "kind": "sibling",
+   "request": "Synthetic sibling 8: a toy study of invented model Q8 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:prescribed-statistic → op:research-comparison → op:sfitter-native-fit",
+    "op:stage/basis_manifest → op:stage/task_contract → op:weighted-events",
+    "op:analyze → op:chargino-decay-table",
+    "op:contur-import → op:diagram-analysis",
+    "op:feyn-graph → op:full-auxiliary-calibration",
+    "op:initialized-settings-retained → op:lifecycle-summary-overlay"
+   ],
+   "expected_checks": [
+    "check:validation.certificates",
+    "check:validation.check_agent_surface",
+    "check:validation.check_agent_surface.check_installed_handbooks",
+    "check:validation.check_agent_surface.check_skill_keys",
+    "check:validation.check_agent_surface.check_statefresh_part1",
+    "check:validation.constants_manifest",
+    "check:validation.cr_switch_qualification",
+    "check:validation.initialized_settings_retained",
+    "check:validation.likelihood_candidate_check"
+   ],
+   "expected_roles": [
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph"
+   ],
+   "expected_knowledge": [
+    "trap:T2",
+    "trap:T4",
+    "trap:T6",
+    "trap:T8",
+    "trap:cp-even-cp-odd-interference-in-even-observables",
+    "trap:interference-k-factor"
+   ],
+   "forbidden_operations": [
+    "op:generate",
+    "op:lifecycle-routine-recast",
+    "op:lifecycle-shape-fit"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 6,
+    "ordering_arrows": 8,
+    "optional": 0,
+    "checks": 9,
+    "roles": 15,
+    "knowledge": 6,
+    "forbidden": 3,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s09",
+   "kind": "sibling",
+   "request": "Synthetic sibling 9: a toy study of invented model Q9 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:root-stream → op:simplified-spectrum",
+    "op:stage/result_pack → op:stau-events",
+    "op:amplitude-crosscheck → op:analysis-response-features",
+    "op:continuous-fit",
+    "op:cr-signal-qualification",
+    "op:parameter-space-sampling",
+    "op:finite-integrals",
+    "op:group-normalization",
+    "op:joint-score",
+    "op:likelihood-step-refinement"
+   ],
+   "expected_checks": [
+    "check:validation.check_agent_surface.check_refs (NEW: TS-sib08a)",
+    "check:validation.check_agent_surface.check_statefresh_contradictions",
+    "check:validation.check_knowledge",
+    "check:validation.cr_signal_study.validate",
+    "check:validation.initialized_settings_qualification",
+    "check:validation.intake_records.load_delegated_defaults",
+    "check:validation.likelihood_parity.validate",
+    "check:validation.likelihood_step_refinement",
+    "check:validation.model_tool_witness",
+    "check:validation.native_doctor"
+   ],
+   "expected_roles": [
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:sibling-08-0",
+    "role:sibling-08-1"
+   ],
+   "expected_knowledge": [
+    "trap:T5",
+    "trap:T7",
+    "trap:T9",
+    "trap:cp-odd-continuum-interference",
+    "trap:landau-yang",
+    "trap:review-coefficient_baseline"
+   ],
+   "forbidden_operations": [
+    "op:lifecycle-routine-recast",
+    "op:lifecycle-shape-fit",
+    "op:lifecycle-workspace-limit",
+    "op:likelihood"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 10,
+    "ordering_arrows": 3,
+    "optional": 0,
+    "checks": 10,
+    "roles": 19,
+    "knowledge": 6,
+    "forbidden": 4,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s10",
+   "kind": "sibling",
+   "request": "Synthetic sibling 10: a toy study of invented model Q10 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:stage/figure_contract → op:stage/trap_sweep",
+    "op:width-inputs → op:authored-analysis",
+    "op:checkmate-events → op:contur-yoda",
+    "op:diagrammatica-code",
+    "op:feynarts-amplitude",
+    "op:generated-spectrum"
+   ],
+   "expected_checks": [
+    "check:validation.constants_manifest.check_document (NEW: TS-sib09a)",
+    "check:validation.fidelity",
+    "check:validation.initialized_settings_retained.validate",
+    "check:validation.likelihood_candidate_check.validate",
+    "check:validation.likelihood_profile_probe.validate",
+    "check:validation.model_probe_witness.validate_oracle"
+   ],
+   "expected_roles": [
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic"
+   ],
+   "expected_knowledge": [
+    "trap:T8",
+    "trap:cp-even-cp-odd-interference-in-even-observables",
+    "trap:interference-k-factor",
+    "trap:reference-double-counting",
+    "trap:review-coupling_contamination",
+    "trap:review-documentation"
+   ],
+   "forbidden_operations": [
+    "op:lifecycle-shape-fit",
+    "op:lifecycle-workspace-limit",
+    "op:likelihood"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 6,
+    "ordering_arrows": 3,
+    "optional": 0,
+    "checks": 6,
+    "roles": 9,
+    "knowledge": 6,
+    "forbidden": 3,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s11",
+   "kind": "sibling",
+   "request": "Synthetic sibling 11: a toy study of invented model Q11 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:svj-recipe → op:amplitude-integration",
+    "op:asimov-sensitivity → op:contrast",
+    "op:cross-section → op:eft-convention-transport",
+    "op:finite-mc",
+    "op:hs3-likelihood"
+   ],
+   "expected_checks": [
+    "check:validation.lhe_check",
+    "check:validation.likelihood_parity.validate_document",
+    "check:validation.likelihood_step_refinement.validate",
+    "check:validation.mpi_observer",
+    "check:validation.numerical_reference",
+    "check:validation.output_postconditions._check_hepmc",
+    "check:validation.output_postconditions._check_saf"
+   ],
+   "expected_roles": [
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author"
+   ],
+   "expected_knowledge": [
+    "trap:cp-odd-continuum-interference",
+    "trap:landau-yang",
+    "trap:review-coefficient_baseline",
+    "trap:review-datacard_roundtrip",
+    "trap:review-observable_semantics",
+    "trap:review-theory_doublecount"
+   ],
+   "forbidden_operations": [
+    "op:lifecycle-workspace-limit",
+    "op:likelihood",
+    "op:manuscript-build"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 5,
+    "ordering_arrows": 3,
+    "optional": 0,
+    "checks": 7,
+    "roles": 11,
+    "knowledge": 6,
+    "forbidden": 3,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s12",
+   "kind": "sibling",
+   "request": "Synthetic sibling 12: a toy study of invented model Q12 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:chargino-decay-table → op:contur-import",
+    "op:diagram-analysis → op:feyn-graph",
+    "op:full-auxiliary-calibration → op:initialized-settings-retained",
+    "op:lifecycle-summary-overlay → op:llp-plane-recipe",
+    "op:model-portfolio → op:mssm-observable-map",
+    "op:numerical-reference-check → op:ratio-measurement",
+    "op:scientific-delivery → op:source-tables",
+    "op:stage/route",
+    "op:svj-recipe",
+    "(optional) op:amplitude-integration"
+   ],
+   "expected_checks": [
+    "check:validation.model_probe_witness.validate_points (NEW: TS-sib11a)",
+    "check:validation.mpi_paired_effect.validate",
+    "check:validation.numerical_witness.checker_sha256",
+    "check:validation.output_postconditions._check_pyhf",
+    "check:validation.output_postconditions._numeric_checks",
+    "check:validation.pairing_check.check_pairing",
+    "check:validation.regression_triggers",
+    "check:validation.sr_plausibility",
+    "check:validation.tool_handbooks.check_all",
+    "check:validation.validate_checkin",
+    "check:validation.validate_native_parity"
+   ],
+   "expected_roles": [
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:sibling-11-0",
+    "role:sibling-11-1"
+   ],
+   "expected_knowledge": [
+    "trap:reference-double-counting",
+    "trap:review-coupling_contamination",
+    "trap:review-documentation",
+    "trap:review-sm_baseline",
+    "trap:review-traceability"
+   ],
+   "forbidden_operations": [
+    "op:likelihood",
+    "op:manuscript-build",
+    "op:model-authoring",
+    "op:model-derivation-bridge"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 10,
+    "ordering_arrows": 7,
+    "optional": 1,
+    "checks": 11,
+    "roles": 19,
+    "knowledge": 5,
+    "forbidden": 4,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s13",
+   "kind": "sibling",
+   "request": "Synthetic sibling 13: a toy study of invented model Q13 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:cr-signal-qualification → op:parameter-space-sampling",
+    "op:finite-integrals → op:group-normalization",
+    "op:joint-score → op:likelihood-step-refinement",
+    "op:mc-expected-construction → op:model-ward",
+    "op:nmssm-yukawa-map",
+    "op:published-summary",
+    "op:resonance-width"
+   ],
+   "expected_checks": [
+    "check:validation.output_postconditions._check_json",
+    "check:validation.output_postconditions._check_yoda",
+    "check:validation.output_postconditions.validate_contract",
+    "check:validation.reference_grid",
+    "check:validation.regression_triggers.systematics_selfcheck",
+    "check:validation.summary_audit",
+    "check:validation.tool_handbooks.check_versions",
+    "check:validation.validate_checkin.validate",
+    "check:validation.validate_request_plan",
+    "check:validation.validate_run_state._fixture_shower_without_lhe_check"
+   ],
+   "expected_roles": [
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit"
+   ],
+   "expected_knowledge": [
+    "trap:review-datacard_roundtrip",
+    "trap:review-observable_semantics",
+    "trap:review-theory_doublecount",
+    "trap:review-uncertainty_roundtrip",
+    "trap:unfolding-validity"
+   ],
+   "forbidden_operations": [
+    "op:likelihood",
+    "op:manuscript-build",
+    "op:model-authoring",
+    "op:model-derivation-bridge"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 4,
+    "optional": 0,
+    "checks": 10,
+    "roles": 17,
+    "knowledge": 5,
+    "forbidden": 4,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s14",
+   "kind": "sibling",
+   "request": "Synthetic sibling 14: a toy study of invented model Q14 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:feynarts-amplitude",
+    "op:generated-spectrum",
+    "op:dataset-query-quantities",
+    "op:likelihood-candidate-check",
+    "op:ma5-pad",
+    "op:model-provider-bridge",
+    "op:native-group-acquisition",
+    "op:pdf-variations",
+    "op:reco-ntuple-routine",
+    "op:search-statistics",
+    "op:stage/analysis",
+    "op:stage/statistics",
+    "op:task-completion-context"
+   ],
+   "expected_checks": [
+    "check:validation.pairing_check.write_pairing_check_json (NEW: TS-sib13a)",
+    "check:validation.regression_triggers._check",
+    "check:validation.statistical_calibration (NEW: TS-sib13a)",
+    "check:validation.tool_handbooks.check_handbook",
+    "check:validation.validate_checkin.checkin1_variant",
+    "check:validation.validate_parameters",
+    "check:validation.validate_request_plan.check",
+    "check:validation.validate_run_state.check_figure_contract",
+    "check:validation.validate_run_state.check_statistics",
+    "check:validation.validate_run_state.inv_lhe_check_before_shower",
+    "check:validation.validate_task_contract.validate"
+   ],
+   "expected_roles": [
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author"
+   ],
+   "expected_knowledge": [
+    "trap:review-sm_baseline",
+    "trap:review-traceability",
+    "trap:signed-weight-normalisation",
+    "proto:P1"
+   ],
+   "forbidden_operations": [
+    "op:manuscript-build",
+    "op:model-authoring",
+    "op:model-derivation-bridge",
+    "op:model-events",
+    "op:published-classifier"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 13,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 11,
+    "roles": 8,
+    "knowledge": 4,
+    "forbidden": 5,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s15",
+   "kind": "sibling",
+   "request": "Synthetic sibling 15: a toy study of invented model Q15 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:hs3-likelihood → op:lhe-transform",
+    "op:literal-calculation → op:measurement",
+    "op:mpi-observer",
+    "op:normalized-measurement",
+    "op:quantitative-predictive",
+    "op:retained-shower",
+    "op:signal-template",
+    "op:stage/resource_census",
+    "op:statistical-model",
+    "op:workspace-combination-study",
+    "op:amplitude-predictions"
+   ],
+   "expected_checks": [
+    "check:validation.tool_handbooks (NEW: TS-sib14a)",
+    "check:validation.tool_handbooks.resolve_check",
+    "check:validation.validate_cutflow",
+    "check:validation.validate_request_plan._checked_signatures",
+    "check:validation.validate_run_state.check_analysis",
+    "check:validation.validate_run_state.check_result_pack"
+   ],
+   "expected_roles": [
+    "role:data-curator",
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer"
+   ],
+   "expected_knowledge": [
+    "trap:review-uncertainty_roundtrip",
+    "trap:unfolding-validity",
+    "proto:P2",
+    "proto:P4",
+    "proto:P6",
+    "proto:P8"
+   ],
+   "forbidden_operations": [
+    "op:model-authoring",
+    "op:model-derivation-bridge",
+    "op:model-events"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 11,
+    "ordering_arrows": 2,
+    "optional": 0,
+    "checks": 6,
+    "roles": 6,
+    "knowledge": 6,
+    "forbidden": 3,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s16",
+   "kind": "sibling",
+   "request": "Synthetic sibling 16: a toy study of invented model Q16 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:likelihood-parity → op:ma5-saf",
+    "op:model-sources → op:native-likelihood",
+    "op:prescribed-statistic",
+    "op:research-comparison"
+   ],
+   "expected_checks": [
+    "check:validation.validate_parameters.cmd_check",
+    "check:validation.validate_run_state",
+    "check:validation.validate_run_state.check_generation",
+    "check:validation.validate_run_state.check_task_contract",
+    "check:validation.validate_run_state.inv_param_validated_before_scan",
+    "check:validation.validate_task_contract.validate_pins",
+    "check:validation.verify_pack.check_limit_record"
+   ],
+   "expected_roles": [
+    "role:numerical-referee",
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier"
+   ],
+   "expected_knowledge": [
+    "proto:P1",
+    "proto:P3",
+    "proto:P5",
+    "proto:P7"
+   ],
+   "forbidden_operations": [
+    "op:model-derivation-bridge",
+    "op:model-events",
+    "op:published-classifier"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 4,
+    "ordering_arrows": 2,
+    "optional": 0,
+    "checks": 7,
+    "roles": 4,
+    "knowledge": 4,
+    "forbidden": 3,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s17",
+   "kind": "sibling",
+   "request": "Synthetic sibling 17: a toy study of invented model Q17 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:model-inputs",
+    "op:mpi-paired-effect",
+    "op:ntuple-inventory",
+    "op:quantities",
+    "op:root-stream",
+    "op:simplified-spectrum",
+    "op:stage/result_pack",
+    "op:stau-events"
+   ],
+   "expected_checks": [
+    "check:validation.validate_run_state.check_route",
+    "check:validation.validate_run_state.inv_checkin2_go_before_bulk_compute",
+    "check:validation.validate_task_contract",
+    "check:validation.verify_pack.check_figure_target"
+   ],
+   "expected_roles": [
+    "role:scope-auditor",
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author"
+   ],
+   "expected_knowledge": [
+    "proto:P4",
+    "proto:P6",
+    "proto:P8"
+   ],
+   "forbidden_operations": [
+    "op:model-events",
+    "op:published-classifier",
+    "op:symbolic-evaluation",
+    "op:amplitude-crosscheck"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 8,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 5,
+    "knowledge": 3,
+    "forbidden": 4,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s18",
+   "kind": "sibling",
+   "request": "Synthetic sibling 18: a toy study of invented model Q18 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:native-statistical-construction",
+    "op:published-model",
+    "op:resonance-lineshape",
+    "op:sfitter-observed-events",
+    "op:stage/figure_contract",
+    "op:stage/trap_sweep",
+    "op:width-inputs"
+   ],
+   "expected_checks": [
+    "check:validation.verify_pack (NEW: TS-sib17a)",
+    "check:validation.verify_pack.check_manifest",
+    "check:validation.verify_pack.check_sensitivity",
+    "check:workflow.physics_knowledge.check"
+   ],
+   "expected_roles": [
+    "role:plan-critic",
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics"
+   ],
+   "expected_knowledge": [
+    "proto:P7",
+    "proto:research/ablation",
+    "proto:research/full",
+    "proto:research/screen"
+   ],
+   "forbidden_operations": [
+    "op:published-classifier",
+    "op:symbolic-evaluation",
+    "op:amplitude-crosscheck"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 7,
+    "knowledge": 4,
+    "forbidden": 3,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s19",
+   "kind": "sibling",
+   "request": "Synthetic sibling 19: a toy study of invented model Q19 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:ratio-measurement",
+    "op:scientific-delivery",
+    "op:source-tables",
+    "op:stage/route",
+    "op:svj-recipe"
+   ],
+   "expected_checks": [
+    "check:workflow.hepdata_fetch.record_data_index (NEW: TS-sib18a)",
+    "check:physics.amplitude_basis.point_grams",
+    "check:physics.columnar.engine.merge"
+   ],
+   "expected_roles": [
+    "role:physics-verifier",
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia"
+   ],
+   "expected_knowledge": [
+    "proto:research/baseline",
+    "proto:research/objection_test",
+    "checklist:check-ins",
+    "checklist:complex-analysis"
+   ],
+   "forbidden_operations": [
+    "op:symbolic-evaluation",
+    "op:amplitude-crosscheck"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 5,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 3,
+    "roles": 5,
+    "knowledge": 4,
+    "forbidden": 2,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s20",
+   "kind": "sibling",
+   "request": "Synthetic sibling 20: a toy study of invented model Q20 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:sfitter-scan-extraction",
+    "op:stage/generation",
+    "op:stage/verification",
+    "op:mass-width-grid"
+   ],
+   "expected_checks": [
+    "check:physics.columnar.recipe.compile_recipe (NEW: TS-sib19a)",
+    "check:physics.delphes2sa_native.read_weights",
+    "check:physics.inference.prescribed_statistic.load",
+    "check:physics.model_authoring.adjudicate_gauge_checks",
+    "check:physics.model_events.check_cards"
+   ],
+   "expected_roles": [
+    "role:rdj-edge-reviewer",
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia"
+   ],
+   "expected_knowledge": [
+    "proto:research/screen",
+    "checklist:choosing-routine",
+    "checklist:data-acquisition",
+    "checklist:exclusion-model"
+   ],
+   "forbidden_operations": [
+    "op:amplitude-crosscheck",
+    "op:amplitude-integration",
+    "op:analysis-lifecycle"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 4,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 5,
+    "roles": 4,
+    "knowledge": 4,
+    "forbidden": 3,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s21",
+   "kind": "sibling",
+   "request": "Synthetic sibling 21: a toy study of invented model Q21 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:stage/statistics",
+    "op:task-completion-context",
+    "op:analysis-lifecycle",
+    "op:background-discrete-profile",
+    "op:contur-companion",
+    "op:derived-quantities",
+    "op:eft-functions"
+   ],
+   "expected_checks": [
+    "check:physics.ma5_saf_reader.regions",
+    "check:physics.model_derivation_bridge.mass_witness",
+    "check:physics.native_statistical_construction._template_native_geometry",
+    "check:physics.pdf_variations.validate_records"
+   ],
+   "expected_roles": [
+    "role:analysis-author",
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector"
+   ],
+   "expected_knowledge": [
+    "checklist:complex-analysis",
+    "checklist:detector-fidelity"
+   ],
+   "forbidden_operations": [
+    "op:analyze",
+    "op:authored-analysis"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 5,
+    "knowledge": 2,
+    "forbidden": 2,
+    "new": 0
+   }
+  },
+  {
+   "case_id": "TS-s22",
+   "kind": "sibling",
+   "request": "Synthetic sibling 22: a toy study of invented model Q22 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:workspace-combination-study",
+    "op:amplitude-predictions",
+    "op:columnar-analysis",
+    "op:coupling-morphing",
+    "op:domain",
+    "op:fill-template",
+    "op:group-composition"
+   ],
+   "expected_checks": [
+    "check:physics.normalization_ledger.check (NEW: TS-sib21a)",
+    "check:physics.pythia_cards.compare",
+    "check:physics.spin0_amplitudes.closure (NEW: TS-sib21a)",
+    "check:regression/closure"
+   ],
+   "expected_roles": [
+    "role:consult-madgraph",
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions"
+   ],
+   "expected_knowledge": [
+    "checklist:exclusion-model",
+    "checklist:generation-settings",
+    "checklist:merging",
+    "checklist:option-c-judgment"
+   ],
+   "forbidden_operations": [
+    "op:analysis-lifecycle",
+    "op:analyze"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 6,
+    "knowledge": 4,
+    "forbidden": 2,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s23",
+   "kind": "sibling",
+   "request": "Synthetic sibling 23: a toy study of invented model Q23 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:contrast → op:cross-section",
+    "op:eft-convention-transport",
+    "op:finite-mc",
+    "op:hs3-likelihood",
+    "op:lhe-transform",
+    "op:literal-calculation",
+    "op:measurement"
+   ],
+   "expected_checks": [
+    "check:physics.ufo_check.check (NEW: TS-sib22a)",
+    "check:regression/goodness-of-fit",
+    "check:regression/systematic-dominance",
+    "check:review/census"
+   ],
+   "expected_roles": [
+    "role:consult-pythia",
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section"
+   ],
+   "expected_knowledge": [
+    "checklist:judgment-protocols",
+    "checklist:model-cards",
+    "checklist:physics-traps"
+   ],
+   "forbidden_operations": [
+    "op:analyze",
+    "op:authored-analysis"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 7,
+    "ordering_arrows": 1,
+    "optional": 0,
+    "checks": 4,
+    "roles": 6,
+    "knowledge": 3,
+    "forbidden": 2,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s24",
+   "kind": "sibling",
+   "request": "Synthetic sibling 24: a toy study of invented model Q24 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:differential-likelihood",
+    "op:figure-comparison",
+    "op:generation-reconciliation",
+    "op:joint-fit",
+    "op:likelihood-parity"
+   ],
+   "expected_checks": [
+    "check:review/acceptance_certificate (NEW: TS-sib23a)",
+    "check:review/deviations",
+    "check:review/invisible_card (NEW: TS-sib23a)",
+    "check:review/limit_status"
+   ],
+   "expected_roles": [
+    "role:consult-statistics",
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions"
+   ],
+   "expected_knowledge": [
+    "checklist:option-c-judgment",
+    "checklist:plot-criteria"
+   ],
+   "forbidden_operations": [
+    "op:authored-analysis",
+    "op:cosmology-solver"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 5,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 4,
+    "knowledge": 2,
+    "forbidden": 2,
+    "new": 2
+   }
+  },
+  {
+   "case_id": "TS-s25",
+   "kind": "sibling",
+   "request": "Synthetic sibling 25: a toy study of invented model Q25 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:formula-grid",
+    "op:initialized-settings-qualification",
+    "op:lifecycle-scan-aggregation",
+    "op:tree-array-export"
+   ],
+   "expected_checks": [
+    "check:review/lhe_check (NEW: TS-sib24a)",
+    "check:review/prose",
+    "check:two-body-width",
+    "check:validation.benchmark.gate_case"
+   ],
+   "expected_roles": [
+    "role:consult-detector",
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit"
+   ],
+   "expected_knowledge": [
+    "checklist:plot-guidelines",
+    "checklist:reproduction-closure",
+    "checklist:summary-plot"
+   ],
+   "forbidden_operations": [
+    "op:cosmology-solver",
+    "op:eft-toolchain"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 4,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 4,
+    "roles": 5,
+    "knowledge": 3,
+    "forbidden": 2,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s26",
+   "kind": "sibling",
+   "request": "Synthetic sibling 26: a toy study of invented model Q26 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:joint-qualification → op:likelihood-profile-probe",
+    "op:mc-closure",
+    "op:model-tool-bridge",
+    "op:native-statistical-construction",
+    "op:published-model"
+   ],
+   "expected_checks": [
+    "check:validation.analysis_witness._check_program (NEW: TS-sib25a)",
+    "check:validation.certificates.validate_certificate",
+    "check:validation.check_agent_surface.check_fork",
+    "check:validation.check_agent_surface.check_readiness",
+    "check:validation.check_agent_surface.check_statefresh"
+   ],
+   "expected_roles": [
+    "role:consult-model",
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer"
+   ],
+   "expected_knowledge": [
+    "checklist:scan-and-contour",
+    "checklist:troubleshooting"
+   ],
+   "forbidden_operations": [
+    "op:eft-toolchain",
+    "op:event-production"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 5,
+    "ordering_arrows": 1,
+    "optional": 0,
+    "checks": 5,
+    "roles": 5,
+    "knowledge": 2,
+    "forbidden": 2,
+    "new": 1
+   }
+  },
+  {
+   "case_id": "TS-s27",
+   "kind": "sibling",
+   "request": "Synthetic sibling 27: a toy study of invented model Q27 with invented inputs; structure only.",
+   "expected_operations": [
+    "op:llp-plane-recipe",
+    "op:model-portfolio",
+    "op:mssm-observable-map",
+    "op:numerical-reference-check",
+    "op:ratio-measurement",
+    "op:scientific-delivery"
+   ],
+   "expected_checks": [
+    "check:validation.check_agent_surface.check_installed_handbooks (NEW: TS-sib26a)",
+    "check:validation.check_agent_surface.check_skill_keys",
+    "check:validation.check_agent_surface.check_statefresh_part1 (NEW: TS-sib26a)",
+    "check:validation.constants_manifest",
+    "check:validation.cr_switch_qualification (NEW: TS-sib26a)",
+    "check:validation.initialized_settings_retained"
+   ],
+   "expected_roles": [
+    "role:consult-conventions",
+    "role:consult-cross-section",
+    "role:consult-fit",
+    "role:manuscript-reviewer",
+    "role:diagram-reviewer",
+    "role:data-curator",
+    "role:numerical-referee"
+   ],
+   "expected_knowledge": [
+    "checklist:validation",
+    "checklist:verification-panel",
+    "hb:cross-section-normalization"
+   ],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:generate"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Shape-matched synthetic sibling. Operation content is generic; no reference text.",
+   "shape": {
+    "operations": 6,
+    "ordering_arrows": 0,
+    "optional": 0,
+    "checks": 6,
+    "roles": 7,
+    "knowledge": 3,
+    "forbidden": 2,
+    "new": 3
+   }
+  }
+ ]
+}

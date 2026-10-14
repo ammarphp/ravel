@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "gemini-cli-oneshot",
+  "transport_kind": "cli-oneshot",
+  "launcher": "gemini",
+  "argv_template": [
+    "gemini",
+    "-p",
+    "{prompt_hint}",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "GEMINI_API_KEY"
+    ],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "GOOGLE_GENAI_USE_VERTEXAI",
+    "GOOGLE_CLOUD_PROJECT",
+    "GOOGLE_CLOUD_LOCATION",
+    "GOOGLE_APPLICATION_CREDENTIALS"
+  ],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-readonly",
+    "isolation": "cli-policy",
+    "attestation": "host",
+    "structured_output": false,
+    "blind_capable": false,
+    "effort_control": false,
+    "session_id": false,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Gemini CLI for AI Studio API keys and Vertex AI. Runs with a fresh HOME holding only the login material, so ~/.env and ~/.gemini/.env are not read. Gemini CLI has no flag that excludes user settings or GEMINI.md and keeps its read tools, so receipts record user_configuration_loaded: true and attestation is host, never transport. The json output format carries no session id."
+}

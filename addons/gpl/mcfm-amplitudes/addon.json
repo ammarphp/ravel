@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "name": "mcfm-amplitudes",
+  "license": "GPL-3.0-or-later",
+  "summary": "Per-point helicity amplitudes for interfering resonances",
+  "upstream": {
+    "name": "MCFM",
+    "version": "10.2.1",
+    "commit": "0adaa4ed4079de1b17c84417a0a428a468f57e69",
+    "repository": "https://gitlab.com/mcfm-team/releases"
+  },
+  "program": "ravel_mcfm_amplitudes",
+  "overlay": [
+    "ravel_bridge.f90",
+    "ravel_driver.f90",
+    "lowint-capture.patch",
+    "CMakeLists-ravel.cmake"
+  ],
+  "files": {
+    "ravel_bridge.f90": "f1abe95697d86e5b93b5cf961fdcdaf22b13edd05060ded740790ece5797d0af",
+    "ravel_driver.f90": "86d0efce43bc59523eb764a0014edcd196e87b82d50c32dfccb350daa1eb2438",
+    "lowint-capture.patch": "414a870631fc6df128c54844a913105315d4bd2050409c33113f62ee98a556bd",
+    "CMakeLists-ravel.cmake": "3d2dcfb7a1c97c9324177ab2b0683670d5c9fcee5329e0f2d78ca5e184fea9b9",
+    "upstream-api.json": "3c2a836497efc363b8826c7311cc37fb9c274fc5e500936ecbbc296c330c87c2",
+    "COPYING.GPL-3.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  "protocol": {
+    "format": "RAVEL_MCFM_2",
+    "operations": {
+      "points": 0,
+      "warmup": 1,
+      "block": 2
+    },
+    "control_file": "ravel-control.dat",
+    "card_file": "input.ini",
+    "points_file": "ravel-points.dat",
+    "grid_file": "proposal-grid.bin",
+    "output_file": "amplitudes.dat",
+    "channels": {
+      "1": {
+        "label": "different-flavour lepton pairs",
+        "pdg": [
+          21,
+          21,
+          11,
+          -11,
+          13,
+          -13
+        ]
+      },
+      "2": {
+        "label": "identical electrons",
+        "pdg": [
+          21,
+          21,
+          11,
+          -11,
+          11,
+          -11
+        ]
+      },
+      "3": {
+        "label": "identical muons",
+        "pdg": [
+          21,
+          21,
+          13,
+          -13,
+          13,
+          -13
+        ]
+      }
+    },
+    "amplitude_channels": [
+      "up",
+      "down",
+      "bottom",
+      "top",
+      "hbottom",
+      "htop"
+    ],
+    "members": {
+      "continuum": {
+        "sum": {
+          "up": 2,
+          "down": 2,
+          "bottom": 1,
+          "top": 1
+        }
+      },
+      "scalar_bottom": {
+        "sum": {
+          "hbottom": 1
+        },
+        "per_reference_propagator": true
+      },
+      "scalar_top": {
+        "sum": {
+          "htop": 1
+        },
+        "per_reference_propagator": true
+      }
+    },
+    "oracle_continuum_member": "continuum",
+    "factor": [
+      "grid_weight_over_n",
+      "phase_space",
+      "flux",
+      "pdf_product"
+    ],
+    "factor_divisor": "branching_ratio",
+    "factor_unit": "fb"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "prescribed-statistic",
+  "description": "Synthetic example: two experiments, per-bin Gaussian background nuisances, signal proportional to g^4.",
+  "statistic": {
+    "kind": "binned-profile",
+    "verbatim": "Use mu_i = b_i(1+theta_i) + s_i with Gaussian theta_i of width delta_i/b_i, combine both experiments and quote the Delta(-2 ln L) = 4 crossing in g."
+  },
+  "parameter": {
+    "name": "g",
+    "unit": "",
+    "label": "Coupling g"
+  },
+  "domain": [
+    0.0,
+    null
+  ],
+  "scan": {
+    "min": 0.0,
+    "max": 3.0,
+    "points": 301
+  },
+  "test_statistic": "two-sided",
+  "threshold": 4.0,
+  "nuisance_form": "gaussian-linear",
+  "background_floor": "nonnegative",
+  "channels": [
+    {
+      "name": "experiment-one",
+      "observed": [
+        12,
+        5,
+        1
+      ],
+      "background": [
+        11.0,
+        4.5,
+        1.2
+      ],
+      "background_uncertainty": [
+        1.5,
+        0.8,
+        0.4
+      ]
+    },
+    {
+      "name": "experiment-two",
+      "observed": [
+        7,
+        2
+      ],
+      "background": [
+        6.5,
+        2.4
+      ],
+      "background_uncertainty": [
+        1.2,
+        0.6
+      ]
+    }
+  ],
+  "signal": {
+    "kind": "power",
+    "reference": 1.0,
+    "power": 4,
+    "templates": {
+      "experiment-one": [
+        2.0,
+        1.5,
+        0.8
+      ],
+      "experiment-two": [
+        1.2,
+        0.9
+      ]
+    }
+  },
+  "expected": true,
+  "companion": {
+    "cls": true,
+    "level": 0.05
+  }
+}

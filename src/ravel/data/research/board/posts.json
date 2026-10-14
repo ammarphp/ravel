@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "board-post-schemas",
+  "description": "Closed board post kinds. Field types: id, text, sha256, pin, bool, probability, predictions, object, a list form '<type>[]', or 'enum:<a>|<b>'. A field name ending in '?' is optional. Fields listed under rationale are stripped from the spec-denied projection.",
+  "envelope": ["kind", "actor_sequence", "parents", "fields"],
+  "absent_by_design": ["verdict", "agree", "summary", "priority", "approval"],
+  "control_fields": ["accepted", "actor", "actor_id", "approval", "approved", "authority", "authorized", "command",
+                     "complete", "decision", "dispatch", "excluded", "gate", "independent", "priority", "session_id",
+                     "status", "transition", "verdict", "vote"],
+  "evaluation_only": ["pre_mortem"],
+  "receipt_kinds": ["finding", "refutation"],
+  "kinds": {
+    "hypothesis": {
+      "fields": {"id": "id", "family": "id", "statement": "text", "assumptions": "text[]",
+                 "predictions": "predictions", "rival_of": "sha256[]",
+                 "operator": "enum:limitation_fix|recombination|technique_transfer|ablation_refinement|provocation",
+                 "source_lineage": "pin[]", "kill_condition": "object", "register?": "object", "stated_probability?": "probability",
+                 "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "prediction": {
+      "fields": {"hypothesis": "sha256", "observable": "id", "units": "text", "conditions": "text[]",
+                 "expected": "object", "comparator": "id", "discriminates_against": "sha256[]", "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "rival": {
+      "fields": {"world_a": "sha256", "world_b": "sha256", "visible_agreement_pins": "pin[]",
+                 "separator": "object", "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "evidence_request": {
+      "fields": {"observable": "id", "conditions": "text[]", "discriminates": "sha256[]",
+                 "admissible_operation": "id", "prerequisites": "text[]", "cost_class": "enum:cheap|moderate|expensive",
+                 "feasibility": "enum:feasible|uncertain|infeasible", "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "finding": {
+      "fields": {"receipt_pin": "pin", "evidence_class": "enum:new_receipt|code_check", "statement": "text",
+                 "affects": "sha256[]", "rationale?": "text"},
+      "rationale": ["statement", "rationale"]
+    },
+    "refutation": {
+      "fields": {"target": "object", "receipt_pin": "pin", "comparator": "id", "sensitivity": "text",
+                 "held_fixed_inputs": "pin[]", "domain": "text", "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "question": {
+      "fields": {"missing_observation": "text", "permitted_source": "text", "rationale?": "text"},
+      "rationale": ["rationale"]
+    },
+    "pre_mortem": {
+      "fields": {"risk": "text", "affects": "sha256[]", "rationale?": "text"},
+      "rationale": ["risk", "rationale"]
+    }
+  },
+  "spec_denied_kinds": ["hypothesis", "prediction", "evidence_request", "finding", "refutation"],
+  "register_states": ["proposed", "active", "survived_test", "inconclusive", "prediction_mismatch",
+                      "rejected_in_scope", "execution_failure", "parked", "superseded", "reopened"]
+}

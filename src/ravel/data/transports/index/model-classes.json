@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "kind": "transport-model-classes",
+  "classes": [
+    {
+      "id": "claude-login",
+      "label": "Claude, subscription login",
+      "family": "anthropic",
+      "keyless": true,
+      "worker": [
+        "claude-cli-worker"
+      ],
+      "judgment": [
+        "claude-cli-oneshot"
+      ]
+    },
+    {
+      "id": "claude-api-key",
+      "label": "Claude, API key",
+      "family": "anthropic",
+      "keyless": false,
+      "worker": [
+        "claude-cli-worker-apikey",
+        "opencode-worker",
+        "ravel-loop-anthropic"
+      ],
+      "judgment": [
+        "http-anthropic"
+      ]
+    },
+    {
+      "id": "gpt-login",
+      "label": "GPT, ChatGPT login",
+      "family": "openai",
+      "keyless": true,
+      "worker": [
+        "codex-cli-worker"
+      ],
+      "judgment": [
+        "codex-cli-oneshot"
+      ]
+    },
+    {
+      "id": "gpt-api-key",
+      "label": "GPT, API key",
+      "family": "openai",
+      "keyless": false,
+      "worker": [
+        "codex-cli-worker-apikey",
+        "opencode-worker",
+        "ravel-loop-responses"
+      ],
+      "judgment": [
+        "http-responses"
+      ]
+    },
+    {
+      "id": "gemini-login",
+      "label": "Gemini, Google login (Antigravity CLI)",
+      "family": "google",
+      "keyless": true,
+      "worker": [
+        "antigravity-cli-worker"
+      ],
+      "judgment": [
+        "antigravity-cli-oneshot"
+      ]
+    },
+    {
+      "id": "gemini-api-key",
+      "label": "Gemini, AI Studio key",
+      "family": "google",
+      "keyless": false,
+      "worker": [
+        "gemini-cli-worker",
+        "opencode-worker",
+        "ravel-loop-gemini"
+      ],
+      "judgment": [
+        "http-gemini"
+      ]
+    },
+    {
+      "id": "vertex",
+      "label": "Vertex AI (Gemini, Claude)",
+      "family": "any",
+      "keyless": false,
+      "worker": [
+        "claude-cli-worker-vertex",
+        "gemini-cli-worker",
+        "opencode-worker",
+        "ravel-loop-chat"
+      ],
+      "judgment": [
+        "http-vertex-chat"
+      ]
+    },
+    {
+      "id": "bedrock",
+      "label": "Amazon Bedrock",
+      "family": "any",
+      "keyless": false,
+      "worker": [
+        "claude-cli-worker-bedrock",
+        "opencode-worker",
+        "ravel-loop-chat"
+      ],
+      "judgment": [
+        "http-bedrock-mantle"
+      ]
+    },
+    {
+      "id": "azure-openai",
+      "label": "Azure OpenAI",
+      "family": "openai",
+      "keyless": false,
+      "worker": [
+        "codex-cli-worker-azure",
+        "opencode-worker",
+        "ravel-loop-chat"
+      ],
+      "judgment": [
+        "http-azure-chat"
+      ]
+    },
+    {
+      "id": "xai",
+      "label": "xAI Grok",
+      "family": "xai",
+      "keyless": false,
+      "worker": [
+        "opencode-worker",
+        "ravel-loop-chat"
+      ],
+      "judgment": [
+        "http-xai"
+      ]
+    },
+    {
+      "id": "openrouter",
+      "label": "OpenRouter and other clouds",
+      "family": "any",
+      "keyless": false,
+      "worker": [
+        "opencode-worker",
+        "ravel-loop-chat"
+      ],
+      "judgment": [
+        "http-openrouter",
+        "http-chat"
+      ]
+    },
+    {
+      "id": "local-tool-calling",
+      "label": "Local, tool-calling (Ollama, vLLM, LM Studio, llama.cpp)",
+      "family": "any",
+      "keyless": true,
+      "worker": [
+        "codex-oss-worker",
+        "opencode-worker",
+        "ravel-loop-local"
+      ],
+      "judgment": [
+        "http-local"
+      ]
+    },
+    {
+      "id": "local-text-only",
+      "label": "Local, text-only or small",
+      "family": "any",
+      "keyless": true,
+      "worker": [
+        "ravel-loop-local"
+      ],
+      "judgment": [
+        "ravel-loop-local"
+      ]
+    },
+    {
+      "id": "fine-tuned",
+      "label": "Custom fine-tuned, served OpenAI-compatible or through Ollama",
+      "family": "any",
+      "keyless": false,
+      "worker": [
+        "opencode-worker",
+        "ravel-loop-chat",
+        "ravel-loop-local"
+      ],
+      "judgment": [
+        "http-chat",
+        "http-local"
+      ]
+    }
+  ]
+}

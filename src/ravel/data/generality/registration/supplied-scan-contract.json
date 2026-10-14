@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "package": "supplied-scan-contract",
+  "mode_descriptors": {
+    "parameter-space-sampling": {
+      "summary": "Native parameter scans driven by supplied contracts, mappings and finite resources.",
+      "applicability": {
+        "scope": "general"
+      },
+      "tools": [
+        "EasyScan",
+        "EasyScan_HEP"
+      ]
+    }
+  },
+  "operation_signatures": {
+    "parameter-space-sampling": {
+      "summary": "Supplied native scan contracts with raw sampler and table delivery.",
+      "produces": [
+        {
+          "slot": "samples",
+          "kind": "table"
+        }
+      ],
+      "tools": [
+        "EasyScan",
+        "EasyScan_HEP"
+      ]
+    }
+  },
+  "handoff": "Apply descriptor and signature patches through the registration integrator; delivery alone does not qualify a posterior.",
+  "applicability_predicate": {
+    "contract_schema": "src/ravel/data/easyscan/scan-contract.schema.json",
+    "validator": "ravel.physics.parameter_space_sampling_core.config",
+    "configuration_validator": "ravel.physics.parameter_space_sampling_core.ini",
+    "required_inputs": [
+      "pinned schema-2 scan contract",
+      "admitted native sampler and complete programme mappings",
+      "source/workspace/runtime commitments and finite resources",
+      "ordinary method decision and admission"
+    ],
+    "study_identity_selects_behavior": false
+  }
+}

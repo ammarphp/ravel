@@ -1,0 +1,26 @@
+{
+ "id": "op:lhe-transform",
+ "op": {
+  "do_not_use_when": [
+   "Showering the result: use event-production.",
+   "Checking cards, not events: use generation-reconciliation."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/lhe-transform-example --spec specs/lhe-transform.json",
+    "phrase": "Rewrite particle status codes in an LHE file by declared rules.",
+    "spec": {
+     "mode": "lhe-transform",
+     "task": {
+      "input": "events/sample.lhe",
+      "rules": "rules/rewrite.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Rewrite LHE particles by declared status and PDG rules, with optional mass reset.",
+   "Prove that weights, init block and momenta are unchanged by the rewrite."
+  ]
+ }
+}

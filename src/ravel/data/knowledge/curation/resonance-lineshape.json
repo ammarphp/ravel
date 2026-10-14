@@ -1,0 +1,25 @@
+{
+ "id": "op:resonance-lineshape",
+ "op": {
+  "do_not_use_when": [
+   "Two-body widths into fermions only: use resonance-width.",
+   "Mass-width input tables: use mass-width-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/resonance-lineshape-example --spec specs/resonance-lineshape.json",
+    "phrase": "Evaluate partial widths and a propagator scheme for a declared resonance.",
+    "spec": {
+     "mode": "resonance-lineshape",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Leading-order partial widths of spin-0 and spin-1 resonances with fixed, running or complex-pole propagators.",
+   "The declared total width must be checked against the sum of partial widths."
+  ]
+ }
+}

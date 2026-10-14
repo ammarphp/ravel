@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "sections": [
+    {
+      "id": "review_points",
+      "order": 100,
+      "module": "ravel.validation.validate_checkin",
+      "render": "review_points_section",
+      "applicable": false
+    },
+    {
+      "id": "agreement_targets",
+      "order": 90,
+      "module": "ravel.validation.agreement_target",
+      "render": "checkin_section",
+      "validate": "checkin_errors"
+    },
+    {
+      "id": "certification_tolerances",
+      "order": 200,
+      "module": "ravel.validation.certification_tolerances",
+      "render": "checkin_section",
+      "validate": "section_errors"
+    },
+    {
+      "id": "recipe_ledger",
+      "order": 210,
+      "module": "ravel.workflow.recipe_ledger",
+      "render": "checkin_section",
+      "validate": "section_errors"
+    },
+    {
+      "id": "method_decision",
+      "order": 80,
+      "module": "ravel.workflow.method_selection",
+      "render": "checkin_section"
+    },
+    {
+      "id": "steering_policy",
+      "order": 220,
+      "module": "ravel.workflow.gate_wiring",
+      "render": "checkin_policy_section"
+    }
+  ]
+}

@@ -1,0 +1,1306 @@
+{
+  "schema_version": 1,
+  "comparators": {
+    "RW-T1": [
+      "qual:geant4:radiation-length",
+      "qual:geant4:moliere-radius",
+      "qual:geant4:shower-maximum",
+      "qual:geant4:lateral-containment",
+      "qual:geant4:ecal-stochastic-term"
+    ],
+    "RW-T2": [
+      "qual:dd4hep-odd:muon-pt-resolution",
+      "qual:dd4hep-odd:impact-parameter-resolution"
+    ],
+    "RW-T3": [
+      "qual:shower:thrust",
+      "qual:shower:c-parameter",
+      "qual:shower:charged-multiplicity"
+    ],
+    "RW-T4": [
+      "qual:sherpa:z-pt-spectrum",
+      "qual:powheg:z-pt-spectrum"
+    ],
+    "RW-T5": [
+      "qual:powheg:hh-nlo-cross-section"
+    ],
+    "RW-T6": [
+      "qual:madloop:zz-signal-cross-section",
+      "qual:madloop:zz-continuum-cross-section",
+      "qual:madloop:zz-interference-cross-section",
+      "qual:mcfm:zz-signal-cross-section",
+      "qual:mcfm:zz-continuum-cross-section",
+      "qual:mcfm:zz-interference-cross-section"
+    ],
+    "RW-T15": [
+      "qual:mcfm:zz-signal-cross-section",
+      "qual:mcfm:zz-continuum-cross-section",
+      "qual:mcfm:zz-interference-cross-section",
+      "qual:jhugen:sigma1-sigma3-ratio"
+    ],
+    "RW-T7": [
+      "qual:micromegas:cold-dark-matter-density",
+      "qual:micromegas:singlet-relic-line",
+      "qual:micromegas:direct-detection-limit"
+    ],
+    "RW-T8": [
+      "qual:feynhiggs:light-higgs-mass",
+      "qual:softsusy:light-higgs-mass",
+      "qual:flexiblesusy:light-higgs-mass",
+      "qual:spheno:light-higgs-mass"
+    ],
+    "RW-T9": [
+      "qual:formcalc:spin-one-loop-function",
+      "qual:package-x:spin-half-loop-function",
+      "qual:feyncalc:diphoton-width"
+    ],
+    "RW-T10": [
+      "qual:roofit-hs3:observed-cls"
+    ],
+    "RW-T11": [
+      "qual:checkmate:cutflow",
+      "qual:checkmate:final-signal-yield"
+    ],
+    "RW-T12": [
+      "qual:torch-geometric:top-tagging-auc"
+    ],
+    "RW-T13": [
+      "qual:multinest:egg-box-log-evidence",
+      "qual:multinest:gaussian-shell-log-evidence"
+    ],
+    "RW-T14": [
+      "qual:madgraph:photon-luminosity",
+      "qual:madgraph:photon-luminosity-uncertainty"
+    ],
+    "RW-T16": [
+      "qual:spheno:reference-spectrum",
+      "qual:sarah:spectrum-closure",
+      "qual:susyhit:neutralino-stau-branching",
+      "qual:susyhit:stop-chargino-branching",
+      "qual:softsusy:reference-spectrum",
+      "qual:flexiblesusy:cmssm-spectrum",
+      "qual:easyscan:posterior-mean",
+      "qual:gm2calc:anomalous-moment",
+      "qual:feynrules:ee-mumu-cross-section",
+      "qual:feynrules:udbar-w-cross-section",
+      "qual:feynrules:gg-ttbar-cross-section"
+    ],
+    "RW-T17": [
+      "qual:hi-class:lcdm-tt-relative-accuracy"
+    ]
+  },
+  "rows": [
+    {
+      "id": "qual:geant4:radiation-length",
+      "tool": "geant4",
+      "quantity": "radiation-length",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": "https://pdg.lbl.gov",
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Section 34.5; exact edition and material table pending",
+      "value": null,
+      "uncertainty": null,
+      "units": "cm",
+      "conditions": {
+        "material": "PbWO4",
+        "energy": "10 GeV",
+        "edition": "pending",
+        "geometry": "response-study crystal matrix"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:geant4:moliere-radius",
+      "tool": "geant4",
+      "quantity": "moliere-radius",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": "https://pdg.lbl.gov",
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Section 34.5; exact edition and material table pending",
+      "value": null,
+      "uncertainty": null,
+      "units": "cm",
+      "conditions": {
+        "material": "PbWO4",
+        "energy": "10 GeV",
+        "edition": "pending",
+        "geometry": "response-study crystal matrix"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:geant4:shower-maximum",
+      "tool": "geant4",
+      "quantity": "shower-maximum",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": "https://pdg.lbl.gov",
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Section 34.5; exact edition and material table pending",
+      "value": null,
+      "uncertainty": null,
+      "units": "X0",
+      "conditions": {
+        "material": "PbWO4",
+        "energy": "10 GeV",
+        "edition": "pending",
+        "geometry": "response-study crystal matrix"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:geant4:lateral-containment",
+      "tool": "geant4",
+      "quantity": "lateral-containment",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": "https://pdg.lbl.gov",
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Section 34.5; exact edition and material table pending",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "material": "PbWO4",
+        "energy": "10 GeV",
+        "edition": "pending",
+        "geometry": "response-study crystal matrix"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:geant4:ecal-stochastic-term",
+      "tool": "geant4",
+      "quantity": "ecal-stochastic-term",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1088/1748-0221/2/04/P04004",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "photostatistics": "add source photostatistics term before comparison; shower fluctuations alone"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:dd4hep-odd:muon-pt-resolution",
+      "tool": "dd4hep-odd",
+      "quantity": "muon-pt-resolution",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1088/1742-6596/2438/1/012110",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "eta": "central bin and eta scan from source",
+        "pt": "10 GeV",
+        "method": "digitize published figure after fetch"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:dd4hep-odd:impact-parameter-resolution",
+      "tool": "dd4hep-odd",
+      "quantity": "impact-parameter-resolution",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1088/1742-6596/2438/1/012110",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "mm",
+      "conditions": {
+        "eta": "central bin and eta scan from source",
+        "pt": "10 GeV",
+        "method": "digitize published figure after fetch"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:shower:thrust",
+      "tool": "shower",
+      "quantity": "thrust",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1007/s002880050295",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "energy": "LEP-1",
+        "reference": "upstream Rivet reference data; exact tables pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:shower:c-parameter",
+      "tool": "shower",
+      "quantity": "c-parameter",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1007/s002880050295",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "energy": "LEP-1",
+        "reference": "upstream Rivet reference data; exact tables pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:shower:charged-multiplicity",
+      "tool": "shower",
+      "quantity": "charged-multiplicity",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1007/s002880050295",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "energy": "LEP-1",
+        "reference": "upstream Rivet reference data; exact tables pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:sherpa:z-pt-spectrum",
+      "tool": "sherpa",
+      "quantity": "z-pt-spectrum",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "pb/GeV",
+      "conditions": {
+        "energy": "13 TeV",
+        "fiducial": "source cuts and bins pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:powheg:z-pt-spectrum",
+      "tool": "powheg",
+      "quantity": "z-pt-spectrum",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "pb/GeV",
+      "conditions": {
+        "energy": "13 TeV",
+        "fiducial": "source cuts and bins pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:powheg:hh-nlo-cross-section",
+      "tool": "powheg",
+      "quantity": "hh-nlo-cross-section",
+      "source": {
+        "arxiv": "1608.04798",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "energy": "13 TeV",
+        "order": "NLO full top-mass dependence",
+        "scales_pdf": "source prescription pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:madloop:zz-signal-cross-section",
+      "tool": "madloop",
+      "quantity": "zz-signal-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:madloop:zz-continuum-cross-section",
+      "tool": "madloop",
+      "quantity": "zz-continuum-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:madloop:zz-interference-cross-section",
+      "tool": "madloop",
+      "quantity": "zz-interference-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:mcfm:zz-signal-cross-section",
+      "tool": "mcfm",
+      "quantity": "zz-signal-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:mcfm:zz-continuum-cross-section",
+      "tool": "mcfm",
+      "quantity": "zz-continuum-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:mcfm:zz-interference-cross-section",
+      "tool": "mcfm",
+      "quantity": "zz-interference-cross-section",
+      "source": {
+        "arxiv": "1311.3589",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "fb",
+      "conditions": {
+        "final_state": "2e2mu",
+        "cuts_energy_pdf": "source table definition pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:micromegas:cold-dark-matter-density",
+      "tool": "micromegas",
+      "quantity": "cold-dark-matter-density",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1051/0004-6361/201833910",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "dataset": "2018 cosmological parameter determination; exact likelihood combination pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:micromegas:singlet-relic-line",
+      "tool": "micromegas",
+      "quantity": "singlet-relic-line",
+      "source": {
+        "arxiv": "1705.07931",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "model": "scalar singlet Higgs portal",
+        "mass": "1 TeV",
+        "coupling": "source line extraction pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:micromegas:direct-detection-limit",
+      "tool": "micromegas",
+      "quantity": "direct-detection-limit",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1103/PhysRevLett.131.041002",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "cm^2",
+      "conditions": {
+        "mass_grid": "source figure grid pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:feynhiggs:light-higgs-mass",
+      "tool": "feynhiggs",
+      "quantity": "light-higgs-mass",
+      "source": {
+        "arxiv": "1901.05933",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source MSSM benchmark",
+        "ma": "1.5 TeV",
+        "tan_beta": 10,
+        "version_drift": "allowance must be specified by owner"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:softsusy:light-higgs-mass",
+      "tool": "softsusy",
+      "quantity": "light-higgs-mass",
+      "source": {
+        "arxiv": "1901.05933",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source MSSM benchmark",
+        "ma": "1.5 TeV",
+        "tan_beta": 10,
+        "version_drift": "allowance must be specified by owner"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:flexiblesusy:light-higgs-mass",
+      "tool": "flexiblesusy",
+      "quantity": "light-higgs-mass",
+      "source": {
+        "arxiv": "1901.05933",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source MSSM benchmark",
+        "ma": "1.5 TeV",
+        "tan_beta": 10,
+        "version_drift": "allowance must be specified by owner"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:spheno:light-higgs-mass",
+      "tool": "spheno",
+      "quantity": "light-higgs-mass",
+      "source": {
+        "arxiv": "1901.05933",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source MSSM benchmark",
+        "ma": "1.5 TeV",
+        "tan_beta": 10,
+        "version_drift": "allowance must be specified by owner"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:formcalc:spin-one-loop-function",
+      "tool": "formcalc",
+      "quantity": "spin-one-loop-function",
+      "source": {
+        "arxiv": "hep-ph/0503172",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "process": "LO Higgs diphoton decay",
+        "inputs": "source equations; width additionally resolves Higgs reference rows from H-01"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:package-x:spin-half-loop-function",
+      "tool": "package-x",
+      "quantity": "spin-half-loop-function",
+      "source": {
+        "arxiv": "hep-ph/0503172",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "process": "LO Higgs diphoton decay",
+        "inputs": "source equations; width additionally resolves Higgs reference rows from H-01"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:feyncalc:diphoton-width",
+      "tool": "feyncalc",
+      "quantity": "diphoton-width",
+      "source": {
+        "arxiv": "1610.07922",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "process": "LO Higgs diphoton decay",
+        "inputs": "source equations; width additionally resolves Higgs reference rows from H-01"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:roofit-hs3:observed-cls",
+      "tool": "roofit-hs3",
+      "quantity": "observed-cls",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "source_selection": "owning package selects current HEPData likelihood and point",
+        "hold": "no source selected"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:checkmate:cutflow",
+      "tool": "checkmate",
+      "quantity": "cutflow",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "events",
+      "conditions": {
+        "source_selection": "owning package selects analysis and HEPData cutflow",
+        "hold": "no source selected"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:checkmate:final-signal-yield",
+      "tool": "checkmate",
+      "quantity": "final-signal-yield",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "events",
+      "conditions": {
+        "source_selection": "owning package selects analysis and HEPData cutflow",
+        "hold": "no source selected"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:torch-geometric:top-tagging-auc",
+      "tool": "torch-geometric",
+      "quantity": "top-tagging-auc",
+      "source": {
+        "arxiv": "1902.09914",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "training": "three-layer EdgeConv, source subset definition and split pending",
+        "leakage": "compare against best published value"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:multinest:egg-box-log-evidence",
+      "tool": "multinest",
+      "quantity": "egg-box-log-evidence",
+      "source": {
+        "arxiv": "0809.3437",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "dimensions_prior": "source example definition pending",
+        "comparison": "within three source standard errors"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:multinest:gaussian-shell-log-evidence",
+      "tool": "multinest",
+      "quantity": "gaussian-shell-log-evidence",
+      "source": {
+        "arxiv": "0809.3437",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "dimensions_prior": "source example definition pending",
+        "comparison": "within three source standard errors"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:madgraph:photon-luminosity",
+      "tool": "madgraph",
+      "quantity": "photon-luminosity",
+      "source": {
+        "arxiv": "1708.01256",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "energy": "13 TeV",
+        "mass_cut": "100 GeV",
+        "convolution": "independent numerical convolution is separate execution evidence"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:madgraph:photon-luminosity-uncertainty",
+      "tool": "madgraph",
+      "quantity": "photon-luminosity-uncertainty",
+      "source": {
+        "arxiv": "1708.01256",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "energy": "13 TeV",
+        "mass_cut": "100 GeV",
+        "convolution": "independent numerical convolution is separate execution evidence"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:jhugen:sigma1-sigma3-ratio",
+      "tool": "jhugen",
+      "quantity": "sigma1-sigma3-ratio",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1103/PhysRevD.92.012004",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table I",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "hypothesis": "source coupling normalization; matrix-element bridge comparisons are execution evidence"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:spheno:reference-spectrum",
+      "tool": "spheno",
+      "quantity": "reference-spectrum",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1140/epjc/s2005-02460-1",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source SPA convention point; complete source inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:sarah:spectrum-closure",
+      "tool": "sarah",
+      "quantity": "spectrum-closure",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1140/epjc/s2005-02460-1",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source SPA convention point; complete source inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:susyhit:neutralino-stau-branching",
+      "tool": "susyhit",
+      "quantity": "neutralino-stau-branching",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1140/epjc/s2005-02460-1",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "model": "source SPA convention point; complete source inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:susyhit:stop-chargino-branching",
+      "tool": "susyhit",
+      "quantity": "stop-chargino-branching",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1140/epjc/s2005-02460-1",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "model": "source SPA convention point; complete source inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:softsusy:reference-spectrum",
+      "tool": "softsusy",
+      "quantity": "reference-spectrum",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1140/epjc/s2005-02460-1",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source SPA convention point; complete source inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:flexiblesusy:cmssm-spectrum",
+      "tool": "flexiblesusy",
+      "quantity": "cmssm-spectrum",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1016/j.cpc.2014.12.020",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "GeV",
+      "conditions": {
+        "model": "source CMSSM comparison point; exact inputs pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:easyscan:posterior-mean",
+      "tool": "easyscan",
+      "quantity": "posterior-mean",
+      "source": {
+        "arxiv": "2304.03636",
+        "doi": null,
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "example": "source toy example; shipped anomalous-moment example needs owner-bound output"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:gm2calc:anomalous-moment",
+      "tool": "gm2calc",
+      "quantity": "anomalous-moment",
+      "source": {
+        "arxiv": null,
+        "doi": null,
+        "hepdata": null,
+        "url": "https://github.com/GM2Calc/GM2Calc",
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "source_selection": "shipped example reference output and exact source revision required; not an extracted paper value"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:hi-class:lcdm-tt-relative-accuracy",
+      "tool": "hi-class",
+      "quantity": "lcdm-tt-relative-accuracy",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1088/1475-7516/2017/08/019",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "conditions": {
+        "limit": "LCDM",
+        "multipoles": "ell <= 2500",
+        "reference_runtime": "CLASS 3.4.1",
+        "parameters": "source limit prescription pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:feynrules:ee-mumu-cross-section",
+      "tool": "feynrules",
+      "quantity": "ee-mumu-cross-section",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1016/j.cpc.2014.04.012",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "pb",
+      "conditions": {
+        "processes": "ee to mumu",
+        "inputs": "source cross-section comparison table conventions pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:feynrules:udbar-w-cross-section",
+      "tool": "feynrules",
+      "quantity": "udbar-w-cross-section",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1016/j.cpc.2014.04.012",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "pb",
+      "conditions": {
+        "processes": "udbar to Wplus",
+        "inputs": "source cross-section comparison table conventions pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "qual:feynrules:gg-ttbar-cross-section",
+      "tool": "feynrules",
+      "quantity": "gg-ttbar-cross-section",
+      "source": {
+        "arxiv": null,
+        "doi": "10.1016/j.cpc.2014.04.012",
+        "hepdata": null,
+        "url": null,
+        "licence": "LicenseRef-source-pending"
+      },
+      "locator": "Table/Figure locator pending source fetch",
+      "value": null,
+      "uncertainty": null,
+      "units": "pb",
+      "conditions": {
+        "processes": "gg to ttbar",
+        "inputs": "source cross-section comparison table conventions pending"
+      },
+      "extraction_method": "pending",
+      "extracted_by": null,
+      "status": "pending",
+      "evidence": null
+    }
+  ]
+}

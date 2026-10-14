@@ -1,0 +1,25 @@
+{
+ "id": "op:likelihood-candidate-check",
+ "op": {
+  "do_not_use_when": [
+   "Replaying the profile: use likelihood-profile-probe.",
+   "Fixed-vector density comparison: use likelihood-parity."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/likelihood-candidate-check-example --spec specs/likelihood-candidate-check.json",
+    "phrase": "Verify retained candidate vectors of a conditional profile.",
+    "spec": {
+     "mode": "likelihood-candidate-check",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Verify retained conditional-profile candidate vectors against the likelihood.",
+   "Candidate best-fit vectors need independent verification."
+  ]
+ }
+}

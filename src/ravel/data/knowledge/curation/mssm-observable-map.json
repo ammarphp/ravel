@@ -1,0 +1,25 @@
+{
+ "id": "op:mssm-observable-map",
+ "op": {
+  "do_not_use_when": [
+   "NMSSM Higgs conventions: use nmssm-yukawa-map.",
+   "Generate a spectrum: use generated-spectrum."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mssm-observable-map-example --spec specs/mssm-observable-map.json",
+    "phrase": "Map a supplied MSSM spectrum and decay table to lifetimes.",
+    "spec": {
+     "mode": "mssm-observable-map",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Map supplied MSSM spectra and decays to lifetimes and observables.",
+   "Full spectrum and decay grids must be inspected for an LLP recipe."
+  ]
+ }
+}

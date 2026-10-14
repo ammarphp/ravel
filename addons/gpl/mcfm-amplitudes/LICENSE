@@ -1,0 +1,11 @@
+This directory is a GPL-3.0-or-later add-on to RAVEL.
+
+The files here adapt MCFM 10.2.1 (commit 0adaa4ed4079de1b17c84417a0a428a468f57e69)
+and are licensed under the GNU General Public License, version 3 or (at your option)
+any later version. The full license text is in COPYING.GPL-3.txt; attribution is in
+ATTRIBUTION.md.
+
+RAVEL itself is Apache-2.0. The add-on is not part of the RAVEL Python package. It is
+fetched and built as a separate program by the RAVEL installer, and RAVEL talks to the
+built program only through files (a control file, an MCFM input card and the program's
+text output). No GPL code is imported into the RAVEL process.

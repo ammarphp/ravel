@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "codex-cli-worker-azure",
+  "transport_kind": "cli-worker",
+  "launcher": "codex",
+  "argv_template": [
+    "codex",
+    "exec",
+    "--json",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--cd",
+    "{workspace}",
+    "--model",
+    "{model}",
+    "-c",
+    "{effort_config}",
+    "--output-schema",
+    "{schema_file}",
+    "-"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "openai",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "AZURE_OPENAI_API_KEY"
+    ],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "CODEX_HOME"
+  ],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "os-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Codex with a generated Azure OpenAI provider in the fresh CODEX_HOME config.toml. Runs with a fresh CODEX_HOME per call holding a copy of auth.json and a generated config.toml, so ~/.codex instructions and providers are not loaded.",
+  "worker_surface": {
+    "mcp": {
+      "config": "codex_home",
+      "argv": []
+    },
+    "structured_output": "enforced"
+  }
+}

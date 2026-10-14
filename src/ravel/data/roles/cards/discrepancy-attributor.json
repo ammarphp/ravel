@@ -1,0 +1,111 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "specialist-review",
+  "id": "discrepancy-attributor",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "specialist"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [
+      "lessons",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "proto:P5",
+      "checklist:reproduction-closure"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:validation.certify_acceptance",
+    "check:validation.validate_cutflow"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "findings.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Compare per-bin signal yields with the reference's published per-bin yields before comparing limits.",
+    "Compute the rate ratio, a shape proxy and the likelihood gap per region and flavour, and correlate each with the reference model's structural fingerprints.",
+    "Never attribute a feature below the noise threshold. Read the per-node noise model first; a feature inside it is reported as unresolved, not explained.",
+    "Post at least two rival hypotheses, each with predictions over the observed and unobserved keys and a kill condition stated before any observation.",
+    "Read a cancellation as two causes, not as agreement.",
+    "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+    "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+  ],
+  "purpose": "Decompose a disagreement with a reference into rate, shape and likelihood parts, per region and flavour, without fitting away unresolved physical causes.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": true,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-readonly"
+  },
+  "reviewed_by": [],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [
+      "lessons",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "profile": "blind"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 200,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 40,
+    "max_wall_seconds": 1200
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/"
+    ],
+    "validators": []
+  },
+  "version": "2.1.0"
+}

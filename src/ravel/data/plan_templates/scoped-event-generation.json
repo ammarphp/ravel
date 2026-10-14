@@ -1,0 +1,56 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "scoped-event-generation",
+ "summary": "One scoped generation run when generated events are the deliverable.",
+ "priority": 10,
+ "match": {
+  "any": [
+   [
+    "artifact:event_sample",
+    "artifact:binned_values",
+    "artifact:figure"
+   ]
+  ],
+  "all": [
+   "stage:generation"
+  ],
+  "none": [
+   "stage:detector",
+   "stage:analysis",
+   "stage:statistic",
+   "stage:model-derivation",
+   "stage:spectrum",
+   "supplied:event_sample",
+   "fan_out",
+   "claim:exclusion",
+   "claim:estimate",
+   "claim:significance",
+   "level:detector"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "generate",
+   "kind": "operation",
+   "operation": "generate",
+   "rung": "full"
+  }
+ ],
+ "edges": [],
+ "deliverable": [
+  {
+   "from": "generate.events",
+   "kind": "event_sample"
+  },
+  {
+   "from": "generate.histograms",
+   "kind": "binned_values"
+  },
+  {
+   "from": "generate.figure",
+   "kind": "figure"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "mode": "likelihood",
+  "source": "Example single-bin counting model; the numbers are invented for illustration",
+  "assumptions": [
+    "Single-bin approximation with a gamma/Poisson background constraint; not a full experimental likelihood.",
+    "Unit signal means the POI counts signal events. Divide by the luminosity only for a visible cross section.",
+    "Asymptotic qtilde CLs; expected bands use the conditional background-only Asimov convention."
+  ],
+  "max_seconds": 120,
+  "approval_mode": "physicist",
+  "likelihood": {
+    "counting": {"observed": 40, "background": 42, "background_uncertainty": 5, "signal": 1},
+    "poi_cap": 128,
+    "normalization": {"kind": "signal_events", "luminosity_fb": 10.0}
+  }
+}

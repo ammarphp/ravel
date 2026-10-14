@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "kind": "search-statistics",
+  "description": "Synthetic example: one signal region, two control regions, one validation region, MC pseudo-data.",
+  "statistic": {
+    "origin": "prescribed",
+    "verbatim": "Report the expected discovery significance with expected CLs alongside.",
+    "primary": "discovery"
+  },
+  "regions": [
+    {
+      "name": "SR",
+      "role": "SR",
+      "observed": null
+    },
+    {
+      "name": "CRtop",
+      "role": "CR",
+      "observed": null
+    },
+    {
+      "name": "CRw",
+      "role": "CR",
+      "observed": null
+    },
+    {
+      "name": "VR",
+      "role": "VR",
+      "observed": null
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "top",
+      "normfactor": "mu_top",
+      "yields": {
+        "SR": {
+          "values": [
+            10.0,
+            4.0
+          ],
+          "sumw2": [
+            1.0,
+            0.5
+          ]
+        },
+        "CRtop": {
+          "values": [
+            200.0
+          ],
+          "sumw2": [
+            20.0
+          ]
+        },
+        "CRw": {
+          "values": [
+            15.0
+          ],
+          "sumw2": [
+            2.0
+          ]
+        },
+        "VR": {
+          "values": [
+            40.0
+          ],
+          "sumw2": [
+            4.0
+          ]
+        }
+      }
+    },
+    {
+      "name": "wjets",
+      "normfactor": "mu_w",
+      "yields": {
+        "SR": {
+          "values": [
+            6.0,
+            2.0
+          ],
+          "sumw2": [
+            0.8,
+            0.3
+          ]
+        },
+        "CRtop": {
+          "values": [
+            20.0
+          ],
+          "sumw2": [
+            3.0
+          ]
+        },
+        "CRw": {
+          "values": [
+            150.0
+          ],
+          "sumw2": [
+            15.0
+          ]
+        },
+        "VR": {
+          "values": [
+            30.0
+          ],
+          "sumw2": [
+            3.0
+          ]
+        }
+      }
+    }
+  ],
+  "signal_points": [
+    {
+      "id": "m300",
+      "coordinates": {
+        "mass": 300.0
+      },
+      "yields": {
+        "SR": {
+          "values": [
+            6.0,
+            5.0
+          ],
+          "sumw2": [
+            0.2,
+            0.2
+          ]
+        },
+        "CRtop": {
+          "values": [
+            0.5
+          ],
+          "sumw2": [
+            0.01
+          ]
+        },
+        "CRw": {
+          "values": [
+            0.2
+          ],
+          "sumw2": [
+            0.01
+          ]
+        },
+        "VR": {
+          "values": [
+            1.0
+          ],
+          "sumw2": [
+            0.05
+          ]
+        }
+      }
+    }
+  ],
+  "mc_statistics": "staterror",
+  "systematics": {
+    "schema_version": 1,
+    "absent": [
+      {
+        "component": "detector response",
+        "reason": "not supplied in this example"
+      }
+    ],
+    "sources": [
+      {
+        "name": "luminosity",
+        "kind": "normsys",
+        "relative": 0.02,
+        "applies_to": {
+          "samples": "all",
+          "regions": "all"
+        },
+        "correlation": "correlated",
+        "origin": "requester-assumption",
+        "statement": "assume a 2% luminosity uncertainty"
+      }
+    ]
+  },
+  "data": {
+    "mode": "mc-pseudo-data",
+    "injections": {}
+  },
+  "computations": {
+    "discovery": true,
+    "cls_at_nominal": true,
+    "cls_limits": false,
+    "background_only_fit": true
+  },
+  "asimov_source": "background-only-fit",
+  "cls_level": 0.05,
+  "mc_adequacy": {
+    "max_relative_uncertainty": 0.3,
+    "min_effective_entries": 10
+  },
+  "contours": null
+}

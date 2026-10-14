@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "request_digest": "c8915f6c258f225a5ebeabcf42cc208cbf366527f87684211630dd57bfff018c",
+  "obligation_ids": [
+    "output-1"
+  ],
+  "required_output": "Estimate the fictional rate within an order of magnitude.",
+  "sufficiency": {
+    "kind": "order_of_magnitude",
+    "value": null,
+    "unit": null,
+    "source_text": "Estimate the fictional rate within an order of magnitude."
+  },
+  "validity_domain": "Fictional supplied model and its stated regime",
+  "allowed_approximations": [
+    "Use the supplied simplified law within its domain"
+  ],
+  "family": "estimate_theory",
+  "selected": {
+    "method": "analytic_estimate",
+    "rung": 1,
+    "operation": null
+  },
+  "alternatives": [
+    {
+      "method": "standard_value",
+      "rung": 0,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    }
+  ],
+  "explicit_request": {
+    "requested": false,
+    "quote": null
+  },
+  "cost_forecast": {
+    "status": "historical",
+    "wall_hours": 0.25,
+    "cpu_hours": 0.5,
+    "disk_gb": 0.1,
+    "events": 0,
+    "model_calls": 1,
+    "basis": "Retained observation of the same fictional settings; a historical comparison."
+  },
+  "stopping_criterion": "Stop once the requested output and its stated evidence are delivered.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": [
+      "plan-critic"
+    ]
+  }
+}

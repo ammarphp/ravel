@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "antigravity-cli-oneshot",
+  "transport_kind": "cli-oneshot",
+  "launcher": "agy",
+  "argv_template": [
+    "agy",
+    "-p",
+    "{prompt}",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}",
+    "--effort",
+    "{effort}",
+    "--json-schema",
+    "{schema}",
+    "--mode",
+    "plan",
+    "--disable-slash-commands",
+    "--print-timeout",
+    "{print_timeout}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [],
+  "billing": "subscription",
+  "capabilities": {
+    "tools": "broker-readonly",
+    "isolation": "cli-policy",
+    "attestation": "host",
+    "structured_output": true,
+    "blind_capable": false,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Google Antigravity CLI (agy) for consumer Google accounts; keyless with the Google login, run with a fresh HOME holding only the login material. It reads AGENTS.md and .agents/skills from its working directory (empty for a one-shot) and keeps its read tools; no flag excludes user-level configuration, so receipts record user_configuration_loaded: true and attestation is host. The prompt travels in argv, where local process listings can read it."
+}

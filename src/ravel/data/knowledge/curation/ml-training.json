@@ -1,0 +1,133 @@
+{
+ "id": "op:ml-training",
+ "op": {
+  "do_not_use_when": [
+   "Apply a published classifier: use published-classifier.",
+   "Inspect classifier tensors: use classifier-inputs."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/ml-training-example --spec specs/ml-training.json",
+    "phrase": "Train and compare binary classifiers on a pinned split dataset.",
+    "spec": {
+     "mode": "ml-training",
+     "task": {
+      "baselines": [
+       {
+        "architecture": "logistic",
+        "backend": "numpy",
+        "config": {
+         "learning_rate": 0.1
+        },
+        "id": "linear"
+       }
+      ],
+      "budget": {
+       "epochs": 8,
+       "equal_across_arms": true,
+       "max_trials": 1,
+       "wall_seconds": 10
+      },
+      "dataset": {
+       "features": [
+        "a",
+        "b"
+       ],
+       "id_column": "event_id",
+       "label": "y",
+       "manifest_sha256": "805878b3ea776cb611a4e0cde32192555f9ae5f5f6ea6427ca1af19d1bbb8a52",
+       "pins": [
+        {
+         "path": "data/train.npz",
+         "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+         "path": "data/val.npz",
+         "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+         "path": "data/test.npz",
+         "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+       ],
+       "population_index": {
+        "path": "data/population-index.json",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+       },
+       "weights": "weight"
+      },
+      "metrics": {
+       "calibration": {
+        "bins": 5,
+        "method": "reliability",
+        "report": [
+         "ece",
+         "brier"
+        ]
+       },
+       "operating_point": 0.5,
+       "primary": "background_rejection_at_signal_eff",
+       "secondary": [
+        "roc_auc"
+       ],
+       "uncertainty": "seed_spread"
+      },
+      "models": [
+       {
+        "architecture": "mlp",
+        "backend": "numpy",
+        "config": {
+         "hidden_units": 4,
+         "learning_rate": 0.1
+        },
+        "id": "nonlinear"
+       }
+      ],
+      "objective": "classification",
+      "placement": {
+       "backend_plan": {
+        "path": "plans/backend.json",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+       },
+       "device": "cpu"
+      },
+      "seeds": [
+       1,
+       2,
+       3
+      ],
+      "splits": {
+       "files": {
+        "test": {
+         "path": "data/test.npz",
+         "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "train": {
+         "path": "data/train.npz",
+         "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "val": {
+         "path": "data/val.npz",
+         "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+       },
+       "fractions": {
+        "test": 0.2,
+        "train": 0.6,
+        "val": 0.2
+       },
+       "method": "explicit",
+       "seed": 17,
+       "split_sha256": "b3899a277a96263ad24e98c36102fdbf184fc2204da5b6fb5879b0c22d8c815f",
+       "test_withheld": true
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Train and compare pinned binary classifiers with baselines, equal budgets and several seeds.",
+   "One withheld test evaluation of a classifier comparison is wanted."
+  ]
+ }
+}

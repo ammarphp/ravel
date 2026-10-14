@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "route": "manuscript-build",
+  "required_full_method": true,
+  "installed_runtime_qualified": false,
+  "base": [
+    "pdflatex regular binary",
+    "pdfinfo regular binary",
+    "complete bounded operational format/class/style/font/bibliography tree",
+    "pdflatex.fmt",
+    "zref-user.sty",
+    "zref-abspage.sty"
+  ],
+  "profiles": {
+    "generic-user": [
+      "article.cls",
+      "geometry.sty"
+    ],
+    "prd": [
+      "revtex4-2.cls",
+      "aps4-2.rtx",
+      "natbib >=8.31a",
+      "url.sty",
+      "textcase.sty",
+      "bm.sty",
+      "AMS packages if selected options require them"
+    ],
+    "epjc": [
+      "actual svjour3.cls and EPJC template assets"
+    ],
+    "nature": [
+      "source-bound selected standard native class and source-stage formatting instructions"
+    ],
+    "page-limited-note": [
+      "the supplied note rule pack and its located source text",
+      "the supplied note template when the rule pack names one",
+      "an actual compiled main-text page count within the rule-pack ceiling, references and appendices excluded"
+    ]
+  },
+  "selected": [
+    "graphicx.sty for inline images",
+    "lineno.sty for selected line numbers",
+    "rsvg-convert regular binary for selected SVG to PDF conversion"
+  ],
+  "runtime_contract": "Every binary/current manifest and complete regular-file operational tree is an ordinary input; actual TeX INPUT readback refuses undeclared files. No installation or global environment mutation.",
+  "license_obligations": [
+    "bind each actual distribution license/redistribution scope",
+    "class/styles under their exact upstream terms; do not infer from public URL",
+    "font licenses separately",
+    "Poppler/pdfinfo and Librsvg licenses/platform dependencies separately",
+    "no bundled downloaded official template falsely claimed here"
+  ],
+  "qualification_obligations": [
+    "actual engine/provider identity, platform/architecture, ABI and source search paths",
+    "real ordinary complete output snapshot including empty incidental members",
+    "two real native passes and pdfinfo with actual absolute-page labels",
+    "SVG conversion only when bound",
+    "actual independent review and compiled visual/CI3 before final delivery"
+  ],
+  "source_urls": [
+    "https://journals.aps.org/revtex",
+    "https://journals.aps.org/prd/authors",
+    "https://www.epj.org/images/stories/instructions/instructions_epjc.pdf",
+    "https://www.nature.com/nature/for-authors/initial-submission",
+    "https://www.nature.com/nature/for-authors/final-submission",
+    "https://ctan.org/pkg/zref",
+    "https://github.com/GNOME/librsvg/blob/main/rsvg-convert.rst"
+  ]
+}

@@ -1,0 +1,838 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Supplied reviewed source records",
+  "$defs": {
+    "pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "reviewed"
+        },
+        "reviewer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pin"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "status",
+        "reviewer",
+        "evidence"
+      ]
+    },
+    "repair-manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "repair-manifest"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "context": {
+          "type": "object"
+        },
+        "card_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "defect_registry": {
+          "$ref": "#/$defs/pin"
+        },
+        "identity_template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transforms": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "const": "replace"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expected": {},
+                  "value": {},
+                  "evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "line_start",
+                      "line_end",
+                      "quote",
+                      "quote_sha256"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "quote": {
+                        "type": "string"
+                      },
+                      "quote_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "operation",
+                  "path",
+                  "expected",
+                  "value"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "const": "copy"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expected": {},
+                  "source": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "line_start",
+                      "line_end",
+                      "quote",
+                      "quote_sha256"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "quote": {
+                        "type": "string"
+                      },
+                      "quote_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "operation",
+                  "path",
+                  "expected",
+                  "source",
+                  "source_path"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "const": "coalesce"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "keep": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "remove": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "line_start",
+                      "line_end",
+                      "quote",
+                      "quote_sha256"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "quote": {
+                        "type": "string"
+                      },
+                      "quote_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "operation",
+                  "path",
+                  "keep",
+                  "remove"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "const": "project-last"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expected": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "line_start",
+                      "line_end",
+                      "quote",
+                      "quote_sha256"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "quote": {
+                        "type": "string"
+                      },
+                      "quote_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "operation",
+                  "path",
+                  "expected",
+                  "key"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "operation": {
+                    "const": "retain"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expected": {},
+                  "evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "line_start",
+                      "line_end",
+                      "quote",
+                      "quote_sha256"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "line_start": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "line_end": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "quote": {
+                        "type": "string"
+                      },
+                      "quote_sha256": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "operation",
+                  "path",
+                  "expected"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "review",
+        "sources",
+        "context",
+        "card_source",
+        "defect_registry",
+        "identity_template",
+        "transforms"
+      ]
+    },
+    "defect-registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "defect-registry"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "context": {
+          "type": "object"
+        },
+        "coverage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "input_fingerprint": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "assumptions": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "support": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "input_fingerprint",
+              "assumptions",
+              "support"
+            ]
+          }
+        },
+        "defects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observation_pointer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "prediction_pointer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resolution_required": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "observation_pointer",
+              "prediction_pointer",
+              "reason",
+              "resolution_required"
+            ]
+          }
+        },
+        "resolutions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "defect_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "input_fingerprint": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "disposition": {
+                "const": "resolved"
+              }
+            },
+            "required": [
+              "defect_id",
+              "input_fingerprint",
+              "evidence",
+              "disposition"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "review",
+        "sources",
+        "context",
+        "coverage",
+        "defects",
+        "resolutions"
+      ]
+    },
+    "errata-registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "errata-registry"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "context": {
+          "type": "object"
+        },
+        "errata": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "archive_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "members": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "sha256"
+                  ]
+                }
+              },
+              "source": {
+                "type": "object"
+              },
+              "field": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observed": {},
+              "external_record_source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "external_assertions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "pointer": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "expected": {}
+                  },
+                  "required": [
+                    "pointer",
+                    "expected"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "archive_sha256",
+              "members",
+              "source",
+              "field",
+              "observed",
+              "external_record_source",
+              "external_assertions"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "review",
+        "sources",
+        "context",
+        "errata"
+      ]
+    },
+    "cutflow-definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "cutflow-definition"
+        },
+        "review": {
+          "$ref": "#/$defs/review"
+        },
+        "sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "context": {
+          "type": "object"
+        },
+        "selection_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "predicates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "unavailable": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "flows": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "object_preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "membership": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "flow": {
+                "type": "string",
+                "minLength": 1
+              },
+              "through": {
+                "type": "string",
+                "minLength": 1
+              },
+              "regions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exclusive": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "flow",
+              "through",
+              "regions",
+              "exclusive"
+            ]
+          }
+        },
+        "normalization": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "weight_unit": {
+              "const": "pb"
+            },
+            "luminosity_pb_inverse": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "population_metadata": {
+              "type": "object"
+            },
+            "convention": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "weight_unit",
+            "luminosity_pb_inverse",
+            "population_metadata",
+            "convention"
+          ]
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "flow": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "values_pointer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "predicate": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "index",
+                    "predicate"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "flow",
+              "source",
+              "values_pointer",
+              "rows"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "review",
+        "sources",
+        "context",
+        "selection_source",
+        "predicates",
+        "unavailable",
+        "flows",
+        "object_preconditions",
+        "membership",
+        "normalization",
+        "references"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/repair-manifest"
+    },
+    {
+      "$ref": "#/$defs/defect-registry"
+    },
+    {
+      "$ref": "#/$defs/errata-registry"
+    },
+    {
+      "$ref": "#/$defs/cutflow-definition"
+    }
+  ]
+}

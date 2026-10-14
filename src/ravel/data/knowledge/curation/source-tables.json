@@ -1,0 +1,27 @@
+{
+ "id": "op:source-tables",
+ "op": {
+  "do_not_use_when": [
+   "Digitizing figures: use figure-comparison.",
+   "Summarizing a literature census: use published-summary."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/source-tables-example --spec specs/source-tables.json",
+    "phrase": "Load literal HEPData primary tables under a pinned join contract.",
+    "spec": {
+     "mode": "source-tables",
+     "task": {
+      "contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "input": "inputs/example.json",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Literal HEPData primary tables with a declared basis and covariance join.",
+   "Published tables must enter a study without reinterpretation."
+  ]
+ }
+}

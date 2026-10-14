@@ -1,0 +1,20 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{Statistics and inference}{Results come from complete statistical models with checked fits.}
+\tikzset{s/.style={box=37mm, minimum height=24mm, anchor=north west}}
+\node[s, draw=rvpeopleline, fill=rvpeoplefill] (a) at (5,-24) {\nodetitle{Inputs}\nodesub{published likelihoods, counts, signal templates}};
+\node[s, draw=rvravelline, fill=rvravelfill] (b) at (46,-24) {\nodetitle{Model}\nodesub{RAVEL builds the full statistical model}};
+\node[s, draw=rvhepline, fill=rvhepfill] (c) at (87,-24) {\nodetitle{Fit}\nodesub{pyhf, RooFit, Combine, Spey}};
+\node[s, draw=rvravelline, fill=rvravelfill] (d) at (128,-24) {\nodetitle{Result}\nodesub{limits, intervals, fitted values}};
+\draw[flow] (a) -- (b); \draw[flow] (b) -- (c); \draw[flow] (c) -- (d);
+\node[b=119mm, minimum height=12mm, draw=rvguardline, fill=rvguardfill, anchor=north west] (k) at (46,-58)
+  {\nodetitle{Checks}\hspace{2.2mm}{\color{rvmuted}fit quality, exact limit crossings, uncertainty bands}};
+\draw[flow] (c.south) -- (c.south |- k.north);
+\draw[flow] (k.north -| d.south) -- (d.south);
+\ravellegend{-80}{people/Inputs, ravel/RAVEL, hep/Tools, guard/Checks}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

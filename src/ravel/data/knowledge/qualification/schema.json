@@ -1,0 +1,826 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "comparators",
+    "rows"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "comparators": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tool",
+          "quantity",
+          "source",
+          "locator",
+          "value",
+          "uncertainty",
+          "units",
+          "conditions",
+          "extraction_method",
+          "extracted_by",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^qual:[a-z0-9-]+:[a-z0-9-]+$"
+          },
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "arxiv",
+              "doi",
+              "hepdata",
+              "url",
+              "licence"
+            ],
+            "properties": {
+              "arxiv": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "doi": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hepdata": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "licence": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": [
+              "number",
+              "string",
+              "null"
+            ]
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "minus",
+                  "plus",
+                  "definition"
+                ],
+                "properties": {
+                  "minus": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "plus": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "definition": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conditions": {
+            "type": "object",
+            "minProperties": 1
+          },
+          "extraction_method": {
+            "enum": [
+              "pending",
+              "text",
+              "table",
+              "digitized",
+              "expression"
+            ]
+          },
+          "extracted_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "filled"
+            ]
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "text_sha256",
+                  "quote",
+                  "value_literal"
+                ],
+                "properties": {
+                  "text_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value_literal": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "text_file": {
+                    "type": "string",
+                    "pattern": "^[^/\\\\]+$"
+                  },
+                  "source_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "pending"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "type": "null"
+                },
+                "evidence": {
+                  "type": "null"
+                },
+                "extraction_method": {
+                  "const": "pending"
+                },
+                "extracted_by": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "value": {
+                  "type": [
+                    "number",
+                    "string"
+                  ]
+                },
+                "evidence": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "text_sha256",
+                    "quote",
+                    "value_literal"
+                  ],
+                  "properties": {
+                    "text_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "quote": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value_literal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "text_file": {
+                      "type": "string",
+                      "pattern": "^[^/\\\\]+$"
+                    },
+                    "source_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  }
+                },
+                "extracted_by": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "extraction_method": {
+                  "enum": [
+                    "text",
+                    "table",
+                    "digitized",
+                    "expression"
+                  ]
+                },
+                "uncertainty": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "minus",
+                    "plus",
+                    "definition"
+                  ],
+                  "properties": {
+                    "minus": {
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "plus": {
+                      "anyOf": [
+                        {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "definition": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "locator": {
+                  "type": "string",
+                  "pattern": "(?i)(table|fig(?:ure)?|eq(?:uation)?|section|§)\\s*\\S+"
+                }
+              },
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "source": {
+                          "properties": {
+                            "arxiv": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "source": {
+                          "properties": {
+                            "doi": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "source": {
+                          "properties": {
+                            "hepdata": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "source": {
+                          "properties": {
+                            "url": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tool",
+        "quantity",
+        "source",
+        "locator",
+        "value",
+        "uncertainty",
+        "units",
+        "conditions",
+        "extraction_method",
+        "extracted_by",
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^qual:[a-z0-9-]+:[a-z0-9-]+$"
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "arxiv",
+            "doi",
+            "hepdata",
+            "url",
+            "licence"
+          ],
+          "properties": {
+            "arxiv": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "doi": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hepdata": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "url": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "licence": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "minus",
+                "plus",
+                "definition"
+              ],
+              "properties": {
+                "minus": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "plus": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "definition": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "units": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conditions": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "extraction_method": {
+          "enum": [
+            "pending",
+            "text",
+            "table",
+            "digitized",
+            "expression"
+          ]
+        },
+        "extracted_by": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "filled"
+          ]
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "text_sha256",
+                "quote",
+                "value_literal"
+              ],
+              "properties": {
+                "text_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "quote": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value_literal": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "text_file": {
+                  "type": "string",
+                  "pattern": "^[^/\\\\]+$"
+                },
+                "source_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "pending"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              },
+              "evidence": {
+                "type": "null"
+              },
+              "extraction_method": {
+                "const": "pending"
+              },
+              "extracted_by": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "evidence": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "text_sha256",
+                  "quote",
+                  "value_literal"
+                ],
+                "properties": {
+                  "text_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value_literal": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "text_file": {
+                    "type": "string",
+                    "pattern": "^[^/\\\\]+$"
+                  },
+                  "source_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              },
+              "extracted_by": {
+                "type": "string",
+                "minLength": 1
+              },
+              "extraction_method": {
+                "enum": [
+                  "text",
+                  "table",
+                  "digitized",
+                  "expression"
+                ]
+              },
+              "uncertainty": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "minus",
+                  "plus",
+                  "definition"
+                ],
+                "properties": {
+                  "minus": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "plus": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "definition": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "locator": {
+                "type": "string",
+                "pattern": "(?i)(table|fig(?:ure)?|eq(?:uation)?|section|§)\\s*\\S+"
+              }
+            },
+            "allOf": [
+              {
+                "anyOf": [
+                  {
+                    "properties": {
+                      "source": {
+                        "properties": {
+                          "arxiv": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "source": {
+                        "properties": {
+                          "doi": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "source": {
+                        "properties": {
+                          "hepdata": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "source": {
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

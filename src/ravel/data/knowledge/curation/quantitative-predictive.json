@@ -1,0 +1,37 @@
+{
+ "id": "op:quantitative-predictive",
+ "op": {
+  "do_not_use_when": [
+   "Observed inference: use search-statistics.",
+   "Asimov sensitivity of a search: use asimov-sensitivity."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/quantitative-predictive-example --spec specs/quantitative-predictive.json",
+    "phrase": "Estimate prospective separation between two hypotheses from a declared binding.",
+    "spec": {
+     "mode": "quantitative-predictive",
+     "task": {
+      "binding": {
+       "contract": {
+        "path": "/ravel-example/contract.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1024
+       },
+       "resources": {
+        "path": "/ravel-example/resources.json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size": 1024
+       }
+      },
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Bounded prospective separation between hypotheses with a declared binding.",
+   "The achievable discrimination of two hypotheses is estimated before data."
+  ]
+ }
+}

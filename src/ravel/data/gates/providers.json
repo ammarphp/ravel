@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "providers": [
+    {"id": "review_points", "module": "ravel.workflow.review_points", "function": "gate_errors", "gates": ["*"], "owner": "decision-gate", "active": true},
+    {"id": "raw_launch", "module": "ravel.workflow.raw_launch", "function": "gate_errors", "gates": ["delivery", "final_task", "export"], "owner": "decision-gate", "active": true},
+    {"id": "ceilings", "module": "ravel.workflow.run_ceilings", "function": "gate_errors", "gates": ["approve_plan", "launch", "research_choice", "spend_above_ceiling"], "owner": "decision-gate", "active": true},
+    {"id": "rdj", "module": "ravel.workflow.rdj_loop", "function": "gate_errors", "gates": ["*"], "owner": "decision-journal", "active": true},
+    {"id": "executor", "module": "ravel.workflow.production_executor", "function": "gate_errors", "gates": ["launch"], "owner": "production-executors", "active": true},
+    {"id": "comparison", "module": "ravel.workflow.comparison", "function": "gate_errors", "gates": ["checkin2_accept"], "owner": "production-executors", "active": true},
+    {"id": "research_protocol", "module": "ravel.workflow.research_protocol", "function": "gate_errors", "gates": ["research_choice"], "owner": "research-protocol", "active": true},
+    {"id": "spawn_rows", "module": "ravel.workflow.spawn_rows", "function": "gate_errors", "gates": ["launch", "checkin2_accept", "delivery", "research_choice"], "owner": "independent-numerics", "active": true},
+    {"id": "input_closure", "module": "ravel.validation.input_closure", "function": "gate_errors", "gates": ["checkin2_accept", "delivery", "final_task", "export"], "owner": "independent-numerics", "active": true},
+    {"id": "recipe_ledger", "module": "ravel.workflow.recipe_ledger", "function": "gate_errors", "gates": ["launch"], "owner": "recipe-ledger", "active": true},
+    {"id": "residual_diagnosis", "module": "ravel.validation.residual_decomposition", "function": "gate_errors", "gates": ["delivery"], "owner": "residual-diagnosis", "active": true},
+    {"id": "calibration", "module": "ravel.validation.calibration_checks", "function": "gate_errors", "gates": ["checkin2_accept", "delivery"], "owner": "CAL", "active": true},
+    {"id": "figure_critique", "module": "ravel.workflow.review_projection_figures", "function": "gate_errors", "gates": ["delivery", "final_task", "export"], "owner": "review-projection", "active": true}
+  ],
+  "required_providers": {"*": ["review_points", "rdj"], "launch": ["ceilings", "executor", "spawn_rows", "recipe_ledger"], "approve_plan": ["ceilings"], "delivery": ["raw_launch", "input_closure"], "final_task": ["raw_launch", "input_closure"], "export": ["raw_launch", "input_closure"], "research_choice": ["research_protocol", "ceilings"], "spend_above_ceiling": ["ceilings"], "checkin2_accept": ["spawn_rows", "input_closure"]},
+  "required_scopes": []
+}

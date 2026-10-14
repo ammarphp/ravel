@@ -1,0 +1,25 @@
+{
+ "id": "op:model-events",
+ "op": {
+  "do_not_use_when": [
+   "Showering and detector simulation of existing LHE: use event-production.",
+   "Static card checks before generation: use generation-reconciliation."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-events-example --spec specs/model-events.json",
+    "phrase": "Generate parton-level events from a pinned UFO model with a declared process.",
+    "spec": {
+     "mode": "model-events",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "MadGraph generation from a full UFO with decays, shower matching and multiweights.",
+   "Parton-level events of a declared model and process are needed."
+  ]
+ }
+}

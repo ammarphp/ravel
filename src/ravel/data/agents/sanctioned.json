@@ -1,0 +1,578 @@
+{
+ "schema_version": 1,
+ "kind": "agent-call-sanctions",
+ "rule": "Sanctions name a qualname and its sinks, never a module. An S7 call inside an effect body that names one of the sink's gates is substrate without a listing. Everything else is a bypass.",
+ "sanctioned": [
+  {
+   "qualname": "ravel.workflow.agent_host:AgentHost.execute",
+   "sinks": [
+    "S1",
+    "S6"
+   ],
+   "disposition": "transport",
+   "reason": "The provider transport call and its fixed public-output envelope around the node's own instructions."
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:answer",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "transport",
+   "reason": "CLI transport: answers one sealed external request."
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:serve",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "transport",
+   "reason": "CLI transport: the stdio serve loop."
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:answer_graph.answer_one",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "transport",
+   "reason": "CLI transport: one map item's answer (its delivery is a baseline bypass)."
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:main",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "cli_entry",
+   "reason": "`ravel agent-cli` command entry."
+  },
+  {
+   "qualname": "ravel.physics.cross_sections:_download",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "non_model",
+   "reason": "Generic HTTP client for caller-supplied data URLs; no model endpoint. Sanctioned as non_model by qualname; the runtime socket guard is the backstop."
+  },
+  {
+   "qualname": "ravel.setup.fetch:_default_open",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "non_model",
+   "reason": "Installer download with digest verification; no model endpoint."
+  },
+  {
+   "qualname": "ravel.validation.constants_manifest:fetch_higgs_source.opener",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "non_model",
+   "reason": "Pinned https source for a constants manifest; no model endpoint."
+  },
+  {
+   "qualname": "ravel.workflow.discovery_http:open_url",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "non_model",
+   "reason": "Generic HTTP client for caller-supplied data URLs; no model endpoint. Sanctioned as non_model by qualname; the runtime socket guard is the backstop."
+  },
+  {
+   "qualname": "ravel.workflow.literature_context:acquire",
+   "sinks": [
+    "S1"
+   ],
+   "disposition": "non_model",
+   "reason": "Literature acquisition restricted to configured origins; no model endpoint."
+  },
+  {
+   "qualname": "ravel.workflow.graph_nodes:error_handler.go",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "Command only in the builder's error-handler wrapper (\u00a77.1 S2)."
+  },
+  {
+   "qualname": "ravel.workflow.graph_nodes:interrupt.body",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "The typed interrupt node factory."
+  },
+  {
+   "qualname": "ravel.workflow.graph_nodes:reconcile_node.body",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "The reconcile interrupt every builder owns."
+  },
+  {
+   "qualname": "ravel.workflow.graph_nodes:map_node.router",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "Send only in map_node (\u00a77.1 S2)."
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:_invoke",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "The runner's resume Command."
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:finish",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "The only compile of a substrate builder."
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:compile_spec",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "Compiles an agent-graph spec onto substrate nodes."
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:selftest",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered substrate.selftest graph.",
+   "graph_id": "substrate.selftest"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.review:build",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered review.points graph.",
+   "graph_id": "review.points"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.review:build_item",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered review.item graph.",
+   "graph_id": "review.item"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.production:build",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered production.node graph.",
+   "graph_id": "production.node"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.lifecycle:build",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered lifecycle.drive graph.",
+   "graph_id": "lifecycle.drive"
+  },
+  {
+   "qualname": "ravel.workflow.production_executor:dispatch",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "cli_entry",
+   "reason": "`ravel work dispatch --node`: the host-surface dispatch of a sealed work order through agent_worker (AL \u00a71.13); the graph path is production.node."
+  },
+  {
+   "qualname": "ravel.workflow.production_executor:launch_stage",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane node launch (\u00a77.4): the full launch decision gate, executor provider included, precedes the supervisor; the graph path is the gated production.launch effect."
+  },
+  {
+   "qualname": "ravel.workflow.production_executor:adopt",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane and production.node adoption of checked work-order bytes (\u00a77.4); the seed list gates adopt on delivery, which a mid-run node cannot pass."
+  },
+  {
+   "qualname": "ravel.workflow.agent_worker:graph_node.run",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "substrate",
+   "reason": "The agent node factory's worker dispatch."
+  },
+  {
+   "qualname": "ravel.workflow.agent_worker:main",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "cli_entry",
+   "reason": "`ravel work dispatch`, the host-surface redirect target for transport-attested roles (AL \u00a71.2)."
+  },
+  {
+   "qualname": "ravel.workflow.stage_supervisor:supervise",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "substrate",
+   "reason": "The supervised-launch sink's own launch primitive; its callers are censused as S7."
+  },
+  {
+   "qualname": "ravel.workflow.stage_supervisor:main",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane stage command (\u00a77.4: covered by the executor provider and the raw-launch invariant)."
+  },
+  {
+   "qualname": "ravel.workflow.stage_supervisor:_selftest_cases",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Supervisor selftest launching inert commands."
+  },
+  {
+   "qualname": "ravel.workflow.backends.native:main",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane native backend command (\u00a77.4)."
+  },
+  {
+   "qualname": "ravel.workflow.work_dispatch:main",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane adopt command (\u00a77.4)."
+  },
+  {
+   "qualname": "ravel.workflow.procedure_export:main",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane export command (\u00a77.4)."
+  },
+  {
+   "qualname": "ravel.workflow.submission_export:main",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "cli_entry",
+   "reason": "Host-plane export command (\u00a77.4)."
+  },
+  {
+   "qualname": "ravel.workflow.submission_export:export",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "substrate",
+   "reason": "The export sink's own implementation calling the procedure export sink.",
+   "targets": [
+    "ravel.workflow.procedure_export.export"
+   ]
+  },
+  {
+   "qualname": "ravel.workflow.research_board:reveal_season",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "substrate",
+   "reason": "Runs only as the body of the board.season graph's board.reveal journal effect, after the reveal barrier. It re-checks the barrier, the frozen season record and every sealed-payload digest, then publishes the commitments the participants already made; it selects nothing, so no research_choice action exists to decide.",
+   "targets": [
+    "ravel.workflow.hypothesis_board.reveal"
+   ]
+  },
+  {
+   "qualname": "ravel.workflow.graphs.rdj:_charge_campaign",
+   "sinks": [
+    "S7"
+   ],
+   "disposition": "substrate",
+   "reason": "The campaign charge handler the effect ledger applies from the write-ahead receipt of an rdj role effect (registered with ledger.registrations). The reservation is one idempotent charge that the sink itself refuses above the campaign budget or past the clock, so no spend_above_ceiling action can arise here.",
+   "targets": [
+    "ravel.workflow.research_cycle.reserve_operation"
+   ]
+  },
+  {
+   "qualname": "ravel.validation.check_agent_paths:_materialized",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "substrate",
+   "reason": "Creates the synthetic retained root that a registered builder reads for the structural walk, inside the walk's own scope. No node of it is run, dispatched, charged or sent to a model.",
+   "targets": [
+    "ravel.workflow.agent_graph.create"
+   ]
+  },
+  {
+   "qualname": "ravel.workflow.graphs.stage:build",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered research.stage graph.",
+   "graph_id": "research.stage"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.research_loop:build",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered research.loop graph.",
+   "graph_id": "research.loop"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.literature:source",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered literature.source graph.",
+   "graph_id": "literature.source"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.literature:scout",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered literature.scout graph.",
+   "graph_id": "literature.scout"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.manuscript:section",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered manuscript.section graph.",
+   "graph_id": "manuscript.section"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.manuscript:manuscript",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "registered_graph",
+   "reason": "Builder of the registered manuscript.build graph.",
+   "graph_id": "manuscript.build"
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:execute_role_graph",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "substrate",
+   "reason": "Shared governed role dispatch for registered research nodes and the legacy adapter.",
+   "targets": [
+    "ravel.workflow.research_cycle.execute_graph"
+   ]
+  },
+  {
+   "qualname": "ravel.workflow.graph_substrate:legacy_pause",
+   "sinks": [
+    "S2"
+   ],
+   "disposition": "substrate",
+   "reason": "Compatibility interrupt for existing legacy research checkpoints; resume values stay data.",
+   "targets": [
+    "langgraph.types.interrupt"
+   ]
+  }
+ ],
+ "tripwire_layers": [
+  {
+   "layer": "provider_transport.request",
+   "callable": "ravel.workflow.provider_transport:request",
+   "acting_kinds": [
+    "agent",
+    "rdj",
+    "board",
+    "decision_turn"
+   ]
+  },
+  {
+   "layer": "cli_agent_host.launch",
+   "callable": "ravel.workflow.cli_agent_host:_run",
+   "acting_kinds": [
+    "agent",
+    "rdj",
+    "board",
+    "decision_turn"
+   ]
+  },
+  {
+   "layer": "agent_worker.launch",
+   "callable": "ravel.workflow.agent_worker:launch",
+   "acting_kinds": [
+    "agent"
+   ]
+  },
+  {
+   "layer": "broker.call",
+   "callable": "ravel.workflow.broker:Broker.call",
+   "acting_kinds": [
+    "agent",
+    "effect"
+   ]
+  },
+  {
+   "layer": "effect_ledger.call",
+   "callable": "ravel.workflow.effect_ledger:call",
+   "acting_kinds": [
+    "effect",
+    "agent",
+    "rdj",
+    "board"
+   ]
+  },
+  {
+   "layer": "authorized_popen",
+   "callable": "ravel.workflow.launch_authorization:authorized_popen",
+   "acting_kinds": [
+    "effect"
+   ]
+  }
+ ],
+ "introspection_instances": {
+  "substrate.selftest": {
+   "label": "g8-walk",
+   "steps": 1,
+   "delay_ms": 0,
+   "ask": true
+  },
+  "board.producer": {
+   "producer": "g8-walk",
+   "season": "g8-walk"
+  },
+  "board.season": {
+   "producer": "g8-walk",
+   "season": "g8-walk"
+  },
+  "rdj.role": {
+   "case_id": "g8-walk",
+   "cycle": "g8-walk",
+   "mode": "g8-walk"
+  },
+  "rdj.case": {
+   "case_id": "g8-walk",
+   "cycle": "g8-walk",
+   "mode": "g8-walk"
+  },
+  "ml.study": {
+   "study": "g8-walk"
+  },
+  "ml.study_item": {
+   "study": "g8-walk"
+  },
+  "consult.case": {
+   "request": "g8-walk"
+  },
+  "review.points": {
+   "at": "checkin3",
+   "attempt": 1
+  },
+  "review.item": {
+   "at": "checkin3",
+   "attempt": 1
+  },
+  "production.node": {
+   "node_id": "g8-walk",
+   "attempt": 1
+  },
+  "lifecycle.drive": {
+   "attempt": 1
+  },
+  "research.stage": {
+   "campaign": "g8-walk",
+   "request": "g8-walk"
+  },
+  "research.loop": {
+   "campaign": "g8-walk",
+   "request": "g8-walk"
+  },
+  "literature.source": {
+   "request_id": "g8-walk"
+  },
+  "literature.scout": {
+   "request_id": "g8-walk"
+  },
+  "manuscript.section": {
+   "request_id": "g8-walk"
+  },
+  "manuscript.build": {
+   "request_id": "g8-walk"
+  },
+  "intake.plan": {
+   "graph_root": "g8-walk-intake-plan"
+  }
+ },
+ "introspection_roots": {
+  "intake.plan": {
+   "instance_key": "graph_root",
+   "spec": {
+    "schema_version": 1,
+    "graph_id": "g8-walk-intake-plan",
+    "budget": {
+     "max_nodes": 2,
+     "max_calls": 1,
+     "max_output_tokens": 1000,
+     "max_wall_seconds": 60,
+     "max_reworks": 0
+    },
+    "nodes": [
+     {
+      "id": "choose",
+      "kind": "model",
+      "role": "designer",
+      "depends_on": [],
+      "inputs": [],
+      "packet": null,
+      "action": "responses",
+      "max_attempts": 1,
+      "parameters": {
+       "model": "g8-walk",
+       "reasoning_effort": "g8-walk",
+       "max_output_tokens": 1000
+      }
+     },
+     {
+      "id": "prepare",
+      "kind": "tool",
+      "role": "executor",
+      "depends_on": [
+       "choose"
+      ],
+      "inputs": [],
+      "packet": null,
+      "action": "intake-plan",
+      "max_attempts": 1,
+      "parameters": {}
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "id": "op:feynarts-amplitude",
+ "op": {
+  "do_not_use_when": [
+   "Numerical evaluation of expressions: use symbolic-evaluation.",
+   "Diagram enumeration only: use feyn-graph."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/feynarts-amplitude-example --spec specs/feynarts-amplitude.json",
+    "phrase": "Build a FeynCalc amplitude population from a pinned FeynArts source.",
+    "spec": {
+     "mode": "feynarts-amplitude",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A FeynArts model must be turned into a complete FeynCalc amplitude population.",
+   "Explicit symbolic amplitudes are the deliverable."
+  ]
+ }
+}

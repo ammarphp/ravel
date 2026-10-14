@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "claude-cli-oneshot",
+  "transport_kind": "cli-oneshot",
+  "launcher": "claude",
+  "argv_template": [
+    "claude",
+    "-p",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}",
+    "--effort",
+    "{effort}",
+    "--json-schema",
+    "{schema}",
+    "--setting-sources",
+    "project",
+    "--safe-mode",
+    "--strict-mcp-config",
+    "--no-session-persistence",
+    "--tools",
+    ""
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "anthropic",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "CLAUDE_CONFIG_DIR"
+  ],
+  "billing": "subscription",
+  "capabilities": {
+    "tools": "none",
+    "isolation": "cli-policy",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": false,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Keyless with the user's Claude login. Not --bare, which drops the subscription login. --setting-sources project and --safe-mode in an empty working directory exclude user settings, CLAUDE.md, skills, hooks and plugins; --strict-mcp-config without --mcp-config loads no MCP servers."
+}

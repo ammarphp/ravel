@@ -1,0 +1,6 @@
+# Required isolated SModelS environment: adapter and database API 3.2.1 (sdist sha256 31ad5f5801592a7bb6b09ae3135337ccf85cb5e1a9101e136d752d77273ea4fa).
+# The native toolchain keeps 3.1.1 runnable in its own environment (group smodels, environment smodels311).
+# NumPy 2 conflicts with the frozen NumPy 1.26 host; never install into it.
+smodels==3.2.1
+numpy>=2.0,<3
+scipy>=1.0,!=1.16.0,!=1.16.1,!=1.16.2

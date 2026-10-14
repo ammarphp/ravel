@@ -1,0 +1,47 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "document-assembly",
+ "summary": "A document built from the results the plan delivers.",
+ "priority": 80,
+ "match": {
+  "all": [
+   "claim:document"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "sources",
+   "provides": {
+    "kind": "document",
+    "require": {}
+   },
+   "source": "requester",
+   "locator": "document sources and accepted results",
+   "status": "awaited",
+   "bind": "document"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "build",
+   "kind": "operation",
+   "operation": "manuscript-build",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:sources",
+   "to": "build.sources",
+   "kind": "document",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "build.document",
+   "kind": "document"
+  }
+ ]
+}

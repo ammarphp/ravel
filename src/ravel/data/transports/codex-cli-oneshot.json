@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "codex-cli-oneshot",
+  "transport_kind": "cli-oneshot",
+  "launcher": "codex",
+  "argv_template": [
+    "codex",
+    "exec",
+    "--json",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--model",
+    "{model}",
+    "-c",
+    "model_reasoning_effort=\"{effort}\"",
+    "--output-last-message",
+    "{last_message}",
+    "-"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "openai",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "CODEX_HOME"
+  ],
+  "billing": "subscription",
+  "capabilities": {
+    "tools": "broker-readonly",
+    "isolation": "cli-policy",
+    "attestation": "transport",
+    "structured_output": false,
+    "blind_capable": false,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Keyless with the user's ChatGPT login. Runs with a fresh CODEX_HOME per call holding a copy of auth.json and a generated config.toml, so ~/.codex instructions and providers are not loaded. The read-only sandbox confines writes only: the session keeps a shell that can read the filesystem, so tools are broker-readonly and isolation is cli-policy. The answer is parsed and schema-checked by RAVEL; the template passes no schema flag."
+}

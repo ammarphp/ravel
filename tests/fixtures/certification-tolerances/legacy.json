@@ -1,0 +1,41 @@
+{
+  "label": "",
+  "grid": "synthetic-model",
+  "m_parent": 100.0,
+  "splitting": 10.0,
+  "comparison_counts": {
+    "requested": 1,
+    "evaluated": 1,
+    "missing": 0
+  },
+  "scope": "selection acceptance times efficiency at the stated benchmark and normalization",
+  "uncertainty_treatment": "point-estimate residuals; MC and published uncertainties are not propagated",
+  "attribution_status": "diagnostic hypotheses only; no physical cause is established by this comparison",
+  "mu95_impact_semantics": "legacy name for abs(mine/published - 1), an acceptance residual proxy; not a likelihood-derived limit uncertainty",
+  "inverse_signal_limit_shift_semantics": "signed 1/ratio - 1: exact only if the complete signal template rescales uniformly with background/model fixed; not a multiregion uncertainty estimate",
+  "verdict": "PASS",
+  "driving_tol": 0.15,
+  "mu95_bound": 0.1,
+  "worst_driving_residual": 0.0,
+  "driving_off_grid": false,
+  "driving_reference_unmatched": false,
+  "fail_reason": null,
+  "basis_suspicion": null,
+  "rows": [
+    {
+      "sr": "SR_A",
+      "region": "region-A",
+      "role": "driving",
+      "mine": 0.1,
+      "pub": 0.1,
+      "events": 100.0,
+      "node": "grid node (100,10)",
+      "ratio": 1.0,
+      "ok": true,
+      "mu95_impact": 0.0,
+      "off_grid": false,
+      "attribution": null,
+      "inverse_signal_limit_shift": 0.0
+    }
+  ]
+}

@@ -1,0 +1,2962 @@
+{
+  "schema_version": 1,
+  "kind": "physics-premises",
+  "license": "Apache-2.0",
+  "source_policy": "Statements are RAVEL-authored summaries. External works are bibliographic locators only: no external excerpts were fetched or copied, so excerpt_sha256 is null, never an invented digest. Scientific applicability requires the listed checks.",
+  "premises": [
+    {
+      "id": "trap:T1",
+      "title": "Coherent signal and reference",
+      "statement": "Shared initial and final states require inspection of the signal-reference cross term.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "shared-amplitudes"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Assess coherence, phase, accepted interference and signed normalization.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T1"
+      },
+      "tags": [
+        "interference",
+        "shared-amplitudes"
+      ],
+      "conventions": [
+        "conv:signed-weights",
+        "conv:cp-odd-continuum"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T1",
+          "description": "Assess coherence, phase, accepted interference and signed normalization.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T2",
+      "title": "Long-lived response",
+      "statement": "A prompt response model does not establish displaced-particle acceptance.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "long-lived",
+              "displaced",
+              "llp"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Check lifetime, decay geometry and the detector response domain.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T2"
+      },
+      "tags": [
+        "long-lived",
+        "displaced",
+        "llp"
+      ],
+      "conventions": [
+        "conv:detector-response"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T2",
+          "description": "Check lifetime, decay geometry and the detector response domain.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T3",
+      "title": "Simplified-model basis",
+      "statement": "Published fixed branching and composition assumptions must hold where a limit is mapped.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "simplified-model",
+              "mixing",
+              "limit-mapping"
+            ]
+          },
+          {
+            "operations_any": [
+              "limit-mapping"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "limit-mapping"
+      ],
+      "severity": "warning",
+      "check": "Inspect mixing, branching fractions, degeneracies and acceptance throughout the requested domain.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T3"
+      },
+      "tags": [
+        "simplified-model",
+        "mixing",
+        "limit-mapping"
+      ],
+      "conventions": [
+        "conv:yield-basis"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T3",
+          "description": "Inspect mixing, branching fractions, degeneracies and acceptance throughout the requested domain.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T4",
+      "title": "Trigger and reconstruction support",
+      "statement": "Thresholds and triggers can remove sensitivity in part of a requested parameter domain.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "trigger",
+              "threshold",
+              "low-mass"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Compare actual selection thresholds with signal kinematics.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T4"
+      },
+      "tags": [
+        "trigger",
+        "threshold",
+        "low-mass"
+      ],
+      "conventions": [
+        "conv:detector-response"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T4",
+          "description": "Compare actual selection thresholds with signal kinematics.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T5",
+      "title": "Shape likelihood",
+      "statement": "A shape analysis requires its likelihood, correlations and background treatment.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "shape-fit",
+              "spectrum"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "Recover or construct and qualify the appropriate statistical model rather than substitute a count.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T5"
+      },
+      "tags": [
+        "shape-fit",
+        "spectrum"
+      ],
+      "conventions": [
+        "conv:published-information"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T5",
+          "description": "Recover or construct and qualify the appropriate statistical model rather than substitute a count.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T6",
+      "title": "ISR-sensitive acceptance",
+      "statement": "Compressed visible decays can make acceptance depend strongly on recoil modelling.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "compressed",
+              "isr"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Check ISR, generation cuts, matching or merging, tune and acceptance uncertainty.",
+      "citation": [
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T6"
+      },
+      "tags": [
+        "compressed",
+        "isr"
+      ],
+      "conventions": [
+        "conv:generation-support"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T6",
+          "description": "Check ISR, generation cuts, matching or merging, tune and acceptance uncertainty.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T7",
+      "title": "Hidden-sector shower inputs",
+      "statement": "Hidden-sector shower defaults do not establish the intended model.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "hidden-valley",
+              "dark-shower",
+              "semi-visible"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Locate the shower parameters, hadron spectrum, invisible fraction and decay portal; test missing assumptions.",
+      "citation": [
+        {
+          "title": "T. Sjostrand et al., An Introduction to PYTHIA 8.2",
+          "locator": "arXiv:1410.3012, particle data, showers, matching and merging",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T7"
+      },
+      "tags": [
+        "hidden-valley",
+        "dark-shower",
+        "semi-visible"
+      ],
+      "conventions": [
+        "conv:generation-support"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T7",
+          "description": "Locate the shower parameters, hadron spectrum, invisible fraction and decay portal; test missing assumptions.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T8",
+      "title": "Width-dependent shapes",
+      "statement": "Broad-resonance shapes and interference require width-dependent support and acceptance checks.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "broad-resonance",
+              "wide-resonance",
+              "width",
+              "interference"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect width, off-shell tails and validity of any narrow-template approximation.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T8"
+      },
+      "tags": [
+        "broad-resonance",
+        "wide-resonance",
+        "width",
+        "interference"
+      ],
+      "conventions": [
+        "conv:narrow-width",
+        "conv:generation-support"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T8",
+          "description": "Inspect width, off-shell tails and validity of any narrow-template approximation.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T9",
+      "title": "Rate and coupling basis",
+      "statement": "Rate, branching, acceptance, charge, flavour and coupling conventions must agree.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "normalization",
+              "signal-yield",
+              "single-charge",
+              "charge-summed"
+            ]
+          },
+          {
+            "operations_any": [
+              "signal-yield",
+              "yield-prediction",
+              "signal-yield-prediction",
+              "single-point-signal-yield",
+              "recast",
+              "exclusion",
+              "measurement-reinterpretation",
+              "mc-expected-construction"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "signal-yield",
+        "yield-prediction",
+        "signal-yield-prediction",
+        "single-point-signal-yield",
+        "recast",
+        "exclusion",
+        "measurement-reinterpretation",
+        "mc-expected-construction"
+      ],
+      "severity": "warning",
+      "check": "Declare and reconcile both bases before predicting a yield or comparing a published limit.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T9"
+      },
+      "tags": [
+        "normalization",
+        "signal-yield",
+        "single-charge",
+        "charge-summed"
+      ],
+      "conventions": [
+        "conv:single-charge",
+        "conv:yield-basis"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T9",
+          "description": "Declare and reconcile both bases before predicting a yield or comparing a published limit.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T10",
+      "title": "Nonstandard objects",
+      "statement": "An object or working point outside the detector model needs explicit response evidence.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "nonstandard-objects",
+              "substructure",
+              "displaced",
+              "tagger"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Census selected observables and bind any efficiency or particle-level proxy to its validated scope.",
+      "citation": [
+        {
+          "title": "DELPHES 3 collaboration, DELPHES 3, A modular framework for fast simulation of a generic collider experiment",
+          "locator": "arXiv:1307.6346, detector parameterisation",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T10"
+      },
+      "tags": [
+        "nonstandard-objects",
+        "substructure",
+        "displaced",
+        "tagger"
+      ],
+      "conventions": [
+        "conv:detector-response"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T10",
+          "description": "Census selected observables and bind any efficiency or particle-level proxy to its validated scope.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T11",
+      "title": "Card and decay import",
+      "statement": "The generator and shower must consume the intended spectrum and decay information.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "decay-table",
+              "spectrum",
+              "shower"
+            ]
+          },
+          {
+            "operations_any": [
+              "event-generation"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "event-generation"
+      ],
+      "severity": "warning",
+      "check": "Inspect actual imported masses and complete decay tables, not only card block names.",
+      "citation": [
+        {
+          "title": "T. Sjostrand et al., An Introduction to PYTHIA 8.2",
+          "locator": "arXiv:1410.3012, particle data, showers, matching and merging",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "C. Degrande et al., UFO - The Universal FeynRules Output",
+          "locator": "arXiv:1108.2040, model conventions and coupling orders",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T11"
+      },
+      "tags": [
+        "decay-table",
+        "spectrum",
+        "shower"
+      ],
+      "conventions": [
+        "conv:decay-tables"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T11",
+          "description": "Inspect actual imported masses and complete decay tables, not only card block names.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:T12",
+      "title": "PDF and flavour scheme",
+      "statement": "Partonic channels and flavour schemes affect the appropriate PDF and rate convention.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "pdf",
+              "heavy-flavour",
+              "photon-initiated"
+            ]
+          },
+          {
+            "operations_any": [
+              "event-generation"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "event-generation"
+      ],
+      "severity": "warning",
+      "check": "Check heavy-flavour and photon initial states against the supplied PDF and perturbative scheme.",
+      "citation": [
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "sweep",
+        "path": "docs/workflow/checklists/physics-traps.md",
+        "id": "T12"
+      },
+      "tags": [
+        "pdf",
+        "heavy-flavour",
+        "photon-initiated"
+      ],
+      "conventions": [
+        "conv:flavour-scheme"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-T12",
+          "description": "Check heavy-flavour and photon initial states against the supplied PDF and perturbative scheme.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:power-law-signal-scaling",
+      "title": "Power-law signal scaling with a shared final state",
+      "statement": "A signal rate scaled as a pure power of a coupling presumes incoherent addition; a final state shared with a Standard Model amplitude of the same structure also carries interference terms of lower order in the coupling.",
+      "predicate": {
+        "any": [
+          {
+            "tags_all": [
+              "power-law-signal-scaling",
+              "shared-amplitudes"
+            ]
+          },
+          {
+            "tags_all": [
+              "morphing-basis",
+              "shared-amplitudes"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Run a sigma-only probe with the Standard Model amplitude included, compare it with the declared scaling, and report the fitted lower-order fraction.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "authored",
+        "id": "power-law-signal-scaling"
+      },
+      "tags": [
+        "power-law-signal-scaling",
+        "morphing-basis",
+        "shared-amplitudes",
+        "interference"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:power-law-signal-scaling",
+          "description": "Run a sigma-only probe with the Standard Model amplitude included, compare it with the declared scaling, and report the fitted lower-order fraction.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:tuning-to-observed-data",
+      "title": "Parameters tuned to observed data",
+      "statement": "A selection, calibration or normalization chosen for agreement with observed data biases any later inference that uses the same data region.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "tuned-to-observed-data",
+              "selection-optimized-on-data",
+              "normalization-fit-to-data",
+              "calibrated-on-observed-data"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "List each parameter whose provenance cites agreement with observed data and require a declared non-overlap with the inference region or an added uncertainty.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, recommendations for reinterpretation",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "authored",
+        "id": "tuning-to-observed-data"
+      },
+      "tags": [
+        "tuned-to-observed-data",
+        "selection-optimized-on-data",
+        "normalization-fit-to-data",
+        "calibrated-on-observed-data"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:tuning-to-observed-data",
+          "description": "List each parameter whose provenance cites agreement with observed data and require a declared non-overlap with the inference region or an added uncertainty.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:landau-yang",
+      "title": "Landau-Yang constraint",
+      "statement": "See conv:landau-yang.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "spin-one",
+              "gluon-fusion",
+              "four-lepton",
+              "cp"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:landau-yang check.",
+      "citation": [
+        {
+          "title": "L. D. Landau, On the angular momentum of a system of two photons",
+          "locator": "Dokl. Akad. Nauk SSSR 60 (1948) 207",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "C. N. Yang, Selection Rules for the Dematerialization of a Particle into Two Photons",
+          "locator": "Phys. Rev. 77 (1950) 242; doi:10.1103/PhysRev.77.242",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "W.-Y. Keung, I. Low and J. Shu, Landau-Yang Theorem and Decays of a Z' Boson into Two Z Bosons",
+          "locator": "Phys. Rev. Lett. 101 (2008) 091802; arXiv:0806.2864, colour-singlet and colour-octet vectors and massive final states",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "landau-yang"
+      },
+      "tags": [
+        "interference",
+        "spin-one",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "conventions": [
+        "conv:landau-yang"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:cp-odd-continuum-interference",
+      "title": "CP-odd resonance and continuum",
+      "statement": "See conv:cp-odd-continuum.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "cp-odd",
+              "gluon-fusion",
+              "four-lepton",
+              "cp"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:cp-odd-continuum check.",
+      "citation": [
+        {
+          "title": "S. Bolognesi et al., On the spin and parity of a single-produced resonance at the LHC",
+          "locator": "arXiv:1208.4018, spin-zero amplitudes and angular distributions",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "D. Dicus, A. Stange and S. Willenbrock, Higgs decay to top quarks at hadron colliders",
+          "locator": "Phys. Lett. B 333 (1994) 126; arXiv:hep-ph/9404359, scalar and pseudoscalar interference with the gluon-fusion continuum",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "cp-odd-continuum-interference"
+      },
+      "tags": [
+        "interference",
+        "cp-odd",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "conventions": [
+        "conv:cp-odd-continuum"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:cp-even-cp-odd-interference-in-even-observables",
+      "title": "Conditions for CP cancellation",
+      "statement": "See conv:cp-even-odd.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "cp",
+              "cp-odd",
+              "angular",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:cp-even-odd check.",
+      "citation": [
+        {
+          "title": "S. Bolognesi et al., On the spin and parity of a single-produced resonance at the LHC",
+          "locator": "arXiv:1208.4018, spin-zero amplitudes and angular distributions",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "cp-even-cp-odd-interference-in-even-observables"
+      },
+      "tags": [
+        "interference",
+        "cp",
+        "cp-odd",
+        "angular",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "conventions": [
+        "conv:cp-even-odd"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:signed-weight-normalisation",
+      "title": "Signed and difference weight normalization",
+      "statement": "See conv:signed-weights.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "signed-weights",
+              "difference-weights",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:signed-weights check.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "signed-weight-normalisation"
+      },
+      "tags": [
+        "interference",
+        "signed-weights",
+        "difference-weights",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "conventions": [
+        "conv:signed-weights"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:interference-k-factor",
+      "title": "Higher-order interference correction",
+      "statement": "See conv:interference-k-factor.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "k-factor",
+              "broad-resonance",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:interference-k-factor check.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "M. Bonvini, F. Caola, S. Forte, K. Melnikov and G. Ridolfi, Signal-background interference effects for gg -> H -> W+W- beyond leading order",
+          "locator": "Phys. Rev. D 88 (2013) 034032; arXiv:1304.3053, approximate higher-order correction to the interference term",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "interference-k-factor"
+      },
+      "tags": [
+        "interference",
+        "k-factor",
+        "broad-resonance",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "conventions": [
+        "conv:interference-k-factor"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:unfolding-validity",
+      "title": "Unfolding-model validity",
+      "statement": "See conv:unfolding.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "unfolding",
+              "measurement",
+              "interference"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:unfolding check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "unfolding-validity"
+      },
+      "tags": [
+        "unfolding",
+        "measurement",
+        "interference"
+      ],
+      "conventions": [
+        "conv:unfolding"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:reference-double-counting",
+      "title": "Reference subtraction and covariance",
+      "statement": "See conv:reference-subtraction.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "reference",
+              "interference"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "severity": "warning",
+      "check": "See conv:reference-subtraction check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "reference-double-counting"
+      },
+      "tags": [
+        "measurement",
+        "reference",
+        "interference"
+      ],
+      "conventions": [
+        "conv:reference-subtraction"
+      ],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-traceability",
+      "title": "Traceability",
+      "statement": "Resolve canonical concern traceability.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:extraction"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "traceability"
+      },
+      "tags": [
+        "review:extraction"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-uncertainty_roundtrip",
+      "title": "Uncertainty roundtrip",
+      "statement": "Resolve canonical concern uncertainty_roundtrip.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:extraction"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "uncertainty_roundtrip"
+      },
+      "tags": [
+        "review:extraction"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-observable_semantics",
+      "title": "Observable semantics",
+      "statement": "Resolve canonical concern observable_semantics.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:extraction"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "observable_semantics"
+      },
+      "tags": [
+        "review:extraction"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-sm_baseline",
+      "title": "Sm baseline",
+      "statement": "Resolve canonical concern sm_baseline.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:sm_template"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "sm_baseline"
+      },
+      "tags": [
+        "review:sm_template"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-coupling_contamination",
+      "title": "Coupling contamination",
+      "statement": "Resolve canonical concern coupling_contamination.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:parameterization"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "coupling_contamination"
+      },
+      "tags": [
+        "review:parameterization"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-coefficient_baseline",
+      "title": "Coefficient baseline",
+      "statement": "Resolve canonical concern coefficient_baseline.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:parameterization"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "coefficient_baseline"
+      },
+      "tags": [
+        "review:parameterization"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-theory_doublecount",
+      "title": "Theory doublecount",
+      "statement": "Resolve canonical concern theory_doublecount.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:sm_template"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "theory_doublecount"
+      },
+      "tags": [
+        "review:sm_template"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-datacard_roundtrip",
+      "title": "Datacard roundtrip",
+      "statement": "Resolve canonical concern datacard_roundtrip.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:datacard"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "datacard_roundtrip"
+      },
+      "tags": [
+        "review:datacard"
+      ],
+      "conventions": [],
+      "obligations": []
+    },
+    {
+      "id": "trap:review-documentation",
+      "title": "Documentation",
+      "statement": "Resolve canonical concern documentation.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "review:datacard"
+            ]
+          },
+          {
+            "operations_any": [
+              "sfitter-review"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "sfitter-review"
+      ],
+      "severity": "warning",
+      "check": "Resolve canonical concern check.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "concern",
+        "path": "src/ravel/workflow/sfitter_review_protocol.py",
+        "id": "documentation"
+      },
+      "tags": [
+        "review:datacard"
+      ],
+      "conventions": [],
+      "obligations": []
+    }
+  ],
+  "conventions": [
+    {
+      "id": "conv:flavour-scheme",
+      "shard": "generation",
+      "title": "Heavy-flavour scheme and PDF basis",
+      "statement": "Four-flavour and five-flavour descriptions allocate heavy-quark contributions differently. Their PDFs, matrix elements, masses and matching prescriptions must form a consistent perturbative prediction.",
+      "tags": [
+        "heavy-flavour",
+        "pdf",
+        "four-flavour",
+        "five-flavour"
+      ],
+      "operations": [
+        "event-generation"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "heavy-flavour",
+              "pdf",
+              "four-flavour",
+              "five-flavour"
+            ]
+          },
+          {
+            "operations_any": [
+              "event-generation"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Record the flavour scheme, PDF set and version, perturbative order, heavy-quark treatment and any matching prescription.",
+      "citation": [
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:flavour-scheme",
+          "description": "Record the flavour scheme, PDF set and version, perturbative order, heavy-quark treatment and any matching prescription.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:decay-tables",
+      "shard": "generation",
+      "title": "Widths and decay branching tables",
+      "statement": "A total DECAY width does not supply branching fractions or decay channels to a shower. Model, restriction and shower import settings determine which masses and decays are used.",
+      "tags": [
+        "decay-table",
+        "shower",
+        "width"
+      ],
+      "operations": [
+        "event-generation"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "decay-table",
+              "shower",
+              "width"
+            ]
+          },
+          {
+            "operations_any": [
+              "event-generation"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Inspect the exported particle masses, widths, channel tables and actual shower import settings before accepting the decay chain.",
+      "citation": [
+        {
+          "title": "T. Sjostrand et al., An Introduction to PYTHIA 8.2",
+          "locator": "arXiv:1410.3012, particle data, showers, matching and merging",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "C. Degrande et al., UFO - The Universal FeynRules Output",
+          "locator": "arXiv:1108.2040, model conventions and coupling orders",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:decay-tables",
+          "description": "Inspect the exported particle masses, widths, channel tables and actual shower import settings before accepting the decay chain.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:generation-support",
+      "shard": "generation",
+      "title": "Resonance support and merging",
+      "statement": "A resonance mass-window cutoff truncates sampled phase space. Matrix-element/parton-shower merging scales and generation cuts also change support and require validation in the requested observable.",
+      "tags": [
+        "broad-resonance",
+        "merging",
+        "isr"
+      ],
+      "operations": [
+        "event-generation"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "broad-resonance",
+              "merging",
+              "isr"
+            ]
+          },
+          {
+            "operations_any": [
+              "event-generation"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Record mass-window and merging settings; test support, tails and matching against the requested accuracy.",
+      "citation": [
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:generation-support",
+          "description": "Record mass-window and merging settings; test support, tails and matching against the requested accuracy.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:single-charge",
+      "shard": "normalization",
+      "title": "Single-charge versus charge-summed rates",
+      "statement": "A single-charge cross section and a charge-summed cross section describe different process populations. Proton PDFs can give unequal charge-conjugate rates; multiplying a single-charge rate by two requires evidence.",
+      "tags": [
+        "single-charge",
+        "charge-summed",
+        "signal-yield"
+      ],
+      "operations": [
+        "signal-yield",
+        "yield-prediction",
+        "signal-yield-prediction",
+        "single-point-signal-yield",
+        "recast",
+        "exclusion",
+        "mc-expected-construction"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "single-charge",
+              "charge-summed",
+              "signal-yield"
+            ]
+          },
+          {
+            "operations_any": [
+              "signal-yield",
+              "yield-prediction",
+              "signal-yield-prediction",
+              "single-point-signal-yield",
+              "recast",
+              "exclusion",
+              "mc-expected-construction"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Identify the charge and flavour population on both sides of every yield or limit comparison; sum separately supplied channels when needed.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Structure Functions",
+          "locator": "Phys. Rev. D 110, 030001; review Structure Functions, parton distributions of the proton",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:single-charge",
+          "description": "Identify the charge and flavour population on both sides of every yield or limit comparison; sum separately supplied channels when needed.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:yield-basis",
+      "shard": "normalization",
+      "title": "Cross section, luminosity, branching and filter basis",
+      "statement": "Expected selected yield is luminosity times the cross section for the declared event population times selection efficiency. Branching fractions and filter efficiency enter once if they are not already included. Convert pb and inverse fb consistently: their product carries a factor of 1000.",
+      "tags": [
+        "normalization",
+        "yield",
+        "branching-fraction",
+        "filter-efficiency"
+      ],
+      "operations": [
+        "signal-yield",
+        "yield-prediction",
+        "signal-yield-prediction",
+        "single-point-signal-yield",
+        "recast",
+        "mc-expected-construction"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "normalization",
+              "yield",
+              "branching-fraction",
+              "filter-efficiency"
+            ]
+          },
+          {
+            "operations_any": [
+              "signal-yield",
+              "yield-prediction",
+              "signal-yield-prediction",
+              "single-point-signal-yield",
+              "recast",
+              "mc-expected-construction"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Write the rate basis, units, perturbative order, channel sums, branching fractions, filter denominator and efficiency definition; apply each factor once.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:yield-basis",
+          "description": "Write the rate basis, units, perturbative order, channel sums, branching fractions, filter denominator and efficiency definition; apply each factor once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": [
+        "conv:single-charge"
+      ]
+    },
+    {
+      "id": "conv:signed-weights",
+      "shard": "interference-cp",
+      "title": "Signed and difference weight normalization",
+      "statement": "Signed interference and model-minus-reference streams can have a nearly cancelling sum of weights. Scaling each stream to a total rate by its own sumw is invalid unless that rate and denominator describe that same stream. Preserve the generator-defined absolute integration normalization, exposure, sumw2 and covariance between correlated streams.",
+      "tags": [
+        "interference",
+        "signed-weights",
+        "difference-weights",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "signed-weights",
+              "difference-weights",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Trace the signed weight units and integration exposure; normalize raw sums with the declared common measure and retain correlated Monte Carlo uncertainty. Never replace signed weights by their magnitudes.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "J. Alwall et al., The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations",
+          "locator": "arXiv:1405.0301, event generation and matching",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:signed-weights",
+          "description": "Trace the signed weight units and integration exposure; normalize raw sums with the declared common measure and retain correlated Monte Carlo uncertainty. Never replace signed weights by their magnitudes.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:landau-yang",
+      "shard": "interference-cp",
+      "title": "Landau-Yang constraint",
+      "statement": "An on-shell colour-singlet spin-1 state cannot couple to two identical on-shell massless vector bosons, including the colour-singlet two-gluon state. Loop corrections do not evade these assumptions. Off-shell partons or additional radiation change the premises. This theorem alone does not forbid decay to massive vector bosons.",
+      "tags": [
+        "interference",
+        "spin-one",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "spin-one",
+              "gluon-fusion",
+              "four-lepton",
+              "cp"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Check spin, colour, on-shell conditions and production multiplicity; justify any claimed evasion with an explicit amplitude and source.",
+      "citation": [
+        {
+          "title": "L. D. Landau, On the angular momentum of a system of two photons",
+          "locator": "Dokl. Akad. Nauk SSSR 60 (1948) 207",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "C. N. Yang, Selection Rules for the Dematerialization of a Particle into Two Photons",
+          "locator": "Phys. Rev. 77 (1950) 242; doi:10.1103/PhysRev.77.242",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "W.-Y. Keung, I. Low and J. Shu, Landau-Yang Theorem and Decays of a Z' Boson into Two Z Bosons",
+          "locator": "Phys. Rev. Lett. 101 (2008) 091802; arXiv:0806.2864, colour-singlet and colour-octet vectors and massive final states",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:landau-yang",
+          "description": "Check spin, colour, on-shell conditions and production multiplicity; justify any claimed evasion with an explicit amplitude and source.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:cp-odd-continuum",
+      "shard": "interference-cp",
+      "title": "CP-odd resonance and continuum",
+      "statement": "A CP-odd resonance with CP-conserving pseudoscalar production and decay vertices need not have zero interference with the gluon-fusion continuum. CP-odd production times CP-odd decay is not a single CP-odd insertion. The actual helicity amplitudes and accepted observable determine the surviving term.",
+      "tags": [
+        "interference",
+        "cp-odd",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "cp-odd",
+              "gluon-fusion",
+              "four-lepton",
+              "cp"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Compute the signal-continuum cross term for the supplied production and decay couplings and cuts; do not set it to zero solely from the resonance CP label.",
+      "citation": [
+        {
+          "title": "S. Bolognesi et al., On the spin and parity of a single-produced resonance at the LHC",
+          "locator": "arXiv:1208.4018, spin-zero amplitudes and angular distributions",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "D. Dicus, A. Stange and S. Willenbrock, Higgs decay to top quarks at hadron colliders",
+          "locator": "Phys. Lett. B 333 (1994) 126; arXiv:hep-ph/9404359, scalar and pseudoscalar interference with the gluon-fusion continuum",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:cp-odd-continuum",
+          "description": "Compute the signal-continuum cross term for the supplied production and decay couplings and cuts; do not set it to zero solely from the resonance CP label.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": [
+        "conv:cp-even-odd",
+        "conv:signed-weights"
+      ]
+    },
+    {
+      "id": "conv:cp-even-odd",
+      "shard": "interference-cp",
+      "title": "Conditions for CP cancellation",
+      "statement": "A CP-odd interference integrand cancels only under a CP-symmetric integration measure, initial-state ensemble, observable bin and acceptance. A CP-even observable alone is insufficient with asymmetric cuts. Distinguish mixing at one vertex from two CP-odd vertices in a complete amplitude.",
+      "tags": [
+        "interference",
+        "cp",
+        "cp-odd",
+        "angular",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "cp",
+              "cp-odd",
+              "angular",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Check the transformation of the full amplitude and phase-space measure including cuts, beam weights and binning before dropping a cross term.",
+      "citation": [
+        {
+          "title": "S. Bolognesi et al., On the spin and parity of a single-produced resonance at the LHC",
+          "locator": "arXiv:1208.4018, spin-zero amplitudes and angular distributions",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:cp-even-odd",
+          "description": "Check the transformation of the full amplitude and phase-space measure including cuts, beam weights and binning before dropping a cross term.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:interference-k-factor",
+      "shard": "interference-cp",
+      "title": "Higher-order interference correction",
+      "statement": "There is no universal interference K-factor. Signal, background and their cross term receive different perturbative corrections. Taking the geometric mean of signal and background K-factors is an approximation that needs process and kinematic justification, not an identity.",
+      "tags": [
+        "interference",
+        "k-factor",
+        "broad-resonance",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "interference",
+              "k-factor",
+              "broad-resonance",
+              "four-lepton",
+              "gluon-fusion"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Use a cited or explicitly supplied correction within its domain; carry its uncertainty for the interference term and record missing information without inventing a factor.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "M. Bonvini, F. Caola, S. Forte, K. Melnikov and G. Ridolfi, Signal-background interference effects for gg -> H -> W+W- beyond leading order",
+          "locator": "Phys. Rev. D 88 (2013) 034032; arXiv:1304.3053, approximate higher-order correction to the interference term",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:interference-k-factor",
+          "description": "Use a cited or explicitly supplied correction within its domain; carry its uncertainty for the interference term and record missing information without inventing a factor.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": [
+        "conv:signed-weights"
+      ]
+    },
+    {
+      "id": "conv:statistic-policy",
+      "shard": "statistics",
+      "title": "Requested statistic and CLs default",
+      "statement": "For exclusion without a prescribed statistic RAVEL uses 95% CLs. A prescribed statistic, confidence region or credible interval remains the primary requested quantity. CLs is a modified frequentist ratio of tail probabilities; it is not a discovery p-value or Bayesian probability.",
+      "tags": [
+        "exclusion",
+        "cls",
+        "statistic"
+      ],
+      "operations": [
+        "exclusion",
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "exclusion",
+              "cls",
+              "statistic"
+            ]
+          },
+          {
+            "operations_any": [
+              "exclusion",
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Record the test statistic, tail conventions, nuisance treatment and requested confidence level; distinguish CLs from CLs+b and discovery significance.",
+      "citation": [
+        {
+          "title": "A. L. Read, Presentation of search results: the CLs technique",
+          "locator": "J. Phys. G 28 (2002) 2693; doi:10.1088/0954-3899/28/10/313",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:statistic-policy",
+          "description": "Record the test statistic, tail conventions, nuisance treatment and requested confidence level; distinguish CLs from CLs+b and discovery significance.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:asimov-profile",
+      "shard": "statistics",
+      "title": "Asimov and profile-likelihood assumptions",
+      "statement": "An Asimov data set represents an expected-data construction at a specified parameter point. Profile-likelihood asymptotic formulae rely on regularity and adequate information; parameter boundaries, sparse counts and non-identifiability can require calibration.",
+      "tags": [
+        "profile-likelihood",
+        "asimov",
+        "statistics"
+      ],
+      "operations": [
+        "differential-likelihood",
+        "measurement-reinterpretation"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "profile-likelihood",
+              "asimov",
+              "statistics"
+            ]
+          },
+          {
+            "operations_any": [
+              "differential-likelihood",
+              "measurement-reinterpretation"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "State observed versus expected data, the Asimov truth, nuisance constraints and parameter boundaries; test coverage or calibration when asymptotic assumptions fail.",
+      "citation": [
+        {
+          "title": "G. Cowan et al., Asymptotic formulae for likelihood-based tests of new physics",
+          "locator": "arXiv:1007.1727, sections 2-4",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:asimov-profile",
+          "description": "State observed versus expected data, the Asimov truth, nuisance constraints and parameter boundaries; test coverage or calibration when asymptotic assumptions fail.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:discovery",
+      "shard": "statistics",
+      "title": "Discovery significance is a separate quantity",
+      "statement": "Discovery tests the background-only hypothesis. A local discovery significance and a global significance after searching a parameter range differ. An exclusion contour is not a discovery claim.",
+      "tags": [
+        "discovery",
+        "significance"
+      ],
+      "operations": [
+        "discovery"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "discovery",
+              "significance"
+            ]
+          },
+          {
+            "operations_any": [
+              "discovery"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Declare the discovery null, test statistic, local or global scope and treatment of the search population.",
+      "citation": [
+        {
+          "title": "G. Cowan et al., Asymptotic formulae for likelihood-based tests of new physics",
+          "locator": "arXiv:1007.1727, sections 2-4",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Statistics",
+          "locator": "Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:discovery",
+          "description": "Declare the discovery null, test statistic, local or global scope and treatment of the search population.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:two-body-width",
+      "shard": "theory-procedures",
+      "title": "Tree-level two-body width",
+      "statement": "For an on-shell two-body decay use the complete amplitude and Lorentz-invariant phase space, average over initial spin when appropriate and sum final states. An identical-final-state symmetry factor belongs to the final-state phase space, not to identical incoming beams.",
+      "tags": [
+        "two-body-width",
+        "decay-width"
+      ],
+      "operations": [
+        "decay-width"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "two-body-width",
+              "decay-width"
+            ]
+          },
+          {
+            "operations_any": [
+              "decay-width"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Check masses, units, spin sums or averages and symmetry factors using the supplied amplitude.",
+      "citation": [
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:two-body-width",
+          "description": "Check masses, units, spin sums or averages and symmetry factors using the supplied amplitude.",
+          "resource_class": "pure_check",
+          "check": "two-body-width"
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:narrow-width",
+      "shard": "theory-procedures",
+      "title": "Domain of narrow-width factorization",
+      "statement": "Small width relative to mass is a necessary guide, not a sufficient error bound for narrow-width factorization. Thresholds, cuts, off-shell tails and interference can spoil a rate-times-branching approximation even for a narrow state.",
+      "tags": [
+        "broad-resonance",
+        "narrow-width",
+        "width"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "broad-resonance",
+              "narrow-width",
+              "width"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Compare the full prediction with factorization in the actual fiducial domain; use no universal width-to-mass pass threshold.",
+      "citation": [
+        {
+          "title": "N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal",
+          "locator": "arXiv:1206.4803, off-shell effects and signal-background interference",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:narrow-width",
+          "description": "Compare the full prediction with factorization in the actual fiducial domain; use no universal width-to-mass pass threshold.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:goldstone-equivalence",
+      "shard": "theory-procedures",
+      "title": "Goldstone equivalence and coupling conventions",
+      "statement": "At energies large compared with the gauge-boson mass, longitudinal-vector amplitudes relate to Goldstone amplitudes with convention-dependent phases and perturbative factors, plus power corrections. Mixing angles, field normalization and vertex signs must be fixed before comparing couplings.",
+      "tags": [
+        "longitudinal",
+        "coupling-conventions",
+        "gauge"
+      ],
+      "operations": [],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "longitudinal",
+              "coupling-conventions",
+              "gauge"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "State energy hierarchy, gauge, field and coupling conventions and perturbative order before using equivalence or comparing model amplitudes.",
+      "citation": [
+        {
+          "title": "J. M. Cornwall, D. N. Levin and G. Tiktopoulos, Derivation of gauge invariance from high-energy unitarity bounds on the S matrix",
+          "locator": "Phys. Rev. D 10 (1974) 1145; doi:10.1103/PhysRevD.10.1145",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "C. Degrande et al., UFO - The Universal FeynRules Output",
+          "locator": "arXiv:1108.2040, model conventions and coupling orders",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:goldstone-equivalence",
+          "description": "State energy hierarchy, gauge, field and coupling conventions and perturbative order before using equivalence or comparing model amplitudes.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:eft-validity",
+      "shard": "theory-procedures",
+      "title": "EFT expansion and validity",
+      "statement": "An EFT prediction requires a declared power counting, operator basis and truncation order. The relevant hard invariants and coupling expansion determine validity; a hadron collider beam energy alone is not the expansion parameter for each event.",
+      "tags": [
+        "eft",
+        "effective-field-theory"
+      ],
+      "operations": [
+        "eft-fit"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "eft",
+              "effective-field-theory"
+            ]
+          },
+          {
+            "operations_any": [
+              "eft-fit"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Compare relevant partonic invariants with the stated validity scale and test sensitivity to truncation; do not infer a universal cutoff without model input.",
+      "citation": [
+        {
+          "title": "I. Brivio and M. Trott, The Standard Model as an Effective Field Theory",
+          "locator": "arXiv:1706.08945, power counting and EFT validity",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:eft-validity",
+          "description": "Compare relevant partonic invariants with the stated validity scale and test sensitivity to truncation; do not infer a universal cutoff without model input.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:published-information",
+      "shard": "reinterpretation",
+      "title": "Published likelihood and response information",
+      "statement": "A reinterpretation needs the observable definition, selection and fiducial domain, rate conventions, correlations and statistical model used for the claimed quantity. A public histogram alone does not supply a likelihood or detector response.",
+      "tags": [
+        "reinterpretation",
+        "measurement",
+        "recast"
+      ],
+      "operations": [
+        "measurement-reinterpretation",
+        "recast",
+        "differential-likelihood"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "reinterpretation",
+              "measurement",
+              "recast"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "recast",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Locate primary selections, efficiencies, likelihoods and covariance; retain missing inputs and scope limits explicitly.",
+      "citation": [
+        {
+          "title": "S. Kraml et al., Searches for New Physics: Les Houches Recommendations",
+          "locator": "arXiv:1203.2489, recommendations for analysis information",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:published-information",
+          "description": "Locate primary selections, efficiencies, likelihoods and covariance; retain missing inputs and scope limits explicitly.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:unfolding",
+      "shard": "reinterpretation",
+      "title": "Unfolding-model validity",
+      "statement": "An unfolded measurement inherits response and regularization assumptions from its reference model. A new resonance or altered event composition can change migrations; agreement with the tabulated bins does not validate those response assumptions.",
+      "tags": [
+        "unfolding",
+        "measurement",
+        "interference"
+      ],
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "unfolding",
+              "measurement",
+              "interference"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Find closure and stress tests for the published unfolding and compare the requested model with their tested domain.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:unfolding",
+          "description": "Find closure and stress tests for the published unfolding and compare the requested model with their tested domain.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:reference-subtraction",
+      "shard": "reinterpretation",
+      "title": "Reference subtraction and covariance",
+      "statement": "If a supplied full model includes a Standard Model component, adding it to the same Standard Model reference double counts that component. Form the model-minus-reference contribution using the same fiducial definitions and retain correlations from shared events and shared nuisance sources.",
+      "tags": [
+        "measurement",
+        "reference",
+        "interference"
+      ],
+      "operations": [
+        "measurement-reinterpretation",
+        "differential-likelihood"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "reference",
+              "interference"
+            ]
+          },
+          {
+            "operations_any": [
+              "measurement-reinterpretation",
+              "differential-likelihood"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Identify exactly which reference was subtracted and match units, bins, cuts and perturbative order; account for shared uncertainty once.",
+      "citation": [
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Particle Data Group, Review of Particle Physics (2024), Kinematics",
+          "locator": "Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:reference-subtraction",
+          "description": "Identify exactly which reference was subtracted and match units, bins, cuts and perturbative order; account for shared uncertainty once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:detector-response",
+      "shard": "detector-models",
+      "title": "Detector card and object efficiency domain",
+      "statement": "Fast simulation implements the specific detector card and reconstruction model. Object efficiencies, isolation, overlap removal and working points are not universal, especially for displaced, soft or substructure-dependent objects.",
+      "tags": [
+        "detector",
+        "object-efficiency",
+        "nonstandard-objects",
+        "displaced"
+      ],
+      "operations": [
+        "detector-simulation",
+        "columnar-analysis"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "detector",
+              "object-efficiency",
+              "nonstandard-objects",
+              "displaced"
+            ]
+          },
+          {
+            "operations_any": [
+              "detector-simulation",
+              "columnar-analysis"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Bind the card and working points to sources, census each selected object and validate the response in its kinematic domain.",
+      "citation": [
+        {
+          "title": "DELPHES 3 collaboration, DELPHES 3, A modular framework for fast simulation of a generic collider experiment",
+          "locator": "arXiv:1307.6346, detector parameterisation",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "LHC Reinterpretation Forum, Reinterpretation of LHC Results for New Physics: Status and Recommendations after Run 2",
+          "locator": "arXiv:2003.07868, measurements, likelihoods and efficiencies",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:detector-response",
+          "description": "Bind the card and working points to sources, census each selected object and validate the response in its kinematic domain.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ],
+      "requires": []
+    },
+    {
+      "id": "conv:model-conventions",
+      "shard": "detector-models",
+      "title": "UFO and model convention checks",
+      "statement": "A UFO encodes model parameters, particles, vertices and coupling orders. Successful import does not establish physical consistency, a gauge choice, intended restrictions or the normalization of a supplied coupling.",
+      "tags": [
+        "ufo",
+        "model",
+        "coupling-orders"
+      ],
+      "operations": [
+        "model-authoring"
+      ],
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "ufo",
+              "model",
+              "coupling-orders"
+            ]
+          },
+          {
+            "operations_any": [
+              "model-authoring"
+            ]
+          }
+        ]
+      },
+      "severity": "warning",
+      "check": "Record model identity, restrictions, gauge and coupling-order selection and compare independent amplitudes or widths before using the model.",
+      "citation": [
+        {
+          "title": "C. Degrande et al., UFO - The Universal FeynRules Output",
+          "locator": "arXiv:1108.2040, model conventions and coupling orders",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "obligations": [
+        {
+          "id": "obligation:model-conventions",
+          "description": "Record model identity, restrictions, gauge and coupling-order selection and compare independent amplitudes or widths before using the model.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ],
+      "requires": []
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+ "id": "op:feyn-graph",
+ "op": {
+  "do_not_use_when": [
+   "Consuming the diagrams in NDA/EDA analyses: use diagram-analysis.",
+   "Amplitude population for evaluation: use feynarts-amplitude."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/feyn-graph-example --spec specs/feyn-graph.json",
+    "phrase": "Enumerate and render the diagrams of a declared process in a pinned model.",
+    "spec": {
+     "mode": "feyn-graph",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Complete model-bound Feynman diagram enumeration and rendering for a declared process.",
+   "A diagram census or figure of all diagrams at a given order."
+  ]
+ }
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "id": "conventions:normalization",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:single-charge",
+      "kind": "convention",
+      "statement": "A single-charge cross section and a charge-summed cross section describe different process populations. Proton PDFs can give unequal charge-conjugate rates; multiplying a single-charge rate by two requires evidence.",
+      "tags": [
+        "single-charge",
+        "charge-summed",
+        "signal-yield"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "normalization"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 1856,
+          "line_end": 1856,
+          "excerpt_sha256": "99b8099c793d96896e351cf915dc6646dd1f49eb56e89bb76f8a0e9a996ee3e9",
+          "locator": "RAVEL authored convention conv:single-charge; primary references: Phys. Rev. D 110, 030001; review Structure Functions, parton distributions of the proton; arXiv:2003.07868, measurements, likelihoods and efficiencies"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:single-charge",
+          "description": "Identify the charge and flavour population on both sides of every yield or limit comparison; sum separately supplied channels when needed.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:yield-basis",
+      "kind": "convention",
+      "statement": "Expected selected yield is luminosity times the cross section for the declared event population times selection efficiency. Branching fractions and filter efficiency enter once if they are not already included. Convert pb and inverse fb consistently: their product carries a factor of 1000.",
+      "tags": [
+        "normalization",
+        "yield",
+        "branching-fraction",
+        "filter-efficiency"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "normalization"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 1927,
+          "line_end": 1927,
+          "excerpt_sha256": "4a609ff02ac637ca12e157088e4439e70a29db63ff346b21ca6e501c83bb1ad2",
+          "locator": "RAVEL authored convention conv:yield-basis; primary references: Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections; arXiv:2003.07868, measurements, likelihoods and efficiencies"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:yield-basis",
+          "description": "Write the rate basis, units, perturbative order, channel sums, branching fractions, filter denominator and efficiency definition; apply each factor once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "requires:yield-basis:single-charge",
+      "kind": "requires",
+      "source": "conv:yield-basis",
+      "target": "conv:single-charge",
+      "statement": "Apply this normalization or symmetry condition with the selected convention.",
+      "assessment": "source_assertion"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "ravel-loop-local",
+  "transport_kind": "ravel-loop",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "none",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [],
+  "billing": "local",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "endpoint": "http://127.0.0.1:11434/v1/chat/completions",
+  "notes": "Local OpenAI-compatible server (Ollama, vLLM, LM Studio, llama.cpp) under local_only; the text protocol serves models without function calling."
+}

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "action": "Stop target chasing in the retained track-definition branch and request source-definition evidence before a physics interpretation",
+  "root": "A",
+  "triggers": [
+    {
+      "kind": "conflict",
+      "reason": "Cached target falls below the source-bound fixed-sample capacity witness"
+    },
+    {
+      "kind": "unsupported_step",
+      "reason": "Paper-observable alignment and reference uncertainty remain unsupported"
+    }
+  ],
+  "budget": {
+    "max_nodes": 3,
+    "max_depth": 2
+  },
+  "nodes": [
+    {
+      "id": "A",
+      "author_id": "retrospective-fixture-producer",
+      "assertion": "The supplied capacity witness excludes the quoted cached target for the declared retained-sample track intervention",
+      "rationale": "Audit bounded claims about the retained record; source record custody is distinct from historical runtime or paper validation",
+      "material": true,
+      "assumptions": [
+        {
+          "statement": "The intervention and retained sample stay within the supplied source capacity construction",
+          "disposition": "accepted",
+          "reason": "Conditional scope; changing source objects or held-fixed predicates requires a new plan"
+        }
+      ],
+      "unknowns": [
+        {
+          "question": "Does the quoted cached target have the same paper observable and uncertainty definition?",
+          "request": {
+            "kind": "evidence",
+            "description": "Recover the exact primary-source bin definition, quoted target and reference covariance before interpreting this fixed-sample exclusion as disagreement with the paper"
+          }
+        }
+      ],
+      "anchors": [],
+      "review": {
+        "reviewer_id": "retrospective-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Illustrative fixture judgment for this explicitly conditional assertion, not a live expert attestation"
+      }
+    },
+    {
+      "id": "B",
+      "author_id": "retrospective-fixture-producer",
+      "assertion": "The source record gives lower bound 0.3953488372093023 above cached target 0.2935296396129421",
+      "rationale": "Audit bounded claims about the retained record; source record custody is distinct from historical runtime or paper validation",
+      "material": true,
+      "assumptions": [],
+      "unknowns": [],
+      "anchors": [
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-capacity-refinement.json",
+            "sha256": "31badf2411776c21ca3e0db3096821720f5dd5ea47c86cadcbef0c59e6665d9d"
+          },
+          "format": "json",
+          "location": "/fraction_bound/0",
+          "value": 0.3953488372093023
+        },
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-capacity-refinement.json",
+            "sha256": "31badf2411776c21ca3e0db3096821720f5dd5ea47c86cadcbef0c59e6665d9d"
+          },
+          "format": "json",
+          "location": "/fraction_bound/1",
+          "value": 0.5581395348837209
+        },
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-capacity-refinement.json",
+            "sha256": "31badf2411776c21ca3e0db3096821720f5dd5ea47c86cadcbef0c59e6665d9d"
+          },
+          "format": "json",
+          "location": "/quoted_reference_central_fraction",
+          "value": 0.2935296396129421
+        }
+      ],
+      "review": {
+        "reviewer_id": "retrospective-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Illustrative fixture judgment for this explicitly conditional assertion, not a live expert attestation"
+      }
+    },
+    {
+      "id": "C",
+      "author_id": "retrospective-fixture-producer",
+      "assertion": "The retained Stage-B verification record reports exact event matching, nominal control identity and the actual flavour-type capacity condition closed",
+      "rationale": "Audit bounded claims about the retained record; source record custody is distinct from historical runtime or paper validation",
+      "material": true,
+      "assumptions": [],
+      "unknowns": [],
+      "anchors": [
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-replay-result-verification.json",
+            "sha256": "149cea68d583b9843e87ece1a7fb450d551e8f015d4f128da7e48e5a23f7e6de"
+          },
+          "format": "json",
+          "location": "/census_event_ids_weights_labels_join_exact",
+          "value": true
+        },
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-replay-result-verification.json",
+            "sha256": "149cea68d583b9843e87ece1a7fb450d551e8f015d4f128da7e48e5a23f7e6de"
+          },
+          "format": "json",
+          "location": "/nominal_control_whole_objects_and_CSV_byte_identity",
+          "value": true
+        },
+        {
+          "kind": "measurement",
+          "artifact": {
+            "path": "track-replay-result-verification.json",
+            "sha256": "149cea68d583b9843e87ece1a7fb450d551e8f015d4f128da7e48e5a23f7e6de"
+          },
+          "format": "json",
+          "location": "/actual_flavour_type_capacity_condition_closed",
+          "value": true
+        }
+      ],
+      "review": {
+        "reviewer_id": "retrospective-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Illustrative fixture judgment for this explicitly conditional assertion, not a live expert attestation"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "parent": "A",
+      "child": "B",
+      "author_id": "retrospective-fixture-producer",
+      "rationale": "The supplied arithmetic ordering excludes the target from the declared deterministic capacity interval",
+      "review": {
+        "reviewer_id": "retrospective-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Fixture-only conditional supporting-edge judgment; the code does not prove scientific entailment"
+      },
+      "request": null
+    },
+    {
+      "parent": "A",
+      "child": "C",
+      "author_id": "retrospective-fixture-producer",
+      "rationale": "The retained verification record reports the source condition required to apply the Stage-A witness; the original historical runtime remains a distinct obligation",
+      "review": {
+        "reviewer_id": "retrospective-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Fixture-only conditional supporting-edge judgment; the code does not prove scientific entailment"
+      },
+      "request": null
+    }
+  ]
+}

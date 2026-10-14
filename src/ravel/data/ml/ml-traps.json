@@ -1,0 +1,1193 @@
+{
+  "schema_version": 1,
+  "kind": "ml-premises-merge-fragment",
+  "license": "Apache-2.0",
+  "integration": "Entry schema follows the premises entry contract. Merge entries into the owner registry, not a second decision registry.",
+  "premises": [
+    {
+      "id": "trap:ml-label-leakage",
+      "title": "Group and label leakage",
+      "statement": "A score is valid only for events whose group never entered that model's training, validation or preprocessing, and whose label cannot be computed from its features.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "ml-training",
+              "weak-supervision",
+              "cross-fitting"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Cross-fit audit passes; the label variable and its declared derivatives are excluded from features.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "ml-training",
+        "weak-supervision",
+        "cross-fitting"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-label-leakage",
+          "description": "Cross-fit audit passes; the label variable and its declared derivatives are excluded from features.",
+          "resource_class": "computed_check",
+          "check": "check:ml-crossfit-audit"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-selection-sculpting",
+      "title": "Learned selection sculpts the inference variable",
+      "statement": "A learned selection can reshape the background distribution of the variable used for inference, faking or erasing structure even when global correlation is small.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "bump-hunt",
+              "learned-selection"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Flatness and independent-reference spurious-signal checks pass at every working point.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "bump-hunt",
+        "learned-selection"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-selection-sculpting",
+          "description": "Flatness and independent-reference spurious-signal checks pass at every working point.",
+          "resource_class": "computed_check",
+          "check": "check:ml-selection-flatness"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-feature-resonance-dependence",
+      "title": "Background features depend on the resonance variable",
+      "statement": "Weak supervision between neighbouring regions assumes the same background feature distribution; resonance dependence can make the classifier learn background.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "weak-supervision",
+              "sidebands"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Check sideband separability and reference fidelity; justify the resonance-variable construction.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "weak-supervision",
+        "sidebands"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-feature-resonance-dependence",
+          "description": "Check sideband separability and reference fidelity; justify the resonance-variable construction.",
+          "resource_class": "computed_check",
+          "check": "check:ml-sideband-separability"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-trigger-turn-on",
+      "title": "Trigger turn-on shapes selection",
+      "statement": "Selections below the trigger plateau make efficiency depend on the inference variable.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "trigger",
+              "bump-hunt"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Show the trigger plateau for the final offline selection before freezing regions.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "trigger",
+        "bump-hunt"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-trigger-turn-on",
+          "description": "Show the trigger plateau for the final offline selection before freezing regions.",
+          "resource_class": "computed_check",
+          "check": "check:ml-trigger-plateau"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-insufficient-statistics",
+      "title": "Repeated training is not independent data",
+      "statement": "Small training or test samples let networks tag fluctuations; repeated trainings and seeds add no independent information.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "ml-training"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Independent effective counts per region, fold and working point meet the declared precision target.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "ml-training"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-insufficient-statistics",
+          "description": "Independent effective counts per region, fold and working point meet the declared precision target.",
+          "resource_class": "computed_check",
+          "check": "check:ml-statistics-sizing"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-post-hoc-selection",
+      "title": "Selection after test exposure",
+      "statement": "Choosing a model, working point, window or threshold after seeing test or signal-region results invalidates the stated test.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "ml-training",
+              "scan"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Select with validation data only and count every declared window and working point.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "ml-training",
+        "scan"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-post-hoc-selection",
+          "description": "Select with validation data only and count every declared window and working point.",
+          "resource_class": "computed_check",
+          "check": "check:ml-trials-accounting"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-nonlocalized-benchmark",
+      "title": "Injection must be localized",
+      "statement": "A resonance-search benchmark must be localized in the reconstructed search variable; a continuum or truth-level weighting does not qualify.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "signal-injection",
+              "benchmark"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Show reconstructed-variable localization before training.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "signal-injection",
+        "benchmark"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-nonlocalized-benchmark",
+          "description": "Show reconstructed-variable localization before training.",
+          "resource_class": "computed_check",
+          "check": "check:ml-benchmark-localization"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-uncalibrated-observable",
+      "title": "Observable calibration is unsupported",
+      "statement": "An observable without established calibration for the chosen reconstruction makes the analysis a calibration study and requires confirmation before work starts.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "detector-observable",
+              "calibration"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Provide the calibration support table and a human bespoke_calibration decision before deriving corrections.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "detector-observable",
+        "calibration"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-uncalibrated-observable",
+          "description": "Provide the calibration support table and a human bespoke_calibration decision before deriving corrections.",
+          "resource_class": "computed_check",
+          "check": "check:ml-observable-support"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-preprocessing-contamination",
+      "title": "Transforms can absorb signal",
+      "statement": "Data-driven transforms fitted in regions that may contain signal shift with signal contamination and need recorded fit scopes.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "preprocessing",
+              "weak-supervision"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Record training-only transform scopes and test contamination in a fixture.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "preprocessing",
+        "weak-supervision"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-preprocessing-contamination",
+          "description": "Record training-only transform scopes and test contamination in a fixture.",
+          "resource_class": "computed_check",
+          "check": "check:ml-label-leakage"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-weighted-training",
+      "title": "Weights control precision and stability",
+      "statement": "Large or signed weights destabilise training and fits; effective counts govern precision.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "weighted-simulation",
+              "ml-training"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Report effective N and refuse or explicitly qualify weighted training.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "weighted-simulation",
+        "ml-training"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-weighted-training",
+          "description": "Report effective N and refuse or explicitly qualify weighted training.",
+          "resource_class": "computed_check",
+          "check": "check:ml-statistics-sizing"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-coverage-after-learning",
+      "title": "Calibration must repeat learning",
+      "statement": "Intervals and p-values after a learned adaptive selection require calibration that repeats learning; fixed-selection toys calibrate a different procedure.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "inference",
+              "learned-selection"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Use whole-procedure null toys and record their estimand.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "inference",
+        "learned-selection"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-coverage-after-learning",
+          "description": "Use whole-procedure null toys and record their estimand.",
+          "resource_class": "computed_check",
+          "check": "check:ml-null-calibration"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-injection-reuse",
+      "title": "Injection and evaluation events must be disjoint",
+      "statement": "Events used to inject signal cannot measure its efficiency, and an efficiency from one strength or model cannot transfer to another.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "signal-injection"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Use disjoint group-hashed pools and retrain at every strength and sampling.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "signal-injection"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-injection-reuse",
+          "description": "Use disjoint group-hashed pools and retrain at every strength and sampling.",
+          "resource_class": "computed_check",
+          "check": "check:ml-injection-closure"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-fit-family-inadequacy",
+      "title": "Selection can invalidate the background fit family",
+      "statement": "A smooth family may not describe selected background; residual trends bias local significance.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "bump-hunt",
+              "shape-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Check sideband fit adequacy and the significance distribution in a control region.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "bump-hunt",
+        "shape-fit"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-fit-family-inadequacy",
+          "description": "Check sideband fit adequacy and the significance distribution in a control region.",
+          "resource_class": "computed_check",
+          "check": "check:ml-fit-adequacy"
+        }
+      ]
+    },
+    {
+      "id": "trap:ml-oracle-as-baseline",
+      "title": "Truth supervision is a ceiling",
+      "statement": "A supervised classifier trained on truth is a ceiling with different information, not an available rival to a weakly supervised search.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "baseline",
+              "method-comparison"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "Label the oracle as a ceiling in every table and figure.",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "baseline",
+        "method-comparison"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:trap-ml-oracle-as-baseline",
+          "description": "Label the oracle as a ceiling in every table and figure.",
+          "resource_class": "computed_check",
+          "check": "check:ml-equal-budget"
+        }
+      ]
+    },
+    {
+      "id": "premise:mixture-shared-components",
+      "title": "Mixture shared components",
+      "statement": "Mixtures differ only in their signal fractions.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "weak-supervision"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "check:ml-reference-fidelity",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "weak-supervision"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:premise-mixture-shared-components",
+          "description": "Mixtures differ only in their signal fractions.",
+          "resource_class": "computed_check",
+          "check": "check:ml-reference-fidelity"
+        }
+      ]
+    },
+    {
+      "id": "premise:smooth-background-after-selection",
+      "title": "Smooth background after selection",
+      "statement": "The declared family describes selected background across the inference range.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "bump-hunt"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "check:ml-fit-adequacy",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "bump-hunt"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:premise-smooth-background-after-selection",
+          "description": "The declared family describes selected background across the inference range.",
+          "resource_class": "computed_check",
+          "check": "check:ml-fit-adequacy"
+        }
+      ]
+    },
+    {
+      "id": "premise:resonance-localized",
+      "title": "Resonance localized",
+      "statement": "The supplied signal is localized in the reconstructed search variable.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "signal-injection"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "check:ml-benchmark-localization",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "signal-injection"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:premise-resonance-localized",
+          "description": "The supplied signal is localized in the reconstructed search variable.",
+          "resource_class": "computed_check",
+          "check": "check:ml-benchmark-localization"
+        }
+      ]
+    },
+    {
+      "id": "premise:feature-independence",
+      "title": "Feature independence",
+      "statement": "Background auxiliary features are independent of the inference variable in the declared regions.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "weak-supervision"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "check:ml-sideband-separability",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "weak-supervision"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:premise-feature-independence",
+          "description": "Background auxiliary features are independent of the inference variable in the declared regions.",
+          "resource_class": "computed_check",
+          "check": "check:ml-sideband-separability"
+        }
+      ]
+    },
+    {
+      "id": "premise:adequate-training-statistics",
+      "title": "Adequate training statistics",
+      "statement": "Independent groups suffice for the declared training and efficiency precision.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "ml-training"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "ml-training"
+      ],
+      "severity": "blocking",
+      "check": "check:ml-statistics-sizing",
+      "citation": [
+        {
+          "title": "Classification without labels: Learning from mixed samples in high energy physics",
+          "locator": "arXiv:1708.02949",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Anomaly Detection for Resonant New Physics with Machine Learning",
+          "locator": "arXiv:1805.02664",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Extending the search for new resonances with machine learning",
+          "locator": "arXiv:1902.02634",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        },
+        {
+          "title": "Dijet resonance search with weak supervision using collisions at 13 TeV",
+          "locator": "arXiv:2005.02983",
+          "license": "LicenseRef-locator-only",
+          "excerpt_sha256": null,
+          "verification": "bibliographic_locator_only"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "ml-training"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:premise-adequate-training-statistics",
+          "description": "Independent groups suffice for the declared training and efficiency precision.",
+          "resource_class": "computed_check",
+          "check": "check:ml-statistics-sizing"
+        }
+      ]
+    }
+  ]
+}

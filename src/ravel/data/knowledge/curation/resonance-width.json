@@ -1,0 +1,25 @@
+{
+ "id": "op:resonance-width",
+ "op": {
+  "do_not_use_when": [
+   "Lineshape and propagator comparison: use resonance-lineshape.",
+   "Arbitrary closed-form formulas: use formula-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/resonance-width-example --spec specs/resonance-width.json",
+    "phrase": "Compute two-body widths and branching ratios of a declared resonance.",
+    "spec": {
+     "mode": "resonance-width",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Tree-level two-body widths and branching ratios of a spin-0 or spin-1 resonance into declared fermion channels.",
+   "A width and branching table at a parameter point."
+  ]
+ }
+}

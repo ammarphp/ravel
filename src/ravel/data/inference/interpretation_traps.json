@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "Physics notes shown with every measurement reinterpretation. Each note is a check to perform, not a result.",
+  "traps": [
+    {
+      "id": "landau-yang",
+      "statement": "An on-shell colour-singlet spin-1 state cannot be produced from two on-shell gluons (Landau-Yang). A Z'-like vector is produced through quark-antiquark annihilation at leading order. The theorem does not forbid its decay to two massive Z bosons.",
+      "check": "Does any hypothesis rely on gluon-fusion production of a colour-singlet vector? If so, revise the production mode or justify the off-shell or loop-level mechanism with a source."
+    },
+    {
+      "id": "cp-odd-continuum-interference",
+      "statement": "A CP-odd scalar produced in gluon fusion interferes with the gluon-fusion diboson continuum in general; the interference is not zero by symmetry.",
+      "check": "Compute the CP-odd signal-continuum interference with the same amplitude basis as the CP-even case rather than assuming it vanishes."
+    },
+    {
+      "id": "cp-even-cp-odd-interference-in-even-observables",
+      "statement": "Interference between CP-even and CP-odd scalar amplitudes integrates to zero in CP-even observables such as the angle-integrated four-lepton mass. It can be nonzero in angular or CP-odd observables.",
+      "check": "Confirm the observable before dropping a CP-even/CP-odd interference term; keep it for angular distributions."
+    },
+    {
+      "id": "signed-weight-normalisation",
+      "statement": "Analysis routines that scale histograms by cross section over the sum of weights mis-normalise signed or difference weight streams (interference, model minus reference).",
+      "check": "Normalise each signed stream from the raw histograms with its absolute cross section and generated exposure, and keep its MC covariance."
+    },
+    {
+      "id": "interference-k-factor",
+      "statement": "No universal higher-order K-factor applies to interference terms; the correction for signal, background and interference can differ.",
+      "check": "Use only a cited or requester-stated factor for an interference term and attach a declared uncertainty nuisance to that term."
+    },
+    {
+      "id": "unfolding-validity",
+      "statement": "An unfolded measurement is tested for deviations from its unfolding model only up to some size. Large resonant deviations can be biased by the unfolding.",
+      "check": "Declare the paper's tested deviation range and report which parameter values exceed it."
+    },
+    {
+      "id": "reference-double-counting",
+      "statement": "Adding a model prediction that already contains the Standard Model to a published Standard Model baseline counts the Standard Model twice.",
+      "check": "Supply the difference between the model and the reference computed with the same definitions, and state which reference it was subtracted from."
+    }
+  ]
+}

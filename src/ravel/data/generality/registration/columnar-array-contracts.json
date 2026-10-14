@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "description": "Supplied columnar population, presentation and tree-array export contracts",
+  "mode_descriptors": {
+    "dataset-query-quantities": {
+      "summary": "Columnar queries and grouped quantities from supplied dataset, source, observable and presentation contracts.",
+      "applicability": {
+        "scope": "general"
+      }
+    },
+    "tree-array-export": {
+      "summary": "Tree-to-array export from supplied source commitments, datasets, trees, column shapes, padding and destinations.",
+      "applicability": {
+        "scope": "general"
+      },
+      "inputs": [
+        "ROOT tree",
+        "dataset contract",
+        "array layout"
+      ],
+      "outputs": [
+        "NPY arrays",
+        "NPZ arrays",
+        "complete export receipt"
+      ]
+    }
+  },
+  "operation_signatures": {
+    "dataset-query-quantities": {
+      "summary": "Columnar queries and grouped quantities from supplied dataset, source, observable and presentation contracts.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "dataset-query-quantities",
+        "module": "ravel.physics.dataset_query_quantities"
+      },
+      "consumes": [
+        {
+          "slot": "datasets",
+          "kind": "event_sample",
+          "cardinality": "1..*",
+          "task_pointer": "/task/config",
+          "require": {
+            "format": [
+              "physlite",
+              "root"
+            ]
+          }
+        },
+        {
+          "slot": "recipe",
+          "kind": "selection",
+          "task_pointer": "/task/config"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "histograms",
+          "kind": "binned_values"
+        },
+        {
+          "slot": "cutflow",
+          "kind": "cutflow"
+        }
+      ],
+      "effects": [
+        "executes_native",
+        "reads_restricted_inputs"
+      ],
+      "cost": {
+        "unit": "events",
+        "forecast": null,
+        "ceiling_pointer": "/max_seconds"
+      },
+      "critical_fields": [
+        "/task/config"
+      ],
+      "basis": {
+        "adds": [
+          {
+            "element": "simulated_acceptance",
+            "origin_from": "recipe.origin",
+            "level": "reconstructed"
+          }
+        ],
+        "passes": [
+          "datasets",
+          "recipe"
+        ]
+      },
+      "tools": [
+        "ServiceX",
+        "coffea",
+        "func_adl"
+      ],
+      "stages": [
+        "analysis"
+      ],
+      "review": {
+        "checks": [
+          "io_contract",
+          "normalization_ledger"
+        ]
+      },
+      "fidelity_rank": 2
+    },
+    "tree-array-export": {
+      "summary": "Tree-to-array export from supplied source commitments, datasets, trees, column shapes, padding and destinations.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "tree-array-export",
+        "module": "ravel.physics.tree_array_export"
+      },
+      "consumes": [
+        {
+          "slot": "ntuples",
+          "kind": "event_sample",
+          "cardinality": "1..*",
+          "task_pointer": "/task/input",
+          "require": {
+            "format": [
+              "root",
+              "flat-ntuple"
+            ]
+          }
+        }
+      ],
+      "produces": [
+        {
+          "slot": "arrays",
+          "kind": "table"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "events",
+        "forecast": null,
+        "ceiling_pointer": "/max_seconds"
+      },
+      "critical_fields": [
+        "/task/input",
+        "/task/input_sha256"
+      ],
+      "basis": {
+        "adds": [],
+        "passes": [
+          "ntuples"
+        ]
+      },
+      "tools": [
+        "NumPy",
+        "Awkward",
+        "uproot"
+      ],
+      "stages": [],
+      "review": {
+        "checks": [
+          "io_contract"
+        ]
+      },
+      "fidelity_rank": 1
+    }
+  },
+  "knowledge_curation": {
+    "dataset-query-quantities": {
+      "use_when": [
+        "Source-bound columnar query or complete native-file quantities with supplied dataset and observable contracts."
+      ],
+      "do_not_use_when": [
+        "A request without reviewed source selection, event correspondence or quantity normalization."
+      ],
+      "example_phrase": "Analyze a supplied native dataset with explicit queries, observables, domain and presentation."
+    },
+    "tree-array-export": {
+      "use_when": [
+        "Export all source tree rows to a supplied positional array layout and destination population."
+      ],
+      "do_not_use_when": [
+        "Event selection, normalization, preprocessing or training must be performed."
+      ],
+      "example_phrase": "Export supplied trees to arrays with explicit branches, shapes, padding and formats."
+    }
+  },
+  "backend_census_updates": {
+    "census-supplied-array-layout": {
+      "summary": "Supplied tree-to-array layout exporter"
+    }
+  },
+  "launch_contract": "Existing science method-decision, admission, approval and supervised worker only",
+  "qualification": "Reference inputs supplied at execution; no qualification outputs are installed",
+  "input_contracts": {
+    "dataset-query-quantities": {
+      "supplied_inputs": [
+        "datasets",
+        "query source",
+        "observable contract",
+        "event domain",
+        "component grouping",
+        "presentation"
+      ],
+      "missing_input_reason": "MissingColumnarInput"
+    },
+    "tree-array-export": {
+      "supplied_inputs": [
+        "schema2 export request",
+        "source commitments",
+        "dataset population",
+        "tree names",
+        "layout",
+        "destinations",
+        "formats",
+        "resource bounds"
+      ],
+      "missing_input_reason": "MissingArrayInput",
+      "supported_formats": [
+        "npy",
+        "npz"
+      ]
+    }
+  }
+}

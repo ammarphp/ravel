@@ -1,0 +1,29 @@
+{
+ "id": "op:root-stream",
+ "op": {
+  "do_not_use_when": [
+   "Raw array conversion of a mini-tree: use tree-array-export.",
+   "Applying a recipe: use columnar-analysis."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/root-stream-example --spec specs/root-stream.json",
+    "phrase": "Stream a ROOT tree set under a pinned member and weight contract.",
+    "spec": {
+     "mode": "root-stream",
+     "task": {
+      "config": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Stream ROOT trees with explicit member, DSID, weight and blinding contracts.",
+   "A complete read contract over a ROOT file set is needed."
+  ]
+ }
+}

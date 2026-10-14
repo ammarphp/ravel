@@ -1,0 +1,218 @@
+"""Data-registered staffing extension for the mandatory review engine.
+
+``derive`` returns the review-point shape; ``pending`` uses the same custody and
+counting rules as the core engine. The core derivation owner can compose these
+rows without changing their policy. No worker is launched by derivation.
+"""
+from __future__ import annotations
+
+from copy import deepcopy
+import json
+import hashlib
+import math
+from pathlib import Path
+
+from ravel.paths import package_data_path
+from . import review_points as reviews
+from .decision_case import jdigest
+
+
+def catalogue():
+    value = json.loads(package_data_path('knowledge', 'spawn_rows.json').read_text())
+    if value.get('schema_version') != 1 or value.get('kind') != 'spawn-row-catalogue':
+        raise ValueError('unsupported spawn row catalogue')
+    return value
+
+
+def review_metadata(node):
+    """Use the existing plan field schema instead of adding undeclared node keys."""
+    result = {}
+    for field in node.get('fields', []):
+        pointer = field.get('pointer', '')
+        if pointer.startswith('/review/'):
+            key = pointer[len('/review/'):]
+            if key in result:
+                raise ValueError('duplicate review metadata: ' + pointer)
+            result[key] = field['value']
+    return result
+
+
+def derive(facts):
+    if facts.get('agent_layer_epoch') != 2:
+        return []
+    from ravel.validation.validate_request_plan import computed_bases, signatures
+    plan = deepcopy(facts.get('plan', facts))
+    nodes = plan.get('nodes', [])
+    for node in nodes:
+        node.setdefault('kind', 'operation'); node.setdefault('fields', [])
+    bases = computed_bases(plan, signatures())
+    rows = {r['row']: r for r in catalogue()['rows']}
+    from .role_registry import registry_document
+    registry = registry_document()
+    points = []
+
+    def add(row_id, scope, *, node=None, claim=None, roles=None, **extra):
+        row = rows[row_id]
+        group = 'spawn:' + scope
+        entries = deepcopy(row['roles'] if roles is None else roles)
+        for role in entries:
+            role.setdefault('distinct_family_from', [])
+        point = {'id': row_id + ':' + scope, 'row': row_id,
+                 'when': {'trigger': row['trigger'], 'at': ('node:' if node else 'checkin2:') + scope},
+                 'roles': entries, 'mode': row['mode'], 'blocking': True,
+                 'gate': row['gate'], 'parallel_group': group, 'depends_on': [],
+                 'attestation_min': 'transport', **extra}
+        if node: point['node_id'] = node
+        if claim: point['claim_id'] = claim
+        points.append(point)
+        return point
+
+    for node in sorted(nodes, key=lambda n: n['id']):
+        metadata = review_metadata(node)
+        authored = node.get('authored') or {}
+        draft = node.get('draft') or authored.get('draft') or authored.get('specification') or node.get('spec_template')
+        tool = node.get('tool')
+        tools = [tool] if tool else signatures().get(node.get('operation'), {}).get('tools', [])
+        if draft and node.get('rung') in {'smoke', 'full'}:
+            # Tool aliases resolve to one registered consult family; an unknown tool stays visible.
+            consults = {}
+            for tool in sorted(set(tools)):
+                name = 'consult-' + tool
+                consults.setdefault(registry['aliases'].get(name, name), []).append(tool)
+            for role, names in sorted(consults.items()):
+                add('K1', node['id'] + ':' + role.removeprefix('consult-'), node=node['id'],
+                    roles=[{'role': role, 'count': 1}], tools=names, fix_or_waive_in_work_order=True)
+        evaluator = metadata.get('evaluator', node.get('evaluator', authored.get('signature', {}).get('evaluator', {})))
+        if node.get('authored') is not None and isinstance(evaluator, dict) and evaluator.get('kind') == 'deterministic':
+            row = rows['K4']
+            count = row['deadline_count'] if metadata.get('deadline', plan.get('deadline')) is True else row['candidate_count']
+            author_kind = metadata.get('author_kind', node.get('authors', node.get('artifact_kind')))
+            if author_kind is None:
+                author_kind = {'authored-analysis': 'analysis_code', 'routine-build': 'routine',
+                               'model-authoring': 'model'}.get(node.get('implementation'), 'spec')
+            role = reviews._catalogue()['author_roles'].get(author_kind, 'spec-author')
+            add('K4', node['id'], node=node['id'], roles=[{'role': role, 'count': count}],
+                min_model_families=row['min_model_families'], selection_record_required=True)
+            add('K6', node['id'], node=node['id'])
+    for claim in sorted(plan.get('claims', []), key=lambda c: c['id']):
+        computed = bases.get(claim['id'], [])
+        elements = {r['element'] for r in computed} | set(claim.get('basis_declared', []))
+        if elements & {'generated_prediction', 'simulated_acceptance'} or claim.get('absolute_yield'):
+            add('K5', claim['id'], claim=claim['id'], blind_to_producer_numbers=True,
+                disagreement_action='open_rca_ticket', tolerance_required=True)
+            add('K6', claim['id'], claim=claim['id'])
+        analytic = [r for r in computed if r['element'] == 'analytic' and r.get('from') in {'stated_inputs', 'cited_formula'}]
+        primary_ids = [c for n in nodes for c in review_metadata(n).get('primary_claims', [])]
+        primary = claim.get('primary', claim['id'] in primary_ids if primary_ids else
+                            claim.get('kind') in {'calculation', 'prediction'})
+        if primary is True and analytic:
+            add('K7', claim['id'], claim=claim['id'],
+                forbidden_method_nodes=sorted({v for r in analytic for v in r['via']}),
+                comparison_required=True, tolerance_required=True)
+    panels = list(plan.get('panels', [])) + [p for n in nodes for p in review_metadata(n).get('panels', [])]
+    for panel in sorted(panels, key=lambda p: p['id']):
+        attempts = panel.get('attempts', [])
+        ids = [a['id'] if isinstance(a, dict) else a for a in attempts]
+        if len(set(ids)) >= 2:
+            add('K6', 'panel:' + panel['id'], panel_id=panel['id'])
+    from .spawn_rows_roles import derive_roles
+    derive_roles(plan, nodes, bases, rows, points, add, review_metadata)
+    return sorted(points, key=lambda p: (p['row'], p['id']))
+
+
+def pending(rundir):
+    """Consume registered, byte-bound worker receipts; loose verdicts never count."""
+    from . import rdj_custody
+    root = Path(rundir)
+    facts = reviews._facts(root)
+    points = derive(facts)
+    by_id = {p['id']: p for p in points}
+    receipts = []
+    for path in sorted((root / 'agent-work').glob('*/*/receipt.json')):
+        raw = path.read_bytes()
+        sha = hashlib.sha256(raw).hexdigest()
+        relative = path.relative_to(root).as_posix()
+        if not rdj_custody.worker_registered(root, relative, sha):
+            continue
+        rec = json.loads(raw)
+        point = by_id.get(rec.get('review_point_id'))
+        if not point or reviews.credit_refusal(rec, facts, point) is not None:
+            continue
+        final = rec.get('final_record') or {}
+        target = (path.parent / final.get('path', '')).resolve()
+        if not target.is_relative_to(path.parent.resolve()) or not target.is_file():
+            continue
+        if hashlib.sha256(target.read_bytes()).hexdigest() != final.get('sha256'):
+            continue
+        registration = rdj_custody.worker_row(root, relative, sha)
+        rec['_label'] = reviews.worker_label(rec, registration.get('verified_label'))
+        rec['findings'] = json.loads(target.read_bytes()).get('findings', [])
+        receipts.append(rec)
+    missing = reviews._missing(points, receipts)
+    result = []
+    for point in points:
+        findings = [f for rec in receipts if rec.get('review_point_id') == point['id'] for f in rec['findings']
+                    if reviews.blocking_finding(root, f)]
+        families = {r.get('model', {}).get('family') for r in receipts
+                    if r.get('review_point_id') == point['id'] and r.get('status') == 'ok'
+                    and r.get('run_tree', {}).get('modified') is False
+                    and r.get('final_record', {}).get('valid') is True
+                    and r.get('session_id') and r.get('actor_id')
+                    and reviews.independent(r['_label'])}
+        family_pending = len(families - {None, ''}) < point.get('min_model_families', 0)
+        if missing[point['id']] or findings or family_pending:
+            result.append({**point, 'roles': missing[point['id']], 'blocking_findings': findings,
+                           'family_diversity_pending': family_pending})
+    return result
+
+
+def gate_errors(rundir, gate, action):
+    from .decision_gate import GateError
+    return [GateError('spawn_review_pending', gate, 'spawn_rows', 'Required staffing pending: ' + p['id'],
+                      'Dispatch the derived roles and register their independent receipts.', (p['id'],))
+            for p in pending(rundir) if p['gate'] == gate and p['blocking']
+            and (not action.get('node_id') or action['node_id'] == p.get('node_id'))
+            and (not action.get('claim_id') or action['claim_id'] == p.get('claim_id'))]
+
+
+def compare_analytic(first, second, *, relative_tolerance, absolute_tolerance=0):
+    """Compare extracted scalar outputs with declared common units and tolerance.
+
+    Callers extract the contracted quantity from resonance-width/formula-grid
+    output records; uncertainty or method independence is not inferred here.
+    """
+    def number(value):
+        if type(value) not in {int, float} or not math.isfinite(value):
+            raise ValueError('analytic comparison requires finite numeric values')
+        return value
+    a, b = number(first['value']), number(second['value'])
+    rel, absolute = number(relative_tolerance), number(absolute_tolerance)
+    if rel < 0 or absolute < 0 or not first.get('unit') or first.get('unit') != second.get('unit'):
+        raise ValueError('analytic comparison requires common units and nonnegative tolerances')
+    delta = abs(a - b)
+    value = {'schema_version': 1, 'kind': 'analytic-comparison', 'first': first, 'second': second,
+             'relative_tolerance': rel, 'absolute_tolerance': absolute, 'difference': delta,
+             'passed': delta <= absolute + rel * max(abs(a), abs(b))}
+    return {**value, 'sha256': jdigest(value)}
+
+
+def compare_outputs(root, first, second, *, pointer, unit, relative_tolerance, absolute_tolerance=0, second_pointer=None):
+    """Extract one declared JSON-pointer quantity from byte-pinned method outputs."""
+    from ravel.validation.input_closure import _read
+    second_pointer = pointer if second_pointer is None else second_pointer
+    if any(not isinstance(p, str) or not p.startswith('/') for p in (pointer, second_pointer)):
+        raise ValueError('analytic output comparison requires JSON pointers')
+    values = []
+    for pin, quantity_pointer in zip((first, second), (pointer, second_pointer)):
+        value = json.loads(_read(root, pin))
+        try:
+            for token in quantity_pointer[1:].split('/'):
+                token = token.replace('~1', '/').replace('~0', '~')
+                value = value[int(token)] if isinstance(value, list) else value[token]
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise ValueError('analytic output quantity is unavailable: ' + quantity_pointer) from exc
+        values.append({'value': value, 'unit': unit})
+    result = compare_analytic(*values, relative_tolerance=relative_tolerance, absolute_tolerance=absolute_tolerance)
+    result.update(first_pin=deepcopy(first), second_pin=deepcopy(second), pointer=pointer, second_pointer=second_pointer)
+    result.pop('sha256')
+    return {**result, 'sha256': jdigest(result)}

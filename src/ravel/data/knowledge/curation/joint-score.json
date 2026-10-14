@@ -1,0 +1,25 @@
+{
+ "id": "op:joint-score",
+ "op": {
+  "do_not_use_when": [
+   "Profile fits: use joint-fit.",
+   "Fixed-vector density comparison: use likelihood-parity."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/joint-score-example --spec specs/joint-score.json",
+    "phrase": "Run a joint score study from a pinned input.",
+    "spec": {
+     "mode": "joint-score",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A joint score successor study on a pinned input.",
+   "Score-based comparison after a joint fit."
+  ]
+ }
+}

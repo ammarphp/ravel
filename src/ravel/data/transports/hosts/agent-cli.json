@@ -1,0 +1,6 @@
+{
+  "type": "agent-cli",
+  "agent": "auto",
+  "timeout_seconds": 1830,
+  "cli_timeout_seconds": 1800
+}

@@ -1,0 +1,121 @@
+{
+  "ROOT_imported": false,
+  "cases": [
+    {
+      "background": 20.25,
+      "candidate_extract_and_check_accept": true,
+      "exact_crossings": [
+        1.4769470423386193,
+        2.0139165883058228,
+        2.8983375545325556,
+        4.238904068781753,
+        5.971548185716356
+      ],
+      "hard_max": 4.5,
+      "relative_p975_endpoint_error": -0.24917682397310992,
+      "rows_not_native_observations": true,
+      "signal_per_mu": 3.5,
+      "source_algorithm_rows": [
+        {
+          "limit": 1.4769470423386193,
+          "quantileExpected": 0.025
+        },
+        {
+          "limit": 2.0139165883058228,
+          "quantileExpected": 0.16
+        },
+        {
+          "limit": 2.8983375545325556,
+          "quantileExpected": 0.5
+        },
+        {
+          "limit": 4.237227439880371,
+          "quantileExpected": 0.84
+        },
+        {
+          "limit": 4.483576774597168,
+          "quantileExpected": 0.975
+        }
+      ],
+      "source_bisection_steps": [
+        {
+          "iterations": 6,
+          "provisional_upper": 5.855879200597762,
+          "q_at_search_upper": 8.197752131405743,
+          "q_target": 7.411419321101677,
+          "quantile": 0.84,
+          "search_upper": 4.5
+        },
+        {
+          "iterations": 3,
+          "provisional_upper": 8.81342084666297,
+          "q_at_search_upper": 8.197752131405743,
+          "q_target": 13.083125355437298,
+          "quantile": 0.975,
+          "search_upper": 4.5
+        }
+      ],
+      "source_law_and_fit_admitted": true
+    },
+    {
+      "background": 0.01,
+      "candidate_extract_and_check_accept": true,
+      "exact_crossings": [
+        0.6066021959512429,
+        1.04695082332228,
+        1.973630399214843,
+        3.7650454867316565,
+        6.606510060075355
+      ],
+      "hard_max": 20.0,
+      "relative_p975_endpoint_error": -0.094235249050581,
+      "rows_not_native_observations": true,
+      "signal_per_mu": 1.0,
+      "source_algorithm_rows": [
+        {
+          "limit": 0.6066021959512429,
+          "quantileExpected": 0.025
+        },
+        {
+          "limit": 1.04695082332228,
+          "quantileExpected": 0.16
+        },
+        {
+          "limit": 1.973630399214843,
+          "quantileExpected": 0.5
+        },
+        {
+          "limit": 3.7515666484832764,
+          "quantileExpected": 0.84
+        },
+        {
+          "limit": 5.983943939208984,
+          "quantileExpected": 0.975
+        }
+      ],
+      "source_bisection_steps": [
+        {
+          "iterations": 6,
+          "provisional_upper": 3.9875759765648233,
+          "q_at_search_upper": 7.855334785978578,
+          "q_target": 7.411419321101677,
+          "quantile": 0.84,
+          "search_upper": 3.9875759765648233
+        },
+        {
+          "iterations": 6,
+          "provisional_upper": 6.001521553914804,
+          "q_at_search_upper": 11.875066146372378,
+          "q_target": 13.083125355437298,
+          "quantile": 0.975,
+          "search_upper": 6.001521553914804
+        }
+      ],
+      "source_law_and_fit_admitted": true
+    }
+  ],
+  "elapsed_seconds": 0.03686308301985264,
+  "kind": "independent_unbracketed_expected_quantile_controls/v1",
+  "native_calls": 0,
+  "packet_sha256": "52a56a335a3f96a2e056b1a9b5b434f97a696d144a85a734dc91b7ba3d06c874"
+}

@@ -1,0 +1,349 @@
+{
+ "_meta": {
+  "description": "Negative and minimal restraint plans with paired under-call twins.",
+  "synthetic": true,
+  "note": "Every request and number is invented. No held-out identifier, reference value or task text."
+ },
+ "plans": [
+  {
+   "case_id": "TS-n01",
+   "kind": "negative",
+   "request": "Synthetic: which unit convention does a toy scalar coupling table use for its width column, and is the sign of the mixing angle convention-dependent?",
+   "expected_operations": [],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [
+    "conv:coupling-and-width-units (NEW: TS-conv)"
+   ],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "Answerable from a conventions shard; no operation, no consult.",
+   "situation": "conventions-shard"
+  },
+  {
+   "case_id": "TS-n02",
+   "kind": "minimal",
+   "request": "Synthetic: give the two-body partial width of a toy scalar S into two lighter scalars from its closed-form expression, with the masses and coupling supplied in the request.",
+   "expected_operations": [
+    "op:literal-calculation"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle",
+    "op:mass-width-grid",
+    "op:generated-spectrum"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "A closed-form evaluation; a numerical width study or a generated spectrum is unnecessary.",
+   "situation": "closed-form-width"
+  },
+  {
+   "case_id": "TS-n03",
+   "kind": "negative",
+   "request": "Synthetic: what 95% CLs bound does the published table of a toy search give on the toy mediator mass for the benchmark coupling already tabulated there?",
+   "expected_operations": [
+    "op:acquire-published"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle",
+    "op:lifecycle-workspace-limit"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "A published limit answers the question directly; no recast.",
+   "situation": "published-limit-direct"
+  },
+  {
+   "case_id": "TS-n04",
+   "kind": "negative",
+   "request": "Synthetic: set a limit on the toy model.",
+   "expected_operations": [],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle",
+    "op:acquire-published",
+    "op:lifecycle-workspace-limit"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [
+    {
+     "id": "amb-analysis-and-benchmark",
+     "accept": [
+      "which analysis",
+      "which search",
+      "which benchmark"
+     ]
+    },
+    {
+     "id": "amb-statistic",
+     "accept": [
+      "which statistic",
+      "what statistic",
+      "confidence level"
+     ]
+    }
+   ],
+   "notes": "Underspecified: the plan must hold and ask, not pick an analysis or run anything.",
+   "situation": "must-hold"
+  },
+  {
+   "case_id": "TS-n05",
+   "kind": "negative",
+   "request": "Synthetic: from published toy detector-level distributions, extract the toy calibration scale factor; there is no search selection to recast.",
+   "expected_operations": [],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle",
+    "op:lifecycle-routine-recast",
+    "op:lifecycle-workspace-limit"
+   ],
+   "expected_consults_max": 1,
+   "must_ask": [
+    {
+     "id": "amb-scope",
+     "accept": [
+      "not a recast",
+      "recasting does not apply",
+      "no search selection"
+     ]
+    }
+   ],
+   "notes": "Recasting is inapplicable: say so and ask what quantity is wanted instead.",
+   "situation": "recasting-inapplicable"
+  },
+  {
+   "case_id": "TS-n06",
+   "kind": "minimal",
+   "request": "Synthetic: look up the tabulated leading-order rate for a toy pair-production process at a tabulated mass.",
+   "expected_operations": [
+    "op:cross-section"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "One lookup; no generation.",
+   "situation": "single-lookup"
+  },
+  {
+   "case_id": "TS-n07",
+   "kind": "minimal",
+   "request": "Synthetic: from the supplied toy yield, background and uncertainty, compute the ratio and its propagated uncertainty.",
+   "expected_operations": [
+    "op:derived-quantities"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "Arithmetic on supplied numbers.",
+   "situation": "derived-from-supplied"
+  },
+  {
+   "case_id": "TS-n08",
+   "kind": "negative",
+   "request": "Synthetic: in a toy convention table, does a stated cross-section already sum both charge states?",
+   "expected_operations": [],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [
+    "conv:charge-sum-convention (NEW: TS-conv)"
+   ],
+   "forbidden_operations": [
+    "op:event-production",
+    "op:model-events",
+    "op:lifecycle-routine-recast",
+    "op:analysis-lifecycle",
+    "op:cross-section"
+   ],
+   "expected_consults_max": 0,
+   "must_ask": [],
+   "notes": "Answerable from a conventions shard.",
+   "situation": "conventions-shard"
+  },
+  {
+   "case_id": "TS-t01",
+   "kind": "twin",
+   "request": "Synthetic: a toy table gives no unit convention anywhere; derive the width of the toy scalar numerically from the supplied model files so the column can be checked.",
+   "expected_operations": [
+    "op:model-inputs",
+    "op:mass-width-grid"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "The conventions shard is silent, so the numerical operation is needed.",
+   "twin_of": "TS-n01",
+   "situation": "conventions-shard"
+  },
+  {
+   "case_id": "TS-t02",
+   "kind": "twin",
+   "request": "Synthetic: the toy scalar width has no closed form because of a loop-induced channel; compute it numerically with the supplied toy model.",
+   "expected_operations": [
+    "op:model-inputs",
+    "op:mass-width-grid"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "No closed form: the operation is needed.",
+   "twin_of": "TS-n02",
+   "situation": "closed-form-width"
+  },
+  {
+   "case_id": "TS-t03",
+   "kind": "twin",
+   "request": "Synthetic: the published toy table has no entry at the coupling asked for; recast the toy search for that coupling from its released likelihood.",
+   "expected_operations": [
+    "op:acquire-published",
+    "op:lifecycle-workspace-limit"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Off the published benchmark: a patched-likelihood limit is needed.",
+   "twin_of": "TS-n03",
+   "situation": "published-limit-direct"
+  },
+  {
+   "case_id": "TS-t04",
+   "kind": "twin",
+   "request": "Synthetic: set a 95% CLs limit on the toy model using the named toy search and its published benchmark.",
+   "expected_operations": [
+    "op:acquire-published",
+    "op:lifecycle-workspace-limit"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Ambiguity resolved: the operations are needed.",
+   "twin_of": "TS-n04",
+   "situation": "must-hold"
+  },
+  {
+   "case_id": "TS-t05",
+   "kind": "twin",
+   "request": "Synthetic: reinterpret the toy search against a new toy model using its signal-region definitions.",
+   "expected_operations": [
+    "op:lifecycle-routine-recast"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "A search selection exists: recasting applies.",
+   "twin_of": "TS-n05",
+   "situation": "recasting-inapplicable"
+  },
+  {
+   "case_id": "TS-t06",
+   "kind": "twin",
+   "request": "Synthetic: the toy process is not tabulated; compute its leading-order rate at the requested mass.",
+   "expected_operations": [
+    "op:cross-section",
+    "op:finite-integrals"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "Not tabulated: a calculation is needed.",
+   "twin_of": "TS-n06",
+   "situation": "single-lookup"
+  },
+  {
+   "case_id": "TS-t07",
+   "kind": "twin",
+   "request": "Synthetic: the toy yields come with correlated uncertainties given only as an ensemble of pseudo-experiments; propagate them by sampling.",
+   "expected_operations": [
+    "op:derived-quantities",
+    "op:finite-mc"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "A sampled propagation is needed.",
+   "twin_of": "TS-n07",
+   "situation": "derived-from-supplied"
+  },
+  {
+   "case_id": "TS-t08",
+   "kind": "twin",
+   "request": "Synthetic: the toy table lists a rate but its charge convention is not stated and the process definition is supplied; compute the rate for each charge state separately.",
+   "expected_operations": [
+    "op:cross-section"
+   ],
+   "expected_checks": [],
+   "expected_roles": [],
+   "expected_knowledge": [],
+   "forbidden_operations": [],
+   "expected_consults_max": 1,
+   "must_ask": [],
+   "notes": "The shard cannot answer: a computation is needed.",
+   "twin_of": "TS-n08",
+   "situation": "conventions-shard"
+  }
+ ]
+}

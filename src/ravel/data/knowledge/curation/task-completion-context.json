@@ -1,0 +1,37 @@
+{
+ "id": "op:task-completion-context",
+ "op": {
+  "do_not_use_when": [
+   "Computing any physics result: use the relevant science mode.",
+   "Packaging results: use scientific-delivery."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/task-completion-context-example --spec specs/task-completion-context.json",
+    "phrase": "Prepare completion-review evidence for a parent task.",
+    "spec": {
+     "mode": "task-completion-context",
+     "task": {
+      "completion_base": "/",
+      "final_request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      },
+      "parent_review_root": "/ravel-example-review",
+      "ready_request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      },
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Prepare whole-parent completion review evidence from ready and final requests.",
+   "A parent task must be checked for coverage before acceptance."
+  ]
+ }
+}

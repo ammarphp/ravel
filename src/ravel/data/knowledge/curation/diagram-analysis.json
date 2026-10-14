@@ -1,0 +1,26 @@
+{
+ "id": "op:diagram-analysis",
+ "op": {
+  "do_not_use_when": [
+   "Enumerate and render diagrams: use feyn-graph.",
+   "Symbolic amplitude evaluation: use symbolic-evaluation."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/diagram-analysis-example --spec specs/diagram-analysis.json",
+    "phrase": "Feed an enumerated diagram population into a source-matched diagram consumer.",
+    "spec": {
+     "mode": "diagram-analysis",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "An enumerated diagram population must feed NDA or EDA consumers.",
+   "Analyze which diagrams contribute to a process."
+  ]
+ }
+}

@@ -1,0 +1,254 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "generated-binned-prediction",
+ "summary": "Generation, optional shower and detector production, and a selection into binned values.",
+ "priority": 40,
+ "match": {
+  "all": [
+   "claim:prediction"
+  ],
+  "none": [
+   "supplied:event_sample"
+  ],
+  "any": [
+   [
+    "artifact:binned_values",
+    "artifact:table",
+    "artifact:cutflow",
+    "stage:generation",
+    "stage:analysis",
+    "stage:shower",
+    "stage:detector",
+    "constraint:template"
+   ],
+   [
+    "collider",
+    "stage:generation",
+    "stage:shower",
+    "stage:detector",
+    "stage:analysis",
+    "constraint:template"
+   ]
+  ]
+ },
+ "inputs": [
+  {
+   "key": "model",
+   "provides": {
+    "kind": "model",
+    "require": {
+     "format": "ufo"
+    }
+   },
+   "source": "requester",
+   "locator": "model named or supplied by the requester, or a qualified installed model",
+   "status": "awaited",
+   "bind": "model"
+  },
+  {
+   "key": "point",
+   "provides": {
+    "kind": "parameter_point",
+    "require": {}
+   },
+   "source": "requester",
+   "locator": "parameter point stated in the request",
+   "status": "awaited",
+   "bind": "parameter_point"
+  },
+  {
+   "key": "recipe",
+   "provides": {
+    "kind": "selection",
+    "require": {
+     "origin": "$selection_origin"
+    }
+   },
+   "source": "requester",
+   "locator": "selection specification with request spans, or a requester recipe",
+   "status": "awaited",
+   "bind": "selection"
+  },
+  {
+   "key": "template",
+   "provides": {
+    "kind": "table",
+    "require": {
+     "source": "requester"
+    }
+   },
+   "source": "requester",
+   "locator": "requester result template",
+   "status": "awaited",
+   "bind": "template"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "generate",
+   "kind": "operation",
+   "operation": "model-events",
+   "rung": "full"
+  },
+  {
+   "key": "production",
+   "kind": "operation",
+   "operation": "event-production",
+   "rung": "full",
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "key": "analysis",
+   "kind": "operation",
+   "operation": "columnar-analysis",
+   "rung": "full"
+  },
+  {
+   "key": "fill",
+   "kind": "operation",
+   "operation": "fill-template",
+   "rung": "full",
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:model",
+   "to": "generate.model",
+   "kind": "model",
+   "require": {
+    "format": "ufo"
+   }
+  },
+  {
+   "from": "input:point",
+   "to": "generate.point",
+   "kind": "parameter_point",
+   "require": {}
+  },
+  {
+   "from": "generate.events",
+   "to": "production.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "lhe",
+    "level": "parton"
+   },
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "from": "production.events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "delphes-root",
+    "level": "detector"
+   },
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "from": "generate.events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "lhe",
+    "level": "parton"
+   },
+   "when": {
+    "none": [
+     "stage:shower",
+     "stage:detector",
+     "level:detector"
+    ]
+   }
+  },
+  {
+   "from": "input:recipe",
+   "to": "analysis.recipe",
+   "kind": "selection",
+   "require": {
+    "origin": "$selection_origin"
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "to": "fill.result",
+   "kind": "binned_values",
+   "require": {},
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  },
+  {
+   "from": "input:template",
+   "to": "fill.template",
+   "kind": "table",
+   "require": {
+    "source": "requester"
+   },
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "fill.filled",
+   "kind": "table",
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "kind": "binned_values"
+  },
+  {
+   "from": "analysis.cutflow",
+   "kind": "cutflow"
+  }
+ ],
+ "fan_out": {
+  "subgraph": [
+   "generate",
+   "production",
+   "analysis"
+  ],
+  "aggregate": "per-point binned values"
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:amplitude-predictions",
+ "op": {
+  "do_not_use_when": [
+   "No store exists yet: this operation reads a completed amplitude store and does not produce one.",
+   "Independent validation of the store: this operation derives predictions from the store and does not validate it."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/amplitude-predictions-example --spec specs/amplitude-predictions.json",
+    "phrase": "Reweight a stored amplitude set into binned predictions for a new coupling point.",
+    "spec": {
+     "mode": "amplitude-predictions",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Turn a stored Gram store into binned predictions for any coupling, mass, width or propagator choice without regenerating points.",
+   "A coupling or lineshape scan over one fixed phase-space sample."
+  ]
+ }
+}

@@ -1,0 +1,36 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Guardrails}{What checks the coding agent's actions during a session.}
+\tikzset{moment/.style={chip=agent, minimum width=46mm, text width=41.2mm, minimum height=12.4mm, anchor=north west},
+         check/.style={chip=guard, minimum width=50mm, text width=45.2mm, minimum height=12.4mm, anchor=north west},
+         note/.style={chip=records, minimum width=50mm, text width=45.2mm, minimum height=12.4mm, anchor=north west}}
+\node[anchor=north west, inner sep=0pt, font=\ravelSmallFont\bfseries, text=rvmuted] at (7,-25) {When};
+\node[anchor=north west, inner sep=0pt, font=\ravelSmallFont\bfseries, text=rvmuted] at (63,-25) {What checks it};
+% Each row is an independent trigger, not a sequence. The first field is who acts: you (amber) or the agent (pink).
+\foreach \who/\when/\first/\second [count=\i from 0] in {
+    agent/{The session starts}/{Reminds the agent of the latest run's state}/{},
+    people/{You send a message}/{Routes physics requests to intake}/{},
+    agent/{The agent uses a skill}/{Requires intake first}/{},
+    agent/{The agent runs a command}/{Blocks generation without approval}/{Blocks generation without a recipe},
+    agent/{The agent edits a file}/{Protects the enforcement files}/{Approved inputs need a deviation record},
+    agent/{A skill, file edit or subagent is used}/{}/{},
+    agent/{The agent finishes its reply}/{Blocks delivery while checks fail}/{Keeps long jobs supervised}} {
+  \pgfmathsetmacro\y{-30 - 16*\i}
+  \node[moment, chip=\who, minimum height=12.4mm] (m\i) at (7,\y) {\when};
+  \ifx\first\empty\else
+    \node[check] (c\i) at (63,\y) {\first};
+    \draw[line width=0.8pt, draw=rvguardline] (m\i.east) -- (c\i.west);
+  \fi
+  \ifx\second\empty\else \node[check] (d\i) at (116,\y) {\second}; \draw[line width=0.8pt, draw=rvguardline] (c\i.east) -- (d\i.west); \fi
+}
+\node[note] (c5) at (63,-110) {Records it in the run ledger};
+\draw[line width=0.8pt, draw=rvrecordsline] (m5.east) -- (c5.west);
+\node[anchor=north west, font=\ravelSmallFont, text=rvmuted, text width=158mm] at (7,-146)
+  {Coding agents that support the repository's hook settings apply these checks automatically. With other agents,
+   the agent follows the same gates from the written instructions and runs each check itself, including the
+   lifecycle validator before delivery; nothing enforces this automatically.};
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

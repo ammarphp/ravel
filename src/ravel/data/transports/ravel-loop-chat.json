@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "ravel-loop-chat",
+  "transport_kind": "ravel-loop",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "RAVEL_CHAT_API_KEY"
+    ],
+    "command": null,
+    "header_style": "bearer"
+  },
+  "pass_env": [],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Any OpenAI-compatible Chat Completions endpoint the host config names (xAI, OpenRouter, Azure, Vertex, Bedrock mantle). The key variable name and header style are set per host config."
+}

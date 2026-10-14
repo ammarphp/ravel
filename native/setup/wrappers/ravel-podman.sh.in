@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# owned by the RAVEL installer
+# Podman with all of its settings, images and its virtual machine kept inside
+# the RAVEL prefix. Nothing under ~/.config/containers or ~/.local/share is used.
+export XDG_CONFIG_HOME="@CONTAINERS@/config"
+export XDG_DATA_HOME="@CONTAINERS@/data"
+export CONTAINERS_CONF="@CONTAINERS@/containers.conf"
+export CONTAINERS_HELPER_BINARY_DIR="@HELPERS@"
+# podman binds a unix socket under $HOME/.podman, and macOS limits a socket path to 103 bytes;
+# a long home directory makes `machine start` fail, so use a short per-user home in that case.
+if [ "${#HOME}" -gt 50 ]; then
+  short_home="/tmp/ravel-podman-$(id -u)"
+  mkdir -p "$short_home" && export HOME="$short_home"
+fi
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME"
+exec "@PODMAN@" "$@"

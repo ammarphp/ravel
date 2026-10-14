@@ -1,0 +1,28 @@
+{
+ "id": "op:classifier-inputs",
+ "op": {
+  "do_not_use_when": [
+   "Apply the classifier to events: use published-classifier.",
+   "Train a classifier: use ml-training."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/classifier-inputs-example --spec specs/classifier-inputs.json",
+    "phrase": "Census the tensor interface of a pinned ONNX classifier.",
+    "spec": {
+     "mode": "classifier-inputs",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "operation": "static-census",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Statically census the input and output tensors of an ONNX classifier before it is applied.",
+   "Prepare classifier features from a pinned source with a closed feature contract."
+  ]
+ }
+}

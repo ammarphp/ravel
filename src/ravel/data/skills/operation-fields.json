@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "ravel-operation-fields",
+  "description": "Configuration fields a tool handbook may tell an agent to set, as operation.field paths. Each operation names the function that validates its configuration; tests/unit/test_tool_handbooks.py removes each listed field from a valid fixture and requires that function to refuse it.",
+  "operations": {
+    "model-events": {
+      "validator": "ravel.physics.model_events.validate_config",
+      "fields": [
+        "cards.process",
+        "cards.parameter",
+        "cards.run",
+        "cards.pythia",
+        "cards.shower",
+        "cards.madspin",
+        "model_tree",
+        "runtime.madgraph_tree",
+        "runtime.options.lhapdf",
+        "generation.order",
+        "generation.scheme",
+        "generation.events",
+        "generation.seed",
+        "generation.beam_type",
+        "generation.beam_pdg",
+        "generation.energy_gev",
+        "generation.jet_token",
+        "generation.jet_multiplicities",
+        "generation.run_settings",
+        "generation.scale_pdf",
+        "shower.backend",
+        "shower.settings",
+        "shower.merging_scale_gev",
+        "shower.max_jets",
+        "shower.minimum_returned_events",
+        "decay.mode",
+        "assumptions"
+      ]
+    }
+  }
+}

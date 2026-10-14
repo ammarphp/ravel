@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "distribution": {
+    "files": [
+      "README.md",
+      "CONTRIBUTING.md",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "distribution.json",
+      "DIRECTORY.md",
+      "CITATION.cff",
+      "LICENSE",
+      "NOTICE",
+      "THIRD-PARTY-NOTICES.md",
+      "CHANGELOG.md",
+      "Makefile",
+      "pyproject.toml",
+      "hatch_build.py",
+      "requirements-replay.txt",
+      "requirements-replay.lock",
+      ".gitignore",
+      "requirements-full.txt",
+      "requirements-site.txt",
+      "requirements-site-wms.txt",
+      "GEMINI.md"
+    ],
+    "trees": [
+      "src",
+      "tests",
+      "docs",
+      "native/src",
+      "native/scripts",
+      "environment",
+      "scripts",
+      ".github",
+      ".claude/skills",
+      ".claude/rules",
+      ".claude/agents",
+      ".claude/hooks",
+      ".agents",
+      "native/setup",
+      "native/containers",
+      "addons/gpl",
+      ".ravel",
+      ".codex",
+      ".gemini",
+      ".opencode",
+      ".antigravity"
+    ],
+    "extra_files": [
+      ".claude/settings.json",
+      "native/README.md",
+      ".claude/ravel-gate.sh"
+    ],
+    "exclude": [
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/.DS_Store",
+      "**/.pytest_cache/**",
+      "**/.work/**",
+      "local-runs/**",
+      "export-provenance.json",
+      "**/*.aux",
+      "**/*.fls",
+      "**/*.fdb_latexmk",
+      "**/*.synctex.gz",
+      "**/*.toc"
+    ]
+  }
+}

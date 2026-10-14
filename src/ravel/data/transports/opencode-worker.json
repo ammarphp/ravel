@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "opencode-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "opencode",
+  "argv_template": [
+    "opencode",
+    "run",
+    "--format",
+    "json",
+    "--pure",
+    "--agent",
+    "{role}",
+    "--model",
+    "{model}",
+    "--dir",
+    "{workspace}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "OPENCODE_CONFIG_DIR",
+    "OPENCODE_DISABLE_CLAUDE_CODE"
+  ],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": false,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "The any-model harness: Bedrock, Vertex, Azure, OpenRouter, xAI, Ollama, LM Studio, llama.cpp and any OpenAI-compatible baseURL, with provider credentials from opencode's own store. Run with OPENCODE_DISABLE_CLAUDE_CODE=1 and a fresh config directory. opencode permissions are policy only.",
+  "worker_surface": {
+    "mcp": {
+      "config": "opencode_config",
+      "argv": []
+    },
+    "structured_output": "validated_text"
+  }
+}

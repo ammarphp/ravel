@@ -1,0 +1,61 @@
+{
+ "id": "op:quantities",
+ "op": {
+  "do_not_use_when": [
+   "Rebinning of groups: use group-composition.",
+   "Contrasts between weight arms: use contrast."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/quantities-example --spec specs/quantities.json",
+    "phrase": "Compute signed grouped event moments in declared bins.",
+    "spec": {
+     "mode": "quantities",
+     "task": {
+      "axes": [
+       {
+        "name": "mass",
+        "unit": "GeV"
+       }
+      ],
+      "bins": [
+       {
+        "high": [
+         100.0
+        ],
+        "id": "b0",
+        "low": [
+         0.0
+        ]
+       },
+       {
+        "high": [
+         200.0
+        ],
+        "id": "b1",
+        "low": [
+         100.0
+        ]
+       }
+      ],
+      "input_weight_unit": "pb",
+      "normalization": {
+       "kind": "absolute",
+       "scale": 1.0,
+       "unit": "pb"
+      },
+      "representation": "integrated",
+      "schema_version": 1,
+      "weight_names": [
+       "nominal"
+      ]
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Signed, grouped event moments in declared bins with a declared normalization.",
+   "Per-bin sums of weights with uncertainties from supplied weighted events."
+  ]
+ }
+}

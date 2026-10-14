@@ -1,0 +1,36 @@
+{
+ "attempt": 1,
+ "budgets": {
+  "max_broker_calls": 5,
+  "max_cost_usd": null,
+  "max_turns": 5,
+  "max_wall_seconds": 30
+ },
+ "declared_outputs": [
+  {
+   "kind": "review-findings",
+   "path": "outputs/review.json",
+   "required": true
+  }
+ ],
+ "final_record_schema": "reviewer.v1",
+ "inputs": [],
+ "kind": "agent-worker-spec",
+ "node_id": "golden-v1",
+ "parent": {
+  "map_id": "review:checkin2:C1",
+  "rca_ticket": null,
+  "review_point_id": "golden-point"
+ },
+ "rdj_challenges": null,
+ "role": {
+  "card_sha256": "334d8def81915c223eb8320d394571dc0bd3230091c18a5b8440a9267b1da65a",
+  "id": "physics-critic",
+  "version": "2.0.0"
+ },
+ "schema_version": 1,
+ "transport_preference": [
+  "default"
+ ],
+ "work_order": null
+}

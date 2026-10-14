@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "required": [
+    "case_sha256",
+    "answers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

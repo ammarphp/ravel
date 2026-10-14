@@ -1,0 +1,27 @@
+{
+ "id": "op:published-classifier",
+ "op": {
+  "do_not_use_when": [
+   "Training: use ml-training.",
+   "Tensor census only: use classifier-inputs."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/published-classifier-example --spec specs/published-classifier.json",
+    "phrase": "Apply a published classifier to a supplied table of inputs.",
+    "spec": {
+     "mode": "published-classifier",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Apply a published classifier to supplied events or quantities.",
+   "Classifier scores of declared inputs are needed."
+  ]
+ }
+}

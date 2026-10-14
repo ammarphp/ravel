@@ -1,0 +1,139 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "supplied-events-prediction",
+ "summary": "A selection on supplied events delivering binned values and a cutflow.",
+ "priority": 32,
+ "match": {
+  "all": [
+   "supplied:event_sample"
+  ],
+  "any": [
+   [
+    "claim:prediction",
+    "claim:none"
+   ]
+  ]
+ },
+ "inputs": [
+  {
+   "key": "events",
+   "provides": {
+    "kind": "event_sample",
+    "require": {
+     "format": "$event_format"
+    }
+   },
+   "source": "requester",
+   "locator": "supplied event files",
+   "status": "supplied",
+   "bind": "event_sample"
+  },
+  {
+   "key": "recipe",
+   "provides": {
+    "kind": "selection",
+    "require": {
+     "origin": "$selection_origin"
+    }
+   },
+   "source": "requester",
+   "locator": "selection specification with request spans, or a requester recipe",
+   "status": "awaited",
+   "bind": "selection"
+  },
+  {
+   "key": "template",
+   "provides": {
+    "kind": "table",
+    "require": {
+     "source": "requester"
+    }
+   },
+   "source": "requester",
+   "locator": "requester result template",
+   "status": "awaited",
+   "bind": "template"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "analysis",
+   "kind": "operation",
+   "operation": "columnar-analysis",
+   "rung": "full"
+  },
+  {
+   "key": "fill",
+   "kind": "operation",
+   "operation": "fill-template",
+   "rung": "full",
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "$event_format"
+   }
+  },
+  {
+   "from": "input:recipe",
+   "to": "analysis.recipe",
+   "kind": "selection",
+   "require": {
+    "origin": "$selection_origin"
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "to": "fill.result",
+   "kind": "binned_values",
+   "require": {},
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  },
+  {
+   "from": "input:template",
+   "to": "fill.template",
+   "kind": "table",
+   "require": {
+    "source": "requester"
+   },
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "fill.filled",
+   "kind": "table",
+   "when": {
+    "all": [
+     "constraint:template"
+    ]
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "kind": "binned_values"
+  },
+  {
+   "from": "analysis.cutflow",
+   "kind": "cutflow"
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "args": {
+      "type": "object"
+    },
+    "kind": {
+      "const": "knowledge-result"
+    },
+    "op": {
+      "enum": [
+        "find",
+        "show",
+        "for_node",
+        "for_failure",
+        "plan_check",
+        "coverage",
+        "xsec",
+        "constants",
+        "conventions"
+      ]
+    },
+    "result_sha256": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "results": {
+      "items": {
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "summary",
+          "why"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "served_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "op",
+    "args",
+    "results",
+    "served_ids",
+    "result_sha256"
+  ],
+  "title": "result",
+  "type": "object"
+}

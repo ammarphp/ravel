@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "kind": "differential-likelihood",
+  "description": "Synthetic example: a three-bin spectrum with prediction-dependent covariance and destructive interference.",
+  "statistic": {
+    "verbatim": "Quote the 95% CL allowed range of kappa from Delta chi2 = 3.84.",
+    "test_statistic": "two-sided",
+    "threshold": 3.84,
+    "objective": "chi2"
+  },
+  "observable": {
+    "name": "mass",
+    "unit": "GeV",
+    "label": "Invariant mass"
+  },
+  "measurement": {
+    "values": [
+      10.2,
+      5.9,
+      3.1
+    ],
+    "unit": "fb/GeV",
+    "bin_edges": [
+      100,
+      200,
+      300,
+      400
+    ]
+  },
+  "reference": {
+    "values": [
+      10.0,
+      6.0,
+      3.0
+    ],
+    "description": "synthetic reference prediction"
+  },
+  "signal": {
+    "convention": "difference-to-reference",
+    "difference_reference": "the same synthetic reference",
+    "parameters": [
+      {
+        "name": "kappa",
+        "unit": "",
+        "label": "Coupling modifier"
+      }
+    ],
+    "terms": [
+      {
+        "powers": {
+          "kappa": 2
+        },
+        "values": [
+          -1.0,
+          -0.4,
+          -0.1
+        ],
+        "kind": "interference"
+      },
+      {
+        "powers": {
+          "kappa": 4
+        },
+        "values": [
+          0.5,
+          0.2,
+          0.05
+        ],
+        "kind": "pure-signal"
+      }
+    ]
+  },
+  "covariance": [
+    {
+      "name": "systematic",
+      "law": "ratio",
+      "matrix": [
+        [
+          1.0,
+          0.2,
+          0.0
+        ],
+        [
+          0.2,
+          0.5,
+          0.1
+        ],
+        [
+          0.0,
+          0.1,
+          0.3
+        ]
+      ]
+    },
+    {
+      "name": "statistical",
+      "law": "sqrt-ratio",
+      "matrix": [
+        [
+          0.5,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.4,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.3
+        ]
+      ]
+    }
+  ],
+  "nuisances": [
+    {
+      "name": "interference_scale",
+      "applies_to": "term:0",
+      "relative": 0.2,
+      "origin": "requester-assumption",
+      "statement": "assume a 20% uncertainty on the interference normalisation"
+    }
+  ],
+  "scan": {
+    "parameter": "kappa",
+    "min": 0.0,
+    "max": 3.0,
+    "points": 301
+  },
+  "domain": [
+    0.0,
+    null
+  ],
+  "applicability": {
+    "unfolding": {
+      "max_relative_deviation": 0.5,
+      "origin": "requester-assumption",
+      "statement": "treat deviations above 50% as outside the unfolding validation"
+    }
+  }
+}

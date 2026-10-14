@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "description": "Detector-response modules a calibration knob may tune. A signal normalisation, cross section or other global yield scale is not a detector response.",
+  "modules": [
+    "tracking_efficiency", "momentum_resolution", "energy_scale", "energy_resolution",
+    "jet_energy_scale", "jet_energy_resolution", "electron_efficiency", "muon_efficiency",
+    "photon_efficiency", "tau_tagging", "b_tagging", "isolation", "missing_momentum",
+    "pileup", "trigger_efficiency"
+  ]
+}

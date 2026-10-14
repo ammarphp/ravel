@@ -1,0 +1,28 @@
+{
+ "id": "op:analysis-response-features",
+ "op": {
+  "do_not_use_when": [
+   "A fresh event-level analysis of supplied events: use analyze or columnar-analysis.",
+   "A classifier tensor census: use classifier-inputs."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/analysis-response-features-example --spec specs/analysis-response-features.json",
+    "phrase": "Prepare response features from a pinned retained trace bundle.",
+    "spec": {
+     "mode": "analysis-response-features",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "operation": "prepare-source",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Event-response features must be prepared or consumed from retained multi-b analysis traces.",
+   "A pinned trace bundle is available and the response feature table is the deliverable."
+  ]
+ }
+}

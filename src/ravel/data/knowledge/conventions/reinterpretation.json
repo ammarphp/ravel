@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "conventions:reinterpretation",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:published-information",
+      "kind": "convention",
+      "statement": "A reinterpretation needs the observable definition, selection and fiducial domain, rate conventions, correlations and statistical model used for the claimed quantity. A public histogram alone does not supply a likelihood or detector response.",
+      "tags": [
+        "reinterpretation",
+        "measurement",
+        "recast"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "reinterpretation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2672,
+          "line_end": 2672,
+          "excerpt_sha256": "dfb62d05fd76012078da40dd3b91ffc03623e74f5087ac5921f279fd2ad5fbde",
+          "locator": "RAVEL authored convention conv:published-information; primary references: arXiv:1203.2489, recommendations for analysis information; arXiv:2003.07868, measurements, likelihoods and efficiencies"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:published-information",
+          "description": "Locate primary selections, efficiencies, likelihoods and covariance; retain missing inputs and scope limits explicitly.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:unfolding",
+      "kind": "convention",
+      "statement": "An unfolded measurement inherits response and regularization assumptions from its reference model. A new resonance or altered event composition can change migrations; agreement with the tabulated bins does not validate those response assumptions.",
+      "tags": [
+        "unfolding",
+        "measurement",
+        "interference"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "reinterpretation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2735,
+          "line_end": 2735,
+          "excerpt_sha256": "f9c23c0153475272eb2da1ee366b9defda667b5bc81fe4d6d4883bfda852d687",
+          "locator": "RAVEL authored convention conv:unfolding; primary references: arXiv:2003.07868, measurements, likelihoods and efficiencies"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:unfolding",
+          "description": "Find closure and stress tests for the published unfolding and compare the requested model with their tested domain.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:reference-subtraction",
+      "kind": "convention",
+      "statement": "If a supplied full model includes a Standard Model component, adding it to the same Standard Model reference double counts that component. Form the model-minus-reference contribution using the same fiducial definitions and retain correlations from shared events and shared nuisance sources.",
+      "tags": [
+        "measurement",
+        "reference",
+        "interference"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "reinterpretation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2789,
+          "line_end": 2789,
+          "excerpt_sha256": "36426a5e98d74c83f950d04776b94b6d3cf45f35ba119b6d4f224ae661213132",
+          "locator": "RAVEL authored convention conv:reference-subtraction; primary references: arXiv:2003.07868, measurements, likelihoods and efficiencies; Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:reference-subtraction",
+          "description": "Identify exactly which reference was subtracted and match units, bins, cuts and perturbative order; account for shared uncertainty once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:cross-section",
+ "op": {
+  "do_not_use_when": [
+   "A generator cross section from a run: reconcile it with the normalization command.",
+   "Closed-form widths or rates: use formula-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/cross-section-example --spec specs/cross-section.json",
+    "phrase": "Look up a signal cross section at a declared mass and order.",
+    "spec": {
+     "mode": "cross-section",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Look up a published cross section with uncertainty under an explicit order, PDF and scale convention.",
+   "Interpolate a rate in mass and refuse silent fallback."
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:model-derivation-bridge",
+ "op": {
+  "do_not_use_when": [
+   "Authoring a new model from a specification: use model-authoring.",
+   "Validating a UFO that already exists: use model-tool-bridge."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-derivation-bridge-example --spec specs/model-derivation-bridge.json",
+    "phrase": "Derive a fresh UFO from a pinned FeynRules model source.",
+    "spec": {
+     "mode": "model-derivation-bridge",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Derive Feynman rules and a fresh UFO from a supplied FeynRules model.",
+   "Accepted derivation output must be qualified before reuse."
+  ]
+ }
+}

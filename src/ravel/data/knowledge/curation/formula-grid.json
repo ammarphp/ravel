@@ -1,0 +1,30 @@
+{
+ "id": "op:formula-grid",
+ "op": {
+  "do_not_use_when": [
+   "Fitting from runs: use coupling-morphing.",
+   "Two-body widths of a declared resonance: use resonance-width."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/formula-grid-example --spec specs/formula-grid.json",
+    "phrase": "Synthetic example: partial width of a vector to massless fermions over mass and coupling.",
+    "source": {
+     "path": "src/ravel/data/inference/examples/formula-grid.json",
+     "sha256": "5093cb0e144cc480d7fe53d04dbf6dcd3bdffc6444907609589b2398c1092cf6"
+    },
+    "spec": {
+     "mode": "formula-grid",
+     "task": {
+      "input": "src/ravel/data/inference/examples/formula-grid.json"
+     }
+    },
+    "validation": "adapter_task_schema"
+   }
+  ],
+  "use_when": [
+   "Evaluate declared closed-form formulas (widths, branching ratios, bands, k-factors) over a parameter grid.",
+   "Cited or requester-stated constants drive a closed-form grid."
+  ]
+ }
+}

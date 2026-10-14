@@ -1,0 +1,18 @@
+{
+  "recid": 7,
+  "version": 1,
+  "data_tables": [
+    {
+      "id": 1,
+      "name": "Bin values",
+      "description": "Selected region yields"
+    }
+  ],
+  "resources": [
+    {
+      "description": "Statistical model",
+      "file_type": "pyhf",
+      "url": "https://example.invalid/model"
+    }
+  ]
+}

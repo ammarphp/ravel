@@ -1,0 +1,105 @@
+{
+  "commit": "15e8fb61de634c2444c40ae8671df73303f5595e",
+  "native_qualified": false,
+  "original_iris_release": "349447e28de432f8d188282977f8a287293ef88d",
+  "release": "3.3.1",
+  "required_package_files": {
+    "configuration.py": "7ca87427169171d42604faee0267509f5ba6da194a6d5c957a5ecdf20281d4e7",
+    "databinder_models.py": "fe21fdc2b80228cefea27771bd9576fbb792b55af1b14d819a5d4d3c6eb8d6b4",
+    "dataset_group.py": "546413765c456a5ca3972e7a9cbcff8ad8f1a4ec1c115027277b1c23f9ba7e50",
+    "dataset_identifier.py": "d4677dbe7c0b4abfbd17a943fd375d576ea443c488c410045fe2c8242485cfe4",
+    "minio_adapter.py": "5a3b91024c95a1f10f118eb8f9b0d626280087ea0d23ea0f061cc427fc7a0a91",
+    "models.py": "d3bf178b80a95845bb7c18fdb0d643f4819db19dba6c2ee5b46e09267015c1cc",
+    "query_cache.py": "eb785fa74f35c704d8428042400fdfe89349c7c3679f02ecf13edcd1aed958b5",
+    "query_core.py": "65c4039e9ca21d9b99057c7632a54713bf9852a8455ca8439eb16bd0cde888d1",
+    "servicex_adapter.py": "ccc7a664c8532fe4a3e5a26e397814d0f342e91c3d76e3c851faa1d20688041f",
+    "servicex_client.py": "78f6473996c154009e8608f97607f9432ebb7e34e30e5ed76c0bc4132c89a24d"
+  },
+  "schema_version": 1,
+  "source_files": [
+    {
+      "git_blob": "fb05670329388a22106d8f88242c02eb4e959d96",
+      "original_path": "servicex/query_core.py",
+      "sha256": "65c4039e9ca21d9b99057c7632a54713bf9852a8455ca8439eb16bd0cde888d1",
+      "size": 33288,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/query_core.py"
+    },
+    {
+      "git_blob": "4b3f6b3e3014704791ebe58eacd8c3ddca6e4f52",
+      "original_path": "servicex/servicex_client.py",
+      "sha256": "78f6473996c154009e8608f97607f9432ebb7e34e30e5ed76c0bc4132c89a24d",
+      "size": 19990,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/servicex_client.py"
+    },
+    {
+      "git_blob": "ac93a04c53537735767332526d0dc0cd6ebd9e20",
+      "original_path": "servicex/servicex_adapter.py",
+      "sha256": "ccc7a664c8532fe4a3e5a26e397814d0f342e91c3d76e3c851faa1d20688041f",
+      "size": 17744,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/servicex_adapter.py"
+    },
+    {
+      "git_blob": "3bad43e1866fc68a4f398dad187f82c65c0f3de2",
+      "original_path": "servicex/models.py",
+      "sha256": "d3bf178b80a95845bb7c18fdb0d643f4819db19dba6c2ee5b46e09267015c1cc",
+      "size": 8506,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/models.py"
+    },
+    {
+      "git_blob": "3278e52de85a26e9785f073c6461c40d3f89ace0",
+      "original_path": "servicex/databinder_models.py",
+      "sha256": "fe21fdc2b80228cefea27771bd9576fbb792b55af1b14d819a5d4d3c6eb8d6b4",
+      "size": 9908,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/databinder_models.py"
+    },
+    {
+      "git_blob": "5b3f5cda5632283282ca77b3656a2e5581362411",
+      "original_path": "servicex/dataset_group.py",
+      "sha256": "546413765c456a5ca3972e7a9cbcff8ad8f1a4ec1c115027277b1c23f9ba7e50",
+      "size": 4518,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/dataset_group.py"
+    },
+    {
+      "git_blob": "6d4e702adc9d1b2178ef53b05e23d118007c3838",
+      "original_path": "servicex/dataset_identifier.py",
+      "sha256": "d4677dbe7c0b4abfbd17a943fd375d576ea443c488c410045fe2c8242485cfe4",
+      "size": 5980,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/dataset_identifier.py"
+    },
+    {
+      "git_blob": "6dcfe5c6ed56d879089efd21b2e3e7e91fa84c54",
+      "original_path": "pyproject.toml",
+      "sha256": "70ca9f527be9ee90a76179212f1f885c3d9ce7c7d98255b26c2fa71c091dcaf8",
+      "size": 4525,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/pyproject.toml"
+    },
+    {
+      "git_blob": "2d2b573941955421672baad729949209cf557c57",
+      "original_path": "LICENSE",
+      "sha256": "cdb6ec9600e4321ff3da20d06e5ceca5900a40e62c7e38d73b9a997e3c1c1aff",
+      "size": 1499,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/LICENSE"
+    },
+    {
+      "git_blob": "c00f3a1fc81d47cdd063de001ed533088528f75f",
+      "original_path": "servicex/configuration.py",
+      "sha256": "7ca87427169171d42604faee0267509f5ba6da194a6d5c957a5ecdf20281d4e7",
+      "size": 6472,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/configuration.py"
+    },
+    {
+      "git_blob": "c8066ee176477ef9c8f2a78be2702eea2bb80a13",
+      "original_path": "servicex/query_cache.py",
+      "sha256": "eb785fa74f35c704d8428042400fdfe89349c7c3679f02ecf13edcd1aed958b5",
+      "size": 8901,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/query_cache.py"
+    },
+    {
+      "git_blob": "dd16c4da66a4413e9e035b6de4f396b462a770c7",
+      "original_path": "servicex/minio_adapter.py",
+      "sha256": "5a3b91024c95a1f10f118eb8f9b0d626280087ea0d23ea0f061cc427fc7a0a91",
+      "size": 7218,
+      "url": "https://raw.githubusercontent.com/ssl-hep/ServiceX_frontend/15e8fb61de634c2444c40ae8671df73303f5595e/servicex/minio_adapter.py"
+    }
+  ]
+}

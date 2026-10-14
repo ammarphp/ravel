@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "gemini-cli-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "gemini",
+  "argv_template": [
+    "gemini",
+    "-p",
+    "{prompt_hint}",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}",
+    "--sandbox",
+    "--include-directories",
+    "{workspace}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "GEMINI_API_KEY"
+    ],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "GOOGLE_GENAI_USE_VERTEXAI",
+    "GOOGLE_CLOUD_PROJECT",
+    "GOOGLE_CLOUD_LOCATION",
+    "GOOGLE_APPLICATION_CREDENTIALS"
+  ],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": false,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Gemini CLI for AI Studio API keys and Vertex AI. Refused by name as cost_unenforceable: an API-billed route needs a cost ceiling and Gemini CLI enforces none. Gemini CLI cannot turn off its native file tools, so only broker output pins would be credited. Consumer Google accounts use the antigravity transports. Gemini CLI has no flag that excludes user settings or GEMINI.md, so receipts record user_configuration_loaded: true.",
+  "worker_surface": {
+    "mcp": {
+      "config": "settings_json",
+      "argv": []
+    },
+    "structured_output": "validated_text"
+  }
+}

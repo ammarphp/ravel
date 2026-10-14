@@ -1,0 +1,55 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "published-records-finding",
+ "summary": "Published records read into tables with their basis and covariance.",
+ "priority": 52,
+ "match": {
+  "all": [
+   "claim:finding"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "acquire",
+   "kind": "operation",
+   "operation": "acquire-published",
+   "rung": "none",
+   "fields": [
+    {
+     "pointer": "/source_classes",
+     "value": "$source_classes",
+     "authority": "adapter_default",
+     "evidence": "practice:read-only acquisition of metadata, publications and tables within the pre-approval byte bounds"
+    },
+    {
+     "pointer": "/locators",
+     "value": "$locators",
+     "authority": "user_quoted",
+     "evidence": "$locator_fact"
+    }
+   ]
+  },
+  {
+   "key": "tables",
+   "kind": "operation",
+   "operation": "source-tables",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "acquire.tables",
+   "to": "tables.tables",
+   "kind": "table",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "tables.tables",
+   "kind": "table"
+  }
+ ]
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "kind": "generality-registration-fragment",
+  "package": "supplied-source-packages",
+  "operations": [
+    {
+      "mode": "ma5-saf",
+      "operation": "op:ma5-saf",
+      "summary": "Complete source-defined linear SAF delivery from supplied bookings and upstream API pins",
+      "applicability": {
+        "scope": "general"
+      },
+      "applicability_predicate": "schema2 supplied source bookings, supported linear records, complete named views",
+      "required_inputs": [
+        "input",
+        "source",
+        "bookings",
+        "upstream",
+        "views",
+        "population_scope"
+      ],
+      "schema_notes": "Reject schema1 with missing-input; use existing schema2 family; task output selects JSON representation"
+    },
+    {
+      "mode": "width-inputs",
+      "operation": "op:width-inputs",
+      "summary": "Materialize references and width recipes from a selected supplied source package",
+      "applicability": {
+        "scope": "general"
+      },
+      "applicability_predicate": "one scalar mass axis; complete nonnegative regional tables and observed/expected reference pairs",
+      "required_inputs": [
+        "source_package",
+        "axes",
+        "output",
+        "goal_binding"
+      ],
+      "schema_notes": "Producer schema2 explicitly selects source-package schema1 and output contract"
+    },
+    {
+      "mode": "mass-width-grid",
+      "operation": "op:mass-width-grid",
+      "summary": "Construct supplied mass/width grids with explicit regional transfer and response laws",
+      "applicability": {
+        "scope": "general"
+      },
+      "applicability_predicate": "complete supplied paired regions; bounded Bernstein transfer; full generated exposure and source-card bindings",
+      "required_inputs": [
+        "analysis",
+        "axes",
+        "cells",
+        "output",
+        "goal_binding"
+      ],
+      "schema_notes": "Request schema2; supplied region pairs, degree, efficiency, generation and decay contract; explicit output/report formats"
+    },
+    {
+      "mode": "mssm-observable-map",
+      "operation": "op:mssm-observable-map",
+      "summary": "Map supplied MSSM spectra and normalized point-list populations",
+      "applicability": {
+        "scope": "general"
+      },
+      "applicability_predicate": "supplied SLHA-MSSM conventions and complete Cartesian or normalized point-list population",
+      "required_inputs": [
+        "request"
+      ],
+      "schema_notes": "Only point-list-v1 source format; generic population conversion runs separately; task output selects JSON representation"
+    }
+  ],
+  "knowledge_curation_updates": {
+    "width-inputs": {
+      "use_when": [
+        "Materialize a selected pinned source package into complete reference and width-grid inputs"
+      ],
+      "do_not_use_when": [
+        "Inferring observations or auxiliary covariance from postfit samples"
+      ],
+      "example_phrase": "Prepare supplied table-package references and an explicit width grid"
+    },
+    "mass-width-grid": {
+      "use_when": [
+        "Construct a supplied regional mass/width grid from explicit transfer, observation and response contracts"
+      ],
+      "do_not_use_when": [
+        "Infer missing observations, responses, decay channels or a coupling projection"
+      ],
+      "example_phrase": "Prepare a complete supplied regional mass/width construction"
+    }
+  },
+  "instruction_declarations": [
+    "docs/workflow/reference/width-input-materialization.md",
+    "docs/reference/mass-width-grid-recipes.md"
+  ],
+  "handoff": "Registration lane applies operation summaries, applicability predicates, curation wording and instruction declarations; regenerate source knowledge and instruction mirrors after applying."
+}

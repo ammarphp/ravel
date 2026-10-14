@@ -1,0 +1,125 @@
+{
+  "card": {
+    "escalation": [
+      "checkin_flag",
+      "stop",
+      "decision_block"
+    ],
+    "family": "production",
+    "id": "ml-trainer",
+    "independence": {
+      "distinct_actor_from": [
+        "coordinator"
+      ],
+      "fresh_session": true,
+      "kind": "producer"
+    },
+    "kind": "role-card",
+    "knowledge": {
+      "budget_tokens": 24000,
+      "consult": [
+        {
+          "role": "consult-inference",
+          "when": "contested_node"
+        }
+      ],
+      "derive": [
+        "premises_firing",
+        "checks_judging_node"
+      ],
+      "forbidden": [
+        "lessons"
+      ],
+      "may_query": [
+        "find",
+        "show",
+        "for_node"
+      ],
+      "must_read": [
+        "hb:ml-training-governance",
+        "hb:ml-weak-supervision"
+      ]
+    },
+    "model": {
+      "distinct_family_from": [],
+      "effort": "high",
+      "tier": "agent"
+    },
+    "must_check": [
+      "check:ml-statistics-sizing",
+      "check:ml-crossfit-audit",
+      "check:ml-label-leakage",
+      "check:ml-equal-budget",
+      "check:ml-test-once",
+      "check:ml-benchmark-localization"
+    ],
+    "operations": [
+      "ml-training"
+    ],
+    "output": {
+      "declared_outputs": [
+        {
+          "kind": "ml-receipt",
+          "path": "outputs/ml/receipt.json",
+          "required": true
+        }
+      ],
+      "schema": "producer.v1",
+      "sidecar": true
+    },
+    "protocol": [
+      "State the claim, estimand and precision target before choosing data sizes.",
+      "Compute independent counts per region, fold and working point; narrow or stop an undersized plan.",
+      "Freeze regions, features, architecture, working points, fit families and checks.",
+      "Record inner initializations separately from replicate seeds; compare trained arms at equal budget.",
+      "Never compute an observed statistic before unblind.",
+      "Return null, insensitive, zero-acceptance and failed outcomes."
+    ],
+    "purpose": "Executes a frozen ML spec, sizes statistics before training and records all models, exposures and failures.",
+    "requires": {
+      "attestation_min": "transport",
+      "blind": false,
+      "isolation_min": "ravel-sandbox",
+      "structured_output": true,
+      "tools": "broker-full"
+    },
+    "reviewed_by": [
+      "ml-reviewer"
+    ],
+    "schema_version": 2,
+    "sees": {
+      "forbidden_inputs": [
+        "withheld_sources",
+        "evaluator_truth_columns",
+        "final_partitions"
+      ],
+      "profile": "workspace"
+    },
+    "stop": {
+      "evidence_budget": 0,
+      "max_broker_calls": 200,
+      "max_cost_usd": null,
+      "max_rounds": 2,
+      "max_turns": 60,
+      "max_wall_seconds": 2700
+    },
+    "tools": {
+      "exec_argv_prefixes": [
+        [
+          "python3",
+          "-I"
+        ]
+      ],
+      "ravel_actions": [
+        "knowledge query",
+        "check run"
+      ],
+      "read_paths": [
+        "inputs/ml-spec/"
+      ],
+      "validators": []
+    },
+    "version": "1.1.0"
+  },
+  "registry_sha256": "add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25"
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:workspace-combination-study",
+ "op": {
+  "do_not_use_when": [
+   "A single workspace patch: use published-model.",
+   "Joint profile with MC: use joint-fit."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/workspace-combination-study-example --spec specs/workspace-combination-study.json",
+    "phrase": "Witness a complete combination of two published workspaces.",
+    "spec": {
+     "mode": "workspace-combination-study",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Complete-workspace combination witness for two or more published workspaces.",
+   "Check that combining workspaces is consistent."
+  ]
+ }
+}

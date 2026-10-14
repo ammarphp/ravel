@@ -1,0 +1,25 @@
+{
+ "id": "op:native-likelihood",
+ "op": {
+  "do_not_use_when": [
+   "HistFactory JSON patching: use published-model.",
+   "HS3 graph import: use hs3-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/native-likelihood-example --spec specs/native-likelihood.json",
+    "phrase": "Evaluate a native Combine likelihood on a supplied datacard.",
+    "spec": {
+     "mode": "native-likelihood",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "CMS Combine likelihood evaluation on supplied datacards and workspaces.",
+   "A datacard-based limit or fit with the native tool is needed."
+  ]
+ }
+}

@@ -1,0 +1,117 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "specialist-review",
+  "id": "plan-critic",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "specialist"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [
+      "lessons",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "proto:P1",
+      "proto:P6",
+      "checklist:reproduction-closure"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:validation.validate_task_contract.validate",
+    "check:validation.validate_run_state.check_route"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "findings.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Read only the critic projection of the plan and its pinned contract. Never post to the board, read board prose or read other reviewers' verdicts.",
+    "Check proportionality against the user's required output, precision and validity domain and inputs/method-decision.json. Distinguish expensive but necessary work from affordable but unnecessary work. Require evidence for each cheaper method's insufficiency or unavailability; preserve explicit requests for new events or independent reproduction. Stop expansion when the contracted answer is complete.",
+    "Before any claim is labelled uncertified, search for a certifiable route: a registered operation, routine, likelihood or certificate that would certify it. Record the routes searched and why each was refused.",
+    "Before reading values, list the reference's published intermediate artifacts (signal models, efficiency maps, cutflows, truth tables, per-bin yields) and require a waypoint for each published intermediate artifact. A missing public artifact needs a recorded waiver with its reason.",
+    "Refuse an agreement claim whose target, family (expected or observed), quantity or nodes differ from the reference, unless the plan declares the conversion.",
+    "Require signal-model completeness before any calibration. A response fitted through an incomplete likelihood absorbs the omission.",
+    "Name the cheapest discriminating test for every deviated or unknown recipe-ledger row. Prefer no-event computations (refits, replays, arithmetic) before new generation.",
+    "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+    "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+  ],
+  "purpose": "Test a plan before approval: its obligations, its certifiable routes, its agreement targets and its resource contracts. Criticism is evidence-bearing and names the test that would settle it.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": true,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-readonly"
+  },
+  "reviewed_by": [],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [
+      "board_prose",
+      "critic_reasoning",
+      "lessons",
+      "other_verdicts",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "profile": "spec-denied"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 200,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 40,
+    "max_wall_seconds": 1200
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/"
+    ],
+    "validators": []
+  },
+  "version": "2.1.0"
+}

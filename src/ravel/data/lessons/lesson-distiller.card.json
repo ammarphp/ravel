@@ -1,0 +1,101 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop"
+  ],
+  "family": "investigation",
+  "id": "lesson-distiller",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator",
+      "rca-investigator"
+    ],
+    "fresh_session": true,
+    "kind": "investigation"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "proto:P1"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "medium",
+    "tier": "agent"
+  },
+  "must_check": [
+    "check:validation.check_knowledge"
+  ],
+  "operations": [
+    "knowledge query",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [
+      {
+        "kind": "lesson-candidate",
+        "path": "outputs/lesson-candidate.json",
+        "required": true
+      }
+    ],
+    "schema": "producer.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Write a computable trigger that fires on the ticket facts, a body of at most 40 lines that states the lookup or procedure, the confirming check and the version scope.",
+    "Cite execution receipts and the origin request digest and run id. Never propose a status other than candidate and never weaken a check, trap, gate or threshold."
+  ],
+  "purpose": "Distill one candidate lesson from a closed RCA ticket or passed repair, citing its receipts.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": false,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-readonly"
+  },
+  "reviewed_by": [],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [],
+    "profile": "workspace"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 400,
+    "max_cost_usd": null,
+    "max_rounds": 1,
+    "max_turns": 60,
+    "max_wall_seconds": 900
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/"
+    ],
+    "validators": []
+  },
+  "version": "2.0.0"
+}

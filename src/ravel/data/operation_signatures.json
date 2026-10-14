@@ -1,0 +1,7230 @@
+{
+ "schema_version": 1,
+ "kind": "operation-signatures",
+ "scope": "Typed operation signatures for request plans: consumed and produced artifact kinds, effects and evidence-basis contributions. Every registered mode has an entry; ravel.validation.signature_conformance checks each one. A plan node whose operation has no entry contributes the unclassified basis and a CHECK-IN 1 flag. A signature declares shape, not scientific validity.",
+ "operations": {
+  "acquire-published": {
+   "summary": "Bounded read-only acquisition of publication metadata, HEPData records and published tables.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.resource_census"
+   },
+   "consumes": [],
+   "produces": [
+    {
+     "slot": "tables",
+     "kind": "table",
+     "require": {
+      "source": "hepdata"
+     }
+    },
+    {
+     "slot": "records",
+     "kind": "document"
+    }
+   ],
+   "effects": [
+    "acquires_published"
+   ],
+   "cost": {
+    "unit": "bytes",
+    "forecast": null,
+    "ceiling_pointer": "/max_bytes"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": []
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "census"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "amplitude-predictions": {
+   "summary": "Binned predictions for declared hypotheses from a Gram store.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "amplitude-predictions",
+    "module": "ravel.physics.amplitude_predictions"
+   },
+   "consumes": [
+    {
+     "slot": "store",
+     "kind": "amplitude:gram-store"
+    },
+    {
+     "slot": "binning",
+     "kind": "table",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "predictions",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/binning",
+    "/task/hypotheses"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "store",
+     "binning"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "analysis-lifecycle": {
+   "summary": "A route-A analysis run: generation, shower, detector, preserved routine and limit under its own contract, CHECK-INs and the full lifecycle invariants.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "route-a-run",
+    "module": "ravel.workflow.workflow_state"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    },
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    },
+    {
+     "slot": "figure",
+     "kind": "figure"
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "simulates_detector",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "points",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/analysis",
+    "/stat_mode",
+    "/detector_mode"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     },
+     {
+      "element": "simulated_acceptance",
+      "origin": "published",
+      "level": "detector"
+     },
+     {
+      "element": "published_results",
+      "form": "observed-yields"
+     },
+     {
+      "element": "published_statistical_model",
+      "when": {
+       "/stat_mode": [
+        "published-likelihood"
+       ]
+      }
+     },
+     {
+      "element": "reimplemented_statistical_model",
+      "when": {
+       "/stat_mode": [
+        "shape-fit"
+       ]
+      }
+     },
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed",
+      "when": {
+       "/stat_mode": [
+        "best-sr-counting",
+        "combined-counting",
+        "simplified-likelihood"
+       ]
+      }
+     }
+    ],
+    "passes": [
+     "model",
+     "point"
+    ]
+   },
+   "tools": [
+    "MadGraph5_aMC@NLO",
+    "MadGraph",
+    "MG5",
+    "MG5_aMC",
+    "Pythia",
+    "Pythia 8",
+    "Pythia8",
+    "Delphes",
+    "SimpleAnalysis",
+    "Rivet",
+    "pyhf",
+    "HistFactory"
+   ],
+   "stages": [
+    "generation",
+    "shower",
+    "detector",
+    "analysis",
+    "statistic",
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "acceptance_certificate",
+     "limit_status",
+     "fit_alarms",
+     "normalization_ledger",
+     "figure_comparison",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 4
+  },
+  "analysis-response-features": {
+   "summary": "Event-response features from a retained analysis selection on supplied events.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "analysis-response-features",
+    "module": "ravel.physics.analysis_response_features"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/events"
+    },
+    {
+     "slot": "routine",
+     "kind": "selection",
+     "task_pointer": "/task/routine"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "features",
+     "kind": "table"
+    },
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin_from": "routine.origin",
+      "level_from": "events.level"
+     }
+    ],
+    "passes": [
+     "events",
+     "routine"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "analyze": {
+   "summary": "Existing events through a preserved Rivet or SimpleAnalysis routine compiled unmodified.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "analyze",
+    "module": "ravel.physics.existing_events"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/events"
+    },
+    {
+     "slot": "routine",
+     "kind": "selection",
+     "task_pointer": "/task/analysis",
+     "require": {
+      "origin": [
+       "published",
+       "requester"
+      ]
+     }
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin_from": "routine.origin",
+      "level_from": "events.level"
+     }
+    ],
+    "passes": [
+     "events",
+     "measured"
+    ]
+   },
+   "tools": [
+    "Rivet",
+    "SimpleAnalysis"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "asimov-sensitivity": {
+   "summary": "Expected discovery sensitivity on one Asimov dataset from a constructed model; local asymptotic proxy only.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "asimov-sensitivity",
+    "module": "ravel.physics.asimov_sensitivity"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "moments",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "require": {
+      "content": "tree-moments"
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "significance",
+     "kind": "inference",
+     "require": {
+      "level": "expected"
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model",
+     "moments"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "authored-analysis": {
+   "summary": "Governed authored analysis code run in a sandbox with pinned attempts and postconditions.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "authored-analysis",
+    "module": "ravel.physics.authored_analysis"
+   },
+   "consumes": [
+    {
+     "slot": "inputs",
+     "kind": "event_sample",
+     "cardinality": "0..*",
+     "task_pointer": "/task/io_contract/inputs",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "outputs",
+     "kind": "table"
+    },
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "selection",
+     "kind": "selection"
+    }
+   ],
+   "effects": [
+    "runs_authored_code",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/parameters"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "authored_code"
+     }
+    ],
+    "passes": [
+     "inputs"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "background-discrete-profile": {
+   "summary": "Discrete-profiling envelope over fixed background-function candidates.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "background-discrete-profile",
+    "module": "ravel.physics.background_discrete_profile"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "envelope",
+     "kind": "inference"
+    },
+    {
+     "slot": "scans",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "values",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "chargino-decay-table": {
+   "summary": "Exact rows of released pure-limit chargino decay tables; never mixed-spectrum widths.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "chargino-decay-table",
+    "module": "ravel.physics.chargino_decay_table"
+   },
+   "consumes": [
+    {
+     "slot": "table",
+     "kind": "table",
+     "task_pointer": "/task/request",
+     "require": {
+      "source": "published"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "decays",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "table"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "basis_manifest"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "classifier-inputs": {
+   "summary": "Bounded static census of an ONNX classifier; never runs the model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "classifier-inputs",
+    "module": "ravel.physics.classifier_inputs"
+   },
+   "consumes": [
+    {
+     "slot": "classifier",
+     "kind": "selection"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "census",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "classifier"
+    ]
+   },
+   "tools": [
+    "ONNX"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "columnar-analysis": {
+   "summary": "Declarative columnar selection of event files into binned values and a cutflow.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "columnar-analysis",
+    "module": "ravel.physics.columnar_analysis"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/inputs",
+     "require": {
+      "format": [
+       "delphes-root",
+       "flat-ntuple",
+       "lhe"
+      ]
+     }
+    },
+    {
+     "slot": "recipe",
+     "kind": "selection",
+     "task_pointer": "/task/recipe"
+    },
+    {
+     "slot": "cross_section",
+     "kind": "scalar",
+     "task_pointer": "/task/normalization/cross_section_pb",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": "partitioned_execution.forecast",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/normalization/luminosity_ifb",
+    "/task/normalization/cross_section_pb"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin_from": "recipe.origin",
+      "level_from": "events.level"
+     }
+    ],
+    "passes": [
+     "events",
+     "cross_section",
+     "measured"
+    ]
+   },
+   "tools": [
+    "uproot",
+    "awkward"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "continuous-fit": {
+   "summary": "Extended exponential fits in disjoint signal and control ranges.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "continuous-fit",
+    "module": "ravel.physics.continuous_fit"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "values",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "contrast": {
+   "summary": "Paired normalized contrasts between event-weight arms of one sample.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "contrast",
+    "module": "ravel.physics.event_contrasts"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "contrasts",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "contur-companion": {
+   "summary": "Released Contur companion operations and standard-model tests.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "contur-companion",
+    "module": "ravel.physics.contur_companion"
+   },
+   "consumes": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "task_pointer": "/task/input",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "histograms"
+    ]
+   },
+   "tools": [
+    "Contur",
+    "Herwig"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "contur-import": {
+   "summary": "Read of retained Contur results databases without inference.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "contur-import",
+    "module": "ravel.physics.contur_import"
+   },
+   "consumes": [
+    {
+     "slot": "database",
+     "kind": "table",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": "sqlite"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "results",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "supplied_inputs",
+      "what": "table"
+     }
+    ],
+    "passes": [
+     "database"
+    ]
+   },
+   "tools": [
+    "Contur"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "contur-yoda": {
+   "summary": "Single-point Contur inference from a supplied Rivet YODA.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "contur-yoda",
+    "module": "ravel.physics.contur_yoda"
+   },
+   "consumes": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": "yoda"
+     }
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     },
+     {
+      "element": "observed_data"
+     },
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "histograms",
+     "measured"
+    ]
+   },
+   "tools": [
+    "Contur"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "cosmic-evolution": {
+   "summary": "Cosmological initial conditions and N-body or hydrodynamic evolution.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "cosmic-evolution",
+    "module": "ravel.physics.cosmic_evolution"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "snapshots",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [
+    "Nyx",
+    "CosmicIC"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "cosmology-solver": {
+   "summary": "Typed CAMB, CLASS or Cobaya operations on supplied cosmological models.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "cosmology-solver",
+    "module": "ravel.physics.cosmology_solver"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "spectra",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/parameters"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [
+    "CAMB",
+    "CLASS",
+    "Cobaya",
+    "hi_class"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "coupling-morphing": {
+   "summary": "Polynomial coupling dependence of a quantity fitted from runs at declared coupling points.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "coupling-morphing",
+    "module": "ravel.physics.inference.coupling_morphing"
+   },
+   "consumes": [
+    {
+     "slot": "runs",
+     "kind": "scalar",
+     "cardinality": "1..*",
+     "task_pointer": "/task/runs"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "morphed",
+     "kind": "expression"
+    },
+    {
+     "slot": "values",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/basis",
+    "/task/width"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "runs"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "cr-signal-qualification": {
+   "summary": "Fixed control-region signal intervention qualified without a fit.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "cr-signal-qualification",
+    "module": "ravel.validation.cr_signal_study"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "signal",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model",
+     "signal"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "likelihood_pairing"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "cross-section": {
+   "summary": "Signal cross sections from pinned published tables under an explicitly selected convention.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "cross-section",
+    "module": "ravel.physics.cross_sections"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "cross_section",
+     "kind": "scalar"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/basis",
+    "/task/convention"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "derived-quantities": {
+   "summary": "Finite derived quantities with delta-method covariance from a supplied joint result.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "derived-quantities",
+    "module": "ravel.physics.derived_quantities"
+   },
+   "consumes": [
+    {
+     "slot": "joint",
+     "kind": "inference",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "derived",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "derived"
+     }
+    ],
+    "passes": [
+     "joint"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "diagram-analysis": {
+   "summary": "An enumerated diagram population passed to its declared consumers.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "diagram-analysis",
+    "module": "ravel.physics.diagram_analysis"
+   },
+   "consumes": [
+    {
+     "slot": "diagrams",
+     "kind": "expression",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "analysis",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "derived"
+     }
+    ],
+    "passes": [
+     "diagrams"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "diagrammatica-code": {
+   "summary": "Source-pinned diagram-script construction; no computer-algebra execution.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "diagrammatica-code",
+    "module": "ravel.physics.diagrammatica_code"
+   },
+   "consumes": [
+    {
+     "slot": "diagrams",
+     "kind": "expression",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "script",
+     "kind": "expression"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "diagrams"
+    ]
+   },
+   "tools": [
+    "HEPTAPOD",
+    "Diagrammatica"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "differential-likelihood": {
+   "summary": "Reinterpretation of a measured differential spectrum with a declared signal model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "differential-likelihood",
+    "module": "ravel.physics.inference.differential_likelihood"
+   },
+   "consumes": [
+    {
+     "slot": "measurement",
+     "kind": "table",
+     "task_pointer": "/task/measurement"
+    },
+    {
+     "slot": "reference",
+     "kind": "table",
+     "task_pointer": "/task/reference"
+    },
+    {
+     "slot": "signal",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/signal/terms"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/statistic",
+    "/task/measurement",
+    "/task/reference"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "measurement",
+     "reference",
+     "signal",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "limit_status",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "domain": {
+   "summary": "Bounded supplied-artifact and fixed phase-space operations.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "domain",
+    "module": "ravel.physics.domain_adapters"
+   },
+   "consumes": [
+    {
+     "slot": "artifact",
+     "kind": "model",
+     "cardinality": "0..*",
+     "task_pointer": "/task/input",
+     "optional": true
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "stated_inputs"
+     }
+    ],
+    "passes": [
+     "artifact",
+     "point"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "parameter-space-sampling": {
+   "summary": "EasyScan parameter-space sampling under the ordinary lifecycle.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "parameter-space-sampling",
+    "module": "ravel.physics.parameter_space_sampling"
+   },
+   "consumes": [
+    {
+     "slot": "configuration",
+     "kind": "table",
+     "task_pointer": "/task/config"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "samples",
+     "kind": "table"
+    },
+    {
+     "slot": "posterior",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native",
+    "varies_parameters"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "configuration"
+    ]
+   },
+   "tools": [
+    "EasyScan",
+    "EasyScan_HEP",
+    "MultiNest"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "eft-convention-transport": {
+   "summary": "Exact same-scale transport of EFT coefficients between conventions.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "eft-convention-transport",
+    "module": "ravel.physics.eft_conventions"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "task_pointer": "/task/request"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "point",
+     "kind": "parameter_point"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "eft-functions": {
+   "summary": "Exact one-coefficient EFT response polynomials of a released physics model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "eft-functions",
+    "module": "ravel.physics.eft_functions"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "responses",
+     "kind": "expression"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "PhysicsModel"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "eft-toolchain": {
+   "summary": "EFT running, matching and fixed-precision predictions through installed upstream tools.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "eft-toolchain",
+    "module": "ravel.physics.eft_toolchain"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "predictions",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/basis",
+    "/task/scale"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [
+    "flavio",
+    "smelli",
+    "WCxf",
+    "DsixTools"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "event-production": {
+   "summary": "Shower and detector production of generated parton-level events into detector-level samples.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "event-production",
+    "module": "ravel.physics.event_production"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "task_pointer": "/task/events/lhe",
+     "require": {
+      "format": [
+       "lhe"
+      ],
+      "level": [
+       "parton"
+      ]
+     }
+    },
+    {
+     "slot": "detector_card",
+     "kind": "table",
+     "task_pointer": "/task/detector/cards",
+     "optional": true
+    },
+    {
+     "slot": "cross_section",
+     "kind": "scalar",
+     "task_pointer": "/task/normalization",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": "detector",
+      "format": "delphes-root"
+     }
+    }
+   ],
+   "effects": [
+    "simulates_detector",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/model/invisible",
+    "/task/shower/commands",
+    "/task/detector/cards",
+    "/task/normalization"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events",
+     "cross_section"
+    ]
+   },
+   "tools": [
+    "Pythia",
+    "Pythia 8",
+    "Pythia8",
+    "Delphes",
+    "DelphesHepMC3"
+   ],
+   "stages": [
+    "shower",
+    "detector"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "invisible_card",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "feyn-graph": {
+   "summary": "Complete model-bound Feynman-diagram enumeration and rendering.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "feyn-graph",
+    "module": "ravel.physics.feyn_graph"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "diagrams",
+     "kind": "expression"
+    },
+    {
+     "slot": "figures",
+     "kind": "figure"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "derived"
+     }
+    ],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "FeynGraph",
+    "QGRAF"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "feynarts-amplitude": {
+   "summary": "FeynArts model to a complete FeynCalc amplitude population.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "feynarts-amplitude",
+    "module": "ravel.physics.feynarts_amplitude"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/model"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "amplitudes",
+     "kind": "expression"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "derived"
+     }
+    ],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "FeynArts",
+    "FeynCalc",
+    "Mathematica"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "figure-comparison": {
+   "summary": "Digitisation of a published figure and machine comparison with a produced result.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "figure-comparison",
+    "module": "ravel.physics.figure_comparison"
+   },
+   "consumes": [
+    {
+     "slot": "published",
+     "kind": "figure",
+     "task_pointer": "/task/operations"
+    },
+    {
+     "slot": "result",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "inference",
+     "kind": "inference",
+     "cardinality": "0..*",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "comparison",
+     "kind": "figure"
+    },
+    {
+     "slot": "values",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "figure"
+     }
+    ],
+    "passes": [
+     "result",
+     "inference"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "figure_comparison",
+     "independent_reference",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "fill-template": {
+   "summary": "Fill a supplied numeric result template from an accepted result without changing its bins.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.result_templates"
+   },
+   "consumes": [
+    {
+     "slot": "result",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "template",
+     "kind": "table",
+     "require": {
+      "source": "requester"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "filled",
+     "kind": "table",
+     "require": {
+      "source": "requester"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "result",
+     "template"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "output-template"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "finite-integrals": {
+   "summary": "Finite Feynman-integral evaluation with sector decomposition.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "finite-integrals",
+    "module": "ravel.physics.finite_integrals"
+   },
+   "consumes": [
+    {
+     "slot": "integrals",
+     "kind": "expression",
+     "task_pointer": "/task/config"
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "integrals",
+     "point"
+    ]
+   },
+   "tools": [
+    "pySecDec",
+    "SecDec"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "finite-mc": {
+   "summary": "Statistical models for finite simulated samples under supplied generator laws.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "finite-mc",
+    "module": "ravel.physics.finite_mc_model"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "statistical_model"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "values"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "formula-grid": {
+   "summary": "Declared formulas with cited or requester constants evaluated over a parameter grid.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "formula-grid",
+    "module": "ravel.physics.inference.formula_grid"
+   },
+   "consumes": [
+    {
+     "slot": "formula",
+     "kind": "expression",
+     "task_pointer": "/task/program"
+    },
+    {
+     "slot": "constants",
+     "kind": "table",
+     "task_pointer": "/task/program/constants",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "contours",
+     "kind": "figure"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "constants"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "full-auxiliary-calibration": {
+   "summary": "Fixed-truth auxiliary calibration through the native likelihood.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "full-auxiliary-calibration",
+    "module": "ravel.physics.full_auxiliary_calibration"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "calibration",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "generate": {
+   "summary": "Scoped MadGraph generation of one bound recipe from a supplied process and cards.",
+   "implementation": {
+    "kind": "scoped-adapter",
+    "mode": "generate",
+    "module": "ravel.workflow.scoped"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/generation/model",
+     "optional": true
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": [
+       "parton",
+       "particle"
+      ],
+      "format": [
+       "lhe",
+       "hepmc"
+      ]
+     }
+    },
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "figure",
+     "kind": "figure"
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/generation/process",
+    "/generation/beam_pdg",
+    "/generation/run_settings",
+    "/generation/parameter_card",
+    "/generation/shower"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     }
+    ],
+    "passes": [
+     "model",
+     "point"
+    ]
+   },
+   "tools": [
+    "MadGraph5_aMC@NLO",
+    "MadGraph",
+    "MG5",
+    "MG5_aMC",
+    "MadSpin",
+    "LHAPDF",
+    "Pythia",
+    "Pythia8"
+   ],
+   "stages": [
+    "generation",
+    "lhe-transform",
+    "shower",
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check",
+     "normalization_ledger",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "generated-spectrum": {
+   "summary": "Generated spectrum-generator build and solve to a raw SLHA spectrum.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "generated-spectrum",
+    "module": "ravel.physics.generated_spectrum"
+   },
+   "consumes": [
+    {
+     "slot": "inputs",
+     "kind": "parameter_point",
+     "task_pointer": "/task/config"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "spectrum",
+     "kind": "parameter_point",
+     "require": {
+      "format": "slha"
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "numerical_solver"
+     }
+    ],
+    "passes": [
+     "inputs"
+    ]
+   },
+   "tools": [
+    "FlexibleSUSY",
+    "SPheno",
+    "SoftSUSY"
+   ],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "decay_closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "generation-reconciliation": {
+   "summary": "Reconcile supplied MadGraph cards with the stated physics intent before generation.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "generation-reconciliation",
+    "module": "ravel.physics.generation_reconciliation"
+   },
+   "consumes": [
+    {
+     "slot": "intent",
+     "kind": "table",
+     "task_pointer": "/task/intent"
+    },
+    {
+     "slot": "cards",
+     "kind": "table",
+     "cardinality": "2..3",
+     "task_pointer": "/task/proc_card"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "report",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "cards"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "grid-recipe": {
+   "summary": "A parameter grid from declared axes (name, unit and values or a range) given as data; family-neutral.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.grid_recipe"
+   },
+   "consumes": [
+    {
+     "slot": "axes",
+     "kind": "table",
+     "task_pointer": "/axes",
+     "require": {
+      "content": "declared-axes"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "points",
+     "kind": "parameter_point",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "grid",
+     "kind": "table",
+     "require": {
+      "content": "grid"
+     }
+    }
+   ],
+   "effects": [
+    "varies_parameters"
+   ],
+   "cost": {
+    "unit": "points",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/axes"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "axes"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "group-composition": {
+   "summary": "Source-coordinate rebinning and same-event normalization composition of grouped values.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "group-composition",
+    "module": "ravel.physics.group_composition"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "values"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "group-normalization": {
+   "summary": "Source-bound normalization of complete independent event groups.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "group-normalization",
+    "module": "ravel.physics.group_normalization"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "values"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "hs3-likelihood": {
+   "summary": "HS3 graph import and native RooFit likelihood evaluation.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "hs3-likelihood",
+    "module": "ravel.physics.hs3_likelihood"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": "hs3"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_statistical_model"
+     }
+    ],
+    "passes": [
+     "workspace"
+    ]
+   },
+   "tools": [
+    "HS3",
+    "RooFit"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "likelihood_pairing"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "initialized-settings-qualification": {
+   "summary": "Qualification of one initialized shower-settings witness on retained LHE.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "initialized-settings-qualification",
+    "module": "ravel.validation.initialized_settings_qualification"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": [
+       "lhe"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "shower"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "initialized-settings-retained": {
+   "summary": "Qualification of immutable outputs from a retained initialized-settings run.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "initialized-settings-retained",
+    "module": "ravel.validation.initialized_settings_retained"
+   },
+   "consumes": [
+    {
+     "slot": "outputs",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "outputs"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "shower"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "joint-fit": {
+   "summary": "Profile study joining a published workspace with finite simulated auxiliaries.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "joint-fit",
+    "module": "ravel.physics.joint_fit"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "auxiliaries",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_statistical_model"
+     },
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "workspace",
+     "auxiliaries",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "joint-qualification": {
+   "summary": "Analytic-source qualification and full-nuisance fits of a joint model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "joint-qualification",
+    "module": "ravel.physics.joint_qualification"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "auxiliaries",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    },
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "workspace",
+     "auxiliaries"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "joint-score": {
+   "summary": "Successor score study over fixed joint fits.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "joint-score",
+    "module": "ravel.physics.joint_score"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "auxiliaries",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "score",
+     "kind": "inference"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "workspace",
+     "auxiliaries"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "lhe-transform": {
+   "summary": "Declared streaming particle rewrites of an LHE file between generation and shower.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "lhe-transform",
+    "module": "ravel.physics.lhe_transform"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": [
+       "lhe"
+      ]
+     }
+    },
+    {
+     "slot": "rules",
+     "kind": "table",
+     "task_pointer": "/task/rules"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": "parton",
+      "format": "lhe"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "lhe-transform"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "deviations"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "lifecycle-routine-recast": {
+   "summary": "Route-A recast stage: generated events through a preserved routine at detector level.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "routine-recast",
+    "module": "ravel.workflow.workflow_state"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "simulates_detector",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "points",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/analysis",
+    "/detector_mode"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     },
+     {
+      "element": "simulated_acceptance",
+      "origin": "published",
+      "level": "detector"
+     }
+    ],
+    "passes": [
+     "model",
+     "point"
+    ]
+   },
+   "tools": [
+    "MadGraph5_aMC@NLO",
+    "MadGraph",
+    "Pythia8",
+    "Delphes",
+    "SimpleAnalysis",
+    "Rivet"
+   ],
+   "stages": [
+    "generation",
+    "shower",
+    "detector",
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "acceptance_certificate",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 4
+  },
+  "lifecycle-scan-aggregation": {
+   "summary": "Route-A aggregation of per-point limits over a declared parameter grid.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "scan-aggregation",
+    "module": "ravel.workflow.scan_orchestrator"
+   },
+   "consumes": [
+    {
+     "slot": "points",
+     "kind": "inference",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    },
+    {
+     "slot": "figure",
+     "kind": "figure"
+    }
+   ],
+   "effects": [
+    "varies_parameters"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "points"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "limit_status",
+     "figure_comparison",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 4
+  },
+  "lifecycle-shape-fit": {
+   "summary": "Route-A shape fit standing in for a published fit, with R5 closure before limits ship.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "shape-fit",
+    "module": "ravel.physics.shape_fit"
+   },
+   "consumes": [
+    {
+     "slot": "signal",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "published",
+     "kind": "table"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "reimplemented_statistical_model"
+     }
+    ],
+    "passes": [
+     "signal",
+     "published"
+    ]
+   },
+   "tools": [
+    "pyhf"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "r5",
+     "limit_status",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "lifecycle-summary-overlay": {
+   "summary": "Route-A summary overlay of published limits with a census and basis manifest.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "summary-overlay",
+    "module": "ravel.plotting.summary_overlay"
+   },
+   "consumes": [
+    {
+     "slot": "census",
+     "kind": "table",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "overlay",
+     "kind": "figure"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "limits"
+     }
+    ],
+    "passes": [
+     "census"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "summary_complete",
+     "basis_manifest",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "lifecycle-workspace-limit": {
+   "summary": "Route-A limit on a published workspace patched with the produced signal.",
+   "implementation": {
+    "kind": "lifecycle-stage",
+    "stage": "published-workspace-limit",
+    "module": "ravel.physics.pyhf_exclude"
+   },
+   "consumes": [
+    {
+     "slot": "signal",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "require": {
+      "origin": "published"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    }
+   ],
+   "effects": [
+    "patches_published_model",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_statistical_model"
+     }
+    ],
+    "passes": [
+     "signal",
+     "workspace"
+    ]
+   },
+   "tools": [
+    "pyhf",
+    "HistFactory"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "likelihood_pairing",
+     "limit_status",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 4
+  },
+  "likelihood": {
+   "summary": "Scoped limit on a supplied likelihood workspace or stated counting model.",
+   "implementation": {
+    "kind": "scoped-adapter",
+    "mode": "likelihood",
+    "module": "ravel.workflow.scoped"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "task_pointer": "/likelihood/workspace",
+     "optional": true
+    },
+    {
+     "slot": "counts",
+     "kind": "table",
+     "task_pointer": "/likelihood/counting",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/likelihood/poi",
+    "/likelihood/counting"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "requester"
+     }
+    ],
+    "passes": [
+     "model",
+     "counts"
+    ]
+   },
+   "tools": [
+    "pyhf"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "likelihood-candidate-check": {
+   "summary": "Verification of retained conditional-profile candidate vectors; no refit.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "likelihood-candidate-check",
+    "module": "ravel.validation.likelihood_candidate_check"
+   },
+   "consumes": [
+    {
+     "slot": "profile",
+     "kind": "inference",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "check",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "profile"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "likelihood-parity": {
+   "summary": "Fixed-vector likelihood parity against an independent density; no fitting.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "likelihood-parity",
+    "module": "ravel.validation.likelihood_parity"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "reference",
+     "kind": "statistical_model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "parity",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model",
+     "reference"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "likelihood-profile-probe": {
+   "summary": "Replay of a retained conditional likelihood profile under two explicit protocols.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "likelihood-profile-probe",
+    "module": "ravel.validation.likelihood_profile_probe"
+   },
+   "consumes": [
+    {
+     "slot": "profile",
+     "kind": "inference",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "probe",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "profile",
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "likelihood-step-refinement": {
+   "summary": "Finite-difference step refinement checks of a retained fit; no optimizer.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "likelihood-step-refinement",
+    "module": "ravel.validation.likelihood_step_refinement"
+   },
+   "consumes": [
+    {
+     "slot": "profile",
+     "kind": "inference",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "check",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "profile"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "literal-calculation": {
+   "summary": "Exact finite unit-bearing arithmetic from the complete original request.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "literal-calculation",
+    "module": "ravel.physics.literal_calculation"
+   },
+   "consumes": [],
+   "produces": [
+    {
+     "slot": "value",
+     "kind": "scalar"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "stated_inputs"
+     }
+    ],
+    "passes": []
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "tree-array-export": {
+   "summary": "Conversion of supplied mini-tree ntuples to complete raw arrays; no preprocessing or training.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "tree-array-export",
+    "module": "ravel.physics.tree_array_export"
+   },
+   "consumes": [
+    {
+     "slot": "ntuples",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": [
+       "root",
+       "flat-ntuple"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "arrays",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "ntuples"
+    ]
+   },
+   "tools": [
+    "uproot"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "llp-plane-recipe": {
+   "summary": "Mass, spectrum and lifetime plane recipes for long-lived states, run through ordinary studies.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "llp-plane-recipe",
+    "module": "ravel.physics.llp_plane_recipe"
+   },
+   "consumes": [
+    {
+     "slot": "recipe",
+     "kind": "table",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "points",
+     "kind": "parameter_point",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "limits",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "varies_parameters",
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "points",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     }
+    ],
+    "passes": [
+     "recipe",
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum",
+    "generation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "ma5-pad": {
+   "summary": "Pinned MadAnalysis 5 public-analysis execution on supplied showered events.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "ma5-pad",
+    "module": "ravel.physics.ma5_pad"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": [
+       "hepmc"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "regions",
+     "kind": "table"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [
+    "simulates_detector",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin": "reimplemented",
+      "level": "detector"
+     }
+    ],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [
+    "MadAnalysis",
+    "MA5",
+    "SampleAnalyzer",
+    "PAD"
+   ],
+   "stages": [
+    "detector",
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "ma5-saf": {
+   "summary": "Delivery of complete supplied MadAnalysis 5 SAF outputs; no engine run, events or inference.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "ma5-saf",
+    "module": "ravel.physics.ma5_saf"
+   },
+   "consumes": [
+    {
+     "slot": "saf",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": "saf"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "regions",
+     "kind": "table"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "supplied_inputs",
+      "what": "table"
+     }
+    ],
+    "passes": [
+     "saf"
+    ]
+   },
+   "tools": [
+    "MadAnalysis",
+    "MA5"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "mc-closure": {
+   "summary": "Frozen-strategy MC closure over independent complete replicas.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mc-closure",
+    "module": "ravel.physics.mc_closure"
+   },
+   "consumes": [
+    {
+     "slot": "deliveries",
+     "kind": "inference",
+     "cardinality": "1..*"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "closure",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "deliveries"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "mc-expected-construction": {
+   "summary": "Expected signal and control-region yields constructed from complete simulated ROOT-tree moments; no fit.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mc-expected-construction",
+    "module": "ravel.physics.mc_expected_construction"
+   },
+   "consumes": [
+    {
+     "slot": "moments",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request",
+     "require": {
+      "content": "tree-moments"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "expected",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "require": {
+      "level": "expected"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/request"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     },
+     {
+      "element": "simulated_acceptance",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "moments"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "measurement": {
+   "summary": "Inference for explicitly supplied Gaussian measurement models in declared units.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "measurement",
+    "module": "ravel.physics.measurement"
+   },
+   "consumes": [
+    {
+     "slot": "measurements",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/measurements"
+    },
+    {
+     "slot": "predictions",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/measurements",
+    "/task/covariance"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "measurements",
+     "predictions",
+     "measured"
+    ]
+   },
+   "tools": [
+    "Spey"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "ml-training": {
+   "summary": "Governed training and comparison of binary classifiers with baselines, equal budgets, seeds and one held-out test.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "ml-training",
+    "module": "ravel.physics.ml_training"
+   },
+   "consumes": [
+    {
+     "slot": "dataset",
+     "kind": "table",
+     "task_pointer": "/task/dataset"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "performance",
+     "kind": "table"
+    },
+    {
+     "slot": "classifier",
+     "kind": "selection"
+    },
+    {
+     "slot": "figures",
+     "kind": "figure",
+     "optional": true
+    }
+   ],
+   "effects": [
+    "runs_authored_code"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/task/budget"
+   },
+   "critical_fields": [
+    "/task/splits",
+    "/task/seeds"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "trained_model"
+     }
+    ],
+    "passes": [
+     "dataset"
+    ]
+   },
+   "tools": [
+    "NumPy"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "model-authoring": {
+   "summary": "A FeynRules model extending the Standard Model, rendered from a typed model specification.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-authoring",
+    "module": "ravel.physics.model_authoring"
+   },
+   "consumes": [
+    {
+     "slot": "specification",
+     "kind": "expression",
+     "task_pointer": "/task/spec"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "require": {
+      "format": "feynrules"
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/spec"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "authored_code"
+     }
+    ],
+    "passes": []
+   },
+   "tools": [
+    "FeynRules",
+    "Mathematica"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "known_answer_tests"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "model-derivation-bridge": {
+   "summary": "Trusted FeynRules model source bound to evaluated checks and fresh UFO output.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-derivation-bridge",
+    "module": "ravel.physics.model_derivation_bridge"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "require": {
+      "format": [
+       "feynrules"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "require": {
+      "format": "ufo"
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "FeynRules",
+    "Mathematica"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "model-events": {
+   "summary": "Full-UFO MadGraph generation with decays, shower matching and named multiweights.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-events",
+    "module": "ravel.physics.model_events"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": [
+       "ufo"
+      ]
+     }
+    },
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": "parton",
+      "format": "lhe"
+     }
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/config"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     }
+    ],
+    "passes": [
+     "model",
+     "point"
+    ]
+   },
+   "tools": [
+    "MadGraph5_aMC@NLO",
+    "MadGraph",
+    "MG5",
+    "MG5_aMC",
+    "MadSpin"
+   ],
+   "stages": [
+    "generation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "model-inputs": {
+   "summary": "Static diagnosis of supplied model inputs and generator cards.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-inputs",
+    "module": "ravel.physics.model_input_study"
+   },
+   "consumes": [
+    {
+     "slot": "cards",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/slha_file"
+    },
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "diagnosis",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "supplied_inputs",
+      "what": "table"
+     }
+    ],
+    "passes": [
+     "cards",
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "decay_closure"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "model-portfolio": {
+   "summary": "SModelS simplified-model decomposition of a supplied spectrum.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-portfolio",
+    "module": "ravel.physics.reinterpret_db"
+   },
+   "consumes": [
+    {
+     "slot": "spectrum",
+     "kind": "parameter_point",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": "slha"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    },
+    {
+     "slot": "topologies",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "spectrum"
+    ]
+   },
+   "tools": [
+    "SModelS"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "model-provider-bridge": {
+   "summary": "Qualification of a symbolic model provider before model work.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-provider-bridge",
+    "module": "ravel.physics.model_provider_bridge"
+   },
+   "consumes": [
+    {
+     "slot": "source",
+     "kind": "expression",
+     "task_pointer": "/task/config"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "source"
+    ]
+   },
+   "tools": [
+    "Wolfram",
+    "FeynRules",
+    "Mathematica"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "model-sources": {
+   "summary": "Symbolic model source detection and source-only export.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-sources",
+    "module": "ravel.physics.model_sources"
+   },
+   "consumes": [
+    {
+     "slot": "source",
+     "kind": "expression",
+     "task_pointer": "/task/config"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "model"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "source"
+    ]
+   },
+   "tools": [
+    "FeynRules",
+    "SARAH",
+    "Mathematica"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "model-tool-bridge": {
+   "summary": "UFO parameter and tree-process validation through the matrix-element generator.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-tool-bridge",
+    "module": "ravel.physics.model_tool_bridge"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": "ufo"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "validation",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "MG5",
+    "MadGraph"
+   ],
+   "stages": [
+    "model-derivation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "model-ward": {
+   "summary": "Fixed-point Ward-identity diagnostics of a supplied UFO; not model certification.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "model-ward",
+    "module": "ravel.physics.model_ward"
+   },
+   "consumes": [
+    {
+     "slot": "model",
+     "kind": "model",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": "ufo"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "diagnostics",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "model"
+    ]
+   },
+   "tools": [
+    "MG5"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "mpi-observer": {
+   "summary": "Retained-LHE multiple-parton-interaction observer qualification; never MPI inference.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mpi-observer",
+    "module": "ravel.validation.mpi_observer"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "format": [
+       "lhe"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "qualification",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "shower"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "mpi-paired-effect": {
+   "summary": "Paired multiple-parton-interaction on/off contrast of one sample.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mpi-paired-effect",
+    "module": "ravel.validation.mpi_paired_effect"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "2..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "contrast",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "mssm-observable-map": {
+   "summary": "Map of supplied supersymmetric spectra and decays to lifetimes and observables.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mssm-observable-map",
+    "module": "ravel.physics.mssm_observable_map"
+   },
+   "consumes": [
+    {
+     "slot": "spectrum",
+     "kind": "parameter_point",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request",
+     "require": {
+      "format": "slha"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "observables",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "stated_inputs"
+     }
+    ],
+    "passes": [
+     "spectrum"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "decay_closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "native-group-acquisition": {
+   "summary": "Event-group acquisition with raw moments from supplied native fills.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "native-group-acquisition",
+    "module": "ravel.physics.native_group_fills"
+   },
+   "consumes": [
+    {
+     "slot": "fills",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "groups",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "fills"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "native-likelihood": {
+   "summary": "Native Combine likelihood evaluation on supplied datacards and workspaces.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "native-likelihood",
+    "module": "ravel.physics.native_likelihood"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/input"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_statistical_model"
+     }
+    ],
+    "passes": [
+     "workspace",
+     "measured"
+    ]
+   },
+   "tools": [
+    "Combine",
+    "HiggsCombine",
+    "combineTool",
+    "RooFit"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "limit_status",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "native-statistical-construction": {
+   "summary": "Transport of reviewed RooFit graphs into complete native fit bundles.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "native-statistical-construction",
+    "module": "ravel.physics.native_statistical_construction"
+   },
+   "consumes": [
+    {
+     "slot": "graph",
+     "kind": "statistical_model",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "bundle",
+     "kind": "statistical_model"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "graph"
+    ]
+   },
+   "tools": [
+    "RooFit",
+    "RooWorkspace"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "nmssm-yukawa-map": {
+   "summary": "Tree-level singlet-extended spectrum convention to neutral-Higgs predictions.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "nmssm-yukawa-map",
+    "module": "ravel.physics.nmssm_yukawa_map"
+   },
+   "consumes": [
+    {
+     "slot": "spectrum",
+     "kind": "parameter_point",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request",
+     "require": {
+      "format": "slha"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "predictions",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "spectrum"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "normalized-measurement": {
+   "summary": "Explicit Gaussian contrasts of normalized SM plus BSM mixtures.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "normalized-measurement",
+    "module": "ravel.physics.normalized_measurement"
+   },
+   "consumes": [
+    {
+     "slot": "measurement",
+     "kind": "table"
+    },
+    {
+     "slot": "components",
+     "kind": "binned_values",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/covariance"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "measurement",
+     "components",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "ntuple-inventory": {
+   "summary": "Inventory of supplied simulated and recorded samples with the read contract for streaming.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "ntuple-inventory",
+    "module": "ravel.physics.ntuple_inventory"
+   },
+   "consumes": [
+    {
+     "slot": "samples",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request",
+     "require": {
+      "format": [
+       "root",
+       "flat-ntuple",
+       "physlite"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "inventory",
+     "kind": "table",
+     "require": {
+      "content": "sample-inventory"
+     }
+    },
+    {
+     "slot": "read_contract",
+     "kind": "table",
+     "require": {
+      "content": "read-contract"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "supplied_inputs",
+      "what": "event_sample"
+     }
+    ],
+    "passes": []
+   },
+   "tools": [
+    "Snakemake",
+    "Rucio"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "census"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "numerical-reference-check": {
+   "summary": "Complete supplied held-out numerical comparisons without evaluating a model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "numerical-reference-check",
+    "module": "ravel.validation.numerical_reference"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "table",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "reference",
+     "kind": "table"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "comparison",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "values",
+     "reference"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "numerical_reference"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "pdf-variations": {
+   "summary": "Coherent named PDF variations of supplied tree-level parton records.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "pdf-variations",
+    "module": "ravel.physics.pdf_variations"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/config",
+     "require": {
+      "level": "parton"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "variations",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [
+    "LHAPDF",
+    "NNPDF"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "prescribed-statistic": {
+   "summary": "The statistic the request prescribes evaluated verbatim, with CLs only alongside.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "prescribed-statistic",
+    "module": "ravel.physics.inference.prescribed_statistic"
+   },
+   "consumes": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "tables",
+     "kind": "table",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "formula",
+     "kind": "expression",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/statistic/verbatim"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "requester"
+     }
+    ],
+    "passes": [
+     "values",
+     "tables",
+     "formula",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "statistic_matches_claim",
+     "limit_status"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "published-classifier": {
+   "summary": "Published or supplied classifiers evaluated on supplied events or scalar rows.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "published-classifier",
+    "module": "ravel.physics.published_classifier"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "rows",
+     "kind": "table",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "classifier",
+     "kind": "selection"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "performance",
+     "kind": "table"
+    },
+    {
+     "slot": "scores",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events",
+     "rows",
+     "classifier"
+    ]
+   },
+   "tools": [
+    "ONNX"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "published-model": {
+   "summary": "An untouched released HistFactory workspace patched at one exact typed coordinate.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "published-model",
+    "module": "ravel.physics.published_model"
+   },
+   "consumes": [
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "require": {
+      "origin": "published"
+     }
+    },
+    {
+     "slot": "signal",
+     "kind": "binned_values"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "statistical_model"
+    }
+   ],
+   "effects": [
+    "patches_published_model"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_statistical_model"
+     }
+    ],
+    "passes": [
+     "workspace",
+     "signal"
+    ]
+   },
+   "tools": [
+    "pyhf",
+    "HistFactory"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "likelihood_pairing"
+    ]
+   },
+   "fidelity_rank": 3
+  },
+  "published-summary": {
+   "summary": "A declared literature census and published-limit overlay.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "published-summary",
+    "module": "ravel.physics.published_summary"
+   },
+   "consumes": [
+    {
+     "slot": "census",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/census"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "overlay",
+     "kind": "figure"
+    },
+    {
+     "slot": "census",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "limits"
+     }
+    ],
+    "passes": [
+     "census"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "figure"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "summary_complete",
+     "basis_manifest",
+     "validation.plot_lint"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "quantitative-predictive": {
+   "summary": "Bounded prospective separation between declared hypotheses; no generator or fitter.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "quantitative-predictive",
+    "module": "ravel.physics.quantitative_predictive"
+   },
+   "consumes": [
+    {
+     "slot": "predictions",
+     "kind": "binned_values",
+     "cardinality": "2..*",
+     "task_pointer": "/task/binding"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "separation",
+     "kind": "inference"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "predictions"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "quantities": {
+   "summary": "Signed, grouped event moments in declared bins.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "quantities",
+    "module": "ravel.physics.quantities"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/events"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "moments",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "ratio-measurement": {
+   "summary": "Fixed-prediction Gaussian ratio diagnostics with a joint covariance.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "ratio-measurement",
+    "module": "ravel.physics.ratio_measurement"
+   },
+   "consumes": [
+    {
+     "slot": "measurements",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ]
+     }
+    },
+    {
+     "slot": "predictions",
+     "kind": "binned_values",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/signal_strength"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "measurements",
+     "predictions",
+     "measured"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "reco-ntuple-routine": {
+   "summary": "A native analysis-routine port on flat reconstructed ntuples through a supplied branch and flag map.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "reco-ntuple-routine",
+    "module": "ravel.physics.reco_ntuple_routine"
+   },
+   "consumes": [
+    {
+     "slot": "ntuples",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/ntuples",
+     "require": {
+      "format": [
+       "flat-ntuple",
+       "root"
+      ]
+     }
+    },
+    {
+     "slot": "descriptor",
+     "kind": "table",
+     "task_pointer": "/task/descriptor"
+    },
+    {
+     "slot": "routine",
+     "kind": "selection",
+     "task_pointer": "/task/routine"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "regions",
+     "kind": "table"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    },
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin_from": "routine.origin",
+      "level": "reconstructed"
+     }
+    ],
+    "passes": [
+     "ntuples",
+     "descriptor",
+     "routine"
+    ]
+   },
+   "tools": [
+    "uproot",
+    "awkward",
+    "SimpleAnalysis"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "research-comparison": {
+   "summary": "Complete-cell comparisons of source-bound supplied scalar or interval results.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "research-comparison",
+    "module": "ravel.physics.research_comparison"
+   },
+   "consumes": [
+    {
+     "slot": "results",
+     "kind": "table",
+     "cardinality": "2..*",
+     "task_pointer": "/task/results"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "comparison",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "results"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "independent_reference"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "resonance-lineshape": {
+   "summary": "Leading-order partial widths, resonance propagators and total-width consistency.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "resonance-lineshape",
+    "module": "ravel.physics.resonance_lineshape"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "task_pointer": "/task/resonance"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "widths",
+     "kind": "table"
+    },
+    {
+     "slot": "lineshape",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [
+    "Breit-Wigner"
+   ],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "resonance-width": {
+   "summary": "Tree-level two-body widths and branching ratios of a resonance into declared fermion pairs.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "resonance-width",
+    "module": "ravel.physics.resonance_width"
+   },
+   "consumes": [
+    {
+     "slot": "point",
+     "kind": "parameter_point",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "widths",
+     "kind": "scalar"
+    },
+    {
+     "slot": "table",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/couplings"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "cited_formula"
+     }
+    ],
+    "passes": [
+     "point"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "formula_check_value"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "retained-shower": {
+   "summary": "Fresh parton shower of a complete retained unmerged LHE cohort.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "retained-shower",
+    "module": "ravel.physics.retained_shower"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "level": "parton",
+      "format": [
+       "lhe"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": "particle",
+      "format": [
+       "hepmc"
+      ]
+     }
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [
+    "Pythia",
+    "Herwig"
+   ],
+   "stages": [
+    "shower"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "root-stream": {
+   "summary": "Approved streaming of ROOT trees under explicit member, sample-identifier, weight and blinding contracts.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "root-stream",
+    "module": "ravel.physics.root_stream"
+   },
+   "consumes": [
+    {
+     "slot": "read_contract",
+     "kind": "table",
+     "task_pointer": "/task/read_contract",
+     "require": {
+      "content": "read-contract"
+     }
+    },
+    {
+     "slot": "samples",
+     "kind": "event_sample",
+     "cardinality": "0..*",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": [
+       "root",
+       "flat-ntuple",
+       "physlite"
+      ]
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "moments",
+     "kind": "binned_values",
+     "require": {
+      "content": "tree-moments"
+     }
+    },
+    {
+     "slot": "census",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native",
+    "reads_restricted_inputs"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/read_contract"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "read_contract",
+     "samples"
+    ]
+   },
+   "tools": [
+    "ROOT",
+    "uproot"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "scientific-delivery": {
+   "summary": "Primary resource capture and report delivery for a complete supplied portfolio.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "scientific-delivery",
+    "module": "ravel.physics.scientific_delivery"
+   },
+   "consumes": [
+    {
+     "slot": "portfolio",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "report",
+     "kind": "document"
+    },
+    {
+     "slot": "tables",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "acquires_published"
+   ],
+   "cost": {
+    "unit": "bytes",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "portfolio"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "census",
+     "basis_manifest"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "search-statistics": {
+   "summary": "Signal, control and validation region statistics with pyhf; 95% CLs by default.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "search-statistics",
+    "module": "ravel.physics.inference.search_statistics"
+   },
+   "consumes": [
+    {
+     "slot": "signal",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/signal_points"
+    },
+    {
+     "slot": "background",
+     "kind": "table",
+     "task_pointer": "/task/backgrounds",
+     "optional": true
+    },
+    {
+     "slot": "data",
+     "kind": "table",
+     "task_pointer": "/task/data",
+     "optional": true
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "statistical_model"
+    },
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "require": {
+      "limits": true
+     }
+    },
+    {
+     "slot": "significance",
+     "kind": "inference"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/systematics",
+    "/task/backgrounds",
+    "/task/data"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "signal",
+     "background",
+     "data",
+     "measured"
+    ]
+   },
+   "tools": [
+    "pyhf",
+    "HistFactory"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms",
+     "limit_status",
+     "statistic_matches_claim"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "sfitter-native-fit": {
+   "summary": "Native SFitter global fit.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "sfitter-native-fit",
+    "module": "ravel.physics.sfitter_native"
+   },
+   "consumes": [
+    {
+     "slot": "observables",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/config"
+    },
+    {
+     "slot": "measured",
+     "kind": "table",
+     "cardinality": "0..*",
+     "task_pointer": "/task/measured_data",
+     "require": {
+      "source": [
+       "published",
+       "requester"
+      ],
+      "observed": true
+     },
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "observables",
+     "measured"
+    ]
+   },
+   "tools": [
+    "SFitter"
+   ],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "fit_alarms"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "sfitter-observed-events": {
+   "summary": "Returned LHE and analysis observations handed to the SFitter extractor.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "sfitter-observed-events",
+    "module": "ravel.physics.sfitter_observed_events"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request",
+     "require": {
+      "format": [
+       "lhe"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "observations",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [
+    "SFitter"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "sfitter-scan-extraction": {
+   "summary": "Signed scan-rate extraction for an SFitter workflow.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "sfitter-scan-extraction",
+    "module": "ravel.physics.sfitter_scan_extraction"
+   },
+   "consumes": [
+    {
+     "slot": "scan",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/request"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "rates",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "scan"
+    ]
+   },
+   "tools": [
+    "SFitter"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "signal-template": {
+   "summary": "Complete signal and control-region signal templates for a published HistFactory model.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "signal-template",
+    "module": "ravel.physics.signal_templates"
+   },
+   "consumes": [
+    {
+     "slot": "yields",
+     "kind": "binned_values",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "workspace",
+     "kind": "statistical_model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "patch",
+     "kind": "binned_values",
+     "require": {
+      "content": "signal-patch"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "yields",
+     "workspace"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "likelihood_pairing",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "simplified-spectrum": {
+   "summary": "Declarative simplified-model spectra written as SLHA2 cards with a decay-closure check.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "simplified-spectrum",
+    "module": "ravel.physics.simplified_spectrum"
+   },
+   "consumes": [],
+   "produces": [
+    {
+     "slot": "point",
+     "kind": "parameter_point"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/masses",
+    "/task/decays",
+    "/task/invisible"
+   ],
+   "basis": {
+    "adds": [],
+    "passes": []
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "decay_closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "source-tables": {
+   "summary": "Literal primary-table intake with an exact declared basis and covariance join.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "source-tables",
+    "module": "ravel.physics.source_tables"
+   },
+   "consumes": [
+    {
+     "slot": "tables",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/tables"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "tables",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "tables"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "basis_manifest"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "statistical-model": {
+   "summary": "Source-bound Poisson models for new signal, control and ABCD regions.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "statistical-model",
+    "module": "ravel.physics.statistical_model"
+   },
+   "consumes": [
+    {
+     "slot": "templates",
+     "kind": "binned_values",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "auxiliaries",
+     "kind": "table",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "require": {
+      "origin": "designed"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [
+    "/task/auxiliaries"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "templates",
+     "auxiliaries"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "closure"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "stau-events": {
+   "summary": "Hadronic-tau analysis projection of supplied calibrated event states.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "stau-events",
+    "module": "ravel.physics.stau_adapter"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "level": [
+       "reconstructed",
+       "detector"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "regions",
+     "kind": "table"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin": "reimplemented",
+      "level_from": "events.level"
+     }
+    ],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "svj-recipe": {
+   "summary": "Supplied grids for hidden-valley shower models run through generation, response and templates.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "svj-recipe",
+    "module": "ravel.physics.svj_recipe"
+   },
+   "consumes": [
+    {
+     "slot": "recipe",
+     "kind": "table",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "points",
+     "kind": "parameter_point",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "templates",
+     "kind": "binned_values"
+    }
+   ],
+   "effects": [
+    "varies_parameters",
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "points",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     }
+    ],
+    "passes": [
+     "recipe",
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "generation",
+    "shower"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "lhe_check",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "symbolic-evaluation": {
+   "summary": "Source-bound symbolic evaluation through a fresh kernel.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "symbolic-evaluation",
+    "module": "ravel.physics.symbolic_evaluation"
+   },
+   "consumes": [
+    {
+     "slot": "expression",
+     "kind": "expression"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "expression",
+     "kind": "expression"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "analytic",
+      "from": "derived"
+     }
+    ],
+    "passes": [
+     "expression"
+    ]
+   },
+   "tools": [
+    "FeynCalc",
+    "HEPTAPOD",
+    "Mathematica",
+    "FORM"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "table-bin-edges": {
+   "summary": "Converter from a supplied or published table with contiguous low/high bins to binned values with edges.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.physics.table_bin_edges"
+   },
+   "consumes": [
+    {
+     "slot": "table",
+     "kind": "table",
+     "task_pointer": "/table"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "values",
+     "kind": "binned_values",
+     "require": {
+      "content": "edges"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "table"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "task-completion-context": {
+   "summary": "Preparation of whole-parent completion review evidence; never parent acceptance.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "task-completion-context",
+    "module": "ravel.physics.task_completion_context"
+   },
+   "consumes": [
+    {
+     "slot": "deliveries",
+     "kind": "document",
+     "cardinality": "1..*",
+     "task_pointer": "/task/completion_base"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "context",
+     "kind": "document"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "deliveries"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "weighted-events": {
+   "summary": "Weighted integration points exported as events with named weights.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "weighted-events",
+    "module": "ravel.physics.weighted_events"
+   },
+   "consumes": [
+    {
+     "slot": "store",
+     "kind": "amplitude:gram-store"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "require": {
+      "level": "parton"
+     }
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "store"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "width-inputs": {
+   "summary": "Standing resonance-width inputs from released tables.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "width-inputs",
+    "module": "ravel.physics.width_inputs"
+   },
+   "consumes": [
+    {
+     "slot": "tables",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input",
+     "require": {
+      "source": "published"
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "inputs",
+     "kind": "table"
+    }
+   ],
+   "effects": [],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "tables"
+    ]
+   },
+   "tools": [],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "basis_manifest"
+    ]
+   },
+   "fidelity_rank": 2
+  },
+  "mass-width-grid": {
+   "summary": "Mass and width input construction for a resonance search with large widths.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "mass-width-grid",
+    "module": "ravel.physics.mass_width_grid"
+   },
+   "consumes": [
+    {
+     "slot": "inputs",
+     "kind": "table",
+     "cardinality": "1..*",
+     "task_pointer": "/task/input"
+    },
+    {
+     "slot": "model",
+     "kind": "model",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "grid",
+     "kind": "table"
+    },
+    {
+     "slot": "points",
+     "kind": "parameter_point"
+    }
+   ],
+   "effects": [
+    "varies_parameters"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "inputs",
+     "model"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "spectrum"
+   ],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "workspace-combination-study": {
+   "summary": "Complete-workspace combination witness; no optimization or limits.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "workspace-combination-study",
+    "module": "ravel.physics.workspace_combination_study"
+   },
+   "consumes": [
+    {
+     "slot": "workspaces",
+     "kind": "statistical_model",
+     "cardinality": "2..*",
+     "task_pointer": "/task/input"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "combined",
+     "kind": "statistical_model"
+    },
+    {
+     "slot": "witness",
+     "kind": "table"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "constructed_statistical_model",
+      "origin": "designed"
+     }
+    ],
+    "passes": [
+     "workspaces"
+    ]
+   },
+   "tools": [],
+   "stages": [
+    "statistic"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "likelihood_pairing"
+    ]
+   },
+   "fidelity_rank": 1
+  }
+ }
+}

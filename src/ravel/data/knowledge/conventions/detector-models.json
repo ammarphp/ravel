@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "id": "conventions:detector-models",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:detector-response",
+      "kind": "convention",
+      "statement": "Fast simulation implements the specific detector card and reconstruction model. Object efficiencies, isolation, overlap removal and working points are not universal, especially for displaced, soft or substructure-dependent objects.",
+      "tags": [
+        "detector",
+        "object-efficiency",
+        "nonstandard-objects",
+        "displaced"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "detector-models"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2850,
+          "line_end": 2850,
+          "excerpt_sha256": "84c53085abca6e99c24dfe64f71e7cb4538a08f79401c28dbcdc025b27649f65",
+          "locator": "RAVEL authored convention conv:detector-response; primary references: arXiv:1307.6346, detector parameterisation; arXiv:2003.07868, measurements, likelihoods and efficiencies"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:detector-response",
+          "description": "Bind the card and working points to sources, census each selected object and validate the response in its kinematic domain.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:model-conventions",
+      "kind": "convention",
+      "statement": "A UFO encodes model parameters, particles, vertices and coupling orders. Successful import does not establish physical consistency, a gauge choice, intended restrictions or the normalization of a supplied coupling.",
+      "tags": [
+        "ufo",
+        "model",
+        "coupling-orders"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "detector-models"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2913,
+          "line_end": 2913,
+          "excerpt_sha256": "4cf984b3a848f9e143685cfad7c220c2112954e51fc63615c8321afb9e69d4d7",
+          "locator": "RAVEL authored convention conv:model-conventions; primary references: arXiv:1108.2040, model conventions and coupling orders"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:model-conventions",
+          "description": "Record model identity, restrictions, gauge and coupling-order selection and compare independent amplitudes or widths before using the model.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:signal-template",
+ "op": {
+  "do_not_use_when": [
+   "Evaluating the patched model: use published-model.",
+   "Building a model from yields: use statistical-model."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/signal-template-example --spec specs/signal-template.json",
+    "phrase": "Build signal templates for every channel of a published workspace.",
+    "spec": {
+     "mode": "signal-template",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Complete SR and CR signal templates for a published pyhf model.",
+   "A signal patch must cover every channel of the released workspace."
+  ]
+ }
+}

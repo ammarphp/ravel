@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "http-anthropic",
+  "transport_kind": "http-model",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "anthropic",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "ANTHROPIC_API_KEY"
+    ],
+    "command": null,
+    "header_style": "x-api-key"
+  },
+  "pass_env": [],
+  "billing": "api",
+  "capabilities": {
+    "tools": "none",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": false,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "endpoint": "https://api.anthropic.com/v1/messages",
+  "notes": "Stateless request: the prepared packet is the only input the model sees, and no tools are offered."
+}

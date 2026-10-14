@@ -1,0 +1,28 @@
+{
+ "id": "op:normalized-measurement",
+ "op": {
+  "do_not_use_when": [
+   "Absolute-rate Gaussian models: use measurement.",
+   "Ratios with joint covariance: use ratio-measurement."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/normalized-measurement-example --spec specs/normalized-measurement.json",
+    "phrase": "Evaluate a normalized contrast of a mixture at a declared signal strength.",
+    "spec": {
+     "mode": "normalized-measurement",
+     "task": {
+      "input": "inputs/example.json",
+      "schema_version": 1,
+      "signal_strength": 0.5,
+      "signal_strength_max": 2.0
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Gaussian contrasts of normalized SM plus BSM mixtures.",
+   "A normalized spectrum with signal fraction in a declared domain."
+  ]
+ }
+}

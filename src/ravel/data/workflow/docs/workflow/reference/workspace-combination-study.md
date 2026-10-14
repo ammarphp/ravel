@@ -1,0 +1,7 @@
+# Complete workspace comparison
+
+The `workspace-combination-study` scientific mode imports two exact supplied HistFactory patch contracts, preserves their complete prepared workspaces and explicit parameter maps, and compares component and combined means and densities at five fixed vectors. It requires scientific specification version 2 and the ordinary `ravel plan`, `approve`, `run` and scoped review workflow. The task is `{"input": "study.json"}`; input enumeration binds both archives, prepared workspaces, correlation policy and grounding records before approval.
+
+The protocol admits eight model compilations, twenty mean/density evaluations and a cooperative 60-second mathematical phase. An ordinary hard outer deadline includes input custody and final delivery; 180 seconds is the recommended whole-stage allowance. The worker owns a fresh child directory and retains cumulative checkpoints, a bounded progress journal and failed or incomplete returns. A failed comparison gives a nonzero worker result. Declared process bounds distinguish one mathematical worker from the supervisor and worker peak of two; no native children, events or fits are part of this mode.
+
+A structural witness pass concerns only the supplied complete workspaces and declared independence/correlation law. It establishes no optimization, limit, coverage, detector fidelity, population independence or official published-model acceptance. The new tiny artificial route fixture is an engineering check with machine authorization and has no scientific acceptance.

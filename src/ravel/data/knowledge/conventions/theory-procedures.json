@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "id": "conventions:theory-procedures",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:two-body-width",
+      "kind": "convention",
+      "statement": "For an on-shell two-body decay use the complete amplitude and Lorentz-invariant phase space, average over initial spin when appropriate and sum final states. An identical-final-state symmetry factor belongs to the final-state phase space, not to identical incoming beams.",
+      "tags": [
+        "two-body-width",
+        "decay-width"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "theory-procedures"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2468,
+          "line_end": 2468,
+          "excerpt_sha256": "47aa7e77808e2ae92794dbfc60de44a56ddb183dc63e9a1080cc598b1fd4b670",
+          "locator": "RAVEL authored convention conv:two-body-width; primary references: Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:two-body-width",
+          "description": "Check masses, units, spin sums or averages and symmetry factors using the supplied amplitude.",
+          "resource_class": "pure_check",
+          "check": "two-body-width"
+        }
+      ]
+    },
+    {
+      "id": "conv:narrow-width",
+      "kind": "convention",
+      "statement": "Small width relative to mass is a necessary guide, not a sufficient error bound for narrow-width factorization. Thresholds, cuts, off-shell tails and interference can spoil a rate-times-branching approximation even for a narrow state.",
+      "tags": [
+        "broad-resonance",
+        "narrow-width",
+        "width"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "theory-procedures"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2518,
+          "line_end": 2518,
+          "excerpt_sha256": "bd2d9d88749893b736b9c1e16a8276fb37295960a9288a5246ccf2aa5c2a5ba1",
+          "locator": "RAVEL authored convention conv:narrow-width; primary references: arXiv:1206.4803, off-shell effects and signal-background interference; Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:narrow-width",
+          "description": "Compare the full prediction with factorization in the actual fiducial domain; use no universal width-to-mass pass threshold.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:goldstone-equivalence",
+      "kind": "convention",
+      "statement": "At energies large compared with the gauge-boson mass, longitudinal-vector amplitudes relate to Goldstone amplitudes with convention-dependent phases and perturbative factors, plus power corrections. Mixing angles, field normalization and vertex signs must be fixed before comparing couplings.",
+      "tags": [
+        "longitudinal",
+        "coupling-conventions",
+        "gauge"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "theory-procedures"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2570,
+          "line_end": 2570,
+          "excerpt_sha256": "147f4cbd45ebf4e97ba9432f37453124682fab354143cc538f2efdb1d7a68e1e",
+          "locator": "RAVEL authored convention conv:goldstone-equivalence; primary references: Phys. Rev. D 10 (1974) 1145; doi:10.1103/PhysRevD.10.1145; arXiv:1108.2040, model conventions and coupling orders"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:goldstone-equivalence",
+          "description": "State energy hierarchy, gauge, field and coupling conventions and perturbative order before using equivalence or comparing model amplitudes.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:eft-validity",
+      "kind": "convention",
+      "statement": "An EFT prediction requires a declared power counting, operator basis and truncation order. The relevant hard invariants and coupling expansion determine validity; a hadron collider beam energy alone is not the expansion parameter for each event.",
+      "tags": [
+        "eft",
+        "effective-field-theory"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "theory-procedures"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2622,
+          "line_end": 2622,
+          "excerpt_sha256": "89e6a28c3b21cbaeb5d4a5f73abdfff0f68b26497c4f3fff676266955adbb887",
+          "locator": "RAVEL authored convention conv:eft-validity; primary references: arXiv:1706.08945, power counting and EFT validity"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:eft-validity",
+          "description": "Compare relevant partonic invariants with the stated validity scale and test sensitivity to truncation; do not infer a universal cutoff without model input.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

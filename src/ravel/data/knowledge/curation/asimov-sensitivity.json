@@ -1,0 +1,25 @@
+{
+ "id": "op:asimov-sensitivity",
+ "op": {
+  "do_not_use_when": [
+   "Observed-data inference: use search-statistics or native-likelihood.",
+   "Closure of a background strategy on simulation: use mc-closure."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/asimov-sensitivity-example --spec specs/asimov-sensitivity.json",
+    "phrase": "Compute Asimov discovery sensitivity for a prepared native likelihood input.",
+    "spec": {
+     "mode": "asimov-sensitivity",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Expected discovery sensitivity of a new search on an Asimov dataset with a native likelihood.",
+   "Diagnose how the background model limits sensitivity before data are used."
+  ]
+ }
+}

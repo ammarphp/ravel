@@ -1,0 +1,56 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "published-overlay-finding",
+ "summary": "A census of published results with an overlay figure.",
+ "priority": 50,
+ "match": {
+  "all": [
+   "claim:finding",
+   "artifact:figure"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "acquire",
+   "kind": "operation",
+   "operation": "acquire-published",
+   "rung": "none",
+   "fields": [
+    {
+     "pointer": "/source_classes",
+     "value": "$source_classes",
+     "authority": "adapter_default",
+     "evidence": "practice:read-only acquisition of metadata, publications and tables within the pre-approval byte bounds"
+    },
+    {
+     "pointer": "/locators",
+     "value": "$locators",
+     "authority": "user_quoted",
+     "evidence": "$locator_fact"
+    }
+   ]
+  },
+  {
+   "key": "summary",
+   "kind": "operation",
+   "operation": "published-summary",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "acquire.tables",
+   "to": "summary.census",
+   "kind": "table",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "summary.overlay",
+   "kind": "figure"
+  }
+ ]
+}

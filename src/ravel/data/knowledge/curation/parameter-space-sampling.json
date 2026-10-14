@@ -1,0 +1,29 @@
+{
+ "id": "op:parameter-space-sampling",
+ "op": {
+  "do_not_use_when": [
+   "A one-point spectrum: use generated-spectrum.",
+   "A grid of closed-form values: use formula-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/parameter-space-sampling-example --spec specs/parameter-space-sampling.json",
+    "phrase": "Run an EasyScan sampling from a pinned configuration.",
+    "spec": {
+     "mode": "parameter-space-sampling",
+     "task": {
+      "config": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "EasyScan parameter-space sampling with a pinned native configuration.",
+   "A multidimensional scan driven by EasyScan is required."
+  ]
+ }
+}

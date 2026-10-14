@@ -1,0 +1,27 @@
+{
+ "id": "op:generation-reconciliation",
+ "op": {
+  "do_not_use_when": [
+   "Diagnose supplied model inputs generally: use model-inputs.",
+   "Generate events: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/generation-reconciliation-example --spec specs/generation-reconciliation.json",
+    "phrase": "Reconcile a declared generation intent with supplied MadGraph cards.",
+    "spec": {
+     "mode": "generation-reconciliation",
+     "task": {
+      "intent": "cards/intent.json",
+      "proc_card": "cards/proc_card.dat",
+      "run_card": "cards/run_card.dat"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Compare a declared physics intent with MadGraph proc, run and parameter cards before generation.",
+   "Process, couplings, masses, PDF, energy or cuts must match the stated intent."
+  ]
+ }
+}

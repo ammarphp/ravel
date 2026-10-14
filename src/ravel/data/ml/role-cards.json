@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "kind": "ml-role-merge-fragment",
+  "roles": [
+    {
+      "schema_version": 1,
+      "kind": "role-card",
+      "id": "ml-trainer",
+      "version": "1.0.0",
+      "family": "production",
+      "purpose": "Executes a frozen ML spec, sizes statistics before training and records all models, exposures and failures.",
+      "sees": {
+        "profile": "workspace",
+        "forbidden_inputs": [
+          "withheld_sources",
+          "evaluator_truth_columns",
+          "final_partitions"
+        ]
+      },
+      "tools": {
+        "ravel_actions": [
+          "science plan",
+          "science run",
+          "knowledge query",
+          "check run"
+        ],
+        "validators": [
+          "ravel.physics.ml_training"
+        ],
+        "exec_argv_prefixes": [
+          [
+            "python3",
+            "-I"
+          ]
+        ],
+        "read_paths": [
+          "inputs/ml-spec/"
+        ]
+      },
+      "knowledge": {
+        "must_read": [
+          "hb:ml-training-governance",
+          "hb:ml-weak-supervision"
+        ],
+        "derive": [
+          "premises_firing",
+          "checks_judging_node"
+        ],
+        "may_query": [
+          "find",
+          "show",
+          "for_node"
+        ],
+        "consult": [
+          {
+            "role": "consult-inference",
+            "when": "contested_node"
+          }
+        ],
+        "forbidden": [
+          "lessons"
+        ],
+        "budget_tokens": 24000
+      },
+      "must_check": [
+        "check:ml-statistics-sizing",
+        "check:ml-crossfit-audit",
+        "check:ml-label-leakage",
+        "check:ml-equal-budget",
+        "check:ml-test-once",
+        "check:ml-benchmark-localization"
+      ],
+      "reviewed_by": [
+        "ml-reviewer"
+      ],
+      "protocol": [
+        "State the claim, estimand and precision target before choosing data sizes.",
+        "Compute independent counts per region, fold and working point; narrow or stop an undersized plan.",
+        "Freeze regions, features, architecture, working points, fit families and checks.",
+        "Record inner initializations separately from replicate seeds; compare trained arms at equal budget.",
+        "Never compute an observed statistic before unblind.",
+        "Return null, insensitive, zero-acceptance and failed outcomes."
+      ],
+      "output": {
+        "schema": "findings.v1",
+        "declared_outputs": [
+          "outputs/ml/receipt.json"
+        ],
+        "sidecar": true
+      },
+      "stop": {
+        "max_turns": 60,
+        "max_wall_seconds": 2700,
+        "max_broker_calls": 200,
+        "max_cost_usd": null,
+        "max_rounds": 2
+      },
+      "escalation": [
+        "checkin_flag",
+        "stop",
+        "decision_block"
+      ],
+      "requires": {
+        "tools": "broker-full",
+        "structured_output": true,
+        "isolation_min": "ravel-sandbox",
+        "attestation_min": "transport",
+        "blind": false,
+        "parallel_safe": false
+      },
+      "model": {
+        "tier": "agent",
+        "effort": "high",
+        "distinct_family_from": []
+      },
+      "independence": {
+        "kind": "producer",
+        "distinct_actor_from": [],
+        "fresh_session": true
+      }
+    },
+    {
+      "schema_version": 1,
+      "kind": "role-card",
+      "id": "ml-reviewer",
+      "version": "1.0.0",
+      "family": "specialist-review",
+      "purpose": "Challenge premises and whether each test addresses its claim before reading numerical conclusions.",
+      "sees": {
+        "profile": "spec-denied",
+        "forbidden_inputs": [
+          "producer_headline",
+          "lessons",
+          "other_verdicts",
+          "critic_reasoning"
+        ]
+      },
+      "tools": {
+        "ravel_actions": [
+          "knowledge query",
+          "check run"
+        ],
+        "validators": [
+          "ravel.physics.ml_training"
+        ],
+        "exec_argv_prefixes": [
+          [
+            "python3",
+            "-I"
+          ]
+        ],
+        "read_paths": [
+          "inputs/ml-spec/"
+        ]
+      },
+      "knowledge": {
+        "must_read": [
+          "hb:ml-training-governance",
+          "hb:ml-weak-supervision"
+        ],
+        "derive": [
+          "premises_firing",
+          "checks_judging_node"
+        ],
+        "may_query": [
+          "find",
+          "show",
+          "for_node"
+        ],
+        "consult": [
+          {
+            "role": "consult-inference",
+            "when": "contested_node"
+          }
+        ],
+        "forbidden": [
+          "lessons"
+        ],
+        "budget_tokens": 24000
+      },
+      "must_check": [
+        "check:ml-crossfit-audit",
+        "check:ml-selection-flatness",
+        "check:ml-spurious-signal",
+        "check:ml-reference-fidelity",
+        "check:ml-injection-closure",
+        "check:ml-null-calibration",
+        "check:ml-statistics-sizing",
+        "check:ml-trials-accounting",
+        "check:ml-claim-scope"
+      ],
+      "reviewed_by": [],
+      "protocol": [
+        "Sketch null and injected behaviour before reading results.",
+        "Count independent events, not trainings.",
+        "Confirm localization in the reconstructed variable.",
+        "Confirm equal training budget and label the oracle as a ceiling.",
+        "Match the coverage claim to the toys estimand.",
+        "Require every displayed band to name its meaning.",
+        "Check every firing trap:ml-* premise."
+      ],
+      "output": {
+        "schema": "findings.v1",
+        "declared_outputs": [
+          "outputs/ml-review.json"
+        ],
+        "sidecar": true
+      },
+      "stop": {
+        "max_turns": 60,
+        "max_wall_seconds": 1200,
+        "max_broker_calls": 200,
+        "max_cost_usd": null,
+        "max_rounds": 2
+      },
+      "escalation": [
+        "checkin_flag",
+        "stop",
+        "decision_block"
+      ],
+      "requires": {
+        "tools": "broker-readonly",
+        "structured_output": true,
+        "isolation_min": "ravel-sandbox",
+        "attestation_min": "transport",
+        "blind": false,
+        "parallel_safe": true
+      },
+      "model": {
+        "tier": "judgment",
+        "effort": "high",
+        "distinct_family_from": [
+          "ml-trainer"
+        ]
+      },
+      "independence": {
+        "kind": "specialist",
+        "distinct_actor_from": [
+          "ml-trainer"
+        ],
+        "fresh_session": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "kind": "rivet-construction-guidance",
+  "description": "RAVEL guidance for writing and reviewing a Rivet routine from a paper. Each checklist item names the definition or convention to verify against the paper and the analysis specification.",
+  "authoring": [
+    "Name the analysis class, the RIVET_DECLARE_PLUGIN argument and the routine name exactly as routine_name.",
+    "Declare every projection in init(); apply projections in analyze().",
+    "Book a histogram for a HEPData table with book(h, d, x, y) or book(h, \"dNN-xMM-yKK\"), using only identifiers listed in hepdata_tables; the binning then comes from the reference file.",
+    "Book a histogram with explicit edges only when the record has no table for it, and take the edges from the paper or the analysis specification.",
+    "Fill a per-event observable once per event; for an observable defined per object, state that in a comment.",
+    "Apply the normalization the normalization_contract states in finalize(): xsec means crossSection() over sumOfWeights() in the stated unit; fiducial_N and in_range_N mean unit area over the stated range.",
+    "For a one-dimensional slice of a two-dimensional distribution, divide by the slice width when the contract basis is bin_width_area_2D.",
+    "Where analysis_spec marks a field ambiguous or not_specified, implement the reading the specification records and name it in a comment; do not invent a value."
+  ],
+  "checklist": [
+    {"id": "lepton_dressing", "topic": "Lepton definition", "check": "Leptons are dressed or bare as the paper defines, with the stated dressing cone and photon source."},
+    {"id": "prompt_and_tau_leptons", "topic": "Lepton origin", "check": "Leptons from hadron decays are excluded and leptons from tau decays are included or excluded as the paper states."},
+    {"id": "neutrinos_in_jets", "topic": "Jet inputs", "check": "Jet inputs exclude neutrinos and the dressed leptons (and photons) the paper removes; jet algorithm, radius and thresholds match."},
+    {"id": "overlap_removal", "topic": "Overlap removal", "check": "Overlap removal uses the paper's order, distance definition and thresholds."},
+    {"id": "veto_thresholds", "topic": "Vetoes", "check": "Lepton, jet and b-tag vetoes use the paper's thresholds and acceptance."},
+    {"id": "fiducial_definition", "topic": "Fiducial volume", "check": "Every fiducial cut in the paper is applied once, in the stated order, on particle-level objects."},
+    {"id": "missing_momentum", "topic": "Missing momentum", "check": "Missing transverse momentum is built from the stated invisible particles or from the visible-object recoil, as defined."},
+    {"id": "frames_and_pairing", "topic": "Frames and pairing", "check": "Reference frames, boosts and object pairing (for example neutrino solutions or lepton pairing) follow the paper, with one choice per event."},
+    {"id": "double_filling", "topic": "Fills per event", "check": "Each per-event histogram is filled once per event; no loop fills the same histogram for several candidates or solutions."},
+    {"id": "normalization_basis", "topic": "Normalization", "check": "finalize() applies the stated basis: cross section over sum of weights, unit area, or raw counts, including overflow handling."},
+    {"id": "units", "topic": "Units", "check": "The cross-section unit (pb or fb) and per-unit-variable densities match the HEPData table."},
+    {"id": "two_d_slicing", "topic": "2-D slices", "check": "Slices of a 2-D distribution use the stated slice edges and divide by the slice width where the published values are double-differential."},
+    {"id": "bookings_match_hepdata", "topic": "Bookings", "check": "Every booked table identifier exists in the HEPData record and its binning comes from the record."},
+    {"id": "projections_in_init", "topic": "Projections", "check": "Projections are declared in init() with stable names and applied, not constructed, in analyze()."},
+    {"id": "event_weights", "topic": "Weights", "check": "Fills use the event weight handling of the Rivet version in use; no manual weight is applied twice."}
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "caller": "science_figures.render: region names or multidimensional declared-bin IDs -> display_label -> visible tick text",
+  "cases": [
+    {
+      "explicit": null,
+      "identifier": "sr_3_obs_0",
+      "static_output": "sr 3 obs 0"
+    },
+    {
+      "explicit": null,
+      "identifier": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "static_output": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "execution": "NONE; predicted from complete source branches only",
+  "required": "Physical supplied label or explicit unresolved-semantic presentation; retain original IDs in metadata"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Bin values",
+  "description": "Selected region yields",
+  "values": [
+    {
+      "x": [
+        {
+          "value": 1
+        }
+      ],
+      "y": [
+        {
+          "value": 20
+        }
+      ]
+    }
+  ]
+}

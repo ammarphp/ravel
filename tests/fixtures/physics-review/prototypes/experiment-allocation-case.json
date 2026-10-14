@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "scope": "Frozen hypothetical categorical allocator toy. These predictions are not extracted from RS1 physics artifacts.",
+  "prediction_basis": "hypothetical",
+  "budget": 4,
+  "horizon": 2,
+  "actions": [
+    {
+      "id": "a-cheap",
+      "cost": 1,
+      "outcomes": [
+        "common",
+        "rare"
+      ],
+      "nominal_change": 2
+    },
+    {
+      "id": "b-balanced",
+      "cost": 2,
+      "outcomes": [
+        "left",
+        "right"
+      ],
+      "nominal_change": 3
+    },
+    {
+      "id": "c-orthogonal",
+      "cost": 2,
+      "outcomes": [
+        "odd",
+        "even"
+      ],
+      "nominal_change": 4
+    },
+    {
+      "id": "d-fine",
+      "cost": 4,
+      "outcomes": [
+        "low",
+        "middle",
+        "high"
+      ],
+      "nominal_change": 5
+    },
+    {
+      "id": "z-repeat",
+      "cost": 1,
+      "outcomes": [
+        "unchanged",
+        "changed"
+      ],
+      "nominal_change": 100
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "left",
+        "c-orthogonal": "odd",
+        "d-fine": "low",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 1; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h2",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "left",
+        "c-orthogonal": "even",
+        "d-fine": "low",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 2; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h3",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "left",
+        "c-orthogonal": "odd",
+        "d-fine": "middle",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 3; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h4",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "right",
+        "c-orthogonal": "even",
+        "d-fine": "middle",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 4; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h5",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "right",
+        "c-orthogonal": "odd",
+        "d-fine": "high",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 5; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h6",
+      "predictions": {
+        "a-cheap": "rare",
+        "b-balanced": "right",
+        "c-orthogonal": "even",
+        "d-fine": "high",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 6; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h7",
+      "predictions": {
+        "a-cheap": null,
+        "b-balanced": null,
+        "c-orthogonal": null,
+        "d-fine": null,
+        "z-repeat": null
+      },
+      "provenance": [
+        "hypothetical toy declaration 7; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    },
+    {
+      "id": "h8",
+      "predictions": {
+        "a-cheap": "common",
+        "b-balanced": "left",
+        "c-orthogonal": "odd",
+        "d-fine": "low",
+        "z-repeat": "unchanged"
+      },
+      "provenance": [
+        "hypothetical toy declaration 8; no RS1 source-backed prediction"
+      ],
+      "reopening_trigger": "Reopen if prediction mapping, outcome scope, or supplied evidence digest changes."
+    }
+  ]
+}

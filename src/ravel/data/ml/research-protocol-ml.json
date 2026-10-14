@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "kind": "ml-protocol-merge-fragment",
+  "predicate": {
+    "request_kinds": [
+      "anomaly_search",
+      "method_study"
+    ],
+    "claim_kind": "method_performance"
+  },
+  "stages": [
+    {
+      "id": "limitation_census",
+      "checks": [
+        "check:ml-observable-support",
+        "check:ml-trigger-plateau",
+        "check:ml-benchmark-localization",
+        "check:ml-statistics-sizing"
+      ]
+    },
+    {
+      "id": "ideas",
+      "checks": []
+    },
+    {
+      "id": "baseline",
+      "checks": [
+        "check:ml-equal-budget"
+      ]
+    },
+    {
+      "id": "screen",
+      "checks": [
+        "check:ml-crossfit-audit",
+        "check:ml-label-leakage",
+        "check:ml-sideband-separability",
+        "check:ml-selection-flatness"
+      ]
+    },
+    {
+      "id": "validate",
+      "checks": [
+        "check:ml-spurious-signal",
+        "check:ml-reference-fidelity",
+        "check:ml-injection-closure",
+        "check:ml-null-calibration",
+        "check:ml-fit-adequacy",
+        "check:ml-seed-spread"
+      ]
+    },
+    {
+      "id": "critique_to_experiments",
+      "checks": []
+    },
+    {
+      "id": "acceptance",
+      "checks": [
+        "check:ml-test-once",
+        "check:ml-trials-accounting",
+        "check:ml-claim-scope"
+      ]
+    },
+    {
+      "id": "meta_review",
+      "checks": []
+    },
+    {
+      "id": "integrity",
+      "checks": []
+    }
+  ],
+  "gates": [
+    "bespoke_calibration",
+    "unblind",
+    "spend_above_ceiling"
+  ],
+  "intake_handoff": {
+    "module": "ravel.physics.ml_training",
+    "function": "size_study",
+    "signature": "size_study(spec: dict) -> dict",
+    "requirement": "Refuse or narrow before CHECK-IN 1 when admissible is false. Count independent groups, not seeds."
+  },
+  "acceptance": {
+    "performance": [
+      "injection closure",
+      "whole-procedure null calibration"
+    ],
+    "mechanism": [
+      "frozen ablation with other controls fixed"
+    ]
+  },
+  "limitation": "Merge metadata only; does not bind the research protocol or register central gates, roles or checks."
+}

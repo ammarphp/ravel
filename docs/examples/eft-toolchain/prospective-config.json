@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "source": "Prospective SMEFT flavour example; fill real source evidence and admitted runtime before planning.",
+  "runtime": {
+    "python": {
+      "path": "REQUIRES_ADMITTED_PYTHON",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "site_roots": [
+      "REQUIRES_COMPLETE_SITE_ROOT"
+    ],
+    "assets": [
+      {
+        "path": "REQUIRES_COMPLETE_ASSET_CENSUS",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "versions": {
+      "wilson": "REQUIRES_ACTUAL",
+      "numpy": "REQUIRES_ACTUAL",
+      "flavio": "REQUIRES_ACTUAL"
+    }
+  },
+  "wcxf": {
+    "path": "point.json",
+    "sha256": "26ca302bfc045938d86c7fd45f44404e4dc739c98e30761b9beef956faa3ec9d"
+  },
+  "conventions": {
+    "input_kind": "new_physics",
+    "scale_unit": "GeV",
+    "coefficient_normalization": "native_wcxf_basis",
+    "flavour_assumptions": "Only lq3_2223 supplied; other Warsaw coefficients initially zero. No imposed flavour symmetry.",
+    "truncation": "upstream_native_no_additional_linearization",
+    "domain": "Prospective fixed-point source exercise; physical EFT applicability unqualified.",
+    "evidence": [
+      {
+        "path": "REQUIRES_SOURCE_EVIDENCE",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  },
+  "wilson_options": {
+    "smeft_accuracy": "integrate",
+    "qed_order": 1,
+    "qcd_order": 1,
+    "smeft_matching_order": 0,
+    "smeft_matchingscale": 91.1876,
+    "mb_matchingscale": 4.2,
+    "mc_matchingscale": 1.3,
+    "parameters": {}
+  },
+  "targets": [
+    {
+      "id": "b_scale",
+      "eft": "WET",
+      "basis": "flavio",
+      "scale": 4.8
+    }
+  ],
+  "observables": [
+    {
+      "id": "Bs_mumu",
+      "name": "BR(Bs->mumu)",
+      "arguments": {},
+      "unit": "dimensionless branching ratio",
+      "coefficient_source": "b_scale"
+    }
+  ],
+  "parameter_overrides": {},
+  "smelli": null,
+  "max_seconds": 300,
+  "max_ram_mib": 2048,
+  "max_export_bytes": 16777216
+}

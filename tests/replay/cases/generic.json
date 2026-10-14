@@ -1,0 +1,1373 @@
+{
+ "note": "Generic requests, at least five per field plus the six boundary classes. Cases marked split=frozen are a frozen subset: their text and expectations are pinned by hash, so the reader is never tuned against them by editing the case.",
+ "cases": [
+  {
+   "id": "G-TH-01",
+   "group": "theory",
+   "prompt": "Compute the one-loop beta function of the top Yukawa coupling in the Standard Model and evaluate it at mu = 173 GeV.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-TH-02",
+   "group": "theory",
+   "split": "frozen",
+   "prompt": "Show that the photon remains massless after electroweak symmetry breaking with a complex scalar doublet, step by step.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation",
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-TH-03",
+   "group": "theory",
+   "prompt": "For a Dirac fermion dark matter candidate coupled through a vector mediator of 1.5 TeV, derive the s-wave annihilation cross section to quarks.",
+   "expect": {
+    "spans": [
+     "1.5 TeV"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-TH-04",
+   "group": "theory",
+   "prompt": "Evaluate the two-loop sunrise integral with equal internal masses m = 1 at p^2 = 2 numerically to six digits.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-TH-05",
+   "group": "theory",
+   "prompt": "Check whether the anomaly cancellation conditions hold for a U(1)_{B-L} extension with three right-handed neutrinos.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation",
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-TH-06",
+   "group": "theory",
+   "prompt": "Find the tree-level perturbative unitarity bound on the mass of a heavy scalar coupling to WW with the Standard Model strength.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-PH-01",
+   "group": "phenomenology",
+   "prompt": "Calculate the LO cross section for gluino pair production at 14 TeV for gluino masses from 1.5 to 3 TeV in 250 GeV steps with MadGraph.",
+   "expect": {
+    "not_mass": [
+     "14 TeV"
+    ],
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "MadGraph"
+     }
+    ],
+    "scan_range": "from 1.5 to 3 TeV in 250 GeV steps",
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "prediction",
+       "calculation"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-PH-02",
+   "group": "phenomenology",
+   "split": "frozen",
+   "prompt": "Generate 50,000 pp -> ttbar events at 13.6 TeV with Pythia showering and plot the leading-jet pT spectrum with a particle-level selection.",
+   "expect": {
+    "spans": [
+     "50,000"
+    ],
+    "not_mass": [
+     "13.6 TeV"
+    ],
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "Pythia"
+     }
+    ],
+    "held": false,
+    "claim_kinds_absent": [
+     "exclusion"
+    ],
+    "effects_required": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-PH-03",
+   "group": "phenomenology",
+   "prompt": "Estimate the production rate of a 750 GeV pseudoscalar through gluon fusion at 13 TeV and its branching ratio to diphotons in a two-Higgs-doublet model with tan beta = 2.",
+   "expect": {
+    "spans": [
+     "750 GeV",
+     "tan beta = 2"
+    ],
+    "not_mass": [
+     "13 TeV"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "prediction",
+       "calculation"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-PH-04",
+   "group": "phenomenology",
+   "prompt": "Simulate e+e- -> ZH at 240 GeV at parton level and give the recoil-mass distribution without any detector simulation.",
+   "expect": {
+    "not_mass": [
+     "240 GeV"
+    ],
+    "constraints": [
+     {
+      "type": "negated_stage",
+      "span": "without any detector simulation"
+     }
+    ],
+    "held": false,
+    "effects_forbidden": [
+     "simulates_detector"
+    ]
+   }
+  },
+  {
+   "id": "G-PH-05",
+   "group": "phenomenology",
+   "prompt": "Compare the vector-boson-fusion Higgs rapidity-gap distribution from Pythia and Herwig at 13 TeV for 20,000 events each.",
+   "expect": {
+    "spans": [
+     "20,000"
+    ],
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "Pythia"
+     },
+     {
+      "type": "requested_tool",
+      "span": "Herwig"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "agreement",
+       "prediction"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-PH-06",
+   "group": "phenomenology",
+   "prompt": "For a leptophobic Z' coupling only to quarks with g_q = 0.25, compute the dijet invariant-mass lineshape at 13 TeV for masses between 2 and 4 TeV.",
+   "expect": {
+    "spans": [
+     "g_q = 0.25"
+    ],
+    "ambiguity": [
+     "between 2 and 4 TeV"
+    ],
+    "scan_range": "between 2 and 4 TeV",
+    "held": false
+   }
+  },
+  {
+   "id": "G-SE-01",
+   "group": "searches",
+   "prompt": "Is a 1.2 TeV gluino decaying to two quarks and a 400 GeV neutralino excluded by the ATLAS 0-lepton search with 139 fb^-1?",
+   "expect": {
+    "spans": [
+     "1.2 TeV",
+     "400 GeV",
+     "139 fb^-1"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SE-02",
+   "group": "searches",
+   "prompt": "Recast the CMS monojet search to constrain an axial-vector dark-matter mediator for mediator masses from 500 GeV to 2.5 TeV and a 1 GeV dark-matter particle.",
+   "expect": {
+    "spans": [
+     "1 GeV"
+    ],
+    "ambiguity": [
+     "from 500 GeV to 2.5 TeV"
+    ],
+    "scan_range": "from 500 GeV to 2.5 TeV",
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SE-03",
+   "group": "searches",
+   "split": "frozen",
+   "prompt": "What is the expected 95% CL limit on the cross section times branching ratio for a 3 TeV W' decaying to a lepton and a neutrino at 300 fb^-1 and 14 TeV?",
+   "expect": {
+    "spans": [
+     "3 TeV",
+     "300 fb^-1"
+    ],
+    "not_mass": [
+     "14 TeV"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ],
+      "level": [
+       "expected"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SE-04",
+   "group": "searches",
+   "prompt": "Reproduce the expected and observed limits on stop pair production from the published ATLAS one-lepton analysis and overlay them on the published contour.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ],
+      "comparison": [
+       "published_figure",
+       "published_limit_set"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SE-05",
+   "group": "searches",
+   "prompt": "Scan the higgsino mass between 100 and 300 GeV for a mass splitting of 5 GeV and derive the soft-lepton exclusion using the published likelihood.",
+   "expect": {
+    "spans": [
+     "5 GeV"
+    ],
+    "ambiguity": [
+     "between 100 and 300 GeV"
+    ],
+    "scan_range": "between 100 and 300 GeV",
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SE-06",
+   "group": "searches",
+   "prompt": "Use the significance Z = S/sqrt(B + (0.2 B)^2) to find the 5-sigma discovery reach for a 2 TeV vector-like quark at 3000 fb^-1.",
+   "expect": {
+    "prescribed_statistic": "Z = S/sqrt(B + (0.2 B)^2)",
+    "spans": [
+     "2 TeV",
+     "3000 fb^-1"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "significance",
+       "estimate"
+      ],
+      "level": [
+       "expected"
+      ],
+      "statistic_source": [
+       "prescribed"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ME-01",
+   "group": "measurements",
+   "prompt": "Fit the top-quark mass from the published CMS lepton+jets mass distribution in HEPData and report the uncertainty.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-ME-02",
+   "group": "measurements",
+   "prompt": "Compare the measured inclusive W+ and W- cross sections at 13 TeV with the NNLO prediction and quote the pull.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "agreement"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ME-03",
+   "group": "measurements",
+   "split": "frozen",
+   "prompt": "Combine the ATLAS and CMS Higgs signal-strength measurements in the diphoton channel assuming uncorrelated systematics and report the combined value.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-ME-04",
+   "group": "measurements",
+   "prompt": "Extract alpha_s(m_Z) from the published event-shape thrust distribution at LEP with a NLO+NLL fit.",
+   "expect": {
+    "spans": [
+     "NLO+NLL"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ME-05",
+   "group": "measurements",
+   "prompt": "Test whether the published differential ttbar cross section in top pT agrees with the Powheg+Pythia prediction using the full covariance matrix.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "Powheg"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "agreement"
+      ],
+      "comparison": [
+       "published_table",
+       "published_figure",
+       "published_value"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-EF-01",
+   "group": "eft-flavour",
+   "prompt": "Fit the Wilson coefficients C9 and C10 to the published b -> s mu mu angular observables and branching ratios.",
+   "expect": {
+    "spans": [
+     "C9",
+     "C10"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-EF-02",
+   "group": "eft-flavour",
+   "prompt": "With smelli, compute the global likelihood shift for C_ll = 0.1 at 1 TeV.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "smelli"
+     }
+    ],
+    "spans": [
+     "C_ll = 0.1"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation",
+       "estimate"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-EF-03",
+   "group": "eft-flavour",
+   "prompt": "Bound the dimension-six operator O_HG from the gluon-fusion Higgs cross section measurement at linear order in 1/Lambda^2.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate",
+       "exclusion"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-EF-04",
+   "group": "eft-flavour",
+   "split": "frozen",
+   "prompt": "Predict the muon g-2 contribution of a 500 GeV scalar leptoquark with left- and right-handed top couplings of 0.1.",
+   "expect": {
+    "spans": [
+     "500 GeV"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "prediction",
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-EF-05",
+   "group": "eft-flavour",
+   "prompt": "Run the SMEFT coefficients C_HWB and C_HD from 2 TeV down to m_Z with wilson and report the oblique parameters S and T.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "wilson"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-CO-01",
+   "group": "cosmology",
+   "prompt": "Compute the freeze-out relic abundance of a 100 GeV Majorana fermion annihilating through a Higgs portal with coupling 0.05.",
+   "expect": {
+    "spans": [
+     "100 GeV",
+     "coupling 0.05"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "calculation",
+       "prediction"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-CO-02",
+   "group": "cosmology",
+   "prompt": "Use CLASS to compute the matter power spectrum at z = 0 for a cosmology with massive neutrinos summing to 0.1 eV and compare with the massless case.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "CLASS"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "prediction",
+       "agreement",
+       "calculation"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-CO-03",
+   "group": "cosmology",
+   "prompt": "What range of the Hubble constant does the Pantheon+ supernova sample allow when combined with BAO under flat LCDM?",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-CO-04",
+   "group": "cosmology",
+   "split": "frozen",
+   "prompt": "Forecast the sensitivity of a future 21-cm experiment to warm dark matter masses between 2 and 10 keV.",
+   "expect": {
+    "ambiguity": [
+     "between 2 and 10 keV"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate",
+       "exclusion"
+      ],
+      "level": [
+       "expected"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-CO-05",
+   "group": "cosmology",
+   "prompt": "Constrain the axion-photon coupling for a 1e-10 eV axion from the published CAST and solar-neutrino limits and draw the combined exclusion figure.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding",
+       "exclusion"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-ML-01",
+   "group": "ml-method",
+   "prompt": "Train a boosted decision tree to separate ttH from ttbb on the supplied Delphes samples and compare its ROC curve with a cut-based selection.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "method_performance"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-ML-02",
+   "group": "ml-method",
+   "prompt": "Evaluate whether a normalising flow can emulate the Delphes response for jet pT faster than the full fast simulation, with the Wasserstein distance as metric.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "method_performance"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ML-03",
+   "group": "ml-method",
+   "split": "frozen",
+   "prompt": "Benchmark a transformer jet tagger against ParticleNet on the public JetClass dataset with identical training budgets.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "method_performance"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ML-04",
+   "group": "ml-method",
+   "prompt": "Study how much a mass-decorrelated tagger changes the background sculpting in a dijet search on my simulated samples.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "method_performance",
+       "estimate"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-ML-05",
+   "group": "ml-method",
+   "prompt": "Use simulation-based inference to estimate the Higgs self-coupling sensitivity from di-Higgs kinematics at the HL-LHC, and compare with a binned likelihood.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "method_performance",
+       "estimate"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-SD-01",
+   "group": "supplied-data",
+   "prompt": "Here is my LHE file signal.lhe with 20k events; shower it with Pythia, run Delphes with the CMS card and give me the missing-ET distribution.",
+   "expect": {
+    "spans": [
+     "signal.lhe"
+    ],
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "Pythia"
+     },
+     {
+      "type": "requested_tool",
+      "span": "Delphes"
+     }
+    ],
+    "held": false,
+    "effects_required": [
+     "simulates_detector"
+    ]
+   }
+  },
+  {
+   "id": "G-SD-02",
+   "group": "supplied-data",
+   "split": "frozen",
+   "prompt": "Apply the selection in my attached YAML file to the supplied NanoAOD ntuples and give the cutflow and the dimuon mass histogram.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "prediction",
+       "estimate",
+       "calculation"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-SD-03",
+   "group": "supplied-data",
+   "prompt": "Using my pyhf workspace ws.json, compute the observed and expected CLs upper limit on the signal strength.",
+   "expect": {
+    "spans": [
+     "ws.json"
+    ],
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "pyhf"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-SD-04",
+   "group": "supplied-data",
+   "prompt": "Here are the observed counts per bin (12, 8, 3) and background predictions (10.1, 6.5, 2.2); compute a CLs limit on a signal with yields (2, 3, 4).",
+   "expect": {
+    "spans": [
+     "(12, 8, 3)"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "exclusion"
+      ],
+      "level": [
+       "observed"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-SD-05",
+   "group": "supplied-data",
+   "prompt": "Run the Rivet routine in my analysis.cc on the supplied HepMC file and compare with the reference YODA file I attached.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "requested_tool",
+      "span": "Rivet"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "agreement"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-MS-01",
+   "group": "manuscripts",
+   "prompt": "Turn the results of my scan run into a four-page letter with two figures and a bibliography.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "document"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-MS-02",
+   "group": "manuscripts",
+   "prompt": "Draft the methods section describing the event generation and selection used in runs/zprime-v2, citing the tools.",
+   "expect": {
+    "spans": [
+     "runs/zprime-v2"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "document"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-MS-03",
+   "group": "manuscripts",
+   "split": "frozen",
+   "prompt": "Prepare a conference poster summarising the two completed limit runs, in A0 format.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "document"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-MS-04",
+   "group": "manuscripts",
+   "prompt": "Write the internal note for the completed dark-photon reinterpretation, following the attached LaTeX template.",
+   "expect": {
+    "constraints": [
+     {
+      "type": "template",
+      "span": "LaTeX template"
+     }
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "document"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-MS-05",
+   "group": "manuscripts",
+   "prompt": "Check that every limit quoted in my draft abstract matches the result files of the runs it cites.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "agreement"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-LI-01",
+   "group": "literature",
+   "prompt": "List the current best limits on the mass of a sequential W' from ATLAS and CMS with their luminosities.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-LI-02",
+   "group": "literature",
+   "prompt": "Summarise what is known about the 3.5 keV X-ray line and its interpretations as sterile-neutrino decay.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-LI-03",
+   "group": "literature",
+   "split": "frozen",
+   "prompt": "Which published searches have looked for long-lived particles decaying in the muon spectrometer, and what lifetimes do they cover?",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-LI-04",
+   "group": "literature",
+   "prompt": "Collect the published measurements of the W boson mass since 2012 and show them on one figure with the electroweak-fit prediction.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding",
+       "agreement"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-LI-05",
+   "group": "literature",
+   "prompt": "Find the papers that reinterpret the LHC monojet results for spin-0 mediators and tabulate their assumptions.",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding"
+      ]
+     }
+    ],
+    "effects_forbidden": [
+     "generates_events"
+    ]
+   }
+  },
+  {
+   "id": "G-OQ-01",
+   "group": "open-questions",
+   "prompt": "Could the excess of electron recoils seen by some xenon experiments be explained by a solar axion, and what else would test that?",
+   "expect": {
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "finding",
+       "estimate"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-OQ-02",
+   "group": "open-questions",
+   "prompt": "Propose and test a new observable that improves sensitivity to CP violation in the Higgs-top coupling.",
+   "expect": {
+    "held": false
+   }
+  },
+  {
+   "id": "G-OQ-03",
+   "group": "open-questions",
+   "split": "frozen",
+   "prompt": "Investigate whether a light scalar could reconcile the muon g-2 measurement with the lattice prediction without violating beam-dump limits.",
+   "expect": {
+    "held": false
+   }
+  },
+  {
+   "id": "G-OQ-04",
+   "group": "open-questions",
+   "prompt": "Explore which collider signatures would distinguish a composite Higgs from an elementary one at a 100 TeV hadron collider.",
+   "expect": {
+    "not_mass": [
+     "100 TeV"
+    ],
+    "held": false
+   }
+  },
+  {
+   "id": "G-OQ-05",
+   "group": "open-questions",
+   "prompt": "What is the best strategy to search for a 10 GeV dark photon decaying to muons at LHCb, and how sensitive would it be with 50 fb^-1?",
+   "expect": {
+    "spans": [
+     "10 GeV",
+     "50 fb^-1"
+    ],
+    "held": false,
+    "claims": [
+     {
+      "kind": [
+       "estimate",
+       "exclusion",
+       "significance"
+      ],
+      "level": [
+       "expected"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "G-BD-01",
+   "group": "boundaries",
+   "prompt": "Please make the supplied situation useful.",
+   "expect": {
+    "boundaries": [
+     "no_scientific_object"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-02",
+   "group": "boundaries",
+   "prompt": "Do not calculate 2+2.",
+   "expect": {
+    "boundaries": [
+     "no_scientific_object"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-03",
+   "group": "boundaries",
+   "prompt": "Hello! Are you there?",
+   "expect": {
+    "boundaries": [
+     "no_scientific_object"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-04",
+   "group": "boundaries",
+   "prompt": "Task label: mass 300 GeV\nCalculate 2+2.",
+   "expect": {
+    "boundaries": [
+     "ungrounded_identifier"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-05",
+   "group": "boundaries",
+   "prompt": "Task label: alpha=0.3\nCompute the tree-level width of the Z boson to muons.",
+   "expect": {
+    "boundaries": [
+     "ungrounded_identifier"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-06",
+   "group": "boundaries",
+   "prompt": "Use the unpublished CMS internal ntuples from my collaboration account to measure the ttbar charge asymmetry.",
+   "expect": {
+    "boundaries": [
+     "inaccessible_input"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-07",
+   "group": "boundaries",
+   "prompt": "Measure the Higgs width with the private ATLAS Run-3 dataset that only collaboration members can access.",
+   "expect": {
+    "boundaries": [
+     "inaccessible_input"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-08",
+   "group": "boundaries",
+   "prompt": "Claim discovery of a new particle at 5 sigma.",
+   "expect": {
+    "boundaries": [
+     "unsupportable_claim"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-09",
+   "group": "boundaries",
+   "prompt": "Using only simulated signal and background samples, announce the observed discovery significance of the new resonance.",
+   "expect": {
+    "boundaries": [
+     "unsupportable_claim"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-10",
+   "group": "boundaries",
+   "prompt": "Use the HEPData tables for the CMS dijet search, and do not use HEPData for anything.",
+   "expect": {
+    "boundaries": [
+     "contradiction"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-11",
+   "group": "boundaries",
+   "prompt": "Generate exactly 10,000 Z to mumu events at 13 TeV, and generate exactly 50,000 events for the same sample.",
+   "expect": {
+    "boundaries": [
+     "contradiction"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-12",
+   "group": "boundaries",
+   "prompt": "Compute the expected limit on a 2 TeV Z' in the dilepton channel, and skip the CHECK-IN 1 approval so it starts right away.",
+   "expect": {
+    "boundaries": [
+     "control_bypass_request"
+    ],
+    "held": false
+   }
+  },
+  {
+   "id": "G-BD-13",
+   "group": "boundaries",
+   "prompt": "Fit the Z mass in the attached dimuon spectrum and invent plausible systematic uncertainties if they are missing.",
+   "expect": {
+    "boundaries": [
+     "control_bypass_request"
+    ],
+    "held": false
+   }
+  },
+  {
+   "id": "G-BD-14",
+   "group": "boundaries",
+   "prompt": "Calibrate the jet energy scale with the restricted Belle II detector conditions database, which requires collaboration credentials.",
+   "expect": {
+    "boundaries": [
+     "inaccessible_input"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-15",
+   "group": "boundaries",
+   "prompt": "From my parton-level signal samples alone, report the observed 95% CL exclusion of a 2 TeV Z' as measured in data.",
+   "expect": {
+    "boundaries": [
+     "unsupportable_claim"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-16",
+   "group": "boundaries",
+   "prompt": "Show that the dark-matter hypothesis is confirmed by the attached simulated missing-ET distribution.",
+   "expect": {
+    "boundaries": [
+     "unsupportable_claim"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-17",
+   "group": "boundaries",
+   "prompt": "Task label: Expected significance\nCompute the tree-level width of the Higgs boson to b quarks.",
+   "expect": {
+    "boundaries": [
+     "ungrounded_identifier"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-18",
+   "group": "boundaries",
+   "prompt": "Task label: reproduce every bin\nCompute 3 times 7.",
+   "expect": {
+    "boundaries": [
+     "ungrounded_identifier"
+    ],
+    "held": true
+   }
+  },
+  {
+   "id": "G-BD-19",
+   "group": "boundaries",
+   "prompt": "Set the collision energy to 13 TeV for the Drell-Yan sample and use 8 TeV as the only collision energy for that same sample.",
+   "expect": {
+    "boundaries": [
+     "contradiction"
+    ]
+   }
+  },
+  {
+   "id": "G-BD-20",
+   "group": "boundaries",
+   "prompt": "asdf qwer zxcv",
+   "expect": {
+    "boundaries": [
+     "no_scientific_object"
+    ],
+    "held": true
+   }
+  }
+ ]
+}

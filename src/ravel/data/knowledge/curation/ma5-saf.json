@@ -1,0 +1,25 @@
+{
+ "id": "op:ma5-saf",
+ "op": {
+  "do_not_use_when": [
+   "PAD execution: use ma5-pad.",
+   "Rivet routines: use analyze."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/ma5-saf-example --spec specs/ma5-saf.json",
+    "phrase": "Deliver a MadAnalysis 5 SAF analysis from a pinned input.",
+    "spec": {
+     "mode": "ma5-saf",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "MadAnalysis 5 SAF delivery from a pinned input.",
+   "A SampleAnalyzer framework analysis is required."
+  ]
+ }
+}

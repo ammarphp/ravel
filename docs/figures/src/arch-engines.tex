@@ -1,0 +1,21 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{Workflow engines}{Research runs on a durable graph; stages run where the compute is.}
+\node[b=48mm, minimum height=50mm, draw=rvravelline, fill=rvravelfill, anchor=north west] (g) at (5,-24)
+  {\nodetitle{Research graph}\nodesub{LangGraph with saved checkpoints}};
+\node[b=46mm, minimum height=50mm, draw=rvravelline, fill=rvravelfill, anchor=north west] (s) at (63,-24)
+  {\nodetitle{Supervised stages}\nodesub{each stage watched, logged and resumable}};
+\tikzset{p/.style={box=50mm, minimum height=10.5mm, draw=rvhepline, fill=rvhepfill, anchor=north west}}
+\node[p] (p1) at (115,-24) {This machine};
+\node[p] (p2) at (115,-37.2) {Containers (Podman)};
+\node[p] (p3) at (115,-50.4) {HTCondor and Slurm};
+\node[p] (p4) at (115,-63.6) {Snakemake workflows};
+\draw[flow] (g) -- (s);
+\foreach \n in {p1,p2,p3,p4} \draw[flow] (s.east |- \n) -- (\n);
+\ravellegend{-82}{ravel/RAVEL, hep/Compute}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

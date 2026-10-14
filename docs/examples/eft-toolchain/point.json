@@ -1,0 +1,11 @@
+{
+  "eft": "SMEFT",
+  "basis": "Warsaw",
+  "scale": 1000.0,
+  "values": {
+    "lq3_2223": {
+      "Re": 1e-08,
+      "Im": 2e-09
+    }
+  }
+}

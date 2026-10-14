@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "generality-registration",
+  "package": "supplied-validation-inputs",
+  "operations": [
+    {
+      "callable": "ravel.physics.pyhf_exclude.check_fit_reference",
+      "applicability": "general",
+      "predicate": {
+        "required_inputs": [
+          "background",
+          "patch",
+          "expected.mu_hat",
+          "expected.twice_nll",
+          "output_format"
+        ],
+        "references": "supplied per invocation; no installed likelihood"
+      }
+    },
+    {
+      "callable": "scripts/validation/run_rivet_controls.py",
+      "applicability": "general",
+      "predicate": {
+        "required_inputs": [
+          "cases manifest",
+          "scientific specs",
+          "report path",
+          "report format"
+        ],
+        "execution": "existing science plan/admission/approval/supervisor only"
+      }
+    },
+    {
+      "callable": "ravel.setup.qualification.compare_receipt",
+      "applicability": "general",
+      "predicate": {
+        "required_inputs": [
+          "receipt",
+          "request.scope",
+          "request.output_format",
+          "evidence files"
+        ],
+        "scope": [
+          "tool",
+          "versions",
+          "platform",
+          "operation",
+          "conditions"
+        ],
+        "result": "scope and byte match only; no launch or scientific acceptance authority"
+      }
+    }
+  ],
+  "removed_sites": "Purged resource selectors, installed corpora and historical reporting scripts remain absent; no removed operation is re-registered."
+}

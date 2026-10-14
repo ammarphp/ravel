@@ -1,0 +1,28 @@
+{
+ "id": "op:group-composition",
+ "op": {
+  "do_not_use_when": [
+   "N/W normalization of independent groups: use group-normalization.",
+   "Signed grouped moments: use quantities."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/group-composition-example --spec specs/group-composition.json",
+    "phrase": "Rebin event groups under a pinned composition contract.",
+    "spec": {
+     "mode": "group-composition",
+     "task": {
+      "contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "input": "inputs/example.json",
+      "operation": "coordinate-rebin",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Rebin groups or compose same-event normalization of event groups.",
+   "Coordinate rebinning with a pinned contract."
+  ]
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "id": "op:event-production",
+ "op": {
+  "do_not_use_when": [
+   "Generating LHE from a model: use model-events.",
+   "Reshowering a retained LHE cohort with fresh settings: use retained-shower."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/event-production-example --spec specs/event-production.json",
+    "phrase": "Shower supplied LHE events and simulate the detector with a declared card.",
+    "spec": {
+     "mode": "event-production",
+     "task": {
+      "detector": {
+       "cards": [
+        {
+         "card": "cards/delphes_card.tcl",
+         "name": "nominal"
+        }
+       ]
+      },
+      "events": {
+       "lhe": "events/sample.lhe"
+      },
+      "model": {
+       "invisible": [
+        1000022
+       ],
+       "name": "example-model"
+      },
+      "normalization": {
+       "sigma": "lhe-init"
+      },
+      "shower": {
+       "seed": 1234
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Shower LHE events with Pythia 8 and simulate the detector with Delphes, with matching and a production receipt.",
+   "Reconstructed event samples are needed from a generated parton-level sample."
+  ]
+ }
+}

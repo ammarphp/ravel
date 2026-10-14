@@ -1,0 +1,526 @@
+{
+ "entries": {
+  "2026-07-01_fixture-anomaly_search-dry": {
+   "record": "cb3b5b8a216e3bad379aa16e6f8ba697d7a857e96d199a5140f7ed3140c81e15",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-anomaly_search-full": {
+   "record": "b774bd90954b02decb0b256dfc738c0b90059b47b6ee8ff45db4730bcd12d8d1",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-anomaly_search-none": {
+   "record": "4478e8550f43c9735b57dde0cc69f20d39815a9ee0754f8064eb275be5049df1",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-anomaly_search-scan": {
+   "record": "4aad253646b95215513e60a925cf364c860a5e14f7753247adac9e4891bb8e5c",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-anomaly_search-smoke": {
+   "record": "450ed8ca1d85a7e7bedb7f1dc7fda455dc11e576ffca958404a64c3ea8cc04b0",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-calculation-dry": {
+   "record": "442e264b59375352a3199ef09da7dbef1372ec0ec9b43f0b87bb1a85eb3ee2b7",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-calculation-full": {
+   "record": "a1919bff5a8d95bf3f68aff8b7562894e19f1ba56f6898413adc9241a60d4539",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-calculation-none": {
+   "record": "89a6b7b0a490a2ff4a27a6ec410a91b40fb3146ff370e0e8d0c580e4cd7ec531",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-calculation-scan": {
+   "record": "bec2f5cf4f0530a31dc2985dda9a40203cf341c23e7a8b3c19da73d9f9751fbc",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-calculation-smoke": {
+   "record": "dcf6f6fad11406d03302a43a373ffa1066c6f00c02dc88bb57717921dc1a2fa2",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-generate-dry": {
+   "record": "1a5c88ed648df91ebfcc4341bffd6061d17c31b1958f645033c3e58eb2388802",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-generate-full": {
+   "record": "2a6a412098a8455ce9d18b5baf4b83f0c31ca5432138eddfb7858cf894dcf9b0",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-generate-none": {
+   "record": "a285c62fabfa8104dd29c9170c540c35ec6531d5183b4e9212d501e471a3f6bd",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-generate-scan": {
+   "record": "db2b94c3bd97608d9a95117ef19237adf6a450d27e8dc2aa5adce6e25486bac5",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-generate-smoke": {
+   "record": "40f69b990f6078d94a885e456f017f09b16bb61faa8f5cb5355e09ee69f941c8",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-likelihood-dry": {
+   "record": "98c6a8565941b4469531ba60fd711ba4b3334fd3648515b28275e16d2f12ec60",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-likelihood-full": {
+   "record": "6e31e5fee45a41fc2859f6db619897d7df1e9f7b0b80d1428084a44611cadedc",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-likelihood-none": {
+   "record": "78d34fa76af83a10aa10d01cd9d7c96b59ed4c0a54eae9dfa2bd429beeafb860",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-likelihood-scan": {
+   "record": "88df3707f7546db5fd5c09d6d9db866a9e944c113e332704d8b585293036fd2e",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-likelihood-smoke": {
+   "record": "0d374337f6c78436936bda2c600b1d3100d4a0847d1804ea2d8a1f1e91ef3bcd",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-no_routine-dry": {
+   "record": "ecb7bf9b785f69205301e7cef47f9be81f7c89ce169e0120fdcbc574da04938a",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-no_routine-full": {
+   "record": "4006f7640f7eb7d60027c99efc836872a63d6594884755314a91c4a0a8e11565",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-no_routine-none": {
+   "record": "b438c91ec76a58b932ff2d2a709041cfdfaa4a78df3e0c8c8244bb562ef69962",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-no_routine-scan": {
+   "record": "9101702dc55a5fa09044f5815f3415ff787ec6276ce9351d7e810f8359bb6c80",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-no_routine-smoke": {
+   "record": "5510f3151e7e6d9d39129d013cc2d09ec730ccc8332a8b838793b1715b300c0e",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-projection-dry": {
+   "record": "58669bec3822c6957a50527d812984c165d5c9c60e8a835b265de7cefa492c54",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-projection-full": {
+   "record": "c5b5758783c0d0aebd91b95a51811975bb5825160b1c3b5ffa38a590502807c3",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-projection-none": {
+   "record": "4bda6a3f223f7168c7ca4997d122bee583f7351e789edf3aa8a24bcd0822407b",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-projection-scan": {
+   "record": "e9766656441f553e9226af38312c53bb2e250fd50940f9dc3918e202cd04b754",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-projection-smoke": {
+   "record": "2c93fefd4bc963a1bbc535bc08bce55d75f191c27564ed95426ce1bbc97880c8",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reinterpret-dry": {
+   "record": "bae8061e9381a29fb0da326746905f91fd53cccbe203114a9ac0e22198b48cff",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reinterpret-full": {
+   "record": "e0326d685da428a4946b1b2dee3b794d8b5d6516bf2db858255f20ef61ac704c",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reinterpret-none": {
+   "record": "312733212fcba2dfe9a92638e637412421a083e4a0bacb076e28a4f0d574cd9e",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reinterpret-scan": {
+   "record": "8dbe26543e3c2cccca3c8ad770d83a037bf0fd6b97865bee8ac79c1e5d23acf7",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reinterpret-smoke": {
+   "record": "600d13b3d716eee5c2d3582646dd9e63b0f7f76bb7ed70f405b3915784a7d2ec",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reproduce-dry": {
+   "record": "acdad3b766e45697af14434f48e54327bcb4056fec4dd6d94aa8319324fda8f1",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reproduce-full": {
+   "record": "a57c3058af82ed7b26a28ece2c1b72ddf080da6ab35bad56e18c7cbd68b6a3aa",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reproduce-none": {
+   "record": "38b00325037bc243b2ec9b1db9d0e28e79ff7a05d47df66648add34bf39671ab",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reproduce-scan": {
+   "record": "6590ed5f67f94599512b8cf8c20aa115247b39325c91274914ee82667a60ed55",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-reproduce-smoke": {
+   "record": "e9652d390f3bd2dfaa3038ddd71e817698f7ee7b935ad7f1b3ae7d22227da2c1",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-research-dry": {
+   "record": "e5b74f10bb3288c881d4e84d973b7abb1c6e7a92b472c68124ff0951b306671f",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-research-full": {
+   "record": "824a86119b5a1cb583571a976c09006178f4de1502aeddd6eb899f4cc4cfc42b",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-research-none": {
+   "record": "f8259a3333a1fda00a2c80d2d9fddf518a34dfbb889e2a6d9c2bb600fee84942",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-research-scan": {
+   "record": "829dd709e1f4deaa4fe2b316100f01cc976d7607f8337737ca964279ddc2240c",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-research-smoke": {
+   "record": "41e04ccd940697d199e1009e2df9a82c6d312fb652b4160649647a4f7f625475",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-scan-dry": {
+   "record": "bf9316451acde981deb24b363721c84002d6a4c6056c2c40d892771ba88716b5",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-scan-full": {
+   "record": "6f0c854accfc1e67a9b03b6c57e4b210e9f82fa1dd6ac80d9581d313ac5a16e0",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-scan-none": {
+   "record": "d68aebf64f3b44424e8caf7c8ecb2a26eb88abe4e850010fc4349d380ee9d2cb",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-scan-scan": {
+   "record": "f80e5eb9a3401d944a9951b406037f417c99239acd7ad7fd0047a3389f78df47",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-scan-smoke": {
+   "record": "19898ce3b43bb52e14cda7ca426ec8379b6db7ecfc7285c87f5bf44170850481",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-summary_plot-dry": {
+   "record": "29130aa2046c93408ed624803c33040e19210458c660859e93e44c4abc815892",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-summary_plot-full": {
+   "record": "d5ee19f92123463484a4693077dcf6ea7c175a067fd1767b0c71c46e3493a878",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-summary_plot-none": {
+   "record": "0b456340840a3e4c9d094c694a9acc29f3488834f97f12bab6ee63ada80fcc10",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-summary_plot-scan": {
+   "record": "3bf8d9016c3d98552d1cc6a3835a0a408eed988eb1274cc0c97af09fc9c91d34",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-summary_plot-smoke": {
+   "record": "24558abf25d999f934ba8b3dfed921b61685897725cd2447493ed7d7df1d257f",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-survey-dry": {
+   "record": "d1ef3a281749cf8c4cea275e1dc136456a1ea5bb894a73c6ac71be0e04c437ef",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-survey-full": {
+   "record": "29c4cc2ab14385377e3852971e09b1dc4e2143e871c6853073bf31d3a49f87ac",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-survey-none": {
+   "record": "9aaa1236b199ce09d2c955c3a7aeb9d11968c382a6f46dee1b47ecb824621168",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-survey-scan": {
+   "record": "a0a090951f678684c8920308a15a43ab56082b837b580c9783dca9cc93a37823",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-survey-smoke": {
+   "record": "9a3832ebe519e1235a24f746f02c2e3979945aac7634cb4bad8543ec18967e79",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-unsupported-dry": {
+   "record": "2efbf3a6036873bd3cb00fb0f6c7c0a399b792b70508576723e4e14526f4cc9b",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-unsupported-full": {
+   "record": "d26057de5b539914beb000d8a87a5904692f61f3aa68f85c4f81580dc64657d7",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-unsupported-none": {
+   "record": "0c894f27d5b9f0f5f7c675cd1f83b0b5b2294500f47f6b089459333672ec00a9",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-unsupported-scan": {
+   "record": "abf18b3a0dc6894b78cbfc19b4fd2ff482ccf598be2badf21113a194c9fa990c",
+   "verdict": "FAIL"
+  },
+  "2026-07-01_fixture-unsupported-smoke": {
+   "record": "a4d225715be3343a543a0358c3e647a55490d3e106eade585b2cf9787fcbe575",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-anomaly_search-dry": {
+   "record": "46f71b4fb6425f3d1db728c6ed84a017da8811cd54f096257727eef850707fbb",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-anomaly_search-full": {
+   "record": "16bcc9e19e86ef6a8f5f03c1cd94938ea2e6decf6fce7517f1b039b30402fd2f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-anomaly_search-none": {
+   "record": "1ee5b1ce25c6ac8b6bfe7f53749f839545087f0f223ec5c073b958047818cbba",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-anomaly_search-scan": {
+   "record": "c0fb74b3502331e43021464db9541adbec0c5e918cb0ac4a268ff37dabdde54f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-anomaly_search-smoke": {
+   "record": "1375b2de4d51e858ac97001bb2ee4f7d2d77ef9c0d9134fb585cc522bf9f7b13",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-calculation-dry": {
+   "record": "514e446e32b2317e9f00f01b112625322d1182a92926cae48be03aa99bf8685f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-calculation-full": {
+   "record": "c32c90dc6131a102a424dcac90ec74dddd9872158384687c211204e59ea80f5d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-calculation-none": {
+   "record": "ed324a496818f7e457909cfbad18687ed616cb7856579a84b26699571b693ed0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-calculation-scan": {
+   "record": "4ddf4dba0f043dd2055658d59df6faeb3c8e000a905e94e8121cc08755686429",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-calculation-smoke": {
+   "record": "61feabebe5f466eef6c949071df288a50025f8808ffeb6dd2adece61fe623e3f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-generate-dry": {
+   "record": "505e4b2ee5687834bf5c4b34551cb3649c3bc3879f97bd3e68bca97d05a44c31",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-generate-full": {
+   "record": "08c49b5fe5dea5264e0e97ecccbc8ccba0d8e7f88ea6bd48891285fdecfd16ae",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-generate-none": {
+   "record": "8a6100c0e11e7c8fb51d62f5672b80b3628fb692a966bc5cabd205d4339934f5",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-generate-scan": {
+   "record": "cdd1dc5caa69442222e829d91e4234584a8c33ef5e9002ed8e0f1d4389528df3",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-generate-smoke": {
+   "record": "f2c440318f8ae6ff0e9d53d6d560be7a6ffe9b181a21cbec423d349edd8215a6",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-likelihood-dry": {
+   "record": "2fecaac1e69306e9efb7bc2fa9ec2e798d8006460458f84aafb40c4403c37ffa",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-likelihood-full": {
+   "record": "4d4e3a60fdd11488bfaa54dc876142b57c138e54301109ffb65d1a78f5608ebd",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-likelihood-none": {
+   "record": "92c8875291ba609952e54f2f0e381fc88fcb470ae88a61c874bf6bf967a40218",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-likelihood-scan": {
+   "record": "573c46eb167d9397f1a497e81183d8ccc2e7fdca7b170aa39ce8fc0d7693fd75",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-likelihood-smoke": {
+   "record": "9998e69bae0968fbef8885b2fe949ec8c48b36d0b57e32fd56f780cdc1d6686e",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-no_routine-dry": {
+   "record": "e92fbc6e1d9ab00b392939a3bb399eb9228e5a3e98a78f6723bf6d9b6753d8fb",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-no_routine-full": {
+   "record": "b63eb50736f0fcc3bddf32fbfb0ae2a70420332b80545f5f8ce65dbc46b30a2a",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-no_routine-none": {
+   "record": "6f09ad973d0e9121d3f655334ad829286f194a4e6ece4c85defd386cdc6cf54d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-no_routine-scan": {
+   "record": "dae773a7f110242ed9b57f7c4c4d773299153532ee5478605f673d02db32f3fe",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-no_routine-smoke": {
+   "record": "ca84030838b090991eb9f0372c8a6a07457b3a9e858b7265a66fcd775b70b041",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-projection-dry": {
+   "record": "8e5cfa32154735d85e7c5657e1ae4b2b8221662a4385153a798f2cce2f2f372a",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-projection-full": {
+   "record": "ee5cf29f3b14dc27e7433d123ae23982870b8e05fc7ff7d2e04b4ebfa076654a",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-projection-none": {
+   "record": "8526410a1b35f4dbcf01ac0819ed22497754dc59bbcfe922ff8206565f421259",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-projection-scan": {
+   "record": "aabda1ea7cb49b7162abf4ec64e4ce827ad33fd25beb24dd217336ae7e1d45f0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-projection-smoke": {
+   "record": "d0a90be836e50580e04b5d8b3bedcfca42ea3292f0c0eca88042aeb95fad5aa0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reinterpret-dry": {
+   "record": "c9f0aa9d80caa218152350857a533e314c9f2a7ff4655f10c1b076d51c9eabbb",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reinterpret-full": {
+   "record": "44e1a3bd6b0f80140d236c0a1cb829b96c9d1360fb9482ec9326a8b25dbc164f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reinterpret-none": {
+   "record": "38c43ed4f897599c854ea53b0ef75b9ee8221377c4ce1646368caaf6aa615f19",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reinterpret-scan": {
+   "record": "b9839e7bf4eb4193358e0cef648a46aae35bdb65a6e7484aeb7ab17f10be5950",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reinterpret-smoke": {
+   "record": "d876f74c43b52c0b0db527a5c450fe9c1f1974b9df6e55e6adec18c9f259016a",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reproduce-dry": {
+   "record": "ba6d6abd23f79a59fe6b79571e4768c8665cd9b6db998db682d0d7d8ddcc973a",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reproduce-full": {
+   "record": "1e1ac7e1004cbc2ed046f059d4c081b9864715b8142d63704bc900017cc7bb28",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reproduce-none": {
+   "record": "068db76f0e06646478d7c906eea0630353ea0cc0d74113a82d6a799b88d35521",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reproduce-scan": {
+   "record": "66089d61483c0b06d149ca05b8dbc30e3b7e69087758de225609b27c2d6bd174",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-reproduce-smoke": {
+   "record": "b618c62c844341a1c12568672fb44dd97e2b556759fedb589e5e5ffea3aa5ef8",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-research-dry": {
+   "record": "2b3d66bbf5c904d5dad76540fcca9c72690de60c318b091e6a1de5bed71ea4b0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-research-full": {
+   "record": "597c409d37eeb4ae523f3539c2ce6a18621da53a9b42de7cba58430449dc066f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-research-none": {
+   "record": "0f98b6ab4079b8ec0027b6d8efb66dd4cb598c829780d71c22f120c12a869b5d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-research-scan": {
+   "record": "3704ddce41309314ed388216c2f900c3ee74dbce0832b154a59ca5fde98425c0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-research-smoke": {
+   "record": "a1e42acb24dc017418036ba6777133590a6cc423b369a5a866309bc3005d96f4",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-scan-dry": {
+   "record": "4938f4d109b0b27c887d681f192e93e462b6dc4e7ae9547374817baccc91301e",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-scan-full": {
+   "record": "8a117185e1f4b8d146b72e84fc753f189621a0763d4bb125d9deb21a05a74ce2",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-scan-none": {
+   "record": "097467f6912e17b8ed6743cfbc91eab521864a57e12330000d9dfe9cf296c5c9",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-scan-scan": {
+   "record": "1a301d307abdf8f7986447d2780b6801d05b372a5c8e5402158f95bbd8c3edc7",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-scan-smoke": {
+   "record": "c88eee78550761baa2bba916ae8b5e8d8829280b23aa22f8d2554ec2f7b5a93d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-summary_plot-dry": {
+   "record": "46ba29dd529ef043a40e79142a2b2958ebce1a4ef124b078158b1ac7edadb5a0",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-summary_plot-full": {
+   "record": "58fc239745ae98258aa21e80bd1d7b55501180e91933e5345c9d7b18eb3e1379",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-summary_plot-none": {
+   "record": "029f33f3453cbbd58dc78c56e9fa424d6b043dfa7b4812bff07bf9ed15f2141d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-summary_plot-scan": {
+   "record": "d5e45d4d900db5aab43486e63ef844a4aebb18dcf27ffd8e0f1bb7be84a2607d",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-summary_plot-smoke": {
+   "record": "cd45764f0d5ca481101ad1340d6ae4a3faeb879a88f9cd1870d1b6a80990010e",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-survey-dry": {
+   "record": "210646dce9e39f1f835f209705662c1a637649bf8ccb95a71e9f969a7716bdbf",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-survey-full": {
+   "record": "42d5155c91492c631c0a21e3b89a48f226c0d5144af73d11ae551b7ba5e79b93",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-survey-none": {
+   "record": "115e94f9ce146b3d76d631df4e7843b7af706c11a86973d4be5784704670053f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-survey-scan": {
+   "record": "5ed4e906d309ae33b24981323b5756fa5c32fafe2caeacb2afa3f80df734e431",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-survey-smoke": {
+   "record": "51765bf1502c6273852e8a3316c34b1fa486e1c39be124d6c63dc66265d64bfd",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-unsupported-dry": {
+   "record": "0997eeef1ce92feaf06ca87e9c51e656d111cd9dd096b06649c5b609433da259",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-unsupported-full": {
+   "record": "33f6b13281e064876afb1144b6f953054d555096f02ef9fb8142eefc7d7bbd5f",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-unsupported-none": {
+   "record": "c3cf225b0786772cbad4056c25156f672d61b9d2810175873b92178706df2309",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-unsupported-scan": {
+   "record": "8837f33e0b8ec7558d1bd12281a2c5f0c15c0dac81d371c9d069c3c8a608b428",
+   "verdict": "FAIL"
+  },
+  "2026-10-11_fixture-unsupported-smoke": {
+   "record": "647fe45710df2e6ee5df145d3b149e9890bce33a4f6b7c625ee6dd2fa5d5ce9a",
+   "verdict": "FAIL"
+  }
+ },
+ "recorded_at": "fd215d4",
+ "schema_version": 1
+}

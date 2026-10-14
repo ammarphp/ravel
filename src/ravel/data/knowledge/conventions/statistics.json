@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "conventions:statistics",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:statistic-policy",
+      "kind": "convention",
+      "statement": "For exclusion without a prescribed statistic RAVEL uses 95% CLs. A prescribed statistic, confidence region or credible interval remains the primary requested quantity. CLs is a modified frequentist ratio of tail probabilities; it is not a discovery p-value or Bayesian probability.",
+      "tags": [
+        "exclusion",
+        "cls",
+        "statistic"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "statistics"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2287,
+          "line_end": 2287,
+          "excerpt_sha256": "05005fc878374816a490ec3a9f1b5882bb371571537bd1425558cf2415c92cd5",
+          "locator": "RAVEL authored convention conv:statistic-policy; primary references: J. Phys. G 28 (2002) 2693; doi:10.1088/0954-3899/28/10/313; Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:statistic-policy",
+          "description": "Record the test statistic, tail conventions, nuisance treatment and requested confidence level; distinguish CLs from CLs+b and discovery significance.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:asimov-profile",
+      "kind": "convention",
+      "statement": "An Asimov data set represents an expected-data construction at a specified parameter point. Profile-likelihood asymptotic formulae rely on regularity and adequate information; parameter boundaries, sparse counts and non-identifiability can require calibration.",
+      "tags": [
+        "profile-likelihood",
+        "asimov",
+        "statistics"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "statistics"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2350,
+          "line_end": 2350,
+          "excerpt_sha256": "5823fd3d87516a52434487dec3f9ba31d1a77de944c9d90c258247e6ba3ddc9f",
+          "locator": "RAVEL authored convention conv:asimov-profile; primary references: arXiv:1007.1727, sections 2-4; Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:asimov-profile",
+          "description": "State observed versus expected data, the Asimov truth, nuisance constraints and parameter boundaries; test coverage or calibration when asymptotic assumptions fail.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:discovery",
+      "kind": "convention",
+      "statement": "Discovery tests the background-only hypothesis. A local discovery significance and a global significance after searching a parameter range differ. An exclusion contour is not a discovery claim.",
+      "tags": [
+        "discovery",
+        "significance"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "statistics"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2411,
+          "line_end": 2411,
+          "excerpt_sha256": "f734ba9f49a608d05e92b3de5130c83be981e3b356b7fb3dc881683f8ae6cdfd",
+          "locator": "RAVEL authored convention conv:discovery; primary references: arXiv:1007.1727, sections 2-4; Phys. Rev. D 110, 030001; review Statistics, confidence intervals and hypothesis tests"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:discovery",
+          "description": "Declare the discovery null, test statistic, local or global scope and treatment of the search population.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

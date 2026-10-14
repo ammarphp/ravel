@@ -1,0 +1,25 @@
+{
+ "id": "op:full-auxiliary-calibration",
+ "op": {
+  "do_not_use_when": [
+   "Sensitivity before data: use asimov-sensitivity.",
+   "Native likelihood evaluation: use native-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/full-auxiliary-calibration-example --spec specs/full-auxiliary-calibration.json",
+    "phrase": "Calibrate auxiliary constraints at a fixed truth with a native likelihood.",
+    "spec": {
+     "mode": "full-auxiliary-calibration",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Fixed-truth auxiliary calibration with the native likelihood.",
+   "Check that auxiliary measurements calibrate as declared."
+  ]
+ }
+}

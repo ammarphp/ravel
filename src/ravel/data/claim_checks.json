@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "kind": "claim-check-registry",
+  "scope": "Computed checks resolve from lineage, artifacts, effects and comparison targets. Declared claim labels cannot remove requirements. Missing raw evidence never passes. Bounds come from approved records; registry membership is not physics certification.",
+  "checks": {
+    "acceptance_certificate": {
+      "computed": true,
+      "evaluator": "acceptance_certificate",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "agreement_correlation_range": {
+      "computed": true,
+      "evaluator": "agreement_correlation_range",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "agreement_target_declared": {
+      "computed": true,
+      "evaluator": "agreement_target_declared",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "checkin1"
+      ]
+    },
+    "attribution_above_noise": {
+      "computed": true,
+      "evaluator": "attribution_above_noise",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "baseline_first": {
+      "computed": true,
+      "evaluator": "baseline_first",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "basis_manifest": {
+      "computed": true,
+      "evaluator": "basis_manifest",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "census": {
+      "computed": true,
+      "evaluator": "census",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "closure": {
+      "computed": true,
+      "evaluator": "closure",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "comparison_family_match": {
+      "computed": true,
+      "evaluator": "comparison_family_match",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "checkin1",
+        "delivery"
+      ]
+    },
+    "decay_closure": {
+      "computed": true,
+      "evaluator": "decay_closure",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "designed_selection_bundle": {
+      "computed": true,
+      "evaluator": "designed_selection_bundle",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "deviations": {
+      "computed": true,
+      "evaluator": "deviations",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "downstream_settings_after_transforms": {
+      "computed": true,
+      "evaluator": "downstream_settings_after_transforms",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "before_consumer"
+      ]
+    },
+    "eft_validity": {
+      "computed": true,
+      "evaluator": "eft_validity",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "field_authority": {
+      "computed": true,
+      "evaluator": "field_authority",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "figure_comparison": {
+      "computed": true,
+      "evaluator": "figure_comparison",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "fit_alarms": {
+      "computed": true,
+      "evaluator": "fit_alarms",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "formula_check_value": {
+      "computed": true,
+      "evaluator": "formula_check_value",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "generation_cut_consistency": {
+      "computed": true,
+      "evaluator": "generation_cut_consistency",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "before_full"
+      ]
+    },
+    "independent_reference": {
+      "computed": true,
+      "evaluator": "independent_reference",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "interference_size": {
+      "computed": true,
+      "evaluator": "interference_size",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "plan",
+        "delivery"
+      ]
+    },
+    "invisible_card": {
+      "computed": true,
+      "evaluator": "invisible_card",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "io_contract": {
+      "computed": true,
+      "evaluator": "io_contract",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "known_answer_tests": {
+      "computed": true,
+      "evaluator": "known_answer_tests",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "learned_selection_sculpting": {
+      "computed": true,
+      "evaluator": "learned_selection_sculpting",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "lhe_check": {
+      "computed": true,
+      "evaluator": "lhe_check",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "likelihood_pairing": {
+      "computed": true,
+      "evaluator": "likelihood_pairing",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "limit_status": {
+      "computed": true,
+      "evaluator": "limit_status",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "measurement_applicability": {
+      "computed": true,
+      "evaluator": "measurement_applicability",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "normalization_ledger": {
+      "computed": true,
+      "evaluator": "normalization_ledger",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "numerical_reference": {
+      "computed": true,
+      "evaluator": "numerical_reference",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "observed_admissible": {
+      "computed": true,
+      "evaluator": "observed_admissible",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "per_bin_mc_precision": {
+      "computed": true,
+      "evaluator": "per_bin_mc_precision",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "before_delivery"
+      ]
+    },
+    "prose": {
+      "computed": true,
+      "evaluator": "prose",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "r5": {
+      "computed": true,
+      "evaluator": "r5",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "reference_withheld": {
+      "computed": true,
+      "evaluator": "reference_withheld",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "routine_validation": {
+      "computed": true,
+      "evaluator": "routine_validation",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "signal_model_complete_before_calibration": {
+      "computed": true,
+      "evaluator": "signal_model_complete_before_calibration",
+      "input": "raw_observations",
+      "family": "context",
+      "sites": [
+        "before_calibration"
+      ]
+    },
+    "split_integrity": {
+      "computed": true,
+      "evaluator": "split_integrity",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "statistic_matches_claim": {
+      "computed": true,
+      "evaluator": "statistic_matches_claim",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "summary_complete": {
+      "computed": true,
+      "evaluator": "summary_complete",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    },
+    "validation.plot_lint": {
+      "computed": true,
+      "evaluator": "validation.plot_lint",
+      "input": "raw_observations",
+      "family": "inherited",
+      "sites": [
+        "delivery"
+      ]
+    }
+  }
+}

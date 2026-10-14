@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "required": ["call_id", "outcome", "evidence", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "call_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "outcome": {"type": "string", "enum": ["completed", "not_dispatched", "failed"]},
+    "evidence": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["path", "sha256"], "additionalProperties": false, "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}},
+    "reason": {"type": "string", "minLength": 1},
+    "result": {}
+  }
+}

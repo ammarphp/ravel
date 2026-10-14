@@ -1,0 +1,25 @@
+{
+ "id": "op:model-authoring",
+ "op": {
+  "do_not_use_when": [
+   "Deriving rules from an existing FeynRules model: use model-derivation-bridge.",
+   "Validating a supplied UFO: use model-tool-bridge or model-ward."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-authoring-example --spec specs/model-authoring.json",
+    "phrase": "Author a FeynRules model from a typed specification and check its UFO.",
+    "spec": {
+     "mode": "model-authoring",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Author a FeynRules model extending the Standard Model from a typed specification or template.",
+   "Lint, gauge-check and export a UFO of a new model."
+  ]
+ }
+}

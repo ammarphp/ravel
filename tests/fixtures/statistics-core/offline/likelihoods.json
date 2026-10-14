@@ -1,0 +1,6 @@
+{
+  "https://example.invalid/model": [
+    "models/background.json",
+    "models/patchset.json"
+  ]
+}

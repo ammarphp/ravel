@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "references": {
+      "hepdata": "7"
+    },
+    "digests": {
+      "sha256": "91ed9d448ceae99882fc54fe5cd46c4f138894c258eaaa5de87044c809d86dc0"
+    },
+    "labels": [
+      "coordinate"
+    ]
+  },
+  "patches": [
+    {
+      "metadata": {
+        "name": "nominal",
+        "values": [
+          1
+        ]
+      },
+      "patch": [
+        {
+          "op": "add",
+          "path": "/channels/0/samples/-",
+          "value": {
+            "name": "signal",
+            "data": [
+              5
+            ],
+            "modifiers": [
+              {
+                "name": "strength",
+                "type": "normfactor",
+                "data": null
+              },
+              {
+                "name": "response",
+                "type": "normsys",
+                "data": {
+                  "lo": 0.9,
+                  "hi": 1.1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "op": "add",
+          "path": "/channels/1/samples/-",
+          "value": {
+            "name": "signal",
+            "data": [
+              1
+            ],
+            "modifiers": [
+              {
+                "name": "strength",
+                "type": "normfactor",
+                "data": null
+              },
+              {
+                "name": "response",
+                "type": "normsys",
+                "data": {
+                  "lo": 0.9,
+                  "hi": 1.1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

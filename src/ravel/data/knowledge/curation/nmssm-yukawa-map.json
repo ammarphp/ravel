@@ -1,0 +1,25 @@
+{
+ "id": "op:nmssm-yukawa-map",
+ "op": {
+  "do_not_use_when": [
+   "MSSM lifetimes: use mssm-observable-map.",
+   "Spectrum solving: use generated-spectrum."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/nmssm-yukawa-map-example --spec specs/nmssm-yukawa-map.json",
+    "phrase": "Map a released NMSSM spectrum convention to neutral-Higgs predictions.",
+    "spec": {
+     "mode": "nmssm-yukawa-map",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "NMSSM tree-level spectrum convention to neutral-Higgs predictions.",
+   "Yukawa conventions of a released NMSSM spectrum must be mapped."
+  ]
+ }
+}

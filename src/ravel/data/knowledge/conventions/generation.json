@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "id": "conventions:generation",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:flavour-scheme",
+      "kind": "convention",
+      "statement": "Four-flavour and five-flavour descriptions allocate heavy-quark contributions differently. Their PDFs, matrix elements, masses and matching prescriptions must form a consistent perturbative prediction.",
+      "tags": [
+        "heavy-flavour",
+        "pdf",
+        "four-flavour",
+        "five-flavour"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "generation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 1684,
+          "line_end": 1684,
+          "excerpt_sha256": "ae2c2d2b84deebe46c7a89014b05975692daa1167007e675b6451e116089899a",
+          "locator": "RAVEL authored convention conv:flavour-scheme; primary references: arXiv:1405.0301, event generation and matching"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:flavour-scheme",
+          "description": "Record the flavour scheme, PDF set and version, perturbative order, heavy-quark treatment and any matching prescription.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:decay-tables",
+      "kind": "convention",
+      "statement": "A total DECAY width does not supply branching fractions or decay channels to a shower. Model, restriction and shower import settings determine which masses and decays are used.",
+      "tags": [
+        "decay-table",
+        "shower",
+        "width"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "generation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 1738,
+          "line_end": 1738,
+          "excerpt_sha256": "a911382ca196bfbffdeea5cebb6bd92a10008e7c05915eb079ab0bb3e1b6752a",
+          "locator": "RAVEL authored convention conv:decay-tables; primary references: arXiv:1410.3012, particle data, showers, matching and merging; arXiv:1108.2040, model conventions and coupling orders"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:decay-tables",
+          "description": "Inspect the exported particle masses, widths, channel tables and actual shower import settings before accepting the decay chain.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:generation-support",
+      "kind": "convention",
+      "statement": "A resonance mass-window cutoff truncates sampled phase space. Matrix-element/parton-shower merging scales and generation cuts also change support and require validation in the requested observable.",
+      "tags": [
+        "broad-resonance",
+        "merging",
+        "isr"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "generation"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 1797,
+          "line_end": 1797,
+          "excerpt_sha256": "36354036e8352ef32dd1c2c41c00af21a48959da091b915342bdb51e1342fc81",
+          "locator": "RAVEL authored convention conv:generation-support; primary references: arXiv:1405.0301, event generation and matching; arXiv:1206.4803, off-shell effects and signal-background interference"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:generation-support",
+          "description": "Record mass-window and merging settings; test support, tails and matching against the requested accuracy.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,918 @@
+{
+  "files": {
+    ".gitignore": {
+      "sha256": "ae31c0488042c5a628008677ee48f067fd342ba2507f374813b30c1fc2281729",
+      "size": 329
+    },
+    "LICENSE": {
+      "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+      "size": 11357
+    },
+    "MANIFEST.in": {
+      "sha256": "a7e7545d60b747b4a3b9546481407c80c6faf5288c18ee09c42c1a1536226561",
+      "size": 466
+    },
+    "README.rst": {
+      "sha256": "60c14f19e457a1bce85fd94238f4a8ea71272c241876ea65f0fd248de0024e79",
+      "size": 2595
+    },
+    "bin/easyscan.py": {
+      "sha256": "a721f0ec95f3e5e02df49b20a2d1fa34e1d33045d013b26e5c2a958d07bb728b",
+      "size": 361
+    },
+    "easyscan_hep/__init__.py": {
+      "sha256": "68a1e2242f943dcc60c39e50832553603e7dceb923319ebe7a4f3f3bdfb1d2d6",
+      "size": 57
+    },
+    "easyscan_hep/api.py": {
+      "sha256": "e6c43c91aaac750835a01167fc572e53d77579b7517a3acfac20d95555504870",
+      "size": 5468
+    },
+    "easyscan_hep/cli.py": {
+      "sha256": "265d471f926d036504bb8b1b6919a5e468ca7b4117e8e6ea1ab6579ba0215134",
+      "size": 18380
+    },
+    "easyscan_hep/config_io.py": {
+      "sha256": "09239fe5228148003b3628d715c63fdaf6b4924dd4fa45f37e5c8dc147e31474",
+      "size": 1412
+    },
+    "easyscan_hep/dependency_check.py": {
+      "sha256": "4db384d978ad16485b19a6f692ca0e9537636bf6299d9e76f657077fee6a2d14",
+      "size": 6654
+    },
+    "easyscan_hep/results.py": {
+      "sha256": "ad3f6b4a54bd2192a63c3826d27360950c85e7abbeeacddfefa77ea81321380f",
+      "size": 5317
+    },
+    "pyproject.toml": {
+      "sha256": "30f4a45624656b7b8e55560bbc67789bcf59a33d5b589ce415c9a5ac32e1a64b",
+      "size": 85
+    },
+    "scripts/check_package.py": {
+      "sha256": "d05c2c133c1ceac4893f6075d9c293df33cb0f171dbc5c50299c0cc64167235a",
+      "size": 2116
+    },
+    "setup.py": {
+      "sha256": "6ef5f633e7b20b88848b9154c2e25e736e6c7abafd2ca5547366c608056941b5",
+      "size": 3217
+    },
+    "src/auxfun.py": {
+      "sha256": "551a809bbfc5922d23e4a6c62d6a98fff9f7439a17386a1aac886c4abacfe662",
+      "size": 6643
+    },
+    "src/config_checker.py": {
+      "sha256": "87e0b3235095335fcfab3e4f412f73bafd03c1e8cef569afa97e14d18aee9e39",
+      "size": 18293
+    },
+    "src/constraint.py": {
+      "sha256": "d0db60d13e1781e5ef4ac6534a4db4d994a42c7947d1b2bd36fe2b2c5f8c76dd",
+      "size": 4564
+    },
+    "src/easyscan_logging.conf": {
+      "sha256": "4c7abfedd20797281d02fd784ede764c962367aba6efe302023044a1e1f18a12",
+      "size": 635
+    },
+    "src/initialize.py": {
+      "sha256": "240c993010d3750a70ea593fd2d3f1182aa11e52d5afa42af54e35daedbcdeba",
+      "size": 2765
+    },
+    "src/ploter.py": {
+      "sha256": "beb6bc1cbd5cdee85a8ca0ca8d36aa6ea930084b67a3ac1dde30e91431e99e36",
+      "size": 11991
+    },
+    "src/program.py": {
+      "sha256": "69b24a44f0158837fc52e5739f20fa654f2fb2fee9973690d9bcef0e6d7e7077",
+      "size": 53586
+    },
+    "src/readin_config.py": {
+      "sha256": "2497da025c7689a60de4b3014fb0628ed7cbf0017547031bb6e9a16268271fcb",
+      "size": 9008
+    },
+    "src/scan_controller.py": {
+      "sha256": "e54d63124e616f2de6351a7cf892a49f91dd96494e509cf4db1415a023a83b37",
+      "size": 18635
+    },
+    "src/scanner.py": {
+      "sha256": "1260b89ab620562870645b445cc0e2b1f0e27bb3d623b4aa1505a5147acca7e9",
+      "size": 27793
+    },
+    "src/statfun.py": {
+      "sha256": "be2b331c4256d809a970f80a60be4802fdf7706a5210dba00bb8b3d08ee43657",
+      "size": 762
+    },
+    "templates/bound.txt": {
+      "sha256": "5027540630873584cda0a2249b8a62d32ebbf714f2aafada2d6dcdf63e5494d1",
+      "size": 99
+    },
+    "templates/example_bestfit.ini": {
+      "sha256": "e2264796d32adb6bf112a242c61b1df313817c8c2b18caf5c86afc08a34e0e80",
+      "size": 699
+    },
+    "templates/example_dynesty.ini": {
+      "sha256": "076670b378fd82380fc17fbce98ee3fc470031416d735d699d87ddaa20315ec5",
+      "size": 699
+    },
+    "templates/example_emcee.ini": {
+      "sha256": "a11c995387c1fe0da4e50a051ded6c2100da3f850913780a26645cb43b9f21e5",
+      "size": 793
+    },
+    "templates/example_grid.ini": {
+      "sha256": "22090601f50b0a10a5235e879ad7133ac6d75812cda714dc3fe95ef62e96997f",
+      "size": 881
+    },
+    "templates/example_mcmc.ini": {
+      "sha256": "3eb742a62ecdc7c6526cc6085da3b57deb83441f5dcfb98d98c5a7dacc275ed0",
+      "size": 936
+    },
+    "templates/example_mcmc_bound.ini": {
+      "sha256": "2285a788e2c75ae7ae04c3210658d456086e4eee13f240b84f1613371a27cda8",
+      "size": 1208
+    },
+    "templates/example_multinest.ini": {
+      "sha256": "26666ff2a4466079977a49430bbc3b0ab95c9a814a16051c58372e78be169452",
+      "size": 900
+    },
+    "templates/example_onepoint.ini": {
+      "sha256": "80e0dd25095c64dc63d770125d2176290cf13cd82ea8539e9113e2f9d41f3b0f",
+      "size": 708
+    },
+    "templates/example_onepointbatch.ini": {
+      "sha256": "14223012d84704a6b0ce72e55b3508034946236ac83579ae707ef49a2de545eb",
+      "size": 736
+    },
+    "templates/example_random.ini": {
+      "sha256": "506a339174b9bcbb6c14e8659e9fc962a475b9c0e85efedfeadc2c670b87867d",
+      "size": 937
+    },
+    "templates/example_random_timeLimit.ini": {
+      "sha256": "7f6581d7559fa7b9a861da6d21caf121a269eed4931e4446729f6b34161e53e4",
+      "size": 962
+    },
+    "templates/scan_MSSM_for_mW.ini": {
+      "sha256": "98aa01d6bd5b368dd8c66cc1fabfb003b706768ebac85be69b379565e8dae4cc",
+      "size": 4925
+    },
+    "templates/scan_SSM_DM_EWPT.ini": {
+      "sha256": "af5bb12918622cefe87e02c60add0da8b5739021ec5bec2c7a43186a1dc36069",
+      "size": 1970
+    },
+    "ui/__init__.py": {
+      "sha256": "417ef4c14c1d667c9f4c7eaa83759865d9763b303e94e26a7f0b28a83ef71237",
+      "size": 45
+    },
+    "ui/app.py": {
+      "sha256": "1f7fa75f8aafef925d5ae4747b35035a0b350a7d789c212cde37839eb27d923f",
+      "size": 45031
+    },
+    "ui/static/app.js": {
+      "sha256": "88c814e483f3b9f8034c335ec7e8f759b12a65b7cd188568cc104247b4c61f6a",
+      "size": 35652
+    },
+    "ui/static/styles.css": {
+      "sha256": "2af06784063d23f8a07a598077e3d7b40e6d58d05601090ee5f8fe1866ea3efe",
+      "size": 10167
+    },
+    "ui/templates/index.html": {
+      "sha256": "71575c118af6997d32b8d5664e319e8ade2171e90fdb3d463ebae52f72311be8",
+      "size": 13619
+    },
+    "utils/MSSM_mW/for_MSSM_mW.susyhit": {
+      "sha256": "08e4d62971da6b514d4033b8aa645a886f9772b967c2a181b2387e9c4a9a4352",
+      "size": 4767
+    },
+    "utils/MSSM_mW/hbounds.txt": {
+      "sha256": "834fe4060aae59172dc22104f637fb0118893c882e1dee179c4c7e20f8399b9f",
+      "size": 2223
+    },
+    "utils/MSSM_mW/makefile": {
+      "sha256": "10798db761fd3fe298a8db0231321af98c5f2254ccfa6c3ea9d4daaeab96374b",
+      "size": 7367
+    },
+    "utils/OnePointBatch.in": {
+      "sha256": "646117aff353ba45fdd89fd82b3109cf34e37ebefdd06526ff2df5880721b036",
+      "size": 684
+    },
+    "utils/SSM_DM_EWPT/README.md": {
+      "sha256": "647e3485c9818e26b91bf264d9c03dc12269c608bef8817bbc2729b48513b295",
+      "size": 2365
+    },
+    "utils/SSM_DM_EWPT/bootstrap.py": {
+      "sha256": "1d650e15052312bf57e9acd58f9bd76f2b6e7833cbaaeed335f0846811006fd6",
+      "size": 10484
+    },
+    "utils/SSM_DM_EWPT/patches/micromegas_7.1_easyscan.patch": {
+      "sha256": "ab3069f43db1cdbffb2a4d00059816681536321e535158befe36d9b7c4f09247",
+      "size": 655
+    },
+    "utils/SSM_DM_EWPT/plot_dm_ewpt.py": {
+      "sha256": "e0bd5bb0c9d14a8d1d391aba33ac350a9d0d7e531eb3e09f125a7e0c95d13040",
+      "size": 4741
+    },
+    "utils/SSM_DM_EWPT/programs/.gitignore": {
+      "sha256": "240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d",
+      "size": 14
+    },
+    "utils/TestFunction.py": {
+      "sha256": "4b1fbf376f7491ec754c2ebcbc4afd96c23798cc03cdc32e6d97086b87f092f1",
+      "size": 454
+    },
+    "utils/TestFunction_input.dat": {
+      "sha256": "4af910572c516b206fb32cc682cd214ddb6277248979ebbded517a07a77bc6aa",
+      "size": 49
+    }
+  },
+  "license": "Apache-2.0",
+  "likelihood": "-Chi2/2, Gaussian constants omitted",
+  "mcmc_acceptance": "native exp(CurChisq-Chisq),+20 cutoff, source proposal scaling",
+  "methods": {
+    "BESTFIT": "max iterations",
+    "DYNESTY": "live points",
+    "EMCEE": "walkers*ceil(target/walkers) slots, finite chain written",
+    "GRID": "endpoint-inclusive interval product",
+    "MCMC": "native accepted points/dwell",
+    "RANDOM": "trials"
+  },
+  "release": "2dee5ede04b131b889ac6a9cb52f3a335d6df640",
+  "rng": "Random seed controls Python random only; sampler/parallel independence unknown",
+  "schema_version": 1,
+  "source_callables": {
+    "easyscan_hep/api.py": [
+      {
+        "first_line": 21,
+        "last_line": 22,
+        "name": "source_root"
+      },
+      {
+        "first_line": 25,
+        "last_line": 33,
+        "name": "configure_import_paths"
+      },
+      {
+        "first_line": 36,
+        "last_line": 43,
+        "name": "check_config"
+      },
+      {
+        "first_line": 46,
+        "last_line": 53,
+        "name": "result_dir_from_config"
+      },
+      {
+        "first_line": 56,
+        "last_line": 122,
+        "name": "run_config"
+      },
+      {
+        "first_line": 125,
+        "last_line": 144,
+        "name": "install_agent_skill"
+      }
+    ],
+    "easyscan_hep/cli.py": [
+      {
+        "first_line": 17,
+        "last_line": 19,
+        "name": "source_root"
+      },
+      {
+        "first_line": 22,
+        "last_line": 30,
+        "name": "configure_import_paths"
+      },
+      {
+        "first_line": 33,
+        "last_line": 38,
+        "name": "ui_is_running"
+      },
+      {
+        "first_line": 41,
+        "last_line": 47,
+        "name": "open_ui_when_ready"
+      },
+      {
+        "first_line": 50,
+        "last_line": 60,
+        "name": "resolve_ui_config_path"
+      },
+      {
+        "first_line": 63,
+        "last_line": 94,
+        "name": "run_ui"
+      },
+      {
+        "first_line": 97,
+        "last_line": 116,
+        "name": "run_check"
+      },
+      {
+        "first_line": 119,
+        "last_line": 120,
+        "name": "print_json"
+      },
+      {
+        "first_line": 123,
+        "last_line": 129,
+        "name": "print_main_usage"
+      },
+      {
+        "first_line": 132,
+        "last_line": 148,
+        "name": "run_results"
+      },
+      {
+        "first_line": 151,
+        "last_line": 180,
+        "name": "run_agent_scan"
+      },
+      {
+        "first_line": 183,
+        "last_line": 209,
+        "name": "run_install_agent_skill"
+      },
+      {
+        "first_line": 212,
+        "last_line": 238,
+        "name": "apply_overwrite_option"
+      },
+      {
+        "first_line": 241,
+        "last_line": 461,
+        "name": "run_scan"
+      },
+      {
+        "first_line": 464,
+        "last_line": 498,
+        "name": "main"
+      },
+      {
+        "first_line": 267,
+        "last_line": 314,
+        "name": "lnlike"
+      },
+      {
+        "first_line": 316,
+        "last_line": 318,
+        "name": "prior"
+      }
+    ],
+    "easyscan_hep/results.py": [
+      {
+        "first_line": 21,
+        "last_line": 31,
+        "name": "_to_number"
+      },
+      {
+        "first_line": 34,
+        "last_line": 41,
+        "name": "_split_data_row"
+      },
+      {
+        "first_line": 44,
+        "last_line": 100,
+        "name": "read_table"
+      },
+      {
+        "first_line": 103,
+        "last_line": 138,
+        "name": "read_results"
+      },
+      {
+        "first_line": 141,
+        "last_line": 157,
+        "name": "format_results_summary"
+      }
+    ],
+    "src/constraint.py": [
+      {
+        "first_line": 7,
+        "last_line": 129,
+        "name": "CONSTRAINT"
+      },
+      {
+        "first_line": 8,
+        "last_line": 13,
+        "name": "__init__"
+      },
+      {
+        "first_line": 15,
+        "last_line": 42,
+        "name": "setGaussian"
+      },
+      {
+        "first_line": 59,
+        "last_line": 75,
+        "name": "setFreeFormChi2"
+      },
+      {
+        "first_line": 77,
+        "last_line": 129,
+        "name": "getChisq"
+      }
+    ],
+    "src/program.py": [
+      {
+        "first_line": 14,
+        "last_line": 988,
+        "name": "PROGRAM"
+      },
+      {
+        "first_line": 15,
+        "last_line": 53,
+        "name": "__init__"
+      },
+      {
+        "first_line": 55,
+        "last_line": 56,
+        "name": "setParallelMode"
+      },
+      {
+        "first_line": 58,
+        "last_line": 59,
+        "name": "setParallelFolder"
+      },
+      {
+        "first_line": 61,
+        "last_line": 64,
+        "name": "setProgName"
+      },
+      {
+        "first_line": 65,
+        "last_line": 67,
+        "name": "setCommand"
+      },
+      {
+        "first_line": 68,
+        "last_line": 82,
+        "name": "setComPath"
+      },
+      {
+        "first_line": 84,
+        "last_line": 107,
+        "name": "setInputFile"
+      },
+      {
+        "first_line": 110,
+        "last_line": 130,
+        "name": "checkVar_file"
+      },
+      {
+        "first_line": 132,
+        "last_line": 170,
+        "name": "checkVar_position"
+      },
+      {
+        "first_line": 173,
+        "last_line": 209,
+        "name": "checkVar_label"
+      },
+      {
+        "first_line": 211,
+        "last_line": 275,
+        "name": "checkVar_slha"
+      },
+      {
+        "first_line": 277,
+        "last_line": 336,
+        "name": "checkVar_replace"
+      },
+      {
+        "first_line": 339,
+        "last_line": 380,
+        "name": "setInputVar"
+      },
+      {
+        "first_line": 382,
+        "last_line": 403,
+        "name": "setOutputFile"
+      },
+      {
+        "first_line": 405,
+        "last_line": 457,
+        "name": "setOutputVar"
+      },
+      {
+        "first_line": 459,
+        "last_line": 469,
+        "name": "setExecutor"
+      },
+      {
+        "first_line": 471,
+        "last_line": 481,
+        "name": "setOutputClean"
+      },
+      {
+        "first_line": 483,
+        "last_line": 486,
+        "name": "setTimeLimit"
+      },
+      {
+        "first_line": 489,
+        "last_line": 490,
+        "name": "getProgName"
+      },
+      {
+        "first_line": 491,
+        "last_line": 492,
+        "name": "getCommand"
+      },
+      {
+        "first_line": 493,
+        "last_line": 494,
+        "name": "getComPath"
+      },
+      {
+        "first_line": 495,
+        "last_line": 496,
+        "name": "getInputFile"
+      },
+      {
+        "first_line": 497,
+        "last_line": 498,
+        "name": "getInputVar"
+      },
+      {
+        "first_line": 499,
+        "last_line": 500,
+        "name": "getOutputFile"
+      },
+      {
+        "first_line": 501,
+        "last_line": 502,
+        "name": "getOutputVar"
+      },
+      {
+        "first_line": 504,
+        "last_line": 648,
+        "name": "WriteInputFile"
+      },
+      {
+        "first_line": 650,
+        "last_line": 726,
+        "name": "RunProgram"
+      },
+      {
+        "first_line": 739,
+        "last_line": 748,
+        "name": "RemoveOutputFile"
+      },
+      {
+        "first_line": 750,
+        "last_line": 834,
+        "name": "ReadOutputFile"
+      },
+      {
+        "first_line": 836,
+        "last_line": 839,
+        "name": "Recover"
+      },
+      {
+        "first_line": 843,
+        "last_line": 855,
+        "name": "setGaussian"
+      },
+      {
+        "first_line": 858,
+        "last_line": 867,
+        "name": "setFreeFormChi2"
+      },
+      {
+        "first_line": 870,
+        "last_line": 914,
+        "name": "setBound"
+      },
+      {
+        "first_line": 918,
+        "last_line": 988,
+        "name": "ReadBound"
+      }
+    ],
+    "src/readin_config.py": [
+      {
+        "first_line": 12,
+        "last_line": 19,
+        "name": "checkDuplicatedName"
+      },
+      {
+        "first_line": 22,
+        "last_line": 23,
+        "name": "notFind"
+      },
+      {
+        "first_line": 25,
+        "last_line": 26,
+        "name": "notInteger"
+      },
+      {
+        "first_line": 28,
+        "last_line": 29,
+        "name": "takeDefault"
+      },
+      {
+        "first_line": 31,
+        "last_line": 230,
+        "name": "ReadIn"
+      }
+    ],
+    "src/scan_controller.py": [
+      {
+        "first_line": 14,
+        "last_line": 415,
+        "name": "CONTROLLER"
+      },
+      {
+        "first_line": 15,
+        "last_line": 43,
+        "name": "__init__"
+      },
+      {
+        "first_line": 45,
+        "last_line": 56,
+        "name": "setScanMethod"
+      },
+      {
+        "first_line": 58,
+        "last_line": 68,
+        "name": "backup_result"
+      },
+      {
+        "first_line": 70,
+        "last_line": 137,
+        "name": "setFolderName"
+      },
+      {
+        "first_line": 139,
+        "last_line": 147,
+        "name": "clean_directory"
+      },
+      {
+        "first_line": 150,
+        "last_line": 154,
+        "name": "setPointNum"
+      },
+      {
+        "first_line": 156,
+        "last_line": 162,
+        "name": "setRandomSeed"
+      },
+      {
+        "first_line": 164,
+        "last_line": 169,
+        "name": "setAccepRate"
+      },
+      {
+        "first_line": 171,
+        "last_line": 175,
+        "name": "setMCMCWalkers"
+      },
+      {
+        "first_line": 177,
+        "last_line": 185,
+        "name": "setParallelThreads"
+      },
+      {
+        "first_line": 187,
+        "last_line": 204,
+        "name": "setParallelFolder"
+      },
+      {
+        "first_line": 206,
+        "last_line": 218,
+        "name": "setPrintNum"
+      },
+      {
+        "first_line": 220,
+        "last_line": 221,
+        "name": "InputParInfo"
+      },
+      {
+        "first_line": 223,
+        "last_line": 342,
+        "name": "setInputPar"
+      },
+      {
+        "first_line": 344,
+        "last_line": 381,
+        "name": "setProgram"
+      },
+      {
+        "first_line": 383,
+        "last_line": 384,
+        "name": "getFolderName"
+      },
+      {
+        "first_line": 385,
+        "last_line": 386,
+        "name": "getPointNum"
+      },
+      {
+        "first_line": 387,
+        "last_line": 388,
+        "name": "getScanMethod"
+      },
+      {
+        "first_line": 389,
+        "last_line": 390,
+        "name": "getScanFile"
+      },
+      {
+        "first_line": 391,
+        "last_line": 392,
+        "name": "getRandomSeed"
+      },
+      {
+        "first_line": 393,
+        "last_line": 394,
+        "name": "getPrintNum"
+      },
+      {
+        "first_line": 395,
+        "last_line": 396,
+        "name": "getDebugFlag"
+      },
+      {
+        "first_line": 398,
+        "last_line": 399,
+        "name": "getParallelMode"
+      },
+      {
+        "first_line": 400,
+        "last_line": 401,
+        "name": "getParallelFolder"
+      },
+      {
+        "first_line": 402,
+        "last_line": 403,
+        "name": "getParallelThreads"
+      },
+      {
+        "first_line": 405,
+        "last_line": 406,
+        "name": "getStepSize"
+      },
+      {
+        "first_line": 407,
+        "last_line": 408,
+        "name": "getInitialValue"
+      },
+      {
+        "first_line": 410,
+        "last_line": 411,
+        "name": "getFlagTuneR"
+      },
+      {
+        "first_line": 412,
+        "last_line": 413,
+        "name": "getAccepRate"
+      },
+      {
+        "first_line": 414,
+        "last_line": 415,
+        "name": "getMCMCWalkers"
+      }
+    ],
+    "src/scanner.py": [
+      {
+        "first_line": 22,
+        "last_line": 31,
+        "name": "run_processes"
+      },
+      {
+        "first_line": 33,
+        "last_line": 36,
+        "name": "getFilelength"
+      },
+      {
+        "first_line": 38,
+        "last_line": 42,
+        "name": "sequence_value"
+      },
+      {
+        "first_line": 44,
+        "last_line": 59,
+        "name": "saveCube"
+      },
+      {
+        "first_line": 61,
+        "last_line": 84,
+        "name": "printPoint"
+      },
+      {
+        "first_line": 86,
+        "last_line": 94,
+        "name": "printPoint4MCMC"
+      },
+      {
+        "first_line": 96,
+        "last_line": 148,
+        "name": "postprocessrun"
+      },
+      {
+        "first_line": 151,
+        "last_line": 172,
+        "name": "onepointrun"
+      },
+      {
+        "first_line": 174,
+        "last_line": 226,
+        "name": "onepointbatchrun"
+      },
+      {
+        "first_line": 228,
+        "last_line": 300,
+        "name": "gridrun"
+      },
+      {
+        "first_line": 303,
+        "last_line": 356,
+        "name": "randomrun"
+      },
+      {
+        "first_line": 359,
+        "last_line": 407,
+        "name": "bestfitrun"
+      },
+      {
+        "first_line": 410,
+        "last_line": 557,
+        "name": "mcmcrun"
+      },
+      {
+        "first_line": 560,
+        "last_line": 643,
+        "name": "emceerun"
+      },
+      {
+        "first_line": 646,
+        "last_line": 706,
+        "name": "multinestrun"
+      },
+      {
+        "first_line": 709,
+        "last_line": 759,
+        "name": "dynestyrun"
+      },
+      {
+        "first_line": 118,
+        "last_line": 130,
+        "name": "per_run"
+      },
+      {
+        "first_line": 196,
+        "last_line": 208,
+        "name": "per_run"
+      },
+      {
+        "first_line": 259,
+        "last_line": 282,
+        "name": "per_run"
+      },
+      {
+        "first_line": 323,
+        "last_line": 339,
+        "name": "per_run"
+      },
+      {
+        "first_line": 375,
+        "last_line": 394,
+        "name": "objective"
+      },
+      {
+        "first_line": 471,
+        "last_line": 537,
+        "name": "per_run"
+      },
+      {
+        "first_line": 602,
+        "last_line": 625,
+        "name": "log_probability"
+      },
+      {
+        "first_line": 652,
+        "last_line": 653,
+        "name": "get_i_folder"
+      },
+      {
+        "first_line": 656,
+        "last_line": 669,
+        "name": "per_run"
+      },
+      {
+        "first_line": 723,
+        "last_line": 726,
+        "name": "prior_transform"
+      },
+      {
+        "first_line": 728,
+        "last_line": 741,
+        "name": "log_likelihood"
+      }
+    ],
+    "src/statfun.py": [
+      {
+        "first_line": 6,
+        "last_line": 20,
+        "name": "prior"
+      }
+    ]
+  }
+}

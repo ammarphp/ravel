@@ -1,0 +1,23 @@
+# JHUGen/MELA build and run toolchain for arm64 Linux (GNU C, C++ and Fortran, ROOT, Python).
+#
+# The image holds compilers, ROOT and the RAVEL build/check scripts only. The JHUGen and MELA sources
+# and the build directory stay on the host and are mounted at identical paths by the container launcher,
+# as for the MCFM recipe, so the build receipt and the run path agree inside and outside the container.
+#
+# The base must be pinned by digest. Record it once, after the owner approves the pull, with:
+#   podman pull --platform linux/arm64 registry.fedoraproject.org/fedora:41
+#   podman image inspect --format '{{.Digest}}' registry.fedoraproject.org/fedora:41
+# then replace the placeholder below (and in base-image.json). `ravel backend image-build` refuses to
+# build until the FROM line carries a real digest.
+FROM registry.fedoraproject.org/fedora@sha256:fd6900fd292fc2e8eb2ce9c09d346f3f55333b5b283d64b88630cdf03845bc71
+
+RUN dnf -y install gcc gcc-c++ gcc-gfortran make git patch python3 python3-numpy python3-devel python3-pybind11 root root-python3 file binutils \
+    && dnf clean all \
+    && mkdir -p /opt/ravel/bin
+
+COPY build-jhugen-mela.sh check-jhugen-mela.sh /opt/ravel/bin/
+RUN chmod 0755 /opt/ravel/bin/build-jhugen-mela.sh /opt/ravel/bin/check-jhugen-mela.sh \
+    && { gcc --version | head -1; gfortran --version | head -1; root-config --version; python3 --version; } \
+       > /opt/ravel/toolchain-versions.txt
+
+LABEL org.ravel.recipe="jhugen-mela-toolchain" org.opencontainers.image.description="GNU toolchain and ROOT for the RAVEL JHUGen/MELA build"

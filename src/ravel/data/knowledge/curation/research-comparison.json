@@ -1,0 +1,30 @@
+{
+ "id": "op:research-comparison",
+ "op": {
+  "do_not_use_when": [
+   "Comparing against a published figure: use figure-comparison.",
+   "Comparing against held-out reference values: use numerical-reference-check."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/research-comparison-example --spec specs/research-comparison.json",
+    "phrase": "Compare supplied scalar and interval results cell by cell.",
+    "spec": {
+     "mode": "research-comparison",
+     "task": {
+      "request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      },
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Complete-cell comparison of supplied scalar or interval results.",
+   "Two or more result sets must be compared cell by cell."
+  ]
+ }
+}

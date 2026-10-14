@@ -1,0 +1,119 @@
+{
+  "card": {
+    "escalation": [
+      "checkin_flag",
+      "stop",
+      "new_experiment_required",
+      "decision_block"
+    ],
+    "family": "specialist-review",
+    "id": "second-method-deriver",
+    "independence": {
+      "distinct_actor_from": [
+        "coordinator"
+      ],
+      "fresh_session": true,
+      "kind": "specialist"
+    },
+    "kind": "role-card",
+    "knowledge": {
+      "budget_tokens": 24000,
+      "consult": [],
+      "derive": [
+        "handbooks_for_node",
+        "checks_judging_node",
+        "premises_firing",
+        "conventions:node_tags"
+      ],
+      "forbidden": [
+        "first_method",
+        "lessons",
+        "other_verdicts",
+        "producer_headline",
+        "producer_numbers",
+        "withheld_sources"
+      ],
+      "may_query": [
+        "find",
+        "show",
+        "for_node",
+        "coverage"
+      ],
+      "must_read": [
+        "proto:P2",
+        "proto:P8"
+      ]
+    },
+    "model": {
+      "distinct_family_from": [],
+      "effort": "high",
+      "tier": "judgment"
+    },
+    "must_check": [
+      "check:validation.input_closure.check"
+    ],
+    "operations": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "output": {
+      "declared_outputs": [],
+      "schema": "findings.v1",
+      "sidecar": true
+    },
+    "protocol": [
+      "Derive the contracted analytic or semi-analytic quantity (a width, a cross section at a declared point, an interference term or a solver output) by a method distinct from the first one. Record the source, units, equation, approximations and validity range for each step.",
+      "Treat every node in forbidden_method_nodes as forbidden: do not read its method, code, intermediate values or output. Name the second method and state why it shares no derivation step with the first beyond the pinned physical inputs.",
+      "Return the second-method output as a pinned record with the contracted JSON pointer, unit and declared tolerance so code can compare the two methods at the declared parameter points. Do not compare them yourself or adjust either method toward agreement.",
+      "Preserve a disagreement with a prescribed formula and request its disposition; do not silently replace the prescription. A disagreement beyond tolerance requests an RCA ticket.",
+      "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+      "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+    ],
+    "purpose": "Derive the contracted analytic or semi-analytic quantity (a width, a cross section at a declared point, an interference term or a solver output) by a method distinct from the first one. Record the source, units, equation, approximations and validity range for each step.",
+    "requires": {
+      "attestation_min": "transport",
+      "blind": true,
+      "isolation_min": "ravel-sandbox",
+      "structured_output": true,
+      "tools": "broker-readonly"
+    },
+    "reviewed_by": [],
+    "schema_version": 2,
+    "sees": {
+      "forbidden_inputs": [
+        "first_method",
+        "lessons",
+        "other_verdicts",
+        "producer_headline",
+        "producer_numbers",
+        "withheld_sources"
+      ],
+      "profile": "blind"
+    },
+    "stop": {
+      "evidence_budget": 0,
+      "max_broker_calls": 200,
+      "max_cost_usd": null,
+      "max_rounds": 2,
+      "max_turns": 40,
+      "max_wall_seconds": 1200
+    },
+    "tools": {
+      "exec_argv_prefixes": [],
+      "ravel_actions": [
+        "knowledge query",
+        "review-context read",
+        "check run"
+      ],
+      "read_paths": [
+        "inputs/"
+      ],
+      "validators": [
+        "check:validation.input_closure.check"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "registry_sha256": "add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25"
+}

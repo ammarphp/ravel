@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "kind": "failure-classes",
+  "rules": [
+    {
+      "id": "infra.lease",
+      "family": "infrastructure",
+      "route": "hold",
+      "tools": [],
+      "any": [
+        {
+          "field": "supervisor.lease_conflict",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "infra.disk",
+      "family": "infrastructure",
+      "route": "hold",
+      "tools": [],
+      "any": [
+        {
+          "field": "supervisor.disk_full",
+          "equals": true
+        },
+        {
+          "field": "stderr",
+          "regex": "no space left on device|disk quota exceeded"
+        }
+      ]
+    },
+    {
+      "id": "infra.stop_signal",
+      "family": "infrastructure",
+      "route": "hold",
+      "tools": [],
+      "any": [
+        {
+          "field": "signal",
+          "equals": 2
+        },
+        {
+          "field": "signal",
+          "equals": 15
+        },
+        {
+          "field": "supervisor.stopped",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "infra.timeout",
+      "family": "infrastructure",
+      "route": "hold",
+      "tools": [],
+      "any": [
+        {
+          "field": "supervisor.timed_out",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "provision.doctor",
+      "family": "provisioning",
+      "route": "owner_provision",
+      "tools": [],
+      "any": [
+        {
+          "field": "provision.doctor_ready",
+          "equals": false
+        }
+      ]
+    },
+    {
+      "id": "provision.pdf_set",
+      "family": "provisioning",
+      "route": "owner_provision",
+      "tools": [],
+      "any": [
+        {
+          "field": "provision.missing_pdf_set",
+          "equals": true
+        },
+        {
+          "field": "stderr",
+          "regex": "(?:PDF|LHAPDF).*(?:set.*(?:not found|missing)|missing.*set)"
+        }
+      ]
+    },
+    {
+      "id": "provision.image",
+      "family": "provisioning",
+      "route": "owner_provision",
+      "tools": [],
+      "any": [
+        {
+          "field": "provision.missing_image",
+          "equals": true
+        }
+      ]
+    },
+    {
+      "id": "provision.binary",
+      "family": "provisioning",
+      "route": "owner_provision",
+      "tools": [],
+      "any": [
+        {
+          "field": "provision.missing_binary",
+          "equals": true
+        },
+        {
+          "field": "exit_status",
+          "equals": 127
+        },
+        {
+          "field": "stderr",
+          "regex": "(?:kernel|executable|binary|command) (?:was )?(?:not found|absent)|No such file or directory.*(?:kernel|executable)"
+        }
+      ]
+    },
+    {
+      "id": "tool.madgraph.param_card",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "madgraph"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "(?:missing|absent|not found).*block|block.*(?:missing|absent|not found)"
+        }
+      ]
+    },
+    {
+      "id": "tool.madgraph.process",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "madgraph"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "(?:no|not found|missing).*process|process.*(?:not found|does not exist)"
+        }
+      ]
+    },
+    {
+      "id": "tool.pythia.abort",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "pythia"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "abort|too many errors"
+        },
+        {
+          "field": "signal",
+          "equals": 6
+        }
+      ]
+    },
+    {
+      "id": "tool.delphes.card",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "delphes"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "(?:card|command|module).*(?:error|invalid|unknown)|(?:error|invalid).*card"
+        }
+      ]
+    },
+    {
+      "id": "tool.rivet.compile",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "rivet"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "compil|fatal error|undefined reference"
+        }
+      ]
+    },
+    {
+      "id": "tool.fit.pyhf.patch",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "pyhf"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "patch|invalid.*workspace"
+        }
+      ]
+    },
+    {
+      "id": "tool.fit.nonconvergence",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "inference",
+        "fit",
+        "pyhf",
+        "combine",
+        "roofit",
+        "spey",
+        "sfitter"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "(?:did not|fail.*to|not|non)[ -]?converg|invalid minimum|minimizer.*fail"
+        }
+      ]
+    },
+    {
+      "id": "tool.compile.authored",
+      "family": "tool",
+      "route": "producer_repair",
+      "tools": [
+        "columnar",
+        "authored"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "compil|syntaxerror|fatal error"
+        }
+      ]
+    },
+    {
+      "id": "tool.feynrules.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "feynrules"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.ma5.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "ma5"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.checkmate.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "checkmate"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.smodels.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "smodels"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.wolfram.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "wolfram"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.feyncalc.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "feyncalc"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.root.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "root"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    },
+    {
+      "id": "tool.backend.error",
+      "family": "tool",
+      "route": "consult",
+      "tools": [
+        "backend"
+      ],
+      "any": [
+        {
+          "field": "stderr",
+          "regex": "error|exception|failed|failure|abort"
+        }
+      ]
+    }
+  ],
+  "check_routes": {
+    "normalization_ledger": "consult-normalization",
+    "validate_cutflow": "consult-columnar",
+    "ufo_check": "consult-feynrules"
+  },
+  "quantity_classes": [
+    "nan",
+    "negative_yield",
+    "unit_mismatch"
+  ]
+}

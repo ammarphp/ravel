@@ -1,0 +1,67 @@
+--- a/src/Procdep/lowint.f
++++ b/src/Procdep/lowint.f
+@@ -21,6 +21,8 @@
+         use SafetyCuts, only : passed_smallnew
+         use MCFMSetupPlots, only: nplotter_new
+         use MCFMSettings
++        use ravel_four_lepton, only: begin_draw,dump_point,
++     &       rejected_draw,failed_draw
+       implicit none
+       real(dp):: lowint
+       include 'constants.f'
+@@ -91,6 +93,7 @@
+           return
+       endif
+ 
++      call begin_draw(r,wgt)
+       lowint=0._dp
+ c--- ensure isolation code does not think this is fragmentation piece
+       z_frag=0._dp
+@@ -114,6 +117,7 @@
+           if (debug) then
+               write(6,*) 'Discarding NaN or infinite phase space point'
+           endif
++          call failed_draw(2)
+           goto 999
+       endif
+ 
+@@ -128,10 +132,12 @@
+ c small safety cuts
+       if (origkpart == kresummed) then
+           if (.not. passed_smallnew(p,npart,1d-9)) then
++              call failed_draw(6)
+               goto 999
+           endif
+       else
+           if (.not. passed_smallnew(p,npart,1d-9)) then
++              call failed_draw(6)
+               goto 999
+           endif
+       endif
+@@ -936,6 +942,7 @@
+       if (ieee_is_nan(val)) then
+          write(6,*) 'lowint val = ',val
+          write(6,*) 'Discarding point with random variables',r
++         call failed_draw(7)
+          lowint=zip
+          val=zip
+          goto 999
+@@ -965,11 +972,18 @@
+           lowint = lowint * reweight_user(pjet)
+       endif
+ 
++      if (includeTaucutgrid(0)) then
++        call dump_point(p,pswt,flux,fx1(0)*fx2(0),BrnRat,
++     &  xx(1),xx(2),facscale,musq)
++      endif
++
+   888 continue ! just cuts did not pass
++      call rejected_draw()
+ 
+       return
+ 
+  999  continue ! everything is zero / invalid
++      call rejected_draw()
+       lowint=0._dp
+ 
+       return

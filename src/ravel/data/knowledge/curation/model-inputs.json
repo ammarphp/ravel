@@ -1,0 +1,27 @@
+{
+ "id": "op:model-inputs",
+ "op": {
+  "do_not_use_when": [
+   "Comparing a declared intent with cards: use generation-reconciliation.",
+   "Writing a spectrum card: use simplified-spectrum."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-inputs-example --spec specs/model-inputs.json",
+    "phrase": "Diagnose a supplied SLHA card and its completeness file.",
+    "spec": {
+     "mode": "model-inputs",
+     "task": {
+      "completeness_file": "cards/completeness.json",
+      "slha_file": "cards/spectrum.slha",
+      "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Static diagnosis of supplied SLHA, param, run or proc cards and their completeness.",
+   "Inputs from a collaborator must be inspected before any generation."
+  ]
+ }
+}

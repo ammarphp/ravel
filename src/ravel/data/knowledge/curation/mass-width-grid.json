@@ -1,0 +1,25 @@
+{
+ "id": "op:mass-width-grid",
+ "op": {
+  "do_not_use_when": [
+   "A mass and width grid for any other resonance search: compose resonance-width, formula-grid and an explicit analysis contract.",
+   "Using released tables: use width-inputs only for its bound release.",
+   "Computing partial widths: use resonance-width."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mass-width-grid-example --spec specs/mass-width-grid.json",
+    "phrase": "Run the source-bound mass-width-grid adapter on inputs for its fixed regions and scan domain.",
+    "spec": {
+     "mode": "mass-width-grid",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "The request names this source-bound adapter and supplies inputs for its fixed regions, normalization and scan domain."
+  ]
+ }
+}

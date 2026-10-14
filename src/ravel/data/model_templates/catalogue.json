@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "description": "Model-authoring templates. Each builds a ModelSpec extending the FeynRules SM.fr model from supplied values. Masses, widths and couplings have no defaults; names, PDG codes and LHA block names are conventions with editable defaults.",
+  "templates": [
+    {
+      "id": "scalar-leptoquark",
+      "title": "Colour-triplet scalar leptoquark coupled to one quark type and one lepton type",
+      "lagrangian_latex": "\\mathcal{L} \\supset (D_\\mu S)^\\dagger D^\\mu S - M_S^2 S^\\dagger S + \\lambda^L_{ij}\\, \\bar q_i P_L \\ell_j\\, S + \\lambda^R_{ij}\\, \\bar q_i P_R \\ell_j\\, S + \\mathrm{h.c.} \\quad (F=0);\\; \\bar q \\to \\overline{q^c},\\ S \\to S^\\dagger \\quad (F=2)",
+      "conventions": [
+        "Fields are in the mass basis: q is uq (up-type) or dq (down-type), l is l (charged lepton) or vl (neutrino).",
+        "Fermion number 0: the leptoquark charge is Q(q) - Q(l). Fermion number 2: the coupling uses the charge-conjugate quark and the conjugate leptoquark, and the charge is Q(q) + Q(l).",
+        "Coupling matrices are indexed [quark generation][lepton generation]; P_L = (1 - gamma5)/2.",
+        "The leptoquark is declared as a colour triplet; an anti-triplet leptoquark is the conjugate of this field."
+      ],
+      "inputs": {
+        "model_name": {"type": "identifier", "default": "ScalarLQ", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "default": "LQs", "description": "field class name (at least two characters)"},
+        "pdg": {"type": "pdg", "default": 9000005, "description": "PDG code of the leptoquark"},
+        "mass_GeV": {"type": "positive", "description": "leptoquark mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV written to the model (use the decay computation in MadGraph to replace it)"},
+        "quark": {"type": "choice", "choices": ["uq", "dq"], "description": "quark type in the coupling"},
+        "lepton": {"type": "choice", "choices": ["l", "vl"], "description": "lepton type in the coupling"},
+        "fermion_number": {"type": "choice", "choices": [0, 2], "description": "fermion number F of the leptoquark"},
+        "charge": {"type": "rational", "description": "electric charge of the leptoquark as an exact fraction; checked against the coupling"},
+        "coupling_L": {"type": "matrix3", "description": "3x3 coupling to left-handed leptons"},
+        "coupling_R": {"type": "matrix3", "description": "3x3 coupling to right-handed leptons (zero for neutrinos)"},
+        "block": {"type": "identifier", "default": "LQCOUP", "description": "LHA block prefix for the couplings"}
+      }
+    },
+    {
+      "id": "vector-leptoquark",
+      "title": "Colour-triplet vector leptoquark coupled to one quark type and one lepton type",
+      "lagrangian_latex": "\\mathcal{L} \\supset -\\tfrac12 U^\\dagger_{\\mu\\nu} U^{\\mu\\nu} + M_U^2 U^\\dagger_\\mu U^\\mu - i g_s (1-\\kappa_U) U^\\dagger_\\mu T^a U_\\nu G^{a\\mu\\nu} + g^L_{ij}\\, \\bar q_i \\gamma^\\mu P_L \\ell_j\\, U_\\mu + g^R_{ij}\\, \\bar q_i \\gamma^\\mu P_R \\ell_j\\, U_\\mu + \\mathrm{h.c.}",
+      "conventions": [
+        "U_{mu nu} = D_mu U_nu - D_nu U_mu with the SM covariant derivative; kappa_U = 1 is the Yang-Mills (gauge) case, kappa_U = 0 the minimal-coupling case.",
+        "Fermion number 0 gives charge Q(q) - Q(l); fermion number 2 uses the charge-conjugate quark and charge Q(q) + Q(l).",
+        "Coupling matrices are indexed [quark generation][lepton generation]."
+      ],
+      "inputs": {
+        "model_name": {"type": "identifier", "default": "VectorLQ", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "default": "LQv", "description": "field class name"},
+        "pdg": {"type": "pdg", "default": 9000007, "description": "PDG code"},
+        "mass_GeV": {"type": "positive", "description": "leptoquark mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"},
+        "quark": {"type": "choice", "choices": ["uq", "dq"], "description": "quark type"},
+        "lepton": {"type": "choice", "choices": ["l", "vl"], "description": "lepton type"},
+        "fermion_number": {"type": "choice", "choices": [0, 2], "description": "fermion number F"},
+        "charge": {"type": "rational", "description": "electric charge as an exact fraction"},
+        "coupling_L": {"type": "matrix3", "description": "3x3 coupling to left-handed leptons"},
+        "coupling_R": {"type": "matrix3", "description": "3x3 coupling to right-handed leptons (zero for neutrinos)"},
+        "kappa": {"type": "number", "description": "non-minimal gluon coupling kappa_U (1 for the Yang-Mills case)"},
+        "block": {"type": "identifier", "default": "VLQCOUP", "description": "LHA block prefix"}
+      }
+    },
+    {
+      "id": "neutral-vector",
+      "title": "Neutral massive vector with vector and axial couplings to quarks and leptons, optional kinetic mixing",
+      "lagrangian_latex": "\\mathcal{L} \\supset -\\tfrac14 Z'_{\\mu\\nu} Z'^{\\mu\\nu} + \\tfrac12 M_{Z'}^2 Z'_\\mu Z'^\\mu + Z'_\\mu \\sum_{f=u,d,\\ell} \\bar f \\gamma^\\mu (g_V^f - g_A^f \\gamma^5) f + g_L^\\nu\\, Z'_\\mu \\bar\\nu \\gamma^\\mu P_L \\nu - \\tfrac{\\epsilon}{2} Z'_{\\mu\\nu} B^{\\mu\\nu}",
+      "conventions": [
+        "Couplings are flavour universal within each fermion type; g_V and g_A multiply gamma^mu and gamma^mu gamma^5 with the sign shown.",
+        "Kinetic mixing (optional) is applied to first order in epsilon after the canonical field redefinition: the new vector couples to -epsilon g1 times the SM fermion hypercharge current. Z-Zprime mass mixing is not included.",
+        "With a nonzero coupling the field interferes with the SM photon and Z exchange in Drell-Yan; use the interference stage template to separate the parts."
+      ],
+      "inputs": {
+        "model_name": {"type": "identifier", "default": "NeutralVector", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "default": "Zp", "description": "field class name"},
+        "pdg": {"type": "pdg", "default": 9000006, "description": "PDG code"},
+        "mass_GeV": {"type": "positive", "description": "mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"},
+        "gV_u": {"type": "number", "description": "vector coupling to up-type quarks"},
+        "gA_u": {"type": "number", "description": "axial coupling to up-type quarks"},
+        "gV_d": {"type": "number", "description": "vector coupling to down-type quarks"},
+        "gA_d": {"type": "number", "description": "axial coupling to down-type quarks"},
+        "gV_l": {"type": "number", "description": "vector coupling to charged leptons"},
+        "gA_l": {"type": "number", "description": "axial coupling to charged leptons"},
+        "gL_v": {"type": "number", "description": "coupling to left-handed neutrinos"},
+        "kinetic_mixing": {"type": "number", "default": 0, "description": "kinetic-mixing parameter epsilon with hypercharge (0 for none)"},
+        "block": {"type": "identifier", "default": "ZPCOUP", "description": "LHA block for the couplings"}
+      }
+    },
+    {
+      "id": "axion-like-particle",
+      "title": "CP-odd scalar singlet coupled to the SM gauge field strengths",
+      "lagrangian_latex": "\\mathcal{L} \\supset \\tfrac12 \\partial_\\mu a\\, \\partial^\\mu a - \\tfrac12 m_a^2 a^2 - \\tfrac{g_{aGG}}{4} a\\, G^a_{\\mu\\nu} \\tilde G^{a\\mu\\nu} - \\tfrac{g_{aWW}}{4} a\\, W^i_{\\mu\\nu} \\tilde W^{i\\mu\\nu} - \\tfrac{g_{aBB}}{4} a\\, B_{\\mu\\nu} \\tilde B^{\\mu\\nu}",
+      "conventions": [
+        "Dual field strengths are tilde X^{mu nu} = (1/2) epsilon^{mu nu rho sigma} X_{rho sigma}; couplings are in GeV^-1.",
+        "The photon coupling is g_{a gamma gamma} = g_aBB cos^2(theta_W) + g_aWW sin^2(theta_W) in this convention.",
+        "Fermion couplings of the axion-like particle are not part of this template."
+      ],
+      "inputs": {
+        "model_name": {"type": "identifier", "default": "AxionLike", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "default": "ax", "description": "field class name (at least two characters)"},
+        "pdg": {"type": "pdg", "default": 9000008, "description": "PDG code"},
+        "mass_GeV": {"type": "positive", "description": "mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"},
+        "g_GG": {"type": "number", "description": "coupling to gluons in GeV^-1"},
+        "g_WW": {"type": "number", "description": "coupling to SU(2) field strengths in GeV^-1"},
+        "g_BB": {"type": "number", "description": "coupling to the hypercharge field strength in GeV^-1"},
+        "block": {"type": "identifier", "default": "ALPCOUP", "description": "LHA block"}
+      }
+    },
+    {
+      "id": "singlet-scalar",
+      "title": "SU(2)-singlet scalar with canonical kinetic and mass terms; add interaction terms to the spec",
+      "lagrangian_latex": "\\mathcal{L} \\supset (D_\\mu \\phi)^\\dagger D^\\mu \\phi - M^2 \\phi^\\dagger \\phi \\;(\\text{complex}),\\quad \\tfrac12 (\\partial\\phi)^2 - \\tfrac12 M^2 \\phi^2 \\;(\\text{real})",
+      "conventions": ["Interaction terms, their couplings and parameters are added to the instantiated spec before authoring."],
+      "inputs": {
+        "model_name": {"type": "identifier", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "description": "field class name"},
+        "pdg": {"type": "pdg", "description": "PDG code"},
+        "self_conjugate": {"type": "boolean", "default": false, "description": "true for a real (neutral) field"},
+        "colour": {"type": "choice", "choices": ["1", "3", "8"], "description": "colour representation"},
+        "charge": {"type": "rational", "description": "electric charge (equal to hypercharge for a singlet)"},
+        "mass_GeV": {"type": "positive", "description": "mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"}
+      }
+    },
+    {
+      "id": "singlet-vector",
+      "title": "SU(2)-singlet massive vector with canonical kinetic and mass terms; add interaction terms to the spec",
+      "lagrangian_latex": "\\mathcal{L} \\supset -\\tfrac12 V^\\dagger_{\\mu\\nu}V^{\\mu\\nu} + M^2 V^\\dagger_\\mu V^\\mu \\;(\\text{complex}),\\quad -\\tfrac14 V_{\\mu\\nu}V^{\\mu\\nu} + \\tfrac12 M^2 V_\\mu V^\\mu \\;(\\text{real})",
+      "conventions": ["Interaction terms are added to the instantiated spec before authoring."],
+      "inputs": {
+        "model_name": {"type": "identifier", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "description": "field class name"},
+        "pdg": {"type": "pdg", "description": "PDG code"},
+        "self_conjugate": {"type": "boolean", "default": false, "description": "true for a real (neutral) field"},
+        "colour": {"type": "choice", "choices": ["1", "3", "8"], "description": "colour representation"},
+        "charge": {"type": "rational", "description": "electric charge"},
+        "mass_GeV": {"type": "positive", "description": "mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"}
+      }
+    },
+    {
+      "id": "vector-like-fermion",
+      "title": "SU(2)-singlet vector-like Dirac fermion (or Majorana when self-conjugate); add interaction terms to the spec",
+      "lagrangian_latex": "\\mathcal{L} \\supset \\bar\\psi (i \\gamma^\\mu D_\\mu - M) \\psi",
+      "conventions": ["Mixing with SM fermions is an interaction term added to the instantiated spec; mass mixing must be diagonalized first."],
+      "inputs": {
+        "model_name": {"type": "identifier", "description": "FeynRules model name"},
+        "name": {"type": "identifier", "description": "field class name"},
+        "pdg": {"type": "pdg", "description": "PDG code"},
+        "self_conjugate": {"type": "boolean", "default": false, "description": "true for a Majorana fermion"},
+        "colour": {"type": "choice", "choices": ["1", "3", "8"], "description": "colour representation"},
+        "charge": {"type": "rational", "description": "electric charge"},
+        "mass_GeV": {"type": "positive", "description": "mass in GeV"},
+        "width_GeV": {"type": "nonnegative", "description": "total width in GeV"}
+      }
+    }
+  ],
+  "stage_templates": [
+    {
+      "id": "lo-interference",
+      "title": "Leading-order signal, interference and SM parts of one final state",
+      "description": "Generate the SM part (new-coupling order 0 in |M|^2), the interference part (order k) and the pure new-physics part (order 2k) of one process with the same parameter point, PDF and scales; the full process equals their sum. The interference sample has signed weights. Produced by 'ravel model interference'."
+    }
+  ]
+}

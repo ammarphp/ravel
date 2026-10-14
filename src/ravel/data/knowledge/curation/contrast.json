@@ -1,0 +1,25 @@
+{
+ "id": "op:contrast",
+ "op": {
+  "do_not_use_when": [
+   "Gaussian contrasts of normalized mixtures: use normalized-measurement.",
+   "Signed grouped moments in bins: use quantities."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/contrast-example --spec specs/contrast.json",
+    "phrase": "Compute paired normalized contrasts between two weight arms.",
+    "spec": {
+     "mode": "contrast",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Paired normalized contrasts between two event-weight arms of the same events.",
+   "A shape difference between weighting schemes must be quantified with paired uncertainties."
+  ]
+ }
+}

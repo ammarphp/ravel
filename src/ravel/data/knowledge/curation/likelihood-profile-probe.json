@@ -1,0 +1,25 @@
+{
+ "id": "op:likelihood-profile-probe",
+ "op": {
+  "do_not_use_when": [
+   "Candidate vector verification: use likelihood-candidate-check.",
+   "Finite-difference checks: use likelihood-step-refinement."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/likelihood-profile-probe-example --spec specs/likelihood-profile-probe.json",
+    "phrase": "Replay a retained conditional profile under two declared protocols.",
+    "spec": {
+     "mode": "likelihood-profile-probe",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Replay a retained conditional profile under two protocols.",
+   "Check robustness of a profile to the protocol."
+  ]
+ }
+}

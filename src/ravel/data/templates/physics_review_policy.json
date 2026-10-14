@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "actors": {
+    "proposer": "worker",
+    "executor": "worker",
+    "physics_decider": "physicist",
+    "skeptical_verifier": "skeptic",
+    "physics_critic": "critic"
+  },
+  "max_redos": 2,
+  "allowed_changed_paths": [
+    "inputs/settings.cfg"
+  ],
+  "allowed_stages": [
+    "detector"
+  ],
+  "required_checks": [
+    {
+      "id": "integrity",
+      "kind": "integrity"
+    },
+    {
+      "id": "agreement",
+      "kind": "scientific"
+    }
+  ],
+  "claim_scopes": {
+    "diagnostic": {
+      "checks": [
+        "integrity"
+      ],
+      "actions": [
+        "delivery"
+      ]
+    },
+    "reproduction": {
+      "checks": [
+        "integrity",
+        "agreement"
+      ],
+      "actions": [
+        "bulk",
+        "delivery",
+        "reuse"
+      ]
+    }
+  }
+}

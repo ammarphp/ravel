@@ -1,0 +1,25 @@
+{
+ "id": "op:joint-fit",
+ "op": {
+  "do_not_use_when": [
+   "Patching a published model with a signal: use published-model.",
+   "Qualification of the analytic source: use joint-qualification."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/joint-fit-example --spec specs/joint-fit.json",
+    "phrase": "Profile a published workspace jointly with a finite-MC model.",
+    "spec": {
+     "mode": "joint-fit",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A published workspace and finite-MC pieces must be profiled jointly.",
+   "Joint profile study across a published likelihood and an MC model."
+  ]
+ }
+}

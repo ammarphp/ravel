@@ -1,0 +1,30 @@
+{
+ "id": "op:differential-likelihood",
+ "op": {
+  "do_not_use_when": [
+   "A simple supplied Gaussian measurement model: use measurement.",
+   "A request-prescribed closed-form statistic: use prescribed-statistic."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/differential-likelihood-example --spec specs/differential-likelihood.json",
+    "phrase": "Synthetic example: a three-bin spectrum with prediction-dependent covariance and destructive interference.",
+    "source": {
+     "path": "src/ravel/data/inference/examples/differential-likelihood.json",
+     "sha256": "beedb18336866dc40eff263375e92bb7322cfa707120e8e462adecba2c03226b"
+    },
+    "spec": {
+     "mode": "differential-likelihood",
+     "task": {
+      "input": "src/ravel/data/inference/examples/differential-likelihood.json"
+     }
+    },
+    "validation": "adapter_task_schema"
+   }
+  ],
+  "use_when": [
+   "A measured differential spectrum with full covariance must be compared with signal terms.",
+   "Interference terms, profiled nuisances, scans or toy limits are needed on a binned spectrum."
+  ]
+ }
+}

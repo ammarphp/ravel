@@ -1,0 +1,50 @@
+{
+  "execution": "NONE; static branch-complete mutation recipes, not delivered run records",
+  "limit": "No executed scientific-review bypass, source mutation, or accepted physics claim is alleged",
+  "numerical_population": {
+    "followup": "Recompute only comparison-receipt pin in target.reference_comparison.receipt; all request/input/output/counterpart pins and bytes stay unchanged",
+    "missing_predicate": "receipt.population.agent == parsed validated bytes of request.agent pin",
+    "precondition": "Ordinary deliver() numerical receipt with source/overlay files preserved and target.comparison_request bound",
+    "receipt_json_patch": [
+      {
+        "op": "replace",
+        "path": "/population/agent/series/0/records/0/y",
+        "value": 42.0
+      }
+    ],
+    "unchanged_gate_predicates": [
+      "target identity",
+      "counterpart path",
+      "attached request pin",
+      "kind/scope flags",
+      "target axis scales",
+      "all listed pin hashes",
+      "overlay file names",
+      "target overlay pin list"
+    ]
+  },
+  "raster_to_numerical": {
+    "followup": "Recompute only comparison-receipt pin in target.reference_comparison.receipt",
+    "missing_predicate": "request.kind == receipt.comparison_kind; reconstruct exact request-derived scope/population/input closure",
+    "numerical_fidelity": null,
+    "physics_validated": false,
+    "precondition": "Ordinary delivered raster receipt and unchanged request.kind=raster, input files, population.agent and overlay files",
+    "receipt_json_patch": [
+      {
+        "op": "replace",
+        "path": "/comparison_kind",
+        "value": "numerical"
+      },
+      {
+        "op": "replace",
+        "path": "/visual_only",
+        "value": false
+      },
+      {
+        "op": "replace",
+        "path": "/numerical_reference",
+        "value": true
+      }
+    ]
+  }
+}

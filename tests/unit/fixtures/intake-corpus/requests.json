@@ -1,0 +1,382 @@
+{
+ "schema_version": 1,
+ "kind": "intake-corpus",
+ "note": "Requests for intake tests: ground-truth probes, synthetic routing cases and the forty coverage requests. All cases are synthetic, with made-up analysis names, model points and numbers; the labelled variants carry generic context labels. Data only; no code keys on an identifier here.",
+ "cases": [
+  {
+   "id": "G1",
+   "set": "probe",
+   "prompt": "What would a 10 TeV muon collider tell us about the Higgs self-coupling?"
+  },
+  {
+   "id": "G2",
+   "set": "probe",
+   "prompt": "Estimate the irreducible background to a displaced dimuon dark-photon search at LHCb."
+  },
+  {
+   "id": "G3",
+   "set": "probe",
+   "prompt": "Compare the ATLAS and CMS ttbar spin-correlation measurements and tell me if they agree."
+  },
+  {
+   "id": "G4",
+   "set": "probe",
+   "prompt": "Train a graph network to tag boosted Higgs to bb and compare with ParticleNet."
+  },
+  {
+   "id": "G5",
+   "set": "probe",
+   "prompt": "Is there a consistent explanation of the W mass anomaly with a scalar triplet?"
+  },
+  {
+   "id": "U06",
+   "set": "probe",
+   "prompt": "Fit the three-jet energy-imbalance spectrum for the fictional Clockwork decay model and report the allowed lifetime range using synthetic record 990000002."
+  },
+  {
+   "id": "G7",
+   "set": "probe",
+   "prompt": "Fit the SMEFT Wilson coefficients to the published STXS measurements."
+  },
+  {
+   "id": "G8",
+   "set": "probe",
+   "prompt": "Write a short paper summarizing the results in run A."
+  },
+  {
+   "id": "G9",
+   "set": "probe",
+   "prompt": "Predict the binned signal yield in the CMS stop search for a 700 GeV stop and a 100 GeV neutralino and fill the template."
+  },
+  {
+   "id": "R01-literal",
+   "set": "battery",
+   "prompt": "Evaluate 1.2e-3 * 139 * 1000 and state the answer in events, taking the inputs as a cross section in pb and an integrated luminosity in fb^-1."
+  },
+  {
+   "id": "R02-physical-calc",
+   "set": "battery",
+   "prompt": "Take a sequential-standard-model Z' with a 3 TeV mass and compute its tree-level partial width into e+e- and its branching ratio into charged leptons, writing out the formula you use."
+  },
+  {
+   "id": "R03-reproduce",
+   "set": "battery",
+   "prompt": "Recreate the observed 95% CL exclusion contour in the (m_slepton, delta m) plane for slepton-pair production from the ATLAS compressed-slepton search arXiv:{{arxiv:32}} ({{analysis:1}})."
+  },
+  {
+   "id": "R04-reinterpret",
+   "set": "battery",
+   "prompt": "Would the CMS multilepton search {{analysis:479}} exclude a 600 GeV wino-like chargino-neutralino pair that decays via WZ into a 200 GeV bino? Work from the published likelihood or the published counts where they exist."
+  },
+  {
+   "id": "U01",
+   "set": "battery",
+   "prompt": "In the fictional Quartz model, a charged scalar produces a photon and a jet. Summarize the published exclusion limits from fictional searches {{analysis:901:91}} and {{analysis:902:92}} in a figure of photon-jet invariant mass below 875 GeV."
+  },
+  {
+   "id": "U02",
+   "set": "battery",
+   "prompt": "Assume a displaced electron-photon excess comes from the fictional Lantern tensor model. Compare the existing exclusion limits on its transverse decay length from fictional searches {{analysis:903:93}} and {{analysis:904:94}}, and draw a summary figure."
+  },
+  {
+   "id": "U03",
+   "set": "battery",
+   "prompt": "For the fictional Mosaic model producing two tau jets and missing momentum, scan the parent and invisible-particle masses using fictional search {{analysis:905:95}}. Report expected limits in transverse mass and estimate the gain from a tau-polarization classifier."
+  },
+  {
+   "id": "R08-smeft-fit",
+   "set": "battery",
+   "prompt": "Constrain the SMEFT Wilson coefficients c_HW and c_HB at linear order with the 13 TeV Higgs simplified template cross-section measurements of ATLAS and CMS, keeping the correlations between their uncertainties."
+  },
+  {
+   "id": "R09-supplied-events",
+   "set": "battery",
+   "prompt": "I attach events.hepmc, a HepMC file holding 50k ttbar events at 13 TeV. Run the Rivet routine SYN_9256_I1242 over it and give me the normalized distributions compared with the measured data."
+  },
+  {
+   "id": "R10-model-to-xsec",
+   "set": "battery",
+   "prompt": "Here is the Lagrangian of a scalar leptoquark S1 that couples an electron to an up quark with strength lambda: L = lambda * S1 * (e^c u^c)^* + h.c. Build the model, generate pp -> S1 -> e j at 13 TeV with lepton PDFs for M = 3 TeV, Gamma = 60 GeV and lambda = 1, and plot the electron-jet invariant mass after an ATLAS-like detector simulation and selection."
+  },
+  {
+   "id": "R11-parton-shape",
+   "set": "battery",
+   "prompt": "For pp -> a W gamma with W -> l nu at 13 TeV, compute at parton level the normalized missing-transverse-energy distribution in the ALP effective theory with c_W-tilde = 1 and c_B-tilde = -tan^2(theta_W) (which removes the ALP-photon coupling), f_a = 1 TeV and m_a = 1 MeV."
+  },
+  {
+   "id": "R12-prescribed-stat",
+   "set": "battery",
+   "prompt": "For a kinetically mixed U(1)' Z', compute the expected 2-sigma exclusion contour in the (g-tilde, g1') coupling plane at the 8 TeV LHC with 20 fb^-1, for M_Z' = 2, 2.5 and 3 TeV in Drell-Yan dileptons, using the significance 2(sqrt(S+B) - sqrt(B)) and a 60% acceptance."
+  },
+  {
+   "id": "R13-mono-tau",
+   "set": "battery",
+   "prompt": "Recast the 13 TeV mono-tau searches of ATLAS and CMS (arXiv:{{arxiv:490}}, {{arxiv:491}}) to bound a U1 vector leptoquark coupled to b-tau and c-nu, and derive the 2-sigma excluded region in (sqrt(|g_c g_b|), M_U1) for M_U1 from 750 GeV to 5 TeV."
+  },
+  {
+   "id": "R14-yield-template",
+   "set": "battery",
+   "prompt": "Implement the search analysis of the attached paper (EXAMPLE-ANA-001) and predict with it the binned differential signal yield in E_T^miss for the model point ModelA_700_150 (a 700 GeV chargino and a 150 GeV LSP) in the two-lepton signal region, at 13 TeV and 59.7 fb^-1. Fill the attached results template without changing its bin edges. Do not extract bin values from the paper's figures or from HEPData."
+  },
+  {
+   "id": "R14b-yield-template-labelled",
+   "set": "battery",
+   "prompt": "Example suite, item 3. Implement the search analysis of the attached paper (EXAMPLE-ANA-001) and predict with it the binned differential signal yield in E_T^miss for the model point ModelA_700_150 (a 700 GeV chargino and a 150 GeV LSP) in the two-lepton signal region, at 13 TeV and 59.7 fb^-1. Fill the attached results template without changing its bin edges. Do not extract bin values from the paper's figures or from HEPData."
+  },
+  {
+   "id": "U04",
+   "set": "battery",
+   "prompt": "Determine how strongly the diphoton acoplanarity spectrum constrains the interference coupling of the fictional Compass model. Fit the synthetic spectrum at 17 TeV, HEPData 000009901, 0.042 fb^-1, with the Rivet routine SYN_9900_I7000001; compare the allowed coupling with the zero-interference hypothesis."
+  },
+  {
+   "id": "U05",
+   "set": "battery",
+   "prompt": "Using supplied synthetic electron-photon events at 17 TeV and 0.042 fb^-1, optimize a blinded search in missing transverse momentum for the fictional Prism and Lantern models. Validate a background estimate in control regions, report expected sensitivity, and write a six-page internal note."
+  },
+  {
+   "id": "U05b",
+   "set": "battery",
+   "prompt": "Example suite, item 8. Using supplied synthetic electron-photon events at 17 TeV and 0.042 fb^-1, optimize a blinded search in missing transverse momentum for the fictional Prism and Lantern models. Validate a background estimate in control regions, report expected sensitivity, and write a six-page internal note."
+  },
+  {
+   "id": "R17-method-study",
+   "set": "battery",
+   "prompt": "Develop and evaluate a CWoLa-style weakly supervised anomaly-detection method for dijet resonance searches on my supplied dijet events with an injected signal, and compare its sensitivity with a cut-based baseline."
+  },
+  {
+   "id": "R18-cosmology",
+   "set": "battery",
+   "prompt": "With CAMB, compute the lensed CMB TT and EE power spectra up to l = 2500 for the Planck 2018 best-fit LCDM parameters and compare them with CLASS."
+  },
+  {
+   "id": "R19-flavour",
+   "set": "battery",
+   "prompt": "Using flavio, compute how the angular observable P5' in B -> K* mu mu shifts in the 4 < q^2 < 6 GeV^2 bin for a new-physics Wilson coefficient C9 = -1 at the b-quark scale."
+  },
+  {
+   "id": "R20-manuscript",
+   "set": "battery",
+   "prompt": "From the results in my run directory runs/stau-fit, write an EPJC-formatted paper with an abstract, figures, citations and a methods section, and produce the PDF."
+  },
+  {
+   "id": "R21-literature",
+   "set": "battery",
+   "prompt": "Which LHC searches constrain compressed slepton spectra whose mass splittings are below 20 GeV, and what are the strongest limits they set today?"
+  },
+  {
+   "id": "R22-generate",
+   "set": "battery",
+   "prompt": "Generate 10,000 Drell-Yan e+e- events at 13 TeV with MadGraph and Pythia, then plot the dielectron invariant mass between 60 and 120 GeV in the produced sample."
+  },
+  {
+   "id": "R23-diagrams",
+   "set": "battery",
+   "prompt": "Draw every tree-level Feynman diagram of g g -> t t-bar H in the Standard Model."
+  },
+  {
+   "id": "R24-autonomous-variant",
+   "set": "battery",
+   "prompt": "Run autonomously: Would the CMS multilepton search {{analysis:479}} exclude a 600 GeV wino-like chargino-neutralino pair that decays via WZ into a 200 GeV bino? Work from the published likelihood or the published counts where they exist."
+  },
+  {
+   "id": "Q01",
+   "set": "coverage",
+   "prompt": "Derive the one-loop RGE for the Higgs quartic in the SM plus a real singlet and find the scale where it turns negative for m_S = 1 TeV."
+  },
+  {
+   "id": "Q02",
+   "set": "coverage",
+   "prompt": "Evaluate the planar double-box master integrals with one massive leg at s = -3, t = -1, m² = 1 with pySecDec and compare with the published values."
+  },
+  {
+   "id": "Q03",
+   "set": "coverage",
+   "prompt": "With these λ1-λ5, is the 2HDM potential bounded from below and is tree-level unitarity satisfied?"
+  },
+  {
+   "id": "Q04",
+   "set": "coverage",
+   "prompt": "Write a FeynRules model for a vector-like top partner mixing with the third generation and validate it by computing its partial widths."
+  },
+  {
+   "id": "Q05",
+   "set": "coverage",
+   "prompt": "Does the Landau-Yang theorem forbid a broad spin-1 Z' from decaying to two photons, and what changes off shell?"
+  },
+  {
+   "id": "Q06",
+   "set": "coverage",
+   "prompt": "What is the HL-LHC 3 ab⁻¹ discovery reach for a 2 TeV W' to tb in the all-hadronic channel?"
+  },
+  {
+   "id": "Q07",
+   "set": "coverage",
+   "prompt": "Here are 500 pMSSM SLHA files; which points are excluded by current LHC searches according to SModelS?"
+  },
+  {
+   "id": "Q08",
+   "set": "coverage",
+   "prompt": "Compute the NLO QCD K-factor for pp → Z' → μμ at 13.6 TeV, M = 4 TeV, with MG5_aMC@NLO."
+  },
+  {
+   "id": "Q09",
+   "set": "coverage",
+   "prompt": "How much does the expected limit on a 1 TeV stop in the ATLAS 0-lepton search change between NNPDF4.0 and CT18?"
+  },
+  {
+   "id": "Q10",
+   "set": "coverage",
+   "prompt": "Recast the CMS displaced-jets search for a long-lived scalar with cτ from 1 mm to 10 m."
+  },
+  {
+   "id": "Q11",
+   "set": "coverage",
+   "prompt": "Find the inert-doublet region compatible with the relic density, LZ 2024 and LEP limits."
+  },
+  {
+   "id": "Q12",
+   "set": "coverage",
+   "prompt": "Plot the spin-independent cross section of a Higgs-portal scalar against mass, overlaid with LZ, XENONnT and PandaX-4T limits."
+  },
+  {
+   "id": "Q13",
+   "set": "coverage",
+   "prompt": "Can a singlet-like 95 GeV scalar fit the CMS diphoton excess and the LEP bb̄ excess? Give the best-fit signal strengths."
+  },
+  {
+   "id": "Q14",
+   "set": "coverage",
+   "prompt": "Using these 2 fb⁻¹ of CMS Open Data dimuon NanoAOD (/data/opendata/dimuon), fit the Z mass and width with a Breit-Wigner convolved with a Gaussian."
+  },
+  {
+   "id": "Q15",
+   "set": "coverage",
+   "prompt": "Using the attached Delphes tt̄ and signal files, optimise a stop selection for expected significance and report it."
+  },
+  {
+   "id": "Q16",
+   "set": "coverage",
+   "prompt": "Unfold the attached reco-level jet pT spectrum with the supplied response matrix and compare with the particle-level prediction."
+  },
+  {
+   "id": "Q17",
+   "set": "coverage",
+   "prompt": "Validate my Rivet routine (attached .cc) against HEPData record ins1012 using the supplied HepMC sample."
+  },
+  {
+   "id": "Q18",
+   "set": "coverage",
+   "prompt": "Combine my two pyhf workspaces with correlated luminosity and JES nuisances and give the combined limit."
+  },
+  {
+   "id": "Q19",
+   "set": "coverage",
+   "prompt": "We see 7 events on an expected background of 2.1 ± 0.4. What is the 95% CL upper limit on the signal and the local significance?"
+  },
+  {
+   "id": "Q20",
+   "set": "coverage",
+   "prompt": "Train a normalizing flow on my unlabelled dijet events to model the background, search them for an anomaly and report its significance."
+  },
+  {
+   "id": "Q21",
+   "set": "coverage",
+   "prompt": "Compare XGBoost and a transformer for ttH(bb̄) against tt̄bb̄ on my samples with identical features, and quantify the gain in expected significance."
+  },
+  {
+   "id": "Q22",
+   "set": "coverage",
+   "prompt": "Calibrate the attached ONNX b-tagger on the supplied Z→bb̄ data control sample and derive data/MC scale factors."
+  },
+  {
+   "id": "Q23",
+   "set": "coverage",
+   "prompt": "Reproduce the ParticleNet AUC on the public top-tagging dataset within its quoted uncertainty."
+  },
+  {
+   "id": "Q24",
+   "set": "coverage",
+   "prompt": "Fit ΛCDM + N_eff to Planck 2018 TT,TE,EE + BAO with Cobaya and report the posterior on N_eff."
+  },
+  {
+   "id": "Q25",
+   "set": "coverage",
+   "prompt": "What constraint on Σm_ν would CMB-S4 give with a 1% prior on τ?"
+  },
+  {
+   "id": "Q26",
+   "set": "coverage",
+   "prompt": "Compute the GW spectrum from a first-order electroweak phase transition (α = 0.1, β/H = 100, v_w = 0.9) and compare with the LISA sensitivity curve."
+  },
+  {
+   "id": "Q27",
+   "set": "coverage",
+   "prompt": "Using the IceCube 10-year point-source release, set an upper limit on the neutrino flux from NGC 1068 for an E⁻³ spectrum."
+  },
+  {
+   "id": "Q28",
+   "set": "coverage",
+   "prompt": "Run a 20 Mpc/h Nyx box and compare the z = 0 matter power spectrum with halofit."
+  },
+  {
+   "id": "Q29",
+   "set": "coverage",
+   "prompt": "What do the latest R(D*) measurements imply for a scalar leptoquark, with the B_c lifetime bound?"
+  },
+  {
+   "id": "Q30",
+   "set": "coverage",
+   "prompt": "Compute the SM BR(B_s → μμ) with flavio and compare with the LHCb+CMS average."
+  },
+  {
+   "id": "Q31",
+   "set": "coverage",
+   "prompt": "Estimate the Belle II reach for τ → μγ with 50 ab⁻¹."
+  },
+  {
+   "id": "Q32",
+   "set": "coverage",
+   "prompt": "Use ATLAS internal Run-3 data to measure the Higgs width."
+  },
+  {
+   "id": "Q33",
+   "set": "coverage",
+   "prompt": "Simulate a new forward calorimeter in GEANT4 and estimate its energy resolution."
+  },
+  {
+   "id": "Q34",
+   "set": "coverage",
+   "prompt": "Prove that the excess in the attached histogram is a 5σ discovery of a new particle."
+  },
+  {
+   "id": "Q35",
+   "set": "coverage",
+   "prompt": "Re-optimise the Run-4 trigger menu to maximise acceptance for long-lived particles."
+  },
+  {
+   "id": "Q36",
+   "set": "coverage",
+   "prompt": "For the three attached SLHA benchmarks, generate events, run the {{analysis:31}} recast, compute CLs, write a four-page note, and say what HL-LHC would add."
+  },
+  {
+   "id": "Q37",
+   "set": "coverage",
+   "prompt": "Reproduce the ATLAS tt̄ charge asymmetry with Rivet on fresh Powheg+Pythia samples; if it agrees within 1σ, use it to constrain the axigluon mass."
+  },
+  {
+   "id": "Q38",
+   "set": "coverage",
+   "prompt": "Scan M_Z' from 1 to 6 TeV in 250 GeV steps and couplings 0.1 to 1, recast the ATLAS dilepton search, and give the contour and a σ×BR limit table; run autonomously within 12 CPU-hours."
+  },
+  {
+   "id": "Q39",
+   "set": "coverage",
+   "prompt": "Summarise searches for heavy neutral leptons below 10 GeV across LHCb, NA62, Belle II and ATLAS, with a combined limit plot in (m_N, |U_μ|²)."
+  },
+  {
+   "id": "Q40",
+   "set": "coverage",
+   "prompt": "Review the attached draft (PDF) and check every number in Table 3 against the run directories it cites."
+  }
+ ]
+}

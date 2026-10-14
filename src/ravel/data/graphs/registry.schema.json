@@ -1,0 +1,142 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "kind",
+    "graphs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "const": "graph-registry"
+    },
+    "graphs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "kernel_version",
+          "module",
+          "builder",
+          "scope",
+          "instance_keys",
+          "roles",
+          "gates",
+          "subgraphs",
+          "interrupts",
+          "structure_sha256",
+          "owner"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kernel_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "module": {
+            "type": "string",
+            "pattern": "^ravel(\\.[a-z_][a-z0-9_]*)+$"
+          },
+          "builder": {
+            "type": "string",
+            "pattern": "^[a-z_][a-z0-9_]*$"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "run",
+              "campaign",
+              "case"
+            ]
+          },
+          "instance_keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "gates": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "required_providers"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "required_providers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                }
+              }
+            }
+          },
+          "subgraphs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "version"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "interrupts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "structure_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "owner": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          }
+        }
+      }
+    }
+  }
+}

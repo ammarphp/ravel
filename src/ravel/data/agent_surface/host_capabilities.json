@@ -1,0 +1,431 @@
+{
+  "kind": "host-capabilities",
+  "reviewed_on": "2026-10-11",
+  "schema_version": 1,
+  "surfaces": {
+    "antigravity": {
+      "limitations": [
+        "Native host subagents cannot attest transport.",
+        "No confirmed mapping for Ravel model tiers or sandbox/broker isolation."
+      ],
+      "mappings": {
+        "model.distinct_family_from": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "model.effort": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "model.tier": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.attestation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "host subagents are self attested",
+          "status": "confirmed",
+          "values": {
+            "\"self\"": {}
+          }
+        },
+        "requires.blind": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.isolation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.structured_output": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.tools": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": null,
+          "status": "unverified",
+          "values": {}
+        }
+      },
+      "redirect_fields": {},
+      "redirect_source": null
+    },
+    "claude": {
+      "limitations": [
+        "Native host subagents cannot attest transport.",
+        "No confirmed mapping for Ravel model tiers or sandbox/broker isolation."
+      ],
+      "mappings": {
+        "model.distinct_family_from": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.effort": {
+          "native_fields": [
+            "effort"
+          ],
+          "reason": "Field and effort vocabulary documented; selected concrete model must also support the effort.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "confirmed",
+          "values": {
+            "\"high\"": {
+              "effort": "high"
+            },
+            "\"low\"": {
+              "effort": "low"
+            },
+            "\"max\"": {
+              "effort": "max"
+            },
+            "\"medium\"": {
+              "effort": "medium"
+            }
+          }
+        },
+        "model.tier": {
+          "native_fields": [
+            "model"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.attestation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "host subagents are self attested",
+          "status": "confirmed",
+          "values": {
+            "\"self\"": {}
+          }
+        },
+        "requires.blind": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.isolation_min": {
+          "native_fields": [
+            "isolation"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.structured_output": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.tools": {
+          "native_fields": [
+            "tools"
+          ],
+          "reason": "Contradicted by a recorded probe (2026-10-11): Claude Code lists a profile with tools: [] as having all tools, so an empty list is not a deny-all; redirect required.",
+          "source": "https://code.claude.com/docs/en/sub-agents",
+          "status": "unverified",
+          "values": {}
+        }
+      },
+      "redirect_fields": {
+        "tools": []
+      },
+      "redirect_source": "https://code.claude.com/docs/en/sub-agents"
+    },
+    "codex": {
+      "limitations": [
+        "Native host subagents cannot attest transport.",
+        "No confirmed mapping for Ravel model tiers or sandbox/broker isolation."
+      ],
+      "mappings": {
+        "model.distinct_family_from": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.effort": {
+          "native_fields": [
+            "model_reasoning_effort"
+          ],
+          "reason": "Field and effort vocabulary documented; selected concrete model must also support the effort.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "confirmed",
+          "values": {
+            "\"high\"": {
+              "model_reasoning_effort": "high"
+            },
+            "\"low\"": {
+              "model_reasoning_effort": "low"
+            },
+            "\"max\"": {
+              "model_reasoning_effort": "max"
+            },
+            "\"medium\"": {
+              "model_reasoning_effort": "medium"
+            }
+          }
+        },
+        "model.tier": {
+          "native_fields": [
+            "model"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.attestation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "host subagents are self attested",
+          "status": "confirmed",
+          "values": {
+            "\"self\"": {}
+          }
+        },
+        "requires.blind": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.isolation_min": {
+          "native_fields": [
+            "sandbox_mode"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.structured_output": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.tools": {
+          "native_fields": [
+            "sandbox_mode"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "status": "unverified",
+          "values": {}
+        }
+      },
+      "redirect_fields": {
+        "sandbox_mode": "read-only"
+      },
+      "redirect_source": "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+    },
+    "gemini": {
+      "limitations": [
+        "Native host subagents cannot attest transport.",
+        "No confirmed mapping for Ravel model tiers or sandbox/broker isolation."
+      ],
+      "mappings": {
+        "model.distinct_family_from": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.effort": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.tier": {
+          "native_fields": [
+            "model"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.attestation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "host subagents are self attested",
+          "status": "confirmed",
+          "values": {
+            "\"self\"": {}
+          }
+        },
+        "requires.blind": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.isolation_min": {
+          "native_fields": [
+            "mode",
+            "permission"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.structured_output": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.tools": {
+          "native_fields": [
+            "tools",
+            "permission"
+          ],
+          "reason": "Explicit empty allowlist or deny-all permissions; broker tool routes cannot be expressed.",
+          "source": "https://geminicli.com/docs/core/subagents/",
+          "status": "confirmed",
+          "values": {
+            "\"none\"": {
+              "tools": []
+            }
+          }
+        }
+      },
+      "redirect_fields": {
+        "tools": []
+      },
+      "redirect_source": "https://geminicli.com/docs/core/subagents/"
+    },
+    "opencode": {
+      "limitations": [
+        "Native host subagents cannot attest transport.",
+        "No confirmed mapping for Ravel model tiers or sandbox/broker isolation."
+      ],
+      "mappings": {
+        "model.distinct_family_from": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.effort": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "model.tier": {
+          "native_fields": [
+            "model"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.attestation_min": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "host subagents are self attested",
+          "status": "confirmed",
+          "values": {
+            "\"self\"": {}
+          }
+        },
+        "requires.blind": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.isolation_min": {
+          "native_fields": [
+            "mode",
+            "permission"
+          ],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.structured_output": {
+          "native_fields": [],
+          "reason": "No exact card-policy mapping established; redirect required.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "unverified",
+          "values": {}
+        },
+        "requires.tools": {
+          "native_fields": [
+            "permission"
+          ],
+          "reason": "Explicit empty allowlist or deny-all permissions; broker tool routes cannot be expressed.",
+          "source": "https://opencode.ai/docs/agents/",
+          "status": "confirmed",
+          "values": {
+            "\"none\"": {
+              "permission": {
+                "*": "deny"
+              },
+              "tools": {
+                "*": false
+              }
+            }
+          }
+        }
+      },
+      "redirect_fields": {
+        "mode": "subagent",
+        "permission": {
+          "*": "deny"
+        },
+        "tools": {
+          "*": false
+        }
+      },
+      "redirect_source": "https://opencode.ai/docs/agents/"
+    }
+  }
+}

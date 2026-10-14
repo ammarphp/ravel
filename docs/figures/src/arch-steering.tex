@@ -1,0 +1,23 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{Physicist steering and compute}{You set the scope and the limits; RAVEL holds the work to them.}
+\node[b=48mm, minimum height=58mm, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (you) at (5,-24)
+  {\nodetitle{You}\nodesub{choose manual approval or delegate it to an agent within limits you set}};
+\node[b=56mm, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (ck) at (69,-24)
+  {\nodetitle{Check-ins}\nodesub{approve plans, review evidence, accept results}};
+\node[b=56mm, draw=rvguardline, fill=rvguardfill, anchor=north west] (bu) at (69,-45)
+  {\nodetitle{Budgets}\nodesub{agent calls, events, time and disk}};
+\node[b=56mm, draw=rvguardline, fill=rvguardfill, anchor=north west] (la) at (69,-66)
+  {\nodetitle{Launch control}\nodesub{one heavy job per machine, cost measured first}};
+\node[b=30mm, minimum height=58mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (w) at (135,-24)
+  {\nodetitle{Agents and tools}\nodesub{work inside these limits}};
+\foreach \n in {ck,bu,la} { \draw[flow] (you.east |- \n) -- (\n); \draw[flow] (\n) -- (w.west |- \n); }
+\node[b=160mm, minimum height=11mm, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (st) at (5,-89)
+  {\nodetitle{Stop at any time}\hspace{2.2mm}{\color{rvmuted}work freezes and every unfinished result is kept}};
+\ravellegend{-106}{people/You, guard/Limits, agent/Agents}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

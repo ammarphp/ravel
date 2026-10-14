@@ -1,0 +1,22 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{A study's life}{Every study follows the same path from request to reviewed result.}
+\tikzset{s/.style={box=37mm, minimum height=18mm}}
+\node[s, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (a) at (5,-24) {\nodetitle{Request}\nodesub{your question and inputs}};
+\node[s, draw=rvravelline, fill=rvravelfill, anchor=north west] (b) at (46,-24) {\nodetitle{Reading}\nodesub{facts, goals, open questions}};
+\node[s, draw=rvagentline, fill=rvagentfill, anchor=north west] (c) at (87,-24) {\nodetitle{Plan}\nodesub{sources, method, budget}};
+\node[s, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (d) at (128,-24) {\nodetitle{CHECK-IN 1}\nodesub{you approve the plan}};
+\node[s, draw=rvhepline, fill=rvhepfill, anchor=north west] (e) at (128,-58) {\nodetitle{Execution}\nodesub{tools run the approved work}};
+\node[s, draw=rvguardline, fill=rvguardfill, anchor=north west] (f) at (87,-58) {\nodetitle{CHECK-IN 2}\nodesub{review of the evidence}};
+\node[s, draw=rvguardline, fill=rvguardfill, anchor=north west] (g) at (46,-58) {\nodetitle{CHECK-IN 3}\nodesub{final review of all results}};
+\node[s, draw=rvravelline, fill=rvravelfill, anchor=north west] (h) at (5,-58) {\nodetitle{Result}\nodesub{report, figures, records}};
+\draw[flow] (a) -- (b); \draw[flow] (b) -- (c); \draw[flow] (c) -- (d); \draw[flow] (d) -- (e);
+\draw[flow] (e) -- (f); \draw[flow] (f) -- (g); \draw[flow] (g) -- (h);
+\draw[loop] (f.south) -- ++(0,-6) -| node[flowlabel, pos=0.25] {repair and recheck} (e.south);
+\ravellegend{-94}{people/You, ravel/RAVEL, agent/Agents, hep/Tools, guard/Review}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

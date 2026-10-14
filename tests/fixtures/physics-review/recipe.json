@@ -1,0 +1,10 @@
+{
+  "source": "explicitly synthetic control",
+  "events": 100,
+  "weight_scale": 1,
+  "channel_order": [
+    "low",
+    "high"
+  ],
+  "scientific_claim": "No detector or paper-reproduction validation"
+}

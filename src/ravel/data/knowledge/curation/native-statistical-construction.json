@@ -1,0 +1,25 @@
+{
+ "id": "op:native-statistical-construction",
+ "op": {
+  "do_not_use_when": [
+   "HS3 evaluation: use hs3-likelihood.",
+   "Datacard evaluation: use native-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/native-statistical-construction-example --spec specs/native-statistical-construction.json",
+    "phrase": "Transport a reviewed RooFit graph to a native fit bundle.",
+    "spec": {
+     "mode": "native-statistical-construction",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Transport reviewed RooFit graphs to native fit bundles.",
+   "A reviewed graph must become an executable native fit."
+  ]
+ }
+}

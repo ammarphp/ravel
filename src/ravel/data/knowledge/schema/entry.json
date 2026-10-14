@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "else": {
+        "not": {
+          "required": [
+            "op"
+          ]
+        }
+      },
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "op"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "op"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "check"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "check"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "check": {
+      "required": [
+        "catches"
+      ],
+      "type": "object"
+    },
+    "id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "op",
+        "cmd",
+        "tool",
+        "check",
+        "hb",
+        "trap",
+        "proto",
+        "doc",
+        "rule",
+        "checklist",
+        "skill",
+        "role",
+        "ana",
+        "impl",
+        "art",
+        "model",
+        "xs",
+        "conv",
+        "lesson",
+        "outcome"
+      ]
+    },
+    "links": {
+      "type": "object"
+    },
+    "op": {
+      "properties": {
+        "basis": {
+          "anyOf": [
+            {
+              "type": "array"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "claim_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "cost_class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "do_not_use_when": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "effects": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "examples": {
+          "items": {
+            "properties": {
+              "phrase": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "spec": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "phrase",
+              "spec"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "inputs": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "outputs": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "use_when": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "validation_tier": {
+          "enum": [
+            "registered",
+            "unit_tested",
+            "native_smoke",
+            "physics_qualified"
+          ]
+        }
+      },
+      "required": [
+        "use_when",
+        "do_not_use_when",
+        "inputs",
+        "outputs",
+        "basis",
+        "claim_kinds",
+        "effects",
+        "cost_class",
+        "validation_tier",
+        "examples"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "pattern": "^(registered|declared_term|held:R-[0-9]+)$",
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "title",
+    "summary",
+    "status",
+    "source",
+    "links"
+  ],
+  "title": "entry",
+  "type": "object"
+}

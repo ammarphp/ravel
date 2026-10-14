@@ -1,0 +1,25 @@
+{
+ "id": "op:background-discrete-profile",
+ "op": {
+  "do_not_use_when": [
+   "A single extended exponential fit in ranges: use continuous-fit.",
+   "A closure test of a frozen background strategy: use mc-closure."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/background-discrete-profile-example --spec specs/background-discrete-profile.json",
+    "phrase": "Build a discrete-profiling envelope over candidate background functions.",
+    "spec": {
+     "mode": "background-discrete-profile",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Choose among several background function families by discrete profiling and report the envelope.",
+   "A bias or spurious-signal study needs the profiled envelope over candidate functions."
+  ]
+ }
+}

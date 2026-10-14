@@ -1,0 +1,26 @@
+{
+ "id": "op:mpi-paired-effect",
+ "op": {
+  "do_not_use_when": [
+   "Observer qualification: use mpi-observer.",
+   "Generic weight contrasts: use contrast."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mpi-paired-effect-example --spec specs/mpi-paired-effect.json",
+    "phrase": "Compute a paired MPI on/off contrast from a pinned input.",
+    "spec": {
+     "mode": "mpi-paired-effect",
+     "task": {
+      "input": "inputs/example.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Paired multiple-parton-interaction on/off contrast.",
+   "The effect of MPI on an observable is measured on identical events."
+  ]
+ }
+}

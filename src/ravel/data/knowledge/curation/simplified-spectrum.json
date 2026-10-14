@@ -1,0 +1,25 @@
+{
+ "id": "op:simplified-spectrum",
+ "op": {
+  "do_not_use_when": [
+   "A solver-derived spectrum: use generated-spectrum.",
+   "Chargino decay tables of a released limit: use chargino-decay-table."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/simplified-spectrum-example --spec specs/simplified-spectrum.json",
+    "phrase": "Write an SLHA2 card for a declared simplified spectrum and check decay closure.",
+    "spec": {
+     "mode": "simplified-spectrum",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Write an SLHA2 card for a declared simplified-model spectrum with decoupled states, mixing and decay tables.",
+   "Decay closure of the card must be checked before generation."
+  ]
+ }
+}

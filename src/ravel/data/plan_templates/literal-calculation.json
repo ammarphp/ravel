@@ -1,0 +1,29 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "literal-calculation",
+ "summary": "Exact arithmetic on values stated in the request.",
+ "priority": 60,
+ "match": {
+  "all": [
+   "claim:calculation",
+   "literal"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "calculate",
+   "kind": "operation",
+   "operation": "literal-calculation",
+   "rung": "full"
+  }
+ ],
+ "edges": [],
+ "deliverable": [
+  {
+   "from": "calculate.value",
+   "kind": "scalar"
+  }
+ ]
+}

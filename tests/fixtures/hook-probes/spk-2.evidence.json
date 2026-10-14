@@ -1,0 +1,6 @@
+{
+  "token": "SPK-e3acc687cd66",
+  "launch_cmd": "sleep 5; echo \"SPK2_DONE SPK-e3acc687cd66\"",
+  "bg_kind": "harness",
+  "reinvoke_text": "[harness completion notification; its task, tool-use and session identifiers and its output-file path are not included]\njob stdout delivered on completion via the harness run_in_background channel: SPK2_DONE SPK-e3acc687cd66"
+}

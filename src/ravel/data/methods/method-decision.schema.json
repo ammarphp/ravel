@@ -1,0 +1,396 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "request_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "obligation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "required_output": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "sufficiency": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "qualitative",
+            "order_of_magnitude",
+            "quoted_value",
+            "relative_uncertainty",
+            "absolute_uncertainty",
+            "new_events_required",
+            "independent_reproduction"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_text": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "unit",
+        "source_text"
+      ],
+      "additionalProperties": false
+    },
+    "validity_domain": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "allowed_approximations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "family": {
+      "type": "string",
+      "enum": [
+        "explanation",
+        "estimate_theory",
+        "model_spectrum",
+        "supplied_events",
+        "reinterpretation",
+        "fit_measurement",
+        "open_research",
+        "documents_figures"
+      ]
+    },
+    "selected": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "rung": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "method",
+        "rung",
+        "operation"
+      ],
+      "additionalProperties": false
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "rung": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "selected",
+              "insufficient",
+              "unavailable",
+              "not_checked",
+              "not_applicable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          }
+        },
+        "required": [
+          "method",
+          "rung",
+          "status",
+          "reason",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "explicit_request": {
+      "type": "object",
+      "properties": {
+        "requested": {
+          "type": "boolean"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "requested",
+        "quote"
+      ],
+      "additionalProperties": false
+    },
+    "cost_forecast": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "calibrated",
+            "historical",
+            "uncalibrated",
+            "unknown"
+          ]
+        },
+        "wall_hours": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "cpu_hours": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "disk_gb": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "events": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "model_calls": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "bounded_pilot": {
+          "type": "object",
+          "properties": {
+            "max_wall_hours": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          },
+          "required": [
+            "max_wall_hours",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "physicist_signoff": {
+          "type": "object",
+          "properties": {
+            "authority": {
+              "type": "string",
+              "enum": [
+                "human_operator",
+                "human_relayed"
+              ]
+            },
+            "quote": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          },
+          "required": [
+            "authority",
+            "quote",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "status",
+        "wall_hours",
+        "cpu_hours",
+        "disk_gb",
+        "events",
+        "model_calls",
+        "basis"
+      ],
+      "additionalProperties": false
+    },
+    "stopping_criterion": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "author_role": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "transport": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "authority": {
+          "type": "string",
+          "enum": [
+            "human_operator",
+            "human_relayed",
+            "delegated_machine",
+            "scripted_experiment",
+            "unknown"
+          ]
+        },
+        "reviewed_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "required": [
+        "author_role",
+        "transport",
+        "authority",
+        "reviewed_by"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_digest",
+    "obligation_ids",
+    "required_output",
+    "sufficiency",
+    "validity_domain",
+    "allowed_approximations",
+    "family",
+    "selected",
+    "alternatives",
+    "explicit_request",
+    "cost_forecast",
+    "stopping_criterion",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ravel:method-decision:1",
+  "title": "Method decision"
+}

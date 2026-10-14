@@ -1,0 +1,25 @@
+{
+ "id": "op:published-model",
+ "op": {
+  "do_not_use_when": [
+   "Templates of the signal itself: use signal-template.",
+   "Building a new model from yields: use search-statistics."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/published-model-example --spec specs/published-model.json",
+    "phrase": "Patch a published HistFactory workspace with a signal template and evaluate CLs.",
+    "spec": {
+     "mode": "published-model",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Exact evaluation of a published HistFactory background model with a signal patch.",
+   "A released likelihood must be patched with supplied signal templates."
+  ]
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "id": "op:authored-analysis",
+ "op": {
+  "do_not_use_when": [
+   "A declarative recipe suffices: use columnar-analysis.",
+   "A preserved routine exists: use analyze."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/authored-analysis-example --spec specs/authored-analysis.json",
+    "phrase": "Run an authored analysis script under a declared input-output contract in a sandbox.",
+    "spec": {
+     "mode": "authored-analysis",
+     "task": {
+      "code": "def run(inputs):\n    return {\"value\": 1.0}\n",
+      "io_contract": {
+       "inputs": [
+        {
+         "name": "events",
+         "path": "events/sample.json"
+        }
+       ],
+       "outputs": [
+        {
+         "kind": "json",
+         "path": "outputs/result.json",
+         "postconditions": [
+          {
+           "check": "exists"
+          }
+         ]
+        }
+       ]
+      },
+      "purpose": "Compute a quantity that no declarative recipe or tool can express",
+      "specification": "specs/step.md"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "An analysis step that no declarative recipe or quantity tool can express and that needs agent-written Python.",
+   "The step has a declared input-output contract and runs as pinned attempts in a sandbox."
+  ]
+ }
+}

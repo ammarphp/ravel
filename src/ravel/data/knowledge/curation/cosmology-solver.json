@@ -1,0 +1,25 @@
+{
+ "id": "op:cosmology-solver",
+ "op": {
+  "do_not_use_when": [
+   "Nonlinear N-body evolution: use cosmic-evolution.",
+   "Collider statistics: use search-statistics."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/cosmology-solver-example --spec specs/cosmology-solver.json",
+    "phrase": "Evaluate a Boltzmann-solver prediction at a declared cosmological parameter point.",
+    "spec": {
+     "mode": "cosmology-solver",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "CAMB, CLASS or Cobaya operations producing spectra or likelihood tables at declared parameter points.",
+   "A Boltzmann-solver prediction for a cosmological parameter set."
+  ]
+ }
+}

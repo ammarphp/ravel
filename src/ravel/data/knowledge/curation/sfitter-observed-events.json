@@ -1,0 +1,25 @@
+{
+ "id": "op:sfitter-observed-events",
+ "op": {
+  "do_not_use_when": [
+   "Running the fit: use sfitter-native-fit.",
+   "Scan-rate extraction: use sfitter-scan-extraction."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/sfitter-observed-events-example --spec specs/sfitter-observed-events.json",
+    "phrase": "Build SFitter extractor inputs from supplied event observations.",
+    "spec": {
+     "mode": "sfitter-observed-events",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Turn LHE or analysis observations into SFitter extractor inputs with explicit sampling covariance.",
+   "Source-joined event and bin observations are the deliverable."
+  ]
+ }
+}

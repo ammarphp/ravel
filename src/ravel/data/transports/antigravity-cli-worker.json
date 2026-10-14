@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "antigravity-cli-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "agy",
+  "argv_template": [
+    "agy",
+    "-p",
+    "{prompt}",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}",
+    "--effort",
+    "{effort}",
+    "--json-schema",
+    "{schema}",
+    "--mode",
+    "accept-edits",
+    "--sandbox",
+    "--add-dir",
+    "{workspace}",
+    "--disable-slash-commands",
+    "--print-timeout",
+    "{print_timeout}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [],
+  "billing": "subscription",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Google Antigravity CLI (agy), which replaced Gemini CLI for consumer Google accounts; keyless with the Google login. It reads AGENTS.md and .agents/skills from its working directory (empty for a one-shot); no flag excludes user-level configuration, so receipts record user_configuration_loaded: true.",
+  "worker_surface": {
+    "mcp": {
+      "config": "probe_required",
+      "argv": []
+    },
+    "structured_output": "enforced"
+  }
+}

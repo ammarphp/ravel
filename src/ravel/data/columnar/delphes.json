@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "columnar-format",
+  "name": "delphes",
+  "format": "root",
+  "source": "Standard Delphes 3.5 TreeWriter output (tree Delphes). Lepton masses are the PDG 2022 values.",
+  "tree": "Delphes",
+  "collections": {
+    "Electron": {"fields": {
+      "pt": "Electron.PT", "eta": "Electron.Eta", "phi": "Electron.Phi", "charge": "Electron.Charge",
+      "isolation": "Electron.IsolationVar",
+      "mass": {"fixed": 0.00051099895, "source": "PDG 2022 electron mass"},
+      "pdg_id": {"fixed": 11, "source": "electron"}}},
+    "Muon": {"fields": {
+      "pt": "Muon.PT", "eta": "Muon.Eta", "phi": "Muon.Phi", "charge": "Muon.Charge",
+      "isolation": "Muon.IsolationVar",
+      "mass": {"fixed": 0.1056583755, "source": "PDG 2022 muon mass"},
+      "pdg_id": {"fixed": 13, "source": "muon"}}},
+    "Photon": {"fields": {
+      "pt": "Photon.PT", "eta": "Photon.Eta", "phi": "Photon.Phi", "e": "Photon.E",
+      "isolation": "Photon.IsolationVar",
+      "mass": {"fixed": 0.0, "source": "photon"}}},
+    "Jet": {"fields": {
+      "pt": "Jet.PT", "eta": "Jet.Eta", "phi": "Jet.Phi", "mass": "Jet.Mass",
+      "btag": "Jet.BTag", "tautag": "Jet.TauTag", "charge": "Jet.Charge"}},
+    "EFlowTrack": {"fields": {
+      "pt": "EFlowTrack.PT", "eta": "EFlowTrack.Eta", "phi": "EFlowTrack.Phi", "mass": "EFlowTrack.Mass",
+      "charge": "EFlowTrack.Charge", "pid": "EFlowTrack.PID"}}
+  },
+  "met": {"magnitude": {"branch": "MissingET.MET", "reduce": "first"}, "phi": {"branch": "MissingET.Phi", "reduce": "first"}},
+  "event": {"weight": {"branch": "Event.Weight", "reduce": "first"}, "number": {"branch": "Event.Number", "reduce": "first"}},
+  "variations": {}
+}

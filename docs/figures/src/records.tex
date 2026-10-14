@@ -1,0 +1,22 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Records and evidence}{What every run keeps, and how selected records become evidence.}
+\ravelchips{chip=records}{rd}{34,-30}{52mm}{Task contract, Approvals, Run ledger, Execution receipts, Logs, Outputs and figures, Result pack, Deviations record, Verification record}
+\ravelpanelfit{records}{runpanel}{(rd0)(\ravellast)}{Each run directory}
+\node[chip=ravel, minimum width=56mm, text width=51.2mm, anchor=north west] (state) at (106,-30) {Current state};
+\node[chip=records, minimum width=56mm, text width=51.2mm, anchor=north west] (evidence) at (106,-56) {Curated evidence};
+\node[chip=records, minimum width=56mm, text width=51.2mm, anchor=north west] (bench) at (106,-80) {Known-answer benchmarks};
+\node[chip=records, minimum width=56mm, text width=51.2mm, anchor=north west] (ci) at (106,-104) {Continuous integration};
+\draw[flow] (runpanel.east |- state) -- node[flowlabel, above=0.6mm] {ravel status} (state.west);
+\draw[flow] (runpanel.east |- evidence) -- node[flowlabel, above=0.6mm] {selected, curated} (evidence.west);
+\draw[flow] (evidence) -- (bench);
+\draw[flow] (bench) -- (ci);
+\node[anchor=north west, font=\ravelSmallFont, text=rvmuted, text width=158mm] at (7,-128.5)
+  {The current state is always rebuilt from the run's own records, so a run can be resumed at any time. Curated
+   evidence is pinned by checksum. Continuous integration fails when a marked headline number in the README or the
+   validation results no longer matches the claim registry.};
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

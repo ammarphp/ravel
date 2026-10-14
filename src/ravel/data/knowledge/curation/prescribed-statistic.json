@@ -1,0 +1,30 @@
+{
+ "id": "op:prescribed-statistic",
+ "op": {
+  "do_not_use_when": [
+   "An unprescribed exclusion: use search-statistics for 95% CLs.",
+   "A differential spectrum with covariance: use differential-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/prescribed-statistic-example --spec specs/prescribed-statistic.json",
+    "phrase": "Synthetic example: two experiments, per-bin Gaussian background nuisances, signal proportional to g^4.",
+    "source": {
+     "path": "src/ravel/data/inference/examples/prescribed-statistic.json",
+     "sha256": "6f5c1d9f644adeb6986cd8c261dda5b0202bb0cd48fc8705ec78dc96ba6cd498"
+    },
+    "spec": {
+     "mode": "prescribed-statistic",
+     "task": {
+      "input": "src/ravel/data/inference/examples/prescribed-statistic.json"
+     }
+    },
+    "validation": "adapter_task_schema"
+   }
+  ],
+  "use_when": [
+   "Evaluate the statistic a request prescribes (closed-form significance, delta log-likelihood threshold, per-bin profile likelihood).",
+   "The prescribed quantity is the primary result and CLs may accompany it."
+  ]
+ }
+}

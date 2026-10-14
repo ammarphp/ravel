@@ -1,0 +1,5 @@
+# Generated from the RAVEL role registry add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25. Do not hand edit.
+name = "ravel-rdj-edge-reviewer"
+description = "Dispatch redirect for rdj-edge-reviewer."
+sandbox_mode = "read-only"
+developer_instructions = "Do not perform this role here. Run `ravel work dispatch --role rdj-edge-reviewer`.\n"

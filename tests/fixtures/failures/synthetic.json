@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "failures": [
+    {
+      "id": "madgraph-block",
+      "observations": {
+        "tool": "madgraph",
+        "exit_status": 1,
+        "stderr": "Missing block MASS in param_card"
+      },
+      "expected_class": "tool.madgraph.param_card",
+      "expected_role": "consult-madgraph"
+    },
+    {
+      "id": "madgraph-process",
+      "observations": {
+        "tool": "madgraph",
+        "exit_status": 1,
+        "stderr": "No process found for requested channel"
+      },
+      "expected_class": "tool.madgraph.process",
+      "expected_role": "consult-madgraph"
+    },
+    {
+      "id": "pythia-abort",
+      "observations": {
+        "tool": "pythia",
+        "exit_status": 1,
+        "stderr": "PYTHIA Error: abort in next event"
+      },
+      "expected_class": "tool.pythia.abort",
+      "expected_role": "consult-pythia-delphes"
+    },
+    {
+      "id": "delphes-card",
+      "observations": {
+        "tool": "delphes",
+        "exit_status": 1,
+        "stderr": "Error parsing detector card: invalid command"
+      },
+      "expected_class": "tool.delphes.card",
+      "expected_role": "consult-pythia-delphes"
+    },
+    {
+      "id": "rivet-compile",
+      "observations": {
+        "tool": "rivet",
+        "exit_status": 1,
+        "stderr": "fatal error: missing header; compilation terminated"
+      },
+      "expected_class": "tool.rivet.compile",
+      "expected_role": "consult-rivet"
+    },
+    {
+      "id": "pyhf-patch",
+      "observations": {
+        "tool": "pyhf",
+        "exit_status": 1,
+        "stderr": "InvalidPatch: JSON patch path does not exist"
+      },
+      "expected_class": "tool.fit.pyhf.patch",
+      "expected_role": "consult-inference"
+    },
+    {
+      "id": "kernel-absent",
+      "observations": {
+        "tool": "wolfram",
+        "exit_status": 1,
+        "stderr": "Wolfram kernel not found"
+      },
+      "expected_class": "provision.binary",
+      "expected_role": null
+    },
+    {
+      "id": "fit-nonconvergence",
+      "observations": {
+        "tool": "inference",
+        "exit_status": 1,
+        "stderr": "minimizer did not converge"
+      },
+      "expected_class": "tool.fit.nonconvergence",
+      "expected_role": "consult-inference"
+    },
+    {
+      "id": "cutflow",
+      "observations": {
+        "tool": "columnar",
+        "exit_status": 0,
+        "failed_checks": [
+          "validate_cutflow"
+        ]
+      },
+      "expected_class": "check.validate_cutflow",
+      "expected_role": "consult-columnar"
+    },
+    {
+      "id": "nonfinite",
+      "observations": {
+        "tool": "columnar",
+        "exit_status": 0,
+        "quantity_witnesses": [
+          "nan"
+        ]
+      },
+      "expected_class": "quantity.nan",
+      "expected_role": null
+    },
+    {
+      "id": "lease",
+      "observations": {
+        "tool": "madgraph",
+        "exit_status": 1,
+        "supervisor": {
+          "lease_conflict": true
+        }
+      },
+      "expected_class": "infra.lease",
+      "expected_role": null
+    },
+    {
+      "id": "doctor",
+      "observations": {
+        "tool": "rivet",
+        "exit_status": 1,
+        "provision": {
+          "doctor_ready": false
+        }
+      },
+      "expected_class": "provision.doctor",
+      "expected_role": null
+    },
+    {
+      "id": "disk",
+      "observations": {
+        "tool": "madgraph",
+        "exit_status": 1,
+        "stderr": "No space left on device"
+      },
+      "expected_class": "infra.disk",
+      "expected_role": null
+    },
+    {
+      "id": "stop",
+      "observations": {
+        "tool": "pythia",
+        "exit_status": -15,
+        "signal": 15
+      },
+      "expected_class": "infra.stop_signal",
+      "expected_role": null
+    },
+    {
+      "id": "timeout",
+      "observations": {
+        "tool": "rivet",
+        "exit_status": 1,
+        "supervisor": {
+          "timed_out": true
+        },
+        "observed_outputs": []
+      },
+      "expected_class": "infra.timeout",
+      "expected_role": null
+    },
+    {
+      "id": "pdf-set",
+      "observations": {
+        "tool": "madgraph",
+        "exit_status": 1,
+        "provision": {
+          "missing_pdf_set": true
+        }
+      },
+      "expected_class": "provision.pdf_set",
+      "expected_role": null
+    },
+    {
+      "id": "missing-output",
+      "observations": {
+        "tool": "rivet",
+        "exit_status": 0,
+        "declared_outputs": [
+          "outputs/bins.json"
+        ],
+        "observed_outputs": []
+      },
+      "expected_class": "tool.rivet.missing_outputs",
+      "expected_role": "consult-rivet"
+    },
+    {
+      "id": "ledger",
+      "observations": {
+        "tool": "normalization",
+        "exit_status": 0,
+        "failed_checks": [
+          "normalization_ledger"
+        ]
+      },
+      "expected_class": "check.normalization_ledger",
+      "expected_role": "consult-normalization"
+    },
+    {
+      "id": "negative",
+      "observations": {
+        "tool": "columnar",
+        "exit_status": 0,
+        "quantity_witnesses": [
+          "negative_yield"
+        ]
+      },
+      "expected_class": "quantity.negative_yield",
+      "expected_role": null
+    },
+    {
+      "id": "unknown",
+      "observations": {
+        "tool": "unregistered",
+        "exit_status": 1,
+        "stderr": "opaque synthetic failure"
+      },
+      "expected_class": "unknown",
+      "expected_role": null
+    }
+  ]
+}

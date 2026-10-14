@@ -1,0 +1,27 @@
+{
+ "id": "op:derived-quantities",
+ "op": {
+  "do_not_use_when": [
+   "Gaussian inference on measurements: use measurement.",
+   "A ratio diagnostic with joint covariance: use ratio-measurement."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/derived-quantities-example --spec specs/derived-quantities.json",
+    "phrase": "Propagate covariance through declared derived quantities.",
+    "spec": {
+     "mode": "derived-quantities",
+     "task": {
+      "contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "input": "inputs/example.json",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Finite derived quantities with delta-method covariance from a pinned contract.",
+   "Propagate uncertainty through declared closed-form transformations."
+  ]
+ }
+}

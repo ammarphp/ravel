@@ -1,0 +1,25 @@
+{
+ "id": "op:sfitter-scan-extraction",
+ "op": {
+  "do_not_use_when": [
+   "The fit itself: use sfitter-native-fit.",
+   "Observation bridging: use sfitter-observed-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/sfitter-scan-extraction-example --spec specs/sfitter-scan-extraction.json",
+    "phrase": "Extract signed scan rates for an SFitter input.",
+    "spec": {
+     "mode": "sfitter-scan-extraction",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Extract signed scan rates for SFitter.",
+   "Signed rate tables over a scan are needed as fit inputs."
+  ]
+ }
+}

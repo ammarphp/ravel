@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "feyngraph": {
+    "revision": "15afe2f2c701331c76a0f5d55a752dca099104be",
+    "version": "0.1.0-beta.6",
+    "url": "https://github.com/jens-braun/feyngraph",
+    "license": "MPL-2.0",
+    "required_sources": {
+      "python/feyngraph/feyngraph.pyi": "ac58347e9f77db88703790df7e76bdbd3c9cb9169f3d36870ec37abb27bd38b1",
+      "src/model/ufo_parser.rs": "f5690d0ba97ecf178f7736d8a08b189d99786db3fb870ef552bf3d37b592e4f7",
+      "pyproject.toml": "ef30944d5791550e3d98bae6cd896c3a18403d47107c577276ee4b6ff6cb87f2",
+      "LICENSE": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "Cargo.toml": "ee99bb9091cca570cc6c29cf5134cf11c120b829727fb5603625f51a5e516ce1"
+    },
+    "model_factories": [
+      "Model.from_ufo",
+      "Model.from_qgraf",
+      "Model (explicit Standard Model Feynman gauge)"
+    ],
+    "generate": "DiagramGenerator(incoming,outgoing,loops,model,selector).generate",
+    "renders": [
+      "Diagram.draw_svg",
+      "Diagram.draw_tikz"
+    ],
+    "particle_spin": "2s"
+  },
+  "heptapod": {
+    "revision": "705b03cc36d96a79107df28d053a23d3fac1d393",
+    "url": "https://github.com/tonymenzo/heptapod",
+    "license": "GPL-3.0-or-later",
+    "required_sources": {
+      "tools/nda/nda_tool.py": "58091215a4e6ae111d6c0e7e8ffbd40d3f9cfe2a6f3533c234a5001b144301d4",
+      "tools/nda/simple_diagram.py": "8107e888c1034c7713417a26a22e57f7c67d44ba1439241b7a7a6f038d68659e",
+      "tools/nda/phase_space.py": "9317bdbc061cc1726e62c467f47ae3e2429a45dcb13d1202abb713d451c636db",
+      "tools/nda/matrix_element.py": "2acc78309c25856d41dc7763d0ac995f4beba656ae0fab9cb15c788f09147774",
+      "tools/nda/topology.py": "3eee5884b4da27e76bdabe494586001d48817d5a6df8f3b1a7ae5df88b2c56a2",
+      "tools/nda/summary_formatting.py": "7c90052cfc16322c40c52f58090546d902220cd64cf600c80b3faa515b038510",
+      "tools/logging/findings.py": "677d964426b4b6cfc651fcbb5ee3b9301d537457e34274de1ea1bba852f51ef0",
+      "requirements.txt": "3bddb1674724580f8c3da6a50f942cbf364b5af62f637eb7d2e1b5aaa1d49423",
+      "toolkit.yaml": "b705a420a321f0401b8bfcdae17ff4c6ce8e511255bb345b5616cddbd372ced0",
+      "LICENSE.txt": "6e37b70c463bb45b9c817f667eddbc799259d449ae9cb7b3d8a81659203e0279",
+      "AUTHORS.txt": "dbff84de17667491a5604b04f7e823a17ddadc6c5d86885d2dcefcd9cb91f3b1"
+    },
+    "nda": "tools.nda.nda_tool.EstimateDecayWidthNDATool._run",
+    "eda_source_epoch": "cb771f8c (unchanged existing diagrammatica_code backend)",
+    "interference": "No exact coherent process rate from per-diagram NDA/EDA sums"
+  },
+  "feynarts": {
+    "version": "3.12",
+    "version_header": "FeynArts 3.12 (27 Mar 2025)",
+    "archive_url": "https://feynarts.de/FeynArts-3.12.tar.gz",
+    "archive_sha256": "190cb5a2ecbbe35136f218d462b03731c6b797ecf65f088affc89ea01ef5784a",
+    "license": "LGPL (release source notice)",
+    "feyncalc_revision": "fe6645114a794c2aed96d4f6c3512ef1b1affac6",
+    "feyncalc_version": "10.1.0",
+    "feyncalc_required_sources": {
+      "FeynCalc/FeynCalc.m": "a12d5f8df4b35e26bd8bbcaedc04bcd3f0a50340308bf4e541e4dafc69372f7f",
+      "FeynCalc/Feynman/FCFAConvert.m": "ecd189e00e1f3a77575f1e64a863aa19fbd1372347fd60aaa8830c1996f41159",
+      "FeynCalc/AddOns/FeynArtsLoader/FeynArtsLoader.m": "12ff7721fa8b37060cfce48ec06e2fcbac73e26e5dcfbd3884d09d4a367b8cf3",
+      "FeynCalc/Feynman/FAPatch.m": "3354d821ee2f0ef42ba3cec1f9187c5e5521b24aeca063b46d79d322ecd477ca"
+    },
+    "functions": [
+      "CreateTopologies",
+      "InsertFields",
+      "CreateFeynAmp",
+      "FCFAConvert",
+      "Paint",
+      "Export"
+    ],
+    "model_files": [
+      "explicit Classes .mod",
+      "explicit Generic .gen"
+    ],
+    "source_patch": "FAPatch only in separately admitted source provisioning; evaluation $FAPatch=False"
+  },
+  "authored_bridge_license": "Apache-2.0; external implementations remain separate",
+  "runtime_qualified": false,
+  "physics_validated": false
+}

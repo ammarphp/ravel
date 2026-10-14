@@ -1,0 +1,55 @@
+{
+  "explanation": [
+    "direct_explanation",
+    "targeted_source_lookup",
+    "literature_synthesis"
+  ],
+  "estimate_theory": [
+    "standard_value",
+    "analytic_estimate",
+    "controlled_approximation",
+    "numerical_solver",
+    "higher_order_calculation"
+  ],
+  "model_spectrum": [
+    "reuse_model_output",
+    "analytic_consistency",
+    "fast_calculator",
+    "native_solver",
+    "new_machinery_qualification"
+  ],
+  "supplied_events": [
+    "reuse_derived_quantities",
+    "columnar_query",
+    "subset_pass",
+    "full_stream",
+    "new_generation"
+  ],
+  "reinterpretation": [
+    "existing_result",
+    "validated_map_or_table",
+    "fast_reinterpretation_or_reweighting",
+    "single_point_chain",
+    "justified_scan",
+    "full_detector_simulation"
+  ],
+  "fit_measurement": [
+    "supplied_result",
+    "analytic_or_bounded_fit",
+    "native_likelihood",
+    "toys_or_resampling",
+    "large_simulated_population"
+  ],
+  "open_research": [
+    "source_assessment",
+    "analytic_discriminator_or_reuse",
+    "small_prospective_experiment",
+    "replicated_experiment",
+    "campaign_expansion"
+  ],
+  "documents_figures": [
+    "reuse_accepted_artifacts",
+    "transform_or_render",
+    "targeted_missing_calculation"
+  ]
+}

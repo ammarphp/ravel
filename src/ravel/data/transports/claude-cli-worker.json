@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "claude-cli-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "claude",
+  "argv_template": [
+    "claude",
+    "-p",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}",
+    "--effort",
+    "{effort}",
+    "--json-schema",
+    "{schema}",
+    "--setting-sources",
+    "project",
+    "--restricted",
+    "--strict-mcp-config",
+    "--no-session-persistence",
+    "--tools",
+    "{tools}",
+    "--allowedTools",
+    "{tools}",
+    "--max-budget-usd",
+    "{usd}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "anthropic",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "login",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "CLAUDE_CONFIG_DIR"
+  ],
+  "billing": "subscription",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Keyless with the user's Claude login, inside the RAVEL sandbox workspace. Not --bare, which drops the subscription login. --setting-sources project and --safe-mode in an empty working directory exclude user settings, CLAUDE.md, skills, hooks and plugins; --strict-mcp-config loads only the servers named by --mcp-config: the worker_surface row adds --mcp-config with the generated broker MCP configuration (ravel work mcp), so no user MCP server loads.",
+  "worker_surface": {
+    "mcp": {
+      "config": "mcp_config_flag",
+      "argv": [
+        "--mcp-config",
+        "{mcp_config}"
+      ]
+    },
+    "structured_output": "enforced"
+  }
+}

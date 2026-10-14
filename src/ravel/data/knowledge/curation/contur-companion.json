@@ -1,0 +1,25 @@
+{
+ "id": "op:contur-companion",
+ "op": {
+  "do_not_use_when": [
+   "A single Rivet YODA run through Contur: use contur-yoda.",
+   "Reading an existing results database: use contur-import."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/contur-companion-example --spec specs/contur-companion.json",
+    "phrase": "Prepare released Contur companion operations from a source-bound input.",
+    "spec": {
+     "mode": "contur-companion",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Released Contur companion operations, including SM tests and native plots, are required.",
+   "Herwig extraction feeds a Contur study."
+  ]
+ }
+}

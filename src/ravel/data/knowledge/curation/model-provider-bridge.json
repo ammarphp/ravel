@@ -1,0 +1,25 @@
+{
+ "id": "op:model-provider-bridge",
+ "op": {
+  "do_not_use_when": [
+   "Deriving a UFO: use model-derivation-bridge.",
+   "Authoring a model: use model-authoring."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-provider-bridge-example --spec specs/model-provider-bridge.json",
+    "phrase": "Qualify a native model provider from a pinned configuration.",
+    "spec": {
+     "mode": "model-provider-bridge",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Qualify a Wolfram/FeynRules provider for later model work.",
+   "Check that the native symbolic provider behaves as declared."
+  ]
+ }
+}

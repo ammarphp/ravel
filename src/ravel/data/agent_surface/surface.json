@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "ravel-agent-surface",
+  "skills": [
+    "physicist-intake",
+    "route-analysis",
+    "resource-sweep",
+    "cost-preflight",
+    "figure-contract",
+    "judgment-protocols",
+    "verification-panel",
+    "certify",
+    "run-stage",
+    "run-scan",
+    "stage-recovery"
+  ],
+  "rules": [
+    "statistics.md",
+    "plots.md",
+    "madgraph-pythia.md"
+  ],
+  "python_packages": [
+    "numpy",
+    "scipy",
+    "awkward",
+    "uproot",
+    "hist",
+    "boost-histogram",
+    "vector",
+    "iminuit",
+    "pyhf",
+    "cabinetry",
+    "coffea",
+    "matplotlib",
+    "mplhep",
+    "snakemake",
+    "fsspec",
+    "fsspec-xrootd",
+    "xrootd",
+    "rucio-clients",
+    "servicex",
+    "func-adl-servicex-xaodr25",
+    "pandas",
+    "pyarrow"
+  ],
+  "executables": [
+    "root",
+    "root-config",
+    "xrdcp",
+    "xrdfs",
+    "rucio",
+    "condor_submit",
+    "condor_q",
+    "apptainer",
+    "snakemake",
+    "pdfinfo",
+    "git"
+  ],
+  "audit_log": ".ravel/agent-audit/prompts.jsonl"
+}

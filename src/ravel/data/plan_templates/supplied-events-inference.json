@@ -1,0 +1,100 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "supplied-events-inference",
+ "summary": "A selection on supplied events and a statistical model built over its yields.",
+ "priority": 30,
+ "match": {
+  "all": [
+   "supplied:event_sample"
+  ],
+  "any": [
+   [
+    "claim:exclusion",
+    "claim:estimate",
+    "claim:significance"
+   ]
+  ]
+ },
+ "inputs": [
+  {
+   "key": "events",
+   "provides": {
+    "kind": "event_sample",
+    "require": {
+     "format": "$event_format"
+    }
+   },
+   "source": "requester",
+   "locator": "supplied event files",
+   "status": "supplied",
+   "bind": "event_sample"
+  },
+  {
+   "key": "recipe",
+   "provides": {
+    "kind": "selection",
+    "require": {
+     "origin": "$selection_origin"
+    }
+   },
+   "source": "requester",
+   "locator": "selection specification with request spans, or a requester recipe",
+   "status": "awaited",
+   "bind": "selection"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "analysis",
+   "kind": "operation",
+   "operation": "columnar-analysis",
+   "rung": "full"
+  },
+  {
+   "key": "statistics",
+   "kind": "operation",
+   "operation": "search-statistics",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "$event_format"
+   }
+  },
+  {
+   "from": "input:recipe",
+   "to": "analysis.recipe",
+   "kind": "selection",
+   "require": {
+    "origin": "$selection_origin"
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "to": "statistics.signal",
+   "kind": "binned_values",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "statistics.significance",
+   "kind": "inference",
+   "when": {
+    "all": [
+     "claim:significance"
+    ]
+   }
+  },
+  {
+   "from": "statistics.limits",
+   "kind": "inference"
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "codex-oss-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "codex",
+  "argv_template": [
+    "codex",
+    "exec",
+    "--oss",
+    "--json",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--cd",
+    "{workspace}",
+    "--model",
+    "{model}",
+    "--output-schema",
+    "{schema_file}",
+    "-"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "none",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "CODEX_HOME"
+  ],
+  "billing": "local",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "os-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Codex --oss with a local Ollama or LM Studio server; no key. Runs with a fresh CODEX_HOME per call holding a copy of auth.json and a generated config.toml, so ~/.codex instructions and providers are not loaded."
+}

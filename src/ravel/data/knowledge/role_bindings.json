@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "role-knowledge-bindings",
+  "roles": {
+    "generator": {
+      "include": ["hb:pythia-shower-cards", "trap:T6", "trap:T11", "trap:T12"],
+      "premise_tags": ["normalization", "generation"],
+      "sections": {
+        "hb:madgraph-launch": ["use-ravel-s-typed-path"],
+        "hb:lhapdf-pdf-sets": ["read-the-set-before-using-it"],
+        "hb:pythia-shower-cards": ["how-ravel-reads-a-card"]
+      }
+    },
+    "upstream-agentrivet-analyst": {
+      "brief_role": "analyst",
+      "brief_parts": ["hepdata_tables", "analysis_spec", "ambiguities", "normalization_contract"]
+    },
+    "upstream-agentrivet-coder": {
+      "brief_role": "coder",
+      "brief_parts": ["authoring", "rivet_handbook", "checklist", "hepdata_tables", "analysis_spec", "ambiguities", "normalization_contract", "observations"]
+    },
+    "upstream-agentrivet-code-reviewer": {
+      "brief_role": "code_reviewer",
+      "brief_parts": ["checklist", "hepdata_tables", "observations"]
+    },
+    "upstream-agentrivet-physics-reviewer": {
+      "brief_role": "physics_reviewer",
+      "brief_parts": ["checklist", "analysis_spec", "ambiguities", "normalization_contract", "observations"]
+    }
+  },
+  "sections_by_operation": {
+    "model-events": {
+      "hb:madgraph-launch": ["use-ravel-s-typed-path"],
+      "hb:madgraph-model-import": ["what-ravel-does"]
+    }
+  }
+}

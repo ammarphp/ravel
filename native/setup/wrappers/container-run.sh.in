@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# owned by the RAVEL installer
+# Runs @COMMAND@ from the pinned image @IMAGE@ on the current directory.
+# The working directory is mounted at /work and the shared LHAPDF data read-only.
+# The container has no network. Arguments are passed through unchanged.
+set -euo pipefail
+ENGINE="${RAVEL_CONTAINER_ENGINE:-@ENGINE@}"
+IMAGE="@IMAGE@"
+WORK="$(pwd -P)"
+case "$(basename "$ENGINE")" in
+  apptainer|singularity)
+    SIF="@PREFIX@/containers/images/@NAME@.sif"
+    exec "$ENGINE" exec --containall --no-home --bind "$WORK:/work" --bind "@LHAPDF@:/lhapdf:ro" \
+      --pwd /work --env LHAPDF_DATA_PATH=/lhapdf "$SIF" @COMMAND@ "$@"
+    ;;
+  *)
+    exec "$ENGINE" run --rm --platform "@PLATFORM@" --network none -v "$WORK:/work" -v "@LHAPDF@:/lhapdf:ro" \
+      -w /work -e LHAPDF_DATA_PATH=/lhapdf "$IMAGE" @COMMAND@ "$@"
+    ;;
+esac

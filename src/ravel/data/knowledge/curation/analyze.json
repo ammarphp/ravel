@@ -1,0 +1,30 @@
+{
+ "id": "op:analyze",
+ "op": {
+  "do_not_use_when": [
+   "Events must first be showered or put through a detector: use event-production.",
+   "A declarative object-and-region recipe over Delphes, ntuple or LHE events: use columnar-analysis."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/analyze-example --spec specs/analyze.json",
+    "phrase": "Run a preserved analysis routine over a supplied event sample.",
+    "spec": {
+     "mode": "analyze",
+     "task": {
+      "backend": "native-selection",
+      "events": [
+       "events/sample.root"
+      ],
+      "object_contract": "contracts/objects.json",
+      "selection": "selections/region.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Run a preserved Rivet or SimpleAnalysis routine, or a declared native selection, over supplied events.",
+   "Signal-region yields or histograms are needed from generated or supplied event files."
+  ]
+ }
+}

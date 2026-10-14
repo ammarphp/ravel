@@ -1,0 +1,147 @@
+{
+ "schema_version": 1,
+ "kind": "generality-denylist",
+ "purpose": "Keyed digests of named challenges, benchmark suites, compared systems, studies, search-specific routines, people and showcase points that no tracked file may name. Maintained with check_generality.py --add-term; the terms are not stored.",
+ "entries": [
+  {
+   "digest": "e7283ec99b370eefe65e",
+   "category": "benchmark",
+   "length": 13
+  },
+  {
+   "digest": "197b9a073350683f9e66",
+   "category": "benchmark-point",
+   "length": 14
+  },
+  {
+   "digest": "24df2fed88913848b8ed",
+   "category": "benchmark-point",
+   "length": 13
+  },
+  {
+   "digest": "322712017943e638d79e",
+   "category": "benchmark-point",
+   "length": 12
+  },
+  {
+   "digest": "4868b5cdf037699c2d51",
+   "category": "benchmark-point",
+   "length": 12
+  },
+  {
+   "digest": "9e985e85fba6fbe5502c",
+   "category": "benchmark-point",
+   "length": 13
+  },
+  {
+   "digest": "c1c19865a4a967498500",
+   "category": "benchmark-point",
+   "length": 10
+  },
+  {
+   "digest": "c5d05419716f25f7eb17",
+   "category": "benchmark-point",
+   "length": 13
+  },
+  {
+   "digest": "cf6f02c8fc25282da008",
+   "category": "benchmark-point",
+   "length": 14
+  },
+  {
+   "digest": "fb1ab37dc98235d63dc9",
+   "category": "benchmark-point",
+   "length": 13
+  },
+  {
+   "digest": "c0a537182bb2bdc7f844",
+   "category": "challenge",
+   "length": 4
+  },
+  {
+   "digest": "0e48976c8127b1297549",
+   "category": "comparator",
+   "length": 13
+  },
+  {
+   "digest": "2f2fa6f77ef60d2f7ff2",
+   "category": "comparator",
+   "length": 9
+  },
+  {
+   "digest": "46278ba9f701ca59a5ba",
+   "category": "comparator",
+   "length": 13
+  },
+  {
+   "digest": "0a965cb701764f4d32f9",
+   "category": "person",
+   "length": 13
+  },
+  {
+   "digest": "15d10a24e7149c8a6ef4",
+   "category": "person",
+   "length": 10
+  },
+  {
+   "digest": "1a15b0299ccdea130de9",
+   "category": "person",
+   "length": 8
+  },
+  {
+   "digest": "2e43152a09c5726b3cc9",
+   "category": "person",
+   "length": 11
+  },
+  {
+   "digest": "3045654e2b5596131d48",
+   "category": "person",
+   "length": 11
+  },
+  {
+   "digest": "38ee9315560b53ec10b3",
+   "category": "person",
+   "length": 12
+  },
+  {
+   "digest": "5deb2ac812e6b7674a40",
+   "category": "person",
+   "length": 7
+  },
+  {
+   "digest": "8b30a959387f4fa21c0d",
+   "category": "person",
+   "length": 11
+  },
+  {
+   "digest": "a9ebc4ea630ca0f01a7a",
+   "category": "person",
+   "length": 20
+  },
+  {
+   "digest": "bd3ca5d5cdc1bc65d9eb",
+   "category": "person",
+   "length": 6
+  },
+  {
+   "digest": "c8a51e495485678b9886",
+   "category": "person",
+   "length": 11
+  },
+  {
+   "digest": "dcb72f041b7d2ce33f5b",
+   "category": "person",
+   "length": 8
+  },
+  {
+   "digest": "fd1fdb30d38af8e2c392",
+   "category": "person",
+   "length": 8
+  },
+  {
+   "digest": "93ab194e88cca0701605",
+   "category": "study",
+   "length": 3
+  }
+ ]
+}

@@ -1,0 +1,35 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{How RAVEL works}{From a question to a reviewed result, with you steering.}
+\tikzset{big/.style={box=48mm, minimum height=17mm, font=\ravelLabelFont}}
+% Row 1, left to right.
+\node[big, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (q) at (5,-24)
+  {\nodetitle{Your question}\nodesub{in plain words}};
+\node[big, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (p) at (61,-24)
+  {\nodetitle{Plan and CHECK-IN 1}\nodesub{you approve scope and budget}};
+\node[big, draw=rvagentline, fill=rvagentfill, anchor=north west] (a) at (117,-24)
+  {\nodetitle{Agent team}\nodesub{plans, builds and runs}};
+% Row 2, right to left.
+\node[big, draw=rvhepline, fill=rvhepfill, anchor=north west] (t) at (117,-54)
+  {\nodetitle{Physics toolchain}\nodesub{generators, analyses, fits}};
+\node[big, draw=rvguardline, fill=rvguardfill, anchor=north west] (r) at (61,-54)
+  {\nodetitle{Independent review}\nodesub{critic, verifier, synthesis}};
+\node[big, draw=rvravelline, fill=rvravelfill, anchor=north west] (o) at (5,-54)
+  {\nodetitle{Reviewed result}\nodesub{numbers, figures, report}};
+\draw[flow] (q) -- (p);
+\draw[flow] (p) -- (a);
+\draw[flow] (a) -- (t);
+\draw[flow] (t) -- (r);
+\draw[flow] (r) -- (o);
+\draw[loop] (r.north) -- ++(0,6.5) -| node[flowlabel, pos=0.25] {objections return work} ([xshift=-12mm]a.south);
+% Two bands that run under every step.
+\node[box=160mm, draw=rvpeopleline, fill=rvpeoplefill, minimum height=11mm, anchor=north west] (s) at (5,-79)
+  {\nodetitle{You steer throughout}\hspace{2.2mm}{\color{rvmuted}approvals, budgets, questions and stop}};
+\node[box=160mm, draw=rvrecordsline, fill=rvrecordsfill, minimum height=11mm, anchor=north west] (k) at (5,-93)
+  {\nodetitle{Every step is recorded}\hspace{2.2mm}{\color{rvmuted}inputs, tool versions, receipts and results}};
+\ravellegend{-109}{people/You, agent/Agents, hep/Physics tools, guard/Review, ravel/Result, records/Records}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

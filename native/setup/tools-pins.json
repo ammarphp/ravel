@@ -1,0 +1,1794 @@
+{
+  "schema_version": 1,
+  "tools": {
+    "geant4": {
+      "tool": "Geant4",
+      "kind": "conda",
+      "url": "https://conda.anaconda.org/conda-forge/osx-arm64/",
+      "version": "11.3.*",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Select exact no-Qt/no-OpenGL conda build; record package URL, sha256 and size, verify data versions.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4emlow": {
+      "tool": "G4EMLOW",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4EMLOW.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4photonevaporation": {
+      "tool": "G4PhotonEvaporation",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4PhotonEvaporation.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4radioactivedecay": {
+      "tool": "G4RadioactiveDecay",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4RadioactiveDecay.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4particlexs": {
+      "tool": "G4PARTICLEXS",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4PARTICLEXS.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4ensdfstate": {
+      "tool": "G4ENSDFSTATE",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4ENSDFSTATE.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4saiddata": {
+      "tool": "G4SAIDDATA",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4SAIDDATA.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4incl": {
+      "tool": "G4INCL",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4INCL.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4abla": {
+      "tool": "G4ABLA",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4ABLA.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4pii": {
+      "tool": "G4PII",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4PII.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4realsurface": {
+      "tool": "G4RealSurface",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4RealSurface.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4ndl": {
+      "tool": "G4NDL",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4NDL.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "geant4-g4tendl": {
+      "tool": "G4TENDL",
+      "kind": "archive",
+      "url": "https://cern.ch/geant4-data/datasets/G4TENDL.{version}.tar.gz",
+      "version": "release-matched",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Geant4",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve from selected Geant4 data manifest; verify data licence inside tarball. G4TENDL only for HPT list; downloads under {DATA}/geant4/.",
+      "upstream_status": "candidate"
+    },
+    "gdml-geometries": {
+      "tool": "GDML geometries",
+      "kind": "git",
+      "url": "file://{REPO}",
+      "version": "release/candidate",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "RAVEL-authored source; pin implementing commit and individual authored asset hashes in owning package.",
+      "upstream_status": "authored"
+    },
+    "ravel-g4sim": {
+      "tool": "ravel_g4sim",
+      "kind": "git",
+      "url": "file://{REPO}",
+      "version": "release/candidate",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "RAVEL-authored source; pin implementing commit and individual authored asset hashes in owning package.",
+      "upstream_status": "authored"
+    },
+    "dd4hep": {
+      "tool": "DD4hep",
+      "kind": "git",
+      "url": "https://github.com/AIDASoft/DD4hep",
+      "version": "1.3x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LGPL-3.0-only",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "podio": {
+      "tool": "podio",
+      "kind": "git",
+      "url": "https://github.com/AIDASoft/podio",
+      "version": "1.x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "edm4hep": {
+      "tool": "EDM4hep",
+      "kind": "git",
+      "url": "https://github.com/key4hep/EDM4hep",
+      "version": "0.10.x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "open-data-detector": {
+      "tool": "Open Data Detector",
+      "kind": "git",
+      "url": "https://gitlab.cern.ch/acts/OpenDataDetector",
+      "version": "v4.x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "MPL-2.0",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "MPL designation is provisional: confirm licence before group admission.",
+      "upstream_status": "candidate"
+    },
+    "acts": {
+      "tool": "ACTS",
+      "kind": "conda",
+      "url": "https://conda.anaconda.org/conda-forge/osx-arm64/",
+      "version": "v4x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "MPL-2.0",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Optional; select exact osx-arm64 conda asset or record unsupported.",
+      "upstream_status": "candidate"
+    },
+    "cms-open-data": {
+      "tool": "CMS Open Data full simulation",
+      "kind": "image",
+      "url": "https://opendata.cern.ch",
+      "version": "record-selected",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Remote only; owning package selects open-data record, exact CMSSW release and image URL/digest. Dataset licence CC0 is separate.",
+      "upstream_status": "candidate"
+    },
+    "sherpa": {
+      "tool": "Sherpa 3",
+      "kind": "archive",
+      "url": "https://gitlab.com/sherpa-team/sherpa",
+      "version": "3.0.x",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Select upstream release tarball; conda package name collides with unrelated software.",
+      "upstream_status": "candidate"
+    },
+    "openloops": {
+      "tool": "OpenLoops 2",
+      "kind": "git",
+      "url": "https://openloops.hepforge.org",
+      "version": "2.1.x",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Candidate upstream must be confirmed by owning package before fetching; per-process libraries need separate download pins.",
+      "upstream_status": "candidate"
+    },
+    "recola": {
+      "tool": "Recola 2",
+      "kind": "archive",
+      "url": "https://recola.hepforge.org",
+      "version": "2.2.x",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "herwig": {
+      "tool": "herwig",
+      "kind": "conda",
+      "url": "https://conda.anaconda.org/conda-forge/osx-arm64/",
+      "version": "7.3.0",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-2.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "thepeg": {
+      "tool": "thepeg",
+      "kind": "conda",
+      "url": "https://conda.anaconda.org/conda-forge/osx-arm64/",
+      "version": "2.3.0",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-2.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "powheg-v2": {
+      "tool": "Powheg-Box V2",
+      "kind": "svn",
+      "url": "https://powhegbox.mib.infn.it/svn/POWHEG-BOX-V2",
+      "version": "revision-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-POWHEG-BOX",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Core plus sparse selected process revisions; NR unless upstream licence evidence establishes permission.",
+      "upstream_status": "candidate"
+    },
+    "powheg-res": {
+      "tool": "Powheg-Box RES",
+      "kind": "svn",
+      "url": "https://powhegbox.mib.infn.it/svn/POWHEG-BOX-RES",
+      "version": "revision-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-POWHEG-BOX",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Core plus sparse selected process revisions; NR unless upstream licence evidence establishes permission.",
+      "upstream_status": "candidate"
+    },
+    "madgraph-3": {
+      "tool": "MadGraph 3.7.0",
+      "kind": "git",
+      "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+      "version": "3.7.0",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": "adf3d62d096abc1f1512c2101b40218f7c529d4f",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-MG5aMC",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "luxlep": {
+      "tool": "LUXlep-NNPDF31_nlo_as_0118_luxqed",
+      "kind": "archive",
+      "url": "https://lhapdfsets.web.cern.ch/current/LUXlep-NNPDF31_nlo_as_0118_luxqed.tar.gz",
+      "version": "LUXlep-NNPDF31_nlo_as_0118_luxqed",
+      "licence_file": "LUXlep-NNPDF31_nlo_as_0118_luxqed.info",
+      "status": "pending",
+      "commit": null,
+      "sha256": "fcb690fdd260720960f755e1143af0113f2b924c65391946d3321beb64359025",
+      "size": 46308637,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-upstream",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Set authors licence must be confirmed from info or accompanying licence; no redistribution before evidence.",
+      "upstream_status": "base-recorded"
+    },
+    "luxqed": {
+      "tool": "LUXqed17_plus_PDF4LHC15_nnlo_100",
+      "kind": "archive",
+      "url": "https://lhapdfsets.web.cern.ch/current/LUXqed17_plus_PDF4LHC15_nnlo_100.tar.gz",
+      "version": "LUXqed17_plus_PDF4LHC15_nnlo_100",
+      "licence_file": "LUXqed17_plus_PDF4LHC15_nnlo_100.info",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-upstream",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Set authors licence must be confirmed from info or accompanying licence; no redistribution before evidence.",
+      "upstream_status": "candidate"
+    },
+    "madloop": {
+      "tool": "madloop",
+      "kind": "git",
+      "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+      "version": "3.7.0",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-MG5aMC",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve bundled component version and upstream source through MG5 installation metadata; do not assert upstream path before fetch.",
+      "upstream_status": "candidate"
+    },
+    "cuttools": {
+      "tool": "cuttools",
+      "kind": "git",
+      "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+      "version": "3.7.0",
+      "licence_file": "vendor/cuttools/LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve bundled component version and upstream source through MG5 installation metadata; do not assert upstream path before fetch.",
+      "upstream_status": "candidate"
+    },
+    "ninja": {
+      "tool": "ninja",
+      "kind": "git",
+      "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+      "version": "3.7.0",
+      "licence_file": "vendor/ninja/LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve bundled component version and upstream source through MG5 installation metadata; do not assert upstream path before fetch.",
+      "upstream_status": "candidate"
+    },
+    "iregi": {
+      "tool": "iregi",
+      "kind": "git",
+      "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+      "version": "3.7.0",
+      "licence_file": "vendor/iregi/LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-upstream",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Resolve bundled component version and upstream source through MG5 installation metadata; do not assert upstream path before fetch.",
+      "upstream_status": "candidate"
+    },
+    "collier": {
+      "tool": "COLLIER",
+      "kind": "archive",
+      "url": "https://collier.hepforge.org",
+      "version": "1.2.8",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "looptools": {
+      "tool": "LoopTools",
+      "kind": "archive",
+      "url": "https://feynarts.de/looptools/",
+      "version": "2.16",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LGPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "form": {
+      "tool": "FORM",
+      "kind": "archive",
+      "url": "https://github.com/vermaseren/form",
+      "version": "4.3.1",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "package-x": {
+      "tool": "Package-X",
+      "kind": "archive",
+      "url": "https://packagex.hepforge.org",
+      "version": "2.1.1",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Package-X",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "formcalc": {
+      "tool": "FormCalc",
+      "kind": "archive",
+      "url": "https://feynarts.de/formcalc/",
+      "version": "9.10",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LGPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "dsixtools": {
+      "tool": "DsixTools",
+      "kind": "archive",
+      "url": "https://dsixtools.github.io",
+      "version": "2.1",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-only",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "qgraf": {
+      "tool": "QGRAF",
+      "kind": "archive",
+      "url": "https://qgraf.hepforge.org",
+      "version": "3.6.x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-QGRAF",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "micromegas": {
+      "tool": "micrOMEGAs",
+      "kind": "archive",
+      "url": "https://lapth.cnrs.fr/micromegas/",
+      "version": "7.1-or-newest-6.x",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-micrOMEGAs",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "susyhit": {
+      "tool": "SUSY-HIT",
+      "kind": "archive",
+      "url": "https://www.itp.kit.edu/~muehlleitner/SUSY-HIT/",
+      "version": "1.5a",
+      "licence_file": "README",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-SUSY-HIT",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "feynhiggs": {
+      "tool": "FeynHiggs",
+      "kind": "archive",
+      "url": "https://www.feynhiggs.de",
+      "version": "2.19.x",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "softsusy": {
+      "tool": "SoftSUSY",
+      "kind": "archive",
+      "url": "https://softsusy.hepforge.org",
+      "version": "4.1.x",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "multinest": {
+      "tool": "MultiNest",
+      "kind": "git",
+      "url": "https://github.com/JohannesBuchner/MultiNest",
+      "version": "3.12",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-MultiNest",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "pymultinest": {
+      "tool": "PyMultiNest",
+      "kind": "archive",
+      "url": "https://pypi.org/pypi/pymultinest/2.12/json",
+      "version": "2.12",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-only",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "hi-class": {
+      "tool": "hi_class",
+      "kind": "git",
+      "url": "https://github.com/miguelzuma/hi_class_public",
+      "version": "commit-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-hi_class",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream terms; separate classy interpreter regardless of licence.",
+      "upstream_status": "candidate"
+    },
+    "feynarts": {
+      "tool": "FeynArts 3.12",
+      "kind": "archive",
+      "url": "https://feynarts.de/FeynArts-3.12.tar.gz",
+      "version": "3.12",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": "190cb5a2ecbbe35136f218d462b03731c6b797ecf65f088affc89ea01ef5784a",
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LGPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "feyncalc": {
+      "tool": "FeynCalc",
+      "kind": "git",
+      "url": "https://github.com/FeynCalc/feyncalc",
+      "version": "fe664511",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": "fe6645114a794c2aed96d4f6c3512ef1b1affac6",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "flexiblesusy": {
+      "tool": "FlexibleSUSY",
+      "kind": "git",
+      "url": "https://github.com/FlexibleSUSY/FlexibleSUSY",
+      "version": "2.9.0",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": "64276b57499cba6577940c3fc605b9d4b45b3130",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-only",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "spheno": {
+      "tool": "SPheno",
+      "kind": "archive",
+      "url": "https://spheno.hepforge.org/downloads/SPheno-4.0.5.tar.gz",
+      "version": "4.0.5",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": "3f84a6c3e47f40e0dd1bcccb88eb08a1d0a65aa3d8e42504befdfc3d47ec9529",
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-SPheno",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "sarah": {
+      "tool": "SARAH 4.15.4",
+      "kind": "archive",
+      "url": "https://sarah.hepforge.org/downloads/SARAH-4.15.4.tar.gz",
+      "version": "4.15.4",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": "4ab8f01ebe866cce954bc292118b5976913a2800efc6eeb2ad2e926a98fc42eb",
+      "size": 2923464,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "feynrules": {
+      "tool": "FeynRules 2.3.49",
+      "kind": "archive",
+      "url": "https://feynrules.irmp.ucl.ac.be/downloads/feynrules-current.tar.gz",
+      "version": "2.3.49",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": "85eddac7b5b61eac772c93df93a0c44bc34f531069985a719fe454f0a54afc81",
+      "size": 603115,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-FeynRules",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "easyscan": {
+      "tool": "EasyScan_HEP",
+      "kind": "git",
+      "url": "https://github.com/phyzhangyang/EasyScan_HEP",
+      "version": "2dee5ede",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": "2dee5ede04b131b889ac6a9cb52f3a335d6df640",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "Apache-2.0",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "gm2calc": {
+      "tool": "GM2Calc",
+      "kind": "git",
+      "url": "https://github.com/GM2Calc/GM2Calc",
+      "version": "2.3.1",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": "3b7b1e8446bea3c04b7312ba98e5b87212b95673",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "phasetracer": {
+      "tool": "PhaseTracer",
+      "kind": "git",
+      "url": "https://github.com/PhaseTracer/PhaseTracer",
+      "version": "a68b2fd2",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": "a68b2fd2801e748d143058d828683f8f76b67ce3",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "checkmate": {
+      "tool": "CheckMATE 2",
+      "kind": "git",
+      "url": "https://github.com/CheckMATE2/checkmate2",
+      "version": "bacf9d17",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": "bacf9d17ff8e844e3b40851849e21f0dd0f0638c",
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-2.0-only",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "base-recorded"
+    },
+    "root": {
+      "tool": "root",
+      "kind": "git",
+      "url": "https://github.com/root-project/root",
+      "version": "6.40",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LGPL-2.1-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "torch": {
+      "tool": "torch",
+      "kind": "git",
+      "url": "https://github.com/pytorch/pytorch",
+      "version": "2.14.0",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "BSD-3-Clause",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "torch-geometric": {
+      "tool": "torch-geometric",
+      "kind": "git",
+      "url": "https://github.com/pyg-team/pytorch_geometric",
+      "version": "2.7.0",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "MIT",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "scikit-learn": {
+      "tool": "scikit-learn",
+      "kind": "git",
+      "url": "https://github.com/scikit-learn/scikit-learn",
+      "version": "1.7.2",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "BSD-3-Clause",
+        "redistribute": true,
+        "import_into_ravel": "allowed",
+        "container_publish": "allowed",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "mcfm-image": {
+      "tool": "MCFM image",
+      "kind": "image",
+      "url": "localhost/ravel-mcfm",
+      "version": "10.2.1",
+      "licence_file": "COPYING",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Built locally, never pushed; source commit and base digest from existing recipe, image digest after coordinator build.",
+      "upstream_status": "candidate"
+    },
+    "jhugen": {
+      "tool": "jhugen",
+      "kind": "git",
+      "url": "https://github.com/JHUGen/JHUGen",
+      "version": "commit-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "mela": {
+      "tool": "mela",
+      "kind": "git",
+      "url": "https://github.com/JHUGen/JHUGenMELA",
+      "version": "commit-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Confirm upstream licence path and exact release in the coordinator fetch job.",
+      "upstream_status": "candidate"
+    },
+    "jhugen-mela-image": {
+      "tool": "JHUGen / MELA image",
+      "kind": "image",
+      "url": "localhost/ravel-jhugen-mela",
+      "version": "local-build-pending",
+      "licence_file": "LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "GPL-3.0-or-later",
+        "redistribute": true,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Separate upstream commits and local image digest; local builds only, never published.",
+      "upstream_status": "candidate"
+    },
+    "container-base": {
+      "tool": "Shared toolchain base image",
+      "kind": "image",
+      "url": "docker.io/library/fedora",
+      "version": "41",
+      "licence_file": "usr/share/licenses/fedora-release/LICENSE",
+      "status": "pending",
+      "commit": null,
+      "sha256": null,
+      "size": null,
+      "revision": null,
+      "digest": null,
+      "licence_text_sha256": null,
+      "fetched_utc": null,
+      "licence": {
+        "spdx": "LicenseRef-Fedora-packages",
+        "redistribute": false,
+        "import_into_ravel": "never",
+        "container_publish": "never",
+        "evidence_status": "pending"
+      },
+      "selection_note": "Fedora base is a collection, not a blanket MIT licence; retain package licence inventory and its sha256. Only local derived images; never publish before package ledger review.",
+      "upstream_status": "candidate"
+    }
+  },
+  "tool_rows": {
+    "geant4": [
+      "geant4"
+    ],
+    "geant4-data-minimal": [
+      "geant4-g4emlow",
+      "geant4-g4photonevaporation",
+      "geant4-g4radioactivedecay",
+      "geant4-g4particlexs",
+      "geant4-g4ensdfstate",
+      "geant4-g4saiddata",
+      "geant4-g4incl",
+      "geant4-g4abla",
+      "geant4-g4pii",
+      "geant4-g4realsurface"
+    ],
+    "geant4-data-hp": [
+      "geant4-g4ndl",
+      "geant4-g4tendl"
+    ],
+    "gdml-geometries": [
+      "gdml-geometries"
+    ],
+    "ravel-g4sim": [
+      "ravel-g4sim"
+    ],
+    "dd4hep": [
+      "dd4hep"
+    ],
+    "podio-edm4hep": [
+      "podio",
+      "edm4hep"
+    ],
+    "open-data-detector": [
+      "open-data-detector"
+    ],
+    "acts": [
+      "acts"
+    ],
+    "cms-open-data": [
+      "cms-open-data"
+    ],
+    "sherpa": [
+      "sherpa"
+    ],
+    "openloops": [
+      "openloops"
+    ],
+    "recola": [
+      "recola"
+    ],
+    "herwig-thepeg": [
+      "herwig",
+      "thepeg"
+    ],
+    "powheg": [
+      "powheg-v2",
+      "powheg-res"
+    ],
+    "madgraph-lux": [
+      "madgraph-3",
+      "luxlep",
+      "luxqed"
+    ],
+    "madloop": [
+      "madloop",
+      "cuttools",
+      "ninja",
+      "iregi"
+    ],
+    "collier": [
+      "collier"
+    ],
+    "looptools": [
+      "looptools"
+    ],
+    "form": [
+      "form"
+    ],
+    "package-x": [
+      "package-x"
+    ],
+    "formcalc": [
+      "formcalc"
+    ],
+    "dsixtools": [
+      "dsixtools"
+    ],
+    "qgraf": [
+      "qgraf"
+    ],
+    "micromegas": [
+      "micromegas"
+    ],
+    "susyhit": [
+      "susyhit"
+    ],
+    "feynhiggs": [
+      "feynhiggs"
+    ],
+    "softsusy": [
+      "softsusy"
+    ],
+    "multinest": [
+      "multinest"
+    ],
+    "pymultinest": [
+      "pymultinest"
+    ],
+    "hi-class": [
+      "hi-class"
+    ],
+    "feynarts-feyncalc": [
+      "feynarts",
+      "feyncalc"
+    ],
+    "flexiblesusy": [
+      "flexiblesusy"
+    ],
+    "spheno": [
+      "spheno"
+    ],
+    "sarah-feynrules": [
+      "sarah",
+      "feynrules"
+    ],
+    "easyscan-components": [
+      "easyscan",
+      "gm2calc",
+      "phasetracer"
+    ],
+    "checkmate": [
+      "checkmate"
+    ],
+    "roofit-hs3": [
+      "root"
+    ],
+    "pytorch-components": [
+      "torch",
+      "torch-geometric",
+      "scikit-learn"
+    ],
+    "tmva": [
+      "root"
+    ],
+    "mcfm-image": [
+      "mcfm-image"
+    ],
+    "jhugen-mela-image": [
+      "jhugen",
+      "mela",
+      "jhugen-mela-image"
+    ],
+    "container-base": [
+      "container-base"
+    ]
+  }
+}

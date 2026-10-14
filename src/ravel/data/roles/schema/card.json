@@ -1,0 +1,466 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "escalation": {
+      "items": {
+        "enum": [
+          "checkin_flag",
+          "stop",
+          "new_experiment_required",
+          "decision_block"
+        ]
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "family": {
+      "enum": [
+        "coordination",
+        "production",
+        "consult",
+        "specialist-review",
+        "governance",
+        "rdj",
+        "investigation",
+        "research",
+        "writing",
+        "upstream"
+      ]
+    },
+    "id": {
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "type": "string"
+    },
+    "independence": {
+      "additionalProperties": false,
+      "properties": {
+        "distinct_actor_from": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "fresh_session": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "voting",
+            "specialist",
+            "advisory",
+            "producer",
+            "investigation"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "distinct_actor_from",
+        "fresh_session"
+      ],
+      "type": "object"
+    },
+    "kind": {
+      "const": "role-card"
+    },
+    "knowledge": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_tokens": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "consult": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "role": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "when": {
+                "enum": [
+                  "before_first_smoke",
+                  "on_use",
+                  "failure",
+                  "contested_node"
+                ]
+              }
+            },
+            "required": [
+              "role",
+              "when"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "derive": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "forbidden": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "may_query": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "must_read": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "must_read",
+        "derive",
+        "may_query",
+        "consult",
+        "forbidden",
+        "budget_tokens"
+      ],
+      "type": "object"
+    },
+    "model": {
+      "additionalProperties": false,
+      "properties": {
+        "distinct_family_from": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "effort": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "max"
+          ]
+        },
+        "tier": {
+          "enum": [
+            "judgment",
+            "agent",
+            "cheap"
+          ]
+        }
+      },
+      "required": [
+        "tier",
+        "effort",
+        "distinct_family_from"
+      ],
+      "type": "object"
+    },
+    "must_check": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "operations": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "output": {
+      "additionalProperties": false,
+      "properties": {
+        "declared_outputs": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "path": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "path",
+              "kind",
+              "required"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "schema": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        "sidecar": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "declared_outputs",
+        "sidecar"
+      ],
+      "type": "object"
+    },
+    "protocol": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "purpose": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "requires": {
+      "additionalProperties": false,
+      "properties": {
+        "attestation_min": {
+          "enum": [
+            "self",
+            "host",
+            "transport"
+          ]
+        },
+        "blind": {
+          "type": "boolean"
+        },
+        "isolation_min": {
+          "enum": [
+            "none",
+            "cli-policy",
+            "ravel-sandbox",
+            "os-sandbox"
+          ]
+        },
+        "structured_output": {
+          "type": "boolean"
+        },
+        "tools": {
+          "enum": [
+            "none",
+            "broker-readonly",
+            "broker-full"
+          ]
+        }
+      },
+      "required": [
+        "tools",
+        "structured_output",
+        "isolation_min",
+        "attestation_min",
+        "blind"
+      ],
+      "type": "object"
+    },
+    "reviewed_by": {
+      "items": {
+        "minLength": 1,
+        "pattern": "\\S",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "sees": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden_inputs": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "profile": {
+          "enum": [
+            "blind",
+            "spec-denied",
+            "full",
+            "workspace"
+          ]
+        }
+      },
+      "required": [
+        "profile",
+        "forbidden_inputs"
+      ],
+      "type": "object"
+    },
+    "stop": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_budget": {
+          "default": 0,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_broker_calls": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_cost_usd": {
+          "minimum": 0,
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_rounds": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_turns": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_wall_seconds": {
+          "maximum": 2700,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max_turns",
+        "max_wall_seconds",
+        "max_broker_calls",
+        "max_cost_usd",
+        "max_rounds"
+      ],
+      "type": "object"
+    },
+    "tools": {
+      "additionalProperties": false,
+      "properties": {
+        "exec_argv_prefixes": {
+          "items": {
+            "items": {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "ravel_actions": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "read_paths": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "validators": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "ravel_actions",
+        "validators",
+        "exec_argv_prefixes",
+        "read_paths"
+      ],
+      "type": "object"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "version",
+    "family",
+    "purpose",
+    "sees",
+    "tools",
+    "knowledge",
+    "operations",
+    "must_check",
+    "reviewed_by",
+    "protocol",
+    "output",
+    "stop",
+    "escalation",
+    "requires",
+    "model",
+    "independence"
+  ],
+  "type": "object"
+}

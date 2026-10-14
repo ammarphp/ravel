@@ -1,0 +1,1 @@
+Prospective source examples only. Runtime/source-evidence placeholders deliberately fail ordinary admission. No numerical prediction or physical validity has been observed. See ../../guides/eft-toolchain.md.

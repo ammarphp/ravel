@@ -1,0 +1,117 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "measurement-fit",
+ "summary": "Published measurements joined with predictions from a stated or located relation in a fit.",
+ "priority": 44,
+ "match": {
+  "any": [
+   [
+    "claim:exclusion",
+    "claim:estimate",
+    "claim:significance"
+   ],
+   [
+    "locator:measurement",
+    "locator:record",
+    "locator:publication",
+    "locator:dataset",
+    "stated:expression",
+    "supplied:table",
+    "stated:table"
+   ]
+  ],
+  "none": [
+   "supplied:event_sample",
+   "level:expected",
+   "stage:generation",
+   "locator:analysis",
+   "locator:routine"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "relation",
+   "provides": {
+    "kind": "expression",
+    "require": {}
+   },
+   "source": "published",
+   "locator": "relation stated in the request or located in a cited source",
+   "status": "awaited",
+   "bind": "expression"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "acquire",
+   "kind": "operation",
+   "operation": "acquire-published",
+   "rung": "none",
+   "fields": [
+    {
+     "pointer": "/source_classes",
+     "value": "$source_classes",
+     "authority": "adapter_default",
+     "evidence": "practice:read-only acquisition of metadata, publications and tables within the pre-approval byte bounds"
+    },
+    {
+     "pointer": "/locators",
+     "value": "$locators",
+     "authority": "user_quoted",
+     "evidence": "$locator_fact"
+    }
+   ]
+  },
+  {
+   "key": "tables",
+   "kind": "operation",
+   "operation": "source-tables",
+   "rung": "full"
+  },
+  {
+   "key": "formula",
+   "kind": "operation",
+   "operation": "formula-grid",
+   "rung": "full"
+  },
+  {
+   "key": "fit",
+   "kind": "operation",
+   "operation": "measurement",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "acquire.tables",
+   "to": "tables.tables",
+   "kind": "table",
+   "require": {}
+  },
+  {
+   "from": "tables.tables",
+   "to": "fit.measurements",
+   "kind": "table",
+   "require": {}
+  },
+  {
+   "from": "input:relation",
+   "to": "formula.formula",
+   "kind": "expression",
+   "require": {}
+  },
+  {
+   "from": "formula.values",
+   "to": "fit.predictions",
+   "kind": "binned_values",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "fit.result",
+   "kind": "inference"
+  }
+ ]
+}

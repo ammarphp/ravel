@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "kind": "higgs-reference-tables",
+  "synthetic": false,
+  "citations": {
+    "hxswg-yr4-t189": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 189, inclusive ggF cross sections at 13 TeV, N3LO QCD; PDF page 712, printed page 692",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-yr4-t195": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 195, total VBF cross sections at 13 TeV, QCD and EW corrections; PDF page 720, printed page 700",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-13p6-t1": {
+      "title": "LHCHWG-2024-001 (arXiv:2402.09955) Table 1, ggF cross sections at 13.6 TeV, N3LO QCD + NLO EW; PDF page 6, printed page 4",
+      "locator": "https://arxiv.org/pdf/2402.09955",
+      "source_file": "2402.09955.pdf"
+    },
+    "hxswg-13p6-t2": {
+      "title": "LHCHWG-2024-001 (arXiv:2402.09955) Table 2, VBF cross sections at 13.6 TeV, approx. NNLO QCD + NLO EW; PDF page 7, printed page 5",
+      "locator": "https://arxiv.org/pdf/2402.09955",
+      "source_file": "2402.09955.pdf"
+    },
+    "hxswg-yr4-t174": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 174, SM Higgs branching ratios, mass range around 125 GeV; PDF page 696, printed page 676",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-yr4-t175": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 175, SM Higgs branching ratios, mass range around 125 GeV; PDF page 697, printed page 677",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-yr4-t176": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 176, SM Higgs branching ratios, mass range around 125 GeV; PDF page 698, printed page 678",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-yr4-t177": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 177, SM Higgs branching ratios, mass range around 125 GeV; PDF page 699, printed page 679",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    },
+    "hxswg-yr4-t178": {
+      "title": "LHC HXSWG YR4 (CERN-2017-002) Table 178, SM Higgs branching ratios, mass range around 125 GeV; PDF page 700, printed page 680",
+      "locator": "https://arxiv.org/pdf/1610.07922",
+      "source_file": "1610.07922.pdf"
+    }
+  },
+  "rows": [
+    {
+      "id": "ggF_13TeV_mH125.0",
+      "citation_key": "hxswg-yr4-t189",
+      "quantity": "cross_section",
+      "process": "gg->H (ggF)",
+      "mass_gev": 125.0,
+      "energy_tev": 13.0,
+      "value": 48.58,
+      "reference_value": 48.58,
+      "unit": "pb",
+      "order": "N3LO QCD (NLO EW per YR4 combination)",
+      "pdf": "PDF4LHC15 recommendation (YR4 Sec. I.2.1)",
+      "uncertainty": {
+        "minus": 3.25486,
+        "plus": 2.23468,
+        "definition": "Published ΔTH [%] (flat 100% CL theory/scale range) +4.6/-6.7 applied to the central value; not included: Gaussian TH ±3.9%, PDF⊕αs ±3.2%, PDF ±1.9%, αs ±2.6%"
+      }
+    },
+    {
+      "id": "ggF_13TeV_mH125.09",
+      "citation_key": "hxswg-yr4-t189",
+      "quantity": "cross_section",
+      "process": "gg->H (ggF)",
+      "mass_gev": 125.09,
+      "energy_tev": 13.0,
+      "value": 48.51,
+      "reference_value": 48.51,
+      "unit": "pb",
+      "order": "N3LO QCD (NLO EW per YR4 combination)",
+      "pdf": "PDF4LHC15 recommendation (YR4 Sec. I.2.1)",
+      "uncertainty": {
+        "minus": 3.25017,
+        "plus": 2.23146,
+        "definition": "Published ΔTH [%] (flat 100% CL theory/scale range) +4.6/-6.7 applied to the central value; not included: Gaussian TH ±3.9%, PDF⊕αs ±3.2%, PDF ±1.9%, αs ±2.6%"
+      }
+    },
+    {
+      "id": "VBF_13TeV_mH125.0",
+      "citation_key": "hxswg-yr4-t195",
+      "quantity": "cross_section",
+      "process": "qq->Hqq (VBF)",
+      "mass_gev": 125.0,
+      "energy_tev": 13.0,
+      "value": 3782.0,
+      "reference_value": 3782.0,
+      "unit": "fb",
+      "order": "NNLO QCD (DIS-like) + NLO EW (YR4 Sec. I.5.1.c)",
+      "pdf": "PDF4LHC15 recommendation (YR4 Sec. I.2.1)",
+      "uncertainty": {
+        "minus": 12.4806,
+        "plus": 16.2626,
+        "definition": "Published Δscale [%] +0.43/-0.33 applied to the central value; not included: PDF/αs/PDF⊕αs ±0.5%/±2.1%/±2.1% as printed; the printed integration error on the value is omitted"
+      }
+    },
+    {
+      "id": "VBF_13TeV_mH125.09",
+      "citation_key": "hxswg-yr4-t195",
+      "quantity": "cross_section",
+      "process": "qq->Hqq (VBF)",
+      "mass_gev": 125.09,
+      "energy_tev": 13.0,
+      "value": 3779.0,
+      "reference_value": 3779.0,
+      "unit": "fb",
+      "order": "NNLO QCD (DIS-like) + NLO EW (YR4 Sec. I.5.1.c)",
+      "pdf": "PDF4LHC15 recommendation (YR4 Sec. I.2.1)",
+      "uncertainty": {
+        "minus": 12.4707,
+        "plus": 16.2497,
+        "definition": "Published Δscale [%] +0.43/-0.33 applied to the central value; not included: PDF/αs/PDF⊕αs ±0.5%/±2.1%/±2.1% as printed; the printed integration error on the value is omitted"
+      }
+    },
+    {
+      "id": "ggF_13.6TeV_mH125.0",
+      "citation_key": "hxswg-13p6-t1",
+      "quantity": "cross_section",
+      "process": "gg->H (ggF)",
+      "mass_gev": 125.0,
+      "energy_tev": 13.6,
+      "value": 52.23,
+      "reference_value": 52.23,
+      "unit": "pb",
+      "order": "N3LO QCD + NLO EW (interim, 0.4*sigma(13)+0.6*sigma(14) interpolation)",
+      "pdf": "PDF4LHC recommendation (as stated in the Table 1 caption)",
+      "uncertainty": {
+        "minus": 3.49941,
+        "plus": 2.40258,
+        "definition": "Published +Th/-Th [%] +4.6/-6.7 applied to the central value; not included: Gaussian TH ±3.9%, PDF⊕αs ±3.2%, PDF ±1.9%, αs ±2.6%"
+      }
+    },
+    {
+      "id": "ggF_13.6TeV_mH125.09",
+      "citation_key": "hxswg-13p6-t1",
+      "quantity": "cross_section",
+      "process": "gg->H (ggF)",
+      "mass_gev": 125.09,
+      "energy_tev": 13.6,
+      "value": 52.17,
+      "reference_value": 52.17,
+      "unit": "pb",
+      "order": "N3LO QCD + NLO EW (interim, 0.4*sigma(13)+0.6*sigma(14) interpolation)",
+      "pdf": "PDF4LHC recommendation (as stated in the Table 1 caption)",
+      "uncertainty": {
+        "minus": 3.49539,
+        "plus": 2.39982,
+        "definition": "Published +Th/-Th [%] +4.6/-6.7 applied to the central value; not included: Gaussian TH ±3.9%, PDF⊕αs ±3.2%, PDF ±1.9%, αs ±2.6%"
+      }
+    },
+    {
+      "id": "VBF_13.6TeV_mH125.0",
+      "citation_key": "hxswg-13p6-t2",
+      "quantity": "cross_section",
+      "process": "qq->Hqq (VBF)",
+      "mass_gev": 125.0,
+      "energy_tev": 13.6,
+      "value": 4.078,
+      "reference_value": 4.078,
+      "unit": "pb",
+      "order": "approx. NNLO QCD + NLO EW (interim, spline interpolation in sqrt(s))",
+      "pdf": "PDF4LHC recommendation (as stated in the Table 2 caption)",
+      "uncertainty": {
+        "minus": 0.012234,
+        "plus": 0.02039,
+        "definition": "Published +Scale/-Scale [%] +0.5/-0.3 applied to the central value; not included: PDF⊕αs ±2.1%, PDF ±2.1%, αs ±0.5%"
+      }
+    },
+    {
+      "id": "VBF_13.6TeV_mH125.09",
+      "citation_key": "hxswg-13p6-t2",
+      "quantity": "cross_section",
+      "process": "qq->Hqq (VBF)",
+      "mass_gev": 125.09,
+      "energy_tev": 13.6,
+      "value": 4.075,
+      "reference_value": 4.075,
+      "unit": "pb",
+      "order": "approx. NNLO QCD + NLO EW (interim, spline interpolation in sqrt(s))",
+      "pdf": "PDF4LHC recommendation (as stated in the Table 2 caption)",
+      "uncertainty": {
+        "minus": 0.012225,
+        "plus": 0.020375,
+        "definition": "Published +Scale/-Scale [%] +0.5/-0.3 applied to the central value; not included: PDF⊕αs ±2.1%, PDF ±2.1%, αs ±0.5%"
+      }
+    },
+    {
+      "id": "BR_bb_mH125.0",
+      "citation_key": "hxswg-yr4-t174",
+      "quantity": "branching_ratio",
+      "process": "H->bb",
+      "mass_gev": 125.0,
+      "value": 0.5824,
+      "reference_value": 0.5824,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.0037856,
+        "plus": 0.0037856,
+        "definition": "Published THU [%] +0.65/-0.65 applied to the central value; not included: PU(mq) +0.72/-0.74%, PU(αs) +0.78/-0.80%"
+      }
+    },
+    {
+      "id": "BR_tautau_mH125.0",
+      "citation_key": "hxswg-yr4-t174",
+      "quantity": "branching_ratio",
+      "process": "H->tau+tau-",
+      "mass_gev": 125.0,
+      "value": 0.06272,
+      "reference_value": 0.06272,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.000727552,
+        "plus": 0.000733824,
+        "definition": "Published THU [%] +1.17/-1.16 applied to the central value; not included: PU(mq) +0.98/-0.99%, PU(αs) +0.62/-0.62%"
+      }
+    },
+    {
+      "id": "BR_bb_mH125.09",
+      "citation_key": "hxswg-yr4-t174",
+      "quantity": "branching_ratio",
+      "process": "H->bb",
+      "mass_gev": 125.09,
+      "value": 0.5809,
+      "reference_value": 0.5809,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00377585,
+        "plus": 0.00377585,
+        "definition": "Published THU [%] +0.65/-0.65 applied to the central value; not included: PU(mq) +0.72/-0.74%, PU(αs) +0.77/-0.79%"
+      }
+    },
+    {
+      "id": "BR_tautau_mH125.09",
+      "citation_key": "hxswg-yr4-t174",
+      "quantity": "branching_ratio",
+      "process": "H->tau+tau-",
+      "mass_gev": 125.09,
+      "value": 0.06256,
+      "reference_value": 0.06256,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.000725696,
+        "plus": 0.000731952,
+        "definition": "Published THU [%] +1.17/-1.16 applied to the central value; not included: PU(mq) +0.98/-0.98%, PU(αs) +0.62/-0.60%"
+      }
+    },
+    {
+      "id": "BR_mumu_mH125.0",
+      "citation_key": "hxswg-yr4-t175",
+      "quantity": "branching_ratio",
+      "process": "H->mu+mu-",
+      "mass_gev": 125.0,
+      "value": 0.0002176,
+      "reference_value": 0.0002176,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 2.67648e-06,
+        "plus": 2.67648e-06,
+        "definition": "Published THU [%] +1.23/-1.23 applied to the central value; not included: PU(mq) +0.97/-0.99%, PU(αs) +0.59/-0.64%"
+      }
+    },
+    {
+      "id": "BR_cc_mH125.0",
+      "citation_key": "hxswg-yr4-t175",
+      "quantity": "branching_ratio",
+      "process": "H->cc",
+      "mass_gev": 125.0,
+      "value": 0.02891,
+      "reference_value": 0.02891,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00034692,
+        "plus": 0.00034692,
+        "definition": "Published THU [%] +1.20/-1.20 applied to the central value; not included: PU(mq) +5.26/-0.98%, PU(αs) +1.25/-1.25%"
+      }
+    },
+    {
+      "id": "BR_mumu_mH125.09",
+      "citation_key": "hxswg-yr4-t175",
+      "quantity": "branching_ratio",
+      "process": "H->mu+mu-",
+      "mass_gev": 125.09,
+      "value": 0.0002171,
+      "reference_value": 0.0002171,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 2.67033e-06,
+        "plus": 2.67033e-06,
+        "definition": "Published THU [%] +1.23/-1.23 applied to the central value; not included: PU(mq) +0.97/-0.99%, PU(αs) +0.60/-0.64%"
+      }
+    },
+    {
+      "id": "BR_cc_mH125.09",
+      "citation_key": "hxswg-yr4-t175",
+      "quantity": "branching_ratio",
+      "process": "H->cc",
+      "mass_gev": 125.09,
+      "value": 0.02884,
+      "reference_value": 0.02884,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00034608,
+        "plus": 0.00034608,
+        "definition": "Published THU [%] +1.20/-1.20 applied to the central value; not included: PU(mq) +5.27/-0.94%, PU(αs) +1.26/-1.25%"
+      }
+    },
+    {
+      "id": "BR_gg_mH125.0",
+      "citation_key": "hxswg-yr4-t176",
+      "quantity": "branching_ratio",
+      "process": "H->gg",
+      "mass_gev": 125.0,
+      "value": 0.08187,
+      "reference_value": 0.08187,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.002791767,
+        "plus": 0.00278358,
+        "definition": "Published THU [%] +3.40/-3.41 applied to the central value; not included: PU(mq) +1.12/-1.13%, PU(αs) +3.69/-3.61%"
+      }
+    },
+    {
+      "id": "BR_gammagamma_mH125.0",
+      "citation_key": "hxswg-yr4-t176",
+      "quantity": "branching_ratio",
+      "process": "H->gamma gamma",
+      "mass_gev": 125.0,
+      "value": 0.00227,
+      "reference_value": 0.00227,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 3.9044e-05,
+        "plus": 3.9271e-05,
+        "definition": "Published THU [%] +1.73/-1.72 applied to the central value; not included: PU(mq) +0.93/-0.99%, PU(αs) +0.61/-0.62%"
+      }
+    },
+    {
+      "id": "BR_gg_mH125.09",
+      "citation_key": "hxswg-yr4-t176",
+      "quantity": "branching_ratio",
+      "process": "H->gg",
+      "mass_gev": 125.09,
+      "value": 0.0818,
+      "reference_value": 0.0818,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00278938,
+        "plus": 0.0027812,
+        "definition": "Published THU [%] +3.40/-3.41 applied to the central value; not included: PU(mq) +1.12/-1.14%, PU(αs) +3.70/-3.59%"
+      }
+    },
+    {
+      "id": "BR_gammagamma_mH125.09",
+      "citation_key": "hxswg-yr4-t176",
+      "quantity": "branching_ratio",
+      "process": "H->gamma gamma",
+      "mass_gev": 125.09,
+      "value": 0.00227,
+      "reference_value": 0.00227,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 3.9044e-05,
+        "plus": 3.9271e-05,
+        "definition": "Published THU [%] +1.73/-1.72 applied to the central value; not included: PU(mq) +0.97/-0.94%, PU(αs) +0.66/-0.61%"
+      }
+    },
+    {
+      "id": "BR_Zgamma_mH125.0",
+      "citation_key": "hxswg-yr4-t177",
+      "quantity": "branching_ratio",
+      "process": "H->Z gamma",
+      "mass_gev": 125.0,
+      "value": 0.001533,
+      "reference_value": 0.001533,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 8.75343e-05,
+        "plus": 8.75343e-05,
+        "definition": "Published THU [%] +5.71/-5.71 applied to the central value; not included: PU(mq) +0.98/-1.01%, PU(αs) +0.58/-0.65%"
+      }
+    },
+    {
+      "id": "BR_WW_mH125.0",
+      "citation_key": "hxswg-yr4-t177",
+      "quantity": "branching_ratio",
+      "process": "H->WW",
+      "mass_gev": 125.0,
+      "value": 0.2137,
+      "reference_value": 0.2137,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00211563,
+        "plus": 0.00211563,
+        "definition": "Published THU [%] +0.99/-0.99 applied to the central value; not included: PU(mq) +0.99/-0.98%, PU(αs) +0.66/-0.63%"
+      }
+    },
+    {
+      "id": "BR_Zgamma_mH125.09",
+      "citation_key": "hxswg-yr4-t177",
+      "quantity": "branching_ratio",
+      "process": "H->Z gamma",
+      "mass_gev": 125.09,
+      "value": 0.001541,
+      "reference_value": 0.001541,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 8.79911e-05,
+        "plus": 8.79911e-05,
+        "definition": "Published THU [%] +5.71/-5.71 applied to the central value; not included: PU(mq) +0.91/-1.00%, PU(αs) +0.58/-0.64%"
+      }
+    },
+    {
+      "id": "BR_WW_mH125.09",
+      "citation_key": "hxswg-yr4-t177",
+      "quantity": "branching_ratio",
+      "process": "H->WW",
+      "mass_gev": 125.09,
+      "value": 0.2152,
+      "reference_value": 0.2152,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.00213048,
+        "plus": 0.00213048,
+        "definition": "Published THU [%] +0.99/-0.99 applied to the central value; not included: PU(mq) +0.98/-0.98%, PU(αs) +0.64/-0.62%"
+      }
+    },
+    {
+      "id": "BR_ZZ_mH125.0",
+      "citation_key": "hxswg-yr4-t178",
+      "quantity": "branching_ratio",
+      "process": "H->ZZ",
+      "mass_gev": 125.0,
+      "value": 0.02619,
+      "reference_value": 0.02619,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.000259281,
+        "plus": 0.000259281,
+        "definition": "Published THU [%] +0.99/-0.99 applied to the central value; not included: PU(mq) +0.99/-0.98%, PU(αs) +0.66/-0.63%"
+      }
+    },
+    {
+      "id": "BR_ZZ_mH125.09",
+      "citation_key": "hxswg-yr4-t178",
+      "quantity": "branching_ratio",
+      "process": "H->ZZ",
+      "mass_gev": 125.09,
+      "value": 0.02641,
+      "reference_value": 0.02641,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.000261459,
+        "plus": 0.000261459,
+        "definition": "Published THU [%] +0.99/-0.99 applied to the central value; not included: PU(mq) +0.98/-0.98%, PU(αs) +0.64/-0.62%"
+      }
+    }
+  ],
+  "ratios": [
+    {
+      "id": "ggF_13.6_over_13_mH125.09",
+      "numerator": "ggF_13.6TeV_mH125.09",
+      "denominator": "ggF_13TeV_mH125.09",
+      "citation_key": "hxswg-13p6-t1",
+      "value": 1.07544836116,
+      "absolute_tolerance": 1e-09
+    },
+    {
+      "id": "BR_WW_over_ZZ_mH125.09",
+      "numerator": "BR_WW_mH125.09",
+      "denominator": "BR_ZZ_mH125.09",
+      "citation_key": "hxswg-yr4-t178",
+      "value": 8.14842862552,
+      "absolute_tolerance": 1e-09
+    },
+    {
+      "id": "BR_bb_over_tautau_mH125.09",
+      "numerator": "BR_bb_mH125.09",
+      "denominator": "BR_tautau_mH125.09",
+      "citation_key": "hxswg-yr4-t174",
+      "value": 9.2854859335,
+      "absolute_tolerance": 1e-09
+    },
+    {
+      "id": "BR_gammagamma_over_ZZ_mH125.09",
+      "numerator": "BR_gammagamma_mH125.09",
+      "denominator": "BR_ZZ_mH125.09",
+      "citation_key": "hxswg-yr4-t178",
+      "value": 0.0859522907989,
+      "absolute_tolerance": 1e-09
+    }
+  ]
+}

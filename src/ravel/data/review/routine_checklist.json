@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "kind": "routine-review-checklist",
+  "purpose": "What a reviewer of an analysis routine (a Rivet routine, a SimpleAnalysis or columnar selection, or an authored analysis) checks. Items with a check id are computed by review_projection_checks.routine_review over the specification and the encoding; the others are judgment items the reviewer answers with located evidence.",
+  "items": [
+    {"id": "R01", "check": "observable_collection", "topic": "Observable collection",
+     "question": "Is every observable computed over the object collection the specification names (for example signal rather than baseline objects)?"},
+    {"id": "R02", "check": "final_state", "topic": "Final state",
+     "question": "Do the object multiplicities, charges and flavours of each region match the specification?"},
+    {"id": "R03", "check": "extracted_parameters_used", "topic": "Extracted parameters",
+     "question": "Is every parameter extracted from the reference (thresholds, working points, bin edges) used by the encoding?"},
+    {"id": "R04", "check": "scaling_plausible", "topic": "Scaling",
+     "question": "Are normalization and scale factors inside their declared plausibility bounds, and applied once?"},
+    {"id": "R05", "check": "units", "topic": "Units",
+     "question": "Do the encoded thresholds use the units the specification declares?"},
+    {"id": "R06", "check": null, "topic": "Overlap removal",
+     "question": "Does the overlap-removal order and its distance definition match the reference?"},
+    {"id": "R07", "check": null, "topic": "Cut order",
+     "question": "Does the cut order reproduce the reference cutflow rows, so that each published intermediate count has a counterpart?"},
+    {"id": "R08", "check": null, "topic": "Region disjointness",
+     "question": "Are regions that the statistical model treats as independent disjoint in the encoding?"},
+    {"id": "R09", "check": null, "topic": "Event weights",
+     "question": "Are generator and analysis weights applied exactly once, with negative weights retained?"},
+    {"id": "R10", "check": null, "topic": "Trigger and acceptance",
+     "question": "Is the trigger or its emulation stated, and is any acceptance not modelled by the routine recorded as an explicit limitation?"}
+  ]
+}

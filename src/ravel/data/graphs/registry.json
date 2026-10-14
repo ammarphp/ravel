@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "kind": "graph-registry",
+  "graphs": [
+    {
+      "id": "substrate.selftest",
+      "version": 2,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graph_substrate",
+      "builder": "selftest",
+      "scope": "case",
+      "instance_keys": [
+        "label",
+        "steps",
+        "delay_ms",
+        "ask"
+      ],
+      "roles": [],
+      "gates": {
+        "final_task": {
+          "required_providers": []
+        }
+      },
+      "subgraphs": [],
+      "interrupts": [
+        "requirement_clarification"
+      ],
+      "structure_sha256": "794e9a93abb26ab8383eceb806bc3a7a3cf88391d6b75b06c58a0aa9034a2959",
+      "owner": "graph-substrate"
+    },
+    {
+      "id": "board.producer",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.research_board",
+      "builder": "producer_graph",
+      "scope": "run",
+      "instance_keys": [
+        "producer",
+        "season"
+      ],
+      "roles": [],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "d7b05b1bb29bb2c16933dc3540c3ecd1be73a7c0c67f30ac26fb632d9a7d29d5",
+      "owner": "research-board"
+    },
+    {
+      "id": "board.season",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.research_board",
+      "builder": "season_graph",
+      "scope": "run",
+      "instance_keys": [
+        "producer",
+        "season"
+      ],
+      "roles": [],
+      "gates": {},
+      "subgraphs": [
+        {
+          "id": "board.producer",
+          "version": 1
+        }
+      ],
+      "interrupts": [],
+      "structure_sha256": "058cc0395bb7aa979e7873eae996ce41497c0127fd5d5631bdb4a7dd478d3f9e",
+      "owner": "research-board"
+    },
+    {
+      "id": "research.stage",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.stage",
+      "builder": "build",
+      "scope": "campaign",
+      "instance_keys": ["campaign", "request"],
+      "roles": ["ablation-critic", "baseline-producer", "comparative-reviewer", "idea-proposer-a", "idea-proposer-b", "integrity-auditor", "limitation-census", "novelty-scout", "plan-critic", "rebuttal-planner", "research-evolver", "research-meta-reviewer", "screen-producer", "skeptical-verifier", "sufficiency-verifier"],
+      "gates": {"research_choice": {"required_providers": ["research_protocol"]}},
+      "subgraphs": [],
+      "interrupts": ["external_delivery", "reconcile_evidence"],
+      "structure_sha256": "b27dafd1d44ce6cd811d634673646fcbd1faba338bf72b0d3b810b874e39057c",
+      "owner": "research-loop"
+    },
+    {
+      "id": "research.loop",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.research_loop",
+      "builder": "build",
+      "scope": "campaign",
+      "instance_keys": ["campaign", "request"],
+      "roles": ["ablation-critic", "baseline-producer", "comparative-reviewer", "idea-proposer-a", "idea-proposer-b", "integrity-auditor", "limitation-census", "novelty-scout", "plan-critic", "rebuttal-planner", "research-evolver", "research-meta-reviewer", "screen-producer", "skeptical-verifier", "sufficiency-verifier"],
+      "gates": {"research_choice": {"required_providers": ["research_protocol"]}},
+      "subgraphs": [{"id": "research.stage", "version": 1}],
+      "interrupts": ["external_delivery", "reconcile_evidence"],
+      "structure_sha256": "2766b92b93cfbcc10dce0828568c848bcb3a2e3aff5dc582d11809e1c70d67a7",
+      "owner": "research-loop"
+    },
+    {
+      "id": "rdj.role",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.rdj",
+      "builder": "role",
+      "scope": "run",
+      "instance_keys": [
+        "case_id",
+        "cycle",
+        "mode"
+      ],
+      "roles": [
+        "rdj_edge_reviewer",
+        "rdj_critic",
+        "rdj_verifier"
+      ],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "08efae5041f24d19bb461bff7454f8c6bc039349e9e59c74e827d5b522017eeb",
+      "owner": "decision-journal"
+    },
+    {
+      "id": "rdj.case",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.rdj",
+      "builder": "case",
+      "scope": "run",
+      "instance_keys": [
+        "case_id",
+        "cycle",
+        "mode"
+      ],
+      "roles": [
+        "rdj_edge_reviewer",
+        "rdj_critic",
+        "rdj_verifier"
+      ],
+      "gates": {},
+      "subgraphs": [
+        {
+          "id": "rdj.role",
+          "version": 1
+        }
+      ],
+      "interrupts": [
+        "proposer_answers",
+        "reconcile_evidence"
+      ],
+      "structure_sha256": "2e26743531a81ce9c90006f06f80e2785ac5232e9e9f4fb1d09e38cbda698901",
+      "owner": "decision-journal"
+    },
+    {
+      "id": "ml.study",
+      "version": 2,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.ml_study",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "study"
+      ],
+      "roles": [
+        "ml-planner",
+        "ml-trainer"
+      ],
+      "gates": {
+        "unblind": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "research_choice": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings",
+            "research_protocol"
+          ]
+        },
+        "final_task": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch"
+          ]
+        },
+        "spend_above_ceiling": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings"
+          ]
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "ml.study_item",
+          "version": 1
+        }
+      ],
+      "interrupts": [],
+      "structure_sha256": "a53a5a6d450fe1f9cee3347948508e4a588e5bef3c1a37e377e5aeeb3795b08b",
+      "owner": "ml-study"
+    },
+    {
+      "id": "ml.study_item",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.ml_study",
+      "builder": "build_item",
+      "scope": "run",
+      "instance_keys": [
+        "study"
+      ],
+      "roles": [],
+      "gates": {
+        "launch": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "ceilings",
+            "executor"
+          ]
+        }
+      },
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "e3030dcde2c4ac5b729f40be8f0f585bdf65d341690987d29ebb74e79b6c0be4",
+      "owner": "ml-study"
+    },
+    {
+      "id": "consult.case",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.consult",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "request"
+      ],
+      "roles": [
+        "consult-madgraph",
+        "consult-pythia-delphes",
+        "consult-rivet",
+        "consult-inference",
+        "consult-feynrules",
+        "consult-columnar",
+        "consult-theory",
+        "consult-recast",
+        "consult-symbolic",
+        "consult-normalization"
+      ],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "6541686c0491e9492ccfd7ac4ae3100354185ef90fb202578cd37e97151f81c2",
+      "owner": "intake-and-consult"
+    },
+    {
+      "id": "intake.plan",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.intake_plan",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": [
+        "graph_root"
+      ],
+      "roles": [
+        "designer",
+        "executor"
+      ],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "8a953fa76fd30394e7e75f7db56959431578984fde34d83c05f839ec0090a413",
+      "owner": "intake-and-consult"
+    },
+    {
+      "id": "literature.source",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.literature",
+      "builder": "source",
+      "scope": "run",
+      "instance_keys": [
+        "request_id"
+      ],
+      "roles": [],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "a705ddff24cd89a6f53a92b2f56374b604285fe7304a1e09377f2b9db9972243",
+      "owner": "literature-and-manuscript"
+    },
+    {
+      "id": "literature.scout",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.literature",
+      "builder": "scout",
+      "scope": "run",
+      "instance_keys": [
+        "request_id"
+      ],
+      "roles": [
+        "literature-scout"
+      ],
+      "gates": {},
+      "subgraphs": [
+        {
+          "id": "literature.source",
+          "version": 1
+        }
+      ],
+      "interrupts": [],
+      "structure_sha256": "4006033401824d594692bcf72fa0b7a5cc13f782136b8ead911392c3ee22cfeb",
+      "owner": "literature-and-manuscript"
+    },
+    {
+      "id": "manuscript.section",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.manuscript",
+      "builder": "section",
+      "scope": "run",
+      "instance_keys": [
+        "request_id"
+      ],
+      "roles": [
+        "manuscript-writer"
+      ],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "83b4eeef36b38d8da55aec18204d5b483fbd44f8af38289c7cb836321da32ebb",
+      "owner": "literature-and-manuscript"
+    },
+    {
+      "id": "manuscript.build",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.manuscript",
+      "builder": "manuscript",
+      "scope": "run",
+      "instance_keys": [
+        "request_id"
+      ],
+      "roles": [
+        "manuscript-writer",
+        "integrity-auditor",
+        "research-meta-reviewer"
+      ],
+      "gates": {
+        "report_integrity": {
+          "required_providers": [
+            "review_points",
+            "rdj"
+          ]
+        },
+        "final_task": {
+          "required_providers": [
+            "review_points",
+            "rdj",
+            "raw_launch"
+          ]
+        }
+      },
+      "subgraphs": [
+        {
+          "id": "manuscript.section",
+          "version": 1
+        }
+      ],
+      "interrupts": [
+        "checkin3_response"
+      ],
+      "structure_sha256": "b4c76e6af0e23276b4cf7248a9d9029d9a8672829300739d393a54a5c532c709",
+      "owner": "literature-and-manuscript"
+    },
+    {
+      "id": "review.item",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.review",
+      "builder": "build_item",
+      "scope": "run",
+      "instance_keys": ["at", "attempt"],
+      "roles": ["analysis-author", "discrepancy-attributor", "figure-critic", "integrity-auditor", "normalization-auditor", "object-selection-mapper", "physics-critic", "physics-decider", "plan-critic", "skeptical-verifier", "trap-auditor"],
+      "gates": {},
+      "subgraphs": [],
+      "interrupts": ["reconcile_evidence"],
+      "structure_sha256": "9b1048b49d460fa2f9169451b288cb84a8c7a137ed2f1546f953c6e3d49d6d05",
+      "owner": "review-points"
+    },
+    {
+      "id": "review.points",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.review",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": ["at", "attempt"],
+      "roles": ["analysis-author", "discrepancy-attributor", "figure-critic", "integrity-auditor", "normalization-auditor", "object-selection-mapper", "physics-critic", "physics-decider", "plan-critic", "skeptical-verifier", "trap-auditor"],
+      "gates": {"approve_plan": {"required_providers": ["review_points", "rdj", "ceilings"]}, "checkin2_accept": {"required_providers": ["review_points", "rdj", "spawn_rows", "input_closure"]}, "correction": {"required_providers": ["review_points", "rdj"]}, "delivery": {"required_providers": ["review_points", "rdj", "raw_launch", "input_closure"]}, "failed_stage_feedback": {"required_providers": ["review_points", "rdj"]}, "final_task": {"required_providers": ["review_points", "rdj", "raw_launch", "input_closure"]}, "launch": {"required_providers": ["review_points", "rdj", "ceilings", "executor", "spawn_rows"]}, "report_integrity": {"required_providers": ["review_points", "rdj"]}},
+      "subgraphs": [{"id": "review.item", "version": 1}],
+      "interrupts": ["checkin2_response", "checkin3_response", "reconcile_evidence"],
+      "structure_sha256": "f274d57a16edce47f6ba191b4f52ec4668f98c785f4781b49ed2cd52737ac53e",
+      "owner": "review-points"
+    },
+    {
+      "id": "production.node",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.production",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": ["node_id", "attempt"],
+      "roles": ["analysis-author", "calculation", "detector-calibrator", "generator", "inference", "model-builder", "shower-detector"],
+      "gates": {"launch": {"required_providers": ["review_points", "rdj", "ceilings", "executor", "spawn_rows"]}},
+      "subgraphs": [],
+      "interrupts": [],
+      "structure_sha256": "08164ff72d2aed7c19977e250ebdc2de38766e92b5bf9f9110fd502e02b4e324",
+      "owner": "lifecycle"
+    },
+    {
+      "id": "lifecycle.drive",
+      "version": 1,
+      "kernel_version": 1,
+      "module": "ravel.workflow.graphs.lifecycle",
+      "builder": "build",
+      "scope": "run",
+      "instance_keys": ["attempt"],
+      "roles": ["coordinator"],
+      "gates": {"approve_plan": {"required_providers": ["review_points", "rdj", "ceilings"]}, "checkin2_accept": {"required_providers": ["review_points", "rdj", "spawn_rows", "input_closure"]}},
+      "subgraphs": [{"id": "production.node", "version": 1}, {"id": "review.points", "version": 1}],
+      "interrupts": ["checkin1_response", "checkin2_response"],
+      "structure_sha256": "94cec23f389c7abb3830e1946a1bd5ef44394652c3435aeaf620343a17b3bb9e",
+      "owner": "lifecycle"
+    }
+  ]
+}

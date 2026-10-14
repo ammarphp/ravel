@@ -1,0 +1,6 @@
+{
+  "type": "object",
+  "required": ["capability", "waived", "reason"],
+  "additionalProperties": false,
+  "properties": {"capability": {"type": "string", "minLength": 1}, "waived": {"type": "boolean"}, "reason": {"type": "string", "minLength": 1}, "record": {"type": "object", "required": ["path", "sha256"], "additionalProperties": false, "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}
+}

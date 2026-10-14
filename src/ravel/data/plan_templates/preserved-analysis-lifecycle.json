@@ -1,0 +1,54 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "preserved-analysis-lifecycle",
+ "summary": "A route-A analysis run when the catalogue holds a preserved routine for the analysis.",
+ "priority": 20,
+ "match": {
+  "any": [
+   [
+    "claim:exclusion",
+    "claim:estimate"
+   ]
+  ],
+  "all": [
+   "catalogue:routine"
+  ],
+  "none": [
+   "supplied:event_sample",
+   "supplied:selection",
+   "stated:selection",
+   "withheld"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "lifecycle",
+   "kind": "operation",
+   "operation": "analysis-lifecycle",
+   "rung": "full",
+   "fields": [
+    {
+     "pointer": "/analysis",
+     "value": "$catalogue_locator",
+     "authority": "user_quoted",
+     "evidence": "$catalogue_fact"
+    }
+   ]
+  }
+ ],
+ "edges": [],
+ "deliverable": [
+  {
+   "from": "lifecycle.limits",
+   "kind": "inference"
+  }
+ ],
+ "fan_out": {
+  "subgraph": [
+   "lifecycle"
+  ],
+  "aggregate": "per-point limits aggregated by the route-A scan stage"
+ }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "operation": "ml-training",
+  "science_mode": "ml-training",
+  "executor_role": "ml-trainer",
+  "claim_kind": "method_performance",
+  "adapter": "ravel.physics.ml_training",
+  "input_contract": "TrainingSpec.parse",
+  "output": "ml/receipt.json",
+  "support": "CPU weighted binary classification with NumPy logistic regression and a small MLP",
+  "qualification": "synthetic engineering controls only"
+}

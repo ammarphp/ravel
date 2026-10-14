@@ -1,0 +1,68 @@
+{
+ "schema_version": 1,
+ "kind": "ravel-lhapdf-sets",
+ "description": "LHAPDF sets installed into one shared data directory ($RAVEL_NATIVE_BUILD/share/LHAPDF). Sizes were confirmed against the server on 2026-10-10. 'verified' digests were computed from an independent download. 'single-download' digests come from one download from the CERN LHAPDF server during the 2026-10-10 survey; no second independent source has confirmed them, and the first install compares against them (a mismatch stops the install). To promote one to 'verified', download the set from a second source and record both digests.",
+ "base_url": "https://lhapdfsets.web.cern.ch/current",
+ "sets": [
+  {
+   "name": "NNPDF30_nlo_as_0118",
+   "lhaid": 260000,
+   "size": 27155120,
+   "sha256": "35b7ac669a08d9575a3bfffd155145c86b49f9d72eabb8333c2dc111c5c2a12c",
+   "digest_status": "single-download",
+   "used_for": "Recommended native PDF basis; generation cards must still declare their PDF explicitly."
+  },
+  {
+   "name": "LUXlep-NNPDF31_nlo_as_0118_luxqed",
+   "lhaid": 82400,
+   "size": 46308637,
+   "sha256": "fcb690fdd260720960f755e1143af0113f2b924c65391946d3321beb64359025",
+   "digest_status": "verified",
+   "used_for": "Lepton and photon content of the proton (needs MadGraph 3)."
+  },
+  {
+   "name": "cteq6l1",
+   "lhaid": 10042,
+   "size": 317834,
+   "sha256": "57c9c99d7b83c8ed1ca70480a0ec7bf2183bfa1bd9276a0e146772c5cf3bb5ac",
+   "digest_status": "single-download",
+   "used_for": "LHAPDF counterpart of MadGraph's built-in cteq6l1 for reweighting and pdlabel=lhapdf runs."
+  },
+  {
+   "name": "NNPDF23_lo_as_0130_qed",
+   "lhaid": 247000,
+   "size": 27625668,
+   "sha256": "60d3c1df1c31e5840f91f4217163ae30a256b9291a5adc894882e86607ef5d63",
+   "digest_status": "single-download",
+   "used_for": "LHAPDF counterpart of MadGraph's default nn23lo1 and Pythia 8's default."
+  },
+  {
+   "name": "NNPDF23_nlo_as_0119",
+   "lhaid": 230000,
+   "size": 21645022,
+   "sha256": "21bf29466a019303dad930513eb100e358e4b837bbaf419a36be43d51a8f44ec",
+   "digest_status": "single-download",
+   "used_for": "LHAPDF counterpart of MadGraph's nn23nlo."
+  },
+  {
+   "name": "CT14lo",
+   "lhaid": 13200,
+   "size": 474954,
+   "sha256": "5554b2f66027accc3fe38b55b846d5c7c6d771283868187870bf9c86e5c46678",
+   "digest_status": "single-download",
+   "used_for": "Herwig 7's default set."
+  },
+  {
+   "name": "CT18NNLO",
+   "lhaid": 14000,
+   "size": 18695557,
+   "sha256": "ae502040f86f0de9bf8b45f16fb62691f864d1157fd2a902081702550b5413ea",
+   "digest_status": "single-download",
+   "used_for": "MCFM's default set."
+  }
+ ],
+ "default": {
+  "name": "NNPDF30_nlo_as_0118",
+  "lhaid": 260000
+ }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "ravel-loop-responses",
+  "transport_kind": "ravel-loop",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "openai",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "OPENAI_API_KEY"
+    ],
+    "command": null,
+    "header_style": "bearer"
+  },
+  "pass_env": [],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "endpoint": "https://api.openai.com/v1/responses",
+  "notes": "RAVEL's own tool loop over the Responses API; every tool call goes through the broker."
+}

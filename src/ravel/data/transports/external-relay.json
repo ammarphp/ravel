@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "external-relay",
+  "transport_kind": "external-relay",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "none",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [],
+  "billing": "none",
+  "capabilities": {
+    "tools": "none",
+    "isolation": "none",
+    "attestation": "host",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": false,
+    "usage_report": false
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "prepare-external / deliver-external: any session answers a sealed request. Host-attested, never counted as independent review."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "kind": "spawn-row-catalogue",
+  "rows": [
+    {"row":"K1", "predicate":"tool_draft", "trigger":"smoke/full tool node with producer draft", "roles":[], "mode":"advisory", "gate":"launch"},
+    {"row":"K4", "predicate":"evaluated_author", "trigger":"authored node with deterministic evaluator", "roles":[], "mode":"producer", "gate":"launch", "candidate_count":3, "deadline_count":2, "min_model_families":2},
+    {"row":"K5", "predicate":"absolute_prediction", "trigger":"absolute generated prediction or simulated acceptance claim", "roles":[{"role":"re-deriver", "count":2}, {"role":"normalization-auditor", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},
+    {"row":"K6", "predicate":"multi_attempt_panel", "trigger":"two or more independent attempts", "roles":[{"role":"comparative-reviewer", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},
+    {"row":"K7", "predicate":"primary_analytic", "trigger":"stated-input or cited-formula analytic basis feeding a primary claim", "roles":[{"role":"re-deriver", "count":1}], "mode":"specialist", "gate":"checkin2_accept"},
+    {"row":"K7S", "predicate":"second_method", "trigger":"analytic or semi-analytic basis feeding a claim that K7 does not staff", "roles":[{"role":"second-method-deriver", "count":1}], "mode":"specialist", "gate":"checkin2_accept", "basis":[{"element":"analytic"}, {"element":"numerical_solver"}]},
+    {"row":"K8", "predicate":"delivery_assumptions", "trigger":"delivery with at least one claim", "roles":[{"role":"assumption-auditor", "count":1}], "mode":"specialist", "gate":"delivery", "severity_floor":7, "severity_max":10},
+    {"row":"K10", "predicate":"model_node", "trigger":"node that authors or imports a model", "roles":[{"role":"model-critic", "count":1}], "mode":"specialist", "gate":"checkin2_accept", "implementations":["model-authoring"], "author_kinds":["model"], "operations":["model-authoring", "model-derivation-bridge", "model-provider-bridge", "model-sources", "model-tool-bridge"]},
+    {"row":"K11", "predicate":"explore_exploit", "trigger":"research round under a fixed attempt budget", "roles":[], "mode":"producer", "gate":"research_choice", "node_kinds":["envelope"], "implementations":["research-coordinator"], "default_attempt_budget":2, "default_exploit_fraction":0.5, "remainder_to":"explore", "exploit_role":"research-evolver", "explore_role":"research-explorer"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:model-ward",
+ "op": {
+  "do_not_use_when": [
+   "Parameter and process loading: use model-tool-bridge.",
+   "Authoring: use model-authoring."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-ward-example --spec specs/model-ward.json",
+    "phrase": "Run Ward-identity diagnostics on a supplied UFO.",
+    "spec": {
+     "mode": "model-ward",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Ward-identity diagnostics of a supplied UFO.",
+   "Gauge consistency of imported couplings must be tested."
+  ]
+ }
+}

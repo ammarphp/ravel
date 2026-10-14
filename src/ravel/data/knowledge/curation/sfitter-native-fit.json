@@ -1,0 +1,25 @@
+{
+ "id": "op:sfitter-native-fit",
+ "op": {
+  "do_not_use_when": [
+   "Observed-event extraction first: use sfitter-observed-events.",
+   "Scan-rate extraction: use sfitter-scan-extraction."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/sfitter-native-fit-example --spec specs/sfitter-native-fit.json",
+    "phrase": "Run a native SFitter global fit from a closed task.",
+    "spec": {
+     "mode": "sfitter-native-fit",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A native SFitter global fit with a closed task.",
+   "SFitter is the fit engine requested."
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "id": "op:mc-expected-construction",
+ "op": {
+  "do_not_use_when": [
+   "Closure checks: use mc-closure.",
+   "Streaming single trees: use root-stream."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mc-expected-construction-example --spec specs/mc-expected-construction.json",
+    "phrase": "Construct expected region yields from complete MC streams.",
+    "spec": {
+     "mode": "mc-expected-construction",
+     "task": {
+      "request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Construct expected signal and control-region yields from complete MC streams.",
+   "Streams from several samples must be combined into declared expectations."
+  ]
+ }
+}

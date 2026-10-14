@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "request_digest": "606d5f2c28a9abc325b243c196c1559f3f8221d5aba000f488ab8443821cf854",
+  "obligation_ids": [
+    "output-1"
+  ],
+  "required_output": "Generate new events for one fictional model point.",
+  "sufficiency": {
+    "kind": "new_events_required",
+    "value": null,
+    "unit": null,
+    "source_text": "Generate new events for one fictional model point."
+  },
+  "validity_domain": "Fictional supplied model and its stated regime",
+  "allowed_approximations": [
+    "Use the supplied simplified law within its domain"
+  ],
+  "family": "reinterpretation",
+  "selected": {
+    "method": "single_point_chain",
+    "rung": 3,
+    "operation": null
+  },
+  "alternatives": [
+    {
+      "method": "validated_map_or_table",
+      "rung": 1,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    },
+    {
+      "method": "fast_reinterpretation_or_reweighting",
+      "rung": 2,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    }
+  ],
+  "explicit_request": {
+    "requested": true,
+    "quote": "Generate new events for one fictional model point."
+  },
+  "cost_forecast": {
+    "status": "historical",
+    "wall_hours": 0.25,
+    "cpu_hours": 0.5,
+    "disk_gb": 0.1,
+    "events": 100,
+    "model_calls": 1,
+    "basis": "Retained observation of the same fictional settings; a historical comparison."
+  },
+  "stopping_criterion": "Stop once the requested output and its stated evidence are delivered.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": [
+      "plan-critic"
+    ]
+  }
+}

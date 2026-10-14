@@ -1,0 +1,25 @@
+{
+ "id": "op:svj-recipe",
+ "op": {
+  "do_not_use_when": [
+   "Long-lived mass-lifetime planes: use llp-plane-recipe.",
+   "A single model point: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/svj-recipe-example --spec specs/svj-recipe.json",
+    "phrase": "Declare a grid recipe for a semi-visible-jet model.",
+    "spec": {
+     "mode": "svj-recipe",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Grid recipes for semi-visible-jet and dark-shower models.",
+   "A parameter grid for a dark sector must be declared."
+  ]
+ }
+}

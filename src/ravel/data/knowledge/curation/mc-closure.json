@@ -1,0 +1,29 @@
+{
+ "id": "op:mc-closure",
+ "op": {
+  "do_not_use_when": [
+   "Estimating the background function envelope: use background-discrete-profile.",
+   "Constructing expected yields: use mc-expected-construction."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mc-closure-example --spec specs/mc-closure.json",
+    "phrase": "Run closure tests of a frozen background strategy on simulation.",
+    "spec": {
+     "mode": "mc-closure",
+     "task": {
+      "request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "MC closure tests of a frozen background strategy.",
+   "Check bias of a background method on simulation before unblinding."
+  ]
+ }
+}

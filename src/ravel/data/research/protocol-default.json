@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "kind": "research-protocol-definition",
+  "id": "default",
+  "version": "1.1.1",
+  "regimes": [
+    "closed_scored",
+    "open_exploratory"
+  ],
+  "stages": [
+    {
+      "id": "limitation_census",
+      "roles": [
+        "limitation-census",
+        "sufficiency-verifier"
+      ],
+      "required_inputs": [
+        "question",
+        "sources",
+        "approximations"
+      ],
+      "required_outputs": [
+        "limitations"
+      ],
+      "review_points": [
+        "RP13:limitation_census"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Register flaws, consequences, opportunities, located evidence and testable signatures for the reference method and our approximations.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "ideas",
+      "roles": [
+        "idea-proposer-a",
+        "idea-proposer-b",
+        "novelty-scout"
+      ],
+      "required_inputs": [
+        "limitations",
+        "world_digest"
+      ],
+      "required_outputs": [
+        "ideas"
+      ],
+      "review_points": [
+        "RP13:ideas"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "map",
+      "protocol": [
+        "Run independent citation-led and speculative idea streams. Use novelty to order seeds, never to accept a claim. Preserve unresolved novelty searches.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "baseline",
+      "roles": [
+        "baseline-producer",
+        "comparative-reviewer"
+      ],
+      "required_inputs": [
+        "ideas",
+        "preregistration",
+        "evaluator_pins"
+      ],
+      "required_outputs": [
+        "three_columns"
+      ],
+      "review_points": [
+        "RP13:baseline"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Compare our result, our reproduction and the published result with source pins and common quantities, units and uncertainty conventions.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "screen",
+      "roles": [
+        "screen-producer",
+        "plan-critic"
+      ],
+      "required_inputs": [
+        "baseline",
+        "ideas",
+        "preregistration"
+      ],
+      "required_outputs": [
+        "subset",
+        "omitted_regimes",
+        "verdicts"
+      ],
+      "review_points": [
+        "RP13:screen"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Use a declared subset and list omitted regimes. Promote, discard or engineer under an RDJ decision. Engineering stays within declared mutable paths.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "validate",
+      "roles": [
+        "research-evolver",
+        "comparative-reviewer"
+      ],
+      "required_inputs": [
+        "screen",
+        "world_digest",
+        "preregistration"
+      ],
+      "required_outputs": [
+        "withheld_cells",
+        "rounds",
+        "stop",
+        "selection"
+      ],
+      "review_points": [
+        "RP13:validate"
+      ],
+      "bound": {
+        "max_rounds": 5
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Select on adaptive cells only, retaining every trial and its result. Commit selection before one fresh-seed withheld confirmation per selected candidate. Report N and the selected confirmation results, including a null funnel. Stop only by computed successes, max_rounds or budget with the bounded coverage floor.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "critique_to_experiments",
+      "roles": [
+        "rebuttal-planner",
+        "skeptical-verifier"
+      ],
+      "required_inputs": [
+        "validate",
+        "world_digest"
+      ],
+      "required_outputs": [
+        "concerns"
+      ],
+      "review_points": [
+        "RP13:critique_to_experiments"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Register a discriminating experiment for each concern. Retain its original finding, experiment identity and result.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "acceptance",
+      "roles": [
+        "ablation-critic",
+        "skeptical-verifier"
+      ],
+      "required_inputs": [
+        "validate",
+        "critique_to_experiments",
+        "preregistration"
+      ],
+      "required_outputs": [
+        "claims"
+      ],
+      "review_points": [
+        "RP13:acceptance"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Attribute mechanism gains using an arm without the mechanism and fixed generic controls. Open findings stay exploratory until independent review and an R3 decision.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "meta_review",
+      "roles": [
+        "research-meta-reviewer"
+      ],
+      "required_inputs": [
+        "acceptance",
+        "world_digest"
+      ],
+      "required_outputs": [
+        "transport_id",
+        "receipt",
+        "verdict"
+      ],
+      "review_points": [
+        "RP13:meta_review"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Review the complete claim and failed-evidence record independently. Material objections return to experiments; novelty does not establish acceptance.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    },
+    {
+      "id": "integrity",
+      "roles": [
+        "integrity-auditor"
+      ],
+      "required_inputs": [
+        "meta_review",
+        "evaluator_pins"
+      ],
+      "required_outputs": [
+        "receipt",
+        "report_integrity",
+        "rerun",
+        "references",
+        "paper_vs_code"
+      ],
+      "review_points": [
+        "RP13:integrity"
+      ],
+      "bound": {
+        "max_rounds": 2
+      },
+      "dispatch": "workers",
+      "protocol": [
+        "Audit fresh re-execution, references, evaluator immutability and paper-versus-code alignment. Preserve actual failures and located evidence.",
+        "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
+      ]
+    }
+  ],
+  "rdj_classes": {
+    "screen": "R1",
+    "promote": "R2",
+    "selection": "R2",
+    "method_performance": "R3"
+  },
+  "worker_bridge": {
+    "current": "agent_graph external delivery",
+    "next": "a dedicated role worker consumes stage role ids, required inputs and required outputs"
+  },
+  "binding_triggers": {
+    "route": [
+      "open",
+      "research",
+      "E"
+    ],
+    "task_mode": [
+      "research",
+      "anomaly_search",
+      "method_study",
+      "reproduce",
+      "reinterpret"
+    ],
+    "task_kind": [
+      "research",
+      "anomaly_search",
+      "method_study",
+      "reproduce",
+      "reinterpret"
+    ],
+    "claim_kind": [
+      "method_performance",
+      "agreement"
+    ],
+    "kind": [
+      "method_performance",
+      "agreement"
+    ]
+  },
+  "mandatory_protocols": [
+    {
+      "id": "P01",
+      "name": "board",
+      "checks": [
+        "check:board_replay",
+        "check:board_schema"
+      ],
+      "producers": [
+        "ravel.workflow.research_board"
+      ]
+    },
+    {
+      "id": "P02",
+      "name": "sealed_seeding",
+      "checks": [
+        "check:board_sealed"
+      ],
+      "producers": [
+        "ravel.workflow.hypothesis_board"
+      ]
+    },
+    {
+      "id": "P03",
+      "name": "obligation_coverage",
+      "checks": [
+        "check:obligation_coverage"
+      ],
+      "producers": [
+        "ravel.workflow.research_protocol"
+      ]
+    },
+    {
+      "id": "P04",
+      "name": "support_closure",
+      "checks": [
+        "check:support_closure",
+        "check:common_mode_anchor"
+      ],
+      "producers": [
+        "ravel.workflow.evidence_queue"
+      ]
+    },
+    {
+      "id": "P05",
+      "name": "authority_boundary",
+      "checks": [
+        "check:authority_boundary"
+      ],
+      "producers": [
+        "ravel.workflow.broker"
+      ]
+    },
+    {
+      "id": "P06",
+      "name": "rival_contract",
+      "checks": [
+        "check:rival_contract"
+      ],
+      "producers": [
+        "ravel.workflow.rca"
+      ]
+    },
+    {
+      "id": "P07",
+      "name": "allocation",
+      "checks": [
+        "check:allocation"
+      ],
+      "producers": [
+        "ravel.workflow.experiment_allocator",
+        "ravel.workflow.evidence_queue"
+      ]
+    },
+    {
+      "id": "P08",
+      "name": "seed_to_test",
+      "checks": [
+        "check:seed_to_test"
+      ],
+      "producers": [
+        "ravel.workflow.research_protocol"
+      ]
+    },
+    {
+      "id": "P09",
+      "name": "excluded_has_signature",
+      "checks": [
+        "check:excluded_has_signature"
+      ],
+      "producers": [
+        "ravel.workflow.research_cycle"
+      ]
+    },
+    {
+      "id": "P10",
+      "name": "request_fidelity",
+      "checks": [
+        "check:request_fidelity"
+      ],
+      "producers": [
+        "ravel.workflow.decision_gate"
+      ]
+    },
+    {
+      "id": "P11",
+      "name": "normalization_ledger",
+      "checks": [
+        "check:normalization_ledger"
+      ],
+      "producers": [
+        "ravel.workflow.normalization_ledger"
+      ]
+    },
+    {
+      "id": "P12",
+      "name": "executable_contrasts",
+      "checks": [
+        "check:analysis_ir"
+      ],
+      "producers": [
+        "ravel.physics.analysis_ir"
+      ]
+    },
+    {
+      "id": "P13",
+      "name": "event_accounting",
+      "checks": [
+        "check:event_accounting"
+      ],
+      "producers": [
+        "ravel.workflow.event_accounting"
+      ]
+    },
+    {
+      "id": "P14",
+      "name": "lesson_promotion",
+      "checks": [
+        "check:knowledge"
+      ],
+      "producers": [
+        "ravel.validation.check_knowledge"
+      ]
+    },
+    {
+      "id": "P15",
+      "name": "delegated_dispatch",
+      "checks": [
+        "check:delegated_dispatch"
+      ],
+      "producers": [
+        "ravel.workflow.work_dispatch",
+        "ravel.workflow.rdj"
+      ]
+    },
+    {
+      "id": "P16",
+      "name": "confirmation_separation",
+      "checks": [
+        "check:confirmation_separation"
+      ],
+      "producers": [
+        "ravel.workflow.research_protocol"
+      ]
+    },
+    {
+      "id": "P17",
+      "name": "critic_basis",
+      "checks": [
+        "check:critic_basis"
+      ],
+      "producers": [
+        "ravel.workflow.role_registry",
+        "ravel.workflow.rdj"
+      ]
+    }
+  ]
+}

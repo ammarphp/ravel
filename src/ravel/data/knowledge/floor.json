@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "find-floor",
+  "floor": 9.09,
+  "source_refresh": {
+    "high_negative": 8.85108682582474,
+    "low_positive": 9.330988384474269,
+    "method": "Rounded midpoint of the unchanged battery gap after source-atlas regeneration; the higher cutoff tightens retrieval."
+  },
+  "note": "A find whose best BM25 score is below the floor returns no items with reason below_floor. The floor lies in the gap between the highest negative and the lowest positive best score. Single-term queries score about 7.8 to 9.0 and may fall below the floor; a phrase is expected.",
+  "battery": {
+    "positive": [
+      "recast a search for a new model from supplied events",
+      "generate events with madgraph and shower with pythia",
+      "compute a cls exclusion limit with pyhf",
+      "narrow width approximation for a wide resonance",
+      "interference between signal and standard model amplitude",
+      "convert detector level yields to a likelihood",
+      "simplified analysis detector simulation",
+      "cross section normalisation k-factor",
+      "decay table branching ratios in the spectrum card",
+      "fit a spectrum with a background function",
+      "build a statistical model from published yields",
+      "derive efficiency map for signal regions",
+      "unfolded measurement reinterpretation",
+      "check the generator cards before showering",
+      "render a plot of the exclusion contour",
+      "reinterpret a measurement"
+    ],
+    "negative": [
+      "flibbertigibbet wombat sandwich",
+      "what is the capital of france",
+      "how do I bake sourdough bread",
+      "best pizza recipe in naples",
+      "the weather tomorrow in paris",
+      "who won the football match last night",
+      "purple elephant dancing",
+      "translate this sentence into spanish",
+      "a holiday itinerary for lisbon",
+      "quantum of solace film cast",
+      "zzzz banana xylophone"
+    ]
+  }
+}

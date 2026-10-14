@@ -1,0 +1,4427 @@
+{
+ "schema_version": 2,
+ "kind": "ravel-toolchain-manifest",
+ "as_of": "2026-10-10",
+ "description": "Every tool RAVEL uses, with pinned sources, install steps and readiness checks. Install with `bash scripts/setup/install.sh`; check with `ravel doctor`.",
+ "host_python": {
+  "supported": ">=3.11,<3.13",
+  "default": "3.12"
+ },
+ "miniforge": {
+  "version": "26.5.3-0",
+  "url": "https://github.com/conda-forge/miniforge/releases/download/26.5.3-0/{asset}",
+  "assets": {
+   "macos-arm64": {
+    "name": "Miniforge3-26.5.3-0-MacOSX-arm64.sh",
+    "sha256": "0d765919d3ccfd1f89147aa1cf8133bfc55b3a3c13f5bacdcc091c33132fddd2"
+   },
+   "macos-x86_64": {
+    "name": "Miniforge3-26.5.3-0-MacOSX-x86_64.sh",
+    "sha256": "0266a7bfeb12165286133145717bef0d88070f1b76710beb6a62fec4e88371a1"
+   },
+   "linux-x86_64": {
+    "name": "Miniforge3-26.5.3-0-Linux-x86_64.sh",
+    "size": 124198353,
+    "sha256": "14db468222ad564658656f769506056209b6dc375f5e7dfd31eb5ebbf08fa529"
+   },
+   "linux-aarch64": {
+    "name": "Miniforge3-26.5.3-0-Linux-aarch64.sh",
+    "sha256": "0391e42075a7632e9665d6e728387ee6b905f6c3e704d3513e1c1133d0d69b89"
+   }
+  }
+ },
+ "container_build": {
+  "module": "ravel.execution_backend",
+  "argv": [
+   "{HOST_PYTHON}",
+   "-m",
+   "ravel.execution_backend",
+   "build-image",
+   "--recipe",
+   "{RECIPE}",
+   "--platform",
+   "{OCI_PLATFORM}",
+   "--engine",
+   "{CONTAINER_ENGINE}",
+   "--prefix",
+   "{P}"
+  ]
+ },
+ "environment": {
+  "FEYNRULES_ROOT": "{TOOLS}/feynrules-2.3.49",
+  "SARAH_ROOT": "{TOOLS}/sarah-4.15.4",
+  "FEYNCALC_ROOT": "{TOOLS}/feyncalc/FeynCalc",
+  "FEYNARTS_ROOT": "{TOOLS}/feynarts-patched",
+  "EASYSCAN_ROOT": "{TOOLS}/EasyScan_HEP"
+ },
+ "pdf_sets": "native/setup/pdf-sets.json",
+ "profiles": {
+  "site": {
+   "description": "A Linux analysis facility (for example lxplus): Python layer, site environments, facility checks and Combine through apptainer.",
+   "disk_gb": 12,
+   "groups": [
+    "python-host",
+    "research-host",
+    "site-root-wms",
+    "site-access",
+    "container-runtime",
+    "root-combine",
+    "publication"
+   ]
+  }
+ },
+ "groups": [
+  {
+   "id": "compiler-bootstrap",
+   "title": "Miniforge and the build compilers",
+   "depends_on": [],
+   "size_gb": 1.4,
+   "minutes": 8,
+   "licenses": [
+    {
+     "component": "Miniforge",
+     "spdx": "BSD-3-Clause",
+     "source": "https://github.com/conda-forge/miniforge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "xcode-clt",
+     "kind": "manual",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "probe": {
+      "argv": [
+       "xcode-select",
+       "-p"
+      ]
+     },
+     "instruction": "Install the Xcode Command Line Tools with `xcode-select --install`, then rerun the installer."
+    },
+    {
+     "id": "miniforge",
+     "kind": "miniforge"
+    },
+    {
+     "id": "host-build",
+     "kind": "conda_env",
+     "name": "host-build",
+     "specs": [
+      "python=3.12",
+      "c-compiler",
+      "cxx-compiler",
+      "gfortran=13.*",
+      "make>=4.4",
+      "cmake>=3.27",
+      "git",
+      "curl",
+      "pkg-config",
+      "autoconf",
+      "automake",
+      "libtool",
+      "zlib"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "conda",
+     "kind": "executable",
+     "path": "{CONDA}",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "conda (\\S+)",
+      "expect": "26.5.*"
+     }
+    },
+    {
+     "id": "host-build-python",
+     "kind": "executable",
+     "path": "{ENVS}/host-build/bin/python3.12"
+    },
+    {
+     "id": "gnu-make",
+     "kind": "executable",
+     "path": "{ENVS}/host-build/bin/make",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "GNU Make (\\S+)",
+      "expect": ">=4"
+     }
+    },
+    {
+     "id": "gfortran",
+     "kind": "executable",
+     "path": "{ENVS}/host-build/bin/gfortran",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "GNU Fortran.*?(\\d+\\.\\d+\\.\\d+)",
+      "expect": "13.*"
+     }
+    },
+    {
+     "id": "cmake",
+     "kind": "executable",
+     "path": "{ENVS}/host-build/bin/cmake",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "cmake version (\\S+)",
+      "expect": ">=3.27"
+     }
+    },
+    {
+     "id": "xcode-clt",
+     "kind": "manual",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "probe": {
+      "argv": [
+       "xcode-select",
+       "-p"
+      ]
+     },
+     "instruction": "xcode-select --install"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "compiler-bootstrap",
+     "version": {
+      "conda": "26.5.3",
+      "gnu-make": "4.4.1",
+      "gfortran": "13.4.0",
+      "cmake": "4.4.4"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "python-host",
+   "title": "RAVEL's Python environments (.venv, .venv-smodels, .venv-sfitter)",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 2.6,
+   "minutes": 20,
+   "steps": [
+    {
+     "id": "python-environments",
+     "kind": "command",
+     "cwd": "{REPO}",
+     "argv": [
+      "{ENVS}/host-build/bin/python3.12",
+      "{REPO}/scripts/setup/python_installation.py"
+     ],
+     "env": {
+      "PATH": "{ENVS}/host-build/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "MAKEFLAGS": "-j1",
+      "SCONSFLAGS": "-j1"
+     },
+     "inputs": [
+      "requirements-full.txt",
+      "environment/python/requirements-smodels.txt",
+      "environment/python/requirements-sfitter.txt",
+      "environment/python/installation.json",
+      "pyproject.toml"
+     ],
+     "outputs": [
+      "{REPO}/.venv/bin/ravel",
+      "{REPO}/.venv-smodels/bin/python",
+      "{REPO}/.venv-sfitter/bin/python"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "host-python",
+     "kind": "executable",
+     "path": "{REPO}/.venv/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import sys; print('%d.%d' % sys.version_info[:2])"
+      ],
+      "regex": "(\\d+\\.\\d+)",
+      "expect": "3.12"
+     }
+    },
+    {
+     "id": "ravel-command",
+     "kind": "executable",
+     "path": "{REPO}/.venv/bin/ravel"
+    },
+    {
+     "id": "smodels-python",
+     "kind": "executable",
+     "path": "{REPO}/.venv-smodels/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('smodels'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "3.2.1"
+     }
+    },
+    {
+     "id": "sfitter-python",
+     "kind": "executable",
+     "path": "{REPO}/.venv-sfitter/bin/python"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "python-host",
+     "version": {
+      "host-python": "3.12",
+      "smodels-python": "3.2.1"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "research-host",
+   "title": "Model-provider configuration for research and review roles",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0,
+   "minutes": 1,
+   "steps": [
+    {
+     "id": "host-example",
+     "kind": "write_file",
+     "path": "{CONFIG}/host.example.json",
+     "only_if_absent": true,
+     "content": "{\n  \"type\": \"anthropic\",\n  \"api_key_env\": \"ANTHROPIC_API_KEY\"\n}\n"
+    }
+   ],
+   "checks": [
+    {
+     "id": "research-host-config",
+     "kind": "provider"
+    },
+    {
+     "id": "research-agent-cli",
+     "kind": "agent_cli"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane. The provider configuration was the shipped agent command-line host configuration, named by RAVEL_HOST_CONFIG; no key or login was read, and no model session was started.",
+    "record": {
+     "tool": "research-host",
+     "version": {
+      "research-agent-cli": "2.1.296 (Claude Code)"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "f705b8a712207b37e9bdd5540d9726b57ae9b9cf19b6023f59d53a5da4980a61"
+    }
+   }
+  },
+  {
+   "id": "madgraph",
+   "title": "MadGraph5_aMC@NLO 2.9.27 and 3.7.0 with LHAPDF 6.5.6",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 2.4,
+   "minutes": 20,
+   "licenses": [
+    {
+     "component": "MadGraph5_aMC@NLO",
+     "spdx": "LicenseRef-MG5aMC",
+     "source": "https://github.com/mg5amcnlo/mg5amcnlo"
+    },
+    {
+     "component": "LHAPDF",
+     "spdx": "GPL-3.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "notes": "3.7.0 sits beside 2.9.27: lepton and photon parton densities need MadGraph 3.",
+   "steps": [
+    {
+     "id": "mg5-env",
+     "kind": "conda_env",
+     "name": "mg5",
+     "specs": [
+      "python=3.10",
+      "gfortran=13.*",
+      "cxx-compiler",
+      "make",
+      "six",
+      "numpy",
+      "lhapdf=6.5.6"
+     ]
+    },
+    {
+     "id": "mg5-source",
+     "kind": "git",
+     "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+     "commit": "eb76cab72b8d44aac7162ac7221ac08a4384a169",
+     "dest": "{TOOLS}/mg5amcnlo",
+     "tag": "v2.9.27"
+    },
+    {
+     "id": "mg5-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo/input/mg5_configuration.txt",
+     "template_from": "{TOOLS}/mg5amcnlo/input/.mg5_configuration_default.txt",
+     "values": {
+      "automatic_html_opening": "False",
+      "auto_update": "0",
+      "run_mode": "0",
+      "nb_core": "{JOBS}",
+      "fortran_compiler": "gfortran",
+      "lhapdf_py3": "{ENVS}/mg5/bin/lhapdf-config"
+     }
+    },
+    {
+     "id": "mg5-3-env",
+     "kind": "conda_env",
+     "name": "mg5-3",
+     "specs": [
+      "python=3.11",
+      "gfortran=13.*",
+      "cxx-compiler",
+      "make",
+      "six",
+      "numpy",
+      "lhapdf=6.5.6"
+     ]
+    },
+    {
+     "id": "mg5-3-source",
+     "kind": "git",
+     "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+     "commit": "adf3d62d096abc1f1512c2101b40218f7c529d4f",
+     "dest": "{TOOLS}/mg5amcnlo-3.7.0",
+     "tag": "v3.7.0"
+    },
+    {
+     "id": "mg5-3-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo-3.7.0/input/mg5_configuration.txt",
+     "template_from": "{TOOLS}/mg5amcnlo-3.7.0/input/.mg5_configuration_default.txt",
+     "values": {
+      "automatic_html_opening": "False",
+      "auto_update": "0",
+      "run_mode": "0",
+      "nb_core": "{JOBS}",
+      "fortran_compiler": "gfortran",
+      "lhapdf_py3": "{ENVS}/mg5-3/bin/lhapdf-config"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "mg-python",
+     "kind": "executable",
+     "path": "{ENVS}/mg5/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import sys; print('%d.%d' % sys.version_info[:2])"
+      ],
+      "regex": "(\\d+\\.\\d+)",
+      "expect": "3.10"
+     }
+    },
+    {
+     "id": "mg5",
+     "kind": "directory",
+     "path": "{TOOLS}/mg5amcnlo",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/mg5amcnlo",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "eb76cab72b8d44aac7162ac7221ac08a4384a169"
+     }
+    },
+    {
+     "id": "mg5-lhapdf-config",
+     "kind": "executable",
+     "path": "{ENVS}/mg5/bin/lhapdf-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "6.5.6"
+     }
+    },
+    {
+     "id": "mg5-options",
+     "kind": "file",
+     "path": "{TOOLS}/mg5amcnlo/input/mg5_configuration.txt"
+    },
+    {
+     "id": "mg5-3",
+     "kind": "directory",
+     "path": "{TOOLS}/mg5amcnlo-3.7.0",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/mg5amcnlo-3.7.0",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "adf3d62d096abc1f1512c2101b40218f7c529d4f"
+     }
+    },
+    {
+     "id": "mg5-3-lhapdf-config",
+     "kind": "executable",
+     "path": "{ENVS}/mg5-3/bin/lhapdf-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "6.5.6"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "madgraph",
+     "version": {
+      "mg-python": "3.10",
+      "mg5": "eb76cab72b8d44aac7162ac7221ac08a4384a169",
+      "mg5-lhapdf-config": "6.5.6",
+      "mg5-3": "adf3d62d096abc1f1512c2101b40218f7c529d4f",
+      "mg5-3-lhapdf-config": "6.5.6"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "lhapdf-sets",
+   "title": "LHAPDF parton-density sets in one shared data directory",
+   "depends_on": [
+    "madgraph"
+   ],
+   "size_gb": 0.6,
+   "minutes": 5,
+   "steps": [
+    {
+     "id": "sets",
+     "kind": "pdf_sets",
+     "index_from": "{ENVS}/mg5/share/LHAPDF"
+    },
+    {
+     "id": "link-mg5",
+     "kind": "link_children",
+     "source": "{LHAPDF_DATA}",
+     "dest": "{ENVS}/mg5/share/LHAPDF"
+    },
+    {
+     "id": "link-mg5-3",
+     "kind": "link_children",
+     "source": "{LHAPDF_DATA}",
+     "dest": "{ENVS}/mg5-3/share/LHAPDF"
+    }
+   ],
+   "checks": [
+    {
+     "id": "pdfsets-index",
+     "kind": "file",
+     "path": "{LHAPDF_DATA}/pdfsets.index"
+    },
+    {
+     "id": "pdf-NNPDF30_nlo_as_0118",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/NNPDF30_nlo_as_0118",
+     "pdf_set": "NNPDF30_nlo_as_0118"
+    },
+    {
+     "id": "pdf-LUXlep-NNPDF31_nlo_as_0118_luxqed",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/LUXlep-NNPDF31_nlo_as_0118_luxqed",
+     "pdf_set": "LUXlep-NNPDF31_nlo_as_0118_luxqed"
+    },
+    {
+     "id": "pdf-cteq6l1",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/cteq6l1",
+     "pdf_set": "cteq6l1"
+    },
+    {
+     "id": "pdf-NNPDF23_lo_as_0130_qed",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/NNPDF23_lo_as_0130_qed",
+     "pdf_set": "NNPDF23_lo_as_0130_qed"
+    },
+    {
+     "id": "pdf-NNPDF23_nlo_as_0119",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/NNPDF23_nlo_as_0119",
+     "pdf_set": "NNPDF23_nlo_as_0119"
+    },
+    {
+     "id": "pdf-CT14lo",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/CT14lo",
+     "pdf_set": "CT14lo"
+    },
+    {
+     "id": "pdf-CT18NNLO",
+     "kind": "directory",
+     "path": "{LHAPDF_DATA}/CT18NNLO",
+     "pdf_set": "CT18NNLO"
+    }
+   ],
+   "licenses": [
+    {
+     "component": "LHAPDF PDF sets",
+     "spdx": "LicenseRef-upstream",
+     "source": "https://lhapdfsets.web.cern.ch/current (each set carries its own terms in its .info file)"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "lhapdf-sets",
+     "version": {
+      "declared_source_pins": {}
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "rivet-shower",
+   "title": "Rivet 4.1.3, Pythia 8.312, HepMC3 and RAVEL's shower programs",
+   "depends_on": [
+    "compiler-bootstrap",
+    "lhapdf-sets"
+   ],
+   "size_gb": 1.2,
+   "minutes": 15,
+   "licenses": [
+    {
+     "component": "Rivet and YODA",
+     "spdx": "GPL-3.0-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "Pythia 8",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "HepMC3",
+     "spdx": "GPL-3.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "rivet-env",
+     "kind": "conda_env",
+     "name": "rivet",
+     "specs": [
+      "rivet=4.1.3",
+      "yoda=2.1.3",
+      "pythia8=8.312",
+      "hepmc3=3.3.1",
+      "lhapdf=6.5.6",
+      "cxx-compiler",
+      "make"
+     ]
+    },
+    {
+     "id": "link-pdf-sets",
+     "kind": "link_children",
+     "source": "{LHAPDF_DATA}",
+     "dest": "{ENVS}/rivet/share/LHAPDF"
+    },
+    {
+     "id": "shower-programs",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-shower.sh",
+      "--env",
+      "{ENVS}/rivet",
+      "--src",
+      "{REPO}/native/src",
+      "--out",
+      "{BIN}"
+     ],
+     "outputs": [
+      "{BIN}/pythia_shower",
+      "{BIN}/pythia_shower_merged"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-shower.sh",
+      "native/src/pythia_shower.cc",
+      "native/src/pythia_shower_merged.cc"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "rivet",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/rivet",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)",
+      "expect": "4.1.3"
+     }
+    },
+    {
+     "id": "rivet-build",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/rivet-build"
+    },
+    {
+     "id": "pythia83-config",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/pythia8-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+)",
+      "expect": "8.312"
+     }
+    },
+    {
+     "id": "hepmc3-config",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/HepMC3-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)",
+      "expect": "3.3.1"
+     }
+    },
+    {
+     "id": "rivet-lhapdf-config",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/lhapdf-config"
+    },
+    {
+     "id": "shower",
+     "kind": "executable",
+     "path": "{BIN}/pythia_shower"
+    },
+    {
+     "id": "shower-merged",
+     "kind": "executable",
+     "path": "{BIN}/pythia_shower_merged"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "rivet-shower",
+     "version": {
+      "rivet": "4.1.3",
+      "pythia83-config": "8.312",
+      "hepmc3-config": "3.03.01"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "mg5-py8-interface",
+   "title": "MadGraph-Pythia 8 interface for MadGraph's own showering",
+   "depends_on": [
+    "madgraph",
+    "rivet-shower"
+   ],
+   "size_gb": 0.05,
+   "minutes": 3,
+   "licenses": [
+    {
+     "component": "MG5aMC_PY8_interface",
+     "spdx": "LicenseRef-MG5aMC",
+     "source": "https://github.com/mg5amcnlo/MG5aMC_PY8_interface"
+    }
+   ],
+   "steps": [
+    {
+     "id": "py8-interface-source",
+     "kind": "git",
+     "url": "https://github.com/mg5amcnlo/MG5aMC_PY8_interface",
+     "commit": "5d82df1b77bd2b69ffeae5b6bfe100a62b31c30e",
+     "dest": "{TOOLS}/MG5aMC_PY8_interface"
+    },
+    {
+     "id": "py8-interface-build",
+     "kind": "command",
+     "cwd": "{TOOLS}/MG5aMC_PY8_interface",
+     "argv": [
+      "{ENVS}/mg5/bin/python",
+      "{TOOLS}/MG5aMC_PY8_interface/compile.py",
+      "{ENVS}/rivet"
+     ],
+     "env": {
+      "PATH": "{ENVS}/rivet/bin:{ENVS}/mg5/bin:/usr/bin:/bin"
+     },
+     "outputs": [
+      "{TOOLS}/MG5aMC_PY8_interface/MG5aMC_PY8_interface"
+     ]
+    },
+    {
+     "id": "mg5-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo/input/mg5_configuration.txt",
+     "values": {
+      "pythia8_path": "{ENVS}/rivet",
+      "mg5amc_py8_interface_path": "{TOOLS}/MG5aMC_PY8_interface"
+     }
+    },
+    {
+     "id": "mg5-3-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo-3.7.0/input/mg5_configuration.txt",
+     "values": {
+      "pythia8_path": "{ENVS}/rivet",
+      "mg5amc_py8_interface_path": "{TOOLS}/MG5aMC_PY8_interface"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "mg5-py8-interface",
+     "kind": "executable",
+     "path": "{TOOLS}/MG5aMC_PY8_interface/MG5aMC_PY8_interface"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "mg5-py8-interface",
+     "version": {
+      "declared_source_pins": {
+       "py8-interface-source": "5d82df1b77bd2b69ffeae5b6bfe100a62b31c30e"
+      }
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "recast-base",
+   "title": "ROOT 6.40, FastJet 3.5.2 and Delphes 3.5.1",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 2.8,
+   "minutes": 20,
+   "licenses": [
+    {
+     "component": "ROOT",
+     "spdx": "LGPL-2.1-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "FastJet",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "Delphes",
+     "spdx": "GPL-3.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "recast-env",
+     "kind": "conda_env",
+     "name": "recast",
+     "specs": [
+      "root=6.40.00",
+      "fastjet=3.5.1.3",
+      "delphes=3.5.1",
+      "gsl",
+      "cxx-compiler",
+      "make",
+      "cmake",
+      "autoconf",
+      "automake",
+      "libtool",
+      "pip"
+     ]
+    },
+    {
+     "id": "fastjet-source",
+     "kind": "archive",
+     "url": "https://fastjet.fr/repo/fastjet-3.5.2.tar.gz",
+     "size": 3057208,
+     "sha256": "0b8884a394186a39bd27cef0645a65dd0398d695ae20d29e0559294ee2a44de7",
+     "dest": "{TOOLS}/fastjet-3.5.2-src",
+     "strip": 1
+    },
+    {
+     "id": "fastjet-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-fastjet.sh",
+      "--src",
+      "{TOOLS}/fastjet-3.5.2-src",
+      "--env",
+      "{ENVS}/recast",
+      "--out",
+      "{TOOLS}/fastjet-3.5.2",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/fastjet-3.5.2/bin/fastjet-config"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-fastjet.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "recast-root-config",
+     "kind": "executable",
+     "path": "{ENVS}/recast/bin/root-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+[./]\\d+)",
+      "expect": "6.40*"
+     }
+    },
+    {
+     "id": "fastjet-config",
+     "kind": "executable",
+     "path": "{TOOLS}/fastjet-3.5.2/bin/fastjet-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)",
+      "expect": "3.5.2"
+     }
+    },
+    {
+     "id": "delphes",
+     "kind": "executable",
+     "path": "{ENVS}/recast/bin/DelphesHepMC3"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "recast-base",
+     "version": {
+      "recast-root-config": "6.40.00",
+      "fastjet-config": "3.5.2"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "456ddf79e61624278c8950a91a62d611b41710ac874e5539b8779da848aee0b9"
+    }
+   }
+  },
+  {
+   "id": "ma5",
+   "title": "MadAnalysis 5 v1.11.1 with SampleAnalyzer",
+   "depends_on": [
+    "recast-base"
+   ],
+   "size_gb": 0.4,
+   "minutes": 15,
+   "licenses": [
+    {
+     "component": "MadAnalysis 5",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://github.com/MadAnalysis/madanalysis5"
+    }
+   ],
+   "steps": [
+    {
+     "id": "ma5-source",
+     "kind": "git",
+     "url": "https://github.com/MadAnalysis/madanalysis5",
+     "commit": "e25937ba2201fb96e5e7e0151c48992ee613a79d",
+     "dest": "{TOOLS}/madanalysis5",
+     "tag": "v1.11.1"
+    },
+    {
+     "id": "ma5-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-ma5.sh",
+      "--ma5",
+      "{TOOLS}/madanalysis5",
+      "--env",
+      "{ENVS}/recast"
+     ],
+     "outputs": [
+      "{TOOLS}/madanalysis5/tools/SampleAnalyzer/Lib/libcommons_for_ma5.so"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-ma5.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "ma5",
+     "kind": "directory",
+     "path": "{TOOLS}/madanalysis5",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/madanalysis5",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "e25937ba2201fb96e5e7e0151c48992ee613a79d"
+     }
+    },
+    {
+     "id": "sampleanalyzer",
+     "kind": "file",
+     "path": "{TOOLS}/madanalysis5/tools/SampleAnalyzer/Lib/libcommons_for_ma5.so"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "ma5",
+     "version": {
+      "ma5": "e25937ba2201fb96e5e7e0151c48992ee613a79d"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "container-runtime",
+   "title": "Container engine for the Linux-only tools",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 2.0,
+   "minutes": 10,
+   "licenses": [
+    {
+     "component": "Podman, vfkit and gvproxy",
+     "spdx": "Apache-2.0",
+     "source": "https://github.com/containers/podman"
+    }
+   ],
+   "notes": "On macOS, Podman 5.8.2 is installed inside the prefix with its own settings and one virtual machine called ravel. On Linux, the existing podman, docker or apptainer is used (set RAVEL_CONTAINER_ENGINE to choose).",
+   "steps": [
+    {
+     "id": "podman-arm64",
+     "kind": "archive",
+     "platforms": [
+      "macos-arm64"
+     ],
+     "url": "https://github.com/containers/podman/releases/download/v5.8.2/podman-remote-release-darwin_arm64.zip",
+     "size": 24690682,
+     "sha256": "2379bcb0bf320df5deccf84115337109d3f9051f7d017948ee68a92ce932e798",
+     "dest": "{TOOLS}/podman",
+     "strip": 1
+    },
+    {
+     "id": "podman-x86_64",
+     "kind": "archive",
+     "platforms": [
+      "macos-x86_64"
+     ],
+     "url": "https://github.com/containers/podman/releases/download/v5.8.2/podman-remote-release-darwin_amd64.zip",
+     "size": 26181871,
+     "sha256": "8c54f845651fd606512debd509a273f7a8d20e6ab0adb372a46863608275aa78",
+     "dest": "{TOOLS}/podman",
+     "strip": 1
+    },
+    {
+     "id": "vfkit",
+     "kind": "download",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "url": "https://github.com/crc-org/vfkit/releases/download/v0.6.3/vfkit",
+     "size": 63018256,
+     "sha256": "19d0695d40d996ec38529a22b73cdaa84ff67ba15f4b44927292e7fe885cee0e",
+     "dest": "{TOOLS}/podman-helpers/vfkit",
+     "mode": "0755"
+    },
+    {
+     "id": "gvproxy",
+     "kind": "download",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "url": "https://github.com/containers/gvisor-tap-vsock/releases/download/v0.8.9/gvproxy-darwin",
+     "size": 25359826,
+     "sha256": "c6f7b4bc7f21bf810b5cf54e04d979b014c5d96472a03a9e97fe62a00940067c",
+     "dest": "{TOOLS}/podman-helpers/gvproxy",
+     "mode": "0755"
+    },
+    {
+     "id": "containers-conf",
+     "kind": "write_file",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "path": "{CONTAINERS}/containers.conf",
+     "content": "# owned by the RAVEL installer\n[engine]\nhelper_binaries_dir = [\"{TOOLS}/podman-helpers\", \"{TOOLS}/podman/usr/bin\"]\n"
+    },
+    {
+     "id": "ravel-podman",
+     "kind": "wrapper",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "name": "ravel-podman",
+     "template": "ravel-podman.sh.in",
+     "values": {
+      "PODMAN": "{TOOLS}/podman/usr/bin/podman",
+      "CONTAINERS": "{CONTAINERS}",
+      "HELPERS": "{TOOLS}/podman-helpers"
+     }
+    },
+    {
+     "id": "rosetta",
+     "kind": "manual",
+     "platforms": [
+      "macos-arm64"
+     ],
+     "probe": {
+      "argv": [
+       "/usr/bin/arch",
+       "-x86_64",
+       "/usr/bin/true"
+      ]
+     },
+     "instruction": "Install Rosetta 2 with `softwareupdate --install-rosetta` (you accept Apple's licence yourself), then rerun the installer. The CMS Combine and ATLAS SimpleAnalysis images are x86-64 only."
+    },
+    {
+     "id": "machine-init",
+     "kind": "command",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "argv": [
+      "{BIN}/ravel-podman",
+      "machine",
+      "init",
+      "ravel",
+      "--cpus",
+      "4",
+      "--memory",
+      "8192",
+      "--disk-size",
+      "60"
+     ],
+     "unless": [
+      "{BIN}/ravel-podman",
+      "machine",
+      "inspect",
+      "ravel"
+     ]
+    },
+    {
+     "id": "machine-start",
+     "kind": "command",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "argv": [
+      "{BIN}/ravel-podman",
+      "machine",
+      "start",
+      "ravel"
+     ],
+     "unless": [
+      "{BIN}/ravel-podman",
+      "info"
+     ]
+    },
+    {
+     "id": "engine",
+     "kind": "manual",
+     "platforms": [
+      "linux-x86_64",
+      "linux-aarch64"
+     ],
+     "probe": {
+      "argv": [
+       "{CONTAINER_ENGINE}",
+       "--version"
+      ]
+     },
+     "instruction": "Install rootless podman (or use docker or apptainer) with your system's package manager, or set RAVEL_CONTAINER_ENGINE to the engine's path, then rerun the installer."
+    }
+   ],
+   "checks": [
+    {
+     "id": "podman",
+     "kind": "executable",
+     "path": "{BIN}/ravel-podman",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "podman version (\\S+)",
+      "expect": "5.8.2"
+     },
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ]
+    },
+    {
+     "id": "podman-machine",
+     "kind": "probe",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ],
+     "probe": {
+      "argv": [
+       "{BIN}/ravel-podman",
+       "machine",
+       "inspect",
+       "ravel"
+      ]
+     }
+    },
+    {
+     "id": "rosetta",
+     "kind": "manual",
+     "platforms": [
+      "macos-arm64"
+     ],
+     "probe": {
+      "argv": [
+       "/usr/bin/arch",
+       "-x86_64",
+       "/usr/bin/true"
+      ]
+     },
+     "instruction": "softwareupdate --install-rosetta"
+    },
+    {
+     "id": "container-engine",
+     "kind": "probe",
+     "platforms": [
+      "linux-x86_64",
+      "linux-aarch64"
+     ],
+     "probe": {
+      "argv": [
+       "{CONTAINER_ENGINE}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "container-runtime",
+     "version": {
+      "podman": "5.8.2"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "simpleanalysis",
+   "title": "ATLAS SimpleAnalysis (container) and mapyde 0.5.0",
+   "depends_on": [
+    "container-runtime"
+   ],
+   "routes": {
+    "default": "container"
+   },
+   "size_gb": 5.5,
+   "minutes": 20,
+   "licenses": [
+    {
+     "component": "mapyde",
+     "spdx": "Apache-2.0",
+     "source": "PyPI"
+    }
+   ],
+   "steps": [
+    {
+     "id": "pipeline-env",
+     "kind": "conda_env",
+     "name": "pipeline",
+     "specs": [
+      "python=3.11",
+      "pip"
+     ],
+     "pip": [
+      "mapyde==0.5.0"
+     ]
+    },
+    {
+     "id": "image",
+     "kind": "container_pull",
+     "name": "simpleanalysis",
+     "image": "gitlab-registry.cern.ch/atlas-sa/simple-analysis",
+     "digest": "sha256:3156f065211d6b0a70e5dbe679bc7cfbeb56b4cdacd139a240dfc2f2207ba30f",
+     "platform": "linux/amd64"
+    },
+    {
+     "id": "wrapper",
+     "kind": "wrapper",
+     "name": "ravel-simpleanalysis",
+     "template": "container-run.sh.in",
+     "values": {
+      "IMAGE": "gitlab-registry.cern.ch/atlas-sa/simple-analysis@sha256:3156f065211d6b0a70e5dbe679bc7cfbeb56b4cdacd139a240dfc2f2207ba30f",
+      "PLATFORM": "linux/amd64",
+      "COMMAND": "simpleAnalysis",
+      "NAME": "simpleanalysis",
+      "LHAPDF": "{LHAPDF_DATA}"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "simpleanalysis-image",
+     "kind": "container_image",
+     "name": "simpleanalysis",
+     "image": "gitlab-registry.cern.ch/atlas-sa/simple-analysis",
+     "digest": "sha256:3156f065211d6b0a70e5dbe679bc7cfbeb56b4cdacd139a240dfc2f2207ba30f"
+    },
+    {
+     "id": "simpleanalysis-wrapper",
+     "kind": "executable",
+     "path": "{BIN}/ravel-simpleanalysis"
+    },
+    {
+     "id": "mapyde",
+     "kind": "executable",
+     "path": "{ENVS}/pipeline/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('mapyde'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "0.5.0"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "simpleanalysis",
+     "version": {
+      "simpleanalysis-image": "gitlab-registry.cern.ch/atlas-sa/simple-analysis@sha256:3156f065211d6b0a70e5dbe679bc7cfbeb56b4cdacd139a240dfc2f2207ba30f",
+      "mapyde": "0.5.0"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "c9d545d0346138dd420a64844792d1788fd4c2554db672f8eef69e4135a6383b"
+    }
+   }
+  },
+  {
+   "id": "restframes",
+   "title": "RestFrames library and RAVEL's recursive-jigsaw program",
+   "depends_on": [
+    "recast-base"
+   ],
+   "size_gb": 0.4,
+   "minutes": 5,
+   "licenses": [
+    {
+     "component": "RestFrames",
+     "spdx": "MIT",
+     "source": "SimpleAnalysis source tree"
+    }
+   ],
+   "steps": [
+    {
+     "id": "simpleanalysis-source",
+     "kind": "git",
+     "url": "https://gitlab.cern.ch/atlas-sa/simple-analysis.git",
+     "commit": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+     "submodules": [
+      "Ext_RestFrames"
+     ],
+     "dest": "{TOOLS}/simple-analysis-src"
+    },
+    {
+     "id": "restframes-tarball",
+     "kind": "verify_file",
+     "path": "{TOOLS}/simple-analysis-src/Ext_RestFrames/data/tarball",
+     "size": 4784428,
+     "sha256": "fd4ac514f59f072c9eaad24e3c6c6d2b870e6ac97116276f56a0789ec82ca221"
+    },
+    {
+     "id": "restframes-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-restframes.sh",
+      "--tarball",
+      "{TOOLS}/simple-analysis-src/Ext_RestFrames/data/tarball",
+      "--env",
+      "{ENVS}/recast",
+      "--out",
+      "{TOOLS}/restframes-native",
+      "--bin",
+      "{BIN}",
+      "--src",
+      "{REPO}/native/src"
+     ],
+     "outputs": [
+      "{TOOLS}/restframes-native/include/RestFrames/RestFrames.hh",
+      "{BIN}/rjr_resolve"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-restframes.sh",
+      "native/src/rjr_resolve.cc"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "restframes",
+     "kind": "directory",
+     "path": "{TOOLS}/restframes-native"
+    },
+    {
+     "id": "restframes-library",
+     "kind": "file",
+     "path": "{TOOLS}/restframes-native/lib/libRestFrames.dylib",
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ]
+    },
+    {
+     "id": "restframes-library-linux",
+     "kind": "file",
+     "path": "{TOOLS}/restframes-native/lib/libRestFrames.so",
+     "platforms": [
+      "linux-x86_64",
+      "linux-aarch64"
+     ]
+    },
+    {
+     "id": "rjr",
+     "kind": "executable",
+     "path": "{BIN}/rjr_resolve"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "restframes",
+     "version": {
+      "declared_source_pins": {
+       "simpleanalysis-source": "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+       "restframes-tarball": "fd4ac514f59f072c9eaad24e3c6c6d2b870e6ac97116276f56a0789ec82ca221"
+      }
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "analysis-catalogue",
+   "title": "Analysis source catalogue",
+   "tools": [
+    "Rivet"
+   ],
+   "depends_on": [
+    "python-host",
+    "rivet-shower",
+    "restframes"
+   ],
+   "size_gb": 0.2,
+   "minutes": 1,
+   "size_basis": "Measured in the reference-Mac qualification lane: a 207 MB source checkout at the pinned commit and a 1.6 MB catalogue, fetched and built in under a minute.",
+   "licenses": [
+    {
+     "component": "Rivet source",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://gitlab.com/hepcedar/rivet.git"
+    }
+   ],
+   "steps": [
+    {
+     "id": "rivet-source",
+     "kind": "git",
+     "url": "https://gitlab.com/hepcedar/rivet.git",
+     "commit": "0f6596fac03b40566ccdfae5b3e062b7f56a055a",
+     "dest": "{TOOLS}/rivet-src",
+     "size_gb": 0.2,
+     "size_basis": "Measured source checkout at the pinned commit."
+    },
+    {
+     "id": "build-catalogue",
+     "kind": "command",
+     "argv": [
+      "{HOST_PYTHON}",
+      "-m",
+      "ravel.workflow.analysis_catalog_build",
+      "--rivet",
+      "{TOOLS}/rivet-src",
+      "--rivet-ref",
+      "0f6596fac03b40566ccdfae5b3e062b7f56a055a",
+      "--simpleanalysis",
+      "{TOOLS}/simple-analysis-src",
+      "--simpleanalysis-ref",
+      "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "--out",
+      "{P}/share/ravel/analysis-catalog.json"
+     ],
+     "outputs": [
+      "{P}/share/ravel/analysis-catalog.json"
+     ],
+     "instruction": "Run the analysis catalogue rebuild command reported by ravel doctor."
+    }
+   ],
+   "checks": [
+    {
+     "id": "analysis-catalogue",
+     "kind": "analysis_catalogue",
+     "rivet_ref": "0f6596fac03b40566ccdfae5b3e062b7f56a055a",
+     "rebuild": [
+      "{HOST_PYTHON}",
+      "-m",
+      "ravel.workflow.analysis_catalog_build",
+      "--rivet",
+      "{TOOLS}/rivet-src",
+      "--rivet-ref",
+      "0f6596fac03b40566ccdfae5b3e062b7f56a055a",
+      "--simpleanalysis",
+      "{TOOLS}/simple-analysis-src",
+      "--simpleanalysis-ref",
+      "5a33033d788619bb1039a5b8116fdf43c46fc72a",
+      "--out",
+      "{P}/share/ravel/analysis-catalog.json",
+      "--force"
+     ]
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "analysis-catalogue",
+     "version": {
+      "analysis-catalogue": "0f6596fac03b40566ccdfae5b3e062b7f56a055a"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "5d9beda11a6212a905b3be7ae3bbda0d74507644a2d70415d51522aed10b2272"
+    }
+   }
+  },
+  {
+   "id": "root-combine",
+   "title": "CMS Combine 9.2.1 on ROOT 6.22 (container)",
+   "depends_on": [
+    "container-runtime"
+   ],
+   "routes": {
+    "default": "container"
+   },
+   "size_gb": 8.0,
+   "minutes": 25,
+   "notes": "ROOT 6.22 predates Apple silicon, so on a Mac the image runs under Rosetta and fits are slower.",
+   "steps": [
+    {
+     "id": "image",
+     "kind": "container_pull",
+     "name": "combine",
+     "image": "gitlab-registry.cern.ch/cms-cloud/combine-standalone",
+     "digest": "sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020",
+     "platform": "linux/amd64"
+    },
+    {
+     "id": "wrapper-combine",
+     "kind": "wrapper",
+     "name": "combine",
+     "template": "container-run.sh.in",
+     "values": {
+      "IMAGE": "gitlab-registry.cern.ch/cms-cloud/combine-standalone@sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020",
+      "PLATFORM": "linux/amd64",
+      "COMMAND": "combine",
+      "NAME": "combine",
+      "LHAPDF": "{LHAPDF_DATA}"
+     }
+    },
+    {
+     "id": "wrapper-text2workspace-py",
+     "kind": "wrapper",
+     "name": "text2workspace.py",
+     "template": "container-run.sh.in",
+     "values": {
+      "IMAGE": "gitlab-registry.cern.ch/cms-cloud/combine-standalone@sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020",
+      "PLATFORM": "linux/amd64",
+      "COMMAND": "text2workspace.py",
+      "NAME": "combine",
+      "LHAPDF": "{LHAPDF_DATA}"
+     }
+    },
+    {
+     "id": "wrapper-combine-root-config",
+     "kind": "wrapper",
+     "name": "combine-root-config",
+     "template": "container-run.sh.in",
+     "values": {
+      "IMAGE": "gitlab-registry.cern.ch/cms-cloud/combine-standalone@sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020",
+      "PLATFORM": "linux/amd64",
+      "COMMAND": "root-config",
+      "NAME": "combine",
+      "LHAPDF": "{LHAPDF_DATA}"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "combine-image",
+     "kind": "container_image",
+     "name": "combine",
+     "image": "gitlab-registry.cern.ch/cms-cloud/combine-standalone",
+     "digest": "sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020"
+    },
+    {
+     "id": "combine",
+     "kind": "executable",
+     "path": "{BIN}/combine"
+    },
+    {
+     "id": "text2workspace",
+     "kind": "executable",
+     "path": "{BIN}/text2workspace.py"
+    },
+    {
+     "id": "combine-root-config",
+     "kind": "executable",
+     "path": "{BIN}/combine-root-config"
+    }
+   ],
+   "licenses": [
+    {
+     "component": "ROOT",
+     "spdx": "LGPL-2.1-or-later",
+     "source": "https://root.cern"
+    },
+    {
+     "component": "CMS Combine",
+     "spdx": "LicenseRef-upstream",
+     "source": "https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "root-combine",
+     "version": {
+      "combine-image": "gitlab-registry.cern.ch/cms-cloud/combine-standalone@sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "6f74953b809a0b062de46a4dba6a36ea54be2ec60b666119772db51c6454c4f8"
+    }
+   }
+  },
+  {
+   "id": "wolfram",
+   "title": "Wolfram kernel (your licence) with FeynRules, SARAH, FeynCalc, FeynArts and HEPTAPOD",
+   "tools": [
+    "FeynRules",
+    "SARAH",
+    "FeynCalc",
+    "FeynArts",
+    "HEPTAPOD"
+   ],
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0.2,
+   "minutes": 10,
+   "licenses": [
+    {
+     "component": "FeynRules 2.3.49",
+     "spdx": "LicenseRef-FeynRules",
+     "source": "https://feynrules.irmp.ucl.ac.be"
+    },
+    {
+     "component": "SARAH 4.15.4",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://sarah.hepforge.org"
+    },
+    {
+     "component": "FeynCalc",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://github.com/FeynCalc/feyncalc"
+    },
+    {
+     "component": "FeynArts 3.12",
+     "spdx": "LGPL-3.0-or-later",
+     "source": "https://feynarts.de"
+    },
+    {
+     "component": "HEPTAPOD",
+     "spdx": "GPL-3.0-only",
+     "source": "https://github.com/tonymenzo/heptapod"
+    }
+   ],
+   "notes": "The Wolfram kernel is licensed software you install and activate yourself. The installer only reads its version; it never activates it or edits Wolfram settings.",
+   "steps": [
+    {
+     "id": "feynrules",
+     "kind": "archive",
+     "url": "https://feynrules.irmp.ucl.ac.be/downloads/feynrules-current.tar.gz",
+     "size": 603115,
+     "sha256": "85eddac7b5b61eac772c93df93a0c44bc34f531069985a719fe454f0a54afc81",
+     "dest": "{TOOLS}/feynrules-2.3.49",
+     "strip": 1
+    },
+    {
+     "id": "sarah",
+     "kind": "archive",
+     "url": "https://sarah.hepforge.org/downloads/SARAH-4.15.4.tar.gz",
+     "size": 2923464,
+     "sha256": "4ab8f01ebe866cce954bc292118b5976913a2800efc6eeb2ad2e926a98fc42eb",
+     "dest": "{TOOLS}/sarah-4.15.4",
+     "strip": 1
+    },
+    {
+     "id": "feynarts",
+     "kind": "archive",
+     "url": "https://feynarts.de/FeynArts-3.12.tar.gz",
+     "sha256": "190cb5a2ecbbe35136f218d462b03731c6b797ecf65f088affc89ea01ef5784a",
+     "dest": "{TOOLS}/feynarts-original",
+     "strip": 1
+    },
+    {
+     "id": "feyncalc",
+     "kind": "git",
+     "url": "https://github.com/FeynCalc/feyncalc",
+     "commit": "1ee480093293a01a82b3e365d026808f1d4e1c17",
+     "dest": "{TOOLS}/feyncalc"
+    },
+    {
+     "id": "heptapod",
+     "kind": "git",
+     "url": "https://github.com/tonymenzo/heptapod",
+     "commit": "cb771f8cf054ec7c5f503109b21e55337cb28b41",
+     "dest": "{TOOLS}/heptapod"
+    },
+    {
+     "id": "kernel",
+     "kind": "manual",
+     "probe": {
+      "argv": [
+       "bash",
+       "{REPO}/native/setup/recipes/find-wolframscript.sh"
+      ]
+     },
+     "instruction": "Install Mathematica or the free Wolfram Engine and activate it yourself with `wolframscript -activate`; then rerun the installer to patch FeynArts."
+    },
+    {
+     "id": "feynarts-patch",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/patch-feynarts.sh",
+      "--original",
+      "{TOOLS}/feynarts-original",
+      "--patched",
+      "{TOOLS}/feynarts-patched",
+      "--feyncalc",
+      "{TOOLS}/feyncalc"
+     ],
+     "outputs": [
+      "{TOOLS}/feynarts-patched/FeynArts.m"
+     ],
+     "inputs": [
+      "native/setup/recipes/patch-feynarts.sh"
+     ]
+    },
+    {
+     "id": "providers",
+     "kind": "write_file",
+     "path": "{CONFIG}/symbolic-providers.json",
+     "content": "{\n  \"FEYNRULES_ROOT\": \"{TOOLS}/feynrules-2.3.49\",\n  \"SARAH_ROOT\": \"{TOOLS}/sarah-4.15.4\",\n  \"FEYNCALC_ROOT\": \"{TOOLS}/feyncalc/FeynCalc\",\n  \"FEYNARTS_ROOT\": \"{TOOLS}/feynarts-patched\",\n  \"HEPTAPOD_ROOT\": \"{TOOLS}/heptapod\"\n}\n"
+    }
+   ],
+   "checks": [
+    {
+     "id": "wolfram-kernel",
+     "kind": "wolfram",
+     "expect": "14.3|15.0",
+     "load": [
+      {
+       "name": "FeynRules",
+       "root": "{TOOLS}/feynrules-2.3.49",
+       "context": "FeynRules`",
+       "directory_symbol": "FeynRulesPath"
+      },
+      {
+       "name": "SARAH",
+       "root": "{TOOLS}/sarah-4.15.4",
+       "context": "SARAH`"
+      },
+      {
+       "name": "FeynCalc",
+       "root": "{TOOLS}/feyncalc",
+       "context": "FeynCalc`"
+      },
+      {
+       "name": "FeynArts",
+       "root": "{TOOLS}/feynarts-patched",
+       "context": "FeynArts`"
+      }
+     ],
+     "fallbacks": "a supplied UFO model, a pregenerated FlexibleSUSY spectrum, or the SymPy/mpmath evaluator"
+    },
+    {
+     "id": "feynrules",
+     "kind": "file",
+     "path": "{TOOLS}/feynrules-2.3.49/FeynRulesPackage.m",
+     "probe": {
+      "argv": [
+       "grep",
+       "-h",
+       "VersionNumber",
+       "{path}"
+      ],
+      "regex": "\\\"(\\d+\\.\\d+\\.\\d+)\\\"",
+      "expect": "2.3.49"
+     }
+    },
+    {
+     "id": "sarah",
+     "kind": "file",
+     "path": "{TOOLS}/sarah-4.15.4/SARAH.m",
+     "probe": {
+      "argv": [
+       "grep",
+       "-h",
+       "Version",
+       "{path}"
+      ],
+      "regex": "\\\"(4\\.\\d+\\.\\d+)\\\"",
+      "expect": "4.15.4"
+     }
+    },
+    {
+     "id": "feyncalc",
+     "kind": "directory",
+     "path": "{TOOLS}/feyncalc",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/feyncalc",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "1ee480093293a01a82b3e365d026808f1d4e1c17"
+     }
+    },
+    {
+     "id": "feynarts-original",
+     "kind": "file",
+     "path": "{TOOLS}/feynarts-original/FeynArts.m"
+    },
+    {
+     "id": "feynarts-patched",
+     "kind": "file",
+     "path": "{TOOLS}/feynarts-patched/FeynArts.m"
+    },
+    {
+     "id": "heptapod",
+     "kind": "directory",
+     "path": "{TOOLS}/heptapod",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/heptapod",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "cb771f8cf054ec7c5f503109b21e55337cb28b41"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane. The kernel is the owner's activated installation; the installer and the doctor read its version, ran the FeynArts patch recipe and loaded the packages in fresh kernels, and neither activated it nor changed a Wolfram setting or licence.",
+    "record": {
+     "tool": "wolfram",
+     "version": {
+      "wolfram-kernel": "15.0",
+      "feynrules": "2.3.49",
+      "sarah": "4.15.4",
+      "feyncalc": "1ee480093293a01a82b3e365d026808f1d4e1c17",
+      "heptapod": "cb771f8cf054ec7c5f503109b21e55337cb28b41"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "52b3c8ec36727f2f0513812168c3723df06332b152fefa0f475c663df09a5d95"
+    }
+   }
+  },
+  {
+   "id": "spectrum",
+   "title": "FlexibleSUSY 2.9.0 (CMSSM, lowMSSM, NMSSM) and SPheno 4.0.5",
+   "depends_on": [
+    "compiler-bootstrap",
+    "wolfram"
+   ],
+   "size_gb": 5.0,
+   "minutes": 90,
+   "licenses": [
+    {
+     "component": "FlexibleSUSY",
+     "spdx": "GPL-3.0-only",
+     "source": "https://github.com/FlexibleSUSY/FlexibleSUSY"
+    },
+    {
+     "component": "SPheno",
+     "spdx": "LicenseRef-SPheno",
+     "source": "https://spheno.hepforge.org"
+    }
+   ],
+   "steps": [
+    {
+     "id": "spectrum-env",
+     "kind": "conda_env",
+     "name": "spectrum",
+     "specs": [
+      "python=3.12",
+      "clangxx=22.*",
+      "gfortran=13.*",
+      "make",
+      "gsl",
+      "libboost-devel=1.88.*",
+      "eigen=3.4.0",
+      "cmake"
+     ]
+    },
+    {
+     "id": "flexiblesusy-source",
+     "kind": "git",
+     "url": "https://github.com/FlexibleSUSY/FlexibleSUSY",
+     "commit": "64276b57499cba6577940c3fc605b9d4b45b3130",
+     "dest": "{TOOLS}/FlexibleSUSY",
+     "tag": "v2.9.0"
+    },
+    {
+     "id": "spheno-source",
+     "kind": "archive",
+     "url": "https://spheno.hepforge.org/downloads/SPheno-4.0.5.tar.gz",
+     "sha256": "3f84a6c3e47f40e0dd1bcccb88eb08a1d0a65aa3d8e42504befdfc3d47ec9529",
+     "dest": "{TOOLS}/SPheno-4.0.5",
+     "strip": 1
+    },
+    {
+     "id": "spheno-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-spheno.sh",
+      "--src",
+      "{TOOLS}/SPheno-4.0.5",
+      "--env",
+      "{ENVS}/spectrum"
+     ],
+     "outputs": [
+      "{TOOLS}/SPheno-4.0.5/bin/SPheno"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-spheno.sh"
+     ]
+    },
+    {
+     "id": "flexiblesusy-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-flexiblesusy.sh",
+      "--source",
+      "{TOOLS}/FlexibleSUSY",
+      "--sarah",
+      "{TOOLS}/sarah-4.15.4",
+      "--env",
+      "{ENVS}/spectrum",
+      "--out",
+      "{TOOLS}/flexiblesusy-models",
+      "--models",
+      "CMSSM,lowMSSM,NMSSM",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/flexiblesusy-models/CMSSM/models/CMSSM/run_CMSSM.x",
+      "{TOOLS}/flexiblesusy-models/lowMSSM/models/lowMSSM/run_lowMSSM.x",
+      "{TOOLS}/flexiblesusy-models/NMSSM/models/NMSSM/run_NMSSM.x"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-flexiblesusy.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "spectrum-cxx",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/clang++",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "version (\\d+)\\.",
+      "expect": "22"
+     }
+    },
+    {
+     "id": "spectrum-fc",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/gfortran"
+    },
+    {
+     "id": "gsl-config",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/gsl-config"
+    },
+    {
+     "id": "spheno",
+     "kind": "executable",
+     "path": "{TOOLS}/SPheno-4.0.5/bin/SPheno"
+    },
+    {
+     "id": "flexiblesusy-CMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/CMSSM/models/CMSSM/run_CMSSM.x"
+    },
+    {
+     "id": "flexiblesusy-lowMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/lowMSSM/models/lowMSSM/run_lowMSSM.x"
+    },
+    {
+     "id": "flexiblesusy-NMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/NMSSM/models/NMSSM/run_NMSSM.x"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "spectrum",
+     "version": {
+      "spectrum-cxx": "22"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "ce7121f61b84e5cdede28849a69a4dc470c65654878f8af9a2724a4e8ddfb79f"
+    }
+   }
+  },
+  {
+   "id": "finite-integrals",
+   "title": "pySecDec 1.6.6 with FORM",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 0.8,
+   "minutes": 15,
+   "licenses": [
+    {
+     "component": "pySecDec and FORM",
+     "spdx": "GPL-3.0-or-later",
+     "source": "PyPI"
+    }
+   ],
+   "steps": [
+    {
+     "id": "integrals-env",
+     "kind": "conda_env",
+     "name": "integrals",
+     "specs": [
+      "python=3.12",
+      "cxx-compiler",
+      "make>=4.4",
+      "pip"
+     ],
+     "pip": [
+      "pySecDec==1.6.6"
+     ],
+     "env": {
+      "MAKEFLAGS": "-j1",
+      "SCONSFLAGS": "-j1"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "integral-python",
+     "kind": "executable",
+     "path": "{ENVS}/integrals/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('pySecDec'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "1.6.6"
+     }
+    },
+    {
+     "id": "integrals-make",
+     "kind": "executable",
+     "path": "{ENVS}/integrals/bin/make",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "GNU Make (\\S+)",
+      "expect": ">=4"
+     }
+    },
+    {
+     "id": "form",
+     "kind": "probe",
+     "probe": {
+      "argv": [
+       "{ENVS}/integrals/bin/python",
+       "-c",
+       "import os, subprocess, pySecDecContrib; form = os.path.join(pySecDecContrib.dirname, 'bin', 'form'); print(subprocess.run([form, '-v'], capture_output=True, text=True).stdout)"
+      ],
+      "regex": "FORM (\\d+\\.\\d+\\.\\d+)"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "finite-integrals",
+     "version": {
+      "integral-python": "1.6.6",
+      "integrals-make": "4.4.1",
+      "form": "4.3.1"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "8ba3837c667b254aa27a04e6bde27590c2a2a17b658b53894a5876a7749e0d23"
+    }
+   }
+  },
+  {
+   "id": "smodels",
+   "title": "SModelS 3.2.1 database (3.1.1 kept runnable)",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 3.2,
+   "minutes": 30,
+   "licenses": [
+    {
+     "component": "SModelS database 3.2.1",
+     "spdx": "CC-BY-4.0",
+     "source": "https://zenodo.org/records/23067688"
+    },
+    {
+     "component": "SModelS database 3.1.1",
+     "spdx": "CC-BY-4.0",
+     "source": "https://zenodo.org/records/18478920"
+    }
+   ],
+   "steps": [
+    {
+     "id": "database",
+     "kind": "download",
+     "url": "https://zenodo.org/records/23067688/files/official321.pcl",
+     "size": 1165122724,
+     "md5": "1b186d9f56074d89fc60a6c473b2625d",
+     "dest": "{SHARE}/smodels/official321.pcl"
+    },
+    {
+     "id": "database-311",
+     "kind": "download",
+     "url": "https://zenodo.org/records/18478920/files/official311.pcl",
+     "size": 1433732448,
+     "md5": "0757f08da77326b7e855e132a6ded6e0",
+     "dest": "{SHARE}/smodels/official311.pcl"
+    },
+    {
+     "id": "env-311",
+     "kind": "conda_env",
+     "name": "smodels311",
+     "specs": [
+      "python=3.12"
+     ]
+    },
+    {
+     "id": "install-311",
+     "kind": "pip",
+     "python": "{ENVS}/smodels311/bin/python",
+     "requirements": [
+      "smodels==3.1.1",
+      "numpy==2.5.4",
+      "scipy==1.18.1",
+      "pyhf==0.7.6",
+      "pyslha==3.3.2"
+     ]
+    },
+    {
+     "id": "config",
+     "kind": "write_file",
+     "path": "{CONFIG}/smodels.json",
+     "content": "{\n  \"default\": \"3.2.1\",\n  \"versions\": {\n    \"3.2.1\": {\n      \"python\": \"{REPO}/.venv-smodels/bin/python\",\n      \"database\": \"{SHARE}/smodels/official321.pcl\",\n      \"database_version\": \"3.2.1\",\n      \"database_doi\": \"10.5281/zenodo.23067688\"\n    },\n    \"3.1.1\": {\n      \"python\": \"{ENVS}/smodels311/bin/python\",\n      \"database\": \"{SHARE}/smodels/official311.pcl\",\n      \"database_version\": \"3.1.1\",\n      \"database_doi\": \"10.5281/zenodo.18478920\"\n    }\n  }\n}\n"
+    }
+   ],
+   "checks": [
+    {
+     "id": "smodels-version",
+     "kind": "executable",
+     "path": "{REPO}/.venv-smodels/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('smodels'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "3.2.1"
+     }
+    },
+    {
+     "id": "smodels-database",
+     "kind": "file",
+     "path": "{SHARE}/smodels/official321.pcl"
+    },
+    {
+     "id": "smodels-311-version",
+     "kind": "executable",
+     "path": "{ENVS}/smodels311/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('smodels'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "3.1.1"
+     }
+    },
+    {
+     "id": "smodels-311-database",
+     "kind": "file",
+     "path": "{SHARE}/smodels/official311.pcl"
+    }
+   ],
+   "notes": "SModelS 3.2.1 (sdist sha256 31ad5f58...) is the default; coverage statements cite the database version in the config. 3.1.1 stays installed in its own environment. The 3.2.1 prediction parity against 3.1.1 is rerun by the native queue (job N2).",
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "smodels",
+     "version": {
+      "smodels-version": "3.2.1",
+      "smodels-311-version": "3.1.1"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "contur",
+   "title": "Contur 3.1.5 with its data and Herwig 7.3.0",
+   "depends_on": [
+    "rivet-shower",
+    "lhapdf-sets"
+   ],
+   "size_gb": 2.6,
+   "minutes": 45,
+   "licenses": [
+    {
+     "component": "Contur",
+     "spdx": "GPL-3.0-or-later",
+     "source": "PyPI"
+    },
+    {
+     "component": "Herwig and ThePEG",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "contur",
+     "kind": "pip",
+     "python": "{ENVS}/rivet/bin/python",
+     "requirements": [
+      "contur[spey]==3.1.5"
+     ]
+    },
+    {
+     "id": "contur-data",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-contur-data.sh",
+      "--env",
+      "{ENVS}/rivet",
+      "--user-dir",
+      "{SHARE}/contur"
+     ],
+     "outputs": [
+      "{SHARE}/contur/.ravel-contur-data-built"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-contur-data.sh"
+     ]
+    },
+    {
+     "id": "herwig-env",
+     "kind": "conda_env",
+     "name": "herwig",
+     "specs": [
+      "herwig=7.3.0",
+      "thepeg=2.3.0",
+      "lhapdf=6.5.6",
+      "readline"
+     ]
+    },
+    {
+     "id": "link-pdf-sets",
+     "kind": "link_children",
+     "source": "{LHAPDF_DATA}",
+     "dest": "{ENVS}/herwig/share/LHAPDF"
+    }
+   ],
+   "checks": [
+    {
+     "id": "contur",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('contur'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "3.1.5"
+     }
+    },
+    {
+     "id": "contur-data",
+     "kind": "file",
+     "path": "{SHARE}/contur/.ravel-contur-data-built"
+    },
+    {
+     "id": "herwig",
+     "kind": "executable",
+     "path": "{ENVS}/herwig/bin/Herwig",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)",
+      "expect": "7.3.0"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "contur",
+     "version": {
+      "contur": "3.1.5",
+      "herwig": "7.3.0"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  },
+  {
+   "id": "cosmology",
+   "title": "CAMB, CLASS and Cobaya (in the main Python environment)",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0,
+   "minutes": 0,
+   "steps": [],
+   "checks": [
+    {
+     "id": "cosmology-python",
+     "kind": "executable",
+     "path": "{REPO}/.venv/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('camb'), m.version('classy'), m.version('cobaya'))"
+      ],
+      "regex": "^(\\S+ \\S+ \\S+)$",
+      "expect": "1.6.5 3.4.1.0 3.6.2"
+     }
+    }
+   ],
+   "licenses": [
+    {
+     "component": "CAMB",
+     "spdx": "LicenseRef-LGPLv3-arxiv",
+     "source": "https://github.com/cmbant/CAMB"
+    },
+    {
+     "component": "CLASS (classy)",
+     "spdx": "LicenseRef-upstream",
+     "source": "https://github.com/lesgourg/class_public"
+    },
+    {
+     "component": "Cobaya",
+     "spdx": "LGPL-3.0-or-later",
+     "source": "https://github.com/CobayaSampler/cobaya"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "cosmology",
+     "version": {
+      "cosmology-python": "1.6.5 3.4.1.0 3.6.2"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "cb17826be930cbe5fc584770a22f35c00a4e836f4dfac579532eed92cc68d681"
+    }
+   }
+  },
+  {
+   "id": "sfitter",
+   "title": "SFitterAgents source in .venv-sfitter",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0.1,
+   "minutes": 5,
+   "licenses": [
+    {
+     "component": "SFitterAgents",
+     "spdx": "MIT",
+     "source": "https://github.com/heidelberg-hepml/SFitterAgents"
+    }
+   ],
+   "steps": [
+    {
+     "id": "source",
+     "kind": "git",
+     "url": "https://github.com/heidelberg-hepml/SFitterAgents",
+     "commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+     "dest": "{TOOLS}/SFitterAgents"
+    },
+    {
+     "id": "install",
+     "kind": "pip",
+     "python": "{REPO}/.venv-sfitter/bin/python",
+     "options": [
+      "--no-deps",
+      "-e"
+     ],
+     "requirements": [
+      "{TOOLS}/SFitterAgents/sfitter"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "sfitter-venv",
+     "kind": "executable",
+     "path": "{REPO}/.venv-sfitter/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import sfitter; print('imports ok')"
+      ],
+      "regex": "imports ok"
+     }
+    },
+    {
+     "id": "sfitter-source",
+     "kind": "directory",
+     "path": "{TOOLS}/SFitterAgents",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/SFitterAgents",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "6072a79e0f132d61a927f11ed482a401b34f6e3f"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "sfitter",
+     "version": {
+      "sfitter-venv": "imports ok",
+      "sfitter-source": "6072a79e0f132d61a927f11ed482a401b34f6e3f"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "a380904054627097e481c35e534256476ec86feff31b82cf544ad7431a332ae0"
+    }
+   }
+  },
+  {
+   "id": "easyscan",
+   "title": "EasyScan_HEP with GM2Calc 2.3.1 and PhaseTracer",
+   "depends_on": [
+    "python-host",
+    "spectrum"
+   ],
+   "size_gb": 1.0,
+   "minutes": 25,
+   "licenses": [
+    {
+     "component": "EasyScan_HEP",
+     "spdx": "Apache-2.0",
+     "source": "https://github.com/phyzhangyang/EasyScan_HEP"
+    },
+    {
+     "component": "GM2Calc",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://github.com/GM2Calc/GM2Calc"
+    },
+    {
+     "component": "PhaseTracer",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://github.com/PhaseTracer/PhaseTracer"
+    },
+    {
+     "component": "ALGLIB",
+     "spdx": "GPL-2.0-or-later",
+     "source": "https://www.alglib.net/download.php"
+    }
+   ],
+   "steps": [
+    {
+     "id": "easyscan-env",
+     "kind": "conda_env",
+     "name": "easyscan",
+     "specs": [
+      "cmake",
+      "boost-cpp",
+      "eigen=3.4.0",
+      "gsl",
+      "nlopt=2.10.1",
+      "cxx-compiler",
+      "make"
+     ]
+    },
+    {
+     "id": "easyscan-source",
+     "kind": "git",
+     "url": "https://github.com/phyzhangyang/EasyScan_HEP",
+     "commit": "2dee5ede04b131b889ac6a9cb52f3a335d6df640",
+     "dest": "{TOOLS}/EasyScan_HEP"
+    },
+    {
+     "id": "gm2calc-source",
+     "kind": "git",
+     "url": "https://github.com/GM2Calc/GM2Calc",
+     "commit": "3b7b1e8446bea3c04b7312ba98e5b87212b95673",
+     "dest": "{TOOLS}/GM2Calc",
+     "tag": "v2.3.1"
+    },
+    {
+     "id": "phasetracer-source",
+     "kind": "git",
+     "url": "https://github.com/PhaseTracer/PhaseTracer",
+     "commit": "a68b2fd2801e748d143058d828683f8f76b67ce3",
+     "dest": "{TOOLS}/PhaseTracer"
+    },
+    {
+     "id": "alglib-source",
+     "kind": "archive",
+     "url": "https://www.alglib.net/translator/re/alglib-3.20.0.cpp.gpl.zip",
+     "size": 3338466,
+     "sha256": "183690266b1f06cda052bc36e892aa899f9ef0784992f01e11579097e84dd330",
+     "dest": "{TOOLS}/alglib-3.20.0-src",
+     "strip": 1
+    },
+    {
+     "id": "alglib-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-alglib.sh",
+      "--src",
+      "{TOOLS}/alglib-3.20.0-src",
+      "--env",
+      "{ENVS}/easyscan",
+      "--out",
+      "{TOOLS}/alglib-3.20.0",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/alglib-3.20.0/lib/libalglib.a"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-alglib.sh"
+     ]
+    },
+    {
+     "id": "engines",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-easyscan-engines.sh",
+      "--env",
+      "{ENVS}/easyscan",
+      "--gm2calc",
+      "{TOOLS}/GM2Calc",
+      "--phasetracer",
+      "{TOOLS}/PhaseTracer",
+      "--easyscan",
+      "{TOOLS}/EasyScan_HEP",
+      "--manifest",
+      "{CONFIG}/easyscan-engines.json",
+      "--jobs",
+      "{JOBS}",
+      "--alglib",
+      "{TOOLS}/alglib-3.20.0"
+     ],
+     "outputs": [
+      "{CONFIG}/easyscan-engines.json"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-easyscan-engines.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "easyscan-source",
+     "kind": "directory",
+     "path": "{TOOLS}/EasyScan_HEP",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/EasyScan_HEP",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "2dee5ede04b131b889ac6a9cb52f3a335d6df640"
+     }
+    },
+    {
+     "id": "easyscan-engines-manifest",
+     "kind": "file",
+     "path": "{CONFIG}/easyscan-engines.json"
+    },
+    {
+     "id": "gm2calc",
+     "kind": "executable",
+     "path": "{TOOLS}/GM2Calc/build/bin/gm2calc.x"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "easyscan",
+     "version": {
+      "easyscan-source": "2dee5ede04b131b889ac6a9cb52f3a335d6df640"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "b5fc84d68b65433bd179e5b6c9d676b39eedbf9c2b9ae984f998a25d886243fd"
+    }
+   }
+  },
+  {
+   "id": "nyx",
+   "title": "Nyx 26.09 with AMReX 26.09 and SUNDIALS 7.6.0",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "routes": {
+    "default": "native",
+    "macos-arm64": "remote",
+    "macos-x86_64": "remote"
+   },
+   "manual": "Nyx production runs on a Linux MPI site; install RAVEL there with the site profile.",
+   "size_gb": 0.5,
+   "minutes": 45,
+   "licenses": [
+    {
+     "component": "Nyx and AMReX",
+     "spdx": "BSD-3-Clause-LBNL",
+     "source": "https://github.com/AMReX-Astro/Nyx"
+    },
+    {
+     "component": "SUNDIALS",
+     "spdx": "BSD-3-Clause",
+     "source": "https://github.com/LLNL/sundials"
+    }
+   ],
+   "notes": "The CosmicIC initial-condition writer is a supplied scientific input, not installed.",
+   "steps": [
+    {
+     "id": "amrex",
+     "kind": "git",
+     "url": "https://github.com/AMReX-Codes/amrex",
+     "commit": "a52ca73324ac2c7b65ec04f131e6df99eec9c576",
+     "dest": "{TOOLS}/amrex",
+     "tag": "26.09"
+    },
+    {
+     "id": "nyx",
+     "kind": "git",
+     "url": "https://github.com/AMReX-Astro/Nyx",
+     "commit": "e06eabc1b9dbcad5612db9529aced682402daede",
+     "dest": "{TOOLS}/Nyx",
+     "tag": "26.09"
+    },
+    {
+     "id": "sundials",
+     "kind": "git",
+     "url": "https://github.com/LLNL/sundials",
+     "commit": "ddf5daba8397ea89287a0fec6f1b3bc3fe6c548b",
+     "dest": "{TOOLS}/sundials",
+     "tag": "v7.6.0"
+    },
+    {
+     "id": "mpi",
+     "kind": "manual",
+     "probe": {
+      "argv": [
+       "mpicxx",
+       "--version"
+      ]
+     },
+     "instruction": "Load your site's MPI module so that the MPI compiler wrappers (mpicxx, mpicc) are on your PATH, then rerun the installer to build Nyx."
+    },
+    {
+     "id": "build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-nyx.sh",
+      "--env",
+      "{ENVS}/host-build",
+      "--amrex",
+      "{TOOLS}/amrex",
+      "--nyx",
+      "{TOOLS}/Nyx",
+      "--sundials",
+      "{TOOLS}/sundials",
+      "--out",
+      "{TOOLS}/nyx-build",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/nyx-build/bin/Nyx3d.gnu.MPI.OMP.ex"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-nyx.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "nyx",
+     "kind": "executable",
+     "path": "{TOOLS}/nyx-build/bin/Nyx3d.gnu.MPI.OMP.ex"
+    },
+    {
+     "id": "srun",
+     "kind": "probe",
+     "probe": {
+      "argv": [
+       "srun",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+)"
+     }
+    },
+    {
+     "id": "scontrol",
+     "kind": "probe",
+     "probe": {
+      "argv": [
+       "scontrol",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+)"
+     }
+    },
+    {
+     "id": "scancel",
+     "kind": "probe",
+     "probe": {
+      "argv": [
+       "scancel",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+)"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the Linux cluster qualification lane: a Slurm compute node with the site's Open MPI 4.1.8 compiler wrappers over GCC 13.3.0, and CMake and GNU make from the installer's own compiler group. The installer built SUNDIALS and Nyx from the pinned sources; the checks cover the built program and the Slurm client commands. No simulation was run.",
+    "record": {
+     "tool": "nyx",
+     "version": {
+      "srun": "24.11",
+      "scontrol": "24.11",
+      "scancel": "24.11"
+     },
+     "platform": "linux-x86_64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "c98cb58082bc33a0bc8019c7b88a94278d4387a98641e2e4f990516aedecca47"
+    }
+   }
+  },
+  {
+   "id": "publication",
+   "title": "PDF, graph and SVG tools for reports",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0.6,
+   "minutes": 5,
+   "steps": [
+    {
+     "id": "reports-env",
+     "kind": "conda_env",
+     "name": "reports",
+     "specs": [
+      "poppler",
+      "graphviz",
+      "librsvg"
+     ]
+    },
+    {
+     "id": "font-cache",
+     "kind": "command",
+     "argv": [
+      "{REPO}/.venv/bin/python",
+      "-c",
+      "import matplotlib.font_manager as f; f.fontManager.ttflist"
+     ],
+     "unless": [
+      "{REPO}/.venv/bin/python",
+      "-c",
+      "import glob,os,sys,matplotlib; sys.exit(0 if glob.glob(os.path.join(matplotlib.get_cachedir(),'fontlist-v*.json')) else 1)"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "pdftoppm",
+     "kind": "executable",
+     "path": "{ENVS}/reports/bin/pdftoppm"
+    },
+    {
+     "id": "pdfinfo",
+     "kind": "executable",
+     "path": "{ENVS}/reports/bin/pdfinfo"
+    },
+    {
+     "id": "neato",
+     "kind": "executable",
+     "path": "{ENVS}/reports/bin/neato"
+    },
+    {
+     "id": "rsvg-convert",
+     "kind": "executable",
+     "path": "{ENVS}/reports/bin/rsvg-convert"
+    },
+    {
+     "id": "font-cache",
+     "kind": "executable",
+     "path": "{REPO}/.venv/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import glob,os,sys,matplotlib; sys.exit(0 if glob.glob(os.path.join(matplotlib.get_cachedir(),'fontlist-v*.json')) else 1)"
+      ]
+     }
+    }
+   ],
+   "licenses": [
+    {
+     "component": "poppler",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "Graphviz",
+     "spdx": "EPL-1.0",
+     "source": "conda-forge"
+    },
+    {
+     "component": "librsvg",
+     "spdx": "LGPL-2.1-or-later",
+     "source": "conda-forge"
+    },
+    {
+     "component": "pypdfium2",
+     "spdx": "BSD-3-Clause AND Apache-2.0",
+     "source": "https://github.com/pypdfium2-team/pypdfium2"
+    },
+    {
+     "component": "pypdf",
+     "spdx": "BSD-3-Clause",
+     "source": "https://github.com/py-pdf/pypdf"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "publication",
+     "version": {
+      "declared_source_pins": {
+       "reports-env": [
+        "poppler",
+        "graphviz",
+        "librsvg"
+       ]
+      }
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "0f03f83c373856f2e6be2e1733bafa30e8bba61576f9d3cdc0ab419789ccc71c"
+    }
+   }
+  },
+  {
+   "id": "site-root-wms",
+   "title": "Linux site analysis and Snakemake environments",
+   "depends_on": [
+    "python-host"
+   ],
+   "routes": {
+    "default": "native",
+    "macos-arm64": "remote",
+    "macos-x86_64": "remote"
+   },
+   "manual": "These environments live on the Linux analysis site. Prepare the commands here with `python3.12 scripts/setup/site_installation.py --plan --linux-root /path/to/ravel/on/the/site`, or run `bash scripts/setup/install.sh --profile site` on the site itself.",
+   "size_gb": 2.5,
+   "minutes": 20,
+   "steps": [
+    {
+     "id": "site-environments",
+     "kind": "command",
+     "cwd": "{REPO}",
+     "argv": [
+      "{ENVS}/host-build/bin/python3.12",
+      "{REPO}/scripts/setup/site_installation.py",
+      "--install",
+      "--lcg-view",
+      "auto"
+     ],
+     "inputs": [
+      "requirements-full.txt",
+      "requirements-site.txt",
+      "requirements-site-wms.txt",
+      "environment/site-profiles.json"
+     ],
+     "outputs": [
+      "{REPO}/.ravel-site/site-analysis/bin/python",
+      "{REPO}/.ravel-site/site-wms/bin/snakemake"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "site-analysis-python",
+     "kind": "executable",
+     "path": "{REPO}/.ravel-site/site-analysis/bin/python"
+    },
+    {
+     "id": "site-wms-python",
+     "kind": "executable",
+     "path": "{REPO}/.ravel-site/site-wms/bin/python"
+    },
+    {
+     "id": "site-snakemake",
+     "kind": "executable",
+     "path": "{REPO}/.ravel-site/site-wms/bin/snakemake",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "9.27.0"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "tester-qualification",
+    "basis": "Testers qualify this group on their own Linux analysis facility with the recorded procedure. No such run is recorded here and none is claimed; the group does not run on the reference Mac.",
+    "procedure": "On the Linux analysis facility, in the RAVEL checkout, run `bash scripts/setup/install.sh --profile site --prefix /path/to/work/area/ravel-tools` and then `.venv/bin/ravel doctor --group site-root-wms`. It passes when the doctor reports site-analysis-python, site-wms-python and site-snakemake ready, prints `Everything selected is ready.` and exits with status 0."
+   }
+  },
+  {
+   "id": "site-access",
+   "title": "Analysis-facility access: CVMFS, grid proxy, Kerberos, HTCondor, apptainer, agent CLI",
+   "depends_on": [],
+   "routes": {
+    "default": "native",
+    "macos-arm64": "remote",
+    "macos-x86_64": "remote"
+   },
+   "manual": "Facility access is checked on the Linux site itself (run `ravel doctor --profile site` there).",
+   "size_gb": 0,
+   "minutes": 0,
+   "steps": [],
+   "checks": [
+    {
+     "id": "cvmfs",
+     "kind": "site",
+     "site": "cvmfs",
+     "instruction": "Ask the facility to mount /cvmfs/sft.cern.ch."
+    },
+    {
+     "id": "grid-proxy",
+     "kind": "site",
+     "site": "x509-proxy",
+     "instruction": "voms-proxy-init -voms atlas (run it yourself; RAVEL never handles credentials)"
+    },
+    {
+     "id": "kerberos",
+     "kind": "site",
+     "site": "kerberos",
+     "instruction": "kinit (and krenew for long sessions)"
+    },
+    {
+     "id": "htcondor",
+     "kind": "site",
+     "site": "condor",
+     "instruction": "Use a facility node with the HTCondor client."
+    },
+    {
+     "id": "apptainer",
+     "kind": "site",
+     "site": "apptainer",
+     "instruction": "Use a facility node with apptainer (lxplus has it)."
+    },
+    {
+     "id": "agent-cli",
+     "kind": "site",
+     "site": "agent-cli",
+     "instruction": "Install Claude Code or Codex in your user space on the facility."
+    }
+   ],
+   "qualification": {
+    "status": "tester-qualification",
+    "basis": "Testers qualify this group on their own Linux analysis facility with the recorded procedure. No such run is recorded here and none is claimed; the group does not run on the reference Mac.",
+    "procedure": "On the Linux analysis facility, in the RAVEL checkout, obtain your own grid proxy and Kerberos ticket, then run `.venv/bin/ravel doctor --group site-access`. It passes when the doctor reports cvmfs, grid-proxy, kerberos, htcondor, apptainer and agent-cli ready, prints `Everything selected is ready.` and exits with status 0."
+   }
+  },
+  {
+   "id": "feyngraph",
+   "title": "FeynGraph diagram generator (Rust build)",
+   "depends_on": [
+    "compiler-bootstrap",
+    "python-host"
+   ],
+   "size_gb": 1.5,
+   "minutes": 15,
+   "licenses": [
+    {
+     "component": "FeynGraph",
+     "spdx": "MPL-2.0",
+     "source": "https://github.com/jens-braun/feyngraph"
+    }
+   ],
+   "steps": [
+    {
+     "id": "diagrams-env",
+     "kind": "conda_env",
+     "name": "diagrams",
+     "specs": [
+      "python=3.12",
+      "rust=1.98.1",
+      "pip"
+     ],
+     "pip": [
+      "maturin==1.15.0"
+     ]
+    },
+    {
+     "id": "feyngraph-source",
+     "kind": "git",
+     "url": "https://github.com/jens-braun/feyngraph",
+     "commit": "15afe2f2c701331c76a0f5d55a752dca099104be",
+     "dest": "{TOOLS}/feyngraph"
+    },
+    {
+     "id": "feyngraph-install",
+     "kind": "pip",
+     "python": "{ENVS}/diagrams/bin/python",
+     "options": [
+      "--no-build-isolation"
+     ],
+     "requirements": [
+      "{TOOLS}/feyngraph"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "diagram-python",
+     "kind": "executable",
+     "path": "{ENVS}/diagrams/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import feyngraph; print('imports ok')"
+      ],
+      "regex": "imports ok"
+     }
+    },
+    {
+     "id": "diagram-rust",
+     "kind": "executable",
+     "path": "{ENVS}/diagrams/bin/rustc",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "rustc (\\S+)",
+      "expect": "1.98.1"
+     }
+    },
+    {
+     "id": "feyngraph-source",
+     "kind": "directory",
+     "path": "{TOOLS}/feyngraph",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/feyngraph",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "15afe2f2c701331c76a0f5d55a752dca099104be"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "feyngraph",
+     "version": {
+      "diagram-python": "imports ok",
+      "diagram-rust": "1.98.1",
+      "feyngraph-source": "15afe2f2c701331c76a0f5d55a752dca099104be"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "8ba3837c667b254aa27a04e6bde27590c2a2a17b658b53894a5876a7749e0d23"
+    }
+   }
+  },
+  {
+   "id": "diagram-consumers",
+   "title": "HEPTAPOD NDA and Diagrammatica EDA diagram tools",
+   "depends_on": [
+    "python-host",
+    "feyngraph",
+    "wolfram"
+   ],
+   "size_gb": 0.2,
+   "minutes": 5,
+   "licenses": [
+    {
+     "component": "HEPTAPOD",
+     "spdx": "GPL-3.0-only",
+     "source": "https://github.com/tonymenzo/heptapod"
+    }
+   ],
+   "steps": [
+    {
+     "id": "requirements",
+     "kind": "pip",
+     "python": "{ENVS}/diagrams/bin/python",
+     "requirements": [
+      "requests==2.32.5"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "heptapod-nda",
+     "kind": "file",
+     "path": "{TOOLS}/heptapod/tools/nda/nda_tool.py"
+    },
+    {
+     "id": "heptapod-eda",
+     "kind": "file",
+     "path": "{TOOLS}/heptapod/tools/eda/feyncalc_codegen.py"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "diagram-consumers",
+     "version": {
+      "declared_source_pins": {}
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "8ba3837c667b254aa27a04e6bde27590c2a2a17b658b53894a5876a7749e0d23"
+    }
+   }
+  },
+  {
+   "id": "agent-sources",
+   "title": "External agent sources (AgentRivet)",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0.3,
+   "minutes": 5,
+   "licenses": [
+    {
+     "component": "AgentRivet",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://gitlab.com/hepcedar/AgentRivet.git"
+    }
+   ],
+   "notes": "Fetched at pinned commits beside RAVEL, never bundled into it.",
+   "steps": [
+    {
+     "id": "agentrivet",
+     "kind": "git",
+     "url": "https://gitlab.com/hepcedar/AgentRivet.git",
+     "commit": "e4d12eccb6aee546d993481c75576c0df4e2b037",
+     "dest": "{TOOLS}/agent-sources/AgentRivet"
+    },
+    {
+     "id": "config",
+     "kind": "write_file",
+     "path": "{CONFIG}/agent-sources.json",
+     "content": "{\n  \"AgentRivet\": {\n    \"path\": \"{TOOLS}/agent-sources/AgentRivet\",\n    \"commit\": \"e4d12eccb6aee546d993481c75576c0df4e2b037\"\n  }\n}\n"
+    }
+   ],
+   "checks": [
+    {
+     "id": "agentrivet",
+     "kind": "directory",
+     "path": "{TOOLS}/agent-sources/AgentRivet",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/agent-sources/AgentRivet",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "e4d12eccb6aee546d993481c75576c0df4e2b037"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "agent-sources",
+     "version": {
+      "agentrivet": "e4d12eccb6aee546d993481c75576c0df4e2b037"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-13",
+     "doctor_result": "ready",
+     "evidence_sha256": "6d534a482d12a245fc0fd6ba5cb9f5736c83098ce3a3c66e83932dac21612c5d"
+    }
+   }
+  },
+  {
+   "id": "ml",
+   "title": "Machine-learning libraries: scikit-learn, PyTorch (CPU) and PyTorch Geometric",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 1.8,
+   "minutes": 10,
+   "licenses": [
+    {
+     "component": "scikit-learn",
+     "spdx": "BSD-3-Clause",
+     "source": "https://github.com/scikit-learn/scikit-learn"
+    },
+    {
+     "component": "PyTorch (CPU)",
+     "spdx": "BSD-3-Clause",
+     "source": "https://github.com/pytorch/pytorch"
+    },
+    {
+     "component": "PyTorch Geometric",
+     "spdx": "MIT",
+     "source": "https://github.com/pyg-team/pytorch_geometric"
+    }
+   ],
+   "notes": "Pinned for the machine-learning executor. The CPU wheel index is used so no CUDA runtime is downloaded. The versions are pins, not a qualification: nothing has been trained with them yet.",
+   "steps": [
+    {
+     "id": "ml-env",
+     "kind": "conda_env",
+     "name": "ml",
+     "specs": [
+      "python=3.12"
+     ]
+    },
+    {
+     "id": "ml-install",
+     "kind": "pip",
+     "python": "{ENVS}/ml/bin/python",
+     "options": [
+      "--extra-index-url",
+      "https://download.pytorch.org/whl/cpu"
+     ],
+     "requirements": [
+      "scikit-learn==1.7.2",
+      "torch==2.14.0",
+      "torch_geometric==2.7.0"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "ml-versions",
+     "kind": "executable",
+     "path": "{ENVS}/ml/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('scikit-learn'), m.version('torch'), m.version('torch_geometric'))"
+      ],
+      "regex": "^(\\S+ \\S+ \\S+)$",
+      "expect": "1.7.2 2.14.0 2.7.0"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "ml",
+     "version": {
+      "ml-versions": "1.7.2 2.14.0 2.7.0"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "1925b79863d19e38cff43b758c6b8539e18fbb775e38c8a54311650d946e93ce"
+    }
+   }
+  },
+  {
+   "id": "pdg",
+   "title": "PDG 2026 offline database (data CC BY 4.0) and RAVEL's pinned subset",
+   "depends_on": [
+    "python-host"
+   ],
+   "size_gb": 0.03,
+   "minutes": 1,
+   "licenses": [
+    {
+     "component": "PDG Review of Particle Physics data (2026 edition)",
+     "spdx": "CC-BY-4.0",
+     "source": "https://pdg.lbl.gov"
+    },
+    {
+     "component": "pdg Python package",
+     "spdx": "BSD-3-Clause",
+     "source": "https://pypi.org/project/pdg/"
+    }
+   ],
+   "notes": "The full offline database is the SQLite file inside the pdg wheel. RAVEL's subset (src/ravel/data/reference/pdg/pdg-subset.json) is generated from it by scripts/setup/build_pdg_subset.py and its checksum is recorded in SOURCE.json.",
+   "steps": [
+    {
+     "id": "database",
+     "kind": "download",
+     "url": "https://files.pythonhosted.org/packages/py3/p/pdg/pdg-2026.0-py3-none-any.whl",
+     "size": 8289676,
+     "sha256": "681e11f8c9a5accb1cb41ccb87bf7efd398adec8ea39ddb894630b17b45c8e8a",
+     "dest": "{SHARE}/pdg/pdg-2026.0-py3-none-any.whl"
+    }
+   ],
+   "checks": [
+    {
+     "id": "pdg-database",
+     "kind": "file",
+     "path": "{SHARE}/pdg/pdg-2026.0-py3-none-any.whl"
+    },
+    {
+     "id": "pdg-subset",
+     "kind": "file",
+     "path": "{REPO}/src/ravel/data/reference/pdg/pdg-subset.json",
+     "probe": {
+      "argv": [
+       "shasum",
+       "-a",
+       "256",
+       "{path}"
+      ],
+      "regex": "^([0-9a-f]{64})",
+      "expect": "7db12ee345ae12946001442b1e87c30278693ded79f27b6bdff822831285f03a"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "pdg",
+     "version": {
+      "pdg-subset": "7db12ee345ae12946001442b1e87c30278693ded79f27b6bdff822831285f03a"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  }
+ ],
+ "operations": [
+  {
+   "mode": "task-completion-context",
+   "groups": [
+    "python-host",
+    "research-host"
+   ]
+  },
+  {
+   "mode": "ntuple-inventory",
+   "groups": [
+    "python-host",
+    "site-root-wms"
+   ]
+  },
+  {
+   "mode": "mc-expected-construction",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "asimov-sensitivity",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "mc-closure",
+   "groups": [
+    "python-host",
+    "site-root-wms"
+   ]
+  },
+  {
+   "mode": "literal-calculation",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "root-stream",
+   "groups": [
+    "python-host",
+    "site-root-wms"
+   ]
+  },
+  {
+   "mode": "tree-array-export",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "cosmic-evolution",
+   "groups": [
+    "python-host",
+    "nyx"
+   ]
+  },
+  {
+   "mode": "chargino-decay-table",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "published-classifier",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "mssm-observable-map",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "nmssm-yukawa-map",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "width-inputs",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "mass-width-grid",
+   "groups": [
+    "python-host",
+    "root-combine",
+    "publication"
+   ]
+  },
+  {
+   "mode": "analysis-response-features",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "classifier-inputs",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "llp-plane-recipe",
+   "groups": [
+    "python-host",
+    "madgraph",
+    "rivet-shower",
+    "recast-base",
+    "ma5",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "svj-recipe",
+   "groups": [
+    "python-host",
+    "madgraph",
+    "rivet-shower",
+    "recast-base",
+    "ma5",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "research-comparison",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "quantitative-predictive",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "model-events",
+   "groups": [
+    "python-host",
+    "madgraph"
+   ]
+  },
+  {
+   "mode": "analyze",
+   "groups": [
+    "python-host",
+    "rivet-shower",
+    "recast-base",
+    "ma5",
+    "simpleanalysis",
+    "restframes"
+   ]
+  },
+  {
+   "mode": "quantities",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "measurement",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "domain",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "contrast",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "statistical-model",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "published-model",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "model-portfolio",
+   "groups": [
+    "python-host",
+    "smodels"
+   ]
+  },
+  {
+   "mode": "likelihood-parity",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "numerical-reference-check",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "cosmology-solver",
+   "groups": [
+    "python-host",
+    "cosmology"
+   ]
+  },
+  {
+   "mode": "signal-template",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "stau-events",
+   "groups": [
+    "python-host",
+    "madgraph"
+   ]
+  },
+  {
+   "mode": "native-likelihood",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "full-auxiliary-calibration",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "background-discrete-profile",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "eft-functions",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "normalized-measurement",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "continuous-fit",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "native-statistical-construction",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "model-inputs",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "contur-import",
+   "groups": [
+    "python-host",
+    "contur"
+   ]
+  },
+  {
+   "mode": "ratio-measurement",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "group-normalization",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "group-composition",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "source-tables",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "scientific-delivery",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "published-summary",
+   "groups": [
+    "python-host",
+    "publication"
+   ]
+  },
+  {
+   "mode": "native-group-acquisition",
+   "groups": [
+    "python-host",
+    "rivet-shower",
+    "recast-base",
+    "ma5",
+    "simpleanalysis",
+    "restframes"
+   ]
+  },
+  {
+   "mode": "retained-shower",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "derived-quantities",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "finite-mc",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "pdf-variations",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "model-sources",
+   "groups": [
+    "python-host",
+    "wolfram",
+    "spectrum"
+   ]
+  },
+  {
+   "mode": "model-tool-bridge",
+   "groups": [
+    "python-host",
+    "wolfram",
+    "spectrum"
+   ]
+  },
+  {
+   "mode": "model-provider-bridge",
+   "groups": [
+    "python-host",
+    "wolfram"
+   ]
+  },
+  {
+   "mode": "model-derivation-bridge",
+   "groups": [
+    "python-host",
+    "wolfram"
+   ]
+  },
+  {
+   "mode": "model-ward",
+   "groups": [
+    "python-host",
+    "madgraph"
+   ]
+  },
+  {
+   "mode": "generated-spectrum",
+   "groups": [
+    "python-host",
+    "spectrum"
+   ]
+  },
+  {
+   "mode": "mpi-observer",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "initialized-settings-qualification",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "initialized-settings-retained",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "mpi-paired-effect",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "likelihood-profile-probe",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "likelihood-candidate-check",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "likelihood-step-refinement",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "cr-signal-qualification",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "joint-fit",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "joint-qualification",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "joint-score",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "hs3-likelihood",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "workspace-combination-study",
+   "groups": [
+    "python-host",
+    "root-combine"
+   ]
+  },
+  {
+   "mode": "diagrammatica-code",
+   "groups": [
+    "python-host",
+    "diagram-consumers"
+   ]
+  },
+  {
+   "mode": "symbolic-evaluation",
+   "groups": [
+    "python-host",
+    "wolfram"
+   ]
+  },
+  {
+   "mode": "feyn-graph",
+   "groups": [
+    "python-host",
+    "feyngraph"
+   ]
+  },
+  {
+   "mode": "diagram-analysis",
+   "groups": [
+    "python-host",
+    "feyngraph",
+    "diagram-consumers"
+   ]
+  },
+  {
+   "mode": "feynarts-amplitude",
+   "groups": [
+    "python-host",
+    "wolfram"
+   ]
+  },
+  {
+   "mode": "sfitter-native-fit",
+   "groups": [
+    "python-host",
+    "sfitter"
+   ]
+  },
+  {
+   "mode": "sfitter-scan-extraction",
+   "groups": [
+    "python-host",
+    "sfitter"
+   ]
+  },
+  {
+   "mode": "sfitter-observed-events",
+   "groups": [
+    "python-host",
+    "sfitter"
+   ]
+  },
+  {
+   "mode": "eft-convention-transport",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "eft-toolchain",
+   "groups": [
+    "python-host",
+    "madgraph",
+    "wolfram",
+    "finite-integrals"
+   ]
+  },
+  {
+   "mode": "finite-integrals",
+   "groups": [
+    "python-host",
+    "finite-integrals"
+   ]
+  },
+  {
+   "mode": "parameter-space-sampling",
+   "groups": [
+    "python-host",
+    "easyscan"
+   ]
+  },
+  {
+   "mode": "contur-yoda",
+   "groups": [
+    "python-host",
+    "contur"
+   ]
+  },
+  {
+   "mode": "contur-companion",
+   "groups": [
+    "python-host",
+    "contur"
+   ]
+  },
+  {
+   "mode": "ma5-saf",
+   "groups": [
+    "python-host",
+    "ma5"
+   ]
+  },
+  {
+   "mode": "ma5-pad",
+   "groups": [
+    "python-host",
+    "ma5"
+   ]
+  },
+  {
+   "mode": "resonance-width",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "columnar-analysis",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "authored-analysis",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "formula-grid",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "coupling-morphing",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "prescribed-statistic",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "search-statistics",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "differential-likelihood",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "cross-section",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "simplified-spectrum",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "resonance-lineshape",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "model-authoring",
+   "groups": [
+    "python-host",
+    "wolfram",
+    "madgraph"
+   ]
+  },
+  {
+   "mode": "figure-comparison",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "amplitude-predictions",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "weighted-events",
+   "groups": [
+    "python-host",
+    "rivet-shower"
+   ]
+  },
+  {
+   "mode": "reco-ntuple-routine",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "lhe-transform",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "generation-reconciliation",
+   "groups": [
+    "python-host"
+   ]
+  },
+  {
+   "mode": "event-production",
+   "groups": [
+    "python-host",
+    "rivet-shower",
+    "recast-base"
+   ]
+  },
+  {
+   "mode": "ml-training",
+   "groups": [
+    "python-host",
+    "ml"
+   ]
+  },
+  {
+   "mode": "generate",
+   "groups": [
+    "python-host",
+    "madgraph"
+   ]
+  },
+  {
+   "mode": "likelihood",
+   "groups": [
+    "python-host"
+   ]
+  }
+ ],
+ "incompatible_path_bindings": [
+  [
+   "host-python",
+   "mg-python"
+  ]
+ ],
+ "refusal_classes": [
+  {
+   "id": "SP-03",
+   "title": "Loop decays of a generated spectrum",
+   "refused": "Decay widths of a generated spectrum need loop functions from Collier or LoopTools.",
+   "why": "The installer builds neither library and the spectrum route refuses decays unless the caller binds an explicit Collier or LoopTools build.",
+   "refused_by": "src/ravel/physics/model_specific_spectrum.py:157-172",
+   "groups": [
+    "spectrum"
+   ],
+   "would_make_it_possible": "An installer entry in the spectrum group that builds Collier (owner default) at a pinned source, a doctor check for its libraries, and a spectrum run that binds them."
+  },
+  {
+   "id": "SP-06-T8",
+   "title": "EasyScan cell T8: singlet grid with micrOMEGAs 7.1",
+   "refused": "micrOMEGAs 7.1 followed by PhaseTracer.",
+   "why": "micrOMEGAs is not installed by any group; the cell cannot run from an installed toolchain.",
+   "refused_by": "docs/reference/parameter-space-sampling.md:50",
+   "groups": [
+    "easyscan"
+   ],
+   "would_make_it_possible": "A pinned micrOMEGAs 7.1 source fetch and build in the easyscan group (source licence terms confirmed by the owner) and a doctor check for its binary."
+  },
+  {
+   "id": "SP-06-T9",
+   "title": "EasyScan cell T9: 17-parameter MSSM chain",
+   "refused": "The SUSY-HIT, FeynHiggs, HiggsBounds and GM2Calc chain, serial MCMC.",
+   "why": "SUSY-HIT, FeynHiggs and HiggsBounds are not installed by any group.",
+   "refused_by": "docs/reference/parameter-space-sampling.md:51",
+   "groups": [
+    "easyscan"
+   ],
+   "would_make_it_possible": "Pinned source fetches and builds of SUSY-HIT, FeynHiggs and HiggsBounds in the easyscan group, with doctor checks for each binary."
+  },
+  {
+   "id": "SP-06-T10",
+   "title": "EasyScan cell T10: MSSM chain, serial prior trials",
+   "refused": "The same MSSM chain as T9.",
+   "why": "Same missing programs as T9.",
+   "refused_by": "docs/reference/parameter-space-sampling.md:52",
+   "groups": [
+    "easyscan"
+   ],
+   "would_make_it_possible": "Whatever makes T9 possible."
+  },
+  {
+   "id": "SP-06-T11",
+   "title": "EasyScan cell T11: MSSM chain, two isolated workers",
+   "refused": "The same MSSM chain as T9 under a shared trial budget.",
+   "why": "Same missing programs as T9.",
+   "refused_by": "docs/reference/parameter-space-sampling.md:53",
+   "groups": [
+    "easyscan"
+   ],
+   "would_make_it_possible": "Whatever makes T9 possible."
+  },
+  {
+   "id": "SP-06-multinest",
+   "title": "EasyScan MultiNest sampler",
+   "refused": "Nested sampling with MultiNest.",
+   "why": "MultiNest is not installed by any group; the dynesty cell (T5) is the supported nested sampler.",
+   "refused_by": "docs/reference/parameter-space-sampling.md",
+   "groups": [
+    "easyscan"
+   ],
+   "would_make_it_possible": "A pinned MultiNest source build in the easyscan group and a doctor check."
+  }
+ ],
+ "default": {
+  "description": "Everything RAVEL uses on this platform (Linux-site parts are prepared as remote plans on a Mac).",
+  "disk_gb": 47.9,
+  "groups": [
+   "compiler-bootstrap",
+   "python-host",
+   "research-host",
+   "madgraph",
+   "lhapdf-sets",
+   "rivet-shower",
+   "mg5-py8-interface",
+   "recast-base",
+   "ma5",
+   "container-runtime",
+   "simpleanalysis",
+   "restframes",
+   "analysis-catalogue",
+   "root-combine",
+   "wolfram",
+   "spectrum",
+   "finite-integrals",
+   "smodels",
+   "contur",
+   "cosmology",
+   "sfitter",
+   "easyscan",
+   "nyx",
+   "publication",
+   "site-root-wms",
+   "site-access",
+   "feyngraph",
+   "diagram-consumers",
+   "agent-sources",
+   "ml",
+   "pdg"
+  ]
+ }
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "promoted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "impact": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "body": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "confirming_check": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "evidence": {
+      "properties": {
+        "receipts": {
+          "items": {
+            "properties": {
+              "path": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "ticket": {
+          "properties": {
+            "facts": {
+              "type": "object"
+            },
+            "id": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "facts"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "ticket",
+        "receipts"
+      ],
+      "type": "object"
+    },
+    "id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "impact": {
+      "properties": {
+        "arm_with": {},
+        "arm_without": {},
+        "metric": {},
+        "tasks": {
+          "type": "array"
+        }
+      },
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "scope": {
+      "properties": {
+        "ravel_version": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "tool_version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "tool_version",
+        "ravel_version"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "trial",
+        "promoted",
+        "revoked",
+        "dormant"
+      ]
+    },
+    "trigger": {
+      "properties": {
+        "all": {
+          "items": {
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "all"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "trigger",
+    "body",
+    "evidence",
+    "confirming_check",
+    "scope",
+    "status",
+    "impact"
+  ],
+  "title": "lesson",
+  "type": "object"
+}

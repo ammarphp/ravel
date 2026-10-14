@@ -1,0 +1,25 @@
+{
+ "id": "op:eft-convention-transport",
+ "op": {
+  "do_not_use_when": [
+   "Running or matching across scales: use eft-toolchain.",
+   "Response polynomials from a physics model: use eft-functions."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/eft-convention-transport-example --spec specs/eft-convention-transport.json",
+    "phrase": "Transport EFT coefficients between two declared conventions at one scale.",
+    "spec": {
+     "mode": "eft-convention-transport",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Transport EFT coefficients between conventions at the same scale.",
+   "Coefficient conventions of two sources must be reconciled."
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "id": "op:chargino-decay-table",
+ "op": {
+  "do_not_use_when": [
+   "A complete simplified-model spectrum card: use simplified-spectrum.",
+   "A full spectrum solver output: use generated-spectrum."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/chargino-decay-table-example --spec specs/chargino-decay-table.json",
+    "phrase": "Prepare a released pure-limit chargino decay table with a complete row census.",
+    "spec": {
+     "mode": "chargino-decay-table",
+     "task": {
+      "request": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Released pure-limit chargino decay tables with full row and daughter census are needed.",
+   "A chargino decay table must be audited before it feeds a generation."
+  ]
+ }
+}

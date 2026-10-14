@@ -1,0 +1,27 @@
+{
+ "id": "op:group-normalization",
+ "op": {
+  "do_not_use_when": [
+   "Composition of groups in the same events: use group-composition.",
+   "Native acquisition of groups: use native-group-acquisition."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/group-normalization-example --spec specs/group-normalization.json",
+    "phrase": "Normalize independent event groups from supplied records under a pinned contract.",
+    "spec": {
+     "mode": "group-normalization",
+     "task": {
+      "contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "input": "inputs/example.json",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Normalize independent event groups by N and W from supplied records.",
+   "Group totals must be combined with an exact contract digest."
+  ]
+ }
+}

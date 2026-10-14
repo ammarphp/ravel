@@ -1,0 +1,25 @@
+{
+ "id": "op:cr-signal-qualification",
+ "op": {
+  "do_not_use_when": [
+   "A full control-region fit: use search-statistics.",
+   "Fixed-truth native calibration: use full-auxiliary-calibration."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/cr-signal-qualification-example --spec specs/cr-signal-qualification.json",
+    "phrase": "Inject a fixed signal into a control region without refitting.",
+    "spec": {
+     "mode": "cr-signal-qualification",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Fixed control-region signal intervention without a fit, to qualify signal contamination.",
+   "Measure how much injected signal moves a control-region estimate."
+  ]
+ }
+}

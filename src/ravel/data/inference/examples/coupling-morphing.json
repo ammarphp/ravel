@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "kind": "coupling-morphing",
+  "description": "Synthetic example: a cross section quadratic in two couplings from three runs plus one held-out run.",
+  "parameters": [
+    {
+      "name": "g1",
+      "unit": "",
+      "label": "First coupling"
+    },
+    {
+      "name": "g2",
+      "unit": "",
+      "label": "Second coupling"
+    }
+  ],
+  "quantity": {
+    "name": "xsec",
+    "unit": "pb",
+    "label": "Cross section"
+  },
+  "basis": [
+    {
+      "g1": 2
+    },
+    {
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "g2": 2
+    }
+  ],
+  "method": "exact",
+  "max_condition": 1000000.0,
+  "runs": [
+    {
+      "id": "r1",
+      "point": {
+        "g1": 1.0,
+        "g2": 0.0
+      },
+      "value": 2.0,
+      "uncertainty": 0.02
+    },
+    {
+      "id": "r2",
+      "point": {
+        "g1": 0.0,
+        "g2": 1.0
+      },
+      "value": 0.25,
+      "uncertainty": 0.005
+    },
+    {
+      "id": "r3",
+      "point": {
+        "g1": 1.0,
+        "g2": 1.0
+      },
+      "value": 1.75,
+      "uncertainty": 0.02
+    }
+  ],
+  "holdout": [
+    {
+      "id": "h1",
+      "point": {
+        "g1": 0.5,
+        "g2": 1.0
+      },
+      "value": 0.5,
+      "uncertainty": 0.01
+    }
+  ],
+  "closure_tolerance_sigma": 3,
+  "evaluate": {
+    "axes": [
+      {
+        "name": "g1",
+        "unit": "",
+        "min": 0.0,
+        "max": 1.0,
+        "points": 11
+      },
+      {
+        "name": "g2",
+        "unit": "",
+        "min": 0.0,
+        "max": 1.0,
+        "points": 11
+      }
+    ]
+  },
+  "width": {
+    "treatment": "fixed",
+    "value": 10.0,
+    "unit": "GeV",
+    "source": "synthetic example: the requester states the width is held fixed"
+  }
+}

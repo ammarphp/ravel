@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "feynrules-provider-pins",
+  "digest": "sha256 of the canonical JSON of the provider tree's {relative path: sha256} map (model_tool_bridge.source_tree)",
+  "feynrules": {
+    "2.3.49": {
+      "provider_tree_digest": "24ec64ffc6c97cfada0098a28ee4ca07db9156ca3a571daebd105610d9f6b42a",
+      "files": 133,
+      "observed": "the public FeynRules 2.3.49 source tree bound by the source-to-UFO derivation of the Standard Model on Wolfram 15.0; manifest and private copy agree file by file",
+      "native_confirmation": "pending: no native export has yet recorded this digest; it was computed offline from the provider tree's files"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{Models and hosts}{Each agent role calls the language model you choose, hosted or local.}
+\node[b=37mm, minimum height=50mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (r) at (5,-24)
+  {\nodetitle{Agent roles}\nodesub{each with its own model and budget}};
+\node[b=46mm, minimum height=50mm, draw=rvravelline, fill=rvravelfill, anchor=north west] (t) at (55,-24)
+  {\nodetitle{Model routes}\nodesub{explicit model names, checked before use}};
+\tikzset{p/.style={box=52mm, minimum height=10.5mm, draw=rvhepline, fill=rvhepfill, anchor=north west}}
+\node[p] (p1) at (113,-24) {Anthropic, OpenAI, Gemini};
+\node[p] (p2) at (113,-37.2) {Compatible endpoints};
+\node[p] (p3) at (113,-50.4) {Local models};
+\node[p] (p4) at (113,-63.6) {Coding-agent sessions};
+\draw[flow] (r) -- (t);
+\foreach \n in {p1,p2,p3,p4} \draw[flow] (t.east |- \n) -- (\n);
+\node[b=160mm, minimum height=11mm, draw=rvrecordsline, fill=rvrecordsfill, anchor=north west] (rc) at (5,-82)
+  {\nodetitle{Receipts}\hspace{2.2mm}{\color{rvmuted}every call records its model, usage and result}};
+\ravellegend{-99}{agent/Agents, ravel/RAVEL, hep/Model providers, records/Records}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

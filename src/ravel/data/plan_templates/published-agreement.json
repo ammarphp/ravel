@@ -1,0 +1,67 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "published-agreement",
+ "summary": "Published results compared cell by cell under a declared metric.",
+ "priority": 54,
+ "match": {
+  "all": [
+   "claim:agreement"
+  ]
+ },
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "acquire",
+   "kind": "operation",
+   "operation": "acquire-published",
+   "rung": "none",
+   "fields": [
+    {
+     "pointer": "/source_classes",
+     "value": "$source_classes",
+     "authority": "adapter_default",
+     "evidence": "practice:read-only acquisition of metadata, publications and tables within the pre-approval byte bounds"
+    },
+    {
+     "pointer": "/locators",
+     "value": "$locators",
+     "authority": "user_quoted",
+     "evidence": "$locator_fact"
+    }
+   ]
+  },
+  {
+   "key": "tables",
+   "kind": "operation",
+   "operation": "source-tables",
+   "rung": "full"
+  },
+  {
+   "key": "compare",
+   "kind": "operation",
+   "operation": "research-comparison",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "acquire.tables",
+   "to": "tables.tables",
+   "kind": "table",
+   "require": {}
+  },
+  {
+   "from": "tables.tables",
+   "to": "compare.results",
+   "kind": "table",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "compare.comparison",
+   "kind": "table"
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+{
+ "id": "op:literal-calculation",
+ "op": {
+  "do_not_use_when": [
+   "Evaluating formulas over a grid: use formula-grid.",
+   "Uncertainty propagation: use derived-quantities."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/literal-calculation-example --spec specs/literal-calculation.json",
+    "phrase": "Evaluate an exact literal arithmetic expression with a declared unit.",
+    "spec": {
+     "mode": "literal-calculation",
+     "task": {
+      "expression": "2",
+      "parent_contract": {
+       "path": "/ravel-example/parent_contract.json"
+      },
+      "unit": "1"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Exact finite dimensionless arithmetic stated in the request, with a declared result unit.",
+   "A short literal expression with HEP units must be evaluated exactly."
+  ]
+ }
+}

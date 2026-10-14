@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "SLHA-MSSM-observable-conventions",
+  "primary_sources": [
+    {
+      "url": "https://arxiv.org/pdf/hep-ph/0311123",
+      "sections": [
+        "2.4.1",
+        "2.4.2",
+        "3.2",
+        "3.3"
+      ]
+    },
+    {
+      "url": "https://arxiv.org/pdf/0801.0045",
+      "sections": [
+        "4.3"
+      ]
+    },
+    {
+      "url": "https://pdg.lbl.gov/2024/reviews/rpp2024-rev-phys-constants.pdf",
+      "quantity": "hbar*c"
+    },
+    {
+      "url": "https://arxiv.org/pdf/0712.3311",
+      "sections": [
+        "2"
+      ],
+      "quantity": "QNUMBERS electric charge and source-preserving particle code"
+    }
+  ],
+  "equations": {
+    "neutralino": "N* M_N N^dagger = diag(signed real masses), eigenstate rows preserved",
+    "chargino": "U* M_C V^dagger = diag(masses), negative/positive charged bases retained",
+    "lifetime": "c*tau_mm = (0.1973269804 GeV fm)*(1e-12 mm/fm)/Gamma_total_GeV",
+    "mixing_unitarity": "sum_k X_ik conjugate(X_jk) = delta_ij",
+    "partial_width_bookkeeping": "Gamma_partial = BR_channel * supplied Gamma_total; never replace total by sum of listed channels",
+    "electric_charge": "QNUMBERS row1 = 3*Q/e; explicit standard MSSM PDG identities cannot be reassigned"
+  },
+  "cp_conventions": {
+    "real-signed": "Real N/U/V, apparent negative eigenvalues retained with the required SLHA field-phase convention",
+    "complex-positive": "Complex N/U/V, positive masses; omitted IM blocks use the explicit SLHA2 zero default"
+  },
+  "noninferences": [
+    "MSSM pole masses/mixings are supplied or transported from the explicitly accepted released lowMSSM provider; widths require a separate actual source-bound return, with no CMSSM or NMSSM substitution",
+    "No cross section or detector efficiency from squared mixing entries",
+    "Provider mixing prescriptions and loop orders remain explicit source assertions",
+    "No default stable lifetime for missing DECAY",
+    "Integrated decay tables do not establish off-shell/resonant differential phase space"
+  ]
+}

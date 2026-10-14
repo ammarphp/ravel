@@ -1,0 +1,25 @@
+{
+ "id": "op:likelihood-step-refinement",
+ "op": {
+  "do_not_use_when": [
+   "Profile replays: use likelihood-profile-probe.",
+   "Density parity: use likelihood-parity."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/likelihood-step-refinement-example --spec specs/likelihood-step-refinement.json",
+    "phrase": "Check finite-difference step refinement of a likelihood derivative.",
+    "spec": {
+     "mode": "likelihood-step-refinement",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Finite-difference step refinement checks of a likelihood derivative.",
+   "A gradient or curvature must be shown stable under step size."
+  ]
+ }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "ravel-output-markers",
+  "description": "Log signatures per toolchain. A hard error refuses a stage even when it exits 0; an environment marker classes the failure as environment_blocked; a warning is recorded only.",
+  "toolchains": {
+    "pythia": {
+      "hard_errors": ["PYTHIA Abort from", "Pythia init failed", "PYTHIA Error in Pythia::init", "Pythia configuration could not be read", "HepMC event serialization failed"],
+      "warnings": ["PYTHIA Warning in", "PYTHIA Error in"],
+      "environment": ["dyld\\[\\d+\\]: Library not loaded", "error while loading shared libraries", "Abort trap", "Illegal instruction"]
+    },
+    "delphes": {
+      "hard_errors": ["\\*\\* ERROR:", "Error in <TFile::", "segmentation violation", "\\*\\*\\* Break \\*\\*\\*"],
+      "warnings": ["Warning in <"],
+      "environment": ["dyld\\[\\d+\\]: Library not loaded", "error while loading shared libraries", "cannot open shared object file"]
+    },
+    "madgraph": {
+      "hard_errors": ["Command \"launch\" interrupted with error", "Command \"generate_events\" interrupted with error", "INVALID MODEL"],
+      "warnings": ["^.*\\bfail(ed)?\\b.*$", "LHAPDF.*systematics"],
+      "environment": ["No module named", "command not found", "error while loading shared libraries"],
+      "zero_cross_section": ["Cross-section :\\s+0(\\.0+)?(e\\+?0+)? \\+-", "No events passed", "matrix elements are zero"]
+    },
+    "python": {
+      "hard_errors": ["^Traceback \\(most recent call last\\):"],
+      "warnings": [],
+      "environment": ["ModuleNotFoundError", "ImportError: dlopen"]
+    },
+    "hadd": {
+      "hard_errors": ["Error in <TFile", "hadd exiting due to error"],
+      "warnings": [],
+      "environment": ["error while loading shared libraries"]
+    }
+  }
+}

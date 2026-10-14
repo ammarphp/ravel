@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "budget_tokens": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "bundle_sha256": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "card_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "card_sha256": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "items": {
+      "items": {
+        "properties": {
+          "reason": {
+            "pattern": "^(must_read|derive:.+)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "path",
+          "sha256",
+          "reason",
+          "tokens"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "kind": {
+      "const": "knowledge-bundle"
+    },
+    "node_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "omitted": {
+      "items": {
+        "properties": {
+          "reason": {
+            "enum": [
+              "budget",
+              "forbidden",
+              "withheld",
+              "procedural_cap",
+              "unresolved"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_restriction_sha256": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "used_tokens": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "card_id",
+    "card_sha256",
+    "node_id",
+    "items",
+    "omitted",
+    "budget_tokens",
+    "used_tokens",
+    "source_restriction_sha256",
+    "bundle_sha256"
+  ],
+  "title": "bundle",
+  "type": "object"
+}

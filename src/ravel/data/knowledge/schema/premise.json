@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "check": {},
+    "citation": {},
+    "id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operations": {},
+    "predicate": {},
+    "severity": {},
+    "statement": {}
+  },
+  "required": [
+    "id",
+    "statement",
+    "predicate",
+    "operations",
+    "severity",
+    "check",
+    "citation"
+  ],
+  "title": "premise",
+  "type": "object"
+}

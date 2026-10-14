@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ravel:claims/agreement_target",
+  "title": "Agreement-target records for a run's agreement claims",
+  "description": "inputs/agreement_targets.json. One record per agreement claim of the pinned request plan; a second comparator is a second claim. Semantic checks (family, conversion, recipe pins, lattice) live in ravel.validation.agreement_target.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "targets"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "agreement-targets"},
+    "targets": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/target"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locator", "sha256"],
+      "properties": {
+        "locator": {"$ref": "#/$defs/text"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "pins": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/pin"}},
+    "basis": {"enum": ["cross_section", "signal_strength", "event_yield", "acceptance", "efficiency",
+                       "acceptance_times_efficiency", "test_statistic", "probability", "other"]},
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "basis", "unit"],
+      "properties": {
+        "name": {"$ref": "#/$defs/text"},
+        "basis": {"$ref": "#/$defs/basis"},
+        "unit": {"$ref": "#/$defs/text"}
+      }
+    },
+    "node": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"type": "number"}},
+    "nodes": {"type": "array", "minItems": 1, "maxItems": 4096, "items": {"$ref": "#/$defs/node"}},
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "reference", "quantity", "conversion", "family", "nodes", "tolerance_rule",
+                   "noise_model"],
+      "properties": {
+        "claim_id": {"type": "string", "pattern": "^C[0-9]+$"},
+        "compares": {"type": "string", "pattern": "^C[0-9]+$",
+                     "description": "The plan claim whose result this agreement claim compares; required when the plan holds limit claims of more than one family."},
+        "reference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "locator", "pins", "recipe_pins", "claim_id"],
+          "properties": {
+            "kind": {"enum": ["published_result", "published_reproduction", "supplied", "other_claim"]},
+            "locator": {"$ref": "#/$defs/text"},
+            "pins": {"$ref": "#/$defs/pins"},
+            "recipe_pins": {"$ref": "#/$defs/pins"},
+            "claim_id": {"anyOf": [{"type": "null"}, {"type": "string", "pattern": "^C[0-9]+$"}]}
+          }
+        },
+        "quantity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["result", "reference"],
+          "properties": {
+            "result": {"$ref": "#/$defs/quantity"},
+            "reference": {"$ref": "#/$defs/quantity"}
+          }
+        },
+        "conversion": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["from", "to", "definition", "pins"],
+              "properties": {
+                "from": {"$ref": "#/$defs/basis"},
+                "to": {"$ref": "#/$defs/basis"},
+                "definition": {"$ref": "#/$defs/text"},
+                "pins": {"$ref": "#/$defs/pins"}
+              }
+            }
+          ]
+        },
+        "family": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reference"],
+          "properties": {"reference": {"enum": ["observed", "expected", "not_applicable"]}}
+        },
+        "nodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["coordinates", "reference_lattice", "compared"],
+          "properties": {
+            "coordinates": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/text"}},
+            "reference_lattice": {"$ref": "#/$defs/nodes"},
+            "compared": {"$ref": "#/$defs/nodes"}
+          }
+        },
+        "tolerance_rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "threshold", "aggregation", "definition"],
+          "properties": {
+            "metric": {"$ref": "#/$defs/text"},
+            "threshold": {"type": "number", "exclusiveMinimum": 0},
+            "aggregation": {"enum": ["per_node", "fraction_within", "median_abs", "max_abs"]},
+            "definition": {"$ref": "#/$defs/text"}
+          }
+        },
+        "noise_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["definition", "pin"],
+          "properties": {
+            "definition": {"$ref": "#/$defs/text"},
+            "pin": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/pin"}]}
+          }
+        }
+      }
+    }
+  }
+}

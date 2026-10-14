@@ -1,0 +1,3 @@
+# Required separate Linux WMS profile (never merged into host packaging26).
+snakemake==9.27.0
+packaging==25.0

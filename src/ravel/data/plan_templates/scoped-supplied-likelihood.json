@@ -1,0 +1,59 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "scoped-supplied-likelihood",
+ "summary": "A limit on a supplied statistical model through the scoped likelihood adapter.",
+ "priority": 12,
+ "match": {
+  "all": [
+   "claim:exclusion"
+  ],
+  "any": [
+   [
+    "supplied:statistical_model"
+   ]
+  ],
+  "none": [
+   "fan_out"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "model",
+   "provides": {
+    "kind": "statistical_model",
+    "require": {
+     "origin": "requester"
+    }
+   },
+   "source": "requester",
+   "locator": "supplied likelihood workspace",
+   "status": "awaited",
+   "bind": "statistical_model"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "likelihood",
+   "kind": "operation",
+   "operation": "likelihood",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:model",
+   "to": "likelihood.model",
+   "kind": "statistical_model",
+   "require": {
+    "origin": "requester"
+   }
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "likelihood.limits",
+   "kind": "inference"
+  }
+ ]
+}

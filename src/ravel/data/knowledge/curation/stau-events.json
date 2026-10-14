@@ -1,0 +1,25 @@
+{
+ "id": "op:stau-events",
+ "op": {
+  "do_not_use_when": [
+   "General reconstructed-event recipes: use columnar-analysis.",
+   "Detector simulation: use event-production."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/stau-events-example --spec specs/stau-events.json",
+    "phrase": "Project supplied calibrated events onto a hadronic-tau analysis.",
+    "spec": {
+     "mode": "stau-events",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Hadronic-tau analysis projection of supplied calibrated events.",
+   "Tau-object selections on calibrated events are the deliverable."
+  ]
+ }
+}

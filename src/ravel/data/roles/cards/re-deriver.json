@@ -1,0 +1,114 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "specialist-review",
+  "id": "re-deriver",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "specialist"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [
+      "lessons",
+      "other_verdicts",
+      "producer_headline",
+      "producer_numbers",
+      "withheld_sources"
+    ],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "proto:P2"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:physics.normalization_ledger.check",
+    "check:validation.input_closure.check"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "findings.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Independently derive the contracted absolute cross section, yield or analytic quantity from pinned physical inputs before seeing producer numbers. Record the source, units, equation, factors and uncertainty scope for each step.",
+    "Recompute both charge states, multiplicities, branching fractions, luminosity and event-weight conventions where applicable. Never fit a factor to the number being checked.",
+    "For a second-method work order, forbid every method in forbidden_method_nodes and use a distinct derivation. Preserve any disagreement with a prescribed formula and request its disposition; do not silently replace it.",
+    "Return located derivation evidence and the declared comparison tolerance. A disagreement beyond tolerance requests an RCA ticket; this review cannot itself certify a fit using a reference in its input closure.",
+    "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+  ],
+  "purpose": "Independently derive the contracted absolute cross section, yield or analytic quantity from pinned physical inputs before seeing producer numbers. Record the source, units, equation, factors and uncertainty scope for each step.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": true,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-readonly"
+  },
+  "reviewed_by": [],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [
+      "lessons",
+      "other_verdicts",
+      "producer_headline",
+      "producer_numbers",
+      "withheld_sources"
+    ],
+    "profile": "blind"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 200,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 40,
+    "max_wall_seconds": 1200
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/"
+    ],
+    "validators": [
+      "check:validation.input_closure.check"
+    ]
+  },
+  "version": "2.1.0"
+}

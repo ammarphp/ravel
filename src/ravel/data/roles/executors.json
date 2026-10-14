@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "production-executors",
+  "operations": {
+    "authored-analysis": "analysis-author",
+    "columnar-analysis": "analysis-author",
+    "detector-calibration": "detector-calibrator",
+    "event-production": "shower-detector",
+    "formula-grid": "calculation",
+    "inference": "inference",
+    "model-authoring": "model-builder",
+    "model-events": "generator",
+    "model-inputs": "model-builder",
+    "native-likelihood": "inference"
+  },
+  "coordinator": {
+    "role": "coordinator",
+    "host_may": ["plan", "route", "dispatch", "present_checkins", "run_smoke_rungs"],
+    "host_must_not": "edit anything under stages/ at the full or scan rung"
+  },
+  "worker_rungs": ["full", "scan"],
+  "budgets": {"max_turns": 60, "max_wall_seconds": 3600, "max_broker_calls": 400, "max_cost_usd": null}
+}

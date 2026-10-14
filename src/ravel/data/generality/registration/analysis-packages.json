@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "generality-registration",
+  "operations": {
+    "stau-events": {
+      "summary": "Source-bound calibrated-event projection through a supplied analysis package with arbitrary channel populations and requested output members.",
+      "applicability": {"scope": "general"},
+      "required_inputs": ["analysis_package", "calibrated_event_contract", "output"],
+      "adapter": "ravel.physics.stau_adapter",
+      "interfaces": ["validate", "inputs", "project", "project_contract", "run"]
+    },
+    "reco-ntuple-routine": {
+      "summary": "Supplied reconstructed ntuples through discovered, qualified selection packages and explicit branch maps.",
+      "applicability": {"scope": "general"},
+      "required_inputs": ["qualified_analysis_package", "descriptor", "ntuples"]
+    }
+  },
+  "native_admission": {
+    "source": "ravel.physics.native_capabilities.discover_capabilities",
+    "applicability": "A selected, source-bound package has current qualification evidence and explicitly admits every requested model, preparation, detector and statistical binding.",
+    "physics_certification_inferred": false
+  }
+}

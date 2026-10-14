@@ -1,0 +1,28 @@
+{
+ "id": "op:measurement",
+ "op": {
+  "do_not_use_when": [
+   "A differential spectrum with interference terms: use differential-likelihood.",
+   "A request-prescribed statistic: use prescribed-statistic."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/measurement-example --spec specs/measurement.json",
+    "phrase": "Evaluate goodness of fit of a supplied Gaussian measurement model.",
+    "spec": {
+     "mode": "measurement",
+     "task": {
+      "inference": "goodness_of_fit",
+      "input": "inputs/example.json",
+      "schema_version": 1,
+      "signal_strength": 1.0
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Inference with a supplied Gaussian measurement model and covariance (goodness of fit, CLs or a linear fit).",
+   "A measured vector with covariance must be compared with a prediction."
+  ]
+ }
+}

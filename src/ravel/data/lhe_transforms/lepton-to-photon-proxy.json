@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "lhe_transform_rules",
+  "name": "lepton-to-photon-proxy",
+  "rationale": "Events generated with a lepton-in-proton PDF carry an incoming charged lepton. Standard showers expect a photon from the proton; the incoming lepton is relabelled as a massless photon so that initial-state radiation and beam remnants are handled by the photon machinery.",
+  "approximation": "The incoming lepton's charge and lepton number are not carried by the photon. Matrix-element kinematics are unchanged; the shower treats the leg as a photon.",
+  "rules": [
+    {
+      "id": "incoming-leptons",
+      "match": {"status": [-1], "pdg": [11, -11, 13, -13, 15, -15]},
+      "replace_pdg": 22,
+      "mass_gev": 0.0,
+      "declares": ["changes_charge", "changes_lepton_number"],
+      "rationale": "Incoming charged leptons from the proton become photons for the shower."
+    }
+  ]
+}

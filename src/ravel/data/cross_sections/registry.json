@@ -1,0 +1,2272 @@
+{
+ "schema_version": 1,
+ "description": "Pinned LHC SUSY Cross Section Working Group tables (NNLL-fast and Resummino). Values are the published numbers; cite the working group and the tools.",
+ "source": {
+  "repository": "https://github.com/fuenfundachtzig/xsec",
+  "commit": "bb41b85201d9d87761c0d4bb73e3a97392ab8901",
+  "working_group_twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+  "retrieved": "2026-10-11"
+ },
+ "orders": [
+  "LO",
+  "NLO",
+  "NLO+NLL",
+  "NNLO+NNLL",
+  "aNNLO+NNLL"
+ ],
+ "tables": [
+  {
+   "id": "pp13-gluino-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_gluino_NNLO+NNLL.json",
+   "sha256": "9ea69e6bb1c910ea6b5f8073031305e4f2484d0b2b7b9492886ff65edf3a625f",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_gluino_NNLO+NNLL.json",
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": null,
+    "pdf_as_published": "?",
+    "pdf_source": null,
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "squarks decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVgluglu",
+    "reference": null,
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "Gluino-gluino production cross sections with squarks decoupled. Provided by authors of NNLL-fast (arXiv:1607.07741).",
+   "note": null
+  },
+  {
+   "id": "pp13-squark-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_squark_NNLO+NNLL.json",
+   "sha256": "a7bfa0d2177b42899c37804ef4b7bac4a88b8c0c8fceb2a400041204def7e2d8",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_squark_NNLO+NNLL.json",
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NNLO+NNLL",
+    "order_as_published": "NNLO+NNLL",
+    "pdf": null,
+    "pdf_as_published": "?",
+    "pdf_source": null,
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 10,
+   "state_rescaling": "With the gluino decoupled, squark-antisquark production proceeds through flavour-blind s-channel gluon exchange and gluon fusion; the cross section scales with the number of mass-degenerate squark states.",
+   "decoupling": "gluino (and stops) decoupled",
+   "tool": null,
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVsquarkantisquark",
+    "reference": null,
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "Squark-antisquark production cross sections with gluinos (and stops) decoupled. The cross-section values reported here assume a 10-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s, ~b mass degenerate). They have been computed for decoupled gluinos, i. e. in the limit of large gluino masses (and therefore differ from the values in Fig. 1 of arXiv:1607.07741).",
+   "note": "The table is quoted as NNLO+NNLL; with a decoupled gluino only squark-antisquark production contributes."
+  },
+  {
+   "id": "pp13-stopsbottom-nnlo-nnll-stop",
+   "file": "lhc-susy-wg/pp13_stopsbottom_NNLO+NNLL.json",
+   "sha256": "2f5c2d0b76e205b98831694e33d5e364bb709bc13019ba571fb3127b0ae15e12",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stopsbottom_NNLO+NNLL.json",
+   "basis": "stop_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other squarks and gluino decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom",
+    "reference": "arXiv:1607.07741",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde t\\tilde t^*$, $\\tilde b\\tilde b^*$",
+   "comment": "stop and sbottom production cross sections with squarks and gluinos decoupled, decoupled regime, provided by the calculation authors, obtained using NNLL-fast, general set-up of calculations as described in arXiv:1607.07741, uncertainties on theory predictions symmetrized",
+   "note": null
+  },
+  {
+   "id": "pp13-stopsbottom-nnlo-nnll-sbottom",
+   "file": "lhc-susy-wg/pp13_stopsbottom_NNLO+NNLL.json",
+   "sha256": "2f5c2d0b76e205b98831694e33d5e364bb709bc13019ba571fb3127b0ae15e12",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stopsbottom_NNLO+NNLL.json",
+   "basis": "sbottom_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other squarks and gluino decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom",
+    "reference": "arXiv:1607.07741",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde t\\tilde t^*$, $\\tilde b\\tilde b^*$",
+   "comment": "stop and sbottom production cross sections with squarks and gluinos decoupled, decoupled regime, provided by the calculation authors, obtained using NNLL-fast, general set-up of calculations as described in arXiv:1607.07741, uncertainties on theory predictions symmetrized",
+   "note": null
+  },
+  {
+   "id": "pp13-gluinosquark-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_gluinosquark_NNLO+NNLL.json",
+   "sha256": "c465335a593b27c32f6fe89d6d35fa78021b2626e0fa8238606cc46a132f16d5",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_gluinosquark_NNLO+NNLL.json",
+   "basis": "gluino_squark_equal_mass",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC15_nnlo_mc_pdfas",
+    "pdf_as_published": "PDF4LHC15_nnlo_mc_pdfas",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusq",
+    "reference": null,
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino-squark production cross sections with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). They have been computed for equal gluino and squark masses. Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15_nnlo_mc_pdfas. The final state does not include contributions from bottom squarks.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ggxsec-nlo-nll",
+   "file": "lhc-susy-wg/pp13_SGmodel_GGxsec_NLO+NLL.json",
+   "sha256": "2098fea3a39e61fd1490931ddd22c49fb11fd7e2087c099e828743ed47623c3c",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_GGxsec_NLO+NLL.json",
+   "basis": "gluino_pair_with_squarks",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "NLO PDF4LHC15",
+    "pdf_as_published": "NLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "Gluino-gluino production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ggxsec-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_SGmodel_GGxsec_NNLO+NNLL.json",
+   "sha256": "82588b0533a633d57e5277a822753cbcff61ed604fb38ec9e39431e2441ca85a",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_GGxsec_NNLO+NNLL.json",
+   "basis": "gluino_pair_with_squarks",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "Gluino-gluino production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-sgxsec-nlo-nll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SGxsec_NLO+NLL.json",
+   "sha256": "86b69306ab0331cd48879ce69ae143b4c28c9d199dd729afaf54071ab25d8e72",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SGxsec_NLO+NLL.json",
+   "basis": "gluino_squark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "NLO PDF4LHC15",
+    "pdf_as_published": "NLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino-squark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-sgxsec-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SGxsec_NNLO+NNLL.json",
+   "sha256": "8a3b853331c4d8aa240ae7f7518911a22732353c1e19ff64c1988903b5dd3eca",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SGxsec_NNLO+NNLL.json",
+   "basis": "gluino_squark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino-squark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ssbxsec-nlo-nll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SSBxsec_NLO+NLL.json",
+   "sha256": "a84556ea861f75ff37424a9cf538dda1f6ba4cdc77b78f20128a740ec6c8e25c",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SSBxsec_NLO+NLL.json",
+   "basis": "squark_antisquark_with_gluino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "NLO PDF4LHC15",
+    "pdf_as_published": "NLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "Squark-antisquark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ssbxsec-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SSBxsec_NNLO+NNLL.json",
+   "sha256": "de0fe81c37bdc54bc87d275d463034eece335b8c2711f9dd6c38cfcf517aae12",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SSBxsec_NNLO+NNLL.json",
+   "basis": "squark_antisquark_with_gluino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "Squark-antisquark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ssxsec-nlo-nll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SSxsec_NLO+NLL.json",
+   "sha256": "69496c9dc8e4d294389e7dedfbd680a546560110a398b4686ef6a1c320c85e0f",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SSxsec_NLO+NLL.json",
+   "basis": "squark_squark_with_gluino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "NLO PDF4LHC15",
+    "pdf_as_published": "NLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde q\\tilde q$",
+   "comment": "Squark-squark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-sgmodel-ssxsec-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13_SGmodel_SSxsec_NNLO+NNLL.json",
+   "sha256": "c32c8a845a76ad37c227bb1a41cbcad8b6f06cb00f4cc6f6d36e427f5a622ca8",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_SGmodel_SSxsec_NNLO+NNLL.json",
+   "basis": "squark_squark_with_gluino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC15",
+    "pdf_as_published": "NNLO PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "rest of spectrum decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVglusqgluglusqsqsqsqbar",
+    "reference": null,
+    "contact": "rurikova"
+   },
+   "process_latex": "$\\tilde q\\tilde q$",
+   "comment": "Squark-squark production cross sections for the gluino-squark model with the rest of the spectrum decoupled. The cross-section values reported here assume an 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is PDF4LHC15. Contributions from bottom squarks not included.",
+   "note": null
+  },
+  {
+   "id": "pp13-wino-c1c1-nlo-nll",
+   "file": "lhc-susy-wg/pp13_wino_C1C1_NLO+NLL.json",
+   "sha256": "2dc696a98216422c9eb6a5b82e195279bbdc43e551c242721a4bf3a5eb4208b1",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_wino_C1C1_NLO+NLL.json",
+   "basis": "wino_C1C1",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "?",
+    "pdf_source": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVx1x1wino",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": null,
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVx1x1wino",
+    "reference": null,
+    "contact": "LesyaShchutska"
+   },
+   "process_latex": "$\\tilde\\chi_1^+\\tilde\\chi_1^-\\!$ (wino)",
+   "comment": "wino-like chargino-chargino (C1C1) cross sections",
+   "note": null
+  },
+  {
+   "id": "pp13-winop-c1n2-nlo-nll",
+   "file": "lhc-susy-wg/pp13_winop_C1N2_NLO+NLL.json",
+   "sha256": "0cf0a789976b1e1f44e5fe8694e5ede3290f96b2bcea7afbdd56346e553ab389",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_winop_C1N2_NLO+NLL.json",
+   "basis": "wino_C1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "?",
+    "pdf_source": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": null,
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "reference": null,
+    "contact": "LesyaShchutska"
+   },
+   "process_latex": "$\\tilde\\chi_1^+\\tilde\\chi_2^0$ (wino)",
+   "comment": "wino-like chargino-neutralino (N2C1) cross sections",
+   "note": "Chargino and neutralino are mass degenerate (single mass key)."
+  },
+  {
+   "id": "pp13-winom-c1n2-nlo-nll",
+   "file": "lhc-susy-wg/pp13_winom_C1N2_NLO+NLL.json",
+   "sha256": "aa203420079b910e8f271e0b20b7813ae31c9d24474e35a354e4fd186fe58f17",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_winom_C1N2_NLO+NLL.json",
+   "basis": "wino_C1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "?",
+    "pdf_source": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": null,
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "reference": null,
+    "contact": "LesyaShchutska"
+   },
+   "process_latex": "$\\tilde\\chi_1^-\\tilde\\chi_2^0$ (wino)",
+   "comment": "wino-like chargino-neutralino (N2C1) cross sections",
+   "note": "Chargino and neutralino are mass degenerate (single mass key)."
+  },
+  {
+   "id": "pp13-winopm-c1n2-nlo-nll",
+   "file": "lhc-susy-wg/pp13_winopm_C1N2_NLO+NLL.json",
+   "sha256": "0f4223be6fcd7fd9171b7a3bc518e7e156c1ade402f859a622a72fe8705b3dbc",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_winopm_C1N2_NLO+NLL.json",
+   "basis": "wino_C1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "?",
+    "pdf_source": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "scale": null
+   },
+   "charge": "sum",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": null,
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino",
+    "reference": null,
+    "contact": "LesyaShchutska"
+   },
+   "process_latex": "$\\tilde\\chi_1^\\pm\\tilde\\chi_2^0\\,$ (wino)",
+   "comment": "wino-like chargino-neutralino (N2C1) cross sections",
+   "note": "Chargino and neutralino are mass degenerate (single mass key)."
+  },
+  {
+   "id": "pp13-hino-nlo-nll",
+   "file": "lhc-susy-wg/pp13_hino_NLO+NLL.json",
+   "sha256": "2eb858b15bb7bb81beff9ee524d1c610eb1b80484b0d0c624468c1bf7388e132",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_hino_NLO+NLL.json",
+   "basis": "higgsino_degenerate_total",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "PDF4LHC",
+    "pdf_source": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhino",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino, v1.X.X?",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhino",
+    "reference": null,
+    "contact": "LesyaShchutska"
+   },
+   "process_latex": "$\\tilde\\chi\\tilde\\chi$ (higgsino)",
+   "comment": "Higgsino-like Cross Sections (fully-degenerate triplet). The production cross sections are computed at NLO plus next-to-leading-log (NLL) precision in a limit of mass-degenerate higgsino N2, C1 and N1 with all the other sparticles assumed to be heavy and decoupled. Assumes pure higgsino-like pair production and gives the sum of the relevant processes: N1N2, N1C1, N2C1 (=N1C1), C1C1 (N1N1 and N2N2 vanish).",
+   "note": "Sum of N1N2, N1C1, N2C1 and C1C1 for a mass-degenerate pure higgsino triplet."
+  },
+  {
+   "id": "pp13-hinosplit-c1c1-nlo-nll",
+   "file": "lhc-susy-wg/pp13_hinosplit_C1C1_NLO+NLL.json",
+   "sha256": "750fd514b9492995ed43c0f6d018cba4fdbd9c053ff9341c7b1e999cf7f973ea",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_hinosplit_C1C1_NLO+NLL.json",
+   "basis": "higgsino_split_C1C1",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_N2",
+     "key_level": 0
+    },
+    {
+     "name": "m_N1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "CTEQ6.6 and MSTW2008nlo90cl",
+    "pdf_source": "table comment",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhinosplit",
+    "reference": null,
+    "contact": "JoanaMachadoMiguens"
+   },
+   "process_latex": "$\\tilde\\chi_1^+\\tilde\\chi_1^-$ (higgsino)",
+   "comment": "The following cross sections are for pure higgsino-like pair production. They differ from the fully-degenerate case because here not all of the higgsinos are assumed to have the same mass, but there is a mass splitting between the two lightest neutralinos of dM = m(N2) - m(N1), and the mass of the lighter chargino is half-way in between the two neutralinos. These NLO+NLL cross-sections were computed using Resummino and an envelope of the CTEQ6.6 and MSTW2008nlo90cl PDFs. In addition, a dedicated calculation of the branching ratios (BR) of the into two leptons and the into a lepton and neutrino (including the tau lepton(s) where possible) was done with SUSYHit. In this calculation the decays of N2 into C1+X or N1+photon are not allowed. The values are listed in the TWiki.",
+   "note": "Chargino mass half-way between N1 and N2."
+  },
+  {
+   "id": "pp13-hinosplit-c1pn2-nlo-nll",
+   "file": "lhc-susy-wg/pp13_hinosplit_C1pN2_NLO+NLL.json",
+   "sha256": "101fdbe542c5e2aeb342c390992fc1d93c6ebd3b0ca8acea2907eba5f96be05c",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_hinosplit_C1pN2_NLO+NLL.json",
+   "basis": "higgsino_split_C1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_N2",
+     "key_level": 0
+    },
+    {
+     "name": "m_N1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "CTEQ6.6 and MSTW2008nlo90cl",
+    "pdf_source": "table comment",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhinosplit",
+    "reference": null,
+    "contact": "JoanaMachadoMiguens"
+   },
+   "process_latex": "$\\tilde\\chi_1^+\\tilde\\chi_2^0$ (higgsino)",
+   "comment": "The following cross sections are for pure higgsino-like pair production. They differ from the fully-degenerate case because here not all of the higgsinos are assumed to have the same mass, but there is a mass splitting between the two lightest neutralinos of dM = m(N2) - m(N1), and the mass of the lighter chargino is half-way in between the two neutralinos. These NLO+NLL cross-sections were computed using Resummino and an envelope of the CTEQ6.6 and MSTW2008nlo90cl PDFs. In addition, a dedicated calculation of the branching ratios (BR) of the into two leptons and the into a lepton and neutrino (including the tau lepton(s) where possible) was done with SUSYHit. In this calculation the decays of N2 into C1+X or N1+photon are not allowed. The values are listed in the TWiki.",
+   "note": "Chargino mass half-way between N1 and N2."
+  },
+  {
+   "id": "pp13-hinosplit-c1mn2-nlo-nll",
+   "file": "lhc-susy-wg/pp13_hinosplit_C1mN2_NLO+NLL.json",
+   "sha256": "a2f77d9070e2c004f1a934e5c653c916426bffb3f78b9d26a4e5762ecb100d37",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_hinosplit_C1mN2_NLO+NLL.json",
+   "basis": "higgsino_split_C1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_N2",
+     "key_level": 0
+    },
+    {
+     "name": "m_N1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "CTEQ6.6 and MSTW2008nlo90cl",
+    "pdf_source": "table comment",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhinosplit",
+    "reference": null,
+    "contact": "JoanaMachadoMiguens"
+   },
+   "process_latex": "$\\tilde\\chi_1^-\\tilde\\chi_2^0$ (higgsino)",
+   "comment": "The following cross sections are for pure higgsino-like pair production. They differ from the fully-degenerate case because here not all of the higgsinos are assumed to have the same mass, but there is a mass splitting between the two lightest neutralinos of dM = m(N2) - m(N1), and the mass of the lighter chargino is half-way in between the two neutralinos. These NLO+NLL cross-sections were computed using Resummino and an envelope of the CTEQ6.6 and MSTW2008nlo90cl PDFs. In addition, a dedicated calculation of the branching ratios (BR) of the into two leptons and the into a lepton and neutrino (including the tau lepton(s) where possible) was done with SUSYHit. In this calculation the decays of N2 into C1+X or N1+photon are not allowed. The values are listed in the TWiki.",
+   "note": "Chargino mass half-way between N1 and N2."
+  },
+  {
+   "id": "pp13-hinosplit-n2n1-nlo-nll",
+   "file": "lhc-susy-wg/pp13_hinosplit_N2N1_NLO+NLL.json",
+   "sha256": "ebc2037b1fbd3e092cc28a7d409fbe23bb89626bdb9de4ffd241f2a224032115",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_hinosplit_N2N1_NLO+NLL.json",
+   "basis": "higgsino_split_N1N2",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "m_N2",
+     "key_level": 0
+    },
+    {
+     "name": "m_N1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "envelope of CTEQ6.6 and MSTW2008nlo90cl (PDF4LHC recommendation)",
+    "pdf_as_published": "CTEQ6.6 and MSTW2008nlo90cl",
+    "pdf_source": "table comment",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVhinosplit",
+    "reference": null,
+    "contact": "JoanaMachadoMiguens"
+   },
+   "process_latex": "$\\tilde\\chi_2^0\\tilde\\chi_1^0$ (higgsino)",
+   "comment": "The following cross sections are for pure higgsino-like pair production. They differ from the fully-degenerate case because here not all of the higgsinos are assumed to have the same mass, but there is a mass splitting between the two lightest neutralinos of dM = m(N2) - m(N1), and the mass of the lighter chargino is half-way in between the two neutralinos. These NLO+NLL cross-sections were computed using Resummino and an envelope of the CTEQ6.6 and MSTW2008nlo90cl PDFs. In addition, a dedicated calculation of the branching ratios (BR) of the into two leptons and the into a lepton and neutrino (including the tau lepton(s) where possible) was done with SUSYHit. In this calculation the decays of N2 into C1+X or N1+photon are not allowed. The values are listed in the TWiki.",
+   "note": "Chargino mass half-way between N1 and N2."
+  },
+  {
+   "id": "pp13-slep-l-nlo-nll",
+   "file": "lhc-susy-wg/pp13_slep_L_NLO+NLL.json",
+   "sha256": "f7b53605e8ff8a81e737570e4ef509dac94e52ddb8eb7ef83f526e30619d8465",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_slep_L_NLO+NLL.json",
+   "basis": "slepton_L_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "CT10nlo",
+    "pdf_as_published": "CT10nlo",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino, v1.X.X?",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVslepslep",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_L\\tilde \\ell_L$",
+   "comment": "slepton-pair cross sections (partners of left-handed leptons)",
+   "note": "Any single generation (LHC SUSY WG twiki)."
+  },
+  {
+   "id": "pp13-slep-r-nlo-nll",
+   "file": "lhc-susy-wg/pp13_slep_R_NLO+NLL.json",
+   "sha256": "7b41b1a22aefbd084736539271dbdfe491b978b0735cac5ace7acdef9542b533",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_slep_R_NLO+NLL.json",
+   "basis": "slepton_R_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "CT10nlo",
+    "pdf_as_published": "CT10nlo",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino, v1.X.X?",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVslepslep",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_R\\tilde \\ell_R$",
+   "comment": "slepton-pair cross sections (partners of right-handed leptons)",
+   "note": "Any single generation (LHC SUSY WG twiki)."
+  },
+  {
+   "id": "pp13-slep-l-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_slep_L_NLO+NLL_PDF4LHC.json",
+   "sha256": "8889b2774e3fddfa3feafcb6f21082a32662b886631d0caf44f9227938af22db",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_slep_L_NLO+NLL_PDF4LHC.json",
+   "basis": "slepton_L_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_L\\tilde \\ell_L$",
+   "comment": "Slepton-pair cross sections (partners of left-handed leptons). Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties include scale variations (mu_F and mu_R) at 0.5 and 2.0 of nominal values, and pdf uncertainties computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": "Any single generation (LHC SUSY WG twiki)."
+  },
+  {
+   "id": "pp13-slep-r-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_slep_R_NLO+NLL_PDF4LHC.json",
+   "sha256": "48ee3c00bdb24daf3d945f831193650364aa6fa094b56bb1c28cddd2855cb7b5",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_slep_R_NLO+NLL_PDF4LHC.json",
+   "basis": "slepton_R_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_R\\tilde \\ell_R$",
+   "comment": "Slepton-pair cross sections (partners of right-handed leptons). Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties include scale variations (mu_F and mu_R) at 0.5 and 2.0 of nominal values, and pdf uncertainties computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": "Any single generation (LHC SUSY WG twiki)."
+  },
+  {
+   "id": "pp13-slep-lr-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_slep_LR_NLO+NLL_PDF4LHC.json",
+   "sha256": "7f0e5960f7e0dad6781d73a8783a1dcd081c59be9b8327e632662babcd703610",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_slep_LR_NLO+NLL_PDF4LHC.json",
+   "basis": "slepton_LR_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_{L,R}\\tilde \\ell_{L,R}$",
+   "comment": "Slepton-pair cross sections (sum of partners of left- and right-handed leptons). Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties are computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": "Any single generation (LHC SUSY WG twiki)."
+  },
+  {
+   "id": "pp13-stau-l-nlo-nll",
+   "file": "lhc-susy-wg/pp13_stau_L_NLO+NLL.json",
+   "sha256": "e20096a5b50113a07680f027bbc58009193acef9e09b2ad90d93a044a03646fb",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stau_L_NLO+NLL.json",
+   "basis": "stau_L_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "CT10nlo",
+    "pdf_as_published": "CT10nlo",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino, v1.X.X?",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVslepslep",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\tau_L\\tilde \\tau_L$",
+   "comment": "stau-pair cross sections (partners of left-handed tau leptons), same as for other sleptons",
+   "note": null
+  },
+  {
+   "id": "pp13-stau-r-nlo-nll",
+   "file": "lhc-susy-wg/pp13_stau_R_NLO+NLL.json",
+   "sha256": "6f155272d875e7768612716373c788fe82728f93e038747a2c7a06021da43bbc",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stau_R_NLO+NLL.json",
+   "basis": "stau_R_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "CT10nlo",
+    "pdf_as_published": "CT10nlo",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino, v1.X.X?",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVslepslep",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\tau_R\\tilde \\tau_R$",
+   "comment": "stau-pair cross sections (partners of right-handed tau leptons), same as for other sleptons",
+   "note": null
+  },
+  {
+   "id": "pp13-stau-l-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_stau_L_NLO+NLL_PDF4LHC.json",
+   "sha256": "4683abb09cbb04e8c12026225dbdc0c5772d6c6cfb4a2a7809f1dc6db15df88e",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stau_L_NLO+NLL_PDF4LHC.json",
+   "basis": "stau_L_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15_nlo_mc",
+    "pdf_as_published": "PDF4LHC15_nlo_mc",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\tau_L\\tilde \\tau_L$",
+   "comment": "Stau-pair cross sections (partners of left-handed tau leptons), same as for other sleptons. Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties are computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13-stau-r-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_stau_R_NLO+NLL_PDF4LHC.json",
+   "sha256": "9ca2c4c5967f046d1209314500b12a3cab86470235a43ff4a658af38032ed0f7",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stau_R_NLO+NLL_PDF4LHC.json",
+   "basis": "stau_R_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15_nlo_mc",
+    "pdf_as_published": "PDF4LHC15_nlo_mc",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\tau_R\\tilde \\tau_R$",
+   "comment": "Stau-pair cross sections (partners of right-handed tau leptons), same as for other sleptons. Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties are computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13-stau-lr-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_stau_LR_NLO+NLL_PDF4LHC.json",
+   "sha256": "dfd9797a1203cc0dcf630cad015a602cd7fd3d3c7a149bd0de22869866e9d58e",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_stau_LR_NLO+NLL_PDF4LHC.json",
+   "basis": "stau_LR_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15_nlo_mc",
+    "pdf_as_published": "PDF4LHC15_nlo_mc",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\tau_{L,R}\\tilde \\tau_{L,R}$",
+   "comment": "Stau-pair cross sections (sum of partners of left- and right-handed tau leptons), same as for other sleptons. Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties are computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13-snu-snu-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_snu-snu_NLO+NLL_PDF4LHC.json",
+   "sha256": "d4d8dc59713d4e9939a4f3a961dadc0e36012df9a522970c15c3534e0b606df4",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_snu-snu_NLO+NLL_PDF4LHC.json",
+   "basis": "sneutrino_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\nu_{\\ell} \\bar{\\tilde \\nu}_{\\ell}$",
+   "comment": "Sneutrino-pair cross sections (partners of neutrinos). Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties include scale variations (mu_F and mu_R) at 0.5 and 2.0 of nominal values, and pdf uncertainties computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13-snup-slep-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_snuP-slep_NLO+NLL_PDF4LHC.json",
+   "sha256": "e0695b981c1ea1891185c8d48d94307ad62f4aead27b14e1bd7e3f4587c28468",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_snuP-slep_NLO+NLL_PDF4LHC.json",
+   "basis": "slepton_L_sneutrino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_L^{+}\\tilde \\nu_{\\ell}$",
+   "comment": "Slepton+ Sneutrino cross sections. Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties include scale variations (mu_F and mu_R) at 0.5 and 2.0 of nominal values, and pdf uncertainties computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13-snum-slep-nlo-nll-pdf4lhc",
+   "file": "lhc-susy-wg/pp13_snuM-slep_NLO+NLL_PDF4LHC.json",
+   "sha256": "50b820593a167b8cde3982060f6b6c948fb92f05b2e58dc3d97c3340d398cfee",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13_snuM-slep_NLO+NLL_PDF4LHC.json",
+   "basis": "slepton_L_sneutrino",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL",
+    "pdf": "PDF4LHC15",
+    "pdf_as_published": "PDF4LHC15",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino 2.0.1",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": "arXiv:1310.2621",
+    "contact": "mann, cern.ch"
+   },
+   "process_latex": "$\\tilde \\ell_L^{-}\\bar{\\tilde \\nu}_{\\ell}$",
+   "comment": "Slepton- Sneutrino cross sections. Calculated using Resummino at NLO+NLL and the PDF4LHC15 PDF set. Uncertainties include scale variations (mu_F and mu_R) at 0.5 and 2.0 of nominal values, and pdf uncertainties computed at 68 % C.L. using eq. 24 from https://arxiv.org/pdf/1510.03865.pdf.",
+   "note": null
+  },
+  {
+   "id": "pp13600-gluino-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13600_gluino_NNLO+NNLL.json",
+   "sha256": "1465e016b9a5185bb65f038294a3df3f5d13695f1e98978d7575f5bac1032ae5",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_gluino_NNLO+NNLL.json",
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "squarks decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "Gluino-gluino production cross sections for the gluino pair production model with the rest of the squark spectrum decoupled. The cross-section values reported here assume a 10-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s, ~b mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-squark-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13600_squark_NNLO+NNLL.json",
+   "sha256": "450a0086ffcf26c86406b2127fe0d968af1b06df5b8449149f09a6ebce7c6d22",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_squark_NNLO+NNLL.json",
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 10,
+   "state_rescaling": "With the gluino decoupled, squark-antisquark production proceeds through flavour-blind s-channel gluon exchange and gluon fusion; the cross section scales with the number of mass-degenerate squark states.",
+   "decoupling": "gluino decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde q\\tilde q$",
+   "comment": "Squark-squark production cross sections for the squark pair production model with the gluino decoupled. The cross-section values reported here assume a 10-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s, ~b mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": "Described by the source as squark pair production with the gluino decoupled; only squark-antisquark contributes."
+  },
+  {
+   "id": "pp13600-stopsbottom-nnlo-nnll-stop",
+   "file": "lhc-susy-wg/pp13600_stopsbottom_NNLO+NNLL.json",
+   "sha256": "74dac23ca9814f83f611640dc10e2f6b3cbe6260dc4e512b187a4884683b237e",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_stopsbottom_NNLO+NNLL.json",
+   "basis": "stop_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other squarks and gluino decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde t\\tilde t$",
+   "comment": "Stop-antistop (sbottom-antisbottom) production cross sections for the stop (sbottom) pair production model with the resto of squarks and gluino decoupled. Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-stopsbottom-nnlo-nnll-sbottom",
+   "file": "lhc-susy-wg/pp13600_stopsbottom_NNLO+NNLL.json",
+   "sha256": "74dac23ca9814f83f611640dc10e2f6b3cbe6260dc4e512b187a4884683b237e",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_stopsbottom_NNLO+NNLL.json",
+   "basis": "sbottom_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other squarks and gluino decoupled",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde t\\tilde t$",
+   "comment": "Stop-antistop (sbottom-antisbottom) production cross sections for the stop (sbottom) pair production model with the resto of squarks and gluino decoupled. Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-gluinosquark-nnlo-nnll",
+   "file": "lhc-susy-wg/pp13600_gluinosquark_NNLO+NNLL.json",
+   "sha256": "14607ae986a2be037a709b3ed430426a06df9fc61ee0e27a1a77fb88635b856e",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_gluinosquark_NNLO+NNLL.json",
+   "basis": "gluino_squark_equal_mass",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Squark-gluino production cross sections. The cross-section values reported here assume a 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": "Single mass key."
+  },
+  {
+   "id": "pp13600-sgmodel-ggxsec-nnloa-nnll",
+   "file": "lhc-susy-wg/pp13600_SGmodel_GGxsec_NNLOa+NNLL.json",
+   "sha256": "1ef0233e751d9545b6a78abd3985cdf19703b7a2b5c4180e667cab4ba319c4dc",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_SGmodel_GGxsec_NNLOa+NNLL.json",
+   "basis": "gluino_pair_with_squarks",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino pair, squark-antisquark, squark-gluino(+antisquark-gluino), squakr pair (+antisquark pair) production cross sections. The cross-section values reported here assume a 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-sgmodel-sgxsec-nnloa-nnll",
+   "file": "lhc-susy-wg/pp13600_SGmodel_SGxsec_NNLOa+NNLL.json",
+   "sha256": "3eae83a73bde75835389b59c0161c83d700397b6064e14687d92a0e478d72629",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_SGmodel_SGxsec_NNLOa+NNLL.json",
+   "basis": "gluino_squark",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino pair, squark-antisquark, squark-gluino(+antisquark-gluino), squakr pair (+antisquark pair) production cross sections. The cross-section values reported here assume a 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-sgmodel-sbxsec-nnloa-nnll",
+   "file": "lhc-susy-wg/pp13600_SGmodel_SBxsec_NNLOa+NNLL.json",
+   "sha256": "9c9b0499a71c90b851a504988d815352f86b9f6feb2a1e4f3697b8bd01d51ecc",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_SGmodel_SBxsec_NNLOa+NNLL.json",
+   "basis": "squark_antisquark_with_gluino",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino pair, squark-antisquark, squark-gluino(+antisquark-gluino), squakr pair (+antisquark pair) production cross sections. The cross-section values reported here assume a 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-sgmodel-ssxsec-nnloa-nnll",
+   "file": "lhc-susy-wg/pp13600_SGmodel_SSxsec_NNLOa+NNLL.json",
+   "sha256": "f87112598b875a951e44f30dec3b4d990f33fd64ccef8c6122150720b301d243",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_SGmodel_SSxsec_NNLOa+NNLL.json",
+   "basis": "squark_squark_with_gluino",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_gluino",
+     "key_level": 0
+    },
+    {
+     "name": "m_squark",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "NNLO PDF4LHC21",
+    "pdf_as_published": "NNLO PDF4LHC21",
+    "pdf_source": "table",
+    "scale": "renormalization scale equal to factorization scale"
+   },
+   "charge": null,
+   "state_count": 8,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "NNLL-fast",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde g\\tilde q$",
+   "comment": "Gluino pair, squark-antisquark, squark-gluino(+antisquark-gluino), squakr pair (+antisquark pair) production cross sections. The cross-section values reported here assume a 8-fold squark degeneracy (i. e. ~u, ~d, ~c, ~s mass degenerate). Provided by the authors of NNLL-fast (arXiv:1607.07741), including the combined scale and PDF+AlphaS uncertainties. The PDF set used for the calculations is NNLO PDF4LHC21 Hessian (LHAPDF ID 93300), and renormalization scale is set equal to factorization scale.",
+   "note": null
+  },
+  {
+   "id": "pp13600-wino-1000023-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_wino_1000023_1000024_NNLL.json",
+   "sha256": "30ac07e75eebfce6a6e702ff77ac4bec73b7b639bdc322e5602aa2b44969f190",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_wino_1000023_1000024_NNLL.json",
+   "basis": "wino_C1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{+} (wino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-wino-1000023-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_wino_1000023_-1000024_NNLL.json",
+   "sha256": "1e0f620fdc001f20b380305dffc98e09278d99880bcb95cf70cdfe94aeaf781a",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_wino_1000023_-1000024_NNLL.json",
+   "basis": "wino_C1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{-} (wino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-wino-1000024-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_wino_1000024_-1000024_NNLL.json",
+   "sha256": "28891ef1b1dcca41e4cfde74fd93c06c73306970f6f63493d6e9a63eeb8a243d",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_wino_1000024_-1000024_NNLL.json",
+   "basis": "wino_C1C1",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{+}\\tilde{\\chi}_{1}^{-} (wino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-hino-deg-1000022-1000023-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_deg_1000022_1000023_NNLL.json",
+   "sha256": "d79b0e0eee1f581cfaad1c54fa0966bc758b39c929c2131ec22ae771aed7b321",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_deg_1000022_1000023_NNLL.json",
+   "basis": "higgsino_N1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{0}\\tilde{\\chi}_{2}^{0} (higgsino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-hino-deg-1000022-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_deg_1000022_1000024_NNLL.json",
+   "sha256": "f22c6ccc834db350736b4d74938d83778169e6384fc14a4031a7df2b2f597173",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_deg_1000022_1000024_NNLL.json",
+   "basis": "higgsino_C1N1",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{0}\\tilde{\\chi}_{1}^{+}$ (higgsino)",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-hino-deg-1000022-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_deg_1000022_-1000024_NNLL.json",
+   "sha256": "b500a89b1dad734561eea61e534b5dc3ea1bd01134513c57de9727566e6729f3",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_deg_1000022_-1000024_NNLL.json",
+   "basis": "higgsino_C1N1",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{0}\\tilde{\\chi}_{1}^{-} (higgsino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-hino-deg-1000024-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_deg_1000024_-1000024_NNLL.json",
+   "sha256": "253b7d74edf7b3be06cd8aeee8dcc0c38522bdaab81b7ddc24f4b94c74d41d5a",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_deg_1000024_-1000024_NNLL.json",
+   "basis": "higgsino_C1C1",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{+}\\tilde{\\chi}_{1}^{-} (higgsino)$",
+   "comment": null,
+   "note": "Mass-degenerate N1, N2 and C1 (single mass key)."
+  },
+  {
+   "id": "pp13600-hino-nondeg-1000022-1000023-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_nondeg_1000022_1000023_NNLL.json",
+   "sha256": "c1c64ee8e58a44f3229480fa941c3cc3005be42cc58b8d2e6a16bbf93d0e7c33",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_nondeg_1000022_1000023_NNLL.json",
+   "basis": "higgsino_nondegenerate_N1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_N1",
+     "key_level": 0
+    },
+    {
+     "name": "m_C1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{0}\\tilde{\\chi}_{2}^{0} (higgsino)$",
+   "comment": null,
+   "note": "Keys are m(N1) then m(C1); the N2 mass rule is not stated in the table."
+  },
+  {
+   "id": "pp13600-hino-nondeg-1000023-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_nondeg_1000023_1000024_NNLL.json",
+   "sha256": "51a5d3de1fd63366d54eb40fcc5cf333d5f088b9764adb879a60d698f4e63acb",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_nondeg_1000023_1000024_NNLL.json",
+   "basis": "higgsino_nondegenerate_C1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_N1",
+     "key_level": 0
+    },
+    {
+     "name": "m_C1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "plus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{+} (higgsino)$",
+   "comment": null,
+   "note": "Keys are m(N1) then m(C1); the N2 mass rule is not stated in the table."
+  },
+  {
+   "id": "pp13600-hino-nondeg-1000023-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_nondeg_1000023_-1000024_NNLL.json",
+   "sha256": "2d0ed67397b4e36e3e77d30ab8b22242b5c191d8ab6f34f2fbef882bc3576478",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_nondeg_1000023_-1000024_NNLL.json",
+   "basis": "higgsino_nondegenerate_C1N2",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_N1",
+     "key_level": 0
+    },
+    {
+     "name": "m_C1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": "minus",
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{-} (higgsino)$",
+   "comment": null,
+   "note": "Keys are m(N1) then m(C1); the N2 mass rule is not stated in the table."
+  },
+  {
+   "id": "pp13600-hino-nondeg-1000024-1000024-nnll",
+   "file": "lhc-susy-wg/pp13600_hino_nondeg_1000024_-1000024_NNLL.json",
+   "sha256": "579afccf2f881a1d26800d4c6225a378cfa432b6a62d5b7caef62bb05e8b6c9d",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_hino_nondeg_1000024_-1000024_NNLL.json",
+   "basis": "higgsino_nondegenerate_C1C1",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "m_N1",
+     "key_level": 0
+    },
+    {
+     "name": "m_C1",
+     "key_level": 1
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\chi}_{1}^{+}\\tilde{\\chi}_{1}^{-} (higgsino)$",
+   "comment": null,
+   "note": "Keys are m(N1) then m(C1); the N2 mass rule is not stated in the table."
+  },
+  {
+   "id": "pp13600-sleptons-1000011-1000011-nnll",
+   "file": "lhc-susy-wg/pp13600_sleptons_1000011_-1000011_NNLL.json",
+   "sha256": "4f7ffccc37de3d0457565edf28d0a0fa17cdfd3c42057e86c931b7c75676be6f",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_sleptons_1000011_-1000011_NNLL.json",
+   "basis": "slepton_L_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{e}_{L}^{-}\\tilde{e}_{L}^{+}$",
+   "comment": null,
+   "note": "Selectron pair (one generation)."
+  },
+  {
+   "id": "pp13600-sleptons-2000011-2000011-nnll",
+   "file": "lhc-susy-wg/pp13600_sleptons_2000011_-2000011_NNLL.json",
+   "sha256": "4a805c51188a7d04130ddc54538fe045b9797156c731ab2284ba36463c7c5b8d",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_sleptons_2000011_-2000011_NNLL.json",
+   "basis": "slepton_R_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{e}_{R}^{-}\\tilde{e}_{R}^{+}$",
+   "comment": null,
+   "note": "Selectron pair (one generation)."
+  },
+  {
+   "id": "pp13600-sleptons-1000015-1000015-nnll",
+   "file": "lhc-susy-wg/pp13600_sleptons_1000015_-1000015_NNLL.json",
+   "sha256": "8b45111acc20ab0cde93286b8f753205b19d163506fff7ffd4e9d35d525a58c3",
+   "source_url": "https://raw.githubusercontent.com/fuenfundachtzig/xsec/bb41b85201d9d87761c0d4bb73e3a97392ab8901/json/pp13600_sleptons_1000015_-1000015_NNLL.json",
+   "basis": "stau_1_pair",
+   "sqrt_s_GeV": 13600,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "aNNLO+NNLL",
+    "order_as_published": "NNLOapprox+NNLL",
+    "pdf": "PDF4LHC21_40",
+    "pdf_as_published": "PDF4LHC21_40",
+    "pdf_source": "table",
+    "scale": null
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "",
+   "tool": "Resummino-resummino 3.1.1-dev",
+   "citation": {
+    "working_group": "LHC SUSY Cross Section Working Group",
+    "twiki": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections",
+    "reference": null,
+    "contact": "LHC SUSY cross-section working group"
+   },
+   "process_latex": "$\\tilde{\\tau}_{1}^{-}\\tilde{\\tau}_{1}^{+}$",
+   "comment": null,
+   "note": null
+  }
+ ],
+ "aliases": [
+  {
+   "basis": "wino_C1N1",
+   "target": "wino_C1N2",
+   "rule": "In a pure-wino spectrum the neutral wino partner of C1 is labelled N1 when the wino is the lightest state and N2 when a bino is lighter; the tabulated pure-wino C1-N2 cross section applies to C1-N1 with m = m(C1)."
+  },
+  {
+   "basis": "higgsino_N2N3",
+   "target": "higgsino_N1N2",
+   "rule": "With a lighter bino, the two neutral higgsinos are labelled N2 and N3; the tabulated pure-higgsino neutral pair applies with m = common higgsino mass."
+  },
+  {
+   "basis": "higgsino_C1N2",
+   "target": "higgsino_C1N1",
+   "rule": "For a mass-degenerate pure higgsino triplet the source states sigma(N2 C1) = sigma(N1 C1) (LHC SUSY WG higgsino twiki)."
+  }
+ ],
+ "gaps": [
+  {
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13000,
+   "order": "aNNLO+NNLL",
+   "reason": "The 2024 PDF4LHC21 update is published on the LHC SUSY WG twiki only; the pinned JSON table predates it and does not state its PDF set."
+  },
+  {
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13000,
+   "order": "aNNLO+NNLL",
+   "reason": "Same as the gluino table: PDF4LHC21 values are on the twiki only."
+  },
+  {
+   "basis": "higgsino_C1N1",
+   "sqrt_s_GeV": 13000,
+   "order": "NLO+NLL",
+   "reason": "At 13 TeV the degenerate higgsino processes are published only as a sum; use higgsino_degenerate_total or the split-mass tables."
+  },
+  {
+   "basis": "higgsino_C1C1",
+   "sqrt_s_GeV": 13000,
+   "order": "NLO+NLL",
+   "reason": "Only the summed degenerate table exists."
+  },
+  {
+   "basis": "higgsino_N1N2",
+   "sqrt_s_GeV": 13000,
+   "order": "NLO+NLL",
+   "reason": "Only the summed degenerate table exists."
+  },
+  {
+   "basis": "slepton_LR_pair",
+   "sqrt_s_GeV": 13600,
+   "order": "aNNLO+NNLL",
+   "reason": "Not tabulated; sum the L and R tables explicitly."
+  },
+  {
+   "basis": "sneutrino_pair",
+   "sqrt_s_GeV": 13600,
+   "order": "aNNLO+NNLL",
+   "reason": "Not tabulated in the pinned source."
+  },
+  {
+   "basis": "stau_L_pair",
+   "sqrt_s_GeV": 13000,
+   "order": "NLO+NNLL",
+   "reason": "The NLO+NNLL stau tables are on the twiki only, not in the pinned JSON source."
+  },
+  {
+   "basis": "*",
+   "sqrt_s_GeV": 14000,
+   "order": "*",
+   "reason": "No 14 TeV tables in the pinned source."
+  },
+  {
+   "basis": "*",
+   "sqrt_s_GeV": 8000,
+   "order": "*",
+   "reason": "No 8 TeV tables in the pinned source."
+  },
+  {
+   "basis": "*",
+   "sqrt_s_GeV": "*",
+   "order": "LO",
+   "reason": "The working group does not publish LO tables; use an MG5-computed cross section as a separate source."
+  }
+ ]
+}

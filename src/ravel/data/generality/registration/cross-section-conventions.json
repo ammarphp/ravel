@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "package": "cross-section-conventions",
+  "operations": [
+    {
+      "operation": "cross-section",
+      "module": "ravel.physics.cross_sections",
+      "applicability": {
+        "predicate": "pinned_published_convention_or_supplied_provenance_bound_table",
+        "requires": [
+          "basis",
+          "sqrt_s_GeV",
+          "masses",
+          "convention",
+          "explicit_interpolation_for_supplied_tables"
+        ],
+        "refuses": [
+          "extrapolation",
+          "missing_interpolation_corner",
+          "changed_source_bytes",
+          "implicit_process_denominator"
+        ]
+      },
+      "pure_commands": [
+        "ravel xsec supplied --request",
+        "ravel xsec correct --request"
+      ],
+      "missing_input_reason": "missing_cross_section_input"
+    },
+    {
+      "operation": "lifecycle-scan-aggregation",
+      "module": "ravel.workflow.scan_orchestrator",
+      "applicability": {
+        "predicate": "existing_point_inference_and_explicit_normalization_contract_if_transformation_requested",
+        "requires": [
+          "matching_point_population",
+          "source_normalization",
+          "source_target_conventions",
+          "component_accounting",
+          "justified_response_and_shape_assumptions"
+        ],
+        "refuses": [
+          "implicit_state_conversion",
+          "unaccounted_contamination",
+          "repeat_transformation"
+        ]
+      },
+      "pure_commands": [
+        "ravel scan assemble --normalization-contract",
+        "ravel scan rebase --transformation"
+      ],
+      "missing_input_reason": "missing_production_transformation"
+    }
+  ],
+  "handoffs": {
+    "table_registry": "Keep the qualified published-table registry; selected external calculation tables enter through cross_sections.lookup(request, base=...). No registry mutation is needed.",
+    "agent_paths": "Retire ravel.physics.nlo_xsec:_get from sanctioned and call-site records; the compatibility module has no network effect.",
+    "scan_axes": "Transformation points carry arbitrary named parameters and tags. Aggregation and plotting consumers must read the requested JSON or JSONL format.",
+    "knowledge": "Regenerate the knowledge atlas from the changed canonical instruction sources.",
+    "instruction_bundle": "paths.WORKFLOW_INSTRUCTIONS appends the convention reference through one tuple seam; regenerate sync_instruction_bundle after composition.",
+    "skill_mirror": "Canonical run-scan uses the new supplied-contract flags; sync_skills cannot write the read-only generated mirror in this worktree. The review lane must regenerate it."
+  }
+}

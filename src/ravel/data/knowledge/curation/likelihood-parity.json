@@ -1,0 +1,25 @@
+{
+ "id": "op:likelihood-parity",
+ "op": {
+  "do_not_use_when": [
+   "Verifying candidate profile vectors: use likelihood-candidate-check.",
+   "Step-size sweeps: use likelihood-step-refinement."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/likelihood-parity-example --spec specs/likelihood-parity.json",
+    "phrase": "Compare a likelihood with an independent density at a fixed vector.",
+    "spec": {
+     "mode": "likelihood-parity",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Compare a fixed-vector likelihood with an independent density.",
+   "Two likelihood implementations must agree at declared points."
+  ]
+ }
+}

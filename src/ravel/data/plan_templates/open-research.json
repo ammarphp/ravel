@@ -1,0 +1,25 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "open-research",
+ "summary": "Open research: the host or research coordinator proposes the operations inside an envelope.",
+ "priority": 999,
+ "match": {},
+ "inputs": [],
+ "nodes": [
+  {
+   "key": "envelope",
+   "kind": "envelope",
+   "operation": null,
+   "rung": "none",
+   "implementation": "research-coordinator"
+  }
+ ],
+ "edges": [],
+ "deliverable": [
+  {
+   "from": "envelope.result",
+   "kind": "$deliverable_kind"
+  }
+ ]
+}

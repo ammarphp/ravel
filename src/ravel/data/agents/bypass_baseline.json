@@ -1,0 +1,586 @@
+{
+ "schema_version": 1,
+ "kind": "agent-bypass-baseline",
+ "rule": "Every census row with disposition bypass appears here by (qualname, sink). Entries are only removed, never added: a change that removes a bypass deletes its entry and lowers the ceiling. enforcement: report, block_new, or empty (the G8 pass).",
+ "enforcement": "report",
+ "ceiling": 93,
+ "entries": [
+  {
+   "qualname": "ravel.workflow.agentrivet_checks:Session.start",
+   "sink": "S7",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_provider:GraphLLM._campaign_generate_locked",
+   "sink": "S3",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_provider:GraphLLM._generate",
+   "sink": "S3",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_provider:GraphLLM._generate",
+   "sink": "S6",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_provider:GraphLLM._generate",
+   "sink": "S7",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_runtime:instantiate",
+   "sink": "S5",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.agentrivet_runtime:prepare_source_study",
+   "sink": "S5",
+   "fix_package": "external-applications",
+   "reason": "upstream AgentRivet ReviewLoop control flow and its direct graph calls"
+  },
+  {
+   "qualname": "ravel.workflow.sfitter_application:_advice_node",
+   "sink": "S6",
+   "fix_package": "external-applications",
+   "reason": "SFitter graphs dispatched directly, serialized; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.sfitter_application:execute_skill_graph",
+   "sink": "S3",
+   "fix_package": "external-applications",
+   "reason": "SFitter graphs dispatched directly, serialized"
+  },
+  {
+   "qualname": "ravel.workflow.sfitter_conductor:lead_graph",
+   "sink": "S6",
+   "fix_package": "external-applications",
+   "reason": "SFitter graphs dispatched directly, serialized; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.sfitter_workflow:phase_graph",
+   "sink": "S6",
+   "fix_package": "external-applications",
+   "reason": "SFitter graphs dispatched directly, serialized; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.sfitter_workflow:review_graph",
+   "sink": "S6",
+   "fix_package": "external-applications",
+   "reason": "SFitter graphs dispatched directly, serialized; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.intake_planner:graph_spec",
+   "sink": "S6",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "intake planner instruction literal; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.manuscript_production:execute_writer",
+   "sink": "S3",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "manuscript phases as direct one-node graphs"
+  },
+  {
+   "qualname": "ravel.workflow.manuscript_production:prepare_writer",
+   "sink": "S3",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "manuscript phases as direct one-node graphs"
+  },
+  {
+   "qualname": "ravel.workflow.manuscript_workflow:_prepare",
+   "sink": "S3",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "manuscript phases as direct one-node graphs"
+  },
+  {
+   "qualname": "ravel.workflow.manuscript_workflow:execute_phase",
+   "sink": "S3",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "manuscript phases as direct one-node graphs"
+  },
+  {
+   "qualname": "ravel.workflow.procedure_export:export_for_delivery",
+   "sink": "S7",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "delivery export outside an export-gated effect",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.research_presentation:core",
+   "sink": "S6",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "instruction literal in a presentation node; role card first",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.consult:build",
+   "sink": "S2",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.intake_plan:_builder",
+   "sink": "S2",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate; the walk needs a materialized graph root"
+  },
+  {
+   "qualname": "ravel.workflow.consults:worker_spec",
+   "sink": "S6",
+   "fix_package": "intake-consult-manuscript",
+   "reason": "consult worker instruction literal; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.agent_graph:main",
+   "sink": "S3",
+   "fix_package": "agent-runtime",
+   "reason": "agent-graph command runs unregistered graphs and delivers outside a gated effect",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.agent_graph:main",
+   "sink": "S7",
+   "fix_package": "agent-runtime",
+   "reason": "agent-graph command runs unregistered graphs and delivers outside a gated effect",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.agent_worker:dispatch_map.run",
+   "sink": "S3",
+   "fix_package": "agent-runtime",
+   "reason": "legacy in-process dispatch map beside map_node",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.langgraph_runtime:_generation",
+   "sink": "S2",
+   "fix_package": "agent-runtime",
+   "reason": "LangGraph used outside the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.langgraph_runtime:execute",
+   "sink": "S2",
+   "fix_package": "agent-runtime",
+   "reason": "LangGraph used outside the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.langgraph_runtime:run_state_machine",
+   "sink": "S2",
+   "fix_package": "agent-runtime",
+   "reason": "LangGraph used outside the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.research_cycle:execute_graph",
+   "sink": "S3",
+   "fix_package": "agent-runtime",
+   "reason": "legacy research-cycle graph runner over agent_graph",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.research_cycle:main",
+   "sink": "S3",
+   "fix_package": "agent-runtime",
+   "reason": "legacy research-cycle graph runner over agent_graph",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:answer_graph",
+   "sink": "S3",
+   "fix_package": "tool-gate",
+   "reason": "external answering prepares and delivers outside a delivery-gated effect"
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:answer_graph.answer_one",
+   "sink": "S3",
+   "fix_package": "tool-gate",
+   "reason": "external answering prepares and delivers outside a delivery-gated effect"
+  },
+  {
+   "qualname": "ravel.workflow.cli_agent_host:answer_graph.answer_one",
+   "sink": "S7",
+   "fix_package": "tool-gate",
+   "reason": "external answering prepares and delivers outside a delivery-gated effect"
+  },
+  {
+   "qualname": "ravel.workflow.research_board_discussion:_bind",
+   "sink": "S3",
+   "fix_package": "research-board",
+   "reason": "board meeting Python loop"
+  },
+  {
+   "qualname": "ravel.workflow.research_board_discussion:_spec",
+   "sink": "S6",
+   "fix_package": "research-board",
+   "reason": "board meeting Python loop; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_board_discussion:run",
+   "sink": "S3",
+   "fix_package": "research-board",
+   "reason": "board meeting Python loop"
+  },
+  {
+   "qualname": "ravel.workflow.research_board:producer_graph",
+   "sink": "S2",
+   "fix_package": "research-board",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.research_board:season_graph",
+   "sink": "S2",
+   "fix_package": "research-board",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.rdj_loop:AgentHostDispatcher.dispatch",
+   "sink": "S3",
+   "fix_package": "decision-journal",
+   "reason": "RDJ role calls run directly and are not campaign-charged"
+  },
+  {
+   "qualname": "ravel.workflow.rdj_loop:_payload",
+   "sink": "S6",
+   "fix_package": "decision-journal",
+   "reason": "RDJ role calls run directly and are not campaign-charged; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.rdj:case",
+   "sink": "S2",
+   "fix_package": "decision-journal",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.rdj:role",
+   "sink": "S2",
+   "fix_package": "decision-journal",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:review.dispatch",
+   "sink": "S2",
+   "fix_package": "review-points",
+   "reason": "coordinator review delegation on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_context_followup:preflight",
+   "sink": "S6",
+   "fix_package": "review-points",
+   "reason": "instruction literal in a judgment context node; role card first",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_judgment:execute_role",
+   "sink": "S3",
+   "fix_package": "review-points",
+   "reason": "judgment rotation and its instruction literals"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_judgment:prepare_failed_role",
+   "sink": "S3",
+   "fix_package": "review-points",
+   "reason": "judgment rotation and its instruction literals"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_judgment:prepare_failed_role",
+   "sink": "S6",
+   "fix_package": "review-points",
+   "reason": "judgment rotation and its instruction literals; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_judgment:prepare_role",
+   "sink": "S3",
+   "fix_package": "review-points",
+   "reason": "judgment rotation and its instruction literals"
+  },
+  {
+   "qualname": "ravel.workflow.scientific_judgment:prepare_role",
+   "sink": "S6",
+   "fix_package": "review-points",
+   "reason": "judgment rotation and its instruction literals; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_blueprint:choice_spec",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "instruction literal in a research choice node; role card first",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:actual",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinator decisions run as legacy research-cycle graphs"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:actual",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinator decisions run as legacy research-cycle graphs"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:diagnose",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "diagnose loop with an interrupt inside it"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:diagnose",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "diagnose loop with an interrupt inside it"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:diagnose",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "diagnose loop with an interrupt inside it; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:invoke_extension",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinator decisions run as legacy research-cycle graphs"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:preparation_tool",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinator decisions run as legacy research-cycle graphs"
+  },
+  {
+   "qualname": "ravel.workflow.research_coordinator_decisions:preparation_tool",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinator decisions run as legacy research-cycle graphs"
+  },
+  {
+   "qualname": "ravel.workflow.research_followup:prepare_design_context",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "follow-up ideation; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_followup:run_ideation",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "follow-up ideation"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:_ordinary_approval_gate",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.design_node",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.execute",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.gate",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.opening",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.review_hold",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:coordinate.synthesis",
+   "sink": "S2",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:design.admit",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:design.compile_node",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_orchestrator:run_protocol_stage",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "coordinators on run_state_machine"
+  },
+  {
+   "qualname": "ravel.workflow.research_protocol:context",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "HTTP-only meta-review and context instructions; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_protocol:prepare_meta_review",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "HTTP-only meta-review and context instructions; role card first"
+  },
+  {
+   "qualname": "ravel.workflow.research_tools:_literature_tool",
+   "sink": "S3",
+   "fix_package": "research-loop",
+   "reason": "research tool roles dispatched as direct graphs",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.research_tools:choice_spec",
+   "sink": "S6",
+   "fix_package": "research-loop",
+   "reason": "research tool roles dispatched as direct graphs; role card first",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.science:approve_delegated",
+   "sink": "S7",
+   "fix_package": "research-loop",
+   "reason": "delegated plan approval outside an approve_plan-gated effect",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.physics.backend_driver:drive_stage",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.physics.native_construction:_source_packet",
+   "sink": "S6",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL; role card first"
+  },
+  {
+   "qualname": "ravel.physics.native_construction:prepare_agent_request",
+   "sink": "S3",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL"
+  },
+  {
+   "qualname": "ravel.physics.native_incumbent:prepare_agent_request",
+   "sink": "S3",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL"
+  },
+  {
+   "qualname": "ravel.physics.native_pipeline:execute_plan",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.physics.routine_candidate:prepare_agent_request",
+   "sink": "S3",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL"
+  },
+  {
+   "qualname": "ravel.physics.routine_candidate:prepare_agent_request",
+   "sink": "S6",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL; role card first"
+  },
+  {
+   "qualname": "ravel.physics.routine_evolution:prepare_improvement_request",
+   "sink": "S3",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL"
+  },
+  {
+   "qualname": "ravel.physics.routine_evolution:prepare_improvement_request",
+   "sink": "S6",
+   "fix_package": "execution-lifecycle",
+   "reason": "routine and native construction requests answered outside RAVEL; role card first"
+  },
+  {
+   "qualname": "ravel.plotting.digitize:run_spec",
+   "sink": "S6",
+   "fix_package": "execution-lifecycle",
+   "reason": "instruction literal in the digitizer check node; role card first",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.research_tools:routine_workflow",
+   "sink": "S3",
+   "fix_package": "execution-lifecycle",
+   "reason": "production inside the research loop"
+  },
+  {
+   "qualname": "ravel.workflow.scan_orchestrator:launch_point",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.science:_run_v1",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.science:run",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.scoped:run",
+   "sink": "S7",
+   "fix_package": "execution-lifecycle",
+   "reason": "supervised launch outside a launch-gated effect (or host-plane per \u00a77.4, to be confirmed)",
+   "assignment": "proposed by the census"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.ml_study:build",
+   "sink": "S2",
+   "fix_package": "ml-study",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate; ml-planner and ml-trainer cards are unregistered"
+  },
+  {
+   "qualname": "ravel.workflow.graphs.ml_study:build_item",
+   "sink": "S2",
+   "fix_package": "ml-study",
+   "reason": "registered graph builder merged after the G8 census base; reclassify as a registered_graph sanction or move into the substrate"
+  },
+  {
+   "qualname": "ravel.transports.ravel_loop:RavelLoop.builder",
+   "sink": "S2",
+   "fix_package": "loop-transport",
+   "reason": "ravel_loop per-use builder; awaits per-use builder registration"
+  }
+ ]
+}

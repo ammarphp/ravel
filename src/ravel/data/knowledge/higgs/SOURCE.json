@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "kind": "higgs-reference-source",
+  "status": "installed",
+  "owner_action": "None. The owner approved the download on 2026-10-11 19:55Z. The source PDFs are not redistributed in the repository; fetch_higgs_source() fetches one on demand into a cache outside the repository and verifies its sha256. Re-extraction needs a reviewed table-by-table comparison against the pinned PDFs.",
+  "sources": [
+    {
+      "citation_key": "hxswg-yr4",
+      "url": "https://arxiv.org/pdf/1610.07922",
+      "landing_url": "https://arxiv.org/abs/1610.07922",
+      "expected_filename": "1610.07922.pdf",
+      "scope": "YR4 cross-section and branching-fraction reference; tables fetched, pinned and extracted; see table_locators.",
+      "title": "Handbook of LHC Higgs Cross Sections: 4. Deciphering the Nature of the Higgs Sector (CERN Yellow Reports: Monographs, CERN-2017-002)",
+      "identifiers": "doi:10.23731/CYRM-2017-002; arXiv:1610.07922",
+      "licence": "CC BY 4.0 (http://creativecommons.org/licenses/by/4.0/), as shown on the arXiv abstract page",
+      "bytes": 39898012,
+      "sha256": "0cb773810c6b085a43a185ccb4e498506667de7a1ffa716db456ab40545b8c81"
+    },
+    {
+      "citation_key": "hxswg-13p6",
+      "url": "https://arxiv.org/pdf/2402.09955",
+      "landing_url": "https://arxiv.org/abs/2402.09955",
+      "expected_filename": "2402.09955.pdf",
+      "scope": "13.6 TeV interim cross-section reference; tables fetched, pinned and extracted; see table_locators.",
+      "title": "Ad interim recommendations for the Higgs boson production cross sections at sqrt(s)=13.6 TeV (LHCHWG-2024-001)",
+      "identifiers": "arXiv:2402.09955",
+      "licence": "CC BY 4.0 (http://creativecommons.org/licenses/by/4.0/), as shown on the arXiv abstract page",
+      "bytes": 160706,
+      "sha256": "013843299525142c64d420ff7c7adfeb6ddca6498f6b2c6808a6e5ea86860fac"
+    }
+  ],
+  "expected_files": [
+    "higgs-reference-tables.json"
+  ],
+  "download_size": {
+    "verified_bytes": 40058718,
+    "documentation_estimate": null,
+    "reason": "Measured from the pinned files (Content-Length matches); the files are fetched on demand, not stored in the repository.",
+    "planning_allowance_bytes": 20971520,
+    "planning_allowance_scope": "The earlier 20 MiB planning allowance was exceeded: the YR4 PDF alone is 39,898,012 bytes."
+  },
+  "would_make_possible": "Source-cited Higgs cross-section lookup for ggF and VBF at 13 and 13.6 TeV, branching-fraction lookup, declared uncertainty checks and independently recomputed table ratios after source extraction and review.",
+  "table": {
+    "path": "higgs-reference-tables.json",
+    "sha256": "6088e1afc182ff837a19769c9e5e9e3738f4c2d6e3eb7abedf62a23e35b29d89"
+  },
+  "source_files": [
+    {
+      "path": "1610.07922.pdf",
+      "url": "https://arxiv.org/pdf/1610.07922",
+      "sha256": "0cb773810c6b085a43a185ccb4e498506667de7a1ffa716db456ab40545b8c81",
+      "bytes": 39898012
+    },
+    {
+      "path": "2402.09955.pdf",
+      "url": "https://arxiv.org/pdf/2402.09955",
+      "sha256": "013843299525142c64d420ff7c7adfeb6ddca6498f6b2c6808a6e5ea86860fac",
+      "bytes": 160706
+    }
+  ],
+  "physics_values_installed": true,
+  "acquired": {
+    "date": "2026-10-11",
+    "landing_pages": {
+      "https://arxiv.org/abs/1610.07922": {
+        "bytes": 108649,
+        "sha256": "c9aea84ba2a4cd3a78e09ebd601a0c1a268d004c6b8824095de8e296d21a1d62"
+      },
+      "https://arxiv.org/abs/2402.09955": {
+        "bytes": 44421,
+        "sha256": "316d2efcaa81a8b56e53cc18310cee987227e2dbf708a32f3cc3cd60b7ba2923"
+      }
+    },
+    "method": "HTTPS GET of the two PDF URLs and two abstract pages; text extracted with pypdf, nothing executed from the files"
+  },
+  "table_locators": {
+    "ggF_13TeV_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 712,
+      "table": "Table 189",
+      "source_line": "125.0 48 .58 +4.6−6.7 ±3.9 ±3.2 ±1.9 ±2.6"
+    },
+    "ggF_13TeV_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 712,
+      "table": "Table 189",
+      "source_line": "125.09 48 .51 +4.6−6.7 ±3.9 ±3.2 ±1.9 ±2.6"
+    },
+    "VBF_13TeV_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 720,
+      "table": "Table 195",
+      "source_line": "125.0 3782 .0(6) +0.43−0.33 ±2.1/± 0.5/± 2.1 3939 .5(7) −5.3 51 .9 1378.1(5)"
+    },
+    "VBF_13TeV_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 720,
+      "table": "Table 195",
+      "source_line": "125.09 3779 .0(6) +0.43−0.33 ±2.1/± 0.5/± 2.1 3936 .4(7) −5.3 51 .8 1374.5(5)"
+    },
+    "ggF_13.6TeV_mH125.0": {
+      "file": "2402.09955.pdf",
+      "pdf_page": 6,
+      "table": "Table 1",
+      "source_line": "125.00 5.223E+01 +4.6 -6.7 ±3.9 ±3.2 ±1.9 ±2.6"
+    },
+    "ggF_13.6TeV_mH125.09": {
+      "file": "2402.09955.pdf",
+      "pdf_page": 6,
+      "table": "Table 1",
+      "source_line": "125.09 5.217E+01 +4.6 -6.7 ±3.9 ±3.2 ±1.9 ±2.6"
+    },
+    "VBF_13.6TeV_mH125.0": {
+      "file": "2402.09955.pdf",
+      "pdf_page": 7,
+      "table": "Table 2",
+      "source_line": "125 4.078 +0.5 -0.3 ±2.1 ±2.1 ±0.5"
+    },
+    "VBF_13.6TeV_mH125.09": {
+      "file": "2402.09955.pdf",
+      "pdf_page": 7,
+      "table": "Table 2",
+      "source_line": "125.09 4.075 +0.5 -0.3 ±2.1 ±2.1 ±0.5"
+    },
+    "BR_bb_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 696,
+      "table": "Table 174",
+      "source_line": "125.0 5.824·10−1 +0.65 -0.65 +0.72 -0.74 +0.78 -0.80 6.272·10−2 +1.17 -1.16 +0.98 -0.99 +0.62 -0.62"
+    },
+    "BR_tautau_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 696,
+      "table": "Table 174",
+      "source_line": "125.0 5.824·10−1 +0.65 -0.65 +0.72 -0.74 +0.78 -0.80 6.272·10−2 +1.17 -1.16 +0.98 -0.99 +0.62 -0.62"
+    },
+    "BR_bb_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 696,
+      "table": "Table 174",
+      "source_line": "125.09 5.809·10−1 +0.65 -0.65 +0.72 -0.74 +0.77 -0.79 6.256·10−2 +1.17 -1.16 +0.98 -0.98 +0.62 -0.60"
+    },
+    "BR_tautau_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 696,
+      "table": "Table 174",
+      "source_line": "125.09 5.809·10−1 +0.65 -0.65 +0.72 -0.74 +0.77 -0.79 6.256·10−2 +1.17 -1.16 +0.98 -0.98 +0.62 -0.60"
+    },
+    "BR_mumu_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 697,
+      "table": "Table 175",
+      "source_line": "125.0 2.176·10−4 +1.23 -1.23 +0.97 -0.99 +0.59 -0.64 2.891·10−2 +1.20 -1.20 +5.26 -0.98 +1.25 -1.25"
+    },
+    "BR_cc_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 697,
+      "table": "Table 175",
+      "source_line": "125.0 2.176·10−4 +1.23 -1.23 +0.97 -0.99 +0.59 -0.64 2.891·10−2 +1.20 -1.20 +5.26 -0.98 +1.25 -1.25"
+    },
+    "BR_mumu_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 697,
+      "table": "Table 175",
+      "source_line": "125.09 2.171·10−4 +1.23 -1.23 +0.97 -0.99 +0.60 -0.64 2.884·10−2 +1.20 -1.20 +5.27 -0.94 +1.26 -1.25"
+    },
+    "BR_cc_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 697,
+      "table": "Table 175",
+      "source_line": "125.09 2.171·10−4 +1.23 -1.23 +0.97 -0.99 +0.60 -0.64 2.884·10−2 +1.20 -1.20 +5.27 -0.94 +1.26 -1.25"
+    },
+    "BR_gg_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 698,
+      "table": "Table 176",
+      "source_line": "125.0 8.187·10−2 +3.40 -3.41 +1.12 -1.13 +3.69 -3.61 2.270·10−3 +1.73 -1.72 +0.93 -0.99 +0.61 -0.62"
+    },
+    "BR_gammagamma_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 698,
+      "table": "Table 176",
+      "source_line": "125.0 8.187·10−2 +3.40 -3.41 +1.12 -1.13 +3.69 -3.61 2.270·10−3 +1.73 -1.72 +0.93 -0.99 +0.61 -0.62"
+    },
+    "BR_gg_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 698,
+      "table": "Table 176",
+      "source_line": "125.09 8.180·10−2 +3.40 -3.41 +1.12 -1.14 +3.70 -3.59 2.270·10−3 +1.73 -1.72 +0.97 -0.94 +0.66 -0.61"
+    },
+    "BR_gammagamma_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 698,
+      "table": "Table 176",
+      "source_line": "125.09 8.180·10−2 +3.40 -3.41 +1.12 -1.14 +3.70 -3.59 2.270·10−3 +1.73 -1.72 +0.97 -0.94 +0.66 -0.61"
+    },
+    "BR_Zgamma_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 699,
+      "table": "Table 177",
+      "source_line": "125.0 1.533·10−3 +5.71 -5.71 +0.98 -1.01 +0.58 -0.65 2.137·10−1 +0.99 -0.99 +0.99 -0.98 +0.66 -0.63"
+    },
+    "BR_WW_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 699,
+      "table": "Table 177",
+      "source_line": "125.0 1.533·10−3 +5.71 -5.71 +0.98 -1.01 +0.58 -0.65 2.137·10−1 +0.99 -0.99 +0.99 -0.98 +0.66 -0.63"
+    },
+    "BR_Zgamma_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 699,
+      "table": "Table 177",
+      "source_line": "125.09 1.541·10−3 +5.71 -5.71 +0.91 -1.00 +0.58 -0.64 2.152·10−1 +0.99 -0.99 +0.98 -0.98 +0.64 -0.62"
+    },
+    "BR_WW_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 699,
+      "table": "Table 177",
+      "source_line": "125.09 1.541·10−3 +5.71 -5.71 +0.91 -1.00 +0.58 -0.64 2.152·10−1 +0.99 -0.99 +0.98 -0.98 +0.64 -0.62"
+    },
+    "BR_ZZ_mH125.0": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 700,
+      "table": "Table 178",
+      "source_line": "125.0 2.619·10−2 +0.99 -0.99 +0.99 -0.98 +0.66 -0.63 4.088·10−3 +0.73 -0.73 +0.99 -0.98 +0.61 -0.63"
+    },
+    "BR_ZZ_mH125.09": {
+      "file": "1610.07922.pdf",
+      "pdf_page": 700,
+      "table": "Table 178",
+      "source_line": "125.09 2.641·10−2 +0.99 -0.99 +0.98 -0.98 +0.64 -0.62 4.100·10−3 +0.73 -0.73 +0.99 -0.97 +0.60 -0.61"
+    }
+  },
+  "extraction": {
+    "script_sha256": "c58036e3b62b399336df0ba575eea2af23fc72cb8d840e53d0c80c87b950dc0d",
+    "note": "Values are copied from the printed rows; absolute uncertainties are the published percentage times the central value. Mass points: 125.0 and 125.09 GeV. No value is interpolated or computed beyond that product and the four ratio rows."
+  },
+  "licence_notes": "Both sources are CC BY 4.0; cite YR4 and the 13.6 TeV note together whenever the 13.6 TeV values are used, as the note requests.",
+  "redistribution": "Source PDFs are not committed. SOURCE.json keeps their URLs, byte sizes and sha256 values; the extracted tables keep their locators."
+}

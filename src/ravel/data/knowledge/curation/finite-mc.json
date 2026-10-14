@@ -1,0 +1,25 @@
+{
+ "id": "op:finite-mc",
+ "op": {
+  "do_not_use_when": [
+   "A joint profile with a published workspace: use joint-fit.",
+   "Poisson SR/CR models: use statistical-model."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/finite-mc-example --spec specs/finite-mc.json",
+    "phrase": "Build a finite-MC statistical model from a supplied generator-law document.",
+    "spec": {
+     "mode": "finite-mc",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Statistical models of finite Monte Carlo samples under supplied generator laws.",
+   "How MC statistics limit a fit must be modeled explicitly."
+  ]
+ }
+}

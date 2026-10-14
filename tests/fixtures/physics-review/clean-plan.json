@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "source": "Explicitly synthetic fixed-event architecture control; not a physics reproduction",
+  "question": "Does the declared change preserve every channel on complete paired events?",
+  "manipulation": {
+    "variable": "selection implementation",
+    "baseline": "frozen control",
+    "candidate": "candidate implementation"
+  },
+  "fixed_artifacts": [
+    {
+      "path": "recipe.json",
+      "sha256": "16df7b72a51d421a7147fb2f48eacc22c7a32e044fb3d84dde8047112eaceefc"
+    }
+  ],
+  "comparison": {
+    "kind": "paired_events",
+    "baseline": {
+      "path": "data/baseline.json",
+      "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+    },
+    "candidate": {
+      "path": "data/clean.json",
+      "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+    },
+    "basis": {
+      "quantity": "selected_weight",
+      "unit": "1",
+      "normalization": "sum_original_weight",
+      "role": "nominal",
+      "definition": "Declared synthetic two-channel selection on complete fixed events",
+      "channels": [
+        "low",
+        "high"
+      ]
+    },
+    "require_complete_exposure": true
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Each channel agrees within the predeclared ten percent diagnostic margin",
+      "channels": [
+        "low",
+        "high"
+      ],
+      "direction": "equivalent",
+      "relative_tolerance": 0.1
+    }
+  ],
+  "precision": {
+    "max_relative_mc_error": 0.2,
+    "envelope_sigma": 2,
+    "reference_covariance": "required"
+  },
+  "data_use": [
+    {
+      "population_id": "synthetic-events-100",
+      "role": "validation",
+      "artifact": {
+        "path": "data/baseline.json",
+        "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+      }
+    },
+    {
+      "population_id": "synthetic-events-100",
+      "role": "validation",
+      "artifact": {
+        "path": "data/clean.json",
+        "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+      }
+    }
+  ],
+  "budget": {
+    "max_attempts": 1,
+    "max_seconds": 30,
+    "max_new_events": 0
+  },
+  "stopping": {
+    "success": "all_criteria_supported",
+    "failure": "any_criterion_contradicted",
+    "unresolved": "stop_without_conclusion"
+  },
+  "applicability": {
+    "status": "established",
+    "reason": "Same declared synthetic quantity and complete original event population"
+  },
+  "capacity": null
+}

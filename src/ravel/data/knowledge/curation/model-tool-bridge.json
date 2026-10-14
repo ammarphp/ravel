@@ -1,0 +1,25 @@
+{
+ "id": "op:model-tool-bridge",
+ "op": {
+  "do_not_use_when": [
+   "Ward identities of a UFO: use model-ward.",
+   "Event generation: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/model-tool-bridge-example --spec specs/model-tool-bridge.json",
+    "phrase": "Validate the parameters and a tree process of a supplied UFO.",
+    "spec": {
+     "mode": "model-tool-bridge",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "UFO parameter and tree-process validation through MG5.",
+   "A supplied UFO must be shown to load and give tree-level processes."
+  ]
+ }
+}

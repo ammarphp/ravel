@@ -1,0 +1,19 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{Provenance and receipts}{One folder per study holds everything needed to check a result.}
+\tikzset{r/.style={record, box=72mm, minimum height=11mm, anchor=north west}}
+\node[r] (r1) at (5,-24) {\nodetitle{Request and reading}};
+\node[r] (r2) at (5,-39) {\nodetitle{Plan and approvals}};
+\node[r] (r3) at (5,-54) {\nodetitle{Tool versions and receipts}};
+\node[r] (r4) at (5,-69) {\nodetitle{Outputs and figures}};
+\node[r] (r5) at (5,-84) {\nodetitle{Reviews and decisions}};
+\node[b=70mm, minimum height=71mm, draw=rvravelline, fill=rvravelfill, anchor=north west] (rep) at (95,-24)
+  {\nodetitle{Report}\nodesub{every number and figure links to the record that produced it}};
+\foreach \n in {r1,r2,r3,r4,r5} \draw[flow] (\n.east) -- (rep.west |- \n.east);
+\ravellegend{-104}{records/Study records, ravel/Report}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

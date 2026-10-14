@@ -1,0 +1,29 @@
+{
+ "id": "op:domain",
+ "op": {
+  "do_not_use_when": [
+   "Event generation from a UFO: use model-events.",
+   "A whole-parent reinterpretation: use analyze with its inputs."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/domain-example --spec specs/domain.json",
+    "phrase": "Run a bounded model-probe operation on a supplied model artifact.",
+    "spec": {
+     "mode": "domain",
+     "task": {
+      "config": {
+       "events_file": "events/sample.json",
+       "map_file": "maps/efficiency.json"
+      },
+      "domain": "efficiency-map"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A bounded supplied-artifact or fixed phase-space operation such as UFO, EFT, LLP, efficiency-map or detector-response checks.",
+   "The operation is named by a registered domain and runs on supplied artifacts."
+  ]
+ }
+}

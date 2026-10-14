@@ -1,0 +1,25 @@
+{
+ "id": "op:generated-spectrum",
+ "op": {
+  "do_not_use_when": [
+   "A declared simplified spectrum: use simplified-spectrum.",
+   "Mapping a supplied spectrum to observables: use mssm-observable-map."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/generated-spectrum-example --spec specs/generated-spectrum.json",
+    "phrase": "Solve a spectrum from model inputs and write an SLHA file.",
+    "spec": {
+     "mode": "generated-spectrum",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A FlexibleSUSY-generated spectrum solver must produce an SLHA file from model inputs.",
+   "A consistent mass spectrum from soft parameters is required."
+  ]
+ }
+}

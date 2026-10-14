@@ -1,0 +1,118 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "method-performance",
+ "summary": "An authored method trained on a frozen split and evaluated against a baseline on the same samples.",
+ "priority": 70,
+ "match": {
+  "all": [
+   "claim:method_performance"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "dataset",
+   "provides": {
+    "kind": "event_sample",
+    "require": {}
+   },
+   "source": "requester",
+   "locator": "declared dataset with a frozen split",
+   "status": "awaited",
+   "bind": "event_sample"
+  },
+  {
+   "key": "baseline",
+   "provides": {
+    "kind": "selection",
+    "require": {
+     "origin": "published"
+    }
+   },
+   "source": "published",
+   "locator": "baseline classifier on the same inputs",
+   "status": "awaited"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "train",
+   "kind": "authored",
+   "operation": "authored-analysis",
+   "rung": "full",
+   "implementation": "authored-analysis",
+   "authored": {
+    "purpose": "train the requested method on the frozen training split of the declared dataset",
+    "signature": {
+     "basis": [
+      "trained_model"
+     ]
+    },
+    "known_answer_tests": [
+     "the split manifest is frozen before training and disjoint from evaluation",
+     "the baseline is evaluated before any variant"
+    ],
+    "attempt_budget": 3
+   }
+  },
+  {
+   "key": "evaluate",
+   "kind": "operation",
+   "operation": "published-classifier",
+   "rung": "full"
+  },
+  {
+   "key": "baseline",
+   "kind": "operation",
+   "operation": "published-classifier",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:dataset",
+   "to": "train.inputs",
+   "kind": "event_sample",
+   "require": {}
+  },
+  {
+   "from": "train.selection",
+   "to": "evaluate.classifier",
+   "kind": "selection",
+   "require": {}
+  },
+  {
+   "from": "input:dataset",
+   "to": "evaluate.events",
+   "kind": "event_sample",
+   "require": {}
+  },
+  {
+   "from": "input:baseline",
+   "to": "baseline.classifier",
+   "kind": "selection",
+   "require": {
+    "origin": "published"
+   }
+  },
+  {
+   "from": "input:dataset",
+   "to": "baseline.events",
+   "kind": "event_sample",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "evaluate.performance",
+   "kind": "table"
+  }
+ ],
+ "claim_edges": [
+  {
+   "from": "baseline.performance",
+   "slot": "baseline",
+   "kind": "table"
+  }
+ ]
+}

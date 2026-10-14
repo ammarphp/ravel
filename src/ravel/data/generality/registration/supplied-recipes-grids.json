@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "package": "supplied-recipes-grids",
+  "operations": {
+    "svj-recipe": {
+      "descriptor": {
+        "summary": "Compose supplied model axes, analysis metadata, response populations and explicit operative generation/shower conventions.",
+        "applicability": {
+          "scope": "general"
+        }
+      },
+      "applicability_predicate": {
+        "required_inputs": [
+          "task.input",
+          "study_id",
+          "analysis",
+          "axes",
+          "points",
+          "generation_conventions",
+          "coordinate_constraints",
+          "delivery"
+        ],
+        "adapter": "ravel.physics.svj_recipe",
+        "validation": "inputs_for_spec"
+      },
+      "signature_updates": {
+        "scope": "Source-only complete supplied recipe construction; zero events or fits; every future child requires ordinary approval and launch admission."
+      },
+      "knowledge_updates": {
+        "use_when": [
+          "A supplied finite model grid requires complete generation, analysis and response recipe preparation."
+        ],
+        "do_not_use_when": [
+          "Missing operative matching or hidden-sector conventions; request these inputs before preparing generation."
+        ]
+      }
+    },
+    "joint-score": {
+      "descriptor": {
+        "summary": "Fit a supplied finite campaign of accepted source laws with explicit objectives, seeds, comparisons, budgets and solver commitments.",
+        "applicability": {
+          "scope": "general"
+        }
+      },
+      "applicability_predicate": {
+        "required_inputs": [
+          "task.input",
+          "design",
+          "law_prerequisite",
+          "parent_qualification"
+        ],
+        "design_required_inputs": [
+          "study_id",
+          "parameter_grid",
+          "dataset_population",
+          "cases",
+          "objectives",
+          "comparisons",
+          "solver",
+          "fit_protocol",
+          "qualification_scope",
+          "delivery"
+        ],
+        "adapter": "ravel.physics.joint_score",
+        "validation": "inputs"
+      },
+      "signature_updates": {
+        "scope": "Source-law stationary endpoint comparisons under actual accepted prerequisite and registered helper gates; no globality, coverage or physics certification."
+      },
+      "knowledge_updates": {
+        "use_when": [
+          "A supplied fit campaign requires score-continuation fits and independent endpoint comparisons."
+        ],
+        "do_not_use_when": [
+          "No current accepted full-law-gradient prerequisite; qualify and review the supplied source law first."
+        ]
+      }
+    },
+    "model-spectrum-plan": {
+      "command": "ravel model-spectrum grid --request REQUEST --out OUT",
+      "operation": "parameter-grid",
+      "applicability_predicate": {
+        "required_inputs": [
+          "grid.axes",
+          "grid.bindings",
+          "grid.relations",
+          "grid.source_evidence",
+          "grid.dataset_population",
+          "grid.delivery"
+        ],
+        "adapter": "ravel.workflow.model_spectrum_plan",
+        "validation": "grid_request"
+      },
+      "graph_dispatch": "host_preparation",
+      "migration": "Legacy fixed-population preparation requests must supply a parameter-grid specification."
+    }
+  }
+}

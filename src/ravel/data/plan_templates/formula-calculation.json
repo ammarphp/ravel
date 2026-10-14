@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "formula-calculation",
+ "summary": "A stated or located formula evaluated over the requested points.",
+ "priority": 62,
+ "match": {
+  "all": [
+   "claim:calculation"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "formula",
+   "provides": {
+    "kind": "expression",
+    "require": {}
+   },
+   "source": "published",
+   "locator": "formula stated in the request or located in a cited source",
+   "status": "awaited",
+   "bind": "expression"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "evaluate",
+   "kind": "operation",
+   "operation": "formula-grid",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:formula",
+   "to": "evaluate.formula",
+   "kind": "expression",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "evaluate.values",
+   "kind": "binned_values"
+  }
+ ],
+ "fan_out": {
+  "subgraph": [
+   "evaluate"
+  ],
+  "aggregate": "values over the stated grid"
+ }
+}

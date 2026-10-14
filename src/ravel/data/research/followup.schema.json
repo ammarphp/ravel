@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ravel:research-followup:1",
+  "$defs": {
+    "pin": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "object",
+      "properties": {
+        "observable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prediction": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "observable",
+        "scope",
+        "prediction"
+      ],
+      "additionalProperties": false
+    },
+    "reopening": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "new_evidence",
+            "changed_input",
+            "increased_budget"
+          ]
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "gt",
+            "ge"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "field",
+        "op",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "hypothesis": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_signature": {
+          "$ref": "#/$defs/signature"
+        },
+        "kill_condition": {
+          "type": "object",
+          "properties": {
+            "comparison": {
+              "const": "differs"
+            },
+            "observable": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "comparison",
+            "observable"
+          ],
+          "additionalProperties": false
+        },
+        "reopening_trigger": {
+          "$ref": "#/$defs/reopening"
+        },
+        "operator": {
+          "enum": [
+            "limitation_fix",
+            "ablation_refinement",
+            "provocation",
+            "recombination",
+            "technique_transfer"
+          ]
+        },
+        "what_is_new": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "reopening_receipt": {
+          "$ref": "#/$defs/pin"
+        }
+      },
+      "required": [
+        "id",
+        "statement",
+        "identity_signature",
+        "kill_condition",
+        "reopening_trigger",
+        "operator",
+        "what_is_new"
+      ],
+      "additionalProperties": false
+    },
+    "residual": {
+      "type": "object",
+      "properties": {
+        "observable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "predicted": {},
+        "measured": {},
+        "interval": {},
+        "sign": {},
+        "constraint_violated": {}
+      },
+      "required": [
+        "observable",
+        "predicted",
+        "measured",
+        "interval",
+        "sign",
+        "constraint_violated"
+      ],
+      "additionalProperties": false
+    },
+    "selection_rule": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "enum": [
+            "maximize",
+            "minimize"
+          ]
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "k": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "alpha": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "confirmation_criterion": {
+          "type": "object",
+          "properties": {
+            "op": {
+              "enum": [
+                "ge",
+                "le",
+                "eq"
+              ]
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "op",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "direction",
+        "metric",
+        "k",
+        "alpha"
+      ],
+      "additionalProperties": false
+    },
+    "trial": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "$ref": "#/$defs/pin"
+        }
+      },
+      "required": [
+        "id",
+        "candidate",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "selection_request": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "$ref": "#/$defs/selection_rule"
+        },
+        "regime": {
+          "enum": [
+            "closed_scored",
+            "open_exploratory"
+          ]
+        },
+        "trials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trial"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "rule",
+        "regime",
+        "trials"
+      ],
+      "additionalProperties": false
+    },
+    "required_output": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "format": {
+          "enum": [
+            "json",
+            "text"
+          ]
+        },
+        "pointer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "format",
+        "pointer"
+      ],
+      "additionalProperties": false
+    },
+    "stop": {
+      "type": "object",
+      "properties": {
+        "successes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_rounds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "budget": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "coverage_floor": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "families": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "reason": {
+          "enum": [
+            "successes",
+            "max_rounds",
+            "budget",
+            "coverage_unmet"
+          ]
+        }
+      },
+      "required": [
+        "successes",
+        "max_rounds",
+        "budget",
+        "coverage_floor",
+        "families",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "validation_selection": {
+      "type": "object",
+      "properties": {
+        "rule": {
+          "const": "reviewed_dominance"
+        },
+        "comparison": {
+          "$ref": "#/$defs/pin"
+        },
+        "receipt": {
+          "$ref": "#/$defs/pin"
+        },
+        "confirmation_pins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "rdj_receipt": {
+          "$ref": "#/$defs/pin"
+        }
+      },
+      "required": [
+        "rule",
+        "receipt",
+        "confirmation_pins",
+        "rdj_receipt"
+      ],
+      "additionalProperties": false
+    },
+    "allocation_action": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cost": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "outcomes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "nominal_change": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cost_class": {
+          "enum": [
+            "none",
+            "calculation",
+            "stream",
+            "generation"
+          ]
+        },
+        "cost_measurement": {
+          "$ref": "#/$defs/pin"
+        },
+        "exposure": {
+          "enum": [
+            "adaptive_screen",
+            "adaptive_full",
+            "withheld_confirmation"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "cost",
+        "outcomes",
+        "nominal_change"
+      ],
+      "dependentRequired": {
+        "cost_class": [
+          "cost_measurement"
+        ],
+        "cost_measurement": [
+          "cost_class"
+        ]
+      },
+      "additionalProperties": false
+    }
+  }
+}

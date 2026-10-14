@@ -1,0 +1,37 @@
+{
+ "id": "op:statistical-model",
+ "op": {
+  "do_not_use_when": [
+   "Building models for CLs from simple yields: use search-statistics.",
+   "Using a published workspace: use published-model."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/statistical-model-example --spec specs/statistical-model.json",
+    "phrase": "Construct a Poisson SR/CR model and profile declared points.",
+    "spec": {
+     "mode": "statistical-model",
+     "task": {
+      "comparison_points": [
+       {
+        "mu": 0.0
+       },
+       {
+        "mu": 1.0
+       }
+      ],
+      "input": "inputs/example.json",
+      "profile_points": [
+       0.0,
+       1.0
+      ]
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Construct Poisson SR/CR and ABCD models with correlated auxiliaries and frozen comparison points.",
+   "Profile and compare points of a user-built statistical model."
+  ]
+ }
+}

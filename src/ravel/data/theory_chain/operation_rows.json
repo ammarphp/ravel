@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "operation-signatures",
+  "scope": "Seam rows for registered theory-chain modes that have no entry in data/operation_signatures.json. The theory chain reads the registry first; a row here is used only while the registry lacks the operation, and the owner of the registry merges these rows. A signature declares shape, not scientific validity.",
+  "operations": {
+    "model-sources": {
+      "summary": "A SARAH model source derived to a UFO through a trusted source-to-UFO bridge.",
+      "implementation": {"kind": "science-mode", "mode": "model-sources", "module": "ravel.physics.model_sarah"},
+      "consumes": [{"slot": "source", "kind": "expression", "task_pointer": "/task/model"}],
+      "produces": [{"slot": "model", "kind": "model", "require": {"format": "ufo"}}],
+      "effects": ["executes_native"],
+      "cost": {"unit": "task", "forecast": null, "ceiling_pointer": null},
+      "critical_fields": ["/task/model"],
+      "basis": {"adds": [{"element": "authored_code"}], "passes": []},
+      "tools": ["SARAH", "Mathematica"],
+      "stages": ["model-derivation"],
+      "review": {"checks": ["io_contract", "known_answer_tests"]},
+      "fidelity_rank": 1
+    },
+    "feynarts-amplitude": {
+      "summary": "A complete FeynArts diagram population converted to FeynCalc amplitudes for a declared process and loop order.",
+      "implementation": {"kind": "science-mode", "mode": "feynarts-amplitude", "module": "ravel.physics.feynarts_amplitude"},
+      "consumes": [{"slot": "model", "kind": "model"}, {"slot": "process", "kind": "expression", "task_pointer": "/task/process"}],
+      "produces": [{"slot": "amplitude", "kind": "expression"}],
+      "effects": ["executes_native"],
+      "cost": {"unit": "task", "forecast": null, "ceiling_pointer": null},
+      "critical_fields": ["/task/process"],
+      "basis": {"adds": [{"element": "analytic", "from": "derived"}], "passes": ["model"]},
+      "tools": ["FeynArts", "FeynCalc", "Mathematica"],
+      "stages": [],
+      "review": {"checks": ["io_contract", "known_answer_tests"]},
+      "fidelity_rank": 1
+    },
+    "finite-integrals": {
+      "summary": "Finite Feynman integrals evaluated numerically by sector decomposition with pySecDec and FORM.",
+      "implementation": {"kind": "science-mode", "mode": "finite-integrals", "module": "ravel.physics.finite_integrals"},
+      "consumes": [{"slot": "integrals", "kind": "expression", "task_pointer": "/task/config"}],
+      "produces": [{"slot": "values", "kind": "scalar"}, {"slot": "table", "kind": "table"}],
+      "effects": ["executes_native"],
+      "cost": {"unit": "task", "forecast": null, "ceiling_pointer": null},
+      "critical_fields": ["/task/config"],
+      "basis": {"adds": [{"element": "numerical_solver"}], "passes": []},
+      "tools": ["pySecDec", "FORM"],
+      "stages": [],
+      "review": {"checks": ["io_contract", "known_answer_tests"]},
+      "fidelity_rank": 1
+    },
+    "diagrammatica-code": {
+      "summary": "Tree-level partial widths of selected UFO vertices through Diagrammatica code construction, with a tree reference.",
+      "implementation": {"kind": "science-mode", "mode": "diagrammatica-code", "module": "ravel.physics.ufo_decay"},
+      "consumes": [{"slot": "model", "kind": "model", "require": {"format": "ufo"}}],
+      "produces": [{"slot": "widths", "kind": "scalar"}, {"slot": "table", "kind": "table"}],
+      "effects": ["executes_native"],
+      "cost": {"unit": "task", "forecast": null, "ceiling_pointer": null},
+      "critical_fields": ["/task/vertices"],
+      "basis": {"adds": [{"element": "analytic", "from": "derived"}], "passes": ["model"]},
+      "tools": ["HEPTAPOD", "Diagrammatica"],
+      "stages": ["spectrum"],
+      "review": {"checks": ["io_contract", "formula_check_value"]},
+      "fidelity_rank": 1
+    }
+  }
+}

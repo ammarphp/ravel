@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "kind": "operation-registration-fragment",
+  "package": "reviewed-source-records",
+  "operations": [
+    {
+      "mode": "published-model",
+      "applicability": {
+        "scope": "general"
+      },
+      "required_when": {
+        "metadata_reference_differs": [
+          "source_reference_acknowledgment.reviewed_registry",
+          "source_reference_acknowledgment.external_record"
+        ]
+      }
+    },
+    {
+      "mode": "sfitter-native-fit",
+      "applicability": {
+        "scope": "general"
+      },
+      "required_when": {
+        "physical_source_support": [
+          "run_card.source_review"
+        ],
+        "card_derivation_selected": [
+          "card_derivation.repair_manifest"
+        ]
+      }
+    },
+    {
+      "module": "ravel.physics.compressed_validation",
+      "applicability": {
+        "scope": "general"
+      },
+      "required_inputs": [
+        "cutflow-definition",
+        "trace"
+      ],
+      "launches_native": false
+    }
+  ],
+  "schemas": [
+    "source_records/records.schema.json"
+  ],
+  "refusal_classes": [
+    "missing_reviewed_erratum",
+    "missing_repair_manifest",
+    "missing_defect_registry",
+    "missing_input_review",
+    "unresolved_source_defect",
+    "missing_cutflow_definition",
+    "source_scope_mismatch",
+    "normalization_population_mismatch",
+    "invalid_source_record",
+    "missing_output_format",
+    "missing_card_output"
+  ]
+}

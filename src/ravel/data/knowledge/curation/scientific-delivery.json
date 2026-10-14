@@ -1,0 +1,27 @@
+{
+ "id": "op:scientific-delivery",
+ "op": {
+  "do_not_use_when": [
+   "Typesetting a manuscript: this operation delivers a report from captured resources and does not typeset one.",
+   "Producing the results: use the science mode that computes them."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/scientific-delivery-example --spec specs/scientific-delivery.json",
+    "phrase": "Capture primary resources and deliver a report for a supplied portfolio.",
+    "spec": {
+     "mode": "scientific-delivery",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Primary resource capture and report delivery for a supplied portfolio.",
+   "A reviewed result set must be packaged into a report."
+  ]
+ }
+}

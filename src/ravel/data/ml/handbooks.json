@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "kind": "ml-handbook-merge-fragment",
+  "handbooks": [
+    {
+      "id": "hb:ml-training-governance",
+      "title": "Training governance",
+      "license": "Apache-2.0",
+      "content": "Pin datasets, ordered features, model configurations, executed code, split rules and placement before CHECK-IN 1. Hash and explicit modes use three separately pinned files. Cross-fitting hashes groups and rotates validation folds; an event's scoring ensemble excludes that group from training, validation and transform fitting. Test exposure is recorded before evaluation. A zero-read failed reservation can retry; a spent exposure cannot. Inner initializations select by validation loss. Outer seeds measure initialization variation with folds fixed; separate salts measure fold variation. Report both, not a confidence band over independent events. Equal trained-arm budgets mean the same training opportunities, epoch and patience caps, and wall ceiling; report CPU actuals. Inclusive has zero training. Preflight derives region/fold counts from precision and prices every training from a pinned smoke measurement. Missing counts, unpriced campaigns and a changed workload need replanning. Preserve every candidate history, failed toy and zero-acceptance result.",
+      "pitfall_checks": [
+        "check:ml-test-once",
+        "check:ml-statistics-sizing",
+        "check:ml-equal-budget",
+        "check:ml-crossfit-audit",
+        "check:ml-trials-accounting"
+      ],
+      "citations": [
+        "arXiv:1708.02949",
+        "arXiv:1805.02664",
+        "arXiv:1902.02634",
+        "arXiv:2005.02983"
+      ],
+      "citation_status": "Bibliographic locators supplied in the development brief; no excerpts copied or online verification performed."
+    },
+    {
+      "id": "hb:ml-weak-supervision",
+      "title": "Mixtures, weak labels and ranks",
+      "license": "Apache-2.0",
+      "content": "Classification between mixtures can order signal against background when the component distributions are shared and the fractions differ. Equal fractions give no identifiable signal ordering. Region labels are not signal truth. Declare signal and sideband edges, sideband weights and all feature dependencies before training. The resonance variable and its derivatives are forbidden features. Equal sideband weighting balances their contributions; population weighting retains a falling spectrum's imbalance. Neither choice proves independence or removes a general linear feature trend. A per-region marginal quantile transform is fitted on training folds only and pooled only across declared coordinates. It does not establish independence of joint feature distributions and can change under signal contamination. Rank scores on the declared held-out signal-region reference, average validation rotations, then rerank. Apply one data-efficiency threshold over the entire range. Per-bin thresholds hide sculpting. Validate first in simulation, then an independent or orthogonal control region spanning the full gap, then decide unblinding. Overlapping windows share events and require trials accounting.",
+      "pitfall_checks": [
+        "check:ml-label-leakage",
+        "check:ml-sideband-separability",
+        "check:ml-reference-fidelity",
+        "check:ml-trials-accounting"
+      ],
+      "citations": [
+        "arXiv:1708.02949",
+        "arXiv:1805.02664",
+        "arXiv:1902.02634",
+        "arXiv:2005.02983"
+      ],
+      "citation_status": "Bibliographic locators supplied in the development brief; no excerpts copied or online verification performed."
+    },
+    {
+      "id": "hb:ml-sculpting-and-decorrelation",
+      "title": "Selection sculpting and reference controls",
+      "license": "Apache-2.0",
+      "content": "A learned cut changes the inference distribution even when Pearson correlation is small or vanishes. Check sideband separability, efficiency versus sideband bin at every working point, and spurious structure on an independent background-only reference. Use group-aware fold isolation. The current permutation implementation requires one independent row per group; its mean/quadratic moment diagnostic is finite, not a universal independence certificate. Compare the reference's feature and resonance dependence in the sidebands. A mismatched reference cannot certify spurious-signal closure. A quadratic proxy can agree between sidebands while producing a central excess. A shift confined to the signal region is invisible to sideband-only checks. Therefore a null sideband result without a suitable reference leaves the study limited. A learned correction to a detector observable requires a human bespoke_calibration decision and an independently justified correction operation; do not derive it opportunistically to pass a check.",
+      "pitfall_checks": [
+        "check:ml-selection-flatness",
+        "check:ml-spurious-signal",
+        "check:ml-reference-fidelity",
+        "check:ml-observable-support"
+      ],
+      "citations": [
+        "arXiv:1708.02949",
+        "arXiv:1805.02664",
+        "arXiv:1902.02634",
+        "arXiv:2005.02983"
+      ],
+      "citation_status": "Bibliographic locators supplied in the development brief; no excerpts copied or online verification performed."
+    },
+    {
+      "id": "hb:ml-signal-injection",
+      "title": "Injection, evaluation and calibration",
+      "license": "Apache-2.0",
+      "content": "Partition signal groups into disjoint injection and evaluation pools. Exact-count weighted draws use no replacement within a sampling. Retrain every fold, transform and initialization at each strength and sampling. Freeze the complete model set before its one evaluation access. Report signal efficiency separately at every data efficiency and strength, including zero acceptance. Never transfer efficiency between strengths. Declare the median metric before results. An injected-limit prescription using max(limit, injected) requires its monotonicity assumption to be established; this executor does not implement an exclusion-limit prescription or infer a limit from classifier efficiency. Strong injection can saturate efficiency and weak injection can be insensitive; neither outcome disappears from the report. Whole-procedure null toys repeat the learning, thresholds and fit. Failed toys count as extreme and p cannot resolve below 1/(N+1). Conditional injection-response intervals describe randomized draws and folds on fixed supplied pools and the supplied toy ensemble; they do not count samplings or seeds as new independent data and do not establish power over a population of experiments.",
+      "pitfall_checks": [
+        "check:ml-injection-closure",
+        "check:ml-benchmark-localization",
+        "check:ml-null-calibration",
+        "check:ml-claim-scope"
+      ],
+      "citations": [
+        "arXiv:1708.02949",
+        "arXiv:1805.02664",
+        "arXiv:1902.02634",
+        "arXiv:2005.02983"
+      ],
+      "citation_status": "Bibliographic locators supplied in the development brief; no excerpts copied or online verification performed."
+    },
+    {
+      "id": "hb:ml-anomaly-baselines",
+      "title": "Baseline information and budget",
+      "license": "Apache-2.0",
+      "content": "Report an inclusive bump hunt, the frozen reference method, and a truth-supervised oracle ceiling in separate information columns. Inclusive uses efficiency one and no training. The oracle sees information unavailable to a real search and is never an available rival or a member of the search maximum. An independent labelled training pool can define that ceiling when search data contain only background. An idealized anomaly reference can use truth-clean sidebands in a synthetic study; label this additional information. Unsupervised scores still need a justified background estimate and calibrated inference after learning. Compare actual training and epoch counts as well as shared limits; report wall and CPU actuals and per-family configuration counts. Report every declared signal family, strength, null result, insensitive result and failure. Do not average only favourable signals. The receipt's information labels must survive every downstream table and figure.",
+      "pitfall_checks": [
+        "check:ml-equal-budget",
+        "check:ml-claim-scope",
+        "check:ml-fit-adequacy"
+      ],
+      "citations": [
+        "arXiv:1708.02949",
+        "arXiv:1805.02664",
+        "arXiv:1902.02634",
+        "arXiv:2005.02983"
+      ],
+      "citation_status": "Bibliographic locators supplied in the development brief; no excerpts copied or online verification performed."
+    }
+  ],
+  "integration": "Handbook owner adopts these entries into its handbook; this fragment does not register them."
+}

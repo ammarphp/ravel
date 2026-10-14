@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "battery": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "receipt": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "result",
+          "receipt"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "cli_version": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "cost_usd": {
+      "minimum": 0,
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "effort": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "kind": {
+      "const": "role-qualification"
+    },
+    "model_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "recorded_utc": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "role": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    },
+    "role_family": {
+      "enum": [
+        "coordination",
+        "production",
+        "consult",
+        "specialist-review",
+        "governance",
+        "rdj",
+        "investigation",
+        "research",
+        "writing",
+        "upstream"
+      ]
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "qualified",
+        "unqualified",
+        "failed"
+      ]
+    },
+    "transport": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "role_family",
+    "role",
+    "model_id",
+    "transport",
+    "effort",
+    "status",
+    "cli_version",
+    "battery",
+    "cost_usd",
+    "recorded_utc"
+  ],
+  "type": "object"
+}

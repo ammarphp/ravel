@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "qwen-worker",
+  "transport_kind": "cli-worker",
+  "launcher": "qwen",
+  "argv_template": [
+    "qwen",
+    "-p",
+    "{prompt_hint}",
+    "--output-format",
+    "json",
+    "--model",
+    "{model}"
+  ],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "any",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "OPENAI_API_KEY"
+    ],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [
+    "OPENAI_BASE_URL",
+    "OPENAI_MODEL"
+  ],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": false,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "Qwen Code against an OpenAI-compatible endpoint. Declared and stub-tested only."
+}

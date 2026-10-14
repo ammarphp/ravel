@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "operations": [
+    {
+      "id": "figure-comparison",
+      "applicability": {
+        "scope": "general",
+        "predicate": "Selected scan renderer requires pinned scan and plot_spec inputs; plot axes must match supplied data_schema columns and comparison axes; comparison requires a matching reference layer and explicit presentation metadata.",
+        "validator": "ravel.plotting.scan_contour.validate_spec"
+      },
+      "input_contract": {
+        "renderer": "scan_contour",
+        "required": ["scan", "plot_spec"],
+        "axis_interface": "data_schema.columns",
+        "missing_input_code": "missing_plot_input",
+        "axis_mismatch_code": "axis_schema_mismatch"
+      }
+    }
+  ]
+}

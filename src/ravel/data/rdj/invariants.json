@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "kind": "rdj-invariants",
+  "invariants": [
+    {"id": "cls-95-exclusion", "practice": true, "kind": "physics",
+     "statement": "A model point is excluded at 95% confidence level when its observed CLs is below 0.05.",
+     "citation": "A. L. Read, J. Phys. G 28 (2002) 2693; T. Junk, Nucl. Instrum. Meth. A 434 (1999) 435"},
+    {"id": "exclusion-not-discovery", "practice": true, "kind": "code",
+     "statement": "An exclusion result is never reported as a discovery claim.",
+     "enforced_by": "statistics rule; report wording checks"},
+    {"id": "no-invented-physics-inputs", "practice": true, "kind": "code",
+     "statement": "Efficiencies, likelihoods, covariances and k-factors come from declared sources with provenance.",
+     "enforced_by": "task contract and normalization checks"},
+    {"id": "blinded-data-not-presented", "practice": false, "kind": "code",
+     "statement": "Blinded signal-region data is never presented before an authorized unblinding.",
+     "enforced_by": "unblind gate"},
+    {"id": "no-generation-before-approval", "practice": false, "kind": "code",
+     "statement": "No event generation, including a smoke run, runs before the CHECK-IN 1 approval.",
+     "enforced_by": "launch gate"},
+    {"id": "one-native-job", "practice": false, "kind": "code",
+     "statement": "At most one native scientific job runs on a machine at a time.",
+     "enforced_by": "machine lease"},
+    {"id": "action-digest-binding", "practice": false, "kind": "code",
+     "statement": "A gate acts only on bytes whose digest equals the authorized action digest.",
+     "enforced_by": "rdj receipt check at the gate"}
+  ]
+}

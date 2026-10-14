@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "request_digest": "6a33b396cf3aba35da03abc43ea9eaf1c6b6968eabda454923e3b760e371847c",
+  "obligation_ids": [
+    "output-1"
+  ],
+  "required_output": "Determine which fictional mechanism survives a bounded discriminator.",
+  "sufficiency": {
+    "kind": "qualitative",
+    "value": null,
+    "unit": null,
+    "source_text": "Determine which fictional mechanism survives a bounded discriminator."
+  },
+  "validity_domain": "Fictional supplied model and its stated regime",
+  "allowed_approximations": [
+    "Use the supplied simplified law within its domain"
+  ],
+  "family": "open_research",
+  "selected": {
+    "method": "small_prospective_experiment",
+    "rung": 2,
+    "operation": null
+  },
+  "alternatives": [
+    {
+      "method": "analytic_discriminator_or_reuse",
+      "rung": 1,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    }
+  ],
+  "explicit_request": {
+    "requested": false,
+    "quote": null
+  },
+  "cost_forecast": {
+    "status": "historical",
+    "wall_hours": 0.25,
+    "cpu_hours": 0.5,
+    "disk_gb": 0.1,
+    "events": 0,
+    "model_calls": 1,
+    "basis": "Retained observation of the same fictional settings; a historical comparison."
+  },
+  "stopping_criterion": "Stop once the requested output and its stated evidence are delivered.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": [
+      "plan-critic"
+    ]
+  }
+}

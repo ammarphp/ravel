@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "action": "Request independent scientific review of the restored fixed-event recipe",
+  "root": "A",
+  "triggers": [
+    {
+      "kind": "unsupported_step",
+      "reason": "Recipe restoration needs source-bound justification before it can support a comparison"
+    }
+  ],
+  "budget": {
+    "max_nodes": 4,
+    "max_depth": 3
+  },
+  "nodes": [
+    {
+      "id": "A",
+      "assertion": "The fixed recipe declares the event exposure expected by this synthetic comparison",
+      "rationale": "Audit the specific declared evidence instead of relying on aggregate target agreement",
+      "material": true,
+      "assumptions": [],
+      "unknowns": [],
+      "anchors": [],
+      "review": {
+        "reviewer_id": "synthetic-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Fixture-only disposition, not an expert or live reviewer attestation"
+      },
+      "author_id": "synthetic-producer"
+    },
+    {
+      "id": "B",
+      "assertion": "The recipe and both contrast datasets declare one hundred original events",
+      "rationale": "Inspect the exact declaration fields; actual event completeness remains a separate diagnostic obligation",
+      "material": true,
+      "assumptions": [],
+      "unknowns": [],
+      "anchors": [
+        {
+          "kind": "invariant",
+          "artifact": {
+            "path": "recipe.json",
+            "sha256": "16df7b72a51d421a7147fb2f48eacc22c7a32e044fb3d84dde8047112eaceefc"
+          },
+          "format": "json",
+          "location": "/events",
+          "value": 100
+        },
+        {
+          "kind": "invariant",
+          "artifact": {
+            "path": "data/baseline.json",
+            "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+          },
+          "format": "json",
+          "location": "/expected_exposure",
+          "value": 100
+        },
+        {
+          "kind": "invariant",
+          "artifact": {
+            "path": "data/clean.json",
+            "sha256": "fc6f895682448cf8e3b1f80e72789cbca0ccd5886ccd5187e519dbaa668fec62"
+          },
+          "format": "json",
+          "location": "/expected_exposure",
+          "value": 100
+        }
+      ],
+      "review": {
+        "reviewer_id": "synthetic-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Fixture-only disposition, not an expert or live reviewer attestation"
+      },
+      "author_id": "synthetic-producer"
+    }
+  ],
+  "edges": [
+    {
+      "parent": "A",
+      "child": "B",
+      "rationale": "Equal bound declarations establish equal declared exposure; the separate diagnostic evaluates actual complete event matching",
+      "review": {
+        "reviewer_id": "synthetic-fixture-reviewer",
+        "decision": "supported",
+        "reason": "Fixture-only disposition, not an expert or live reviewer attestation"
+      },
+      "request": null,
+      "author_id": "synthetic-producer"
+    }
+  ]
+}

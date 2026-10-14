@@ -1,0 +1,27 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Check-ins}{Two gates where the work stops for you, one notice and the delivery.}
+\tikzset{cell/.style={anchor=north west, align=left, inner sep=0pt, font=\ravelLabelFont, text=rvtext},
+         head/.style={anchor=north west, inner sep=0pt, font=\ravelSmallFont\bfseries, text=rvmuted}}
+\node[head] at (7,-25) {Check-in};
+\node[head] at (53,-25) {What you see};
+\node[head] at (117,-25) {What your answer does};
+\foreach \gate/\see/\unlocks [count=\i from 0] in {
+    {CHECK-IN 1}/{The plan, the budget, numbered assumptions and the published figures to aim for}/{A gate: generation starts only after you approve it},
+    {CHECK-IN 2}/{An early side-by-side comparison at the waypoint agreed at CHECK-IN 1}/{A gate: the bulk of the compute waits for your go},
+    {Deviation check-in}/{A change of course, reported when it happens, with its reason}/{A notice: the run continues; you can object},
+    {Final check-in}/{The results: figures, numbers with their evidence, limitations and the panel verdict}/{You accept the results or ask to revisit a step}} {
+  \pgfmathsetmacro\y{-31 - 17*\i}
+  \draw[line width=0.4pt, draw=rvrecordsline] (5,\y+1.5) -- (165,\y+1.5);
+  \node[chipgate, minimum width=37.8mm, text width=33mm, minimum height=12mm, anchor=north west] at (7,\y-1) {\gate};
+  \node[cell, text width=58mm] at (53,\y-1.6) {\see};
+  \node[cell, text width=46mm] at (117,\y-1.6) {\unlocks};
+}
+\draw[line width=0.4pt, draw=rvrecordsline] (5,-97.5) -- (165,-97.5);
+\node[anchor=north west, font=\ravelSmallFont, text=rvmuted, text width=158mm] at (7,-101)
+  {Nothing is generated before CHECK-IN 1 is approved. An approval covers only what it names; elapsed time is not approval.};
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

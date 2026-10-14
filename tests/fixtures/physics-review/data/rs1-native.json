@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "kind": "estimates",
+  "basis": {
+    "quantity": "four_state_inclusive_fraction",
+    "unit": "1",
+    "normalization": "four_state_inclusive",
+    "role": "nominal",
+    "definition": "Public algebraic acceptance-efficiency product versus native reconstructed fraction; definition alignment unresolved",
+    "channels": [
+      "SR-S-high",
+      "SR-S-low"
+    ]
+  },
+  "covariance": null,
+  "covariance_status": "unavailable",
+  "uncertainty_scope": "Full comparison covariance unavailable; published per-region errors remain source diagnostics",
+  "population_id": "native-m150-m140-anchor20k",
+  "expected_exposure": 20000,
+  "actual_exposure": 20000,
+  "values": [
+    0.002610498866820916,
+    0.001957874150115687
+  ]
+}

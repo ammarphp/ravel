@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "tool-qualification-registration",
+  "package": "supplied-validation-inputs",
+  "target": "native/setup/toolchain-manifest.json",
+  "qualification_projection": {
+    "where": {
+      "qualification.status": [
+        "qualified",
+        "tester-qualification"
+      ]
+    },
+    "set": {
+      "qualification.status": "built-unqualified",
+      "qualification.basis": "Installation detection only; no supplied operation and condition-bound receipt."
+    },
+    "remove": [
+      "qualification.record"
+    ],
+    "preserve": [
+      "installation steps",
+      "readiness checks",
+      "versions",
+      "holds",
+      "required dependencies"
+    ]
+  },
+  "receipt_comparator": {
+    "callable": "ravel.setup.qualification.compare_receipt",
+    "required_scope": [
+      "tool",
+      "versions",
+      "platform",
+      "operation",
+      "conditions"
+    ],
+    "required_inputs": [
+      "receipt",
+      "request",
+      "check evidence bytes"
+    ],
+    "grants_launch_authority": false,
+    "grants_scientific_acceptance": false
+  },
+  "handoff": "Apply narrowed manifest labels without changing installation membership or preserving historical records as qualifications."
+}

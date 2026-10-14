@@ -1,0 +1,13 @@
+# Literal source tables and matrix basis joins
+
+The `source-tables` scientific mode admits pinned HEPData YAML grammar through an explicit source and basis contract. The complete Python setup supplies its required PyYAML dependency; see the [installation guide](../installation.md). The outer scientific envelope must use schema2 and the normal approved scientific-study workflow.
+
+The task is `{ "schema_version": 1, "input": "contract.json", "contract_sha256": "<exact file SHA256>" }`. A contract has kind `primary-table-basis-join/v2`, ordered distributions, exact dependent header/qualifier selections, literal complete independent axes/qualifiers/rows, a separately sourced matrix-label ordering convention, and full original matrix components. Matrix axis qualifiers are explicit even when empty. Source units must agree when provided; empty source units retain an explicitly unadmitted caller annotation. No conversion is performed.
+
+`ravel.physics.source_tables.validate`, `inputs`, and `run` implement the normal adapter seam. Inputs include the contract plus every nested table and basis-evidence file. A fresh worker subdirectory retains source-tables.json, and normal rendering delivers a literal Markdown/JSON table with all source errors and matrix coefficients. Existing or linked output directories are refused. A repeated worker attempt refuses without rewriting its first result or CHECK-IN2.
+
+The parser refuses duplicate YAML keys, aliases, unsafe tags, ambiguous octal/hex/underscored integer tokens and nonfinite coefficients. Boolean yes/on/no/off obey the accepted YAML1.1 tag semantics. Every numeric decimal token remains alongside its exact decimal value. Supplied asymmetric/relative errors remain source error payloads, not covariance or a sampling law.
+
+Every matrix cell is read before any explicit subset/permutation. Original full axes and matrices remain in the artifact together with exact selected indices. Covariance symmetry is checked, never repaired; a rounded component need not be PSD for literal transport. Named systematic components and their source total stay separate, with no automatic summation, PSD clipping or correlation-to-covariance reconstruction.
+
+Successful delivery is source serialization and a caller-declared basis join. Pinning a file does not authenticate its official origin or prove the semantic ordering convention. Neither this mode nor a source-looking header establishes experimental likelihood equivalence, new-model applicability, sparse Gaussian calibration or exclusion. Those require separate source/physics/statistical admission. Converted reference precision must not be substituted for original primary precision.

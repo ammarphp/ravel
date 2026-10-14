@@ -1,0 +1,25 @@
+{
+ "id": "op:weighted-events",
+ "op": {
+  "do_not_use_when": [
+   "Binned predictions directly from a store: use amplitude-predictions.",
+   "Ordinary generated events: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/weighted-events-example --spec specs/weighted-events.json",
+    "phrase": "Write weighted store points as events and analyze them with a routine.",
+    "spec": {
+     "mode": "weighted-events",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Weighted points from a store as LHE or HepMC3 events with named weights, run through a Rivet routine.",
+   "Absolute RAW normalization of weighted amplitude points."
+  ]
+ }
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "scope": "Deterministic scientific precursor checks, no autonomous-agent or physics-validity claim",
+  "cases": [
+    {
+      "id": "clean",
+      "plan": "clean-plan.json",
+      "expected_status": "supported",
+      "expected_review_disposition": "review_required"
+    },
+    {
+      "id": "doubled-normalization",
+      "plan": "doubled-normalization-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST"
+    },
+    {
+      "id": "missing-channels",
+      "plan": "missing-channels-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST"
+    },
+    {
+      "id": "partial-exposure",
+      "plan": "partial-exposure-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST"
+    },
+    {
+      "id": "observed-expected-swap",
+      "plan": "observed-expected-swap-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST"
+    },
+    {
+      "id": "hidden-compensating-shape",
+      "plan": "hidden-compensating-shape-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST"
+    },
+    {
+      "id": "sparse-precision",
+      "plan": "sparse-precision-plan.json",
+      "expected_status": "unresolved",
+      "expected_review_disposition": "UNRESOLVED"
+    },
+    {
+      "id": "clean-optimistic",
+      "plan": "clean-optimistic-plan.json",
+      "expected_status": "supported",
+      "expected_review_disposition": "review_required",
+      "producer_recommendation": "optimistic"
+    },
+    {
+      "id": "clean-skeptical",
+      "plan": "clean-skeptical-plan.json",
+      "expected_status": "supported",
+      "expected_review_disposition": "review_required",
+      "producer_recommendation": "skeptical"
+    },
+    {
+      "id": "hidden-compensating-shape-optimistic",
+      "plan": "hidden-compensating-shape-optimistic-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST",
+      "producer_recommendation": "optimistic"
+    },
+    {
+      "id": "hidden-compensating-shape-skeptical",
+      "plan": "hidden-compensating-shape-skeptical-plan.json",
+      "expected_status": "contradicted",
+      "expected_review_disposition": "ADJUST",
+      "producer_recommendation": "skeptical"
+    }
+  ]
+}

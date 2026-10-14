@@ -1,0 +1,25 @@
+{
+ "id": "op:llp-plane-recipe",
+ "op": {
+  "do_not_use_when": [
+   "Dark-shower grids: use svj-recipe.",
+   "Mapping spectra to lifetimes: use mssm-observable-map."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/llp-plane-recipe-example --spec specs/llp-plane-recipe.json",
+    "phrase": "Declare a mass and lifetime plane recipe for a long-lived particle.",
+    "spec": {
+     "mode": "llp-plane-recipe",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Mass-lifetime plane recipes for long-lived particles.",
+   "A grid of mass and lifetime points must be declared."
+  ]
+ }
+}

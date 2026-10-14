@@ -1,0 +1,13 @@
+# Required Linux ROOT/site analysis profile, separate from site-WMS.
+# Install together with requirements-full.txt, from the actual RAVEL checkout.
+fsspec==2026.9.0
+fsspec-xrootd==0.5.5
+xrootd==6.2.0
+rucio-clients==35.0.0
+# Analysis libraries the agent surface advertises. They are not installed or pinned here: the Linux analysis
+# site supplies them through its LCG view, so their versions are the site's, not RAVEL's.
+# coffea: provided by the site's LCG view, unpinned
+# cabinetry: provided by the site's LCG view, unpinned
+# vector: provided by the site's LCG view, unpinned
+# boost-histogram: provided by the site's LCG view, unpinned
+# pyarrow: provided by the site's LCG view, unpinned

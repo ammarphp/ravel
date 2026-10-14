@@ -1,0 +1,25 @@
+{
+ "id": "op:continuous-fit",
+ "op": {
+  "do_not_use_when": [
+   "Profiling over several function families: use background-discrete-profile.",
+   "A full likelihood evaluation: use native-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/continuous-fit-example --spec specs/continuous-fit.json",
+    "phrase": "Fit an extended exponential in sideband ranges of a supplied spectrum.",
+    "spec": {
+     "mode": "continuous-fit",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Extended exponential fits in signal and control ranges of a supplied spectrum.",
+   "A sideband-driven background estimate with a single smooth function."
+  ]
+ }
+}

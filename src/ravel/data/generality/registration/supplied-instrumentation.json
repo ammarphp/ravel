@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "package": "supplied-instrumentation",
+  "operations": [
+    {
+      "operation": "analysis-response-features",
+      "applicability": {
+        "kind": "supplied_contract",
+        "required_inputs": [
+          "instrumentation",
+          "contracts"
+        ],
+        "predicate": "Selected source instrumentation and complete classifier manifest bind exact original source/model bytes; trace consumption requires matching admitted build/loader custody and a complete supplied event/anchor population.",
+        "scope": "general"
+      },
+      "schema": "docs/reference/analysis-response-features.md",
+      "launch": "existing routine-build and rivet-built admission only",
+      "descriptor_update": {
+        "summary": "Source-selected instrumentation and classifier features from retained observations.",
+        "inputs": [
+          "instrumentation package",
+          "classifier contracts",
+          "complete event population"
+        ],
+        "observables": [
+          "event response",
+          "source features"
+        ],
+        "applicability": {
+          "scope": "general"
+        }
+      }
+    },
+    {
+      "operation": "native-group-acquisition",
+      "applicability": {
+        "kind": "supplied_contract",
+        "required_inputs": [
+          "fill_schema",
+          "reference",
+          "event_inputs",
+          "native_object_inventory"
+        ],
+        "predicate": "Supplied source-bound fill sites, complete output/weight/encounter populations, RAW primitives and declared independent single-subevent grouping reconcile without capping or population truncation.",
+        "scope": "general"
+      },
+      "schema": "docs/reference/native-group-acquisition.md",
+      "launch": "no launch; existing supervised producer custody required",
+      "descriptor_update": {
+        "summary": "Native event-group acquisition with supplied source-bound fill schemas.",
+        "inputs": [
+          "fill schema",
+          "complete source/event/weight populations"
+        ],
+        "observables": [
+          "event-group acquisition"
+        ],
+        "applicability": {
+          "scope": "general"
+        }
+      }
+    },
+    {
+      "operation": "analyze",
+      "component": "native_cumulant",
+      "applicability": {
+        "kind": "supplied_contract",
+        "required_inputs": [
+          "native_cumulant"
+        ],
+        "predicate": "Complete source-selected native-cumulant/v1 final/RAW mapping and reference geometry match the declared routine/runtime; all source/writer pins and native scalar/error states remain.",
+        "scope": "general"
+      },
+      "schema": "docs/reference/native-cumulants.md",
+      "launch": "existing analyze admission only"
+    },
+    {
+      "operation": "response-diagnostic",
+      "applicability": {
+        "kind": "supplied_contract",
+        "required_inputs": [
+          "response_contract"
+        ],
+        "predicate": "Supplied binning, ancestry relations, topology and original event population define a read-only stored-UID response diagnostic.",
+        "scope": "general"
+      },
+      "schema": "docs/workflow/reference/native-pipeline.md",
+      "launch": "no launch"
+    },
+    {
+      "operation": "origin-accounting",
+      "applicability": {
+        "kind": "supplied_contract",
+        "required_inputs": [
+          "origin_accounting"
+        ],
+        "predicate": "Pinned plan supplies ancestry categories, trace prerequisites, channel mapping and artifact identities; existing producer receipts and original-exposure model/patch moments close.",
+        "scope": "general"
+      },
+      "schema": "docs/workflow/reference/native-pipeline.md",
+      "launch": "no launch"
+    }
+  ],
+  "missing_input_reason": "missing_input",
+  "qualification": "Source-format and synthetic software checks confer no native or physics qualification."
+}

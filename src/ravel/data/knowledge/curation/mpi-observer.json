@@ -1,0 +1,25 @@
+{
+ "id": "op:mpi-observer",
+ "op": {
+  "do_not_use_when": [
+   "Paired MPI on/off contrasts: use mpi-paired-effect.",
+   "New showers: use retained-shower."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/mpi-observer-example --spec specs/mpi-observer.json",
+    "phrase": "Qualify an MPI observer from a pinned retained input.",
+    "spec": {
+     "mode": "mpi-observer",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Qualify a multiple-parton-interaction observer on a retained LHE cohort.",
+   "An exact observer input must be checked."
+  ]
+ }
+}

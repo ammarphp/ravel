@@ -1,0 +1,49 @@
+{
+  "axes": {
+    "x": {
+      "name": "p_T",
+      "quantity": "transverse_momentum",
+      "scale": "linear",
+      "unit": "GeV"
+    },
+    "y": {
+      "name": "Events",
+      "quantity": "integrated_count",
+      "scale": "linear",
+      "unit": "events/bin"
+    }
+  },
+  "basis": {
+    "branching_fraction": "not applicable (supplied source)",
+    "energy": "13 TeV",
+    "interference": "not applicable (supplied source)",
+    "model": "supplied software sample",
+    "normalization": "events_per_bin",
+    "production": "supplied source event cohort",
+    "quantity": "integrated histogram counts",
+    "response": "supplied source histogram",
+    "width": "not applicable (supplied source)"
+  },
+  "kind": "plot-coordinate-series",
+  "schema_version": 1,
+  "series": [
+    {
+      "geometry": "bins",
+      "id": "integrated_count",
+      "label": "Supplied count",
+      "records": [
+        {
+          "error_high": 4.0,
+          "error_low": 3.0,
+          "high": 1.0,
+          "id": "bin-1",
+          "low": 0.0,
+          "status": "delivered",
+          "x": 0.5,
+          "y": 10.0
+        }
+      ],
+      "uncertainty_scope": "Supplied asymmetric total errors; synthetic review input"
+    }
+  ]
+}

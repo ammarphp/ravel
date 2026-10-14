@@ -1,0 +1,30 @@
+{
+ "id": "op:coupling-morphing",
+ "op": {
+  "do_not_use_when": [
+   "Exact reweighting from a stored amplitude set: use amplitude-predictions.",
+   "A closed-form formula over a grid: use formula-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/coupling-morphing-example --spec specs/coupling-morphing.json",
+    "phrase": "Synthetic example: a cross section quadratic in two couplings from three runs plus one held-out run.",
+    "source": {
+     "path": "src/ravel/data/inference/examples/coupling-morphing.json",
+     "sha256": "c76c5528e26c4eb3f6b4d1d248bc04fe8e52250cb4f0b63b83c48df67f8bd2e6"
+    },
+    "spec": {
+     "mode": "coupling-morphing",
+     "task": {
+      "input": "src/ravel/data/inference/examples/coupling-morphing.json"
+     }
+    },
+    "validation": "adapter_task_schema"
+   }
+  ],
+  "use_when": [
+   "Fit a polynomial in couplings to cross sections or binned yields from several runs and check a held-out run.",
+   "A continuous coupling dependence must be interpolated with conditioning, closure and covariance."
+  ]
+ }
+}

@@ -1,0 +1,96 @@
+{
+  "status": "complete_independent_coordinator_verification",
+  "method": "NumPy matrix outer product and direct difference-influence variance; no implementation import or ROOT read",
+  "events": 20000,
+  "census_event_ids_weights_labels_join_exact": true,
+  "all_migration_cell_moments_exact": true,
+  "all_16_ratios_and_16x16_covariance_close": true,
+  "max_covariance_absolute_error": 3.2526065174565133e-18,
+  "high_bins": {
+    "nominal": [
+      25,
+      30,
+      88,
+      43,
+      0,
+      0,
+      0,
+      0
+    ],
+    "shadow": [
+      25,
+      29,
+      87,
+      44,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "low_bins": {
+    "nominal": [
+      6,
+      8,
+      21,
+      20,
+      1,
+      0,
+      0,
+      0
+    ],
+    "shadow": [
+      6,
+      8,
+      21,
+      20,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "high_exits": 6,
+  "high_entrants": 5,
+  "high_selected_bin_migrations": 0,
+  "target_delta": {
+    "bin_index": 2,
+    "delta": -0.0028480092996222006,
+    "variance": 7.935078805951885e-05,
+    "standard_error": 0.008907905930100456,
+    "precision_status": "normal_approximation_available",
+    "unavailable_reasons": [],
+    "normal_95_CI": [
+      -0.020307184100289866,
+      0.014611165501045464
+    ]
+  },
+  "nominal_control_whole_objects_and_CSV_byte_identity": true,
+  "actual_flavour_type_capacity_condition_closed": true,
+  "all35_varied_graphs_solved": true,
+  "runtime_paths_within_reviewed_43_dependencies": true,
+  "cumulative_resource_usage": {
+    "elapsed_seconds": 49.91283329098951,
+    "peak_combined_rss_bytes": 970735616,
+    "output_bytes": 4167639,
+    "RJR_invocations": 2,
+    "new_graph_evaluations": 9615,
+    "prior_execution_seconds": 20.780303915962577,
+    "prior_output_bytes": 3025193,
+    "continuation_output_bytes": 1142446,
+    "output_bytes_before_final_summaries": 1142446,
+    "output_bytes_including_final_summaries": 4451549
+  },
+  "original_output_bytes_exact": 4451549,
+  "source_hashes": {
+    "local-results/check_paired_result.py": "556c840e01fca8aeabd783449b506869744c005b9306baf823612edba5ba1022",
+    "track-replay-v2/paired-events.jsonl.gz": "aba677d7c8b5f59a48815eee6f30351e4c78c6bd0d04f09e94295a42285e3976",
+    "track-replay-v2/migration-summary.json": "166058907e196fb391f6b7fbf9e493f6bf11e859ee3ae5742edd6304bf0fbfed",
+    "track-replay-v2/source-manifest.json": "5941d8d0a5abd06a0b4ad795a6347b06d1845088b8e49d517e5d563456f1740a"
+  },
+  "limitations": [
+    "conditional retained-sample Monte Carlo normal approximation",
+    "reference sampling/systematic covariance and original historical runtime still not authenticated",
+    "structural capacity bound is not a confidence interval"
+  ]
+}

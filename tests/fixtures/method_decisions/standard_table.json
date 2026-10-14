@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "request_digest": "43bd5b51125505205650830f74b63548c7c6815685da229e21dcc4d6c1c219cf",
+  "obligation_ids": [
+    "output-1"
+  ],
+  "required_output": "Return the value from the supplied fictional standard table.",
+  "sufficiency": {
+    "kind": "quoted_value",
+    "value": null,
+    "unit": null,
+    "source_text": "Return the value from the supplied fictional standard table."
+  },
+  "validity_domain": "Fictional supplied model and its stated regime",
+  "allowed_approximations": [
+    "Use the supplied simplified law within its domain"
+  ],
+  "family": "estimate_theory",
+  "selected": {
+    "method": "standard_value",
+    "rung": 0,
+    "operation": null
+  },
+  "alternatives": [],
+  "explicit_request": {
+    "requested": false,
+    "quote": null
+  },
+  "cost_forecast": {
+    "status": "historical",
+    "wall_hours": 0.25,
+    "cpu_hours": 0.5,
+    "disk_gb": 0.1,
+    "events": 0,
+    "model_calls": 1,
+    "basis": "Retained observation of the same fictional settings; a historical comparison."
+  },
+  "stopping_criterion": "Stop once the requested output and its stated evidence are delivered.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": [
+      "plan-critic"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "RAVEL connects scientific questions to plans, physics tools, reviewed results and the next experiment."
+message: "If you use this software, please cite it and its upstream dependencies listed in the README."
+type: software
+authors:
+  - given-names: Ammar
+    family-names: Aziz
+    email: 191796375+ammarphp@users.noreply.github.com
+abstract: >-
+  RAVEL connects scientific questions to plans, physics tools, reviewed results and the next
+  experiment. It supports collider research and reinterpretation, supplied-event analysis,
+  model calculations, statistical inference and iterative research workflows.
+keywords:
+  - high-energy physics
+  - collider research
+  - reinterpretation
+  - supplied-event analysis
+  - model calculations
+  - statistical inference
+  - iterative research workflows
+license: Apache-2.0
+repository-code: "https://github.com/ammarphp/ravel"
+version: 1.0.0

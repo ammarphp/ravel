@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "conventions:interference-cp",
+  "sources": [
+    {
+      "id": "ravel-premises",
+      "pin": {
+        "path": "../premises.json",
+        "size": 104636,
+        "sha256": "4ded0e48df8c6cfdc9a4f9a97a130fe18e27eb9712530db5bd4237ae469e02e4"
+      },
+      "citation": "RAVEL authored premises and conventions; license: Apache-2.0. External primary references are locator-only in each registry row.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:signed-weights",
+      "kind": "convention",
+      "statement": "Signed interference and model-minus-reference streams can have a nearly cancelling sum of weights. Scaling each stream to a total rate by its own sumw is invalid unless that rate and denominator describe that same stream. Preserve the generator-defined absolute integration normalization, exposure, sumw2 and covariance between correlated streams.",
+      "tags": [
+        "interference",
+        "signed-weights",
+        "difference-weights",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "interference-cp"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2000,
+          "line_end": 2000,
+          "excerpt_sha256": "e48100dacfde3f17e9beffbc61bed1101d60756e54590c758edba11dbdb9e06d",
+          "locator": "RAVEL authored convention conv:signed-weights; primary references: Phys. Rev. D 110, 030001; review Kinematics, phase space and cross sections; arXiv:1405.0301, event generation and matching"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:signed-weights",
+          "description": "Trace the signed weight units and integration exposure; normalize raw sums with the declared common measure and retain correlated Monte Carlo uncertainty. Never replace signed weights by their magnitudes.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:landau-yang",
+      "kind": "convention",
+      "statement": "An on-shell colour-singlet spin-1 state cannot couple to two identical on-shell massless vector bosons, including the colour-singlet two-gluon state. Loop corrections do not evade these assumptions. Off-shell partons or additional radiation change the premises. This theorem alone does not forbid decay to massive vector bosons.",
+      "tags": [
+        "interference",
+        "spin-one",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "interference-cp"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2056,
+          "line_end": 2056,
+          "excerpt_sha256": "a85bce1c30c50bffe12c9eae10846949507cc18bf37fa60fbc33a59798077063",
+          "locator": "RAVEL authored convention conv:landau-yang; primary references: Dokl. Akad. Nauk SSSR 60 (1948) 207; Phys. Rev. 77 (1950) 242; doi:10.1103/PhysRev.77.242; Phys. Rev. Lett. 101 (2008) 091802; arXiv:0806.2864, colour-singlet and colour-octet vectors and massive final states"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:landau-yang",
+          "description": "Check spin, colour, on-shell conditions and production multiplicity; justify any claimed evasion with an explicit amplitude and source.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:cp-odd-continuum",
+      "kind": "convention",
+      "statement": "A CP-odd resonance with CP-conserving pseudoscalar production and decay vertices need not have zero interference with the gluon-fusion continuum. CP-odd production times CP-odd decay is not a single CP-odd insertion. The actual helicity amplitudes and accepted observable determine the surviving term.",
+      "tags": [
+        "interference",
+        "cp-odd",
+        "gluon-fusion",
+        "four-lepton",
+        "cp"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "interference-cp"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2119,
+          "line_end": 2119,
+          "excerpt_sha256": "e24c8977055fcaa23ad47a6b2af6afcdf8bffc62715c9aeec6c59e7850a4799b",
+          "locator": "RAVEL authored convention conv:cp-odd-continuum; primary references: arXiv:1208.4018, spin-zero amplitudes and angular distributions; Phys. Lett. B 333 (1994) 126; arXiv:hep-ph/9404359, scalar and pseudoscalar interference with the gluon-fusion continuum"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:cp-odd-continuum",
+          "description": "Compute the signal-continuum cross term for the supplied production and decay couplings and cuts; do not set it to zero solely from the resonance CP label.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:cp-even-odd",
+      "kind": "convention",
+      "statement": "A CP-odd interference integrand cancels only under a CP-symmetric integration measure, initial-state ensemble, observable bin and acceptance. A CP-even observable alone is insufficient with asymmetric cuts. Distinguish mixing at one vertex from two CP-odd vertices in a complete amplitude.",
+      "tags": [
+        "interference",
+        "cp",
+        "cp-odd",
+        "angular",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "interference-cp"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2178,
+          "line_end": 2178,
+          "excerpt_sha256": "38ed5f71c394a7159a26cadb3e689462d98ac26a778c7d61b03666d6645013c6",
+          "locator": "RAVEL authored convention conv:cp-even-odd; primary references: arXiv:1208.4018, spin-zero amplitudes and angular distributions"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:cp-even-odd",
+          "description": "Check the transformation of the full amplitude and phase-space measure including cuts, beam weights and binning before dropping a cross term.",
+          "resource_class": "prospective_study",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:interference-k-factor",
+      "kind": "convention",
+      "statement": "There is no universal interference K-factor. Signal, background and their cross term receive different perturbative corrections. Taking the geometric mean of signal and background K-factors is an approximation that needs process and kinematic justification, not an identity.",
+      "tags": [
+        "interference",
+        "k-factor",
+        "broad-resonance",
+        "four-lepton",
+        "gluon-fusion"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "interference-cp"
+      ],
+      "applicability": "Review this convention in the stated process, observable, phase-space domain and perturbative order; retrieval does not establish applicability.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "ravel-premises",
+          "line_start": 2229,
+          "line_end": 2229,
+          "excerpt_sha256": "137560eac471c7d7f4b395952e602ba7a06c0f57a570d86f29e66153e18ad8d6",
+          "locator": "RAVEL authored convention conv:interference-k-factor; primary references: arXiv:1206.4803, off-shell effects and signal-background interference; Phys. Rev. D 88 (2013) 034032; arXiv:1304.3053, approximate higher-order correction to the interference term"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:interference-k-factor",
+          "description": "Use a cited or explicitly supplied correction within its domain; carry its uncertainty for the interference term and record missing information without inventing a factor.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "requires:cp-odd-continuum:cp-even-odd",
+      "kind": "requires",
+      "source": "conv:cp-odd-continuum",
+      "target": "conv:cp-even-odd",
+      "statement": "Apply this normalization or symmetry condition with the selected convention.",
+      "assessment": "source_assertion"
+    },
+    {
+      "id": "requires:cp-odd-continuum:signed-weights",
+      "kind": "requires",
+      "source": "conv:cp-odd-continuum",
+      "target": "conv:signed-weights",
+      "statement": "Apply this normalization or symmetry condition with the selected convention.",
+      "assessment": "source_assertion"
+    },
+    {
+      "id": "requires:interference-k-factor:signed-weights",
+      "kind": "requires",
+      "source": "conv:interference-k-factor",
+      "target": "conv:signed-weights",
+      "statement": "Apply this normalization or symmetry condition with the selected convention.",
+      "assessment": "source_assertion"
+    }
+  ]
+}

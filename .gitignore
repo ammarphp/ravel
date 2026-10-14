@@ -1,0 +1,47 @@
+# ──────────────────────────────────────────────────────────────────────────
+# Run directories are local working state and are never tracked. The product
+# creates trial-runs/ when a run starts.
+# ──────────────────────────────────────────────────────────────────────────
+/trial-runs/
+
+# Conda / Python cruft
+**/__pycache__/
+*.pyc
+.conda/
+
+# MadGraph scratch files sometimes dropped in the working dir
+py.py
+parser.out
+
+# OS cruft
+.DS_Store
+
+# Event files and object files anywhere in the tree
+*.hepmc
+*.o
+
+# ephemeral session-coordination locks — never tracked
+**/SESSION.lock
+
+
+# Repo-root session-ephemeral runtime droppings (route-pending markers from the
+# UserPromptSubmit router + hook probe output).
+# Root-anchored, so a run directory's own logs/ is unaffected.
+/logs/
+
+# Local Python build and test environments
+.venv*/
+/dist/
+/local-runs/
+/build/
+*.egg-info/
+.pytest_cache/
+
+# Native generated binaries and new tool installations
+/native/build/
+# Machine-local installer pointer, provider configuration and Linux site environments
+/.ravel/*
+# Generated hookless role contracts are tracked; runtime state stays ignored.
+!/.ravel/roles/
+!/.ravel/gate-surface.json
+/.ravel-site/

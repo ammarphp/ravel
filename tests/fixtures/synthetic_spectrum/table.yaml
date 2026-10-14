@@ -1,0 +1,31 @@
+# Generated synthetic values and uncertainties; no experimental measurement.
+independent_variables:
+- header: {name: Fictional clockwork energy imbalance, units: GEV}
+  values:
+  - {low: 20, high: 65}
+  - {low: 65, high: 145}
+  - {low: 145, high: 310}
+  - {low: 310, high: 760}
+dependent_variables:
+- header: {name: Synthetic density, units: FB GEV-1}
+  qualifiers:
+  - {name: fictional_record, value: SYNTHETIC_RECORD_990000101}
+  - {name: fictional_routine, value: SYNTHETIC_ROUTINE_700000101}
+  - {name: SQRT(S), units: GEV, value: 17000}
+  values:
+  - value: 0.16
+    errors:
+    - {symerror: 0.016, label: stat}
+    - {symerror: 0.008, label: syst}
+  - value: 0.08
+    errors:
+    - {symerror: 0.008, label: stat}
+    - {symerror: 0.004, label: syst}
+  - value: 0.04
+    errors:
+    - {symerror: 0.004, label: stat}
+    - {symerror: 0.002, label: syst}
+  - value: 0.02
+    errors:
+    - {symerror: 0.002, label: stat}
+    - {symerror: 0.001, label: syst}

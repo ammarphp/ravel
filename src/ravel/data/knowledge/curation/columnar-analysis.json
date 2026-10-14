@@ -1,0 +1,30 @@
+{
+ "id": "op:columnar-analysis",
+ "op": {
+  "do_not_use_when": [
+   "A preserved Rivet/SimpleAnalysis routine: use analyze.",
+   "Code that no recipe expresses: use authored-analysis."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/columnar-analysis-example --spec specs/columnar-analysis.json",
+    "phrase": "Apply a declared selection recipe to supplied Delphes events and deliver binned yields.",
+    "spec": {
+     "mode": "columnar-analysis",
+     "task": {
+      "format": "delphes-root",
+      "inputs": [
+       "events/sample.root"
+      ],
+      "normalization": "recipes/normalization.json",
+      "recipe": "recipes/regions.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Apply a declared object, region and histogram recipe to Delphes ROOT, ntuple or LHE events.",
+   "Binned yields, cutflows and provenance from reconstructed events are needed without custom code."
+  ]
+ }
+}

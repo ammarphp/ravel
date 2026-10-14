@@ -1,0 +1,123 @@
+{
+  "card": {
+    "escalation": [
+      "checkin_flag",
+      "stop",
+      "new_experiment_required",
+      "decision_block"
+    ],
+    "family": "specialist-review",
+    "id": "integrity-auditor",
+    "independence": {
+      "distinct_actor_from": [
+        "coordinator"
+      ],
+      "fresh_session": true,
+      "kind": "specialist"
+    },
+    "kind": "role-card",
+    "knowledge": {
+      "budget_tokens": 24000,
+      "consult": [],
+      "derive": [
+        "handbooks_for_node",
+        "checks_judging_node",
+        "premises_firing",
+        "conventions:node_tags"
+      ],
+      "forbidden": [
+        "lessons",
+        "producer_headline",
+        "withheld_sources"
+      ],
+      "may_query": [
+        "find",
+        "show",
+        "for_node",
+        "coverage"
+      ],
+      "must_read": [
+        "proto:P4",
+        "proto:P8",
+        "checklist:verification-panel"
+      ]
+    },
+    "model": {
+      "distinct_family_from": [],
+      "effort": "high",
+      "tier": "judgment"
+    },
+    "must_check": [
+      "check:validation.verify_pack.check_deviations_ledger",
+      "check:validation.certificates.validate_certificate"
+    ],
+    "operations": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "output": {
+      "declared_outputs": [],
+      "schema": "findings.v1",
+      "sidecar": true
+    },
+    "protocol": [
+      "Read the record, not the narrative: research/protocol.json, every stage record (research/head.json and research/history/), the exposure ledger including its select-query entries, the broker receipt index and the call receipts under agent-work/, and the claim records under claims/.",
+      "Verify each hash chain and each pinned head digest. A stage record whose ledger head differs from the run copy, or a receipt absent from the broker receipt index, is a finding.",
+      "Check trial counts, calibration disjointness from the claim quantity and held-out nodes, and that every held-out read follows the freeze. Check that the uncalibrated result is delivered beside the calibrated one.",
+      "Use the computed disclosure block as the reference for what must be disclosed. Compare the delivered text with it; never write or soften disclosure prose yourself.",
+      "Report a shared anchor under two material claims.",
+      "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
+      "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+      "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+    ],
+    "purpose": "Audit the complete scientific record from its stored artifacts: the protocol, stage records, exposure and query ledgers, broker receipts, trial counts and the computed disclosure block.",
+    "requires": {
+      "attestation_min": "transport",
+      "blind": false,
+      "isolation_min": "ravel-sandbox",
+      "structured_output": true,
+      "tools": "broker-readonly"
+    },
+    "reviewed_by": [],
+    "schema_version": 2,
+    "sees": {
+      "forbidden_inputs": [
+        "board_prose",
+        "lessons",
+        "producer_headline",
+        "withheld_sources"
+      ],
+      "profile": "full"
+    },
+    "stop": {
+      "evidence_budget": 0,
+      "max_broker_calls": 200,
+      "max_cost_usd": null,
+      "max_rounds": 2,
+      "max_turns": 40,
+      "max_wall_seconds": 1200
+    },
+    "tools": {
+      "exec_argv_prefixes": [],
+      "ravel_actions": [
+        "knowledge query",
+        "review-context read",
+        "check run"
+      ],
+      "read_paths": [
+        "inputs/",
+        "research/protocol.json",
+        "research/head.json",
+        "research/history/",
+        "research/exposure_ledger.jsonl",
+        "agent-work/",
+        "claims/",
+        "rdj/receipts/"
+      ],
+      "validators": []
+    },
+    "version": "2.1.0"
+  },
+  "registry_sha256": "add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25"
+}

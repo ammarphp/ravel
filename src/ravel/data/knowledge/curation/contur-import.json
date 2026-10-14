@@ -1,0 +1,26 @@
+{
+ "id": "op:contur-import",
+ "op": {
+  "do_not_use_when": [
+   "Run Contur on a fresh YODA: use contur-yoda.",
+   "Companion SM tests: use contur-companion."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/contur-import-example --spec specs/contur-import.json",
+    "phrase": "Import a retained Contur results database.",
+    "spec": {
+     "mode": "contur-import",
+     "task": {
+      "input": "inputs/example.json",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Read a retained Contur results database for summary tables.",
+   "A cached Contur result must be imported without rerunning the scan."
+  ]
+ }
+}

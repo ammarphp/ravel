@@ -1,0 +1,22 @@
+{
+ "citation": "F. Takahashi <i>et al.</i> (Particle Data Group), Int. J. Mod. Phys. A 41, 2630011 (2026)",
+ "data_release_timestamp": "2026-05-30 13:41:24 PDT",
+ "edition": "2026",
+ "kind": "ravel-pdg-source",
+ "license": "CC BY 4.0",
+ "origin": {
+  "database_member": "pdg/pdg.sqlite",
+  "database_sha256": "40dc2587d9ae912d26fafb6b41f300f341d2a1f4bd620ff5b5f03827c39453fe",
+  "database_size": 25751552,
+  "package": "pdg",
+  "url": "https://pypi.org/project/pdg/",
+  "version": "2026.0",
+  "wheel": "pdg-2026.0-py3-none-any.whl",
+  "wheel_sha256": "681e11f8c9a5accb1cb41ccb87bf7efd398adec8ea39ddb894630b17b45c8e8a",
+  "wheel_size": 8289676
+ },
+ "regenerate": "python -I scripts/setup/build_pdg_subset.py --sqlite <pdg.sqlite from the wheel> --wheel <wheel>",
+ "schema": "0.3",
+ "schema_version": 1,
+ "subset_sha256": "7db12ee345ae12946001442b1e87c30278693ded79f27b6bdff822831285f03a"
+}

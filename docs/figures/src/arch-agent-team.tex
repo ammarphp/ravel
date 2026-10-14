@@ -1,0 +1,30 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\tikzset{b/.style={box=#1, minimum height=16mm}, b/.default=48mm}
+\ravelheader{The agent team}{A coordinator assigns work to specialist roles that share one message board.}
+\node[b=48mm, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (you) at (5,-24)
+  {\nodetitle{You}\nodesub{question, approvals, steering}};
+\node[b=48mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (co) at (61,-24)
+  {\nodetitle{Coordinator}\nodesub{plans the work, assigns roles}};
+\node[b=48mm, draw=rvrecordsline, fill=rvrecordsfill, anchor=north west] (mb) at (117,-24)
+  {\nodetitle{Message board}\nodesub{hypotheses, posts, dissent}};
+\draw[flow, {Stealth[length=2.4mm, width=1.8mm]}-{Stealth[length=2.4mm, width=1.8mm]}] (you) -- (co);
+\draw[flow, {Stealth[length=2.4mm, width=1.8mm]}-{Stealth[length=2.4mm, width=1.8mm]}] (co) -- (mb);
+\node[b=37mm, minimum height=24mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (r1) at (5,-56)
+  {\nodetitle{Ideas}\nodesub{literature, novelty, hypotheses}};
+\node[b=37mm, minimum height=24mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (r2) at (46,-56)
+  {\nodetitle{Builders}\nodesub{models, events, analyses, fits}};
+\node[b=37mm, minimum height=24mm, draw=rvagentline, fill=rvagentfill, anchor=north west] (r3) at (87,-56)
+  {\nodetitle{Tool experts}\nodesub{one consultant per tool}};
+\node[b=37mm, minimum height=24mm, draw=rvguardline, fill=rvguardfill, anchor=north west] (r4) at (128,-56)
+  {\nodetitle{Reviewers}\nodesub{critic, verifier, synthesis}};
+\coordinate (bus) at (85,-48);
+\draw[line width=1.0pt, draw=rvconnector] (co.south) -- (bus);
+\draw[line width=1.0pt, draw=rvconnector] (r1.north |- bus) -- (r4.north |- bus);
+\foreach \r in {r1,r2,r3,r4} \draw[flow] (\r.north |- bus) -- (\r.north);
+\ravellegend{-88}{people/You, agent/Agents, guard/Reviewers, records/Shared records}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

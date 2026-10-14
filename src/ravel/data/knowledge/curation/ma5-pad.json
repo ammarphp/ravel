@@ -1,0 +1,24 @@
+{
+ "id": "op:ma5-pad",
+ "op": {
+  "do_not_use_when": [
+   "SAF-based delivery: use ma5-saf."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/ma5-pad-example --spec specs/ma5-pad.json",
+    "phrase": "Run a pinned MadAnalysis 5 PAD analysis over supplied HepMC events.",
+    "spec": {
+     "mode": "ma5-pad",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Pinned MadAnalysis 5 PAD or SampleAnalyzer execution on supplied HepMC.",
+   "A PAD analysis is the reinterpretation target."
+  ]
+ }
+}

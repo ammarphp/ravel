@@ -1,0 +1,25 @@
+{
+ "id": "op:joint-qualification",
+ "op": {
+  "do_not_use_when": [
+   "The joint profile itself: use joint-fit.",
+   "A joint score study: use joint-score."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/joint-qualification-example --spec specs/joint-qualification.json",
+    "phrase": "Qualify an analytic source with full-nuisance fits.",
+    "spec": {
+     "mode": "joint-qualification",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Qualify an analytic source and run full-nuisance fits.",
+   "Check the analytic source before a joint study."
+  ]
+ }
+}

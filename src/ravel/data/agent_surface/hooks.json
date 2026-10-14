@@ -1,0 +1,20 @@
+{
+  "actions": [
+    "approve_plan",
+    "launch",
+    "checkin2_accept",
+    "final_task"
+  ],
+  "claude_conversion": "pending reviewed hook conversion; never replace active .claude/hooks",
+  "command": [
+    "ravel",
+    "gate"
+  ],
+  "kind": "gate-hook-table",
+  "schema_version": 1,
+  "shim_paths": {
+    "claude": ".claude/ravel-gate.sh",
+    "codex": ".codex/ravel-gate.sh",
+    "gemini": ".gemini/ravel-gate.sh"
+  }
+}

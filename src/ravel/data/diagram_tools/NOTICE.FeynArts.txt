@@ -1,0 +1,42 @@
+(*
+
+This is FeynArts, Version 3.12
+Copyright by Sepp Kueblbeck, Hagen Eck, and Thomas Hahn 1991-2025
+last modified 27 Mar 25 by Thomas Hahn
+
+Release notes:
+
+FeynArts is free software, but is not in the public domain.
+Instead it is covered by the GNU Lesser General Public License.
+In plain English this means:
+
+1. We don't promise that this software works.
+   (But if you find any bugs, please let us know!)
+
+2. You can use this software for whatever you want.
+   You don't have to pay us.
+
+3. You may not pretend that you wrote this software.
+   If you use it in a program, you must acknowledge
+   somewhere in your publication that you've used
+   our code.
+
+If you're a lawyer, you can find the legal stuff at
+http://www.fsf.org/copyleft/lgpl.html.
+
+The user guide for this program can be found at
+http://www.feynarts.de.
+
+If you find any bugs, or want to make suggestions, or
+just write fan mail, address it to:
+	Thomas Hahn
+	Max Planck Institute for Physics
+	Foehringer Ring 6
+	D-80805 Munich, Germany
+	e-mail: hahn@feynarts.de
+
+Have fun!
+
+*)
+
+Full original release remains an external installation dependency. RAVEL authors the typed invocation and transport, not FeynArts algorithms.

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# owned by the RAVEL installer
+# Runs a tool that lives in its own environment as a separate process, so its
+# licence and its dependencies stay out of RAVEL's Python.
+exec "@PROGRAM@" "$@"

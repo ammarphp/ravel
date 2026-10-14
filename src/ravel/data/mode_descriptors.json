@@ -1,0 +1,2651 @@
+{
+ "schema_version": 1,
+ "scope": "Declared vocabulary for capability suggestions only. A match is a provisional candidate, never admission or support. A source-bound operation is suggested only when the request matches its applicability predicate.",
+ "weights": {
+  "tools": 3,
+  "inputs": 2,
+  "observables": 2,
+  "outputs": 2,
+  "context": 1
+ },
+ "threshold": 2,
+ "modes": {
+  "task-completion-context": {
+   "summary": "Prepare whole-parent completion review evidence.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "parent review",
+    "completion review",
+    "whole-task review"
+   ],
+   "outputs": [],
+   "context": [
+    "task completion"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "ntuple-inventory": {
+   "summary": "Inventory supplied MC/data samples and prepare streaming inputs for a new search.",
+   "operations": [],
+   "tools": [
+    "Snakemake",
+    "Rucio"
+   ],
+   "inputs": [
+    "PHYSLITE",
+    "DAOD",
+    "sample inventory",
+    "dataset identifier"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "signal region",
+    "control region",
+    "blinded"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "mc-expected-construction": {
+   "summary": "Construct expected signal/control-region yields from complete MC streams.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "expected yields",
+    "background forecast",
+    "expected SR/CR yields"
+   ],
+   "outputs": [],
+   "context": [
+    "signal region",
+    "control region",
+    "Asimov",
+    "blinded"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "asimov-sensitivity": {
+   "summary": "Asimov discovery-sensitivity diagnostics for a new search.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "discovery sensitivity",
+    "expected significance",
+    "Asimov significance"
+   ],
+   "outputs": [],
+   "context": [
+    "sensitivity",
+    "Asimov"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "mc-closure": {
+   "summary": "MC closure tests of a frozen background strategy.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "MC closure",
+    "closure test",
+    "background validation"
+   ],
+   "outputs": [],
+   "context": [
+    "validation",
+    "blinded"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "literal-calculation": {
+   "summary": "Exact finite dimensionless arithmetic stated in the request.",
+   "operations": [
+    "calculation"
+   ],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "arithmetic",
+    "re:(?<![\\w-])\\d+(?:\\.\\d+)?\\s*(?:[+*/^×÷]|\\s-\\s)\\s*\\(?\\s*\\d"
+   ],
+   "outputs": [],
+   "context": [
+    "exact value"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "root-stream": {
+   "summary": "Stream ROOT trees with explicit member, DSID, weight and blinding contracts.",
+   "operations": [],
+   "tools": [
+    "ROOT",
+    "uproot"
+   ],
+   "inputs": [
+    "ROOT file",
+    "TTree",
+    "ntuple",
+    "DSID"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "branches",
+    "weights"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "tree-array-export": {
+   "summary": "Source-bound array export with fixed input names, multiplicities and handoff; not a general tree-to-array exporter.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "mini-tree",
+    "ntuple",
+    "ROOT file"
+   ],
+   "observables": [],
+   "outputs": [
+    "raw arrays"
+   ],
+   "context": [
+    "arrays"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "its pinned prompts, fixed input file names, fixed object multiplicities and fixed output handoff",
+    "select_when": [
+     [
+      "re:(?<![\\w-])tree-array-export(?![\\w-])"
+     ]
+    ],
+    "general_operation": "root-stream"
+   }
+  },
+  "cosmic-evolution": {
+   "summary": "Cosmological initial conditions and N-body/hydro evolution with CosmicIC/Nyx.",
+   "operations": [],
+   "tools": [
+    "Nyx",
+    "CosmicIC"
+   ],
+   "inputs": [],
+   "observables": [
+    "initial conditions",
+    "structure formation",
+    "N-body"
+   ],
+   "outputs": [],
+   "context": [
+    "cosmological simulation"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "chargino-decay-table": {
+   "summary": "Released pure-limit chargino decay tables.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "chargino decay",
+    "chargino width",
+    "chargino lifetime"
+   ],
+   "outputs": [
+    "decay table"
+   ],
+   "context": [
+    "wino",
+    "higgsino"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "published-classifier": {
+   "summary": "Apply a published classifier to supplied events or quantities.",
+   "operations": [],
+   "tools": [
+    "ONNX"
+   ],
+   "inputs": [
+    "published classifier",
+    "BDT",
+    "neural network"
+   ],
+   "observables": [
+    "classifier score"
+   ],
+   "outputs": [],
+   "context": [
+    "classifier"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "mssm-observable-map": {
+   "summary": "Map supplied MSSM spectra and decays to lifetimes and observables.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "SLHA",
+    "spectrum file"
+   ],
+   "observables": [
+    "MSSM",
+    "lifetime",
+    "long-lived"
+   ],
+   "outputs": [],
+   "context": [
+    "decay table",
+    "LLP"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "nmssm-yukawa-map": {
+   "summary": "NMSSM tree-level spectrum convention to neutral-Higgs predictions.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "SLHA"
+   ],
+   "observables": [
+    "NMSSM",
+    "neutral Higgs"
+   ],
+   "outputs": [],
+   "context": [
+    "Yukawa"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "width-inputs": {
+   "summary": "Source-bound width-input materialization for one release's tables; not a general table materializer.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "HEPData table"
+   ],
+   "observables": [
+    "resonance width",
+    "large width"
+   ],
+   "outputs": [],
+   "context": [
+    "width"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one release's file names, hashes, columns, bins and mass nodes",
+    "select_when": [
+     [
+      "re:(?<![\\w-])width-inputs(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "mass-width-grid": {
+   "summary": "Source-bound width study with fixed regions, normalization and scan domain; not a general resonance-width study.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "resonance width",
+    "large width",
+    "width scan"
+   ],
+   "outputs": [],
+   "context": [
+    "width",
+    "Bernstein"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one analysis's regions, collision energy, luminosity, transfer-function degree, efficiency and scan domain",
+    "select_when": [
+     [
+      "re:(?<![\\w-])mass-width-grid(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "analysis-response-features": {
+   "summary": "Event-response features from retained multi-b analyses.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "event response",
+    "multi-b",
+    "six-b"
+   ],
+   "outputs": [],
+   "context": [
+    "response"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "classifier-inputs": {
+   "summary": "Static census of an ONNX model tensor interface.",
+   "operations": [],
+   "tools": [
+    "ONNX"
+   ],
+   "inputs": [
+    "ONNX model"
+   ],
+   "observables": [],
+   "outputs": [
+    "tensor census"
+   ],
+   "context": [
+    "classifier"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "llp-plane-recipe": {
+   "summary": "Mass/lifetime plane recipes for long-lived particles.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "long-lived",
+    "LLP",
+    "displaced vertex",
+    "mass-lifetime plane"
+   ],
+   "outputs": [],
+   "context": [
+    "lifetime",
+    "displaced"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "svj-recipe": {
+   "summary": "Source-bound hidden-sector grid recipe with fixed axes and generation settings; not a general model-grid recipe.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "semi-visible jet",
+    "SVJ",
+    "dark pion",
+    "dark rho",
+    "dark shower",
+    "hidden valley",
+    "dark QCD"
+   ],
+   "outputs": [],
+   "context": [
+    "tagger"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one search's luminosity, interpretation, parameter axes and generation configuration",
+    "select_when": [
+     [
+      "re:(?<![\\w-])svj-recipe(?![\\w-])"
+     ]
+    ],
+    "general_operation": "model-events"
+   }
+  },
+  "research-comparison": {
+   "summary": "Complete-cell comparison of supplied scalar or interval results.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "re:\\bcompar\\w*\\b[^.;\\n]{0,60}\\b(?:results|limits|intervals|methods|baselines)\\b"
+   ],
+   "outputs": [],
+   "context": [
+    "comparison"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "quantitative-predictive": {
+   "summary": "Bounded prospective separation between hypotheses.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "prospective separation",
+    "discriminating power"
+   ],
+   "outputs": [],
+   "context": [
+    "separation"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-events": {
+   "summary": "MG5 generation from a full UFO with decays, shower matching and multiweights.",
+   "operations": [
+    "generate"
+   ],
+   "tools": [
+    "MadGraph",
+    "MG5",
+    "MG5_aMC",
+    "MadSpin",
+    "Pythia"
+   ],
+   "inputs": [
+    "UFO",
+    "param card",
+    "run card",
+    "proc card"
+   ],
+   "observables": [
+    "event generation",
+    "shower matching",
+    "multiweight",
+    "re:\\bgenerat\\w*\\b[^.;\\n]{0,60}\\bevents?\\b"
+   ],
+   "outputs": [],
+   "context": [
+    "shower",
+    "decays",
+    "cross section"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "analyze": {
+   "summary": "Run preserved Rivet/SimpleAnalysis routines or constructed analyses over supplied events.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [
+    "Rivet",
+    "SimpleAnalysis"
+   ],
+   "inputs": [
+    "HepMC",
+    "LHE",
+    "event file",
+    "supplied events",
+    "existing events",
+    "re:(?-i:\\b(?:ATLAS|CMS|LHCB|ALICE)_\\d{4}_[IS]\\d{4,8}\\b)",
+    "analysis routine",
+    "custom routine",
+    "Rivet routine"
+   ],
+   "observables": [
+    "cutflow",
+    "custom selection",
+    "re:\\b(?:new|custom|unfamiliar)\\s+(?:\\w+\\s+){0,2}(?:analysis|routine)\\b",
+    "re:\\b(?:write|construct|author)\\w*\\b[^.;\\n]{0,40}\\bRivet routine\\b"
+   ],
+   "outputs": [],
+   "context": [
+    "selection",
+    "signal region",
+    "routine construction",
+    "HEPData table map"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "quantities": {
+   "summary": "Signed, grouped event moments in declared bins.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "event moments",
+    "binned distribution",
+    "weighted histogram"
+   ],
+   "outputs": [],
+   "context": [
+    "histogram",
+    "distribution",
+    "rebin",
+    "bins"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "measurement": {
+   "summary": "Inference with supplied Gaussian measurement models and covariance.",
+   "operations": [
+    "measurement_fit"
+   ],
+   "tools": [],
+   "inputs": [
+    "measurements",
+    "measurement covariance",
+    "Gaussian measurement"
+   ],
+   "observables": [
+    "measurement fit",
+    "signal strength",
+    "Wilson coefficient",
+    "STXS",
+    "SMEFT",
+    "re:\\bchi[- ]?(?:2|squared)\\b|χ²|Δχ"
+   ],
+   "outputs": [
+    "best fit",
+    "confidence interval"
+   ],
+   "context": [
+    "HEPData",
+    "covariance",
+    "fit"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "domain": {
+   "summary": "Bounded supplied-artifact and fixed phase-space operations.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "UFO",
+    "supplied artifact"
+   ],
+   "observables": [
+    "fixed phase space"
+   ],
+   "outputs": [],
+   "context": [
+    "ONNX"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "contrast": {
+   "summary": "Paired normalized contrasts between event-weight arms.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "paired contrast",
+    "normalized contrast",
+    "re:\\bcompare\\b[^.;\\n]{0,40}\\b(?:settings|tunes|variations|arms)\\b"
+   ],
+   "outputs": [],
+   "context": [
+    "contrast"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "statistical-model": {
+   "summary": "Construct Poisson SR/CR and ABCD models with correlated auxiliaries.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "ABCD",
+    "transfer factor",
+    "rate factor",
+    "Poisson model",
+    "SR/CR",
+    "re:\\bbackground\\s+estimat\\w*"
+   ],
+   "outputs": [
+    "likelihood model"
+   ],
+   "context": [
+    "signal region",
+    "control region"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "published-model": {
+   "summary": "Exact published HistFactory patch evaluation.",
+   "operations": [],
+   "tools": [
+    "pyhf",
+    "HistFactory"
+   ],
+   "inputs": [
+    "workspace",
+    "patchset",
+    "published likelihood",
+    "JSON likelihood"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-portfolio": {
+   "summary": "SModelS simplified-model decomposition of a supplied spectrum.",
+   "operations": [],
+   "tools": [
+    "SModelS"
+   ],
+   "inputs": [
+    "SLHA"
+   ],
+   "observables": [
+    "simplified model",
+    "topology decomposition"
+   ],
+   "outputs": [],
+   "context": [
+    "LHE"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "likelihood-parity": {
+   "summary": "Fixed-vector likelihood parity against an independent density.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "likelihood parity",
+    "fixed-vector likelihood",
+    "independent likelihood evaluation"
+   ],
+   "outputs": [],
+   "context": [
+    "likelihood value"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "numerical-reference-check": {
+   "summary": "Held-out numerical comparisons against supplied references.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "numerical reference",
+    "held-out comparison",
+    "reference values"
+   ],
+   "outputs": [],
+   "context": [
+    "agreement"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "cosmology-solver": {
+   "summary": "CAMB/CLASS/Cobaya cosmology solver operations.",
+   "operations": [],
+   "tools": [
+    "CAMB",
+    "CLASS",
+    "Cobaya",
+    "hi_class"
+   ],
+   "inputs": [],
+   "observables": [
+    "matter power spectrum",
+    "P(k)",
+    "CMB",
+    "C_ell",
+    "angular power spectrum",
+    "Boltzmann solver",
+    "neutrino mass"
+   ],
+   "outputs": [],
+   "context": [
+    "cosmology",
+    "cosmological"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "signal-template": {
+   "summary": "Complete SR/CR signal templates for published pyhf models.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "pyhf"
+   ],
+   "observables": [
+    "signal template",
+    "template variation"
+   ],
+   "outputs": [],
+   "context": [
+    "workspace",
+    "template"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "stau-events": {
+   "summary": "Source-bound hadronic-tau projection with one source's channels and cuts; not a general tau selection.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "stau",
+    "hadronic tau",
+    "di-tau",
+    "ditau"
+   ],
+   "outputs": [],
+   "context": [
+    "tau"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one source's channels and signal- and control-region cuts",
+    "select_when": [
+     [
+      "re:(?<![\\w-])stau-events(?![\\w-])"
+     ]
+    ],
+    "general_operation": "columnar-analysis"
+   }
+  },
+  "native-likelihood": {
+   "summary": "Native CMS Combine likelihood on supplied datacards and workspaces.",
+   "operations": [],
+   "tools": [
+    "re:\\bCMS\\s+Combine\\b|\\bHiggsCombine\\b|\\bcombineTool\\b|(?-i:\\bCombine\\b)\\s+(?:tool|datacard|workspace|fit)"
+   ],
+   "inputs": [
+    "datacard",
+    "workspace",
+    "ROOT workspace"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "full-auxiliary-calibration": {
+   "summary": "Fixed-truth auxiliary calibration with the native likelihood.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "auxiliary calibration",
+    "coverage calibration",
+    "fixed-truth calibration"
+   ],
+   "outputs": [],
+   "context": [
+    "calibration"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "background-discrete-profile": {
+   "summary": "Discrete-profiling envelope over background function candidates.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "discrete profiling",
+    "envelope method",
+    "spurious signal",
+    "background function"
+   ],
+   "outputs": [],
+   "context": [
+    "envelope"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "eft-functions": {
+   "summary": "Exact CMS PhysicsModel EFT response polynomials.",
+   "operations": [
+    "measurement_fit"
+   ],
+   "tools": [
+    "PhysicsModel"
+   ],
+   "inputs": [],
+   "observables": [
+    "EFT parametrization",
+    "EFT response",
+    "quadratic EFT",
+    "Wilson coefficient",
+    "SMEFT"
+   ],
+   "outputs": [],
+   "context": [
+    "EFT"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "normalized-measurement": {
+   "summary": "Gaussian contrasts of normalized SM+BSM mixtures.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "measurement covariance"
+   ],
+   "observables": [
+    "normalized measurement",
+    "unit-area",
+    "shape-only",
+    "re:\\bnormali[sz]ed\\b[^.;\\n]{0,30}\\bdistribution"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "continuous-fit": {
+   "summary": "Extended exponential fits in signal/control ranges.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "exponential fit",
+    "dijet function",
+    "smooth background",
+    "bump hunt",
+    "functional fit",
+    "sideband fit"
+   ],
+   "outputs": [],
+   "context": [
+    "continuum",
+    "background shape"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "native-statistical-construction": {
+   "summary": "Transport reviewed RooFit graphs to native fit bundles.",
+   "operations": [],
+   "tools": [
+    "RooFit",
+    "RooWorkspace"
+   ],
+   "inputs": [],
+   "observables": [
+    "RooFit model",
+    "native fit bundle"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-inputs": {
+   "summary": "Static diagnosis of supplied model inputs and generator cards.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "param card",
+    "run card",
+    "proc card",
+    "generator cards",
+    "UFO"
+   ],
+   "observables": [
+    "card diagnosis"
+   ],
+   "outputs": [],
+   "context": [
+    "cards"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "contur-import": {
+   "summary": "Read retained Contur results databases.",
+   "operations": [],
+   "tools": [
+    "Contur"
+   ],
+   "inputs": [
+    "Contur database",
+    "SQLite"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "exclusion confidence"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "ratio-measurement": {
+   "summary": "Fixed-prediction Gaussian ratio diagnostics with joint covariance.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "joint covariance"
+   ],
+   "observables": [
+    "ratio measurement",
+    "numerator and denominator"
+   ],
+   "outputs": [],
+   "context": [
+    "ratio",
+    "numerator",
+    "denominator"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "group-normalization": {
+   "summary": "N/W normalization of independent event groups.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "event groups"
+   ],
+   "observables": [
+    "group normalization",
+    "normalized covariance"
+   ],
+   "outputs": [],
+   "context": [
+    "normalize",
+    "normalization"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "group-composition": {
+   "summary": "Rebinning and same-event normalization composition.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "rebin",
+    "normalization composition"
+   ],
+   "outputs": [],
+   "context": [
+    "compose",
+    "composition"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "source-tables": {
+   "summary": "Literal HEPData primary tables with declared basis and covariance join.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "HEPData table",
+    "HEPData record",
+    "YAML table",
+    "published table"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "HEPData",
+    "covariance"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "scientific-delivery": {
+   "summary": "Primary resource capture and report delivery for a supplied portfolio.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "resource capture",
+    "portfolio delivery"
+   ],
+   "outputs": [
+    "scientific report"
+   ],
+   "context": [
+    "report"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "published-summary": {
+   "summary": "Declared literature census and published-limit overlay.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "published limits",
+    "other searches",
+    "existing searches",
+    "re:\\bwhich\\b[^.;\\n?]{0,40}\\b(?:searches|analyses|measurements)\\b"
+   ],
+   "outputs": [
+    "summary plot",
+    "limit overlay",
+    "literature census"
+   ],
+   "context": [
+    "overlay",
+    "survey"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "native-group-acquisition": {
+   "summary": "Source-bound native event-group acquisition for its recognized routines.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "event-group acquisition",
+    "Rmiss"
+   ],
+   "outputs": [],
+   "context": [
+    "event groups"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "the recognized routines whose identities fix fill geometry and semantics",
+    "select_when": [
+     [
+      "re:(?<![\\w-])native-group-acquisition(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "retained-shower": {
+   "summary": "Fresh parton shower of a retained LHE cohort.",
+   "operations": [],
+   "tools": [
+    "Pythia",
+    "Herwig"
+   ],
+   "inputs": [
+    "LHE",
+    "unmerged LHE"
+   ],
+   "observables": [
+    "parton shower",
+    "re-shower"
+   ],
+   "outputs": [],
+   "context": [
+    "shower",
+    "hadronization"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "derived-quantities": {
+   "summary": "Finite derived quantities with delta-method covariance.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "derived quantity",
+    "delta method",
+    "asymmetry"
+   ],
+   "outputs": [
+    "propagated covariance"
+   ],
+   "context": [
+    "ratio",
+    "covariance"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "finite-mc": {
+   "summary": "Finite-MC statistical models under supplied generator laws.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "finite MC",
+    "MC statistical uncertainty",
+    "Barlow-Beeston"
+   ],
+   "outputs": [],
+   "context": [
+    "Poissonized"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "pdf-variations": {
+   "summary": "Coherent PDF variations of supplied parton records.",
+   "operations": [],
+   "tools": [
+    "NNPDF",
+    "LHAPDF"
+   ],
+   "inputs": [
+    "parton records"
+   ],
+   "observables": [
+    "PDF variation",
+    "PDF uncertainty",
+    "PDF replicas",
+    "parton distribution functions"
+   ],
+   "outputs": [],
+   "context": [
+    "PDF"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-sources": {
+   "summary": "Symbolic model source detection and export.",
+   "operations": [],
+   "tools": [
+    "FeynRules",
+    "SARAH",
+    "Mathematica"
+   ],
+   "inputs": [],
+   "observables": [
+    "model source",
+    "Lagrangian"
+   ],
+   "outputs": [],
+   "context": [
+    "model file"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-tool-bridge": {
+   "summary": "UFO parameter and tree-process validation through MG5.",
+   "operations": [],
+   "tools": [
+    "MG5",
+    "MadGraph"
+   ],
+   "inputs": [
+    "UFO"
+   ],
+   "observables": [
+    "matrix element",
+    "tree-level process"
+   ],
+   "outputs": [],
+   "context": [
+    "parameter validation"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-provider-bridge": {
+   "summary": "Wolfram/FeynRules provider qualification.",
+   "operations": [],
+   "tools": [
+    "Wolfram",
+    "FeynRules",
+    "Mathematica"
+   ],
+   "inputs": [],
+   "observables": [
+    "provider qualification"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-derivation-bridge": {
+   "summary": "Derive Feynman rules and a fresh UFO from a FeynRules model.",
+   "operations": [],
+   "tools": [
+    "FeynRules"
+   ],
+   "inputs": [
+    "Lagrangian",
+    "model file"
+   ],
+   "observables": [
+    "Feynman rules",
+    "UFO export"
+   ],
+   "outputs": [
+    "UFO"
+   ],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-ward": {
+   "summary": "Ward-identity diagnostics of a supplied UFO.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "UFO"
+   ],
+   "observables": [
+    "Ward identity",
+    "gauge invariance check"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "generated-spectrum": {
+   "summary": "FlexibleSUSY-generated spectrum solver to SLHA.",
+   "operations": [],
+   "tools": [
+    "FlexibleSUSY",
+    "SPheno",
+    "SoftSUSY"
+   ],
+   "inputs": [],
+   "observables": [
+    "spectrum generator",
+    "CMSSM",
+    "sparticle spectrum",
+    "SUSY spectrum"
+   ],
+   "outputs": [
+    "SLHA"
+   ],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "mpi-observer": {
+   "summary": "Source-bound multiple-parton-interaction observer qualification for one retained event population.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "multiple parton interactions",
+    "MPI",
+    "underlying event"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one experiment's event population, selected count, stage list and resource envelope",
+    "select_when": [
+     [
+      "re:(?<![\\w-])mpi-observer(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "initialized-settings-qualification": {
+   "summary": "Qualify initialized shower settings on retained LHE.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "LHE"
+   ],
+   "observables": [
+    "initialized settings",
+    "shower settings"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "initialized-settings-retained": {
+   "summary": "Source-bound qualification of the immutable outputs of one retained failed run.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "initialized settings"
+   ],
+   "outputs": [],
+   "context": [
+    "retained outputs"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "the recorded error text, exit code and phase history of one failed run",
+    "select_when": [
+     [
+      "re:(?<![\\w-])initialized-settings-retained(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "mpi-paired-effect": {
+   "summary": "Source-bound paired MPI on/off study with a fixed point and population; not a general paired contrast.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "multiple parton interactions",
+    "MPI",
+    "paired MPI"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "fixed masses, event count, normalization, seed and channel population",
+    "select_when": [
+     [
+      "re:(?<![\\w-])mpi-paired-effect(?![\\w-])"
+     ]
+    ],
+    "general_operation": "contrast"
+   }
+  },
+  "likelihood-profile-probe": {
+   "summary": "Source-bound replay of one retained conditional likelihood profile under two protocols.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "profile likelihood",
+    "conditional profile",
+    "MIGRAD"
+   ],
+   "outputs": [],
+   "context": [
+    "minimizer"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one retained likelihood's dimensions and evaluation history",
+    "select_when": [
+     [
+      "re:(?<![\\w-])likelihood-profile-probe(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "likelihood-candidate-check": {
+   "summary": "Source-bound check of one retained conditional-profile candidate history.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "profile candidates",
+    "candidate vectors",
+    "conditional profile"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one retained likelihood's candidate history and evaluation census",
+    "select_when": [
+     [
+      "re:(?<![\\w-])likelihood-candidate-check(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "likelihood-step-refinement": {
+   "summary": "Source-bound finite-difference step refinement for one retained likelihood.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "step refinement",
+    "finite-difference",
+    "derivative check"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one retained likelihood's dimensions and step history",
+    "select_when": [
+     [
+      "re:(?<![\\w-])likelihood-step-refinement(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "cr-signal-qualification": {
+   "summary": "Fixed control-region signal intervention without a fit.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "signal contamination",
+    "control-region signal"
+   ],
+   "outputs": [],
+   "context": [
+    "control region"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "joint-fit": {
+   "summary": "Published/finite-MC joint profile study.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "published workspace"
+   ],
+   "observables": [
+    "joint fit",
+    "simultaneous fit",
+    "profile fit"
+   ],
+   "outputs": [],
+   "context": [
+    "finite MC"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "joint-qualification": {
+   "summary": "Analytic-source qualification and full-nuisance fits.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "full-nuisance fit",
+    "nuisance fits"
+   ],
+   "outputs": [],
+   "context": [
+    "qualification"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "joint-score": {
+   "summary": "Source-bound successor study of one fit campaign; not a general score test.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "joint score",
+    "score test"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one fit campaign's design, solver commitments and selected mass cases",
+    "select_when": [
+     [
+      "re:(?<![\\w-])joint-score(?![\\w-])"
+     ]
+    ],
+    "general_operation": "joint-fit"
+   }
+  },
+  "hs3-likelihood": {
+   "summary": "HS3 graph import and native RooFit likelihood evaluation.",
+   "operations": [],
+   "tools": [
+    "HS3",
+    "RooFit"
+   ],
+   "inputs": [
+    "HS3 JSON",
+    "workspace"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "workspace-combination-study": {
+   "summary": "Complete-workspace combination witness.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "workspace"
+   ],
+   "observables": [
+    "workspace combination",
+    "statistical combination",
+    "re:\\bcombin\\w*\\b[^.;\\n]{0,30}\\bworkspaces\\b"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "diagrammatica-code": {
+   "summary": "HEPTAPOD EDA script construction.",
+   "operations": [],
+   "tools": [
+    "HEPTAPOD",
+    "Diagrammatica"
+   ],
+   "inputs": [],
+   "observables": [
+    "EDA",
+    "diagram code"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "symbolic-evaluation": {
+   "summary": "HEPTAPOD/FeynCalc symbolic evaluation.",
+   "operations": [],
+   "tools": [
+    "FeynCalc",
+    "HEPTAPOD",
+    "Mathematica",
+    "FORM"
+   ],
+   "inputs": [],
+   "observables": [
+    "symbolic evaluation",
+    "Dirac algebra",
+    "trace evaluation"
+   ],
+   "outputs": [],
+   "context": [
+    "symbolic",
+    "amplitude"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "feyn-graph": {
+   "summary": "Complete model-bound Feynman diagram enumeration and rendering.",
+   "operations": [
+    "diagram"
+   ],
+   "tools": [
+    "FeynGraph",
+    "QGRAF"
+   ],
+   "inputs": [],
+   "observables": [
+    "tree-level diagrams",
+    "one-loop diagrams"
+   ],
+   "outputs": [
+    "Feynman diagram",
+    "diagram enumeration",
+    "rendered diagrams"
+   ],
+   "context": [
+    "diagrams",
+    "topologies"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "diagram-analysis": {
+   "summary": "Enumerated diagram population into NDA/EDA consumers.",
+   "operations": [
+    "diagram"
+   ],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "naive dimensional analysis",
+    "NDA",
+    "diagram classification"
+   ],
+   "outputs": [],
+   "context": [
+    "Feynman diagram",
+    "EDA"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "feynarts-amplitude": {
+   "summary": "FeynArts model to complete FeynCalc amplitude population.",
+   "operations": [
+    "diagram"
+   ],
+   "tools": [
+    "FeynArts",
+    "FeynCalc"
+   ],
+   "inputs": [],
+   "observables": [
+    "one-loop amplitude"
+   ],
+   "outputs": [
+    "amplitude"
+   ],
+   "context": [
+    "Feynman diagram"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "sfitter-native-fit": {
+   "summary": "Native SFitter global fit.",
+   "operations": [],
+   "tools": [
+    "SFitter"
+   ],
+   "inputs": [],
+   "observables": [
+    "global fit",
+    "Higgs couplings fit"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "sfitter-scan-extraction": {
+   "summary": "SFitter signed scan-rate extraction.",
+   "operations": [],
+   "tools": [
+    "SFitter"
+   ],
+   "inputs": [],
+   "observables": [
+    "scan rate",
+    "interference decomposition"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "sfitter-observed-events": {
+   "summary": "LHE/analysis observations to the SFitter extractor.",
+   "operations": [],
+   "tools": [
+    "SFitter"
+   ],
+   "inputs": [
+    "LHE"
+   ],
+   "observables": [
+    "bin observations"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "eft-convention-transport": {
+   "summary": "Same-scale EFT coefficient convention transport.",
+   "operations": [],
+   "tools": [],
+   "inputs": [],
+   "observables": [
+    "EFT basis",
+    "basis conversion",
+    "Warsaw basis",
+    "coefficient convention",
+    "operator basis"
+   ],
+   "outputs": [],
+   "context": [
+    "EFT"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "eft-toolchain": {
+   "summary": "EFT running, matching and flavour predictions with flavio/wilson/smelli.",
+   "operations": [
+    "measurement_fit"
+   ],
+   "tools": [
+    "flavio",
+    "smelli",
+    "WCxf",
+    "DsixTools",
+    "re:(?-i:\\bwilson\\b)(?!\\s+coefficient)"
+   ],
+   "inputs": [],
+   "observables": [
+    "RG running",
+    "renormalization group",
+    "flavour observables",
+    "flavor observables",
+    "Wilson coefficient",
+    "SMEFT",
+    "WET",
+    "B anomalies"
+   ],
+   "outputs": [],
+   "context": [
+    "EFT",
+    "matching",
+    "flavour",
+    "flavor"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "finite-integrals": {
+   "summary": "pySecDec finite Feynman-integral evaluation.",
+   "operations": [],
+   "tools": [
+    "pySecDec",
+    "SecDec"
+   ],
+   "inputs": [],
+   "observables": [
+    "sector decomposition",
+    "Feynman integral",
+    "loop integral",
+    "multi-loop"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "parameter-space-sampling": {
+   "summary": "Source-bound scan adapter for its stored question population; not general parameter-space sampling.",
+   "operations": [],
+   "tools": [
+    "EasyScan",
+    "EasyScan_HEP",
+    "MultiNest"
+   ],
+   "inputs": [],
+   "observables": [
+    "MCMC scan",
+    "parameter-space sampling"
+   ],
+   "outputs": [],
+   "context": [
+    "parameter scan"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "its built-in stored question population and the task identities recorded with it",
+    "select_when": [
+     [
+      "re:(?<![\\w-])parameter-space-sampling(?![\\w-])"
+     ]
+    ],
+    "general_operation": null
+   }
+  },
+  "contur-yoda": {
+   "summary": "Single-point Contur inference from a supplied Rivet YODA.",
+   "operations": [],
+   "tools": [
+    "Contur"
+   ],
+   "inputs": [
+    "YODA"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "exclusion confidence",
+    "Rivet"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "contur-companion": {
+   "summary": "Source-bound released companion operations and tests of one tool release.",
+   "operations": [],
+   "tools": [
+    "Contur",
+    "Herwig"
+   ],
+   "inputs": [],
+   "observables": [
+    "SM tests"
+   ],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "the released companion operations and tests of one tool release",
+    "select_when": [
+     [
+      "re:(?<![\\w-])contur-companion(?![\\w-])"
+     ]
+    ],
+    "general_operation": "contur-yoda"
+   }
+  },
+  "ma5-saf": {
+   "summary": "Source-bound SAF delivery for one fixed booking layout; not general SAF delivery.",
+   "operations": [],
+   "tools": [
+    "MadAnalysis",
+    "MA5"
+   ],
+   "inputs": [
+    "SAF"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "one source hash and its fixed region, histogram and cut-entry counts",
+    "select_when": [
+     [
+      "re:(?<![\\w-])ma5-saf(?![\\w-])"
+     ]
+    ],
+    "general_operation": "ma5-pad"
+   }
+  },
+  "ma5-pad": {
+   "summary": "Pinned MadAnalysis 5 PAD/SampleAnalyzer execution.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [
+    "MadAnalysis",
+    "MA5",
+    "SampleAnalyzer",
+    "PAD"
+   ],
+   "inputs": [
+    "HepMC"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "resonance-width": {
+   "summary": "Tree-level two-body widths and branching ratios of a spin-0 or spin-1 resonance into declared fermion channels.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "chiral couplings",
+    "vector and axial couplings",
+    "sequential Standard Model couplings"
+   ],
+   "observables": [
+    "decay width",
+    "total width",
+    "partial width",
+    "branching ratio",
+    "branching fraction",
+    "width-to-mass ratio"
+   ],
+   "outputs": [
+    "width table",
+    "branching-ratio table"
+   ],
+   "context": [
+    "tree level",
+    "resonance",
+    "fermion pairs"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "columnar-analysis": {
+   "summary": "Apply a declared object, region and histogram recipe to Delphes ROOT, ntuple or LHE events and deliver binned yields, cutflows and provenance.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [
+    "Delphes",
+    "uproot",
+    "awkward"
+   ],
+   "inputs": [
+    "Delphes ROOT",
+    "Delphes output",
+    "Delphes file",
+    "ntuple",
+    "PHYSLITE",
+    "reconstructed events",
+    "efficiency map",
+    "format descriptor",
+    "analysis recipe"
+   ],
+   "observables": [
+    "missing transverse momentum",
+    "transverse mass",
+    "MT2",
+    "MT2W",
+    "topness",
+    "overlap removal",
+    "isolated track",
+    "object selection",
+    "b-tagging",
+    "photon identification"
+   ],
+   "outputs": [
+    "binned yields",
+    "signal region yields",
+    "region yields",
+    "cutflow",
+    "control plot"
+   ],
+   "context": [
+    "detector level",
+    "reconstructed level",
+    "signal region"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "authored-analysis": {
+   "summary": "Run agent-written Python for an analysis step that no declarative recipe expresses, as pinned attempts in a sandbox with a typed repair loop.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [],
+   "inputs": [
+    "authored code",
+    "custom analysis code"
+   ],
+   "observables": [
+    "re:\\b(?:custom|bespoke|hand-written|authored)\\s+(?:python|code|script)\\b"
+   ],
+   "outputs": [],
+   "context": [
+    "python",
+    "sandbox"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "formula-grid": {
+   "summary": "Evaluate declared closed-form formulas (widths, branching ratios, bands, k-factors) over a parameter grid with cited or requester-stated constants.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "analytic formula",
+    "closed-form expression"
+   ],
+   "observables": [
+    "partial width",
+    "branching ratio",
+    "total width"
+   ],
+   "outputs": [
+    "theory band",
+    "parameter grid",
+    "width band"
+   ],
+   "context": [
+    "formula",
+    "analytic"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "coupling-morphing": {
+   "summary": "Fit a polynomial in couplings (declared basis, amplitude coupling orders or total degree) to cross sections or binned yields from several runs; condition number, required held-out closure, width declaration and coefficient covariance.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "cross-section runs",
+    "coupling points",
+    "held-out run",
+    "amplitude coupling orders"
+   ],
+   "observables": [
+    "coupling dependence",
+    "interference term",
+    "re:\\bquadratic\\s+in\\s+the\\s+couplings?\\b",
+    "morphing",
+    "re:\\bcoupling[- ]polynomial\\b"
+   ],
+   "outputs": [
+    "coupling plane",
+    "coupling scan"
+   ],
+   "context": [
+    "Wilson coefficient",
+    "linear and quadratic",
+    "EFT"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "prescribed-statistic": {
+   "summary": "Evaluate the statistic a request prescribes (closed-form significance, Delta(-2 ln L) or Delta chi2 threshold, per-bin profile likelihood, combined experiments) as the primary result, with CLs alongside.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "event yields table",
+    "observed and expected counts",
+    "HEPData table"
+   ],
+   "observables": [
+    "re:\\bDelta\\s*\\(?\\s*-\\s*2\\s*ln\\s*L",
+    "re:\\bDelta\\s*chi\\s*\\^?\\s*2",
+    "profile likelihood",
+    "nuisance parameter",
+    "re:\\b2\\s*\\(\\s*sqrt\\s*\\(\\s*S\\s*\\+\\s*B"
+   ],
+   "outputs": [
+    "allowed region",
+    "significance contour",
+    "coupling limit",
+    "exclusion contour"
+   ],
+   "context": [
+    "prescribed statistic",
+    "per-bin nuisance",
+    "combined"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "search-statistics": {
+   "summary": "Build SR/CR/VR pyhf models from yields: expected and observed discovery significance, CLs, background-only control-region fits with pulls and validation-region residuals.",
+   "operations": [],
+   "tools": [
+    "pyhf",
+    "HistFactory"
+   ],
+   "inputs": [
+    "MC yields",
+    "sum of weights",
+    "region histograms"
+   ],
+   "observables": [
+    "discovery significance",
+    "control region",
+    "validation region",
+    "normalisation factor",
+    "background-only fit",
+    "Z0"
+   ],
+   "outputs": [
+    "expected CLs",
+    "expected significance",
+    "pull plot",
+    "goodness of fit",
+    "systematics self-check"
+   ],
+   "context": [
+    "signal region",
+    "Asimov",
+    "blinded"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "differential-likelihood": {
+   "summary": "Gaussian likelihood for a measured differential spectrum with full covariance, prediction-dependent covariance laws, signed interference terms, profiled nuisances, scans and toy limits.",
+   "operations": [],
+   "tools": [
+    "iminuit"
+   ],
+   "inputs": [
+    "HEPData covariance",
+    "covariance matrix",
+    "unfolded measurement",
+    "differential cross section"
+   ],
+   "observables": [
+    "re:\\binterfer\\w*",
+    "broad resonance",
+    "measured spectrum"
+   ],
+   "outputs": [
+    "allowed interval",
+    "toy-based limit",
+    "Neyman construction"
+   ],
+   "context": [
+    "unfolding",
+    "K-factor",
+    "reinterpretation"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "cross-section": {
+   "summary": "Look up a published signal cross section with its uncertainty under an explicitly selected order, PDF and scale convention; interpolate in mass and refuse silent fallback.",
+   "operations": [
+    "calculation"
+   ],
+   "tools": [
+    "NNLL-fast",
+    "Resummino",
+    "LHC SUSY Cross Section Working Group"
+   ],
+   "inputs": [
+    "production basis",
+    "mass point",
+    "cross-section convention"
+   ],
+   "observables": [
+    "cross section",
+    "NLO+NLL cross section",
+    "NNLO+NNLL cross section",
+    "k-factor",
+    "theory uncertainty"
+   ],
+   "outputs": [
+    "cross section",
+    "k-factor"
+   ],
+   "context": [
+    "gluino pair",
+    "squark pair",
+    "stop pair",
+    "chargino neutralino",
+    "higgsino",
+    "slepton pair",
+    "normalization"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "simplified-spectrum": {
+   "summary": "Write an SLHA2 card for a declared simplified-model spectrum with decoupled states, mixing and decay tables, and check decay closure.",
+   "operations": [
+    "generate"
+   ],
+   "tools": [
+    "SLHA",
+    "Pythia",
+    "MadGraph"
+   ],
+   "inputs": [
+    "simplified model",
+    "mass spectrum",
+    "decay table",
+    "SLHA card"
+   ],
+   "observables": [
+    "branching ratio",
+    "total width",
+    "decay closure",
+    "lightest neutralino",
+    "gravitino"
+   ],
+   "outputs": [
+    "SLHA card",
+    "param card"
+   ],
+   "context": [
+    "simplified model",
+    "decoupled",
+    "stable invisible"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "resonance-lineshape": {
+   "summary": "Evaluate leading-order partial widths of spin-0 and spin-1 resonances, fixed-width, running-width and complex-pole propagators, and check the declared total width against the sum of partial widths.",
+   "operations": [
+    "calculation"
+   ],
+   "tools": [
+    "Breit-Wigner"
+   ],
+   "inputs": [
+    "resonance mass",
+    "couplings",
+    "declared width"
+   ],
+   "observables": [
+    "partial width",
+    "total width",
+    "line shape",
+    "Breit-Wigner",
+    "complex pole",
+    "running width",
+    "diphoton width",
+    "digluon width"
+   ],
+   "outputs": [
+    "partial widths",
+    "width consistency"
+   ],
+   "context": [
+    "broad resonance",
+    "interfering resonance",
+    "width-to-mass ratio"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "model-authoring": {
+   "summary": "Author a FeynRules model extending the Standard Model from a typed ModelSpec or template (leptoquarks, neutral vector, axion-like particle, singlets), lint it, check Hermiticity, diagonal and canonical terms in two gauges, export and check a UFO.",
+   "operations": [
+    "generate"
+   ],
+   "tools": [
+    "FeynRules",
+    "Wolfram",
+    "MG5",
+    "MadGraph"
+   ],
+   "inputs": [
+    "Lagrangian",
+    "LaTeX Lagrangian",
+    "model specification"
+   ],
+   "observables": [
+    "leptoquark",
+    "Z'",
+    "Zprime",
+    "axion-like particle",
+    "ALP",
+    "vector-like",
+    "kinetic mixing",
+    "interference",
+    "Feynman rules"
+   ],
+   "outputs": [
+    "UFO",
+    "FeynRules model",
+    "model card"
+   ],
+   "context": [
+    "model building"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "figure-comparison": {
+   "summary": "Digitise a published figure, compare a result with a published curve, histogram, contour or HEPData table under declared transformations and tolerances, and draw parameter-plane and measurement figures overlaid on the official figure.",
+   "operations": [],
+   "tools": [
+    "HEPData",
+    "contourpy",
+    "pypdf"
+   ],
+   "inputs": [
+    "published figure",
+    "official figure",
+    "figure PDF",
+    "plot image",
+    "digitised curve",
+    "digitized curve",
+    "HEPData table",
+    "comparison specification"
+   ],
+   "observables": [
+    "exclusion contour",
+    "relative L2",
+    "Hausdorff distance",
+    "shape difference",
+    "normalisation difference",
+    "normalization difference",
+    "re:\\bdigiti[sz](?:e|ed|ing|ation)\\b"
+   ],
+   "outputs": [
+    "overlay on the official figure",
+    "side-by-side",
+    "comparison plot",
+    "parameter plane",
+    "exclusion plot",
+    "ratio panel",
+    "comparison object"
+   ],
+   "context": [
+    "overlay",
+    "reproduction",
+    "official"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "amplitude-predictions": {
+   "summary": "Exact post-hoc reweighting of stored amplitudes into binned predictions for any coupling, mass, width and propagator choice.",
+   "operations": [
+    "calculation"
+   ],
+   "tools": [],
+   "inputs": [
+    "amplitude store",
+    "HEPData binning",
+    "fiducial cuts"
+   ],
+   "observables": [
+    "differential cross section",
+    "re:\\binterfer\\w*",
+    "broad resonance",
+    "heavy scalar",
+    "pseudoscalar",
+    "coupling scan",
+    "width scan"
+   ],
+   "outputs": [
+    "binned predictions",
+    "MC covariance",
+    "model minus reference"
+   ],
+   "context": [
+    "interference",
+    "signed",
+    "reweighting",
+    "differential measurement"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "weighted-events": {
+   "summary": "Weighted points as LHE or HepMC3 events with named weights, run through any Rivet routine with RAW absolute normalization.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [
+    "Rivet",
+    "Pythia",
+    "HepMC3"
+   ],
+   "inputs": [
+    "amplitude store",
+    "Rivet routine"
+   ],
+   "observables": [
+    "particle level",
+    "fiducial",
+    "differential cross section"
+   ],
+   "outputs": [
+    "Rivet histograms",
+    "binned predictions",
+    "MC covariance"
+   ],
+   "context": [
+    "multiweight",
+    "signed weights",
+    "interference"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "reco-ntuple-routine": {
+   "summary": "Run a native SimpleAnalysis routine port on flat reconstructed ntuples through a supplied branch and ID-flag map.",
+   "operations": [
+    "published routine baseline",
+    "signal-region yields"
+   ],
+   "tools": [
+    "uproot",
+    "awkward",
+    "SimpleAnalysis"
+   ],
+   "inputs": [
+    "ntuple",
+    "ROOT file",
+    "reconstructed ntuple",
+    "format descriptor"
+   ],
+   "observables": [
+    "signal regions",
+    "cutflow"
+   ],
+   "outputs": [
+    "region yields",
+    "weighted sums"
+   ],
+   "context": [
+    "branches",
+    "ID bits",
+    "weights"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "lhe-transform": {
+   "summary": "Rewrite LHE particles by declared (status, PDG) rules with an optional mass reset, proving that weights, init block and momenta are unchanged and listing the shower settings the change requires.",
+   "operations": [],
+   "tools": [],
+   "inputs": [
+    "LHE events",
+    "transform rules"
+   ],
+   "observables": [
+    "particle relabelling",
+    "photon PDF proxy",
+    "lepton to photon",
+    "dark-hadron remap"
+   ],
+   "outputs": [
+    "transformed LHE",
+    "change census",
+    "required shower settings"
+   ],
+   "context": [
+    "pre-shower",
+    "LHE",
+    "PDG remap",
+    "Check:event"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "generation-reconciliation": {
+   "summary": "Compare a declared physics intent (process, conjugates, coupling orders, masses, widths, couplings, PDF, energy, fiducial cuts, virtuality windows) with MadGraph proc, run and parameter cards.",
+   "operations": [],
+   "tools": [
+    "MadGraph5_aMC@NLO cards"
+   ],
+   "inputs": [
+    "proc card",
+    "run card",
+    "param card",
+    "physics intent"
+   ],
+   "observables": [
+    "coupling orders",
+    "decay width",
+    "generator cuts",
+    "bwcutoff",
+    "charge conjugates"
+   ],
+   "outputs": [
+    "reconciliation record"
+   ],
+   "context": [
+    "spec reconciliation",
+    "card audit",
+    "stale width"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "event-production": {
+   "summary": "Shower LHE events with Pythia 8 and simulate the detector with Delphes for any generated sample, with MLM matching, an invisible-state card gate, output contracts and a production receipt.",
+   "operations": [
+    "generate"
+   ],
+   "tools": [
+    "Pythia",
+    "Pythia 8",
+    "Delphes",
+    "DelphesHepMC3"
+   ],
+   "inputs": [
+    "LHE",
+    "Les Houches events",
+    "parton-level events",
+    "Delphes card",
+    "detector card",
+    "generation receipt",
+    "normalization ledger"
+   ],
+   "observables": [
+    "detector simulation",
+    "parton shower",
+    "MLM matching",
+    "MLM merging",
+    "matched cross section",
+    "re:\\bdelphes\\b",
+    "re:\\bshower\\w*\\b[^.;\\n]{0,60}\\bdetector\\b"
+   ],
+   "outputs": [
+    "Delphes ROOT",
+    "detector-level events",
+    "production receipt"
+   ],
+   "context": [
+    "detector level",
+    "shower",
+    "invisible particles",
+    "gravitino",
+    "neutralino"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
+  "ml-training": {
+   "summary": "Train and compare pinned binary classifiers with baselines, equal epoch budgets, multiple seeds, and one withheld test evaluation.",
+   "operations": [
+    "ml-training"
+   ],
+   "tools": [
+    "NumPy"
+   ],
+   "inputs": [
+    "pinned dataset",
+    "train validation test split",
+    "binary classification"
+   ],
+   "observables": [
+    "ROC AUC",
+    "background rejection",
+    "calibration",
+    "ECE",
+    "Brier score"
+   ],
+   "outputs": [
+    "training receipt",
+    "classifier checkpoint",
+    "method comparison",
+    "seed uncertainty"
+   ],
+   "context": [
+    "machine learning",
+    "method study",
+    "equal training budget",
+    "graph neural network",
+    "classifier training",
+    "tagger"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  }
+ }
+}

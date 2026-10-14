@@ -1,0 +1,25 @@
+{
+ "id": "op:diagrammatica-code",
+ "op": {
+  "do_not_use_when": [
+   "Run the diagram consumers: use diagram-analysis.",
+   "Enumerate diagrams: use feyn-graph."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/diagrammatica-code-example --spec specs/diagrammatica-code.json",
+    "phrase": "Construct a HEPTAPOD EDA script from a pinned input.",
+    "spec": {
+     "mode": "diagrammatica-code",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Construct a HEPTAPOD EDA script for a declared diagram analysis.",
+   "A reviewable EDA script is the deliverable."
+  ]
+ }
+}

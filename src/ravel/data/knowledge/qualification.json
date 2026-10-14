@@ -1,0 +1,1224 @@
+{
+  "kind": "knowledge-qualification",
+  "operations": {},
+  "routing": {
+    "model-events": {
+      "basis": "Generation knowledge routing; the consult role card is not yet registered",
+      "consult_role": "consult-madgraph",
+      "role_status": "held:R-55",
+      "traps": [
+        "T6",
+        "T11",
+        "T12"
+      ]
+    }
+  },
+  "schema_version": 1,
+  "scope": "Tool qualification follows the pinned source census. Operation validation tiers require explicit operation evidence.",
+  "tools": [
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-atlas-simpleanalysis-image-sha256-3156f065-source-5a33033d",
+      "installer_groups": [
+        "simpleanalysis"
+      ],
+      "source_locator": "tools-and-validation-census.md:226",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Reconstructed-object ATLAS selections",
+      "title": "ATLAS SimpleAnalysis (image `sha256:3156f065\u2026`, source `5a33033d`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-agentrivet-e4d12ecc",
+      "installer_groups": [
+        "agent-sources"
+      ],
+      "source_locator": "tools-and-validation-census.md:318",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "External routine construction roles",
+      "title": "AgentRivet (`e4d12ecc`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-analysisbase-21-2-inside-the-sa-image",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:227",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "SA build base for source-built jobs",
+      "title": "AnalysisBase 21.2 (inside the SA image)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-camb-1-6-5-class-classy-3-4-1-0-cobaya-3-6-2",
+      "installer_groups": [
+        "cosmology"
+      ],
+      "source_locator": "tools-and-validation-census.md:291",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Linear LCDM, lensed C_ell, supplied-model log-posterior",
+      "title": "CAMB 1.6.5, CLASS (classy) 3.4.1.0, Cobaya 3.6.2"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-cms-combine-9-2-1-on-root-6-22-image-sha256-5da96967",
+      "installer_groups": [
+        "root-combine"
+      ],
+      "source_locator": "tools-and-validation-census.md:245",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Native CMS likelihoods, saved fits, derivatives, Asimov, calibration",
+      "title": "CMS Combine 9.2.1 on ROOT 6.22 (image `sha256:5da96967\u2026`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-cvmfs-x-509-grid-proxy-kerberos-htcondor-apptainer-agent-cli",
+      "installer_groups": [
+        "site-access"
+      ],
+      "source_locator": "tools-and-validation-census.md:305",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Facility access (lxplus)",
+      "title": "CVMFS, X.509 grid proxy, Kerberos, HTCondor, apptainer, agent CLI"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-checkmate-2-bacf9d17-with-onnx-runtime-c-1-30-0",
+      "installer_groups": [
+        "checkmate"
+      ],
+      "source_locator": "tools-and-validation-census.md:231",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "86 active ATLAS/CMS routines, HS3 branch, multibin pyhf",
+      "title": "CheckMATE 2 (`bacf9d17`) with ONNX Runtime C++ 1.30.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-collier-or-looptools",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:265",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "FlexibleSUSY decay loops",
+      "title": "Collier or LoopTools"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-contur-3-1-5-contur-spey-data",
+      "installer_groups": [
+        "contur"
+      ],
+      "source_locator": "tools-and-validation-census.md:233",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Measurement-based constraints",
+      "title": "Contur 3.1.5 (`contur[spey]`) + data"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-delphes-3-5-1",
+      "installer_groups": [
+        "checkmate",
+        "recast-base"
+      ],
+      "source_locator": "tools-and-validation-census.md:222",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Fast detector simulation",
+      "title": "Delphes 3.5.1"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-dsixtools",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:278",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Named in `eft-toolchain` descriptor",
+      "title": "DsixTools"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-easyscan-hep-2dee5ede",
+      "installer_groups": [
+        "easyscan"
+      ],
+      "source_locator": "tools-and-validation-census.md:280",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Original scan CLI (RANDOM, GRID, BESTFIT, EMCEE, DYNESTY, MCMC)",
+      "title": "EasyScan_HEP (`2dee5ede`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-form-standalone",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:264",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Named in the `symbolic-evaluation` descriptor",
+      "title": "FORM (standalone)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-fastjet-3-5-1",
+      "installer_groups": [
+        "recast-base"
+      ],
+      "source_locator": "tools-and-validation-census.md:223",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Jets (via Rivet, Delphes, MA5 SFS)",
+      "title": "FastJet 3.5.1"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-feynarts-3-12-patched-with-fapatch",
+      "installer_groups": [
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:259",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "CreateTopologies, InsertFields, CreateFeynAmp",
+      "title": "FeynArts 3.12 (patched with FAPatch)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-feyncalc-fe664511",
+      "installer_groups": [
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:258",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Amplitude algebra, FCFAConvert",
+      "title": "FeynCalc (`fe664511`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-feyngraph-15afe2f2",
+      "installer_groups": [
+        "feyngraph"
+      ],
+      "source_locator": "tools-and-validation-census.md:261",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Model-bound diagram enumeration, SVG/TikZ",
+      "title": "FeynGraph (`15afe2f2`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-feynrules-2-3-49",
+      "installer_groups": [
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:256",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Lagrangian to Feynman rules and UFO; CheckHermiticity, ComputeWidths",
+      "title": "FeynRules 2.3.49"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-flexiblesusy-2-9-0-cmssm-lowmssm-nmssm",
+      "installer_groups": [
+        "spectrum"
+      ],
+      "source_locator": "tools-and-validation-census.md:273",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Spectrum generation",
+      "title": "FlexibleSUSY 2.9.0 (CMSSM, lowMSSM, NMSSM)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-gm2calc-2-3-1-phasetracer-a68b2fd2",
+      "installer_groups": [
+        "easyscan"
+      ],
+      "source_locator": "tools-and-validation-census.md:281",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "EasyScan programmes",
+      "title": "GM2Calc 2.3.1, PhaseTracer (`a68b2fd2`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-geant4-gdml",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:235",
+      "source_status": "X",
+      "status": "excluded",
+      "summary": "Full simulation; GRACE detector design",
+      "title": "Geant4 / GDML"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-hepdata-api-and-hepdata-cli-0-3-1-inspire-arxiv-zenodo-cern-gitlab",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:306",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Source acquisition",
+      "title": "HEPData (API and `hepdata-cli` 0.3.1), INSPIRE, arXiv, Zenodo, CERN GitLab"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-heptapod-v2-1-0-705b03cc-and-eda-epoch-cb771f8c-nda-and-diagrammatica-eda",
+      "installer_groups": [
+        "diagram-consumers",
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:260",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Width estimates, Diagrammatica code generation",
+      "title": "HEPTAPOD v2.1.0 (`705b03cc`) and EDA epoch (`cb771f8c`): NDA and Diagrammatica EDA"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-htcondor-slurm",
+      "installer_groups": [
+        "nyx",
+        "site-access"
+      ],
+      "source_locator": "tools-and-validation-census.md:315",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Batch backends",
+      "title": "HTCondor, SLURM"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-hepmc2-2-06-11",
+      "installer_groups": [
+        "checkmate"
+      ],
+      "source_locator": "tools-and-validation-census.md:213",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "CheckMATE input format",
+      "title": "HepMC2 2.06.11"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-hepmc3-3-3-1",
+      "installer_groups": [
+        "rivet-shower"
+      ],
+      "source_locator": "tools-and-validation-census.md:212",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Event records and weights",
+      "title": "HepMC3 3.3.1"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-herwig-7-3-0-thepeg-2-3-0",
+      "installer_groups": [
+        "contur"
+      ],
+      "source_locator": "tools-and-validation-census.md:209",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Contur companion SM/BSM generation; named in `retained-shower` descriptor",
+      "title": "Herwig 7.3.0, ThePEG 2.3.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-higgstools-lilith",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:284",
+      "source_status": "X",
+      "status": "excluded",
+      "summary": "Higgs constraints",
+      "title": "HiggsTools, Lilith"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-jax-0-4-35",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:243",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "pyhf JAX backend; float64 gradient checks",
+      "title": "JAX 0.4.35"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-jhugen-mela",
+      "installer_groups": [
+        "container-runtime",
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:267",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Independent matrix elements for `amplitude-crosscheck`",
+      "title": "JHUGen / MELA"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-lhapdf-6-5-6",
+      "installer_groups": [
+        "lhapdf-sets",
+        "madgraph"
+      ],
+      "source_locator": "tools-and-validation-census.md:214",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "PDF library",
+      "title": "LHAPDF 6.5.6"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-lhapdf-sets-nnpdf30-nlo-as-0118-luxlep-nnpdf31-nlo-as-0118-luxqed-cteq6l1-nnpdf23-lo-as-0130-qed-nnpdf23-nlo-as-0119-ct14lo-ct18nnlo",
+      "installer_groups": [
+        "lhapdf-sets"
+      ],
+      "source_locator": "tools-and-validation-census.md:215",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "PDF data; `pdf-variations` supports only the NNPDF30 replica set",
+      "title": "LHAPDF sets: NNPDF30_nlo_as_0118, LUXlep-NNPDF31_nlo_as_0118_luxqed, cteq6l1, NNPDF23_lo_as_0130_qed, NNPDF23_nlo_as_0119, CT14lo, CT18NNLO"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-supplied-array-layout",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:234",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "46-column array producer",
+      "title": "Supplied tree-to-array column layout"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-langgraph-1-2-14-checkpoint-4-2-0-sqlite-saver-3-1-1-langchain-core-1-6-7-pydantic-2-14-0",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:316",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Research and review graph runtime",
+      "title": "LangGraph 1.2.14 (+ checkpoint 4.2.0, SQLite saver 3.1.1), LangChain Core 1.6.7, pydantic 2.14.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-mcfm-amplitudes",
+      "installer_groups": [
+        "mcfm-amplitudes"
+      ],
+      "source_locator": "tools-and-validation-census.md:266",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Per-point helicity amplitudes for interfering resonances and weighted integration into Gram stores",
+      "title": "MCFM per-point helicity amplitudes for interfering resonances"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-mg5amc-py8-interface-5d82df1b",
+      "installer_groups": [
+        "mg5-py8-interface"
+      ],
+      "source_locator": "tools-and-validation-census.md:206",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "MadGraph-driven Pythia shower",
+      "title": "MG5aMC_PY8_interface (`5d82df1b`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-madanalysis-5-v1-11-1-e25937ba-with-sampleanalyzer",
+      "installer_groups": [
+        "ma5"
+      ],
+      "source_locator": "tools-and-validation-census.md:230",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "PAD and expert-mode recasting, SAF readers",
+      "title": "MadAnalysis 5 v1.11.1 (`e25937ba`) with SampleAnalyzer"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-madgraph-3-7-0-adf3d62d",
+      "installer_groups": [
+        "madgraph"
+      ],
+      "source_locator": "tools-and-validation-census.md:204",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Lepton and photon PDFs (LUXlep)",
+      "title": "MadGraph 3.7.0 (`adf3d62d`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-madgraph5-amc-nlo-2-9-27-eb76cab7",
+      "installer_groups": [
+        "madgraph"
+      ],
+      "source_locator": "tools-and-validation-census.md:203",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Hard process, matrix elements, MadSpin, MadWidth, gauge check",
+      "title": "MadGraph5_aMC@NLO 2.9.27 (`eb76cab7`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:205",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Loop-induced processes (gg\u21924\u2113)",
+      "title": "MadLoop with CutTools, Ninja, COLLIER (inside MG5)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-magnus-cli-agpl",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:314",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Remote execution backend",
+      "title": "Magnus CLI (AGPL)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-model-providers-anthropic-messages-openai-responses-gemini-openai-compatible-chat-completions",
+      "installer_groups": [
+        "research-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:317",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Role calls",
+      "title": "Model providers: Anthropic Messages, OpenAI Responses, Gemini, OpenAI-compatible chat completions"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-multinest",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:283",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Named in `parameter-space-sampling` descriptor",
+      "title": "MultiNest"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-nyx-26-09-amrex-26-09-sundials-7-6-0-cosmicic-supplied",
+      "installer_groups": [
+        "nyx"
+      ],
+      "source_locator": "tools-and-validation-census.md:293",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Cosmological hydrodynamics on a Linux MPI site",
+      "title": "Nyx 26.09, AMReX 26.09, SUNDIALS 7.6.0; CosmicIC (supplied)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-onnx-1-23-0-onnx-runtime-1-30-0",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:248",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Published classifiers",
+      "title": "ONNX 1.23.0, ONNX Runtime 1.30.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-podman-5-8-2-macos-client-vfkit-0-6-3-gvproxy-0-8-9-podman-vm-ravel-rosetta-2",
+      "installer_groups": [
+        "container-runtime"
+      ],
+      "source_locator": "tools-and-validation-census.md:312",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Linux-only tools on a Mac (SA, Combine)",
+      "title": "Podman 5.8.2 (macOS client), vfkit 0.6.3, gvproxy 0.8.9, Podman VM `ravel`; Rosetta 2"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-powheg",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:211",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Recognised by the intake generator regex only",
+      "title": "Powheg"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pyslha-3-3-2-particle-0-26-2",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:276",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "SLHA I/O; PDG data",
+      "title": "PySLHA 3.3.2, `particle` 0.26.2"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pythia-8-244",
+      "installer_groups": [
+        "checkmate"
+      ],
+      "source_locator": "tools-and-validation-census.md:208",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "CheckMATE's own shower (8.312 dropped `Info::errorMsg`)",
+      "title": "Pythia 8.244"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pythia-8-312",
+      "installer_groups": [
+        "rivet-shower"
+      ],
+      "source_locator": "tools-and-validation-census.md:207",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Shower, hadronization, retained-shower, MPI studies",
+      "title": "Pythia 8.312"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-python-numerical-core",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "Python numerical core"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-qgraf-model-format",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:262",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Read by `Model.from_qgraf`",
+      "title": "QGRAF model format"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-root-6-40",
+      "installer_groups": [
+        "recast-base"
+      ],
+      "source_locator": "tools-and-validation-census.md:224",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "I/O, RooFit, MA5 build base, HS3",
+      "title": "ROOT 6.40"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-restframes-from-sa-tarball-sha256-pinned",
+      "installer_groups": [
+        "restframes"
+      ],
+      "source_locator": "tools-and-validation-census.md:228",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Recursive jigsaw reconstruction",
+      "title": "RestFrames (from SA tarball, sha256 pinned)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-rivet-4-1-3-yoda-2-1-3",
+      "installer_groups": [
+        "rivet-shower"
+      ],
+      "source_locator": "tools-and-validation-census.md:225",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Particle-level routines, histograms, Contur input",
+      "title": "Rivet 4.1.3, YODA 2.1.3"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-roofit-xroofit-root-6-32-14-for-hs3",
+      "installer_groups": [
+        "recast-base"
+      ],
+      "source_locator": "tools-and-validation-census.md:246",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "HS3 graph import",
+      "title": "RooFit / XRooFit (ROOT \u22656.32.14 for HS3)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-sarah-4-15-4",
+      "installer_groups": [
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:257",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Model to UFO, CheckModel; source for FlexibleSUSY",
+      "title": "SARAH 4.15.4"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-sfitteragents-sfitter-6072a79e-pytorch-2-14-0",
+      "installer_groups": [
+        "sfitter"
+      ],
+      "source_locator": "tools-and-validation-census.md:279",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Native SMEFT/Higgs/top fits",
+      "title": "SFitterAgents/SFitter (`6072a79e`) + PyTorch 2.14.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-smodels-3-1-1-database-official311-pcl-zenodo-18478920",
+      "installer_groups": [
+        "smodels"
+      ],
+      "source_locator": "tools-and-validation-census.md:232",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Simplified-model interpretation, coverage",
+      "title": "SModelS 3.1.1 + database `official311.pcl` (Zenodo 18478920)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-spheno-4-0-5",
+      "installer_groups": [
+        "spectrum"
+      ],
+      "source_locator": "tools-and-validation-census.md:274",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "MSSM spectrum and decays (one consistent SLHA origin)",
+      "title": "SPheno 4.0.5"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-susy-cross-section-tables-lhc-susy-xs-wg-nnll-fast-resummino-via-hepi-json",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:216",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "NLO+NLL normalization",
+      "title": "SUSY cross-section tables (LHC SUSY XS WG: NNLL-fast, Resummino) via HEPi JSON"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-servicex-3-3-1-func-adl-servicex-xaodr25",
+      "installer_groups": [
+        "iris"
+      ],
+      "source_locator": "tools-and-validation-census.md:301",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "IRIS-HEP remote columnar queries",
+      "title": "ServiceX 3.3.1, func-adl-servicex-xaodr25"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-sherpa",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:210",
+      "source_status": "X",
+      "status": "excluded",
+      "summary": "Only recognised in intake and refused as a shower stage",
+      "title": "Sherpa"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-snakemake-9-27-0",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "source_locator": "tools-and-validation-census.md:304",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Site workflow export",
+      "title": "Snakemake 9.27.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-softsusy",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:275",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Named in `generated-spectrum` descriptor",
+      "title": "SoftSUSY"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-spey-0-2-6",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:244",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Gaussian measurement likelihoods; Contur back end",
+      "title": "Spey 0.2.6"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-tmva",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:249",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Published BDTs",
+      "title": "TMVA"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-tex-live-or-mactex-with-pdflatex-bibtex-revtex",
+      "installer_groups": [
+        "tex"
+      ],
+      "source_locator": "tools-and-validation-census.md:324",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Manuscript and note builds",
+      "title": "TeX Live or MacTeX with `pdflatex`, BibTeX, REVTeX"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-wcxf-wilson-2-5-2-flavio-2-7-1-smelli-2-4-3",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:277",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Basis transport, running, flavour observables, global likelihood",
+      "title": "WCxf / wilson 2.5.2, flavio 2.7.1, smelli 2.4.3"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-wolfram-kernel-mathematica-or-wolfram-engine-wolframscript",
+      "installer_groups": [
+        "wolfram"
+      ],
+      "source_locator": "tools-and-validation-census.md:255",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Symbolic engine for everything below",
+      "title": "Wolfram kernel (Mathematica or Wolfram Engine), `wolframscript`"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-xrootd-6-2-0-fsspec-xrootd-0-5-5-rucio-clients-35-0-0-fsspec",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "source_locator": "tools-and-validation-census.md:303",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Remote data access",
+      "title": "XRootD 6.2.0, fsspec-xrootd 0.5.5, Rucio clients 35.0.0, fsspec"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "coffea, cabinetry, vector, boost-histogram, pyarrow"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-docker-apptainer-podman-on-linux",
+      "installer_groups": [
+        "container-runtime"
+      ],
+      "source_locator": "tools-and-validation-census.md:313",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Same on Linux; apptainer on sites",
+      "title": "docker / apptainer / podman on Linux"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-emcee-3-1-6-dynesty-2-1-5",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:247",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "EasyScan samplers",
+      "title": "emcee 3.1.6, dynesty 2.1.5"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-hi-class",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:292",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Named in `cosmology-solver` descriptor",
+      "title": "hi_class"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-iminuit-2-32-0",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:242",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Minimization",
+      "title": "iminuit 2.32.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-mapyde-0-5-0",
+      "installer_groups": [
+        "simpleanalysis"
+      ],
+      "source_locator": "tools-and-validation-census.md:229",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "`Delphes2SA.py`, card conventions, container SA route",
+      "title": "mapyde 0.5.0"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-matplotlib-3-9-4-mplhep-0-3-59-contourpy",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:327",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "House figures, plot lint",
+      "title": "matplotlib 3.9.4, mplhep 0.3.59, contourpy"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-micromegas-as-a-general-dm-tool",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:285",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Listed by Codex in the intended dependency map (`DL:1328`)",
+      "title": "micrOMEGAs (as a general DM tool)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-micromegas-7-1-susy-hit-feynhiggs-higgsbounds",
+      "installer_groups": [],
+      "source_locator": "tools-and-validation-census.md:282",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "EasyScan cells T8 (singlet DM + PhaseTracer) and T9-T11 (MSSM chain)",
+      "title": "micrOMEGAs 7.1, SUSY-HIT, FeynHiggs, HiggsBounds"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-poppler-pdftoppm-pdfinfo-graphviz-neato-librsvg-rsvg-convert",
+      "installer_groups": [
+        "publication"
+      ],
+      "source_locator": "tools-and-validation-census.md:325",
+      "source_status": "S",
+      "status": "not_installed",
+      "summary": "Page rendering, diagrams, SVG",
+      "title": "poppler (`pdftoppm`, `pdfinfo`), Graphviz (`neato`), librsvg (`rsvg-convert`)"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pysecdec-1-6-6-with-bundled-form",
+      "installer_groups": [
+        "finite-integrals"
+      ],
+      "source_locator": "tools-and-validation-census.md:263",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Finite scalar one-loop triangles and boxes",
+      "title": "pySecDec 1.6.6 with bundled FORM"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pyhf-0-7-6-minuit-jsonpatch",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:241",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "HistFactory likelihoods, CLs",
+      "title": "pyhf 0.7.6 (+ `[minuit]`), jsonpatch"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-pypdfium2-5-14-0-pdfium-pypdf-pillow",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:326",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "Reviewer page rendering, caption extraction, figure composition",
+      "title": "pypdfium2 5.14.0 / PDFium, pypdf, Pillow"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "census-uproot-5-3-12-awkward-2-6-7-hist-2-8-0-pandas-2-2-3",
+      "installer_groups": [
+        "python-host"
+      ],
+      "source_locator": "tools-and-validation-census.md:300",
+      "source_status": "E",
+      "status": "qualified",
+      "summary": "ROOT and columnar I/O",
+      "title": "uproot 5.3.12, awkward 2.6.7, hist 2.8.0, pandas 2.2.3"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-madloop",
+      "installer_groups": [],
+      "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "source_locator": "tools-and-validation-census.md:205",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Loop-induced processes (gg\u21924\u2113)",
+      "title": "MadLoop"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-cuttools",
+      "installer_groups": [],
+      "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "source_locator": "tools-and-validation-census.md:205",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Loop-induced processes (gg\u21924\u2113)",
+      "title": "CutTools"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-ninja",
+      "installer_groups": [],
+      "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "source_locator": "tools-and-validation-census.md:205",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Loop-induced processes (gg\u21924\u2113)",
+      "title": "Ninja"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-collier",
+      "installer_groups": [],
+      "parent_census_row": "census-madloop-with-cuttools-ninja-collier-inside-mg5",
+      "source_locator": "tools-and-validation-census.md:205",
+      "source_status": "E\u2212",
+      "status": "built_but_unqualified",
+      "summary": "Loop-induced processes (gg\u21924\u2113)",
+      "title": "COLLIER"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-numpy",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "numpy"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-scipy",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "scipy"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-sympy",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "sympy"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-mpmath",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "mpmath"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-jsonschema",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "jsonschema"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-pyyaml",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "PyYAML"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-packaging",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "packaging"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-certifi",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "certifi"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-pytest",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "pytest"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-hatchling",
+      "installer_groups": [],
+      "parent_census_row": "census-python-numerical-core",
+      "source_locator": "tools-and-validation-census.md:329",
+      "source_status": "I",
+      "status": "built_but_unqualified",
+      "summary": "Numerical and packaging libraries",
+      "title": "hatchling"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-coffea",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "coffea"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-cabinetry",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "cabinetry"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-vector",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "vector"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-boost-histogram",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "boost-histogram"
+    },
+    {
+      "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
+      "id": "component-pyarrow",
+      "installer_groups": [
+        "site-root-wms"
+      ],
+      "parent_census_row": "census-coffea-cabinetry-vector-boost-histogram-pyarrow",
+      "source_locator": "tools-and-validation-census.md:302",
+      "source_status": "P",
+      "status": "not_installed",
+      "summary": "Agent-usable analysis libraries",
+      "title": "pyarrow"
+    }
+  ]
+}

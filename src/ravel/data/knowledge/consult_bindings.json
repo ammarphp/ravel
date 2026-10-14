@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "kind": "consult-bindings",
+  "consults": {
+    "consult-madgraph": {
+      "role": "consult-madgraph",
+      "manifest_groups": [
+        "madgraph",
+        "lhapdf-sets",
+        "mg5-py8-interface"
+      ],
+      "tools": [
+        "madgraph",
+        "mg5",
+        "madspin"
+      ],
+      "operations": [
+        "model-events",
+        "lhe-transform"
+      ],
+      "handbooks": [
+        "hb:madgraph-launch",
+        "hb:madgraph-model-import",
+        "hb:lhapdf-pdf-sets"
+      ]
+    },
+    "consult-pythia-delphes": {
+      "role": "consult-pythia-delphes",
+      "manifest_groups": [
+        "rivet-shower",
+        "recast-base"
+      ],
+      "tools": [
+        "pythia",
+        "delphes",
+        "herwig"
+      ],
+      "operations": [
+        "event-production",
+        "retained-shower"
+      ],
+      "handbooks": [
+        "hb:pythia-shower-cards",
+        "hb:delphes-cards"
+      ]
+    },
+    "consult-rivet": {
+      "role": "consult-rivet",
+      "manifest_groups": [
+        "rivet-shower"
+      ],
+      "tools": [
+        "rivet",
+        "contur"
+      ],
+      "operations": [
+        "analyze",
+        "contur-yoda"
+      ],
+      "handbooks": [
+        "hb:rivet-routine"
+      ]
+    },
+    "consult-pyhf": {
+      "role": "consult-inference",
+      "manifest_groups": [
+        "recast-base",
+        "root-combine"
+      ],
+      "tools": [
+        "pyhf"
+      ],
+      "operations": [
+        "published-model",
+        "signal-template"
+      ],
+      "handbooks": [
+        "hb:pyhf-workspace-patching"
+      ]
+    },
+    "consult-inference": {
+      "role": "consult-inference",
+      "manifest_groups": [
+        "python-host"
+      ],
+      "tools": [
+        "inference",
+        "fit",
+        "combine",
+        "roofit",
+        "spey",
+        "sfitter"
+      ],
+      "operations": [
+        "prescribed-statistic",
+        "differential-likelihood",
+        "native-statistical-construction"
+      ],
+      "handbooks": [
+        "hb:inference-engines"
+      ]
+    },
+    "consult-feynrules": {
+      "role": "consult-feynrules",
+      "manifest_groups": [
+        "wolfram",
+        "madgraph"
+      ],
+      "tools": [
+        "feynrules",
+        "sarah"
+      ],
+      "operations": [
+        "model-authoring",
+        "model-source"
+      ],
+      "handbooks": [
+        "hb:feynrules",
+        "hb:madgraph-model-import",
+        "hb:model-authoring"
+      ]
+    },
+    "consult-columnar": {
+      "role": "consult-columnar",
+      "manifest_groups": [
+        "python-host"
+      ],
+      "tools": [
+        "columnar",
+        "authored",
+        "coffea",
+        "awkward"
+      ],
+      "operations": [
+        "columnar-analysis",
+        "authored-analysis"
+      ],
+      "handbooks": [
+        "hb:columnar-analysis"
+      ]
+    },
+    "consult-theory": {
+      "role": "consult-theory",
+      "manifest_groups": [],
+      "tools": [
+        "theory",
+        "amplitude"
+      ],
+      "operations": [
+        "lineshape",
+        "resonance-width",
+        "coupling-morphing"
+      ],
+      "handbooks": []
+    },
+    "consult-recast": {
+      "role": "consult-recast",
+      "manifest_groups": [
+        "ma5",
+        "checkmate",
+        "smodels",
+        "contur"
+      ],
+      "tools": [
+        "ma5",
+        "checkmate",
+        "smodels",
+        "simpleanalysis"
+      ],
+      "operations": [
+        "ma5-pad",
+        "ma5-saf",
+        "checkmate-events",
+        "model-portfolio"
+      ],
+      "handbooks": [
+        "hb:ma5-expert",
+        "hb:smodels-input"
+      ]
+    },
+    "consult-symbolic": {
+      "role": "consult-symbolic",
+      "manifest_groups": [
+        "wolfram",
+        "feyngraph",
+        "diagram-consumers",
+        "finite-integrals"
+      ],
+      "tools": [
+        "wolfram",
+        "feyncalc",
+        "feynarts",
+        "form",
+        "symbolic"
+      ],
+      "operations": [
+        "symbolic-evaluation",
+        "feynarts-amplitude",
+        "feyn-graph",
+        "diagram-analysis",
+        "finite-integrals"
+      ],
+      "handbooks": []
+    },
+    "consult-normalization": {
+      "role": "consult-normalization",
+      "manifest_groups": [
+        "python-host"
+      ],
+      "tools": [
+        "normalization",
+        "lhapdf"
+      ],
+      "operations": [
+        "cross-section",
+        "normalization",
+        "normalization-ledger"
+      ],
+      "handbooks": [
+        "hb:cross-section-normalization"
+      ]
+    },
+    "consult-site": {
+      "role": "consult-columnar",
+      "manifest_groups": [
+        "site-root-wms",
+        "site-access",
+        "iris"
+      ],
+      "tools": [
+        "root",
+        "backend",
+        "site",
+        "iris"
+      ],
+      "operations": [
+        "root-stream",
+        "ntuples",
+        "partitions",
+        "dataset-query-quantities"
+      ],
+      "handbooks": [
+        "hb:roofit-histfactory"
+      ]
+    }
+  },
+  "operations": {
+    "model-events": "consult-madgraph",
+    "lhe-transform": "consult-madgraph",
+    "event-production": "consult-pythia-delphes",
+    "retained-shower": "consult-pythia-delphes",
+    "analyze": "consult-rivet",
+    "contur-yoda": "consult-rivet",
+    "published-model": "consult-inference",
+    "signal-template": "consult-inference",
+    "prescribed-statistic": "consult-inference",
+    "differential-likelihood": "consult-inference",
+    "native-statistical-construction": "consult-inference",
+    "model-authoring": "consult-feynrules",
+    "model-source": "consult-feynrules",
+    "columnar-analysis": "consult-columnar",
+    "authored-analysis": "consult-columnar",
+    "lineshape": "consult-theory",
+    "resonance-width": "consult-theory",
+    "coupling-morphing": "consult-theory",
+    "ma5-pad": "consult-recast",
+    "ma5-saf": "consult-recast",
+    "checkmate-events": "consult-recast",
+    "model-portfolio": "consult-recast",
+    "symbolic-evaluation": "consult-symbolic",
+    "feynarts-amplitude": "consult-symbolic",
+    "feyn-graph": "consult-symbolic",
+    "diagram-analysis": "consult-symbolic",
+    "finite-integrals": "consult-symbolic",
+    "cross-section": "consult-normalization",
+    "normalization": "consult-normalization",
+    "normalization-ledger": "consult-normalization",
+    "root-stream": "consult-columnar",
+    "ntuples": "consult-columnar",
+    "partitions": "consult-columnar",
+    "dataset-query-quantities": "consult-columnar"
+  },
+  "role_aliases": {
+    "consult-pyhf": "consult-inference",
+    "consult-site": "consult-columnar"
+  },
+  "alias_limits": {
+    "consult-pyhf": "Uses the registered pyhf alias and inference card.",
+    "consult-site": "Uses the registered read-only columnar card for site diagnostics; dedicated site role requires a role-registry handoff."
+  }
+}

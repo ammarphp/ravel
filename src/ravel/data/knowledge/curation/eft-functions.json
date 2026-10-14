@@ -1,0 +1,25 @@
+{
+ "id": "op:eft-functions",
+ "op": {
+  "do_not_use_when": [
+   "Running coefficients with flavio/wilson: use eft-toolchain.",
+   "Convention conversion: use eft-convention-transport."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/eft-functions-example --spec specs/eft-functions.json",
+    "phrase": "Evaluate EFT response polynomials from a pinned physics model.",
+    "spec": {
+     "mode": "eft-functions",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Exact response polynomials of a CMS PhysicsModel EFT parametrization.",
+   "The EFT scaling functions must be reproduced before a fit."
+  ]
+ }
+}

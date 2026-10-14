@@ -1,0 +1,24 @@
+{
+ "id": "op:tree-array-export",
+ "op": {
+  "do_not_use_when": [
+   "Event selection, normalization, preprocessing or training must be performed."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/tree-array-export-example --spec specs/tree-array-export.json",
+    "phrase": "Export supplied trees to arrays with explicit branches, shapes, padding and formats.",
+    "spec": {
+     "mode": "tree-array-export",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Export all source tree rows to a supplied positional array layout and destination population."
+  ]
+ }
+}

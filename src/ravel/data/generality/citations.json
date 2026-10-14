@@ -1,0 +1,386 @@
+{
+ "schema_version": 1,
+ "kind": "generality-citations",
+ "purpose": "Identifiers of upstream sources that the named files cite: the source of shipped data, a method, a convention or a tool. A file may carry exactly the identifiers listed for it; the generality gate refuses every other identifier, the same identifier in a file that is not listed, and a listed identifier that its file no longer carries.",
+ "files": {
+  "NOTICE": [
+   "1610.07922",
+   "2402.09955",
+   "CERN-2017-002",
+   "CYRM-2017-002",
+   "LHCHWG-2024-001"
+  ],
+  "docs/guides/finite-integrals.md": [
+   "1703.09692"
+  ],
+  "docs/guides/regional-expected-inference.md": [
+   "1007.1727"
+  ],
+  "docs/reference/background-model-construction.md": [
+   "1408.6865"
+  ],
+  "docs/reference/diagrammatica-code.md": [
+   "2304.09883"
+  ],
+  "docs/reference/domain-adapters.md": [
+   "2304.09883"
+  ],
+  "docs/reference/model-sources.md": [
+   "1309.7223",
+   "1310.1921",
+   "2603.22538"
+  ],
+  "docs/reference/mssm-spectrum-and-decay-provider.md": [
+   "2312.08087"
+  ],
+  "docs/reference/nmssm-yukawa-map.md": [
+   "1406.2319"
+  ],
+  "docs/workflow/checklists/plot-guidelines.md": [
+   "GEN-PUB-2008-001"
+  ],
+  "docs/workflow/reference/mssm-physical-map.md": [
+   "0712.3311",
+   "0801.0045",
+   "hep-ph/0311123"
+  ],
+  "docs/workflow/reference/pdf-variations.md": [
+   "1412.7420"
+  ],
+  "docs/workflow/reference/physics-review.md": [
+   "2502.16069"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_SGmodel_GGxsec_NNLOa+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_SGmodel_SBxsec_NNLOa+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_SGmodel_SGxsec_NNLOa+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_SGmodel_SSxsec_NNLOa+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_gluino_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_gluinosquark_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_squark_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13600_stopsbottom_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_GGxsec_NLO+NLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_GGxsec_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SGxsec_NLO+NLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SGxsec_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SSBxsec_NLO+NLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SSBxsec_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SSxsec_NLO+NLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_SGmodel_SSxsec_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_gluino_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_gluinosquark_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_slep_LR_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_slep_L_NLO+NLL.json": [
+   "1310.2621"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_slep_L_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_slep_R_NLO+NLL.json": [
+   "1310.2621"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_slep_R_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_snu-snu_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_snuM-slep_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_snuP-slep_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_squark_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stau_LR_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stau_L_NLO+NLL.json": [
+   "1310.2621"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stau_L_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stau_R_NLO+NLL.json": [
+   "1310.2621"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stau_R_NLO+NLL_PDF4LHC.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/cross_sections/lhc-susy-wg/pp13_stopsbottom_NNLO+NNLL.json": [
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/registry.json": [
+   "1310.2621",
+   "1510.03865",
+   "1607.07741"
+  ],
+  "src/ravel/data/cross_sections/slepton_flavLR_nlonll_pdf4lhc15.json": [
+   "1310.2621",
+   "1510.03865"
+  ],
+  "src/ravel/data/finite_integrals/upstream-api.json": [
+   "1703.09692"
+  ],
+  "src/ravel/data/knowledge/atlas.json": [
+   "1610.07922",
+   "2402.09955",
+   "CERN-2017-002",
+   "CYRM-2017-002",
+   "LHCHWG-2024-001"
+  ],
+  "src/ravel/data/knowledge/conventions/detector-models.json": [
+   "1108.2040",
+   "1307.6346",
+   "2003.07868"
+  ],
+  "src/ravel/data/knowledge/conventions/generation.json": [
+   "1108.2040",
+   "1206.4803",
+   "1405.0301",
+   "1410.3012"
+  ],
+  "src/ravel/data/knowledge/conventions/interference-cp.json": [
+   "0806.2864",
+   "10.1103/PhysRev.77.242",
+   "1206.4803",
+   "1208.4018",
+   "1304.3053",
+   "1405.0301",
+   "hep-ph/9404359"
+  ],
+  "src/ravel/data/knowledge/conventions/normalization.json": [
+   "2003.07868"
+  ],
+  "src/ravel/data/knowledge/conventions/reinterpretation.json": [
+   "1203.2489",
+   "2003.07868"
+  ],
+  "src/ravel/data/knowledge/conventions/statistics.json": [
+   "1007.1727"
+  ],
+  "src/ravel/data/knowledge/conventions/theory-procedures.json": [
+   "10.1103/PhysRevD.10.1145",
+   "1108.2040",
+   "1206.4803",
+   "1706.08945"
+  ],
+  "src/ravel/data/knowledge/higgs/SOURCE.json": [
+   "1610.07922",
+   "2402.09955",
+   "CERN-2017-002",
+   "CYRM-2017-002",
+   "LHCHWG-2024-001"
+  ],
+  "src/ravel/data/knowledge/higgs/higgs-reference-tables.json": [
+   "1610.07922",
+   "2402.09955",
+   "CERN-2017-002",
+   "LHCHWG-2024-001"
+  ],
+  "src/ravel/data/knowledge/premises.json": [
+   "0806.2864",
+   "10.1103/PhysRev.77.242",
+   "10.1103/PhysRevD.10.1145",
+   "1007.1727",
+   "1108.2040",
+   "1203.2489",
+   "1206.4803",
+   "1208.4018",
+   "1304.3053",
+   "1307.6346",
+   "1405.0301",
+   "1410.3012",
+   "1706.08945",
+   "2003.07868",
+   "hep-ph/9404359"
+  ],
+  "src/ravel/data/knowledge/qualification/rows.json": [
+   "10.1103/PhysRevD.92.012004",
+   "10.1103/PhysRevLett.131.041002",
+   "10.1140/epjc/s2005-02460-1",
+   "1608.04798",
+   "1610.07922",
+   "1705.07931",
+   "1708.01256",
+   "1901.05933",
+   "1902.09914",
+   "2304.03636",
+   "hep-ph/0503172"
+  ],
+  "src/ravel/data/ml/handbooks.json": [
+   "1708.02949",
+   "1805.02664",
+   "1902.02634",
+   "2005.02983"
+  ],
+  "src/ravel/data/ml/ml-traps.json": [
+   "1708.02949",
+   "1805.02664",
+   "1902.02634",
+   "2005.02983"
+  ],
+  "src/ravel/data/skills/tools/cross-section-normalization/SKILL.md": [
+   "0801.0045"
+  ],
+  "src/ravel/data/skills/tools/cross-section-normalization/references/review.md": [
+   "0801.0045"
+  ],
+  "src/ravel/data/skills/tools/delphes-cards/references/review.md": [
+   "1307.6346"
+  ],
+  "src/ravel/data/skills/tools/feynrules/references/checks.md": [
+   "1310.1921"
+  ],
+  "src/ravel/data/skills/tools/feynrules/references/review.md": [
+   "1310.1921"
+  ],
+  "src/ravel/data/skills/tools/inference-engines/SKILL.md": [
+   "1007.1727"
+  ],
+  "src/ravel/data/skills/tools/inference-engines/references/review.md": [
+   "1007.1727"
+  ],
+  "src/ravel/data/skills/tools/lhapdf-pdf-sets/SKILL.md": [
+   "2005.06477"
+  ],
+  "src/ravel/data/skills/tools/lhapdf-pdf-sets/references/review.md": [
+   "1412.7420",
+   "2005.06477"
+  ],
+  "src/ravel/data/skills/tools/ma5-expert/SKILL.md": [
+   "1206.1599",
+   "1405.3982"
+  ],
+  "src/ravel/data/skills/tools/ma5-expert/references/review.md": [
+   "1206.1599",
+   "1405.3982"
+  ],
+  "src/ravel/data/skills/tools/madgraph-model-import/references/review.md": [
+   "1108.2040"
+  ],
+  "src/ravel/data/skills/tools/model-authoring/SKILL.md": [
+   "1108.2040",
+   "1310.1921"
+  ],
+  "src/ravel/data/skills/tools/model-authoring/references/review.md": [
+   "1108.2040",
+   "1310.1921"
+  ],
+  "src/ravel/data/skills/tools/pythia-shower-cards/references/review.md": [
+   "2203.11601"
+  ],
+  "src/ravel/data/skills/tools/rivet-routine/SKILL.md": [
+   "1912.05451"
+  ],
+  "src/ravel/data/skills/tools/rivet-routine/references/review.md": [
+   "1912.05451"
+  ],
+  "src/ravel/data/skills/tools/roofit-histfactory/SKILL.md": [
+   "CERN-OPEN-2012-016"
+  ],
+  "src/ravel/data/skills/tools/roofit-histfactory/references/review.md": [
+   "CERN-OPEN-2012-016"
+  ],
+  "src/ravel/data/spectrum/chargino-decay-2312.08087.dat": [
+   "2312.08087"
+  ],
+  "src/ravel/data/spectrum/mssm-observable-conventions.json": [
+   "0712.3311",
+   "0801.0045",
+   "hep-ph/0311123"
+  ],
+  "src/ravel/data/workflow/docs/reference/background-model-construction.md": [
+   "1408.6865"
+  ],
+  "src/ravel/data/workflow/docs/reference/domain-adapters.md": [
+   "2304.09883"
+  ],
+  "src/ravel/data/workflow/docs/reference/model-sources.md": [
+   "1309.7223",
+   "1310.1921",
+   "2603.22538"
+  ],
+  "src/ravel/data/workflow/docs/workflow/checklists/plot-guidelines.md": [
+   "GEN-PUB-2008-001"
+  ],
+  "src/ravel/data/workflow/docs/workflow/reference/pdf-variations.md": [
+   "1412.7420"
+  ],
+  "src/ravel/data/workflow/docs/workflow/reference/physics-review.md": [
+   "2502.16069"
+  ],
+  "src/ravel/physics/chargino_decay_table.py": [
+   "2312.08087"
+  ],
+  "src/ravel/physics/columnar/mt2.py": [
+   "1203.4813",
+   "1411.4312"
+  ],
+  "src/ravel/physics/sa_native_core.py": [
+   "1411.4312"
+  ],
+  "src/ravel/physics/spectrum_mix.py": [
+   "hep-ph/9709356"
+  ],
+  "src/ravel/workflow/structural_models.py": [
+   "2603.22538"
+  ],
+  "tests/fixtures/sfitteragents-6072a79e.zip": [
+   "1604.63665"
+  ],
+  "tests/unit/test_premises.py": [
+   "0806.2864",
+   "1304.3053",
+   "hep-ph/9404359"
+  ]
+ }
+}

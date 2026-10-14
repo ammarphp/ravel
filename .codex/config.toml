@@ -1,0 +1,333 @@
+# Generated from the RAVEL role registry add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25. Do not hand edit.
+
+[agents.ravel-ablation-critic]
+description = "Dispatch redirect for ablation-critic."
+config_file = "agents/ravel-ablation-critic.toml"
+
+[agents.ravel-analysis-author]
+description = "Dispatch redirect for analysis-author."
+config_file = "agents/ravel-analysis-author.toml"
+
+[agents.ravel-assumption-auditor]
+description = "Dispatch redirect for assumption-auditor."
+config_file = "agents/ravel-assumption-auditor.toml"
+
+[agents.ravel-baseline-producer]
+description = "Dispatch redirect for baseline-producer."
+config_file = "agents/ravel-baseline-producer.toml"
+
+[agents.ravel-calculation]
+description = "Dispatch redirect for calculation."
+config_file = "agents/ravel-calculation.toml"
+
+[agents.ravel-comparative-reviewer]
+description = "Dispatch redirect for comparative-reviewer."
+config_file = "agents/ravel-comparative-reviewer.toml"
+
+[agents.ravel-consult-columnar]
+description = "Dispatch redirect for consult-columnar."
+config_file = "agents/ravel-consult-columnar.toml"
+
+[agents.ravel-consult-cosmology]
+description = "Dispatch redirect for consult-cosmology."
+config_file = "agents/ravel-consult-cosmology.toml"
+
+[agents.ravel-consult-feynrules]
+description = "Dispatch redirect for consult-feynrules."
+config_file = "agents/ravel-consult-feynrules.toml"
+
+[agents.ravel-consult-inference]
+description = "Dispatch redirect for consult-inference."
+config_file = "agents/ravel-consult-inference.toml"
+
+[agents.ravel-consult-latex]
+description = "Dispatch redirect for consult-latex."
+config_file = "agents/ravel-consult-latex.toml"
+
+[agents.ravel-consult-madgraph]
+description = "Dispatch redirect for consult-madgraph."
+config_file = "agents/ravel-consult-madgraph.toml"
+
+[agents.ravel-consult-normalization]
+description = "Dispatch redirect for consult-normalization."
+config_file = "agents/ravel-consult-normalization.toml"
+
+[agents.ravel-consult-onnx]
+description = "Dispatch redirect for consult-onnx."
+config_file = "agents/ravel-consult-onnx.toml"
+
+[agents.ravel-consult-pythia-delphes]
+description = "Dispatch redirect for consult-pythia-delphes."
+config_file = "agents/ravel-consult-pythia-delphes.toml"
+
+[agents.ravel-consult-recast]
+description = "Dispatch redirect for consult-recast."
+config_file = "agents/ravel-consult-recast.toml"
+
+[agents.ravel-consult-rivet]
+description = "Dispatch redirect for consult-rivet."
+config_file = "agents/ravel-consult-rivet.toml"
+
+[agents.ravel-consult-symbolic]
+description = "Dispatch redirect for consult-symbolic."
+config_file = "agents/ravel-consult-symbolic.toml"
+
+[agents.ravel-consult-theory]
+description = "Dispatch redirect for consult-theory."
+config_file = "agents/ravel-consult-theory.toml"
+
+[agents.ravel-coordinator]
+description = "Dispatch redirect for coordinator."
+config_file = "agents/ravel-coordinator.toml"
+
+[agents.ravel-detector-calibrator]
+description = "Dispatch redirect for detector-calibrator."
+config_file = "agents/ravel-detector-calibrator.toml"
+
+[agents.ravel-discrepancy-attributor]
+description = "Dispatch redirect for discrepancy-attributor."
+config_file = "agents/ravel-discrepancy-attributor.toml"
+
+[agents.ravel-figure-critic]
+description = "Dispatch redirect for figure-critic."
+config_file = "agents/ravel-figure-critic.toml"
+
+[agents.ravel-generator]
+description = "Dispatch redirect for generator."
+config_file = "agents/ravel-generator.toml"
+
+[agents.ravel-idea-proposer-a]
+description = "Dispatch redirect for idea-proposer-a."
+config_file = "agents/ravel-idea-proposer-a.toml"
+
+[agents.ravel-idea-proposer-b]
+description = "Dispatch redirect for idea-proposer-b."
+config_file = "agents/ravel-idea-proposer-b.toml"
+
+[agents.ravel-inference]
+description = "Dispatch redirect for inference."
+config_file = "agents/ravel-inference.toml"
+
+[agents.ravel-integrity-auditor]
+description = "Dispatch redirect for integrity-auditor."
+config_file = "agents/ravel-integrity-auditor.toml"
+
+[agents.ravel-investigation-worker]
+description = "Dispatch redirect for investigation-worker."
+config_file = "agents/ravel-investigation-worker.toml"
+
+[agents.ravel-limitation-census]
+description = "Dispatch redirect for limitation-census."
+config_file = "agents/ravel-limitation-census.toml"
+
+[agents.ravel-literature-scout]
+description = "Dispatch redirect for literature-scout."
+config_file = "agents/ravel-literature-scout.toml"
+
+[agents.ravel-ma-coupling-order-consultant]
+description = "Dispatch redirect for ma-coupling-order-consultant."
+config_file = "agents/ravel-ma-coupling-order-consultant.toml"
+
+[agents.ravel-ma-eft-consultant]
+description = "Dispatch redirect for ma-eft-consultant."
+config_file = "agents/ravel-ma-eft-consultant.toml"
+
+[agents.ravel-ma-scales-pdf-consultant]
+description = "Dispatch redirect for ma-scales-pdf-consultant."
+config_file = "agents/ravel-ma-scales-pdf-consultant.toml"
+
+[agents.ravel-ma-ufo-consultant]
+description = "Dispatch redirect for ma-ufo-consultant."
+config_file = "agents/ravel-ma-ufo-consultant.toml"
+
+[agents.ravel-manuscript-writer]
+description = "Dispatch redirect for manuscript-writer."
+config_file = "agents/ravel-manuscript-writer.toml"
+
+[agents.ravel-ml-planner]
+description = "Dispatch redirect for ml-planner."
+config_file = "agents/ravel-ml-planner.toml"
+
+[agents.ravel-ml-reviewer]
+description = "Dispatch redirect for ml-reviewer."
+config_file = "agents/ravel-ml-reviewer.toml"
+
+[agents.ravel-ml-trainer]
+description = "Dispatch redirect for ml-trainer."
+config_file = "agents/ravel-ml-trainer.toml"
+
+[agents.ravel-model-builder]
+description = "Dispatch redirect for model-builder."
+config_file = "agents/ravel-model-builder.toml"
+
+[agents.ravel-model-critic]
+description = "Dispatch redirect for model-critic."
+config_file = "agents/ravel-model-critic.toml"
+
+[agents.ravel-normalization-auditor]
+description = "Dispatch redirect for normalization-auditor."
+config_file = "agents/ravel-normalization-auditor.toml"
+
+[agents.ravel-novelty-scout]
+description = "Dispatch redirect for novelty-scout."
+config_file = "agents/ravel-novelty-scout.toml"
+
+[agents.ravel-object-selection-mapper]
+description = "Dispatch redirect for object-selection-mapper."
+config_file = "agents/ravel-object-selection-mapper.toml"
+
+[agents.ravel-physics-critic]
+description = "Dispatch redirect for physics-critic."
+config_file = "agents/ravel-physics-critic.toml"
+
+[agents.ravel-physics-decider]
+description = "Dispatch redirect for physics-decider."
+config_file = "agents/ravel-physics-decider.toml"
+
+[agents.ravel-physics-improver]
+description = "Dispatch redirect for physics-improver."
+config_file = "agents/ravel-physics-improver.toml"
+
+[agents.ravel-plan-critic]
+description = "Dispatch redirect for plan-critic."
+config_file = "agents/ravel-plan-critic.toml"
+
+[agents.ravel-rca-investigator]
+description = "Dispatch redirect for rca-investigator."
+config_file = "agents/ravel-rca-investigator.toml"
+
+[agents.ravel-rdj-critic]
+description = "Dispatch redirect for rdj-critic."
+config_file = "agents/ravel-rdj-critic.toml"
+
+[agents.ravel-rdj-edge-reviewer]
+description = "Dispatch redirect for rdj-edge-reviewer."
+config_file = "agents/ravel-rdj-edge-reviewer.toml"
+
+[agents.ravel-rdj-verifier]
+description = "Dispatch redirect for rdj-verifier."
+config_file = "agents/ravel-rdj-verifier.toml"
+
+[agents.ravel-re-deriver]
+description = "Dispatch redirect for re-deriver."
+config_file = "agents/ravel-re-deriver.toml"
+
+[agents.ravel-rebuttal-planner]
+description = "Dispatch redirect for rebuttal-planner."
+config_file = "agents/ravel-rebuttal-planner.toml"
+
+[agents.ravel-research-evolver]
+description = "Dispatch redirect for research-evolver."
+config_file = "agents/ravel-research-evolver.toml"
+
+[agents.ravel-research-explorer]
+description = "Dispatch redirect for research-explorer."
+config_file = "agents/ravel-research-explorer.toml"
+
+[agents.ravel-research-meta-reviewer]
+description = "Dispatch redirect for research-meta-reviewer."
+config_file = "agents/ravel-research-meta-reviewer.toml"
+
+[agents.ravel-routine-constructor]
+description = "Dispatch redirect for routine-constructor."
+config_file = "agents/ravel-routine-constructor.toml"
+
+[agents.ravel-screen-producer]
+description = "Dispatch redirect for screen-producer."
+config_file = "agents/ravel-screen-producer.toml"
+
+[agents.ravel-second-method-deriver]
+description = "Dispatch redirect for second-method-deriver."
+config_file = "agents/ravel-second-method-deriver.toml"
+
+[agents.ravel-sf-convention-translator]
+description = "Dispatch redirect for sf-convention-translator."
+config_file = "agents/ravel-sf-convention-translator.toml"
+
+[agents.ravel-sf-datacard-schema-reviewer]
+description = "Dispatch redirect for sf-datacard-schema-reviewer."
+config_file = "agents/ravel-sf-datacard-schema-reviewer.toml"
+
+[agents.ravel-sf-id-encoder]
+description = "Dispatch redirect for sf-id-encoder."
+config_file = "agents/ravel-sf-id-encoder.toml"
+
+[agents.ravel-sf-kappa-extractor]
+description = "Dispatch redirect for sf-kappa-extractor."
+config_file = "agents/ravel-sf-kappa-extractor.toml"
+
+[agents.ravel-sf-measurement-extractor]
+description = "Dispatch redirect for sf-measurement-extractor."
+config_file = "agents/ravel-sf-measurement-extractor.toml"
+
+[agents.ravel-sf-methodology-consultant]
+description = "Dispatch redirect for sf-methodology-consultant."
+config_file = "agents/ravel-sf-methodology-consultant.toml"
+
+[agents.ravel-sf-modifier-namer]
+description = "Dispatch redirect for sf-modifier-namer."
+config_file = "agents/ravel-sf-modifier-namer.toml"
+
+[agents.ravel-sf-order-corrector]
+description = "Dispatch redirect for sf-order-corrector."
+config_file = "agents/ravel-sf-order-corrector.toml"
+
+[agents.ravel-sf-parametric-uncertainty-estimator]
+description = "Dispatch redirect for sf-parametric-uncertainty-estimator."
+config_file = "agents/ravel-sf-parametric-uncertainty-estimator.toml"
+
+[agents.ravel-sf-pdf-uncertainty-estimator]
+description = "Dispatch redirect for sf-pdf-uncertainty-estimator."
+config_file = "agents/ravel-sf-pdf-uncertainty-estimator.toml"
+
+[agents.ravel-sf-reviewer]
+description = "Dispatch redirect for sf-reviewer."
+config_file = "agents/ravel-sf-reviewer.toml"
+
+[agents.ravel-sf-scale-uncertainty-estimator]
+description = "Dispatch redirect for sf-scale-uncertainty-estimator."
+config_file = "agents/ravel-sf-scale-uncertainty-estimator.toml"
+
+[agents.ravel-sf-scan-designer]
+description = "Dispatch redirect for sf-scan-designer."
+config_file = "agents/ravel-sf-scan-designer.toml"
+
+[agents.ravel-sf-scan-sanitizer]
+description = "Dispatch redirect for sf-scan-sanitizer."
+config_file = "agents/ravel-sf-scan-sanitizer.toml"
+
+[agents.ravel-sf-systematics-decomposer]
+description = "Dispatch redirect for sf-systematics-decomposer."
+config_file = "agents/ravel-sf-systematics-decomposer.toml"
+
+[agents.ravel-shower-detector]
+description = "Dispatch redirect for shower-detector."
+config_file = "agents/ravel-shower-detector.toml"
+
+[agents.ravel-skeptical-verifier]
+description = "Dispatch redirect for skeptical-verifier."
+config_file = "agents/ravel-skeptical-verifier.toml"
+
+[agents.ravel-sufficiency-verifier]
+description = "Dispatch redirect for sufficiency-verifier."
+config_file = "agents/ravel-sufficiency-verifier.toml"
+
+[agents.ravel-trap-auditor]
+description = "Dispatch redirect for trap-auditor."
+config_file = "agents/ravel-trap-auditor.toml"
+
+[agents.ravel-upstream-agentrivet-analyst]
+description = "Dispatch redirect for upstream-agentrivet-analyst."
+config_file = "agents/ravel-upstream-agentrivet-analyst.toml"
+
+[agents.ravel-upstream-agentrivet-code-reviewer]
+description = "Dispatch redirect for upstream-agentrivet-code-reviewer."
+config_file = "agents/ravel-upstream-agentrivet-code-reviewer.toml"
+
+[agents.ravel-upstream-agentrivet-coder]
+description = "Dispatch redirect for upstream-agentrivet-coder."
+config_file = "agents/ravel-upstream-agentrivet-coder.toml"
+
+[agents.ravel-upstream-agentrivet-physics-reviewer]
+description = "Dispatch redirect for upstream-agentrivet-physics-reviewer."
+config_file = "agents/ravel-upstream-agentrivet-physics-reviewer.toml"

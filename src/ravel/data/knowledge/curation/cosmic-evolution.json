@@ -1,0 +1,25 @@
+{
+ "id": "op:cosmic-evolution",
+ "op": {
+  "do_not_use_when": [
+   "Linear-theory CAMB/CLASS predictions: use cosmology-solver.",
+   "Collider event generation: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/cosmic-evolution-example --spec specs/cosmic-evolution.json",
+    "phrase": "Set up cosmological initial conditions and a short evolution run.",
+    "spec": {
+     "mode": "cosmic-evolution",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Cosmological initial conditions and N-body or hydrodynamic evolution with CosmicIC and Nyx.",
+   "A structure-formation simulation setup is the deliverable."
+  ]
+ }
+}

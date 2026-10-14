@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "operations": {
+    "lifecycle-scan-aggregation": {
+      "summary": "Aggregate requested source-bound quantities over supplied finite named parameter coordinates.",
+      "applicability": {
+        "requires": [
+          "version-2 scan contract",
+          "finite named axes and resource ceiling",
+          "explicit dataset metadata",
+          "quantity artifact/field mapping",
+          "JSON or CSV output specification"
+        ],
+        "constraints": [
+          "native execution requires an admitted adapter and existing method-decision/approval launch guard",
+          "typed limit status and censoring retained",
+          "normalization and plotting require explicit supplied contracts"
+        ]
+      }
+    },
+    "supplied-card-rendering": {
+      "implementation": {
+        "module": "ravel.physics.prepare_native_slepton",
+        "callable": "render_recipe"
+      },
+      "applicability": {
+        "requires": [
+          "version-1 card recipe",
+          "selected parameter/run/process/launch sources",
+          "explicit parameter bindings and values",
+          "explicit generation controls"
+        ],
+        "constraints": [
+          "rendering only; no native launch",
+          "all addresses unique and all placeholders resolved",
+          "native preparation requires supported process/model and explicit expected masses"
+        ]
+      }
+    }
+  }
+}

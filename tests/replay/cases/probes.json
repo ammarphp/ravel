@@ -1,0 +1,24 @@
+{
+ "note": "Nine ordinary questions that the label router refused or narrowed. Each must become an open, covered plan.",
+ "cases": [
+  {"id": "P01", "group": "phenomenology", "prompt": "What would a 10 TeV muon collider tell us about the Higgs self-coupling?",
+   "expect": {"not_mass": ["10 TeV"], "held": false, "claims": [{"kind": ["estimate", "finding", "prediction"]}]}},
+  {"id": "P02", "group": "searches", "prompt": "Estimate the irreducible background to a displaced dimuon dark-photon search at LHCb.",
+   "expect": {"held": false, "claims": [{"kind": ["estimate", "prediction"]}]}},
+  {"id": "P03", "group": "measurements", "prompt": "Compare the ATLAS and CMS ttbar spin-correlation measurements and tell me if they agree.",
+   "expect": {"held": false, "claims": [{"kind": ["agreement"]}], "effects_forbidden": ["generates_events"]}},
+  {"id": "P04", "group": "ml-method", "prompt": "Train a graph network to tag boosted Higgs to bb and compare with ParticleNet.",
+   "expect": {"held": false, "claims": [{"kind": ["method_performance"]}]}},
+  {"id": "P05", "group": "eft-flavour", "prompt": "Is there a consistent explanation of the W mass anomaly with a scalar triplet?",
+   "expect": {"held": false, "claims": [{"kind": ["estimate", "finding", "calculation"]}], "effects_forbidden": ["generates_events"]}},
+  {"id": "S06", "group": "measurements", "prompt": "Fit the three-jet energy-imbalance spectrum for the fictional Clockwork decay model and report the allowed lifetime range using synthetic record 990000002.",
+   "expect": {"held": false, "claims": [{"kind": ["estimate"]}]}},
+  {"id": "P07", "group": "eft-flavour", "prompt": "Fit the SMEFT Wilson coefficients to the published STXS measurements.",
+   "expect": {"held": false, "claims": [{"kind": ["estimate"]}], "effects_forbidden": ["generates_events"]}},
+  {"id": "P08", "group": "manuscripts", "prompt": "Write a short paper summarizing the results in run A.",
+   "expect": {"held": false, "claims": [{"kind": ["document"]}], "effects_forbidden": ["generates_events"]}},
+  {"id": "P09", "group": "searches", "prompt": "Predict the binned signal yield in the CMS stop search for a 700 GeV stop and a 100 GeV neutralino, and fill the attached template.",
+   "expect": {"spans": ["700 GeV", "100 GeV"], "constraints": [{"type": "template", "span": "template"}], "held": false,
+              "claims": [{"kind": ["prediction"]}]}}
+ ]
+}

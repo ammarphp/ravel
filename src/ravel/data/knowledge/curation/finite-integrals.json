@@ -1,0 +1,25 @@
+{
+ "id": "op:finite-integrals",
+ "op": {
+  "do_not_use_when": [
+   "Tree-level widths: use resonance-width.",
+   "Symbolic amplitude work: use symbolic-evaluation."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/finite-integrals-example --spec specs/finite-integrals.json",
+    "phrase": "Evaluate a finite Feynman integral numerically with pySecDec.",
+    "spec": {
+     "mode": "finite-integrals",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Finite Feynman-integral evaluation with pySecDec from a closed integral declaration.",
+   "A numerical loop-integral value with an error estimate."
+  ]
+ }
+}

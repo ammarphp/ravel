@@ -1,0 +1,36 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Step 1: Environment}{Check this computer and set up the native toolchain, only when native tools are needed.}
+
+% What goes in.
+\node[chip=records, minimum width=38mm, text width=33.2mm, anchor=north] (in0) at (25,-30) {Task contract};
+\node[chip=inputs, minimum width=38mm, text width=33.2mm, below=1.8mm of in0] (in1) {This computer};
+\ravelpanelfit{records}{inpanel}{(in0)(in1)}{What goes in}
+
+% What happens, in order.
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, anchor=north] (do0) at (85,-30) {Read-only health check};
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do0] (do1) {Set up MadGraph5\_aMC@NLO};
+\draw[flow] (do0) -- (do1);
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do1] (do2) {Build shower bridges};
+\draw[flow] (do1) -- (do2);
+\node[chip=ravel, minimum width=48mm, text width=43.2mm, below=4.6mm of do2] (do3) {Record tool versions};
+\draw[flow] (do2) -- (do3);
+\ravelpanelfit{ravel}{dopanel}{(do0)(do3)}{What happens}
+
+% What comes out.
+\node[chip=records, minimum width=42mm, text width=37.2mm, anchor=north] (out0) at (144,-30) {Toolchain report};
+\node[chip=records, minimum width=42mm, text width=37.2mm, below=1.8mm of out0] (out1) {Native toolchain};
+\ravelpanelfit{records}{outpanel}{(out0)(out1)}{What comes out}
+\draw[flow] (inpanel.east |- do0) -- (dopanel.west |- do0);
+\draw[flow] (dopanel.east |- out0) -- (outpanel.west |- out0);
+
+% Checks along the way, and your decision that follows, if any.
+\coordinate (low) at (current bounding box.south);
+\coordinate (cktop) at ([yshift=-10mm]low);
+\ravelrow{chip=guard}{ck}{7,0 |- cktop}{50.0mm}{{Missing tools fail clearly}, {Builds are staged}, {Versions recorded}}
+\ravelpanelfit{guard}{ckpanel}{(ck0)(\ravellast)}{Checks}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

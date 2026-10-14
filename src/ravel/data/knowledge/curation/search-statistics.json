@@ -1,0 +1,30 @@
+{
+ "id": "op:search-statistics",
+ "op": {
+  "do_not_use_when": [
+   "A request-prescribed statistic: use prescribed-statistic.",
+   "Patching a published workspace: use published-model."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/search-statistics-example --spec specs/search-statistics.json",
+    "phrase": "Synthetic example: one signal region, two control regions, one validation region, MC pseudo-data.",
+    "source": {
+     "path": "src/ravel/data/inference/examples/search-statistics.json",
+     "sha256": "079bcb9c930da42250af21c7945e4a3a221f29f9f50d4310b27209851936c7f6"
+    },
+    "spec": {
+     "mode": "search-statistics",
+     "task": {
+      "input": "src/ravel/data/inference/examples/search-statistics.json"
+     }
+    },
+    "validation": "adapter_task_schema"
+   }
+  ],
+  "use_when": [
+   "Build SR/CR/VR pyhf models from yields and report discovery significance, 95% CLs and control-region fits.",
+   "An exclusion from signal, background and data yields."
+  ]
+ }
+}

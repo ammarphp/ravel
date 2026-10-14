@@ -1,0 +1,27 @@
+{
+ "id": "op:native-group-acquisition",
+ "op": {
+  "do_not_use_when": [
+   "Normalizing supplied groups: use group-normalization.",
+   "Plain event analysis: use analyze."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/native-group-acquisition-example --spec specs/native-group-acquisition.json",
+    "phrase": "Acquire native event groups from a pinned request.",
+    "spec": {
+     "mode": "native-group-acquisition",
+     "task": {
+      "input": "inputs/example.json",
+      "request_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Acquire native event groups with raw moments from a pinned request.",
+   "Group sums and squared weights must be retained."
+  ]
+ }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "http-responses",
+  "transport_kind": "http-model",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "openai",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "OPENAI_API_KEY"
+    ],
+    "command": null,
+    "header_style": "bearer"
+  },
+  "pass_env": [],
+  "billing": "api",
+  "capabilities": {
+    "tools": "none",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": true,
+    "session_id": false,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "endpoint": "https://api.openai.com/v1/responses",
+  "notes": "Stateless request: the prepared packet is the only input the model sees, and no tools are offered."
+}

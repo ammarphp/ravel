@@ -1,0 +1,25 @@
+{
+ "id": "op:hs3-likelihood",
+ "op": {
+  "do_not_use_when": [
+   "HistFactory patching: use published-model.",
+   "CMS Combine datacards: use native-likelihood."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/hs3-likelihood-example --spec specs/hs3-likelihood.json",
+    "phrase": "Import an HS3 workspace and evaluate its native likelihood.",
+    "spec": {
+     "mode": "hs3-likelihood",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "An HS3 graph or workspace must be imported and evaluated with a native RooFit likelihood.",
+   "Published HS3 JSON is the likelihood source."
+  ]
+ }
+}

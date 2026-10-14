@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "channels": [
+    {
+      "name": "region_a",
+      "samples": [
+        {
+          "name": "background",
+          "data": [
+            20
+          ],
+          "modifiers": []
+        }
+      ]
+    },
+    {
+      "name": "region_b",
+      "samples": [
+        {
+          "name": "background",
+          "data": [
+            8
+          ],
+          "modifiers": []
+        }
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "name": "region_a",
+      "data": [
+        20
+      ]
+    },
+    {
+      "name": "region_b",
+      "data": [
+        8
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "name": "measurement",
+      "config": {
+        "poi": "strength",
+        "parameters": []
+      }
+    }
+  ]
+}

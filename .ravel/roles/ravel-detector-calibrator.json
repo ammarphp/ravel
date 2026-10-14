@@ -1,0 +1,139 @@
+{
+  "card": {
+    "escalation": [
+      "checkin_flag",
+      "stop",
+      "new_experiment_required",
+      "decision_block"
+    ],
+    "family": "production",
+    "id": "detector-calibrator",
+    "independence": {
+      "distinct_actor_from": [
+        "skeptical-verifier",
+        "integrity-auditor"
+      ],
+      "fresh_session": true,
+      "kind": "producer"
+    },
+    "kind": "role-card",
+    "knowledge": {
+      "budget_tokens": 24000,
+      "consult": [],
+      "derive": [
+        "declared_knobs",
+        "anchored_bands",
+        "trial_count"
+      ],
+      "forbidden": [
+        "held_out_artifacts",
+        "claim_quantity",
+        "lessons"
+      ],
+      "may_query": [
+        "find",
+        "show",
+        "for_node",
+        "coverage"
+      ],
+      "must_read": [
+        "check:calibration_target_disjoint",
+        "check:confirmation_separation",
+        "check:anchored_bounds",
+        "check:calibration_frozen",
+        "check:imported_calibration",
+        "check:calibration_before_and_after",
+        "check:calibration_no_global_scalar",
+        "check:signal_model_complete_before_calibration"
+      ]
+    },
+    "model": {
+      "distinct_family_from": [],
+      "effort": "high",
+      "tier": "agent"
+    },
+    "must_check": [
+      "check:calibration_target_disjoint",
+      "check:confirmation_separation",
+      "check:anchored_bounds",
+      "check:calibration_frozen",
+      "check:imported_calibration",
+      "check:calibration_before_and_after",
+      "check:calibration_no_global_scalar",
+      "check:signal_model_complete_before_calibration"
+    ],
+    "operations": [
+      "detector-calibration"
+    ],
+    "output": {
+      "declared_outputs": [
+        {
+          "kind": "cal:response",
+          "path": "response.json",
+          "required": true
+        },
+        {
+          "kind": "cal:receipt",
+          "path": "freeze.json",
+          "required": true
+        }
+      ],
+      "schema": "producer.v1",
+      "sidecar": true
+    },
+    "protocol": [
+      "Fit only declared knobs on declared calibration nodes against intermediate observables.",
+      "Never read held-out artifacts or the claim quantity. The evaluator alone reads confirmation after the approved freeze.",
+      "Stay within pinned published bands. An out-of-band value requires a scoped R3 receipt and human CHECK-IN 2 approval.",
+      "Require complete signal-model parity or a scoped approximation authorization before fitting.",
+      "Stop at the declared loss, trial or budget rule. Report every trial, including retained failed attempts.",
+      "Freeze and hash the response. Any changed response requires a new calibration and an updated approval.",
+      "Label imported_calibration with source and fitted_on; retain its in-sample status.",
+      "Deliver the uncalibrated and calibrated per-bin results together."
+    ],
+    "purpose": "Fit declared detector-response knobs on calibration nodes, stop at the declared rule and freeze the response. Preserve every trial and keep confirmation artifacts with the evaluator.",
+    "requires": {
+      "attestation_min": "transport",
+      "blind": false,
+      "isolation_min": "ravel-sandbox",
+      "structured_output": true,
+      "tools": "broker-full"
+    },
+    "reviewed_by": [
+      "skeptical-verifier",
+      "integrity-auditor"
+    ],
+    "schema_version": 2,
+    "sees": {
+      "forbidden_inputs": [
+        "held_out_artifacts",
+        "claim_quantity",
+        "withheld_sources"
+      ],
+      "profile": "workspace"
+    },
+    "stop": {
+      "evidence_budget": 0,
+      "max_broker_calls": 400,
+      "max_cost_usd": null,
+      "max_rounds": 2,
+      "max_turns": 60,
+      "max_wall_seconds": 2700
+    },
+    "tools": {
+      "exec_argv_prefixes": [],
+      "ravel_actions": [
+        "knowledge query",
+        "check run"
+      ],
+      "read_paths": [
+        "inputs/calibration/"
+      ],
+      "validators": [
+        "ravel.validation.calibration_checks"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "registry_sha256": "add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25"
+}

@@ -1,0 +1,194 @@
+{
+ "edition": "2026",
+ "kind": "ravel-pdg-subset",
+ "quantities": {
+  "b_quark.mass": {
+   "confidence_level": 90.0,
+   "description": "b-QUARK MASS",
+   "edition": "2026",
+   "error_negative": 0.006,
+   "error_positive": 0.006,
+   "pdgid": "Q005M",
+   "unit": "GeV",
+   "value": 4.186,
+   "value_type": "V"
+  },
+  "c_quark.mass": {
+   "confidence_level": 90.0,
+   "description": "c-QUARK MASS",
+   "edition": "2026",
+   "error_negative": 0.0045,
+   "error_positive": 0.0045,
+   "pdgid": "Q004M",
+   "unit": "GeV",
+   "value": 1.2729,
+   "value_type": "V"
+  },
+  "d_quark.mass": {
+   "confidence_level": 90.0,
+   "description": "d-QUARK MASS",
+   "edition": "2026",
+   "error_negative": 0.07,
+   "error_positive": 0.07,
+   "pdgid": "Q001M",
+   "unit": "MeV",
+   "value": 4.7,
+   "value_type": "V"
+  },
+  "electron.mass": {
+   "confidence_level": null,
+   "description": "e MASS",
+   "edition": "2026",
+   "error_negative": 1.6e-10,
+   "error_positive": 1.6e-10,
+   "pdgid": "S003M",
+   "unit": "MeV",
+   "value": 0.51099895069,
+   "value_type": "AC"
+  },
+  "higgs_boson.mass": {
+   "confidence_level": null,
+   "description": "H MASS",
+   "edition": "2026",
+   "error_negative": 0.111721447765488,
+   "error_positive": 0.111721447765488,
+   "pdgid": "S126M",
+   "unit": "GeV",
+   "value": 125.1309438281615,
+   "value_type": "AC"
+  },
+  "higgs_boson.width": {
+   "confidence_level": null,
+   "description": "H DECAY WIDTH",
+   "edition": "2026",
+   "error_negative": 0.7150119194099107,
+   "error_positive": 1.452973690017683,
+   "pdgid": "S126W",
+   "unit": "MeV",
+   "value": 3.035493483037885,
+   "value_type": "AC"
+  },
+  "muon.mass": {
+   "confidence_level": null,
+   "description": "mu MASS",
+   "edition": "2026",
+   "error_negative": 2.3e-06,
+   "error_positive": 2.3e-06,
+   "pdgid": "S004M",
+   "unit": "MeV",
+   "value": 105.6583755,
+   "value_type": "AC"
+  },
+  "s_quark.mass": {
+   "confidence_level": 90.0,
+   "description": "s-QUARK MASS",
+   "edition": "2026",
+   "error_negative": 0.7,
+   "error_positive": 0.7,
+   "pdgid": "Q003M",
+   "unit": "MeV",
+   "value": 92.9,
+   "value_type": "V"
+  },
+  "tau.mass": {
+   "confidence_level": null,
+   "description": "tau MASS",
+   "edition": "2026",
+   "error_negative": 0.08758019173411406,
+   "error_positive": 0.08491495391323055,
+   "pdgid": "S035M",
+   "unit": "MeV",
+   "value": 1776.93246513409,
+   "value_type": "AC"
+  },
+  "top_quark.mass_direct": {
+   "confidence_level": null,
+   "description": "t-Quark Mass (Direct Measurements)",
+   "edition": "2026",
+   "error_negative": 0.273047806741856,
+   "error_positive": 0.2713750020275726,
+   "pdgid": "Q007TP",
+   "unit": "GeV",
+   "value": 172.6035595874743,
+   "value_type": "AC"
+  },
+  "top_quark.pole_mass_cross_section": {
+   "confidence_level": null,
+   "description": "t-Quark Pole Mass from Cross-Section Measurements",
+   "edition": "2026",
+   "error_negative": 0.5896776206425237,
+   "error_positive": 0.6140864470014742,
+   "pdgid": "Q007TP4",
+   "unit": "GeV",
+   "value": 172.054218792374,
+   "value_type": "AC"
+  },
+  "top_quark.width": {
+   "confidence_level": null,
+   "description": "t-quark DECAY WIDTH",
+   "edition": "2026",
+   "error_negative": 0.1525604117117907,
+   "error_positive": 0.1905134297354235,
+   "pdgid": "Q007W",
+   "unit": "GeV",
+   "value": 1.424101758196898,
+   "value_type": "AC"
+  },
+  "u_quark.mass": {
+   "confidence_level": 90.0,
+   "description": "u-QUARK MASS",
+   "edition": "2026",
+   "error_negative": 0.07,
+   "error_positive": 0.07,
+   "pdgid": "Q002M",
+   "unit": "MeV",
+   "value": 2.16,
+   "value_type": "V"
+  },
+  "w_boson.mass": {
+   "confidence_level": null,
+   "description": "W MASS",
+   "edition": "2026",
+   "error_negative": 0.0077,
+   "error_positive": 0.0077,
+   "pdgid": "S043M",
+   "unit": "GeV",
+   "value": 80.3625,
+   "value_type": "V"
+  },
+  "w_boson.width": {
+   "confidence_level": null,
+   "description": "W WIDTH",
+   "edition": "2026",
+   "error_negative": 0.05365622500314941,
+   "error_positive": 0.05365622500314941,
+   "pdgid": "S043W",
+   "unit": "GeV",
+   "value": 2.137328174029357,
+   "value_type": "AC"
+  },
+  "z_boson.mass": {
+   "confidence_level": null,
+   "description": "Z MASS",
+   "edition": "2026",
+   "error_negative": 0.00196689903262915,
+   "error_positive": 0.00196689903262915,
+   "pdgid": "S044M",
+   "unit": "GeV",
+   "value": 91.18787329722134,
+   "value_type": "AC"
+  },
+  "z_boson.width": {
+   "confidence_level": null,
+   "description": "Z WIDTH",
+   "edition": "2026",
+   "error_negative": 0.0023,
+   "error_positive": 0.0023,
+   "pdgid": "S044W",
+   "unit": "GeV",
+   "value": 2.4955,
+   "value_type": "V"
+  }
+ },
+ "schema_version": 1
+}

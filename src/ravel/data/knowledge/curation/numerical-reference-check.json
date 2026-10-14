@@ -1,0 +1,25 @@
+{
+ "id": "op:numerical-reference-check",
+ "op": {
+  "do_not_use_when": [
+   "Comparing a figure: use figure-comparison.",
+   "Comparing complete cells of results: use research-comparison."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/numerical-reference-check-example --spec specs/numerical-reference-check.json",
+    "phrase": "Compare supplied values with a reference table under declared tolerances.",
+    "spec": {
+     "mode": "numerical-reference-check",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Held-out numerical comparisons against supplied references.",
+   "Values must be compared with a reference table under stated tolerances."
+  ]
+ }
+}

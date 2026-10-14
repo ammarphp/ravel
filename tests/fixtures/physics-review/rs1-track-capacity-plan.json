@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "source": "Retrospective projection of unchanged October 6 Stage-A capacity and independently checked Stage-B record; not a new experiment or physics closure",
+  "question": "Can this bounded track-definition intervention reach the quoted cached central fraction on the retained sample?",
+  "manipulation": {
+    "variable": "track-definition intervention",
+    "baseline": "retained nominal reconstructed objects",
+    "candidate": "source-permitted track variation, all other predicates fixed"
+  },
+  "fixed_artifacts": [
+    {
+      "path": "track-capacity-refinement.json",
+      "sha256": "31badf2411776c21ca3e0db3096821720f5dd5ea47c86cadcbef0c59e6665d9d"
+    },
+    {
+      "path": "track-replay-result-verification.json",
+      "sha256": "149cea68d583b9843e87ece1a7fb450d551e8f015d4f128da7e48e5a23f7e6de"
+    }
+  ],
+  "comparison": {
+    "kind": "independent",
+    "baseline": {
+      "path": "data/rs1-track-reference.json",
+      "sha256": "26f573c2a7452ad87231495bcba2539258ded47cc3944894a8c996af11241544"
+    },
+    "candidate": {
+      "path": "data/rs1-track-nominal.json",
+      "sha256": "6b4483f7f413c0be2965b491bf6fdec8ff2c5516d066be9e36419450892e4719"
+    },
+    "basis": {
+      "quantity": "target_high_bin_fraction",
+      "unit": "1",
+      "normalization": "within_selected_high_region",
+      "role": "nominal",
+      "definition": "Conditional retained-sample track-intervention capacity versus quoted cached reference central fraction",
+      "channels": [
+        "target_high_bin"
+      ]
+    },
+    "require_complete_exposure": true
+  },
+  "hypotheses": [
+    {
+      "id": "TRACK1",
+      "statement": "The bounded intervention can bring the retained target fraction to the quoted central value",
+      "channels": [
+        "target_high_bin"
+      ],
+      "direction": "equivalent",
+      "relative_tolerance": 0.05
+    }
+  ],
+  "precision": {
+    "max_relative_mc_error": 0.2,
+    "envelope_sigma": 2,
+    "reference_covariance": "required"
+  },
+  "data_use": [
+    {
+      "population_id": "cached-reference-target",
+      "role": "calibration",
+      "artifact": {
+        "path": "data/rs1-track-reference.json",
+        "sha256": "26f573c2a7452ad87231495bcba2539258ded47cc3944894a8c996af11241544"
+      }
+    },
+    {
+      "population_id": "retained-track-20k",
+      "role": "calibration",
+      "artifact": {
+        "path": "data/rs1-track-nominal.json",
+        "sha256": "6b4483f7f413c0be2965b491bf6fdec8ff2c5516d066be9e36419450892e4719"
+      }
+    }
+  ],
+  "budget": {
+    "max_attempts": 1,
+    "max_seconds": 30,
+    "max_new_events": 0
+  },
+  "stopping": {
+    "success": "all_criteria_supported",
+    "failure": "any_criterion_contradicted",
+    "unresolved": "stop_without_conclusion"
+  },
+  "applicability": {
+    "status": "unresolved",
+    "reason": "Retrospective hypothesis uses inspected data; historical runtime identity and reference covariance remain unresolved"
+  },
+  "capacity": {
+    "artifact": {
+      "path": "track-capacity-refinement.json",
+      "sha256": "31badf2411776c21ca3e0db3096821720f5dd5ea47c86cadcbef0c59e6665d9d"
+    },
+    "lower_pointer": "/fraction_bound/0",
+    "upper_pointer": "/fraction_bound/1",
+    "target_pointer": "/quoted_reference_central_fraction",
+    "reason": "Conditional deterministic fixed-sample capacity, not a confidence interval or ATLAS validation; Stage-B source confirms actual flavour-type capacity condition and complete matching"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "lhe_transform_rules",
+  "name": "svj-dark-flavour",
+  "rationale": "The Pythia 8 Hidden Valley shower treats every dark quark as PDG 4900101. A UFO with flavoured dark quarks 49001011-49001014 is mapped to that code with the particle/antiparticle sign kept, as svj_lhe_transform does for its particle map.",
+  "approximation": "Dark-flavour labels are merged; flavour-dependent dark-sector dynamics are not represented in the shower.",
+  "particle_data": {
+    "4900101": {"charge3": 0, "colour": 1},
+    "49001011": {"charge3": 0, "colour": 1},
+    "49001012": {"charge3": 0, "colour": 1},
+    "49001013": {"charge3": 0, "colour": 1},
+    "49001014": {"charge3": 0, "colour": 1}
+  },
+  "rules": [
+    {
+      "id": "dark-quarks",
+      "match": {"status": [1], "pdg": [49001011, -49001011, 49001012, -49001012, 49001013, -49001013, 49001014, -49001014]},
+      "replace_pdg": 4900101,
+      "preserve_sign": true,
+      "declares": ["touches_outgoing"],
+      "rationale": "Outgoing dark quarks enter the Hidden Valley shower under its single dark-quark code."
+    }
+  ]
+}

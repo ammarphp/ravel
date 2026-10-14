@@ -1,0 +1,29 @@
+{
+ "id": "op:reco-ntuple-routine",
+ "op": {
+  "do_not_use_when": [
+   "Recipe-based analysis: use columnar-analysis."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/reco-ntuple-routine-example --spec specs/reco-ntuple-routine.json",
+    "phrase": "Run a registered routine port on flat reconstructed ntuples.",
+    "spec": {
+     "mode": "reco-ntuple-routine",
+     "task": {
+      "descriptor": "descriptors/format.json",
+      "max_events": null,
+      "ntuples": [
+       "ntuples/sample.root"
+      ],
+      "routine": "supplied-routine"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Run a native SimpleAnalysis routine port on flat reconstructed ntuples with a branch and ID-flag map.",
+   "Region yields from reconstructed ntuples are needed."
+  ]
+ }
+}

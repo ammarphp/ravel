@@ -1,0 +1,27 @@
+{
+ "id": "op:ratio-measurement",
+ "op": {
+  "do_not_use_when": [
+   "Plain Gaussian goodness of fit: use measurement.",
+   "Normalized mixtures: use normalized-measurement."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/ratio-measurement-example --spec specs/ratio-measurement.json",
+    "phrase": "Evaluate a ratio diagnostic with a joint covariance at a fixed prediction.",
+    "spec": {
+     "mode": "ratio-measurement",
+     "task": {
+      "input": "inputs/example.json",
+      "schema_version": 1,
+      "signal_strength": 1.0
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Fixed-prediction Gaussian ratio diagnostics with a joint covariance.",
+   "Ratios of measured quantities with correlated uncertainties."
+  ]
+ }
+}

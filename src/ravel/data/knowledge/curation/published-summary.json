@@ -1,0 +1,27 @@
+{
+ "id": "op:published-summary",
+ "op": {
+  "do_not_use_when": [
+   "Comparing a produced curve with a figure: use figure-comparison.",
+   "Recomputing a limit: use published-model."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/published-summary-example --spec specs/published-summary.json",
+    "phrase": "Summarize a declared census of published limits and draw the overlay.",
+    "spec": {
+     "mode": "published-summary",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schema_version": 1
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Declared literature census and published-limit overlay.",
+   "A table of published limits must be summarized and drawn."
+  ]
+ }
+}

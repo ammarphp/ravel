@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "estimates",
+  "basis": {
+    "quantity": "target_high_bin_fraction",
+    "unit": "1",
+    "normalization": "within_selected_high_region",
+    "role": "nominal",
+    "definition": "Conditional retained-sample track-intervention capacity versus quoted cached reference central fraction",
+    "channels": [
+      "target_high_bin"
+    ]
+  },
+  "population_id": "cached-reference-target",
+  "expected_exposure": 1,
+  "actual_exposure": 1,
+  "values": [
+    0.2935296396129421
+  ],
+  "covariance": null,
+  "covariance_status": "unavailable",
+  "uncertainty_scope": "Full reference comparison covariance unavailable; no diagonal or confidence interval invented"
+}

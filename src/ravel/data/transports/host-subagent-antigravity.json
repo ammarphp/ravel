@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "host-subagent-antigravity",
+  "transport_kind": "host-subagent",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "none",
+    "env_names": [],
+    "command": null,
+    "header_style": null
+  },
+  "pass_env": [],
+  "billing": "none",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "cli-policy",
+    "attestation": "host",
+    "structured_output": false,
+    "blind_capable": false,
+    "effort_control": false,
+    "session_id": false,
+    "usage_report": false
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "notes": "The user's antigravity host spawns its own subagent profile; RAVEL sees only what the host reports. Tool outputs count only through ravel work call receipts."
+}

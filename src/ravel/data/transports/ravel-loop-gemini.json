@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "transport",
+  "id": "ravel-loop-gemini",
+  "transport_kind": "ravel-loop",
+  "launcher": null,
+  "argv_template": [],
+  "models": [
+    {
+      "id": "{configured}",
+      "family": "google",
+      "tiers": [
+        "judgment",
+        "agent",
+        "cheap"
+      ]
+    }
+  ],
+  "auth": {
+    "kind": "env",
+    "env_names": [
+      "GEMINI_API_KEY"
+    ],
+    "command": null,
+    "header_style": "x-goog-api-key"
+  },
+  "pass_env": [],
+  "billing": "api",
+  "capabilities": {
+    "tools": "broker-full",
+    "isolation": "ravel-sandbox",
+    "attestation": "transport",
+    "structured_output": true,
+    "blind_capable": true,
+    "effort_control": false,
+    "session_id": true,
+    "usage_report": true
+  },
+  "max_concurrent": 2,
+  "qualification": {
+    "status": "declared",
+    "record": null
+  },
+  "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+}

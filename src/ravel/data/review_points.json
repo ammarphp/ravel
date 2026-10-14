@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {"row": 1, "trigger": "operation:compute|artifact:authored", "roles": ["plan-critic"], "mode": "advisory", "gate": "approve_plan"},
+    {"row": 2, "trigger": "artifact:authored", "roles": [], "mode": "producer", "gate": "launch"},
+    {"row": 3, "trigger": "rung:full|trigger:failed_stage", "roles": [], "mode": "advisory", "gate": "failed_stage_feedback"},
+    {"row": 4, "trigger": "claim_kind:*", "roles": ["physics-critic", "skeptical-verifier", "physics-decider"], "mode": "voting", "gate": "checkin2_accept"},
+    {"row": 5, "trigger": "basis:simulated_acceptance|basis:generated_prediction|artifact:absolute_yield", "roles": ["normalization-auditor"], "mode": "specialist", "gate": "checkin2_accept"},
+    {"row": 6, "trigger": "basis:simulated_acceptance{reimplemented,designed}|artifact:authored_analysis", "roles": ["object-selection-mapper", "analysis-author"], "mode": "specialist", "gate": "checkin2_accept"},
+    {"row": 7, "trigger": "claim_kind:agreement|trigger:reference_deviation", "roles": ["discrepancy-attributor"], "mode": "specialist", "gate": "checkin2_accept"},
+    {"row": 8, "trigger": "artifact:trap_sweep", "roles": ["trap-auditor"], "mode": "specialist", "gate": "checkin2_accept"},
+    {"row": 9, "trigger": "trigger:failure", "roles": ["rca-investigator", "investigation-worker", "refutation-verifier"], "mode": "investigation", "gate": "correction"},
+    {"row": 10, "trigger": "artifact:figure", "roles": ["figure-critic"], "mode": "advisory", "gate": "delivery"},
+    {"row": 11, "trigger": "delivery:parent", "roles": ["physics-critic", "skeptical-verifier", "physics-decider"], "mode": "voting", "gate": "final_task"},
+    {"row": 12, "trigger": "trigger:consequential_decision", "roles": [], "mode": "rdj", "gate": null},
+    {"row": 13, "trigger": "route:E|claim_kind:method_performance|operation:method-study", "roles": [], "mode": "protocol", "gate": "research_choice"},
+    {"row": 14, "trigger": "claim_kind:document", "roles": ["integrity-auditor"], "mode": "voting", "gate": "report_integrity"},
+    {"row": 15, "trigger": "artifact:upstream_self_review", "roles": [], "mode": "rdj", "gate": "checkin2_accept"},
+    {"row": 16, "trigger": "trigger:tuning_to_observed", "roles": [], "mode": "rdj", "gate": "checkin2_accept"},
+    {"row": 17, "trigger": "operation:observed_statistic", "roles": [], "mode": "rdj", "gate": "unblind"}
+  ],
+  "author_roles": {"model": "model-author", "cards": "card-author", "routine": "analysis-author", "analysis_code": "analysis-author", "analysis": "analysis-author", "statistical_model": "statistical-model-author", "spec": "spec-author"}
+}

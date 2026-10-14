@@ -1,0 +1,26 @@
+{
+ "id": "op:symbolic-evaluation",
+ "op": {
+  "do_not_use_when": [
+   "Constructing amplitudes: use feynarts-amplitude.",
+   "Numerical grids of formulas: use formula-grid."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/symbolic-evaluation-example --spec specs/symbolic-evaluation.json",
+    "phrase": "Evaluate a pinned symbolic expression with FeynCalc.",
+    "spec": {
+     "mode": "symbolic-evaluation",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "HEPTAPOD or FeynCalc symbolic evaluation of a pinned expression.",
+   "Symbolic simplification with a pinned source is needed."
+  ]
+ }
+}

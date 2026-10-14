@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "request_digest": "9953949ea12a7a6058d188b2447289b8718d1f1e630bc5f0ad771b453c2c5b97",
+  "obligation_ids": [
+    "output-1"
+  ],
+  "required_output": "Independently reproduce the fictional parameter surface.",
+  "sufficiency": {
+    "kind": "independent_reproduction",
+    "value": null,
+    "unit": null,
+    "source_text": "Independently reproduce the fictional parameter surface."
+  },
+  "validity_domain": "Fictional supplied model and its stated regime",
+  "allowed_approximations": [
+    "Use the supplied simplified law within its domain"
+  ],
+  "family": "reinterpretation",
+  "selected": {
+    "method": "justified_scan",
+    "rung": 4,
+    "operation": null
+  },
+  "alternatives": [
+    {
+      "method": "existing_result",
+      "rung": 0,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    },
+    {
+      "method": "validated_map_or_table",
+      "rung": 1,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    },
+    {
+      "method": "fast_reinterpretation_or_reweighting",
+      "rung": 2,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    },
+    {
+      "method": "single_point_chain",
+      "rung": 3,
+      "status": "insufficient",
+      "reason": "The supplied definition lacks the requested output for this method.",
+      "evidence": [
+        "inputs/fictional-domain.json"
+      ]
+    }
+  ],
+  "explicit_request": {
+    "requested": true,
+    "quote": "Independently reproduce the fictional parameter surface."
+  },
+  "cost_forecast": {
+    "status": "historical",
+    "wall_hours": 0.25,
+    "cpu_hours": 0.5,
+    "disk_gb": 0.1,
+    "events": 0,
+    "model_calls": 1,
+    "basis": "Retained observation of the same fictional settings; a historical comparison."
+  },
+  "stopping_criterion": "Stop once the requested output and its stated evidence are delivered.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": [
+      "plan-critic"
+    ]
+  }
+}

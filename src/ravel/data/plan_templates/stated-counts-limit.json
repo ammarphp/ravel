@@ -1,0 +1,59 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "stated-counts-limit",
+ "summary": "A limit from stated or supplied observed counts through the scoped likelihood adapter.",
+ "priority": 13,
+ "match": {
+  "all": [
+   "claim:exclusion",
+   "observed_data"
+  ],
+  "any": [
+   [
+    "stated:table",
+    "supplied:table"
+   ]
+  ],
+  "none": [
+   "fan_out"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "counts",
+   "provides": {
+    "kind": "table",
+    "require": {
+     "observed": true
+    }
+   },
+   "source": "requester",
+   "locator": "observed counts and background stated in the request",
+   "status": "awaited",
+   "bind": "table"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "likelihood",
+   "kind": "operation",
+   "operation": "likelihood",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:counts",
+   "to": "likelihood.counts",
+   "kind": "table",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "likelihood.limits",
+   "kind": "inference"
+  }
+ ]
+}

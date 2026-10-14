@@ -1,0 +1,65 @@
+{
+  "detector-calibration": {
+    "summary": "Bounded supplied per-bin detector-response calibration with disjoint adaptive and frozen confirmation nodes.",
+    "implementation": {
+      "kind": "command",
+      "module": "ravel.physics.detector_calibration"
+    },
+    "consumes": [
+      {
+        "slot": "spec",
+        "kind": "cal:spec"
+      },
+      {
+        "slot": "samples",
+        "kind": "event_sample"
+      },
+      {
+        "slot": "observables",
+        "kind": "binned_values"
+      }
+    ],
+    "produces": [
+      {
+        "slot": "response",
+        "kind": "cal:response"
+      },
+      {
+        "slot": "report",
+        "kind": "cal:receipt"
+      }
+    ],
+    "effects": [
+      "varies_parameters"
+    ],
+    "cost": {
+      "unit": "task",
+      "forecast": null,
+      "ceiling_pointer": "/budget/max_trials"
+    },
+    "critical_fields": [],
+    "basis": {
+      "adds": [],
+      "passes": [
+        "spec",
+        "samples",
+        "observables"
+      ]
+    },
+    "tools": [],
+    "stages": [],
+    "review": {
+      "checks": [
+        "calibration_target_disjoint",
+        "confirmation_separation",
+        "anchored_bounds",
+        "calibration_frozen",
+        "imported_calibration",
+        "calibration_before_and_after",
+        "calibration_no_global_scalar",
+        "signal_model_complete_before_calibration"
+      ]
+    },
+    "fidelity_rank": 1
+  }
+}

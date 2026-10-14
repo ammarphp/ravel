@@ -1,0 +1,25 @@
+{
+ "id": "op:contur-yoda",
+ "op": {
+  "do_not_use_when": [
+   "Events not yet processed by Rivet: use analyze.",
+   "A scan with companion tests: use contur-companion."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/contur-yoda-example --spec specs/contur-yoda.json",
+    "phrase": "Run Contur inference on one supplied Rivet YODA file.",
+    "spec": {
+     "mode": "contur-yoda",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Single-point Contur inference from a supplied Rivet YODA file.",
+   "A model point has been run through Rivet and its exclusion by measurements is wanted."
+  ]
+ }
+}

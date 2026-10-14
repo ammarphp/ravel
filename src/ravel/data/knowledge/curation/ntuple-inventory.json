@@ -1,0 +1,29 @@
+{
+ "id": "op:ntuple-inventory",
+ "op": {
+  "do_not_use_when": [
+   "Streaming trees: use root-stream.",
+   "Raw array conversion: use tree-array-export."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/ntuple-inventory-example --spec specs/ntuple-inventory.json",
+    "phrase": "Inventory supplied samples from a pinned request document.",
+    "spec": {
+     "mode": "ntuple-inventory",
+     "task": {
+      "request": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Inventory supplied MC and data samples and prepare streaming inputs for a new search.",
+   "Dataset identifiers must be resolved before analysis starts."
+  ]
+ }
+}

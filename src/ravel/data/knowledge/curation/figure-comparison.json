@@ -1,0 +1,31 @@
+{
+ "id": "op:figure-comparison",
+ "op": {
+  "do_not_use_when": [
+   "Comparing numbers against held-out references: use numerical-reference-check.",
+   "Comparing result cells: use research-comparison."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/figure-comparison-example --spec specs/figure-comparison.json",
+    "phrase": "Compare a produced curve with a published figure under declared tolerances.",
+    "spec": {
+     "mode": "figure-comparison",
+     "task": {
+      "operations": [
+       {
+        "kind": "compare",
+        "name": "compare-curve",
+        "specification": "figures/compare.json"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Digitise a published figure or compare a result with a published curve, histogram, contour or HEPData table.",
+   "Draw a parameter-plane or measurement figure over the official one under declared tolerances."
+  ]
+ }
+}

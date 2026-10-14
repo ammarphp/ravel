@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "agent-worker-receipt",
+  "node_id": "golden-v1",
+  "attempt": 1,
+  "role": {
+    "id": "physics-critic",
+    "version": "2.0.0",
+    "card_sha256": "334d8def81915c223eb8320d394571dc0bd3230091c18a5b8440a9267b1da65a"
+  },
+  "review_point_id": "golden-point",
+  "transport": {
+    "id": "golden-cli",
+    "transport_kind": "cli-worker",
+    "declaration_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "probe_sha256": null
+  },
+  "argv_sha256": null,
+  "cli_version": "stub 0.0",
+  "model": {
+    "requested": "m",
+    "observed": "m",
+    "family": "f",
+    "effort": null
+  },
+  "session_id": "golden-session",
+  "actor_id": "golden-actor",
+  "attestation": "transport_attested",
+  "isolation": {
+    "profile": "ravel-sandbox",
+    "user_configuration_loaded": false,
+    "evidence": {
+      "confirmed": true
+    }
+  },
+  "pass_env_names": [],
+  "request_sha256": "5058e641b6525de0bffc002958e70d83a91806013f3fd2fb1c4e680ada98a545",
+  "knowledge": {
+    "bundle_sha256": null,
+    "served_ids": [],
+    "used_ids": []
+  },
+  "run_tree": {
+    "before_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "after_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "modified": false
+  },
+  "broker": {
+    "calls": 1,
+    "calls_sha256": "760672d732aa41a86673ed9f5eca9fb6d687c5e3aa9e617f95026de9ddb7ea72"
+  },
+  "final_record": {
+    "path": "final.json",
+    "sha256": "7d953a761838b3403819e0f1e0cee592d4b5a502c1e4195b4138071d3b425894",
+    "schema": "reviewer.v1",
+    "valid": true
+  },
+  "credited_outputs": [
+    {
+      "path": "outputs/review.json",
+      "kind": "review-findings",
+      "sha256": "6e96a492bc9fa40d22212c5be0396a203f3dbd4916cf97ebe2f66b6d54fa4a9a"
+    }
+  ],
+  "usage": {
+    "input_tokens": 1,
+    "output_tokens": 1,
+    "cost_usd": null,
+    "reported": true
+  },
+  "wall_seconds": 0.019129037857055664,
+  "status": "ok",
+  "failure": null,
+  "transcript": {
+    "path": "agent-work/golden-v1/1/transcript.jsonl",
+    "sha256": "aa4eb55dc57c3c1de490a055a1c104eb03b9ec849c843fa470c86ee194985b82",
+    "link_digest_scope": "receipt_without_transcript"
+  },
+  "started_utc": "2026-10-12T05:09:09.905860+00:00",
+  "finished_utc": "2026-10-12T05:09:09.926038+00:00",
+  "outcome": {
+    "status": "ok",
+    "computed_checks": {
+      "self_checks": true,
+      "declared_outputs": true,
+      "final_record": true,
+      "process_exit": true,
+      "run_tree": true,
+      "inputs_unchanged": true,
+      "budgets": true,
+      "broker_receipts": true,
+      "broker_decision_clear": true
+    },
+    "strict": true,
+    "label_source": "computed"
+  },
+  "recovery": null,
+  "graph": null,
+  "framework_step": null,
+  "rdj": null,
+  "completion_claimed_without_receipts": false,
+  "identity_sha256": null,
+  "epoch": null
+}

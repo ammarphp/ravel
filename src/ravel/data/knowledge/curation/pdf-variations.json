@@ -1,0 +1,25 @@
+{
+ "id": "op:pdf-variations",
+ "op": {
+  "do_not_use_when": [
+   "Scale or generator variations: use the generation modes with multiweights.",
+   "Cross-section lookup: use cross-section."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/pdf-variations-example --spec specs/pdf-variations.json",
+    "phrase": "Compute coherent PDF variations of supplied parton records.",
+    "spec": {
+     "mode": "pdf-variations",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Coherent PDF variations of supplied parton records.",
+   "A PDF uncertainty on a rate or shape from retained parton information."
+  ]
+ }
+}

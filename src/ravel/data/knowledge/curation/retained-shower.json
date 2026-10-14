@@ -1,0 +1,26 @@
+{
+ "id": "op:retained-shower",
+ "op": {
+  "do_not_use_when": [
+   "Showering plus detector simulation: use event-production.",
+   "Qualifying settings: use initialized-settings-qualification."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/retained-shower-example --spec specs/retained-shower.json",
+    "phrase": "Reshower a retained LHE cohort under a pinned shower contract.",
+    "spec": {
+     "mode": "retained-shower",
+     "task": {
+      "contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "A fresh parton shower of a retained LHE cohort with a pinned contract.",
+   "The same parton events must be showered again with changed settings."
+  ]
+ }
+}

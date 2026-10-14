@@ -1,0 +1,68 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelcanvas{155mm}
+\def\lx{24}  % the line
+\def\tx{33}  % station labels
+\newcommand\phase[3]{% top, bottom, label
+  \begin{scope}[on background layer]
+    \path[band=records] (4,#1) rectangle (166,#2);
+  \end{scope}
+  \node[font=\ravelSmallFont\bfseries, text=rvmuted, anchor=north east] at (163.5,#1-1.6) {#3};}
+
+\phase{-4}{-53.5}{Plan}
+\phase{-57}{-106.5}{Compute one model point}
+\phase{-110}{-141.5}{Scan, verify and deliver}
+
+\draw[metro] (\lx,-12.5) -- (\lx,-136.5);
+
+% Plan: nothing is generated before CHECK-IN 1 is approved.
+\node[stationend=people] at (\lx,-12.5) {};
+\node[stationlabel] at (\tx,-12.5) {\stationtext{Request}{you describe the physics question in plain language}};
+\node[station] at (\lx,-21.5) {};
+\node[stationlabel] at (\tx,-21.5) {\stationtext{Intake}{the request becomes a task contract; nothing runs yet}};
+\node[station] at (\lx,-30.5) {1};
+\node[stationlabel] at (\tx,-30.5) {\stationtext{Environment}{check the native toolchain, or set it up}};
+\node[station] at (\lx,-39.5) {2};
+\node[stationlabel] at (\tx,-39.5) {\stationtext{Inputs and route}{find published inputs; choose the analysis route}};
+\node[stationgate] at (\lx,-48.5) {};
+\node[stationlabel] at (\tx,-48.5) {\stationtext{CHECK-IN 1}{you approve the plan, budget and assumptions}};
+
+% Compute one model point.
+\node[station] (s3) at (\lx,-65.5) {3};
+\node[stationlabel] at (\tx,-65.5) {\stationtext{Generate}{events, checked before the shower}};
+\node[station] at (\lx,-74.5) {4};
+\node[stationlabel] at (\tx,-74.5) {\stationtext{Analyze}{detector response and selection}};
+\node[station] at (\lx,-83.5) {5};
+\node[stationlabel] at (\tx,-83.5) {\stationtext{Visualize}{compare with published distributions}};
+\node[station] at (\lx,-92.5) {6};
+\node[stationlabel] at (\tx,-92.5) {\stationtext{Acquire data}{the published likelihood or counts}};
+\node[station] at (\lx,-101.5) {7};
+\node[stationlabel] at (\tx,-101.5) {\stationtext{Exclude}{the 95\% CLs exclusion limit}};
+
+% CHECK-IN 2 is not a station: it is held once, at the waypoint agreed at CHECK-IN 1, somewhere within steps 3 to 7.
+% A bracket groups those steps, so the scan loop below never passes it.
+\draw[line width=0.8pt, draw=rvpeopleline] (118.5,-63) -- (120,-63) -- (120,-104) -- (118.5,-104);
+\node[stationgate] at (127.5,-69.5) {};
+\node[anchor=west, inner sep=0pt, font=\ravelNodeTitleFont] at (133.5,-69.5) {CHECK-IN 2};
+\node[anchor=north west, inner sep=0pt, align=left, text width=40mm, font=\ravelLabelFont, text=rvmuted] at (123.5,-76)
+  {once, at the waypoint agreed at CHECK-IN 1: you review an early, cheap comparison before the bulk of the compute};
+
+% Scan, verify and deliver.
+\node[station] (s8) at (\lx,-118.5) {8};
+\node[stationlabel] at (\tx,-118.5) {\stationtext{Scan}{repeat steps 3 to 7 over the grid; skipped for a single point}};
+\node[station] (s9) at (\lx,-127.5) {9};
+\node[stationlabel] at (\tx,-127.5) {\stationtext{Verify}{trace every number; independent physics review}};
+\node[stationgate] at (\lx,-136.5) {};
+\node[stationlabel] at (\tx,-136.5) {\stationtext{Final check-in}{you accept the results or ask to revisit a step}};
+
+% The scan repeats steps 3 to 7 for each grid point (a single point skips it, as its label says). The label sits
+% beside steps 3 to 7, inside their band.
+\draw[loop] (s8.west) -- (11,-118.5) -- node[flowlabel, rotate=90, fill=rvrecordsfill, inner sep=1.2pt, pos=0.66]
+  {each grid point} (11,-65.5) -- (s3.west);
+
+\node[anchor=west, font=\ravelSmallFont, text=rvmuted, text width=160mm, align=left] at (5,-148.5)
+  {Every step is recorded in the run directory. A change of course is reported at once in a deviation check-in.};
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,26 @@
+{
+ "id": "op:width-inputs",
+ "op": {
+  "do_not_use_when": [
+   "Mass and width input construction for large widths: use mass-width-grid.",
+   "Computing widths from couplings: use resonance-width."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/width-inputs-example --spec specs/width-inputs.json",
+    "phrase": "Build resonance-width inputs from a pinned released table.",
+    "spec": {
+     "mode": "width-inputs",
+     "task": {
+      "input": "inputs/example.json",
+      "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Build standing resonance-width inputs from released HEPData tables.",
+   "Released width tables enter a resonance study."
+  ]
+ }
+}

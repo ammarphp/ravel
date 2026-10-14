@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "kind": "protected-path-manifest",
+  "purpose": "Sources and record fields that judge a run. No run-time artefact (worker output, broker output, lesson, RCA fix) may write them; changes belong in reviewed development commits. Paths are repository-relative globs where ** matches zero or more segments. Fields are record keys that no lesson or fix may edit wherever they appear.",
+  "entries": [
+    {
+      "id": "validation",
+      "covers": "validators, gate checks and this manifest's checker",
+      "paths": [
+        "src/ravel/validation/**"
+      ],
+      "required": true
+    },
+    {
+      "id": "regression-trigger-thresholds",
+      "covers": "regression-trigger defaults and the per-run review threshold overrides",
+      "paths": [
+        "src/ravel/validation/regression_triggers.py"
+      ],
+      "fields": [
+        "review.thresholds"
+      ],
+      "required": true
+    },
+    {
+      "id": "decision-gate",
+      "covers": "the decision gate, its provider registry and switches, review-point computation, run ceilings and raw-launch checks",
+      "paths": [
+        "src/ravel/workflow/decision_gate.py",
+        "src/ravel/workflow/review_points.py",
+        "src/ravel/data/gates/providers.json",
+        "src/ravel/data/gates/**",
+        "src/ravel/workflow/run_ceilings.py",
+        "src/ravel/workflow/raw_launch.py"
+      ],
+      "pending": "decision-gate providers",
+      "fields": [
+        "providers.active",
+        "required_providers",
+        "required_scopes",
+        "attestation_min"
+      ]
+    },
+    {
+      "id": "decision-case",
+      "covers": "attestation ranks, independence labels and the evidence queue a gate counts",
+      "paths": [
+        "src/ravel/workflow/decision_case.py",
+        "src/ravel/workflow/evidence_queue.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "provider-modules",
+      "covers": "provider modules whose presence activates a registered gate provider",
+      "paths": [
+        "src/ravel/workflow/work_dispatch.py",
+        "src/ravel/workflow/comparison.py"
+      ],
+      "pending": "production executors"
+    },
+    {
+      "id": "judgment-transport",
+      "covers": "scientific-judgment binding, agent graph, transport receipts, launch authorization, approval fingerprints, execution and machine leases",
+      "paths": [
+        "src/ravel/workflow/scientific_judgment.py",
+        "src/ravel/workflow/agent_graph.py",
+        "src/ravel/workflow/transport_receipt.py",
+        "src/ravel/workflow/launch_authorization.py",
+        "src/ravel/workflow/workflow_state.py",
+        "src/ravel/workflow/execution.py",
+        "src/ravel/workflow/machine_lease.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "rdj",
+      "covers": "RDJ loop, anchor, custody, invariants and policy",
+      "paths": [
+        "src/ravel/workflow/rdj_*.py",
+        "src/ravel/data/rdj/**"
+      ],
+      "required": true
+    },
+    {
+      "id": "role-card-scope",
+      "covers": "what a role card must check, sees and may not read",
+      "paths": [
+        "src/ravel/data/**/role-cards*.json",
+        "src/ravel/data/roles/**"
+      ],
+      "fields": [
+        "must_check",
+        "sees",
+        "forbidden_inputs"
+      ],
+      "required": true
+    },
+    {
+      "id": "review-points",
+      "covers": "review-point rows and their attachment to protocol stages",
+      "paths": [
+        "src/ravel/data/review_points.json",
+        "src/ravel/data/**/review_points.json"
+      ],
+      "fields": [
+        "review_points"
+      ],
+      "pending": "decision-gate providers"
+    },
+    {
+      "id": "premise-predicates",
+      "covers": "premise and trap predicates and their registry",
+      "paths": [
+        "src/ravel/data/knowledge/premises.json",
+        "src/ravel/data/knowledge/schema/premise.json",
+        "src/ravel/workflow/premises.py",
+        "src/ravel/data/ml/ml-traps.json"
+      ],
+      "fields": [
+        "predicate"
+      ],
+      "required": true
+    },
+    {
+      "id": "source-policy",
+      "covers": "source-restriction matching",
+      "paths": [
+        "src/ravel/workflow/source_policy.py"
+      ],
+      "pending": "knowledge broker"
+    },
+    {
+      "id": "evaluator-pins",
+      "covers": "the research protocol, its default definition and preregistered evaluator pins",
+      "paths": [
+        "src/ravel/workflow/research_protocol.py",
+        "src/ravel/data/research/protocol-default.json"
+      ],
+      "fields": [
+        "evaluator_pins"
+      ],
+      "required": true
+    },
+    {
+      "id": "ml-evaluator",
+      "covers": "ML metrics, receipt validation, cross-fit audit, exposure and custody",
+      "paths": [
+        "src/ravel/physics/ml_training.py",
+        "src/ravel/physics/ml_crossfit.py",
+        "src/ravel/physics/ml_exposure.py",
+        "src/ravel/physics/ml_custody.py"
+      ],
+      "required": true
+    },
+    {
+      "id": "physics-review",
+      "covers": "recomputed physics-review checks and their policy",
+      "paths": [
+        "src/ravel/workflow/physics_review.py",
+        "src/ravel/data/templates/physics_review_policy.json"
+      ],
+      "required": true
+    },
+    {
+      "id": "agent-instructions",
+      "covers": "the instructions, skills, rules, role definitions and checklists agents are judged against, the package metadata and the unit tests",
+      "paths": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".claude/**",
+        ".agents/**",
+        ".codex/**",
+        "pyproject.toml",
+        "docs/workflow/checklists/**",
+        "tests/unit/**"
+      ],
+      "required": true
+    },
+    {
+      "id": "governance",
+      "covers": "this manifest, its tests, the lesson writer's do-not-learn hook and the enforcement surface",
+      "paths": [
+        "src/ravel/data/governance/**",
+        "src/ravel/workflow/knowledge_lessons.py",
+        "tests/governance/**",
+        ".github/workflows/**"
+      ],
+      "required": true
+    }
+  ],
+  "handoffs": [
+    {
+      "to": "broker",
+      "consumer": "broker and worker dispatch",
+      "wiring": "Call is_protected on every broker or worker write before it lands; take evaluator_snapshot before and after each worker and store seal_worker_receipt's result; register the sealed receipt.",
+      "until_wired": "Seals are produced only by callers that choose to; an unsealed receipt is not refused at run time."
+    },
+    {
+      "to": "broker",
+      "consumer": "review-point counting and RDJ receipt consumption",
+      "wiring": "review_points._receipt_records and rdj_custody.register_worker_receipt treat receipt_void_reason(receipt) as receipt_invalid, including evaluator_unsealed and evaluator_seal_malformed.",
+      "until_wired": "An evaluator-changed or unsealed receipt can still be credited by those consumers."
+    },
+    {
+      "to": "knowledge-lessons",
+      "consumer": "knowledge lesson promotion",
+      "wiring": "Pass the registry's check ids as check_ids to knowledge_lessons.lesson_errors, so bare ids reach suppression_rule as known_ids, and refuse promotion on any do-not-learn finding.",
+      "until_wired": "A caller that omits check_ids gets only id-prefixed (check:, gate:, trap:, RP) and file or field matching."
+    },
+    {
+      "to": "root-cause-analysis",
+      "consumer": "autonomous-loop RCA fixes",
+      "wiring": "Run fix_errors with known_ids on every proposed fix and investigator_bundle on every check result an investigator sees; refuse the fix on any finding.",
+      "until_wired": "RCA fixes are refused only where a caller invokes fix_errors; the CI scan catches committed artefacts after the fact."
+    }
+  ]
+}

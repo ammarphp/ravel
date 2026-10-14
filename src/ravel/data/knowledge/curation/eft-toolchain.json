@@ -1,0 +1,25 @@
+{
+ "id": "op:eft-toolchain",
+ "op": {
+  "do_not_use_when": [
+   "Same-scale convention transport: use eft-convention-transport.",
+   "Collider EFT events: use model-events."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/eft-toolchain-example --spec specs/eft-toolchain.json",
+    "phrase": "Run an EFT point through the running and flavour toolchain.",
+    "spec": {
+     "mode": "eft-toolchain",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "EFT running, matching and flavour predictions with flavio, wilson and smelli at a parameter point.",
+   "A flavour likelihood in an EFT parameter point."
+  ]
+ }
+}

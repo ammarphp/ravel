@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "package": "supplied-diagnostics",
+  "mode_descriptors": {
+    "likelihood-profile-probe": {
+      "summary": "Conditional profile diagnostics from supplied portfolios and numerical criteria.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    },
+    "likelihood-candidate-check": {
+      "summary": "Supplied candidate portfolios with independent numerical checks and derived work census.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    },
+    "likelihood-step-refinement": {
+      "summary": "Supplied failed-coordinate refinement with preserved origin verdicts.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    },
+    "mpi-observer": {
+      "summary": "Supplied stage graphs and event populations with observer equivalence and custody checks.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    },
+    "mpi-paired-effect": {
+      "summary": "Supplied paired interventions, channel predicates, normalization and precision criteria.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    },
+    "initialized-settings-retained": {
+      "summary": "Typed terminal failure, retained artifact custody and quiescence qualification.",
+      "applicability": {
+        "scope": "general"
+      },
+      "requires": [
+        "selected supplied plan",
+        "byte-bound inputs",
+        "prospective scientific admission"
+      ],
+      "input_contract": "docs/workflow/reference/initialized-settings-retained.md"
+    }
+  },
+  "operation_signatures": {
+    "likelihood-profile-probe": {
+      "module": "ravel.validation.likelihood_profile_probe",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input"
+      ]
+    },
+    "likelihood-candidate-check": {
+      "module": "ravel.validation.likelihood_candidate_check",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input"
+      ]
+    },
+    "likelihood-step-refinement": {
+      "module": "ravel.validation.likelihood_step_refinement",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input"
+      ]
+    },
+    "mpi-observer": {
+      "module": "ravel.validation.mpi_observer",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input"
+      ]
+    },
+    "mpi-paired-effect": {
+      "module": "ravel.validation.mpi_paired_effect",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input",
+        "sha256"
+      ]
+    },
+    "initialized-settings-retained": {
+      "module": "ravel.validation.initialized_settings_retained",
+      "applicability": {
+        "scope": "general"
+      },
+      "task_fields": [
+        "input",
+        "sha256"
+      ]
+    }
+  },
+  "handoff": "Apply through the registration lane; update mode summaries and applicability, operation schemas, toolchain operation descriptions and knowledge curation together. No historical default or qualification result is supplied."
+}

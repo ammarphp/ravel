@@ -1,0 +1,67 @@
+{
+  "status": "coordinator_weighted_bookkeeping_verified_actual_typ_equivalence_pending_stage_B",
+  "scope": "Sharper deterministic capacity bound; original Stage A eligible-C envelope preserved unchanged. All20,000 completed gzip rows reread, no raw reread. Not a CI or ATLAS calibration.",
+  "inputs": {
+    "completed_census_sha256": "9a7beb169eb4919bd9796ac50404beb2a36e47fe5b226d0db2c421ab765856cd",
+    "review_sha256": "0d55eccd154c85630f1b2affe645410109948b9ea92c1e09064d9f5d187794f6"
+  },
+  "fixed_unchanged": {
+    "events": 19672,
+    "selected_high": 180,
+    "target_bin": 85,
+    "A_u_pb": 6.684478222496182e-05,
+    "D_u_pb": 0.00014155365647638973
+  },
+  "unknown_shadow_reached_two_same_flavour": {
+    "events": 35,
+    "sumw_pb": 2.7524322092631337e-05,
+    "event_ids": [
+      848,
+      2009,
+      2132,
+      2340,
+      2502,
+      2727,
+      3107,
+      4430,
+      5135,
+      5139,
+      7157,
+      7173,
+      7405,
+      8596,
+      8923,
+      9171,
+      10359,
+      10577,
+      11964,
+      12099,
+      12106,
+      12251,
+      12732,
+      13367,
+      14754,
+      15378,
+      16187,
+      16355,
+      17375,
+      17388,
+      17455,
+      18493,
+      18710,
+      19192,
+      19873
+    ]
+  },
+  "source_proven_zero_changed": 293,
+  "fraction_bound": [
+    0.3953488372093023,
+    0.5581395348837209
+  ],
+  "nominal_fraction": 0.4731182795698925,
+  "quoted_reference_central_fraction": 0.2935296396129421,
+  "closes_quoted_central_value": false,
+  "practical_0p05_rule_passed": true,
+  "all_refinement_source_hashes_match": true,
+  "remaining_gate": "Stage B reconstructs actual typ fields and complete per-arm fingerprints from converted arrays; any mismatch invalidates refinement use."
+}

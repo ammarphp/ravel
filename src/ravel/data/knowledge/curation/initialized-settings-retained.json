@@ -1,0 +1,26 @@
+{
+ "id": "op:initialized-settings-retained",
+ "op": {
+  "do_not_use_when": [
+   "Qualification on a fresh LHE: use initialized-settings-qualification.",
+   "A new shower: use retained-shower."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/initialized-settings-retained-example --spec specs/initialized-settings-retained.json",
+    "phrase": "Qualify retained outputs of a completed initialized-settings run.",
+    "spec": {
+     "mode": "initialized-settings-retained",
+     "task": {
+      "input": "inputs/example.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Qualify the immutable outputs of a retained initialized-settings run.",
+   "Verify a retained run without rerunning it."
+  ]
+ }
+}

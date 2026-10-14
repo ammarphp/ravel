@@ -1,0 +1,10 @@
+{
+  "kind": "higgs-reference-tables", "schema_version": 1, "synthetic": true,
+  "citations": {"synthetic-source": {"title": "Synthetic arithmetic fixture; no physics values", "locator": "synthetic://reference/source", "source_file": "synthetic-source.txt"}},
+  "rows": [
+    {"id": "synthetic-rate-a", "quantity": "cross_section", "process": "synthetic-a", "mass_gev": 7, "energy_tev": 3, "order": "synthetic-order", "pdf": "synthetic-pdf", "value": 12, "reference_value": 12, "unit": "pb", "uncertainty": {"minus": 1, "plus": 2, "definition": "Synthetic absolute envelope"}, "citation_key": "synthetic-source"},
+    {"id": "synthetic-rate-b", "quantity": "cross_section", "process": "synthetic-b", "mass_gev": 7, "energy_tev": 3, "order": "synthetic-order", "pdf": "synthetic-pdf", "value": 4, "reference_value": 4, "unit": "pb", "uncertainty": {"minus": 0.5, "plus": 0.5, "definition": "Synthetic absolute envelope"}, "citation_key": "synthetic-source"},
+    {"id": "synthetic-decay", "quantity": "branching_ratio", "process": "synthetic-decay", "mass_gev": 7, "value": 0.25, "reference_value": 0.25, "unit": "1", "uncertainty": {"minus": 0.01, "plus": 0.02, "definition": "Synthetic absolute envelope"}, "citation_key": "synthetic-source"}
+  ],
+  "ratios": [{"id": "synthetic-ratio", "numerator": "synthetic-rate-a", "denominator": "synthetic-rate-b", "value": 3, "absolute_tolerance": 0.000001, "citation_key": "synthetic-source"}]
+}

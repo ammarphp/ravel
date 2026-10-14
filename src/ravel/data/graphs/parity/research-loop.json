@@ -1,0 +1,60 @@
+{
+  "bindings": {
+    "closure": [
+      [
+        "research.loop",
+        1,
+        "2766b92b93cfbcc10dce0828568c848bcb3a2e3aff5dc582d11809e1c70d67a7"
+      ],
+      [
+        "research.stage",
+        1,
+        "b27dafd1d44ce6cd811d634673646fcbd1faba338bf72b0d3b810b874e39057c"
+      ]
+    ],
+    "graph_id": "research.loop",
+    "implementation": {
+      "workflow/graphs/__init__.py": "ee5395aa2eaa9e21639a850cef319d9a2ee58bc1c0e6ecb27d68b401458b2a43",
+      "workflow/graphs/research_loop.py": "a37955a194a875d695c98a42f2bbb49a388e4b5cda261d00fb3cd695ef9a0880",
+      "workflow/graphs/stage.py": "3c08b4ea0d50bee76c79dcc2ea5936c50753fff003a5f456cd891be19011b781",
+      "workflow/research_orchestrator.py": "4313182c63bdefe2923daca1c3ac92dc04f5c8754b7251fd28ed257e996e70d1"
+    },
+    "structure_sha256": "2766b92b93cfbcc10dce0828568c848bcb3a2e3aff5dc582d11809e1c70d67a7",
+    "version": 1
+  },
+  "comparison": "research_orchestrator.parity_snapshot, run-relative: request identities, result values, statuses, gate records, stage records, committed coordinator effects, campaign events and usage; run-unique identifiers, clocks and the digests that cover them excluded (VOLATILE_KEYS)",
+  "engines": {
+    "graph": "research_orchestrator.run_graph (research.loop on graph_substrate)",
+    "legacy": "research_orchestrator.open_research (langgraph_runtime.run_state_machine)"
+  },
+  "fixture_sources": {
+    "tests/unit/test_research_loop_graph.py": "d9a53a782e470e91a963903ad74d4b6e633ab788254e0a5f6f3e1f83786ed573"
+  },
+  "fixtures": [
+    {
+      "equal": true,
+      "graph_sha256": "a38c3ee75b8511b2744b48bfb5578dbffc9184118e7ed14d57396a9e03e084b7",
+      "id": "open-question-baseline-failure",
+      "legacy_sha256": "a38c3ee75b8511b2744b48bfb5578dbffc9184118e7ed14d57396a9e03e084b7",
+      "test": "tests/unit/test_research_loop_graph.py::test_open_question_engines_agree_where_both_stop_on_the_baseline_failure"
+    },
+    {
+      "equal": true,
+      "graph_sha256": "71e9461b1a0c24ae904b576865ea25dcb029b3cd0fa526b0baab191278414035",
+      "id": "synthetic-open-question",
+      "legacy_sha256": "71e9461b1a0c24ae904b576865ea25dcb029b3cd0fa526b0baab191278414035",
+      "test": "tests/unit/test_research_loop_graph.py::test_open_question_runs_equal_on_both_engines"
+    },
+    {
+      "equal": true,
+      "graph_sha256": "052ea74979330b6b0ca2a5b78815df6768422bea8fd177b74674995e22fa2df9",
+      "id": "synthetic-protocol-stages",
+      "legacy_sha256": "052ea74979330b6b0ca2a5b78815df6768422bea8fd177b74674995e22fa2df9",
+      "test": "tests/unit/test_research_loop_graph.py::test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage"
+    }
+  ],
+  "kind": "graph-parity-record",
+  "note": "R2 and higher stages need distinct-family critics, which need per-role stage models (prepare_stage role_models); the fixtures stop at the first R2 stage, which both engines refuse at dispatch. complete_stage re-checks a stage reservation with the campaign's inherited goal binding on both engines (test_goal_bound_stage_completion).",
+  "schema_version": 2,
+  "sha256": "df974a89d6d0d8e3740db7e9e723cbc3da4ae808291764882b83702c875f48f1"
+}

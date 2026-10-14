@@ -1,0 +1,213 @@
+{
+ "schema_version": 1,
+ "kind": "plan-template",
+ "id": "generated-inference",
+ "summary": "Generation, optional production, a selection and a statistical model for an inference.",
+ "priority": 42,
+ "match": {
+  "any": [
+   [
+    "claim:exclusion",
+    "claim:estimate",
+    "claim:significance"
+   ],
+   [
+    "level:expected",
+    "stage:generation",
+    "stage:shower",
+    "stage:detector",
+    "stage:analysis",
+    "locator:analysis",
+    "locator:routine",
+    "hint:reinterpret",
+    "hint:scan",
+    "hint:reproduce",
+    "hint:projection"
+   ]
+  ],
+  "none": [
+   "supplied:event_sample",
+   "supplied:statistical_model",
+   "stated:table"
+  ]
+ },
+ "inputs": [
+  {
+   "key": "model",
+   "provides": {
+    "kind": "model",
+    "require": {
+     "format": "ufo"
+    }
+   },
+   "source": "requester",
+   "locator": "model named or supplied by the requester, or a qualified installed model",
+   "status": "awaited",
+   "bind": "model"
+  },
+  {
+   "key": "point",
+   "provides": {
+    "kind": "parameter_point",
+    "require": {}
+   },
+   "source": "requester",
+   "locator": "parameter point stated in the request",
+   "status": "awaited",
+   "bind": "parameter_point"
+  },
+  {
+   "key": "recipe",
+   "provides": {
+    "kind": "selection",
+    "require": {
+     "origin": "$selection_origin"
+    }
+   },
+   "source": "requester",
+   "locator": "selection specification with request spans, or a requester recipe",
+   "status": "awaited",
+   "bind": "selection"
+  }
+ ],
+ "nodes": [
+  {
+   "key": "generate",
+   "kind": "operation",
+   "operation": "model-events",
+   "rung": "full"
+  },
+  {
+   "key": "production",
+   "kind": "operation",
+   "operation": "event-production",
+   "rung": "full",
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "key": "analysis",
+   "kind": "operation",
+   "operation": "columnar-analysis",
+   "rung": "full"
+  },
+  {
+   "key": "statistics",
+   "kind": "operation",
+   "operation": "search-statistics",
+   "rung": "full"
+  }
+ ],
+ "edges": [
+  {
+   "from": "input:model",
+   "to": "generate.model",
+   "kind": "model",
+   "require": {
+    "format": "ufo"
+   }
+  },
+  {
+   "from": "input:point",
+   "to": "generate.point",
+   "kind": "parameter_point",
+   "require": {}
+  },
+  {
+   "from": "generate.events",
+   "to": "production.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "lhe",
+    "level": "parton"
+   },
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "from": "production.events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "delphes-root",
+    "level": "detector"
+   },
+   "when": {
+    "any": [
+     [
+      "stage:shower",
+      "stage:detector",
+      "level:detector"
+     ]
+    ]
+   }
+  },
+  {
+   "from": "generate.events",
+   "to": "analysis.events",
+   "kind": "event_sample",
+   "require": {
+    "format": "lhe",
+    "level": "parton"
+   },
+   "when": {
+    "none": [
+     "stage:shower",
+     "stage:detector",
+     "level:detector"
+    ]
+   }
+  },
+  {
+   "from": "input:recipe",
+   "to": "analysis.recipe",
+   "kind": "selection",
+   "require": {
+    "origin": "$selection_origin"
+   }
+  },
+  {
+   "from": "analysis.histograms",
+   "to": "statistics.signal",
+   "kind": "binned_values",
+   "require": {}
+  }
+ ],
+ "deliverable": [
+  {
+   "from": "statistics.significance",
+   "kind": "inference",
+   "when": {
+    "all": [
+     "claim:significance"
+    ]
+   }
+  },
+  {
+   "from": "statistics.limits",
+   "kind": "inference"
+  }
+ ],
+ "fan_out": {
+  "subgraph": [
+   "generate",
+   "production",
+   "analysis"
+  ],
+  "aggregate": "statistics over the point grid"
+ }
+}

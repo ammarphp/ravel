@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ravel:claims/recipe_ledger",
+  "title": "Current requested and effective recipe ledger",
+  "description": "Rows are recomputed from current inputs. A deviated row may be awaiting authorization; the CHECK-IN and pre-full consumers refuse it until an exact flag or a verified RDJ receipt exists. Unknown is not agreement.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "rows", "limitations"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "recipe-ledger"},
+    "rows": {"type": "array", "items": {"$ref": "#/$defs/row"}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "pin": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "receipt_id": {"type": "string", "pattern": "^stage:"}
+      }
+    },
+    "authorization": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {"kind": {"const": "checkin1_flag"}, "id": {"type": "string", "pattern": "^F[1-9][0-9]*$"}}
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "id", "receipt_sha256", "case_sha256", "action_digest"],
+          "properties": {
+            "kind": {"const": "rdj"}, "id": {"type": "string", "minLength": 1},
+            "receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "case_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "action_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "tuning_class": {"enum": ["recipe_restoration", "implementation_correction", "new_approximation", "calibration"]}
+          }
+        }
+      ]
+    },
+    "row": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "layer", "field", "node_id", "claim_id", "requested", "effective",
+                   "requested_present", "effective_present", "status", "evidence", "reason", "authorization"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^R[0-9a-f]{20}$"},
+        "layer": {"type": "string", "minLength": 1},
+        "field": {"type": "string", "pattern": "^/"},
+        "node_id": {"type": ["string", "null"]},
+        "claim_id": {"type": ["string", "null"]},
+        "requested": {}, "effective": {},
+        "requested_present": {"type": "boolean"},
+        "effective_present": {"type": "boolean"},
+        "status": {"enum": ["matched", "deviated", "unknown"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/pin"}},
+        "reason": {"type": "string", "minLength": 1},
+        "authorization": {"$ref": "#/$defs/authorization"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"enum": ["matched", "deviated"]}}},
+          "then": {"properties": {"requested_present": {"const": true}, "effective_present": {"const": true}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["matched", "unknown"]}}},
+          "then": {"properties": {"authorization": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"requested_present": {"const": false}}},
+          "then": {"properties": {"requested": {"type": "null"}, "status": {"const": "unknown"}}}
+        },
+        {
+          "if": {"properties": {"effective_present": {"const": false}}},
+          "then": {"properties": {"effective": {"type": "null"}, "status": {"const": "unknown"}}}
+        }
+      ]
+    }
+  }
+}

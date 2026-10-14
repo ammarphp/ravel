@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "profile": "NMSSM-FlexibleSUSY-2.9.0",
+  "framework_commit": "64276b57499cba6577940c3fc605b9d4b45b3130",
+  "release_url": "https://github.com/FlexibleSUSY/FlexibleSUSY/releases/tag/v2.9.0",
+  "operation": "nmssm_tree_yukawa",
+  "source_files": [
+    {
+      "path": "nmssm/models/NMSSM/NMSSM_mass_eigenstates.cpp",
+      "sha256": "3a50949bfa920448dd4d8ede8a443eca3ea90128eaadf347c1d1eadba164f00c"
+    },
+    {
+      "path": "nmssm/models/NMSSM/NMSSM_model_slha.cpp",
+      "sha256": "7b8847d33b47b80d4803059ab6355fe8bd9e25f923b8a88407be94f9a24bf66e"
+    },
+    {
+      "path": "nmssm/models/NMSSM/NMSSM_slha_io.cpp",
+      "sha256": "62d1d1b243f0ef8a889e402fec7866eecdd5ba97c03bddef44f814755edcecb3"
+    },
+    {
+      "path": "nmssm/src/linalg2.hpp",
+      "sha256": "115340e7dd611a55a7dc28fda0a0524c7d784b8ee62a6c29802581fb178c1368"
+    },
+    {
+      "path": "nmssm/src/slha_io.cpp",
+      "sha256": "b2743d514103b6296107f841371e345bffe47a6d073b28309165a5ddc7cf2731"
+    },
+    {
+      "path": "nmssm/COPYING",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    }
+  ],
+  "equations": {
+    "gL_gR": "-Y_f[j,j](Q)*ZH[i,column]/sqrt(2); column=1 for d/e, 2 for u; offdiagonal zero in diagonal SLHA singular-value basis",
+    "mass_squared": "m_f[j]^2=Y_f[j,j](Q)^2*v_f(Q)^2/2 at explicitly selected zero pole-mass-loop order",
+    "basis": "hh[i]=sum_a ZH[i,a]*(phid,phiu,phiS)[a]; SVD SLHA2 positive ascending Yukawa singular values",
+    "width": "existing ufo_decay.tree_reference SFF, distinct Dirac final state, color3 for u/d and1 for e; no total-width replacement"
+  }
+}

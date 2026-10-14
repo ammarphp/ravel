@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "formula-grid",
+  "description": "Synthetic example: partial width of a vector to massless fermions over mass and coupling.",
+  "grid": {
+    "axes": [
+      {
+        "name": "M",
+        "unit": "GeV",
+        "label": "Vector mass",
+        "min": 500,
+        "max": 3000,
+        "points": 26
+      },
+      {
+        "name": "g",
+        "unit": "",
+        "label": "Vector coupling",
+        "min": 0.05,
+        "max": 1.0,
+        "points": 20
+      }
+    ]
+  },
+  "program": {
+    "constants": [
+      {
+        "name": "Nc",
+        "value": 3,
+        "unit": "",
+        "origin": "cited",
+        "citation": "number of quark colours"
+      }
+    ],
+    "definitions": [],
+    "outputs": [
+      {
+        "name": "width",
+        "expression": "Nc * M * g**2 / (12 * pi)",
+        "unit": "GeV",
+        "label": "Partial width to one quark flavour"
+      }
+    ]
+  },
+  "contours": [
+    {
+      "output": "width",
+      "levels": [
+        10.0
+      ],
+      "x": "M",
+      "y": "g"
+    }
+  ]
+}
