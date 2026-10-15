@@ -1,4 +1,4 @@
-"""Explicit, byte-bound selection packages; discovery never executes source bodies."""
+"""Byte-bound selection packages, shipped and supplied; discovery never executes source bodies."""
 from __future__ import annotations
 
 import hashlib
@@ -12,6 +12,7 @@ from ravel.workflow.state_io import _unique
 
 PACKAGE_ENV = 'RAVEL_ANALYSIS_PACKAGE'
 DISCOVERY_ENV = 'RAVEL_ANALYSIS_PACKAGES'
+SHIPPED_ROOT = Path(__file__).resolve().parents[1] / 'data' / 'analysis_packages'
 
 
 class PackageInputError(ValueError):
@@ -151,23 +152,50 @@ def load_package(path=None, *, require_qualification=False):
             'physics_certified': False, 'compute_authorized': False}
 
 
+def shipped_roots():
+    """The package directories installed with the product; each is read like any supplied root."""
+    return [SHIPPED_ROOT]
+
+
 def discover(roots=None):
-    """Read only explicit search roots; duplicate identities refuse rather than win by order."""
+    """Read the shipped packages and the explicit search roots; duplicate identities refuse.
+
+    Without ``roots`` the shipped packages and the roots named by RAVEL_ANALYSIS_PACKAGES are read;
+    ``roots`` replaces both. A root that reaches a manifest twice counts it once. Two manifests that
+    declare one identity refuse rather than win by order, with one exception: a supplied manifest
+    that restates a shipped package over the identical selection bytes (its own compatibility and
+    qualification binding) replaces the shipped one, which is how a qualification report attaches to a
+    shipped selection. Shipped packages carry qualification ``pending``; discovery never certifies."""
+    shipped = {}
     if roots is None:
-        roots = [p for p in os.environ.get(DISCOVERY_ENV, '').split(os.pathsep) if p]
-    result = {}
+        supplied = [p for p in os.environ.get(DISCOVERY_ENV, '').split(os.pathsep) if p]
+        roots = [*shipped_roots(), *supplied]
+        shipped = {p for r in shipped_roots() for p in _manifests(r)}
+    result, origin = {}, {}
     for given in roots:
-        root = Path(given)
-        paths = [root] if root.is_file() else sorted(root.glob('*/manifest.json'))
-        if root.is_dir() and (root / 'manifest.json').is_file():
-            paths = [root / 'manifest.json']
-        for path in paths:
+        for path in _manifests(Path(given)):
             package = load_package(path)
             name = package['package_id']
+            if name in result and origin[name] == path:
+                continue
             if name in result:
-                raise PackageInputError('ambiguous_analysis_package', name)
+                restates = (origin[name] in shipped and path not in shipped
+                            and package['routine']['sha256'] == result[name]['routine']['sha256'])
+                if not restates:
+                    raise PackageInputError('ambiguous_analysis_package', name)
+                shipped.discard(origin[name])
             result[name] = package
+            origin[name] = path
     return result
+
+
+def _manifests(root):
+    root = Path(root)
+    if root.is_file():
+        return [root.resolve()]
+    if root.is_dir() and (root / 'manifest.json').is_file():
+        return [(root / 'manifest.json').resolve()]
+    return sorted(p.resolve() for p in root.glob('*/manifest.json'))
 
 
 def load_routine(path=None, *, require_qualification=False):

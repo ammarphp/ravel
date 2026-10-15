@@ -237,3 +237,7 @@ def fit_selected(arm, train, val, seed, budget, check_deadline):
             if stale>=budget['patience']: break
     check_deadline()
     return best, history, best_loss
+
+
+from .ml_runtime import bind
+bind(globals())

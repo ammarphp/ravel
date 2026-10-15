@@ -4,8 +4,23 @@ Location. The lease lives in one fixed per-user directory on this machine,
 ``<home of the uid>/.local/state/ravel/machine``, resolved from the password
 database rather than ``HOME`` or ``RAVEL_STATE_DIR``. A relocated state directory,
 worktree or placement environment therefore cannot create a second lease.
-``machine_dir()`` and ``machine_lock()`` offer the same fixed location to other
-machine-wide stores (for example an exposure ledger or a custody store).
+``machine_state_root()`` is that per-user directory; user-wide stores (an exposure
+ledger, a custody store) live there.
+
+Lease scope. On a cluster the home directory is shared by every node, so a lease in
+the state root would be one lease for the whole cluster. The lease root
+(``machine_dir()``, used by ``machine_lock()`` and every lease record) is therefore
+scoped by facts of the process, never by a setting:
+
+- inside a Slurm allocation (``SLURM_JOB_ID``, proven by the job's own cgroup in
+  ``/proc/self/cgroup``) the allocation is the machine:
+  ``<state root>/scopes/slurm-<cluster>-<job id>``. Every process of the job, its
+  steps included, shares that lease; a variable without the cgroup selects nothing;
+- on Linux with the home on a network file system (NFS, Lustre, GPFS and the like)
+  the host is the machine: ``<state root>/scopes/host-<host name>``;
+- otherwise (a laptop, a workstation with a local home) the state root itself.
+
+Within one scope the rule is unchanged: one native scientific job at a time.
 
 Test lock domain. A test lock domain is a marked directory (``ravel-test-machine-domain``)
 that ``holder()`` reports as ``test``. Only code running in this process selects it: the
@@ -158,6 +173,113 @@ class LeaseBusy(ValueError):
 
 
 # ---------------------------------------------------------------- location
+_PROC_CGROUP = '/proc/self/cgroup'  # seam: the cgroup membership that proves a Slurm allocation
+_PROC_MOUNTS = '/proc/self/mounts'  # seam: the mount table that shows a shared home
+SLURM_JOB_ENV = 'SLURM_JOB_ID'
+SHARED_FILESYSTEMS = frozenset({
+    'nfs', 'nfs4', 'lustre', 'gpfs', 'cifs', 'smb3', 'smbfs', 'beegfs', 'fuse.beegfs', 'ceph', 'cephfs',
+    'fuse.ceph', 'glusterfs', 'fuse.glusterfs', 'panfs', 'afs', 'fuse.sshfs', 'wekafs', 'orangefs', 'pvfs2'})
+
+
+def _name(text):
+    """A file-name-safe rendering of a host or cluster name."""
+    return re.sub(r'[^A-Za-z0-9._-]', '_', text)[:64].lstrip('.') or 'unnamed'
+
+
+def slurm_allocation(environ=None, cgroup_text=None):
+    """``{'cluster', 'job_id'}`` of the Slurm allocation this process runs in, or None.
+
+    ``SLURM_JOB_ID`` alone proves nothing: the process's cgroup must name ``job_<id>``
+    (Slurm's cgroup plugins, v1 and v2), so a copied variable on a laptop or login
+    node selects no allocation scope.
+    """
+    environ = os.environ if environ is None else environ
+    job = environ.get(SLURM_JOB_ENV, '')
+    if not re.fullmatch(r'[0-9]{1,12}', job):
+        return None
+    if cgroup_text is None:
+        try:
+            cgroup_text = Path(_PROC_CGROUP).read_text()
+        except OSError:
+            return None
+    member = any(f'job_{job}' in line.partition(':')[2].partition(':')[2].split('/')
+                 for line in cgroup_text.splitlines())
+    if not member:
+        return None
+    cluster = environ.get('SLURM_CLUSTER_NAME')
+    return {'cluster': _name(cluster) if cluster else None, 'job_id': job}
+
+
+def allocation_key(allocation):
+    """``slurm-<cluster>-<job id>``, or ``slurm-<job id>`` where the site names no cluster."""
+    return '-'.join(['slurm'] + ([allocation['cluster']] if allocation.get('cluster') else []) + [allocation['job_id']])
+
+
+def _unescape_mount(field):
+    return re.sub(r'\\([0-7]{3})', lambda m: chr(int(m.group(1), 8)), field)
+
+
+def shared_filesystem(path, mounts_text=None):
+    """The file-system type of ``path`` when it is a network file system shared between hosts, else None."""
+    if mounts_text is None:
+        if not sys.platform.startswith('linux'):
+            return None
+        try:
+            mounts_text = Path(_PROC_MOUNTS).read_text()
+        except OSError:
+            return None
+    target = os.path.realpath(path)
+    best, kind = '', None
+    for line in mounts_text.splitlines():
+        fields = line.split()
+        if len(fields) < 3:
+            continue
+        point = _unescape_mount(fields[1])
+        inside = target == point or target.startswith(point.rstrip('/') + '/')
+        if inside and len(point) >= len(best):
+            best, kind = point, fields[2]
+    return kind if kind in SHARED_FILESYSTEMS else None
+
+
+def lease_scope(state_root=None, *, environ=None, cgroup_text=None, mounts_text=None, host=None):
+    """``{'kind', 'key', ...}``: the machine a lease stands for (``slurm-job``, ``host`` or ``machine``)."""
+    allocation = slurm_allocation(environ, cgroup_text)
+    if allocation is not None:
+        return {'kind': 'slurm-job', 'key': allocation_key(allocation), **allocation}
+    root = state_root if state_root is not None else _state_root_path()
+    filesystem = shared_filesystem(root, mounts_text)
+    if filesystem is not None:
+        name = _name(host if host is not None else socket.gethostname())
+        return {'kind': 'host', 'key': f'host-{name}', 'host': name, 'filesystem': filesystem}
+    return {'kind': 'machine', 'key': None}
+
+
+def allocation_identity():
+    """The host or Slurm allocation a cluster lease stands for, for receipts; None outside a cluster scope."""
+    current = scope()
+    if current['kind'] not in ('slurm-job', 'host'):
+        return None
+    identity = {'scope': current['key'], 'kind': current['kind'], 'host': socket.gethostname()}
+    if current['kind'] == 'slurm-job':
+        identity.update(cluster=current['cluster'], job_id=current['job_id'])
+        for key, name in (('nodelist', 'SLURM_JOB_NODELIST'), ('partition', 'SLURM_JOB_PARTITION'),
+                          ('account', 'SLURM_JOB_ACCOUNT'), ('cpus_per_task', 'SLURM_CPUS_PER_TASK'),
+                          ('array_job_id', 'SLURM_ARRAY_JOB_ID'), ('array_task_id', 'SLURM_ARRAY_TASK_ID')):
+            if os.environ.get(name):
+                identity[key] = os.environ[name]
+    else:
+        identity['filesystem'] = current['filesystem']
+    try:
+        identity['cpus_usable'] = len(os.sched_getaffinity(0))
+    except (AttributeError, OSError):
+        pass
+    return identity
+
+
+def _state_root_path():
+    return Path(pwd.getpwuid(os.getuid()).pw_dir) / '.local/state/ravel/machine'
+
+
 def _resolve():
     """``(directory, domain)`` of this process's machine locks and records."""
     if _LOCATION is not None:
@@ -173,16 +295,43 @@ def _resolve():
     if os.environ.get(RUNNER_ENV):
         raise ValueError(f'this process carries the test runner variable {RUNNER_ENV} but no test lock domain '
                          'grant; it uses neither a test domain nor the machine directory')
-    return Path(pwd.getpwuid(os.getuid()).pw_dir) / '.local/state/ravel/machine', 'machine'
+    root = _state_root_path()
+    scope = lease_scope(root)
+    return (root / 'scopes' / scope['key'] if scope['key'] else root), 'machine'
+
+
+def _resolve_state_root():
+    path, kind = _resolve()
+    if kind == 'test' or _LOCATION is not None:
+        return path
+    return _state_root_path()
 
 
 def machine_dir():
-    """The fixed per-user, machine-wide directory for machine locks and records."""
+    """The lease root: the fixed per-user directory, scoped to the host or allocation (``lease_scope``)."""
     return _resolve()[0]
+
+
+def machine_state_root():
+    """The fixed per-user directory for user-wide stores; never scoped by host or allocation."""
+    path = _resolve_state_root()
+    path.mkdir(parents=True, exist_ok=True, mode=0o700)
+    stat = os.lstat(path)
+    if not st.S_ISDIR(stat.st_mode) or stat.st_uid != os.getuid():
+        raise ValueError(f'machine state root {path} must be a directory owned by this user, not a symlink')
+    return path
 
 
 def domain():
     return _resolve()[1]
+
+
+def scope():
+    """The lease scope of this process: ``test``, a relocated ``machine`` location, or ``lease_scope()``."""
+    path, kind = _resolve()
+    if kind == 'test' or _LOCATION is not None:
+        return {'kind': kind, 'key': None, 'directory': str(path)}
+    return lease_scope(_state_root_path()) | {'directory': str(path)}
 
 
 def _checked_test_domain(path):
@@ -932,7 +1081,7 @@ def holder():
     alive = bool(fences) or (record.get('lease_id') in _OPEN) or (not _lock_free() and _alive(record))
     keys = ('lease_id', 'holder', 'pid', 'since_utc', 'rundir', 'node_id', 'wait_seconds', 'binding')
     return ({key: record.get(key) for key in keys}
-            | {'alive': alive, 'domain': domain(), 'directory': str(machine_dir()),
+            | {'alive': alive, 'domain': domain(), 'directory': str(machine_dir()), 'scope': scope(),
                'fenced_groups': [{k: f.get(k) for k in ('pgid', 'label', 'rundir', 'node_id', 'unreadable', 'malformed')}
                                  for f in fences]})
 

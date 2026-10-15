@@ -11,7 +11,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 from ravel.workflow.state_io import atomic_json, read_json
-from ravel.workflow.execution import digest
+from ravel.workflow.execution import digest, file_hash
 from ravel.physics import final_state_observables as fso
 
 
@@ -263,9 +263,85 @@ def prepare_workspace(spec, base):
 LAUNCH_SWITCHES = ["shower=OFF", "detector=OFF", "analysis=OFF", "madspin=OFF", "reweight=OFF", "done"]
 
 
+def generation_resources(g, lease_cpus=1):
+    """Bind MadGraph's process count to the one job's declared CPU grant."""
+    cores = g.get("nb_core", 1)
+    if {"nb_core", "run_mode"} & g.get("run_settings", {}).keys():
+        raise ValueError("nb_core/run_mode are declared resources, not run-card settings")
+    if type(cores) is not int or not 1 <= cores <= 512:
+        raise ValueError("nb_core must be an integer from 1 to 512")
+    if type(lease_cpus) is not int or lease_cpus < cores:
+        raise ValueError(f"nb_core {cores} requires a native machine-lease CPU grant of at least {cores}")
+    return {"nb_core": cores, "run_mode": 2 if cores > 1 else 0, "lease_cpus": lease_cpus}
+
+
+def declared_pdf(g):
+    """Resolve a named set from the shipped manifest, without a native probe."""
+    if "pdf_set" not in g:
+        if "pdf_install_record" in g:
+            raise ValueError("pdf_install_record requires pdf_set")
+        return None
+    from ravel.setup import manifest
+    catalog = manifest.read_json(manifest.repo_root() / "native/setup/pdf-sets.json")
+    row = next((r for r in catalog["sets"] if r["name"] == g["pdf_set"]), None)
+    if row is None:
+        raise ValueError(f"PDF set {g['pdf_set']!r} is absent from native/setup/pdf-sets.json")
+    if g["run_settings"].get("pdlabel") != "lhapdf" or g["run_settings"].get("lhaid") != row["lhaid"]:
+        raise ValueError(f"PDF set {row['name']} requires pdlabel lhapdf and lhaid {row['lhaid']}")
+    return row
+
+
+def installed_pdf(g, base):
+    """A named choice needs both an installer record and the complete local set."""
+    row = declared_pdf(g)
+    if row is None:
+        return None
+    import shlex
+    from ravel.setup.installer import resolve_prefix
+    from ravel.setup.manifest import repo_root
+    from ravel.setup.steps import pdf_set_ready
+    path = Path(g.get("pdf_install_record") or resolve_prefix(repo_root()) / "state/install-state.json").expanduser()
+    path = (Path(base) / path).resolve() if not path.is_absolute() else path.resolve()
+    install = "bash scripts/setup/install.sh --only lhapdf-sets --prefix " + shlex.quote(str(path.parent.parent))
+    recorded = read_json(path) if path.is_file() else {"schema_version": 1, "steps": {}}
+    if not isinstance(recorded, dict) or recorded.get('schema_version') != 1:
+        raise ValueError(f"PDF install record requires schema_version 1; install with `{install}`")
+    records = [r for key, r in recorded.get("steps", {}).items()
+               if key.startswith("lhapdf-sets/") and r.get("status") == "done"
+               and row["name"] in r.get("detail", {}).get("sets", [])]
+    if not records:
+        raise ValueError(f"PDF set {row['name']} is absent from the install record {path}; install with `{install}`")
+    data_paths = {r["detail"].get("data_path") for r in records}
+    if len(data_paths) != 1 or None in data_paths:
+        raise ValueError(f"PDF set {row['name']} has no unique installed data path; install with `{install}`")
+    data = Path(data_paths.pop())
+    if not data.is_absolute() or not pdf_set_ready(data / row["name"], row):
+        raise ValueError(f"PDF set {row['name']} is recorded but incomplete; install with `{install}`")
+    return {"path": str(path), "sha256": file_hash(path), "data_path": str(data),
+            "set_path": str(data / row["name"])}
+
+
+def require_core_lease(rd, g):
+    """At launch the approved core count must be carried by the live lease."""
+    if g.get("nb_core", 1) == 1:
+        return
+    from ravel.workflow import machine_lease
+    held = machine_lease.holder()
+    if not held or not held.get("alive") or held.get("lease_id") != os.environ.get(machine_lease.ENV):
+        raise ValueError("multicore generation requires the live one-native-job lease")
+    if held.get("rundir") != str(Path(rd).resolve()):
+        raise ValueError("multicore generation lease names another run")
+    grant = held.get("binding", {}).get("generation_resources", {})
+    resources = generation_resources(g, grant.get("lease_cpus", 1))
+    if grant != resources:
+        raise ValueError("multicore generation differs from the lease's approved core count")
+
+
 def mg_commands(rd, g, proc):
     """The complete MadGraph command file: one output, one launch per point."""
-    commands = ["set automatic_html_opening False", "set nb_core 1", "set run_mode 0"]
+    cores = g.get("nb_core", 1)
+    resources = generation_resources(g, cores)
+    commands = ["set automatic_html_opening False", f"set nb_core {cores}", f"set run_mode {resources['run_mode']}"]
     if "lhapdf_config" in g["runtime"]:
         commands.append(f"set lhapdf {g['runtime']['lhapdf_config']}")
     commands.append(f"import model {g['model']}")
@@ -312,9 +388,12 @@ def point_intent(g, point):
 
 
 def generate(rd, spec, out=None):
+    from ravel.workflow import wms_policy
+    wms_policy.require_custody(rd)
     from ravel.physics import generation_receipt as receipts
     from ravel.workflow.spec_reconciliation import reconcile, simulation_from_cards
     g = spec["generation"]
+    require_core_lease(rd, g)
     out = rd / "outputs" if out is None else out
     work = rd / "work"
     work.mkdir(exist_ok=False)
@@ -394,6 +473,9 @@ def generate(rd, spec, out=None):
                     "generator_source_sha256": plan["generator_source_sha256"], "generator_version": version}
     if plan.get("generator_selection"):
         recipe_extra["generator_selection"] = plan["generator_selection"]
+    for key in ("generation_resources", "decay_states", "shower_slha", "shower_tune"):
+        if key in plan:
+            recipe_extra[key] = plan[key]
     if not batch:
         result = results[0][1]
         result["recipe"].update(recipe_extra)
@@ -470,6 +552,8 @@ def histograms(result, generation):
 
 
 def likelihood(rd, spec, out=None):
+    from ravel.workflow import wms_policy
+    wms_policy.require_custody(rd)
     out = rd / "outputs" if out is None else out
     import pyhf
     from ravel.physics.pyhf_exclude import compute, robust_optimizer

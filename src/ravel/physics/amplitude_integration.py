@@ -82,6 +82,49 @@ def validate(task):
     return task
 
 
+def installation_defaults(backend, addon):
+    """Use prefix-local installation fields only where the document omits them."""
+    from ravel.paths import native_build_root
+    if backend.get('kind') not in ('oci-local', 'native') or addon != 'mcfm-amplitudes':
+        return backend, None
+    native = backend['kind'] == 'native'
+    if native and 'program' in backend or {'image', 'program', 'readonly_trees'} <= set(backend):
+        return backend, None
+    path = native_build_root() / 'installations' / 'mcfm-amplitudes.json'
+    if not path.is_file():
+        ab.require('program' in backend, 'installed amplitude program missing; run bash scripts/setup/install.sh --only mcfm-amplitudes --jobs 4 --accept-licenses')
+        return backend, None
+    record = json.loads(path.read_text())
+    ab.require(record.get('schema_version') == 1 and record.get('kind') == 'ravel-amplitude-installation'
+               and record.get('group') == addon, 'invalid amplitude installation record')
+    launcher = record.get('launcher')  # an oci-local record names its launcher file
+    built_native = type(launcher) is dict and launcher.get('kind') == 'native'
+    ab.require(native == built_native, 'the installed amplitude program was built for the '
+               + ('native' if built_native else 'oci-local') + ' backend')
+    for key in (() if native else ('image',)) + ('program', 'readonly_trees', 'build_receipt', 'build_receipt_sha256', 'program_sha256'):
+        ab.require(key in record, 'installation record missing ' + key)
+    receipt, program = Path(record['build_receipt']), Path(record['program'])
+    ab.require(receipt.is_file() and _sha256(receipt) == record['build_receipt_sha256'], 'installed build receipt changed')
+    ab.require(program.is_file() and _sha256(program) == record['program_sha256'], 'installed amplitude program changed')
+    ab.require(type(record['readonly_trees']) is list and all(type(p) is dict and isinstance(p.get('path'), str)
+                                                          for p in record['readonly_trees']),
+               'installation readonly_trees must be paths')
+    filled = dict(backend)
+    if native:
+        # A host program reads its trees in place; only its path and runtime environment are filled.
+        for key in ('program', 'env'):
+            if key not in filled and key in record:
+                filled[key] = record[key]
+        return filled, {'path': str(path.absolute()), 'sha256': _sha256(path)}
+    for key in ('image', 'program', 'readonly_trees', 'site', 'env'):
+        if key not in filled and key in record:
+            filled[key] = record[key]
+    filled.setdefault('workdir', '/work')
+    if 'readonly_trees' not in backend:
+        filled['readonly_trees'] = [dict(p, mount=p.get('mount', p['path'])) for p in filled['readonly_trees']]
+    return filled, {'path': str(path.absolute()), 'sha256': _sha256(path)}
+
+
 def load(task, base):
     validate(task)
     path = Path(task['input'])
@@ -89,14 +132,17 @@ def load(task, base):
     doc = json.loads(path.read_text())
     root = path.parent
     required = {'schema_version', 'kind', 'addon', 'operation', 'store', 'backend', 'cohorts'}
-    optional = {'schedule', 'spin0', 'audit_points', 'oracle_rtol', 'oracle', 'description'}
+    optional = {'schedule', 'spin0', 'audit_points', 'oracle_rtol', 'oracle', 'description', 'retain_pairings'}
     ab.require(type(doc) is dict and required <= set(doc) <= required | optional,
                'document needs ' + ', '.join(sorted(required)))
     ab.require(doc['schema_version'] == 1 and doc['kind'] == MODE, f'schema_version 1 and kind {MODE} required')
+    ab.require(type(doc.get('retain_pairings', False)) is bool, 'retain_pairings must be Boolean')
     ab.require(doc['operation'] in ('blocks', 'point-oracle'), 'operation must be blocks or point-oracle')
     addon = addons.resolve(doc['addon'])
     protocol = records_.validate_protocol(addon.manifest.get('protocol'))
-    be = doc['backend']
+    ab.require(type(doc['backend']) is dict, 'backend must be an object')
+    be, installation = installation_defaults(doc['backend'], doc['addon'])
+    doc['backend'] = be
     ab.require(type(be) is dict and {'kind', 'program', 'resources'} <= set(be)
                <= {'kind', 'program', 'resources', 'image', 'readonly_trees', 'env', 'workdir', 'site'},
                'backend needs kind, program and resources (optional image, readonly_trees, env, workdir, site)')
@@ -124,7 +170,7 @@ def load(task, base):
         ab.require(set(cl['program_members']) <= set(protocol['members']), 'closure program_members must be program members')
         ab.require(set(cl['members']) <= {m['id'] for m in spin0['members']}, 'closure members must be spin0 members')
     ctx = {'path': path, 'root': root, 'doc': doc, 'addon': addon, 'protocol': protocol, 'cohorts': cohorts,
-           'store': (root / doc['store']).absolute(), 'spin0': spin0}
+           'store': (root / doc['store']).absolute(), 'spin0': spin0, 'installation': installation}
     if doc['operation'] == 'blocks':
         schedule = store.validate_schedule(doc['schedule'])
         for b in schedule['blocks']:
@@ -145,7 +191,23 @@ def inputs(task, base):
              *ctx['addon'].members().values()]
     if 'points' in ctx:
         files.append(ctx['points'])
+    if ctx['installation']:
+        files.append(Path(ctx['installation']['path']))
+        files += [Path(row['path']) for row in runtime_files(ctx)]
     return files
+
+
+def runtime_files(ctx):
+    """The program's own runtime files that the installation pins; each stage receives copies."""
+    if not ctx['installation']:
+        return []
+    record = json.loads(Path(ctx['installation']['path']).read_text())
+    rows = record.get('runtime_files', [])
+    for row in rows:
+        ab.require(type(row) is dict and set(row) == {'path', 'sha256'}, 'installation runtime_files need path and sha256')
+        ab.require(Path(row['path']).is_file() and _sha256(row['path']) == row['sha256'],
+                   f'installed runtime file {row["path"]} changed')
+    return rows
 
 
 def execution_seconds(task, base):
@@ -162,8 +224,10 @@ def execution_seconds(task, base):
 def _stage_spec(ctx, name, stage_dir, files, outputs, seconds):
     be = ctx['doc']['backend']
     workdir = be.get('workdir')
+    card = ctx['protocol'].get('card_file', 'input.ini')
+    # The program reads its other inputs next to the card: mounted in the working directory, or in place.
     spec = {'schema_version': 1, 'backend': be['kind'], 'stage': name,
-            'argv': [be['program'], ctx['protocol'].get('card_file', 'input.ini')],
+            'argv': [be['program'], card if workdir else str(stage_dir / card)],
             'inputs': [{'path': str(stage_dir / f), **({'mount': f'{workdir}/{f}'} if workdir else {})} for f in files],
             'outputs': [{'name': o, 'destination': str((stage_dir / o).relative_to(ctx['store']))} for o in outputs],
             'resources': {**be['resources'], 'wall_seconds': int(seconds)},
@@ -171,6 +235,10 @@ def _stage_spec(ctx, name, stage_dir, files, outputs, seconds):
     for key in ('image', 'readonly_trees', 'env', 'workdir', 'site'):
         if key in be:
             spec[key] = be[key]
+    if ctx['installation']:
+        pin = ctx['installation']
+        ab.require(_sha256(Path(pin['path'])) == pin['sha256'], 'amplitude installation record changed after preparation')
+        spec['inputs'].append(dict(pin, mount='/ravel/installation.json'))
     return spec
 
 
@@ -186,6 +254,11 @@ def _prepare_stage(ctx, name, cohort, operation, draws, seed, extra=None):
     for target, source in (extra or {}).items():
         (stage_dir / target).write_bytes(source)
         files.append(target)
+    for row in runtime_files(ctx):
+        name = Path(row['path']).name
+        ab.require(name not in files, f'runtime file {name} collides with a stage file')
+        shutil.copyfile(row['path'], stage_dir / name)
+        files.append(name)
     return stage_dir, files
 
 
@@ -247,7 +320,8 @@ def header(ctx, receipts):
             'factor_unit': ctx['protocol']['factor_unit'], 'audit_points': int(ctx['doc'].get('audit_points', 0)),
             'addon': {k: v for k, v in ctx['addon'].identity().items() if k != 'root'}, 'spin0': ctx['spin0'],
             'cohorts': {cid: {'channel': c['channel'], 'card_sha256': c['card']['sha256']} for cid, c in ctx['cohorts'].items()},
-            'proposals': {r['cohort']: r['sha256'] for r in receipts}}
+            'proposals': {r['cohort']: r['sha256'] for r in receipts},
+            **({'pairing': {'exchange': records_.EXCHANGE.tolist()}} if ctx['doc'].get('retain_pairings') else {})}
 
 
 def run(task, base, output, *, backend=None):
@@ -275,6 +349,9 @@ def run(task, base, output, *, backend=None):
             if closure is not None:
                 closures.append({'block': block['id'], **closure})
             amplitudes = values.pop('amplitudes')
+            if ctx['doc'].get('retain_pairings'):
+                values['pairing'] = {'amplitudes': amplitudes, 'identical': parsed['identical'],
+                                     'selected_direct': parsed['selected_direct'], 'normalization': parsed['meta'][:, 5]}
             writer.append(**values, amplitudes=amplitudes)
         s = parsed['summary']
         return {k: s[k] for k in ('attempted', 'accepted', 'rejected', 'failed')}

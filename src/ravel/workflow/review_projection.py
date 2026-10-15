@@ -14,6 +14,10 @@ its workspace receives only the packet this module projects, never the run tree.
   projected (``ALWAYS_DENIED``). Withheld sources are the run's contract
   ``forbidden_sources`` path rows.
 
+A run that selected a review rubric (``inputs/review_rubric.json``, ``review_rubric``) gives every
+reviewer the merged rubric, and a ready ``review.rubric`` check input for each subject that is a review
+packet of that rubric. An unreadable selection or overlay refuses the projection.
+
 The packet is the review_context packet format (``manifest.json`` + ``artifacts/``),
 so ``agent_worker.materialize(packet=...)`` copies and authenticates it unchanged. It
 lives under the state store, outside the run tree. Every omission is listed with its
@@ -45,6 +49,7 @@ SPEC_DENIED_FILES = ('inputs/request_plan.json', 'inputs/task_contract.json')
 MAX_FILE_BYTES = 2_000_000
 MAX_TOTAL_BYTES = 64 * 1024**2
 MAX_FILES = 4000
+ITEM_PACKETS = 'review/packets/'
 ALWAYS_DENIED = ('framework/', 'review/packets/', 'review/projections/', 'graphs/', '.ravel/', 'logs/.route-pending')
 # Live call receipts of other workers are denied to blind readers (§1.9); the record
 # auditor reads the published receipts through its own read paths.
@@ -53,6 +58,7 @@ HEADLINE_NAMES = {'result.md', 'result.json', 'verification.json', 'checkin1.jso
                   'checkin1_approval.json', 'checkin2_go.json', 'science-approval.json', 'headline.json'}
 ROUTINE_ROLES = ('object-selection-mapper', 'trap-auditor', 'discrepancy-attributor', 'analysis-author')
 CHECKLIST = 'review/routine_checklist.json'
+SUBJECT = 'review subject, exact bytes'
 
 
 def _headline(rel, name, parts):
@@ -180,6 +186,48 @@ def _classify(rel, forbidden, withheld, blind):
     return None
 
 
+def raw_input_class(rundir, role, rel):
+    """The class that keeps run file ``rel`` out of a blind role's workspace as a raw worker input.
+
+    None when the card's own projection would carry the file: inside the profile's
+    candidates and in none of the card's forbidden classes.
+    """
+    run = broker.ordinary(rundir)
+    card = _card(role)
+    profile = card['sees']['profile']
+    if profile == 'spec-denied':
+        return None if rel in SPEC_DENIED_FILES else 'outside_profile'
+    forbidden = sorted(card['sees'].get('forbidden_inputs', []))
+    withheld = _withheld(run) if 'withheld_sources' in forbidden else (lambda rel: False)
+    cls = _classify(rel, forbidden, withheld, True)
+    if cls is not None:
+        return cls
+    inside = any(rel == p or p.endswith('/') and rel.startswith(p)
+                 for p in card['tools']['read_paths'] if p.startswith('inputs/'))
+    return None if inside or profile != 'blind' else 'outside_profile'
+
+
+def withheld_fields(role, rel, raw):
+    """``raw`` as the card's projection carries run file ``rel``: JSON without the fields the
+    card's forbidden classes withhold, anything else unchanged. Returns ``(bytes, removed)``."""
+    card = _card(role)
+    redact = tuple(sorted({k for cls in card['sees'].get('forbidden_inputs', []) for k in CLASSES[cls][1]}))
+    return _withhold(rel, raw, redact)
+
+
+def _withhold(rel, raw, redact):
+    if not redact or Path(rel).suffix != '.json':
+        return raw, []
+    try:
+        value = json.loads(raw)
+    except ValueError:
+        return raw, []
+    value, removed = _redact(value, redact)
+    if not removed:
+        return raw, []
+    return (json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n').encode(), removed
+
+
 def _item_document(item):
     if item is None:
         return None
@@ -199,7 +247,7 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
                                 'it works in its own workspace, not a review projection')
     forbidden = sorted(card['sees'].get('forbidden_inputs', []))
     withheld = _withheld(run)
-    blind = profile in ('blind', 'spec-denied')
+    blind = profile in ('blind', 'spec-denied') or (card.get('requires') or {}).get('blind') is True
     redact = tuple(sorted({k for cls in forbidden for k in CLASSES[cls][1]}))
     subjects = list(dict.fromkeys(subjects))
     manifest = {'schema_version': SCHEMA_VERSION, 'kind': KIND, 'role': card['id'],
@@ -248,8 +296,18 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
         raw = path.read_bytes()
         source_sha = hashlib.sha256(raw).hexdigest()
         if why == 'subject':
+            projection = SUBJECT
+            if blind:
+                # A blind role's subject passes the same screen as every other file it is shown.
+                cls = _classify(rel, forbidden, withheld, True)
+                if cls is not None:
+                    raise ProjectionRefused('subject_forbidden', f'{rel} is in a class the blind card forbids ({cls}); '
+                                            'it cannot be a review subject of this role')
+                raw, removed = _withhold(rel, raw, redact)
+                if removed:
+                    projection = 'review subject, fields withheld: ' + ', '.join(removed)
             manifest['subjects'].append({'source_path': rel, 'source_sha256': source_sha})
-            add(f's{index:04d}', rel, raw, source_sha256=source_sha, projection='review subject, exact bytes',
+            add(f's{index:04d}', rel, raw, source_sha256=source_sha, projection=projection,
                 suffix=Path(rel).suffix or '.txt')
             continue
         cls = _classify(rel, forbidden, withheld, blind)
@@ -261,19 +319,35 @@ def build(rundir, role, *, item=None, subjects=(), arm=None, max_file_bytes=MAX_
             manifest['omissions'].append({'source_path': rel, 'source_sha256': source_sha, 'class': 'size',
                                           'reason': 'exceeds the per-file bound; request a bounded witness'})
             continue
-        projection = 'exact bytes'
-        if redact and Path(rel).suffix == '.json':
-            try:
-                value = json.loads(raw)
-            except ValueError:
-                value = None
-            if value is not None:
-                value, removed = _redact(value, redact)
-                if removed:
-                    raw = (json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n').encode()
-                    projection = 'fields withheld: ' + ', '.join(removed)
+        raw, removed = _withhold(rel, raw, redact)
+        projection = 'fields withheld: ' + ', '.join(removed) if removed else 'exact bytes'
         add(f'a{index:04d}', rel, raw, source_sha256=source_sha, projection=projection,
             suffix=Path(rel).suffix or '.txt')
+    if arm is None:
+        from . import review_rubric
+        try:
+            rubric = review_rubric.selected(run)
+        except (OSError, ValueError) as exc:
+            raise ProjectionRefused('rubric_invalid', str(exc)) from exc
+        if rubric is not None:
+            raw = review_rubric.document_bytes(rubric)
+            add('rubric', 'ravel:review-rubric/' + rubric['id'], raw, source_sha256=hashlib.sha256(raw).hexdigest(),
+                projection='review rubric the run selected' + (', tightened by its pinned overlay' if rubric.get('overlay') else ''),
+                suffix='.json')
+            # A subject that is a review packet of this rubric gets its ready check input (`check run review.rubric`).
+            # Only a subject shown in exact bytes qualifies: a subject with withheld fields gets no check input.
+            for entry, (_, subject) in list(zip(manifest['artifacts'], files)):
+                if entry['projection'] != SUBJECT or not entry['path'].endswith('.json'):
+                    continue
+                try:
+                    value = json.loads(subject)
+                except ValueError:
+                    continue
+                if type(value) is dict and value.get('kind') == rubric['packet']['kind']:
+                    raw = review_rubric.document_bytes({'rubric': rubric, 'packet': value})
+                    add('rubric-check-' + entry['id'], 'ravel:review-rubric-check/' + entry['source_path'], raw,
+                        source_sha256=hashlib.sha256(raw).hexdigest(),
+                        projection='check input: the selected rubric with this review subject', suffix='.json')
     manifest['sha256'] = digest(manifest)
     return manifest, files
 

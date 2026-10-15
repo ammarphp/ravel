@@ -615,19 +615,49 @@ def withdrawals(rundir, case_id, action_digest):
 
 # ---------------------------------------------------------------- registered receipts
 
-def register_worker_receipt(rundir, rel, *, verified_label=None):
+ACTOR_FIELDS = ("transport_id", "model_id", "worker_session_id", "attempt_id")
+
+
+def actor_id(transport_id, model_id, worker_session_id, attempt_id):
+    """The identity of one worker session: sha256 over the transport id, the model id, the
+    dispatcher's worker session id and the attempt id. Only the worker dispatcher assigns it."""
+    values = [transport_id, model_id, worker_session_id, attempt_id]
+    if not all(isinstance(v, str) and v for v in values):
+        raise ValueError(f"an actor needs non-empty {ACTOR_FIELDS}")
+    return _digest(values)
+
+
+def actor_record(transport_id, model_id, worker_session_id, attempt_id, *, family=None):
+    """The actor row the dispatcher keeps in custody: the four identity fields, their digest and
+    the transport family (the model family the transport serves; not part of the identity)."""
+    return {"actor_id": actor_id(transport_id, model_id, worker_session_id, attempt_id),
+            "transport_id": transport_id, "model_id": model_id, "worker_session_id": worker_session_id,
+            "attempt_id": attempt_id, "family": family if isinstance(family, str) and family else None}
+
+
+def _checked_actor(actor):
+    if type(actor) is not dict or set(actor) != {"actor_id", "family", *ACTOR_FIELDS} \
+            or actor["actor_id"] != actor_id(*(actor[k] for k in ACTOR_FIELDS)):
+        raise ValueError("a worker's actor is the dispatcher's record of its four identity fields and their digest")
+    return dict(actor)
+
+
+def register_worker_receipt(rundir, rel, *, verified_label=None, actor=None):
     """Register a worker receipt written by the worker dispatcher.
 
     ``verified_label`` is the attestation label the dispatcher's transport re-verification
     established (``transport_receipt``); the receipt's own ``attestation`` field is never read
-    as a label. Without it the worker is ``self_attested``."""
+    as a label. Without it the worker is ``self_attested``. ``actor`` is the identity the
+    dispatcher assigned to this worker session at spawn (``actor_record``); the receipt's own
+    ``actor_id`` field is never read as an identity. Without it the worker has no actor."""
     path = Path(rundir).resolve() / rel
     if ".." in Path(rel).parts or path.is_symlink() or not path.is_file():
         raise ValueError(f"worker receipt is absent: {rel}")
     if verified_label is not None and verified_label not in WORKER_LABELS:
         raise ValueError(f"a worker's verified label is one of {WORKER_LABELS}")
     return append(rundir, "workers", {"path": rel, "sha256": _sha_file(path),
-                                      **({"verified_label": verified_label} if verified_label else {})})
+                                      **({"verified_label": verified_label} if verified_label else {}),
+                                      **({"actor": _checked_actor(actor)} if actor is not None else {})})
 
 
 def worker_row(rundir, rel, digest):

@@ -256,3 +256,14 @@ the original goal; their requirements, target families and stages become the tas
 Typical obligations are a blinded selection with no signal-region data access, background
 estimation and independent validation, expected sensitivity, a reproducible workflow
 export, a record of prompts, models and token usage, and a written note.
+A request to design a new search on supplied simulated or reconstructed samples is read this way
+also when it asks for the expected discovery significance: the significance is one output of the
+search, and the draft plan proposes a columnar analysis and search statistics.
+
+Establish data access, sample membership and signal availability at the selected site.
+The ntuple stages use the [columnar analysis modes](columnar-analysis-modes.md):
+`ntuple-inventory` takes the supplied roster, `mc-expected-construction`, `mc-closure`
+and `asimov-sensitivity` follow, `ravel site-workflow export` covers the workflow
+export and `manuscript-build` the note. Credentials, downloads, signal-region access and submission each
+need their own approval; signal-reinterpretation components contribute to, and do not
+replace, background design and validation.

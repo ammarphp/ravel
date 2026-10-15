@@ -26,10 +26,77 @@ import numpy as np
 from .systematics import Registry
 
 ROLES = ('SR', 'CR', 'VR')
+MAX_DISCOVERY_TOYS = 10000
 MC_STATISTICS = ('staterror', 'shapesys', 'none')
 DATA_MODES = ('observed', 'mc-pseudo-data')
 ASIMOV_SOURCES = ('nominal', 'background-only-fit')
 POI = 'mu'
+
+
+def toy_options(raw):
+    from scipy.stats import norm
+    if raw is None:
+        return None
+    if type(raw) is not dict or set(raw) - {'count', 'seed', 'required_significance'} or not {'count', 'seed'} <= set(raw):
+        raise ValueError('discovery toys need count, seed and optional required_significance')
+    n, seed = raw['count'], raw['seed']
+    if type(n) is not int or not 1 <= n <= MAX_DISCOVERY_TOYS:
+        raise ValueError(f'discovery toy count exceeds cap or is invalid (1..{MAX_DISCOVERY_TOYS})')
+    if type(seed) is not int or not 0 <= seed < 2**32:
+        raise ValueError('discovery toy seed must be an integer in [0, 2^32)')
+    z = raw.get('required_significance')
+    if z is not None:
+        if type(z) not in (int, float) or not math.isfinite(z) or z < 0:
+            raise ValueError('required_significance must be finite and nonnegative')
+        if norm.sf(z) < 1 / MAX_DISCOVERY_TOYS:
+            raise ValueError('requested significance needs more toys than the cap allows')
+        if norm.sf(z) < 1 / n:
+            raise ValueError('requested significance needs more toys than the declared count')
+    return dict(raw)
+
+
+def toy_discovery(model, background_pars, thresholds, request):
+    """Conditional null toys, drawing main and auxiliary counts and profiling q0.
+
+    pyhf uses NumPy's legacy RNG; restore its state even after a failed fit.
+    Clopper-Pearson intervals describe finite-toy tail uncertainty. Zero tails
+    supply a bound rather than a finite discovery significance.
+    """
+    from scipy.stats import beta, norm
+    pyhf, _ = _pyhf()
+    opts = toy_options(request)
+    n = opts['count']
+    state = np.random.get_state()
+    try:
+        np.random.seed(opts['seed'])
+        samples = np.asarray(model.make_pdf(background_pars).sample((n,)), float)
+    finally:
+        np.random.set_state(state)
+    init, bounds, fixed = model.config.suggested_init(), model.config.suggested_bounds(), model.config.suggested_fixed()
+    q = []
+    for data in samples:
+        value = float(pyhf.infer.test_statistics.q0(0.0, data, model, init, bounds, fixed))
+        if not math.isfinite(value):
+            raise ValueError('discovery toy fit produced a nonfinite statistic')
+        q.append(value)
+    out = {}
+    alpha = 1 - 0.682689492137
+    for name, threshold in thresholds.items():
+        k = int(np.count_nonzero(np.asarray(q) >= threshold))
+        p = k / n
+        lo = 0.0 if k == 0 else float(beta.ppf(alpha / 2, k, n - k + 1))
+        hi = 1.0 if k == n else float(beta.ppf(1 - alpha / 2, k + 1, n - k))
+        out[name] = {'method': 'conditional-null-toys', 'count': n, 'seed': opts['seed'],
+                     'minimum_resolved_p_value': 1 / n,
+                     'q0': threshold, 'tail_count': k, 'p_value': p,
+                     'p_value_mc_uncertainty': max(p - lo, hi - p),
+                     'p_value_interval': [lo, hi], 'interval_confidence': 1 - alpha,
+                     'significance': None if k == 0 else max(0.0, float(norm.isf(p))),
+                     'significance_interval': [max(0.0, float(norm.isf(hi))),
+                                               None if lo == 0 else max(0.0, float(norm.isf(lo)))],
+                     'status': 'tail_unresolved' if k == 0 else 'resolved',
+                     'nuisance_treatment': 'plug-in null parameters; main and auxiliary toys; q0 refit'}
+    return out
 
 
 def _pyhf():
@@ -78,8 +145,34 @@ class SearchModel:
         d = deepcopy(document)
         required = {'regions', 'backgrounds', 'signal_points', 'mc_statistics', 'systematics', 'data',
                     'computations', 'asimov_source', 'cls_level', 'mc_adequacy', 'contours'}
-        if type(d) is not dict or set(d) != required:
+        if type(d) is not dict or not required <= set(d) or set(d) - required - {'toys', 'reference_contour'}:
             raise ValueError('search document needs exactly: ' + ', '.join(sorted(required)))
+        self.toys = toy_options(d.get('toys'))
+        if self.toys and not d['computations'].get('discovery'):
+            raise ValueError('discovery toys require computations.discovery')
+        self.abcd = []
+        from ravel.physics.statistical_model import abcd_estimate
+        sidebands = set()
+        for region in d['regions']:
+            if region.get('role') != 'abcd':
+                continue
+            estimate = abcd_estimate(region.get('abcd'))
+            if region.get('bins', 1) != 1:
+                raise ValueError('abcd estimates currently require a single-bin target')
+            identities = {row['observation_id'] for row in estimate['controls'].values()}
+            fitted = {r.get('observation_id', r['name']) for r in d['regions'] if r.get('role') != 'VR'}
+            if identities & (sidebands | fitted):
+                raise ValueError('abcd sidebands must be disjoint from fitted regions and other sidebands')
+            sidebands |= identities
+            candidates = [b for b in d['backgrounds'] if b['name'] == estimate['background']]
+            if len(candidates) != 1:
+                raise ValueError('abcd background must name exactly one declared sample')
+            bkg = candidates[0]
+            if region['name'] in bkg['yields']:
+                raise ValueError('abcd target yield must be estimated, not supplied twice')
+            bkg['yields'][region['name']] = {'values': [estimate['prediction']], 'sumw2': [0.0]}
+            estimate['region'] = region['name']
+            self.abcd.append(estimate)
         self.document = d
         if d['mc_statistics'] not in MC_STATISTICS:
             raise ValueError('mc_statistics must be staterror, shapesys or none')
@@ -90,14 +183,17 @@ class SearchModel:
             raise ValueError('cls_level must be between zero and one')
         self.regions, self.roles, self.observed = {}, {}, {}
         for r in d['regions']:
-            if type(r) is not dict or set(r) - {'name', 'role', 'observed', 'bins', 'description'} or r.get('role') not in ROLES:
+            if (type(r) is not dict or set(r) - {'name', 'role', 'observed', 'bins', 'description', 'abcd', 'observation_id'}
+                    or r.get('role') not in (*ROLES, 'abcd')):
                 raise ValueError('regions need name, role (SR, CR or VR) and observed (null when blinded)')
+            if r['role'] != 'abcd' and 'abcd' in r:
+                raise ValueError('abcd estimate requires region role abcd')
             name = r['name']
             if type(name) is not str or not name.strip() or name in self.regions or name == POI:
                 raise ValueError('regions need unique names')
             observed = None if r.get('observed') is None else _array(r['observed'], f'observed counts in {name}', nonnegative=True)
             bins = r.get('bins', None if observed is None else len(observed))
-            self.roles[name], self.observed[name] = r['role'], observed
+            self.roles[name], self.observed[name] = ('SR' if r['role'] == 'abcd' else r['role']), observed
             self.regions[name] = bins
         self.backgrounds = []
         for bkg in d['backgrounds']:
@@ -183,6 +279,11 @@ class SearchModel:
 
     def _sample(self, name, region, row, extra):
         mods = list(extra) + self._mc_modifiers(name, region, row['values'], row['sumw2'])
+        for estimate in self.abcd:
+            if estimate['background'] == name and estimate['region'] == region and estimate['relative_variance'] > 0:
+                width = math.sqrt(math.log1p(estimate['relative_variance']))
+                mods.append({'name': f'abcd_{region}', 'type': 'normsys',
+                             'data': {'hi': math.exp(width), 'lo': math.exp(-width)}})
         if self.registry is not None:
             mods += self.registry.modifiers(name, region, row['values'])
         return {'name': name, 'data': [float(x) for x in row['values']], 'modifiers': mods}
@@ -308,8 +409,15 @@ class SearchModel:
             pred = main[channel]
             sigma = np.sqrt(np.clip(np.diag(cov_main)[offset:offset + n], 0, None))
             counts = self.counts(channel)
+            prefit = np.asarray(full.config.suggested_init(), float)
+            pre_samples = np.asarray(full.main_model.expected_data(prefit, return_by_sample=True), float)
+            post_samples = np.asarray(full.main_model.expected_data(mapped, return_by_sample=True), float)
             row = {'region': channel, 'role': self.roles[channel], 'used_in_fit': self.roles[channel] == 'CR',
                    'prediction': pred.tolist(), 'prediction_uncertainty': sigma.tolist(),
+                   'total_prediction_uncertainty': float(np.sqrt(max(0.0, np.sum(cov_main[offset:offset+n, offset:offset+n])))),
+                   'processes': [{'name': name, 'prefit': pre_samples[i, offset:offset+n].tolist(),
+                                  'postfit': post_samples[i, offset:offset+n].tolist()}
+                                 for i, name in enumerate(full.config.samples)],
                    'data': None if counts is None else counts.tolist()}
             if counts is not None:
                 denominator = np.sqrt(pred + sigma ** 2)
@@ -355,6 +463,7 @@ class SearchModel:
         bkg_pars = pars.copy(); bkg_pars[model.config.poi_index] = 0.0
         computations = self.document['computations']
         out = {'id': point['id'], 'coordinates': point['coordinates'], 'blinded_signal_regions': list(self.blinded)}
+        out['signal_yields'] = {r: row['values'].tolist() for r, row in point['yields'].items()}
         expected_data = self._data_for(model, bkg_pars)
         observed_available = self.data_mode == 'observed' and not self.blinded
         init, bounds = model.config.suggested_init(), model.config.suggested_bounds()
@@ -368,11 +477,22 @@ class SearchModel:
             if observed_available:
                 q0_obs = float(pyhf.infer.test_statistics.q0(0.0, expected_data, model, init, bounds, fixed))
                 disc.update(observed_q0=q0_obs, observed_significance=math.sqrt(max(q0_obs, 0.0)))
+            if self.toys:
+                thresholds = {'expected': q0}
+                if observed_available:
+                    thresholds['observed'] = disc['observed_q0']
+                disc['toys'] = toy_discovery(model, bkg_pars, thresholds, self.toys)
             out['discovery'] = disc
         if computations.get('cls_at_nominal'):
             cls_obs, band = pyhf.infer.hypotest(1.0, expected_data, model, init, bounds, fixed,
                                                 test_stat='qtilde', return_expected_set=True)
+            pseudo_cls = None
+            if self.data_mode == 'mc-pseudo-data':
+                pseudo = np.concatenate([self.pseudo_counts(c) for c in model.config.channels]
+                                        + [np.asarray(model.config.auxdata, float)])
+                pseudo_cls = float(pyhf.infer.hypotest(1.0, pseudo, model, init, bounds, fixed, test_stat='qtilde'))
             out['cls_at_nominal'] = {'observed': float(cls_obs) if observed_available else None,
+                                     'observed_on_pseudo_data': pseudo_cls,
                                      'expected': [float(x) for x in band],
                                      'expected_order': ['-2 sigma', '-1 sigma', 'median', '+1 sigma', '+2 sigma'],
                                      'level': self.document['cls_level'],
@@ -486,7 +606,7 @@ def run(document, *, goodness_of_fit=None):
     result = {'mc_adequacy_flags': model.mc_adequacy(), 'data_mode': model.data_mode,
               'injections': model.injections, 'blinded_signal_regions': list(model.blinded),
               'regions': [{'name': r, 'role': model.roles[r], 'bins': model.regions[r]} for r in model.regions],
-              'systematics': None if model.registry is None else model.registry.summary()}
+              'systematics': None if model.registry is None else model.registry.summary(), 'abcd': model.abcd}
     fit_pars = full = None
     if document['computations'].get('background_only_fit') or document['asimov_source'] == 'background-only-fit':
         fit, fit_pars = model.background_only_fit(goodness_of_fit)

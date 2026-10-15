@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "package": "dark-matter-observables",
+  "retire_refusals": [{
+    "id": "SP-06-T8",
+    "required_group": "dark-matter",
+    "requires": ["source version and licence decision", "source-reviewed compiled native binding", "current micromegas and micromegas-singlet doctor checks", "supplied chained micromegas/phasetracer grid qualification receipt"],
+    "status": "pending-native-qualification"
+  }],
+  "census_updates": {
+    "tools": ["micrOMEGAs"],
+    "implementation": "src/ravel/physics/dark_matter.py",
+    "installation": "native/setup/groups/dark-matter.json",
+    "qualification_status": "not_installed",
+    "qualification_scope": "Synthetic transport and refusal controls only; native bindings and physics require current supplied-reference qualification."
+  },
+  "handoff": "The registry owner applies retirement only after all required current native receipts exist. Pending source rows and fake tests never retire an installation or scientific refusal."
+}

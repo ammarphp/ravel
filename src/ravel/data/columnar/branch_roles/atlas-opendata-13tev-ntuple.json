@@ -1,0 +1,388 @@
+{
+ "schema_version": 1,
+ "kind": "columnar-branch-roles",
+ "name": "atlas-opendata-13tev-ntuple",
+ "source": "ATLAS Open Data 13 TeV ntuple release, branch table of the public data-format page https://opendata.atlas.cern/docs/documentation/data_format/ntuple . The page documents names and types but no units, so every dimensionful quantity carries unit null and the bound branch schema must state it.",
+ "branches": [
+  {
+   "name": "runNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "eventNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "channelNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "mcWeight",
+   "role": "generator_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "XSection",
+   "role": "sample_cross_section",
+   "shape": "scalar",
+   "unit": null
+  },
+  {
+   "name": "SumWeights",
+   "role": "sample_sum_of_weights",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_PILEUP",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_ELE",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_MUON",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_PHOTON",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_TAU",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_BTAG",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_LepTRIGGER",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "scaleFactor_PhotonTRIGGER",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "met_et",
+   "role": "stored_met",
+   "shape": "scalar",
+   "unit": null
+  },
+  {
+   "name": "met_phi",
+   "role": "stored_met",
+   "shape": "scalar",
+   "unit": "rad"
+  },
+  {
+   "name": "met_et_syst",
+   "role": "stored_met",
+   "shape": "scalar",
+   "unit": null
+  },
+  {
+   "name": "ditau_m",
+   "role": "event_mass",
+   "shape": "scalar",
+   "unit": null
+  },
+  {
+   "name": "trigE",
+   "role": "trigger_decision",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "trigM",
+   "role": "trigger_decision",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "trigP",
+   "role": "trigger_decision",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "lep_n",
+   "role": "object_count",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "jet_n",
+   "role": "object_count",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "photon_n",
+   "role": "object_count",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "largeRjet_n",
+   "role": "object_count",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "tau_n",
+   "role": "object_count",
+   "shape": "scalar",
+   "unit": "1"
+  }
+ ],
+ "families": [
+  {
+   "pattern": "lep_pt",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "lep_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "lep_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "lep_E",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "lep_pt_syst",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "jet_pt",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "jet_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "jet_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "jet_E",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "jet_pt_syst",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "photon_pt",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "photon_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "photon_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "photon_E",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "photon_pt_syst",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "largeRjet_pt",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "largeRjet_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "largeRjet_E",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "largeRjet_pt_syst",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "tau_pt",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "tau_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "tau_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "tau_E",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "tau_pt_syst",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "largeRjet_m",
+   "role": "object_mass",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "(lep|photon|tau)_truthMatched",
+   "role": "object_truth_match",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(jet|largeRjet)_truthMatched",
+   "role": "object_truth_match",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(lep|photon|tau)_trigMatched",
+   "role": "object_trigger_match",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(lep|photon|tau)_isTightID",
+   "role": "object_selection",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(lep|tau)_charge",
+   "role": "object_charge",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "lep_type",
+   "role": "object_classification",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "lep_(z0|ptcone30|etcone20|trackd0pvunbiased|tracksigd0pvunbiased)",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "photon_(ptcone30|etcone20|convType)",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "jet_(jvt|trueflav)",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "largeRjet_(D2|tau32)",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "tau_(BDTid|nTracks)",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  }
+ ]
+}

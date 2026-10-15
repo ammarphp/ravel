@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "kind": "registry-registration",
+  "target": "validator-allowlist",
+  "append": {
+    "validators": [
+      {
+        "id": "check:higgs.framework_declared",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "The framework declaration is complete; no physics qualification is implied. Input: framework {name, basis, truncation, width_policy, source}."
+      },
+      {
+        "id": "check:higgs.measurement_bundle",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+      },
+      {
+        "id": "check:higgs.parameterization_closure",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+      },
+      {
+        "id": "check:higgs.scalar_basis",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+      },
+      {
+        "id": "check:higgs.theory_constraints",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+      },
+      {
+        "id": "check:higgs.cross_engine",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Delegates to the operation implementation and stays inconclusive until that implementation is present. Input: the document that implementation declares."
+      },
+      {
+        "id": "check:higgs.theory_correlation",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [],
+        "description": "Shared signal theory sources need matched definitions, single counting and evidenced decorrelation. Input: experiments [text]; theory_components [{id, process, source, experiments, definitions, correlation, origins, decorrelation_evidence}]."
+      },
+      {
+        "id": "check:higgs.trap_TH1",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "Measurements sharing events need a supplied joint likelihood. Input: measurements [{id, event_set, representation}]; joint_likelihoods [{left, right, source}]."
+      },
+      {
+        "id": "check:higgs.trap_TH2",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "Shared signal theory sources need matched definitions, single counting and evidenced decorrelation. Input: experiments [text]; theory_components [{id, process, source, experiments, definitions, correlation, origins, decorrelation_evidence}]."
+      },
+      {
+        "id": "check:higgs.trap_TH3",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "Prediction and measurement masses agree or carry a sourced translation. Input: prediction_mass_gev; measurement_mass_gev; mass_translation {from, to, source} or null."
+      },
+      {
+        "id": "check:higgs.trap_TH4",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "Loop-coupling interpretations agree between prediction and measurement. Input: prediction_loop_mode and measurement_loop_mode, each {channel: resolved | effective}."
+      },
+      {
+        "id": "check:higgs.trap_TH5",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "A free unobserved branching fraction with a free vector coupling needs a width constraint or an upper bound of at most one. Input: parameterization {free [names such as br_bsm, br_undet, kappa_v, kappa_w, kappa_z], width_constraint text or null, kappa_v_upper_bound number or null}."
+      },
+      {
+        "id": "check:higgs.trap_TH6",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-coupling-analyst",
+          "higgs-combination-reviewer"
+        ],
+        "description": "Asymmetric errors near a physical boundary are not replaced by a symmetric Gaussian. Input: likelihood {errors {down, up}, distance_to_boundary, approximation: symmetric-gaussian | asymmetric | full-likelihood}."
+      },
+      {
+        "id": "check:higgs.trap_TH7",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "extended-scalar-modeler",
+          "higgs-combination-reviewer"
+        ],
+        "description": "An angle-convention change keeps every available Yukawa branch unless a restriction is evidenced. Input: scalar_conventions {source_cos_ba_sign, target_cos_ba_sign, available_branches, retained_branches, branch_restriction_evidence text or null}."
+      },
+      {
+        "id": "check:higgs.trap_TH8",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "extended-scalar-modeler",
+          "higgs-combination-reviewer"
+        ],
+        "description": "The tan(beta) definition is transported between scalar bases. Input: basis {tan_beta_basis, prediction_basis, transport {from, to, source} or null}."
+      },
+      {
+        "id": "check:higgs.trap_TH9",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "extended-scalar-modeler",
+          "higgs-combination-reviewer"
+        ],
+        "description": "A ratio from one channel selected by expected sensitivity is not read as a combined exclusion. Input: exclusion {method: expected-channel-selection | combined-likelihood, ratio, interpretation: selected-channel-95cl | combined-95cl}."
+      },
+      {
+        "id": "check:higgs.trap_TH10",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-combination-reviewer"
+        ],
+        "description": "The dimension used for a p-value matches the construction. Input: gof {statistic, purpose, dof, p_value} with parameters_of_interest for a delta_chi2 confidence-region, or observables and fitted_parameters for goodness-of-fit."
+      },
+      {
+        "id": "check:higgs.trap_TH11",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-combination-reviewer"
+        ],
+        "description": "A data release described as current matches the sourced required release. Input: dataset_release {used, required, required_source, claim: current | historical}."
+      },
+      {
+        "id": "check:higgs.trap_TH12",
+        "module": "ravel.validation.higgs_checks",
+        "function": "run_check",
+        "roles": [
+          "higgs-combination-reviewer"
+        ],
+        "description": "An average of mutually tense measurements carries a tension statement. Input: averaging {values [{value, uncertainty}], covariance, tension_threshold, tension_statement text or null}."
+      }
+    ]
+  }
+}

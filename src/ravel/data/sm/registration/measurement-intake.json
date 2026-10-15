@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "package": "measurement-intake",
+  "operation_signatures": {
+    "measurement-intake": {
+      "summary": "Assemble supplied measurement covariance with declared component and normalized error laws.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "measurement-intake",
+        "module": "ravel.physics.sm.measurement_intake"
+      },
+      "consumes": [
+        {
+          "slot": "tables",
+          "kind": "table",
+          "task_pointer": "/task/input"
+        },
+        {
+          "slot": "component_map",
+          "kind": "document",
+          "task_pointer": "/task/component_map"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "measurement_bundle",
+          "kind": "table"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "task",
+        "forecast": null,
+        "ceiling_pointer": null
+      },
+      "critical_fields": [
+        "/task/input",
+        "/task/component_map",
+        "/task/routine",
+        "/task/record"
+      ],
+      "basis": {
+        "adds": [
+          {
+            "element": "published_results",
+            "form": "table"
+          }
+        ],
+        "passes": [
+          "tables"
+        ]
+      },
+      "tools": [],
+      "stages": [],
+      "review": {
+        "checks": [
+          "io_contract",
+          "basis_manifest",
+          "sm.covariance_assembled",
+          "sm.normalized_rule",
+          "sm.routine_matches_record"
+        ]
+      },
+      "fidelity_rank": 2
+    }
+  },
+  "mode_descriptors": {
+    "measurement-intake": {
+      "summary": "Assemble supplied measurement covariance and verify its declared routine reference.",
+      "operations": [],
+      "tools": [],
+      "inputs": [
+        "source tables",
+        "measurement components",
+        "measurement record"
+      ],
+      "observables": [
+        "measurement covariance"
+      ],
+      "outputs": [
+        "measurement bundle"
+      ],
+      "context": [
+        "covariance",
+        "normalized distribution"
+      ],
+      "applicability": {
+        "scope": "general"
+      }
+    }
+  },
+  "handoff": "Merge operation/mode through registration lane, connect workflow.science adapter dispatch, and add measurement-intake to science_worker fresh-directory modes. Embed pinned JSON input syntax, declared correlation rules, TS3/TS6 refusals and normalized-law checks in measurement workflow instructions; regenerate instruction bundle there. Records are supplied on request; no record population ships.",
+  "interface": {
+    "module": "ravel.physics.sm.measurement_intake",
+    "functions": [
+      "assemble",
+      "load_bundle",
+      "validate",
+      "inputs",
+      "run"
+    ],
+    "schema": "measurement_bundle.v1",
+    "schema_path": "src/ravel/data/sm/schema/measurement-bundle.schema.json",
+    "task": {
+      "schema_version": 1,
+      "input": {
+        "path": "supplied-tables.json",
+        "sha256": "<64 lowercase hex characters>"
+      },
+      "component_map": {
+        "path": "supplied-component-map.json",
+        "sha256": "<64 lowercase hex characters>"
+      }
+    },
+    "additional_pins": [
+      "routine",
+      "record"
+    ]
+  }
+}

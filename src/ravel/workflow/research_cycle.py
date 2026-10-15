@@ -1773,6 +1773,7 @@ def run_experiment(root, identity, *, resume=False):
         if not allowed:
             raise ValueError(reason)
         e = _experiment_dispatch_admission(state, identity)
+        from .wms_policy import require_dispatch; require_dispatch(e["rundir"])
         reservation = _experiment_reservation(state,e,root)
         refusal = _clock(state, e["cost"]["wall_seconds"])
         if refusal is not None:

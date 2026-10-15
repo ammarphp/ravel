@@ -170,7 +170,5 @@ def test_setup_missing_ravel_pin_never_starts_installer(tmp_path, monkeypatch):
 
 def test_repository_wms_lock_dependency(tmp_path):
     from ravel.workflow import environment_export as ee
-    if not ee.WMS_LOCK.is_file():
-        pytest.xfail(reason='awaits SMK-09')
     pins = ee.write(tmp_path / 'package', [runtime(tmp_path)])
     assert any(p['path'] == 'environment/wms-requirements.lock' for p in pins)

@@ -32,7 +32,10 @@ def test_cli_exports_mapped_note_snakefile_and_computed_disclosure(tmp_path, cap
     assert 'candidate_funnel' in note and doc['disclosure']['candidate_funnel']['generated'] == 3
     assert doc['execution_authorized'] is False
     snake = (out / 'Snakefile').read_text()
-    assert snake.count('\nrule node_') == 4 and 'verify-node' in snake and 'approve' not in snake
+    assert snake.count('\nrule node_') == 4 and 'ravel procedure verify-node' in snake and 'approve' not in snake
+    assert sys.executable not in snake
+    assert Path(doc['run']).is_absolute()
+    assert any('absolute source pins' in line for line in doc['limitations'])
     assert 'failed' in note and doc['environment']['snapshot_id']
     pe.verify(out)
     (rd / 'outputs/value.json').write_text('{"value":99}')
@@ -43,16 +46,18 @@ def test_cli_exports_mapped_note_snakefile_and_computed_disclosure(tmp_path, cap
 def test_scheduler_labels_and_theory_chain_templates(tmp_path):
     from ravel.workflow import procedure_export as pe
     from ravel.workflow.site_profiles import render
-    local = render('local', cores=3); condor = render('htcondor', cores=3); slurm = render('slurm', cores=3)
+    local = render('local', cores=3); condor = render('htcondor', cores=3)
     assert local['config']['cores'] == 3 and condor['config']['executor'] == 'cluster-generic'
-    assert 'site_profiles.htcondor submit' in condor['config']['cluster-generic-submit-cmd']
-    assert slurm['label'] == 'configurable, unqualified' and slurm['config']['executor'] == 'slurm'
+    assert 'ravel-wms-condor-submit' in condor['config']['cluster-generic-submit-cmd']
+    assert condor['release_status'] == 'tester-qualification' and not condor['qualified']
+    with pytest.raises(ValueError, match='not available in this release'): render('slurm', cores=3)
     with pytest.raises(ValueError): render('local', retries=1)
     out = tmp_path / 'export'; pe.export(run(tmp_path / 'run'), out)
     theory = (out / 'templates/theory.smk').read_text()
     assert all('rule ' + stage in theory for stage in ('symbolic', 'numeric', 'fit'))
     assert 'symbolic.completed.json' in theory and 'numeric.completed.json' in theory
-    assert all((out / 'profiles' / name / 'config.yaml').exists() for name in ('local', 'htcondor', 'slurm'))
+    assert all((out / 'profiles' / name / 'config.yaml').exists() for name in ('local', 'htcondor'))
+    assert not (out / 'profiles/slurm').exists()
 
 
 def test_snakemake_dry_run_or_structural_validation(tmp_path):
@@ -61,7 +66,7 @@ def test_snakemake_dry_run_or_structural_validation(tmp_path):
     pe.validate_snakefile((out / 'Snakefile').read_text(), 4)
     from ravel.workflow import wms_runtime
     argv = wms_runtime.snakemake_argv()
-    if not argv:
+    if not os.environ.get('RAVEL_TEST_SNAKEMAKE') or not argv:
         pytest.skip('set RAVEL_TEST_SNAKEMAKE to run real Snakemake')
     result = subprocess.run([*argv, '-n', '--cores', '1', '--snakefile', 'Snakefile'], cwd=out,
                             capture_output=True, text=True, timeout=120)
@@ -212,6 +217,12 @@ def test_refresh_never_reads_large_recorded_output_and_deep_checks_bytes(tmp_pat
     import shlex
     rule = (out / 'Snakefile').read_text().split(f'rule node_{index}:')[1].split('    shell: ')[1].splitlines()[0]
     command = shlex.split(ast.literal_eval(rule))
+    # Exercise the generated PATH command with a fixture-only CLI entry point.
+    bindir = tmp_path / 'bin'; bindir.mkdir()
+    entry = bindir / 'ravel'
+    entry.write_text(f'#!{sys.executable}\nfrom ravel.cli import main\nraise SystemExit(main())\n')
+    entry.chmod(0o755)
+    monkeypatch.setenv('PATH', str(bindir) + os.pathsep + os.environ['PATH'])
     result = subprocess.run(command, cwd=out, capture_output=True, text=True, timeout=60)
     assert result.returncode != 0 and 'source changed' in result.stderr
 

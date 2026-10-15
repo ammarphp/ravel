@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "default",
+    "rules"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "site-tool-policy"
+    },
+    "default": {
+      "const": "effectful"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "server",
+          "tool",
+          "classification",
+          "effect",
+          "source",
+          "note"
+        ],
+        "properties": {
+          "server": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^/]+$"
+          },
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "classification": {
+            "enum": [
+              "read-only",
+              "effectful"
+            ]
+          },
+          "effect": {
+            "enum": [
+              "none",
+              "download",
+              "transfer",
+              "job-submit",
+              "job-cancel",
+              "notebook-execute",
+              "file-write",
+              "unknown"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "classification": {
+                  "const": "read-only"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "effect": {
+                  "const": "none"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "effect": {
+                  "enum": [
+                    "download",
+                    "transfer",
+                    "job-submit",
+                    "job-cancel",
+                    "notebook-execute",
+                    "file-write",
+                    "unknown"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

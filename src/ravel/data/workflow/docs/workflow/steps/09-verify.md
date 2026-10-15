@@ -205,3 +205,20 @@ ordinary approved site workflow; export supplies no approval. See
 Beyond this per-run panel, the workflow-adherence gates are regression-verified *as software* by the
 per-gate simulation (`make green`): every gate G0a–G27 has a `cases/case_<g>.py` that seeds the bad
 fixture and asserts the gate FIRES.
+
+After current scope acceptance, use [requester workspace delivery](../../reference/deliver-workspace.md)
+for `ravel deliver-workspace --rundir RUN --layout LAYOUT.json --into WORKSPACE`;
+recheck the copied files with `ravel deliver-workspace verify --into WORKSPACE`.
+
+For requester-supplied repository or submission requirements, follow the
+[conformance checklist](../checklists/conformance.md) and run `ravel conformance
+check` with their rule pack. Keep its documentary checks and missing-source
+statuses alongside the existing result verification and review records.
+
+For an accepted submission, export with `ravel export-submission --request request.json
+--into repository --framework-source vendor --framework-checkout tagged-framework`,
+or select `--framework-source release:v1.0.0`. Use `--layout layout.json` for repository
+conventions. Follow [portable submission packages](../../reference/site-workflows.md#portable-submission-packages)
+for release-tree checks, `make env`, `make check`, `make verify` and the fresh governed
+replay approval gate. Use `verify --fresh-clone` to check a second parent directory.
+Historical approval records grant no authority to a new replay.

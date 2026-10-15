@@ -58,7 +58,7 @@ from .state_io import atomic_json, read_json
 SCHEMA_VERSION = 1
 LEDGER = 'partition-ledger.json'
 MERGE_RECEIPT = 'merge-receipt.json'
-MERGE_KINDS = ('binned_values', 'columnar-partial', 'cutflow', 'counts', 'none')
+MERGE_KINDS = ('binned_values', 'columnar-partial', 'cutflow', 'counts', 'skim', 'none')
 _NAME = re.compile(r'^[a-z][a-z0-9-]{0,40}$')
 _CHECKSUM = re.compile(r'^sha256:[0-9a-f]{64}$')
 MAX_PARTITIONS = 10000
@@ -636,6 +636,9 @@ def _check_normalization(document):
 def merge_documents(kind, documents):
     if not documents:
         raise ValueError('nothing to merge')
+    if kind == 'skim':
+        from ravel.physics.columnar.skim import merge as merge_skims
+        return merge_skims(documents)
     if kind == 'columnar-partial':
         from ravel.physics.columnar.engine import merge
         return merge(documents)
@@ -713,6 +716,12 @@ def merge(work):
     if status['status'] != 'complete':
         raise ValueError('cannot merge: partitions not succeeded: ' + ', '.join(status['failed'] + status['pending']))
     spec = ledger['specification']
+    if any(o['merge'] == 'skim' for o in spec['outputs']):
+        if specification_digest(spec) != ledger['specification_sha256']:
+            raise ValueError('skim partition specification changed')
+        for part in plan_partitions(spec):
+            if ledger['partitions'][part['id']]['members_sha256'] != part['sha256']:
+                raise ValueError('skim partition membership changed')
     out = work / 'merged'
     if out.exists() or (work / MERGE_RECEIPT).exists():
         raise ValueError('merged outputs already exist in this work directory')
@@ -740,7 +749,29 @@ def merge(work):
         if o['merge'] == 'none':
             merged_rows.append({'name': o['name'], 'merge': 'none', 'members': [str(p) for p in documents[o['name']]]})
             continue
-        value = merge_documents(o['merge'], [read_json(p) for p in documents[o['name']]])
+        if o['merge'] == 'skim':
+            from ravel.physics.columnar.skim import validate_partition
+            pins = [{'path': str(p), 'sha256': eb.file_sha256(p)} for p in documents[o['name']]]
+            for pid, pin in zip(sorted(ledger['partitions']), pins):
+                custody = validate_partition(pin)
+                members = next(p['members'] for p in plan_partitions(spec) if p['id'] == pid)
+                if custody['entries_in'] != ledger['partitions'][pid]['entries']:
+                    raise ValueError('skim custody count differs from declared partition')
+                expected = {m.get('path') or m.get('uri'): m for m in members}
+                if len(custody['inputs']) != len(expected):
+                    raise ValueError('skim custody membership differs from declared partition')
+                for i in custody['inputs']:
+                    member = expected.pop(i['path'], None)
+                    if member is None or i['entry_start'] != 0 or i['entry_stop'] != member.get('entries'):
+                        raise ValueError('skim custody input differs from declared partition')
+                    checksum = member.get('checksum')
+                    actual = ('sha256:' + i['sha256'] if i.get('sha256') else
+                              ':'.join((i['source_checksum']['algorithm'], i['source_checksum']['value'])))
+                    if not checksum or checksum != actual:
+                        raise ValueError('skim custody checksum differs from declared partition')
+            value = merge_documents('skim', pins)
+        else:
+            value = merge_documents(o['merge'], [read_json(p) for p in documents[o['name']]])
         target = out / o['name']
         target.parent.mkdir(parents=True, exist_ok=True)
         atomic_json(target, value)
@@ -753,44 +784,124 @@ def merge(work):
 
 
 # ---------------------------------------------------------------- cost
+def _pilot_columns(attempt, expected_entries):
+    """Read column measurements only from checksum-bound fetched partial outputs."""
+    if 'receipt' not in attempt:
+        return None
+    path = Path(attempt['receipt'])
+    if eb.file_sha256(path) != attempt['receipt_sha256']:
+        raise ValueError('pilot fetch receipt changed')
+    rows = []
+    for output in read_json(path)['outputs']:
+        target = Path(output['destination'])
+        if eb.file_sha256(target) != output['sha256']:
+            raise ValueError('pilot output checksum changed')
+        if target.suffix.lower() != '.json':
+            continue
+        document = read_json(target)
+        if document.get('kind') == 'columnar-partial' and 'throughput' in document:
+            row = document['throughput']
+            if (type(row.get('entries')) is not int or row['entries'] < 0 or
+                    type(row.get('bytes_read')) is not int or row['bytes_read'] < 0 or
+                    row.get('byte_basis') != 'decoded-column-bytes' or
+                    not isinstance(row.get('columns_read'), list) or
+                    any(not isinstance(c, str) for c in row['columns_read']) or
+                    _number(row.get('wall_seconds'), 'pilot wall seconds') <= 0):
+                raise ValueError('invalid pilot column measurement')
+            rows.append(row)
+    if not rows:
+        return None
+    if sum(r['entries'] for r in rows) != expected_entries:
+        raise ValueError('pilot measured entries differ from declared partition')
+    return {'entries': expected_entries, 'bytes_read': sum(r['bytes_read'] for r in rows),
+            'wall_seconds': math.fsum(r['wall_seconds'] for r in rows),
+            'columns_read': sorted({c for r in rows for c in r['columns_read']})}
+
+
 def forecast(work):
-    """Wall and core-hour forecast from measured partitions (a pilot)."""
+    """Full-pass and remaining forecasts; decoded column bytes never imply wire I/O."""
     ledger = _ledger(work)
     if ledger is None:
         raise ValueError('no partition ledger in this work directory')
     from datetime import datetime
+    from .cost_records import make_record
     spec = ledger['specification']
     measured, remaining = [], []
     for pid, row in sorted(ledger['partitions'].items()):
         done = [a for a in row['attempts'] if a['state'] == 'succeeded' and 'finished_utc' in a]
         if row['status'] == 'succeeded' and done:
             a = done[-1]
-            seconds = (datetime.fromisoformat(a['finished_utc']) - datetime.fromisoformat(a['started_utc'])).total_seconds()
-            measured.append((pid, seconds, row['entries'], row['size_bytes']))
+            elapsed = (datetime.fromisoformat(a['finished_utc']) - datetime.fromisoformat(a['started_utc'])).total_seconds()
+            if elapsed <= 0:
+                raise ValueError('pilot duration must be positive')
+            columns = _pilot_columns(a, row['entries'])
+            measured.append({'partition': pid, 'seconds': elapsed if columns is None else columns['wall_seconds'],
+                             'entries': row['entries'], 'size_bytes': row['size_bytes'], 'columns': columns})
         else:
             remaining.append(row)
     cpus = spec['stage']['resources']['cpus']
-    concurrency = spec.get('max_concurrent', 1)
+    # Native stages share one machine lease; remote slots use the declared ceiling.
+    local = eb.get(spec['stage']['backend']).is_local(spec['stage'])
+    concurrency = 1 if local else spec.get('max_concurrent', 1)
+    seam = {'supported': False, 'reason': 'The calibrated-cost approval consumer accepts generation pilot '
+            'forecasts only. This partition forecast exposes the shared cost resource vector without approval authority.'}
     if not measured:
-        return {'calibration': 'uncalibrated', 'pilot_partitions': [], 'remaining_partitions': len(remaining),
+        return {'schema_version': 1, 'kind': 'partition-throughput-forecast',
+                'calibration': 'uncalibrated', 'pilot_partitions': [], 'remaining_partitions': len(remaining),
+                'seconds_per_event': None, 'seconds_per_byte': None, 'bytes_read_per_event': None,
+                'projected_wall_hours': None, 'projected_core_hours': None, 'pilot_spread': None,
+                'cost_record': make_record('stream', 'uncalibrated', None, 'No completed partition pilot.'),
+                'cost_approval_seam': seam,
                 'note': 'run one partition first (run --only p00000) to measure a pilot'}
-    total_seconds = sum(m[1] for m in measured)
-    measured_entries = sum(m[2] for m in measured)
-    measured_bytes = sum(m[3] for m in measured)
-    if measured_entries:
-        rate, basis = total_seconds / measured_entries, 'entries'
-        need = sum(r['entries'] for r in remaining) * rate
-    elif measured_bytes:
-        rate, basis = total_seconds / measured_bytes, 'bytes'
-        need = sum(r['size_bytes'] for r in remaining) * rate
+    seconds = math.fsum(m['seconds'] for m in measured)
+    entries = sum(m['entries'] for m in measured)
+    source_bytes = sum(m['size_bytes'] for m in measured)
+    rows = list(ledger['partitions'].values())
+    dataset_entries = sum(r['entries'] for r in rows)
+    dataset_bytes = sum(r['size_bytes'] for r in rows)
+    if entries:
+        rate, basis = seconds / entries, 'entries'
+        total, need = dataset_entries * rate, sum(r['entries'] for r in remaining) * rate
+        rates = [m['seconds'] / m['entries'] for m in measured if m['entries']]
+    elif source_bytes:
+        rate, basis = seconds / source_bytes, 'bytes'
+        total, need = dataset_bytes * rate, sum(r['size_bytes'] for r in remaining) * rate
+        rates = [m['seconds'] / m['size_bytes'] for m in measured if m['size_bytes']]
     else:
-        rate, basis = total_seconds / len(measured), 'partitions'
-        need = len(remaining) * rate
-    return {'calibration': 'measured pilot', 'pilot_partitions': [m[0] for m in measured], 'basis': basis,
+        rate, basis = seconds / len(measured), 'partitions'
+        total, need = len(rows) * rate, len(remaining) * rate
+        rates = [m['seconds'] for m in measured]
+    projected_units = {'entries': dataset_entries, 'bytes': dataset_bytes, 'partitions': len(rows)}[basis]
+    lower, upper = min(rates), max(rates)
+    avg = math.fsum(rates) / len(rates)
+    spread = {'basis': basis, 'minimum_seconds_per_unit': lower, 'maximum_seconds_per_unit': upper,
+              'standard_deviation_seconds_per_unit': math.sqrt(math.fsum((r - avg) ** 2 for r in rates) / len(rates)),
+              'projected_wall_hours': [projected_units * r / concurrency / 3600 for r in (lower, upper)],
+              'projected_core_hours': [projected_units * r * cpus / 3600 for r in (lower, upper)],
+              'scope': 'Observed partition rate range; not a statistical confidence interval or guaranteed ceiling.'}
+    has_columns = all(m['columns'] is not None for m in measured)
+    read_bytes = sum(m['columns']['bytes_read'] for m in measured) if has_columns else None
+    profile = {'process': 'columnar-pass', 'configuration': specification_digest(spec),
+               'machine': spec['stage'].get('site')}
+    cost = make_record('stream', 'calibrated', profile,
+                       'Completed partition pilots scaled to the declared population; CPU hours are allocated core hours.',
+                       wall_hours=total / concurrency / 3600, cpu_hours=total * cpus / 3600, events=dataset_entries,
+                       uncertainty={'wall_hours': spread['projected_wall_hours'], 'cpu_hours': spread['projected_core_hours']})
+    return {'schema_version': 1, 'kind': 'partition-throughput-forecast',
+            'calibration': 'measured pilot', 'pilot_partitions': [m['partition'] for m in measured], 'basis': basis,
             'seconds_per_unit': rate, 'remaining_partitions': len(remaining),
-            'estimated_core_hours': need * cpus / 3600.0,
-            'estimated_wall_hours': need / max(1, concurrency) / 3600.0,
-            'max_concurrent': concurrency, 'cpus_per_partition': cpus}
+            'estimated_core_hours': need * cpus / 3600, 'estimated_wall_hours': need / concurrency / 3600,
+            'projected_core_hours': total * cpus / 3600, 'projected_wall_hours': total / concurrency / 3600,
+            'seconds_per_event': seconds / entries if entries else None,
+            'seconds_per_byte': seconds / read_bytes if read_bytes else None,
+            'bytes_read_per_event': read_bytes / entries if has_columns and entries else None,
+            'byte_basis': 'decoded-column-bytes' if has_columns else None,
+            'columns_read': sorted({c for m in measured for c in m['columns']['columns_read']}) if has_columns else None,
+            'dataset_entries': dataset_entries, 'dataset_size_bytes': dataset_bytes, 'pilot_spread': spread,
+            'max_concurrent': concurrency, 'cpus_per_partition': cpus, 'cost_record': cost,
+            'cost_approval_seam': seam,
+            'scope': 'Full-pass projection assumes representative pilots, the same column selection and stable storage/CPU '
+                     'throughput. Column bytes are decoded payload, not remote network or compressed file bytes.'}
 
 
 # ---------------------------------------------------------------- CLI

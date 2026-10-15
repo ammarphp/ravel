@@ -22,6 +22,8 @@ default MSSM_SLHA2 parameter card) supplies every other block unchanged.
 from __future__ import annotations
 
 import argparse
+import ast
+from copy import deepcopy
 import json
 import math
 import re
@@ -196,7 +198,7 @@ def _decay_table(pdg, decay, tolerance):
 
 def validate_spec(spec):
     allowed = {'schema_version', 'basis', 'modsel', 'masses', 'decoupled', 'mixing', 'decays', 'invisible',
-               'stable', 'produced', 'sm_masses_GeV', 'base_card', 'source', 'br_tolerance'}
+               'stable', 'produced', 'sm_masses_GeV', 'base_card', 'source', 'br_tolerance', 'model_pdgs'}
     if not isinstance(spec, dict) or spec.get('schema_version') != 1:
         raise ValueError('simplified spectrum schema_version 1 required')
     extra = set(spec) - allowed
@@ -213,6 +215,9 @@ def validate_spec(spec):
         raise ValueError('MODSEL entries are required')
     if not isinstance(spec['source'], str) or not spec['source'].strip():
         raise ValueError('a source or synthetic-control description is required')
+    if 'model_pdgs' in spec and (not isinstance(spec['model_pdgs'], list) or not spec['model_pdgs']
+                                or any(type(p) is not int or p == 0 for p in spec['model_pdgs'])):
+        raise ValueError('model_pdgs must list nonzero integer UFO particle identities')
     return spec
 
 
@@ -267,6 +272,7 @@ def build(spec, *, base_dir=None, check=True):
     if check:
         report = check_card(doc, invisible=spec['invisible'], stable=spec.get('stable', []),
                             produced=spec['produced'], sm_masses=spec.get('sm_masses_GeV', {}),
+                            model_pdgs=spec.get('model_pdgs'),
                             tolerance=spec.get('br_tolerance', 1e-6))
         if not report['passed']:
             raise ValueError('spectrum fails its closure checks: '
@@ -277,12 +283,12 @@ def build(spec, *, base_dir=None, check=True):
 
 # ----------------------------------------------------------------- checks
 
-def check_card(doc, *, invisible, produced, sm_masses, stable=(), tolerance=1e-4):
+def check_card(doc, *, invisible, produced, sm_masses, stable=(), tolerance=1e-4, model_pdgs=None):
     findings = []
     def error(code, message, pdg=None):
         findings.append({'severity': 'error', 'code': code, 'pdg': pdg, 'message': message})
-    invisible = {int(p) for p in invisible}
-    stable = {int(p) for p in stable} | invisible
+    invisible = {abs(int(p)) for p in invisible}
+    stable = {abs(int(p)) for p in stable} | invisible
     if 'MODSEL' not in doc['blocks'] or not doc['blocks']['MODSEL']['entries']:
         error('modsel_missing', 'MODSEL block is missing')
     masses = {k[0]: v for k, v in doc['blocks'].get('MASS', {}).get('entries', {}).items() if len(k) == 1}
@@ -300,9 +306,26 @@ def check_card(doc, *, invisible, produced, sm_masses, stable=(), tolerance=1e-4
         return None
 
     decays = doc['decays']
-    for pdg in sorted(invisible):
+    outside = []
+    if model_pdgs is not None:
+        model = {abs(_pdg(p)) for p in model_pdgs}
+        mentioned = set(masses) | set(decays) | {abs(p) for d in decays.values() for _, ds in d['channels'] for p in ds}
+        outside = sorted(mentioned - model - MASSLESS_SM - MASSIVE_SM)
+        for pdg in outside:
+            table = decays.get(pdg)
+            if pdg not in stable or pdg not in invisible:
+                error('outside_model_undeclared', f'outside-model state {pdg} must be declared stable and invisible', pdg)
+            if table is None or table['width'] != 0 or table['channels']:
+                error('outside_model_unstable', f'outside-model state {pdg} needs an explicit zero-width DECAY table', pdg)
+            if mass_of(pdg) is None:
+                error('mass_unknown', f'outside-model state {pdg} needs a declared mass', pdg)
+        for pdg in produced:
+            if abs(pdg) not in model:
+                error('outside_model_produced', f'produced state {pdg} is outside the generator model', pdg)
+    for pdg in sorted(stable):
         if pdg in decays and (decays[pdg]['width'] > 0 or decays[pdg]['channels']):
-            error('invisible_decays', f'declared invisible state {pdg} has a nonzero width or decay rows', pdg)
+            error('invisible_decays' if pdg in invisible else 'stable_decays',
+                  f'declared stable state {pdg} has a nonzero width or decay rows', pdg)
     visited, census, queue = set(), set(), [abs(int(p)) for p in produced]
     while queue:
         pdg = queue.pop(0)
@@ -345,7 +368,56 @@ def check_card(doc, *, invisible, produced, sm_masses, stable=(), tolerance=1e-4
                 queue.append(abs(d))
     return {'passed': not any(f['severity'] == 'error' for f in findings), 'findings': findings,
             'reached_states': sorted(visited), 'invisible_census': sorted(census & invisible),
-            'stable_census': sorted(census)}
+            'stable_census': sorted(census),
+            **({'outside_model': outside} if model_pdgs is not None else {})}
+
+
+def ufo_particle_pdgs(directory):
+    """Read literal UFO Particle PDGs without importing or executing the model."""
+    path = Path(directory) / 'particles.py'
+    if not path.is_file():
+        raise ValueError('model membership requires UFO particles.py')
+    tree = ast.parse(path.read_text())
+    codes = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        name = node.func.id if isinstance(node.func, ast.Name) else getattr(node.func, 'attr', None)
+        if name != 'Particle':
+            continue
+        values = [kw.value for kw in node.keywords if kw.arg == 'pdg_code']
+        if len(values) != 1:
+            raise ValueError('UFO Particle requires a literal pdg_code for membership')
+        try:
+            value = ast.literal_eval(values[0])
+        except (ValueError, TypeError) as exc:
+            raise ValueError('UFO Particle pdg_code is not a literal integer') from exc
+        if type(value) is not int or value == 0:
+            raise ValueError('UFO Particle pdg_code must be a nonzero literal integer')
+        codes.add(abs(value))
+    if not codes:
+        raise ValueError('UFO particles.py supplies no literal Particle PDGs')
+    return sorted(codes)
+
+
+def generator_document(doc, outside_model):
+    """A generation-only copy excludes shower states and their decay channels.
+
+    Full decay tables stay in the separate shower SLHA. The retained parent width
+    is a declared input; no replacement decay or width is calculated.
+    """
+    outside = set(outside_model)
+    result = deepcopy(doc)
+    mass = result['blocks'].get('MASS', {}).get('entries', {})
+    for key in list(mass):
+        if len(key) == 1 and abs(key[0]) in outside:
+            del mass[key]
+    for pdg in list(result['decays']):
+        if abs(pdg) in outside:
+            del result['decays'][pdg]
+        elif any(abs(p) in outside for _, ds in result['decays'][pdg]['channels'] for p in ds):
+            result['decays'][pdg]['channels'] = []
+    return result
 
 
 def compare_banner(lhe_text, card_doc, *, rel_tol=1e-6):
@@ -398,6 +470,7 @@ def run(task, base, output):
     text = build(spec, base_dir=path.parent, check=False)
     report = check_card(parse_slha(text), invisible=spec['invisible'], stable=spec.get('stable', []),
                         produced=spec['produced'], sm_masses=spec.get('sm_masses_GeV', {}),
+                        model_pdgs=spec.get('model_pdgs'),
                         tolerance=spec.get('br_tolerance', 1e-6))
     out = Path(output)
     out.mkdir(parents=True, exist_ok=True)

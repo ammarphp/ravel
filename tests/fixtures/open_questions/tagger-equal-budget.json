@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "open-question-fixture",
+  "id": "tagger-equal-budget",
+  "synthetic": true,
+  "structure": "method study: two classifier architectures for one tagging task compared at an equal training budget, with selection and confirmation on disjoint cells",
+  "prompt": "Study whether a graph-based classifier improves a boosted two-prong resonance tagger over a dense-network baseline at equal training budget on supplied synthetic records. Deliver a performance comparison and an internal note; retain failed and inconclusive evidence.",
+  "expected_task_mode": "research",
+  "claim_kind": "method_performance",
+  "quantity": {"id": "rejection-ratio", "unit": "1",
+               "meaning": "Synthetic background-rejection ratio of the two arms at a fixed working point; equal training budget."},
+  "method": "def rejection_ratio(candidate, baseline):\n    return candidate / baseline\n",
+  "hypotheses": {"citation_led": "The graph arm rejects more background at the working point.",
+                 "speculative": "The two arms are equal within the budget."},
+  "precision_target": {"kind": "mean_standard_error", "sigma_bound": 0.5, "absolute_error": 0.05},
+  "answer": {"verdict": "improves", "value": 1.3},
+  "grading": {"verdicts": ["improves", "no_difference", "worse"], "reference": {"verdict": "improves", "value": 1.3},
+              "tolerance": {"absolute": 0.1}},
+  "budget": {"arms": ["graph", "dense"], "training_steps": 1000, "seeds": [11, 12]},
+  "figure_inputs": {"kind": "method_comparison", "arms": ["graph", "dense"], "values": [1.3, 1.0],
+                    "uncertainties": [0.08, 0.06]}
+}

@@ -1,0 +1,116 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "production",
+  "id": "pdf-impact-analyst",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "producer"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [
+      {
+        "role": "consult-inference",
+        "when": "on_use"
+      }
+    ],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "hb:pdf-profiling",
+      "hb:lhapdf-pdf-sets",
+      "hb:pineappl-grids",
+      "conv:sm-pdf"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:sm.pdf_not_circular",
+    "check:sm.tolerance_declared",
+    "check:sm.pdf_error_type"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "producer.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Prepare profiling or reweighting with the fitted data population, tolerance and effective replica accounting stated.",
+    "Locate the supplied PDF fit data census, impact population, ErrorType, confidence level, alpha_s sets and tolerance source. Reject impact computed from data already fitted by the set.",
+    "For reweighting, retain every replica weight and recompute the entropy effective replica count. Declare the tolerance criterion rather than silently replacing a dynamic tolerance by unit delta-chi2.",
+    "Give every finding a located record path and pointer, check ID or source locator and an evidence class. Computed supplied-record checks establish contract consistency; they do not authenticate inputs or grant physics certification.",
+    "Preserve missing inputs, conflicting sources and unresolved obligations. Request the cheapest discriminating test; never invent an efficiency, covariance, factor or uncertainty.",
+    "Any scientific execution must use the existing admitted method decision, approved plan and supervised launch guard. This card creates no direct native or remote launch path. Never accept your own work or widen approval."
+  ],
+  "purpose": "Prepare profiling or reweighting with the fitted data population, tolerance and effective replica accounting stated.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": false,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-full"
+  },
+  "reviewed_by": [
+    "precision-theory-auditor"
+  ],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [],
+    "profile": "workspace"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 400,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 60,
+    "max_wall_seconds": 2700
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/",
+      "outputs/"
+    ],
+    "validators": [
+      "check:sm.pdf_not_circular",
+      "check:sm.tolerance_declared",
+      "check:sm.pdf_error_type"
+    ]
+  },
+  "version": "2.1.0"
+}

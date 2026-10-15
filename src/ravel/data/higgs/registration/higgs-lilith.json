@@ -1,0 +1,35 @@
+{
+  "higgs-lilith": {
+    "summary": "Pinned external reduced-coupling likelihood and same-call supplied SM reference.",
+    "implementation": {"kind": "command", "module": "ravel.physics.lilith_bridge"},
+    "consumes": [{"slot": "sector", "kind": "higgs-sector-bundle"}],
+    "produces": [{"slot": "result", "kind": "higgs-lilith-result"}],
+    "effects": ["executes_native"],
+    "cost": {"unit": "seconds", "forecast": null, "ceiling_pointer": "/max_seconds"},
+    "critical_fields": ["bundle", "sm_bundle", "database", "mapping", "runtime", "doctor_report"],
+    "basis": {"adds": [], "passes": ["sector"]},
+    "tools": ["lilith-python", "lilith-database"],
+    "stages": ["science"],
+    "review": {"checks": ["check:higgs.cross_engine"]},
+    "fidelity_rank": 1
+  },
+  "_integration": {
+    "adapter_module": "ravel.physics.lilith_bridge",
+    "task_fields": ["input"],
+    "runtime": "{REPO}/.venv-lilith/bin/python",
+    "doctor_checks": ["lilith-python", "lilith-database"],
+    "qualification": "Requires installed-runtime API and database qualification before scientific acceptance.",
+    "claim_checks": {"check:higgs.cross_engine": "ravel.physics.lilith_bridge.cross_engine"},
+    "handoff": "Register through the shared registry lane with mode, manifest and curation. Bind doctor group lilith; found values are package version and database-list SHA256. Sector validator is ravel.physics.higgstools_bridge.validate_bundle. Both comparison results need the same comparison_input_sha256 from the sector/reference pair, normalized measurement IDs and explicit SM-relative delta_chi2.",
+    "input_contract": {
+      "task": {"input": "path to closed JSON input document"},
+      "fields": ["schema_version", "operation", "bundle", "sm_bundle", "database", "mapping", "runtime", "doctor_report", "max_seconds", "max_ram_mib"],
+      "pins": "bundle, sm_bundle, database and doctor_report are path/sha256 objects relative to the input document.",
+      "database": "Pinned metadata includes version, sha256 of list_file, list_file pin, files pins, mass_window_gev and complete canonical measurement_ids. Supply the database applicability source with its member pins; infer no mass window or measurement aliases.",
+      "runtime": "python pin, version and complete source/dependency files pins; required isolated interpreter lives in .venv-lilith. Native imports outside these pins fail closed.",
+      "mapping": "Complete couplings map from tt, bb, cc, tautau, mumu, WW, ZZ, gg, gammagamma, Zgamma to sector coupling keys; branching_ratios maps invisible and undetected to explicit BR keys. precision is LO or BEST-QCD; coupling_normalization is SM amplitude. Only real CP-even neutral scalars are supported.",
+      "execution": "Plan and admit through ordinary science lifecycle and method decision; run only in its live supervised science worker. Child time/RAM ceilings remain inside that admission.",
+      "comparison": "cross_engine(signals, likelihood) uses max(1, 0.15*abs(primary delta_chi2)); signed SM-relative differences and both unique measurement lists are retained. A finding requires scientific interpretation, never automatic acceptance."
+    }
+  }
+}

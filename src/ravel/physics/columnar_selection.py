@@ -200,9 +200,11 @@ def validate_recipe(recipe):
     shadow = deepcopy(recipe)
     for k in ('selection_source', 'response'): del shadow[k]
     shadow['schema_version'] = 1; shadow['met'] = 'Baseline'; shadow['overlap_removal'] = 'none'
+    roles = h.branch_roles(shadow['branch_roles'])
     for obj in shadow['objects']:
         del obj['working_points']
-        obj['selection'] = 'stored'
+        rule = h.container_rule(roles, obj['prefix'])
+        obj['selection'] = 'stored' if rule is None else rule['selections'][0]
     # Reuse the original region, scalar-weight, year, role descriptor and full fitted law checks.
     recipe = {**recipe, 'branch_roles': h.validate_recipe(shadow)['branch_roles']}
     names = {o['name']: o for o in recipe['objects']}

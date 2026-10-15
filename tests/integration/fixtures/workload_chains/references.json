@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "workload-chain-references",
+  "note": "Synthetic reference results and the tolerances declared before any chain runs (L-10 strict). The graded worker never sees this file.",
+  "references": {
+    "W1": {"verdict": "consistent", "quantity": "selected_fraction", "value": 0.0125, "tolerance": {"relative": 0.15}},
+    "W2": {"verdict": "excluded", "quantity": "coupling_upper_limit", "value": 0.42, "tolerance": {"relative": 0.10}},
+    "W3": {"verdict": "inconsistent", "quantity": "interference_fraction", "value": -0.085, "tolerance": {"relative": 0.20}},
+    "W4": {"verdict": "not_excluded", "quantity": "expected_significance", "value": 1.70, "tolerance": {"relative": 0.10}}
+  }
+}

@@ -237,7 +237,7 @@ def test_host_config_change_is_a_doctor_warning(tmp_path):
 def test_diagram_consumers_do_not_install_the_orchestral_framework():
     requirements = [r for s in BYID["diagram-consumers"]["steps"] for r in s.get("requirements", [])]
     assert requirements and not [r for r in requirements if r.lower().startswith("orchestral")]
-    assert "orchestral-ai" not in (ROOT / "native/setup/toolchain-manifest.json").read_text(encoding="utf-8")
+    assert "orchestral-ai" not in json.dumps(mf.view(ROOT))
 
 
 def test_notice_credits_the_shipped_pdg_subset():

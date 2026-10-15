@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "package": "electroweak-precision-fit",
+  "integration_status": "Python API implemented; shared registry and ordinary-worker integration belongs to the registration owner",
+  "operation_signatures": {
+    "ewpo-fit": {
+      "summary": "Gaussian electroweak fits from supplied measurements, cited formulas and covariance assumptions.",
+      "module": "ravel.physics.sm.ewpo",
+      "task_fields": [
+        "spec"
+      ],
+      "python_api": [
+        "fit(spec)",
+        "oblique_likelihood(spec)",
+        "fit_variants(spec, variants)"
+      ],
+      "applicability": {
+        "scope": "supplied finite inputs within cited parametrization and linear-response domains"
+      },
+      "produces": [
+        "chi2_min",
+        "pulls",
+        "parameters",
+        "parameter_covariance",
+        "indirect",
+        "oblique_likelihood"
+      ],
+      "tools": [
+        "flavio",
+        "smelli",
+        "HEPfit"
+      ],
+      "launch_contract": "Pure numerical API launches no process. Upstream worker execution must use the existing admitted eft-toolchain operation. External fit execution awaits its admitted adapter."
+    }
+  },
+  "mode_descriptors": {
+    "ewpo-fit": {
+      "summary": "SM, indirect, conditional oblique and supplied linear SMEFT Gaussian fits.",
+      "requires": [
+        "supplied EW inputs",
+        "explicit mass and angle conventions",
+        "cited coefficient and validity shards",
+        "selected mass variant",
+        "declared covariance assumptions"
+      ],
+      "applicability": {
+        "scope": "general supplied measurement populations"
+      },
+      "input_contract": "ravel.physics.sm.ewpo.fit"
+    }
+  },
+  "manifest_operations": [
+    "ewpo-fit"
+  ],
+  "workflow_handoff": {
+    "invocation": "python -B -m ravel.physics.sm.ewpo fit SUPPLIED_SPEC --output SUPPLIED_OUTPUT",
+    "likelihood_invocation": "python -B -m ravel.physics.sm.ewpo oblique-likelihood SUPPLIED_SPEC --output SUPPLIED_OUTPUT",
+    "output": "Fresh caller-selected JSON path; Python consumers receive dictionaries and control their own serialization.",
+    "admission": "Bind supplied sources, formulas, variants, covariances and method choice in ordinary scientific admission before upstream execution; no direct launch path is added.",
+    "scientific_scope": "Numerical convergence and synthetic closure do not imply physical qualification. Oblique SM nuisance parameters are fixed at the declared reference point. Covariance is local Gaussian information; indirect intervals are profiled at the supplied delta-chi-square threshold.",
+    "source_holds": [
+      "Published PDF hashes and validity domains must be supplied",
+      "Effective-angle polynomial requires a cited runtime shard",
+      "Pinned upstream angle model is a supplied constant and cannot qualify the requested polynomial"
+    ]
+  },
+  "input_schema": {
+    "schema_version": 1,
+    "mode": [
+      "sm",
+      "indirect",
+      "oblique",
+      "smeft"
+    ],
+    "parameter_point": "Complete supplied m_Z, m_t, m_H, alpha_s and delta_alpha_had; additional formula parameters such as delta_alpha_lep are explicit.",
+    "inputs": {
+      "parameters": "Map of SM parameter names to value, positive uncertainty and declared units.",
+      "observables": "Map of supplied observable names to value, positive uncertainty and units; m_W is excluded from this map.",
+      "m_W": "One object containing variant, value and positive uncertainty; a list is refused.",
+      "reference_point": "Required for oblique mode; must equal the formula reference and supplied parameter point."
+    },
+    "conventions": {
+      "mass_definition": "on_shell_running_width",
+      "top_mass": "pole",
+      "weak_angle": "effective_leptonic",
+      "ew_scheme": "alpha_mZ for oblique shifts; alpha_mZ and s2w_on_shell are supplied parameters"
+    },
+    "covariance": "order plus matrix covers the exact full population and its diagonal equals the squared supplied uncertainties; indirect mode removes the selected row and column. Absence declares independent supplied marginal errors and is disclosed in the result.",
+    "theory_covariance": "Supplied PSD matrix over the same population, explicitly added as independent theory covariance; none is invented.",
+    "free_parameters": "Caller-selected subset of the five SM parameters; their full set is the default for SM and indirect fits.",
+    "drop": "One measured parameter or observable in indirect mode.",
+    "delta_chi2": "Positive profile threshold; default 1.",
+    "free_u": "Boolean oblique convention; false fixes U to zero and returns a rank-two three-coordinate covariance.",
+    "parametrizations": "Map of polynomial shards: sources with id, citation and locator; validity ranges tied to a source; dimensioned variables, transformations, coefficient terms and output units. Missing domains always refuse.",
+    "linear_response": "SMEFT response from supplied zero-coefficient baseline and Jacobian, explicit Warsaw basis, GeV^-2 units, scale, source domains, coefficient population and matching SM reference point.",
+    "coefficient_priors": "Supplied Gaussian coefficient constraints in GeV^-2, included in the covariance population."
+  },
+  "interfaces": {
+    "EW-input-producer": {
+      "consumes": "ew-inputs.json",
+      "status": "producer schema absent at base; dictionary seam is provisional and strict dependent test remains xfailed"
+    },
+    "EFT-toolchain": {
+      "consumes": "eft_toolchain_core.new_wilson and eft_toolchain_core.evaluate",
+      "provides": "flavio_predictions, flavio_linear_response, ewpt_cross_check",
+      "status": "in-process injected seam; ordinary adapter owns launch and source custody"
+    },
+    "external-EW-fit": {
+      "consumes": "admitted supplied fit spec and source-bound reference output",
+      "status": "adapter absent at base; strict dependent test remains xfailed"
+    },
+    "oblique-consumers": {
+      "provides": "oblique_likelihood(spec) -> mean[3], covariance[3,3], reference_point, inputs_sha256",
+      "status": "synthetic contract passed; qualification remains separate"
+    },
+    "knowledge-owner": {
+      "handoff": "Index cited formula sources and conventions from this fragment; do not edit the shared atlas in this stream."
+    },
+    "release-integration": {
+      "handoff": "Embed workflow invocation and source holds in current workflow docs, add the data-change ledger entry, and index the new source shards when merging the registration fragment.",
+      "merge_risk": "Only registration owner changes shared operations, atlas and ordinary worker dispatch."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "higgs-measurement-bundle",
+  "dataset_id": "ANA-0001",
+  "mass_gev": 124.0,
+  "rows": [
+    {"id": "R-0001", "production": "P-0001", "decay": "bb", "quantity": "mu", "unit": "1", "mass_gev": 124.0, "value": 1.0, "uncertainty": {"minus": 0.1, "plus": 0.1}},
+    {"id": "R-0002", "production": "P-0002", "decay": "gg", "quantity": "mu", "unit": "1", "mass_gev": 124.0, "value": 1.0, "uncertainty": {"minus": 0.15, "plus": 0.15}}
+  ],
+  "correlation": [[1.0, 0.2], [0.2, 1.0]],
+  "overlap": {"policy": "joint_correlation", "evidence": "Synthetic common measurement construction"},
+  "source_pins": [{"source": "synthetic", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}]
+}

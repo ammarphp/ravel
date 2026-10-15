@@ -2,17 +2,28 @@
 
 A recipe (``kind: columnar-analysis-recipe``, ``schema_version: 1``) is JSON data:
 
-- ``weights``: ``{"generator": <event field or null>, "factors": [<event fields>]}``;
+- ``weights``: ``{"generator": <event field or null>, "factors": [...]}``.
+  Factors are event-field strings, ``{"field": <event field>}``,
+  ``{"object_product": {"objects": <selected collection>, "field": <field>}}`` or
+  ``{"trigger_or_sf": {"objects": <selected collection>, "data_eff": <field>,
+  "mc_eff": <field>}}``. Products over empty collections are one; trigger ratios
+  with zero MC acceptance refuse. Any factor may add ``applies_when: {field, in}``.
+  Event-field factors may add ``optional_in_files: true`` for absent ROOT branches;
 - ``efficiency_maps``: named maps (see ``efficiency.load_map``);
+- ``event_weights``: named scale-factor maps keyed by one or two declared observables,
+  with ``out_of_range`` refuse/clamp/one and optional ``variations`` {pass name: map};
 - ``objects``: an ordered list of object steps (definitions, unions, overlap removal,
   isolation, efficiency application and pair splitting);
 - ``observables``: an ordered list of per-event quantities (see ``observables``);
-- ``regions``: named regions with ordered, named cuts (expressions over observables),
+- ``regions``: named regions with ordered, named cuts (expressions over observables
+  or ``any_of_by_period: {period_field, table}`` over numeric event fields),
   optionally starting from a ``base`` region's cuts;
 - ``histograms``: binned observables in a region with declared edges, units,
   natural-language labels, normalisation and flow conventions;
 - ``systematics``: weight, branch and efficiency-map variations of the whole pass;
-- ``event_record``: an optional per-event record of the first events for review.
+- ``event_record``: an optional per-event record of the first events for review;
+- ``features``: an optional bounded nominal feature population with sample role,
+  exact event/group identities, deterministic sampling and explicit weight policies.
 
 Every name is checked when the recipe is compiled, before any event is read.
 """
@@ -116,22 +127,163 @@ class Plan:
     identity: str
     card_report: object = None
     spec_nodes: dict = field(default_factory=dict)
+    event_weights: list = field(default_factory=list)
+    weight_entries: list = field(default_factory=list)
+    skim: object = None
+    features: object = None
 
     def variation_names(self):
         return ['nominal'] + [s['name'] for s in self.systematics]
 
 
+def _event_field(value, descriptor, label):
+    if not isinstance(value, str) or value not in descriptor.event:
+        raise ValueError(f'{label}: {value!r} is not an event field of the format descriptor')
+    return value
+
+
+def _period_values(value, label):
+    if not isinstance(value, list) or not value:
+        raise ValueError(f'{label} must be a nonempty list of finite numeric period values')
+    return [_number(v, label) for v in value]
+
+
+def _compile_weights(factors, descriptor, fields, event_fields):
+    """Compile each factor to {kind, field(s), applies_when?, optional_in_files?}."""
+    if not isinstance(factors, list):
+        raise ValueError('weights.factors must be a list of typed weight entries or event fields')
+    entries = []
+    for i, original in enumerate(factors):
+        label = f'weight factor {i + 1}'
+        spec = {'field': original} if isinstance(original, str) else original
+        if not isinstance(spec, dict):
+            raise ValueError(f'{label} must be an event field or a typed weight entry')
+        kinds = set(spec) & {'field', 'object_product', 'trigger_or_sf'}
+        if len(kinds) != 1:
+            raise ValueError(f'{label} needs exactly one of field, object_product or trigger_or_sf')
+        kind = next(iter(kinds))
+        _keys(spec, (kind,), ('applies_when', 'optional_in_files'), label)
+        entry = {'kind': 'event-field' if kind == 'field' else kind}
+        if kind == 'field':
+            entry['field'] = _event_field(spec['field'], descriptor, label)
+            event_fields.append(entry['field'])
+        else:
+            required = ('objects', 'field') if kind == 'object_product' else ('objects', 'data_eff', 'mc_eff')
+            _keys(spec[kind], required, (), label)
+            entry.update(spec[kind])
+            collection = entry['objects']
+            if not isinstance(collection, str) or collection not in fields:
+                raise ValueError(f'{label}: unknown selected collection {collection!r}')
+            for key in required[1:]:
+                if not isinstance(entry[key], str) or entry[key] not in fields[collection]:
+                    raise ValueError(f'{label}: {collection!r} has no field {entry[key]!r}')
+        if 'optional_in_files' in spec:
+            if type(spec['optional_in_files']) is not bool:
+                raise ValueError(f'{label}: optional_in_files must be true or false')
+            if kind != 'field' or descriptor.format != 'root':
+                raise ValueError(f'{label}: optional_in_files requires an event-field factor in ROOT files')
+            entry['optional_in_files'] = spec['optional_in_files']
+        if 'applies_when' in spec:
+            condition = spec['applies_when']
+            _keys(condition, ('field', 'in'), (), label)
+            name = _event_field(condition['field'], descriptor, label)
+            entry['applies_when'] = {'field': name, 'in': _period_values(condition['in'], label)}
+            event_fields.append(name)
+        entries.append(entry)
+    return entries
+
+
+class PeriodCut:
+    """An event-field cut with the same evaluation interface as an expression."""
+    uses_event_fields = True
+
+    def __init__(self, spec, descriptor, event_fields):
+        _keys(spec, ('period_field', 'table'), (), 'any_of_by_period')
+        self.period_field = _event_field(spec['period_field'], descriptor, 'period_field')
+        event_fields.append(self.period_field)
+        if not isinstance(spec['table'], dict) or not spec['table']:
+            raise ValueError('any_of_by_period table must be a nonempty object')
+        self.table = {}
+        for key, names in spec['table'].items():
+            try:
+                period = float(key)
+            except (TypeError, ValueError):
+                raise ValueError(f'trigger table period {key!r} must be numeric') from None
+            if not np.isfinite(period) or period in self.table:
+                raise ValueError(f'trigger table period {key!r} is nonfinite or duplicated')
+            if not isinstance(names, list) or not names:
+                raise ValueError(f'trigger table period {key!r} needs a nonempty list of boolean event fields')
+            self.table[period] = [_event_field(n, descriptor, 'trigger field') for n in names]
+            event_fields.extend(names)
+        self.text = json.dumps({'any_of_by_period': spec}, sort_keys=True)
+
+    def evaluate_cut(self, namespace):
+        periods = np.asarray(namespace[self.period_field])
+        known = np.isin(periods, list(self.table))
+        if not known.all():
+            raise ValueError(f'any_of_by_period: unknown period {periods[np.flatnonzero(~known)[0]]!r}')
+        result = np.zeros(len(periods), bool)
+        for period, names in self.table.items():
+            active = periods == period
+            for name in names:
+                values = np.asarray(namespace[name])[active]
+                if not np.isin(values, [0, 1]).all():
+                    raise ValueError(f'trigger event field {name!r} must contain boolean values (0 or 1)')
+                result[active] |= values.astype(bool)
+        return result
+
+
+class _OptionalEventDescriptor:
+    """Recipe-local read policy; the shared format descriptor remains unchanged.
+
+    Both planning's check_file and execution's read use the same optional-field policy.
+    Only a missing nominal branch is optional; malformed present branches still refuse.
+    """
+    def __init__(self, descriptor, optional):
+        self._descriptor, self._optional = descriptor, frozenset(optional)
+
+    def __getattr__(self, name):
+        return getattr(object.__getattribute__(self, '_descriptor'), name)
+
+    def _fields(self, path, event_fields):
+        import uproot
+        fields = list(self.event) if event_fields is None else list(event_fields)
+        with uproot.open(path) as stream:
+            try:
+                tree = stream[self.doc['tree']]
+            except KeyError:
+                raise ValueError(f'{path} has no tree {self.doc["tree"]!r}') from None
+            available = {b.name for b in tree.values(recursive=True)}
+        missing = sorted(f for f in fields if f in self._optional
+                         and 'branch' in self.event[f] and self.event[f]['branch'] not in available)
+        return [f for f in fields if f not in missing], missing
+
+    def check_file(self, path, *, event_fields=None, **kwargs):
+        fields, missing = self._fields(path, event_fields)
+        report = self._descriptor.check_file(path, event_fields=fields, **kwargs)
+        report['optional_weights_missing'] = missing
+        return report
+
+    def read(self, path, *, event_fields, **kwargs):
+        fields, _ = self._fields(path, event_fields)
+        yield from self._descriptor.read(path, event_fields=fields, **kwargs)
+
+
 def compile_recipe(doc, descriptor, base, *, detector_card=None):
     """Return a Plan; raises ValueError naming the first problem.
 
-    Any object step, observable, cut or histogram may carry ``spec_item`` (an id of a typed
+    Any object step, observable, event weight, cut or histogram may carry ``spec_item`` (an id of a typed
     analysis specification item, or a list of ids); they are collected in ``Plan.spec_nodes``.
 
     ``detector_card`` (a Delphes card) checks each efficiency map's semantics against the
     card's efficiency modules (``efficiency.check_card``).
     """
+    from .skim import InputDescriptor
+    while isinstance(descriptor, (InputDescriptor, _OptionalEventDescriptor)):
+        descriptor = descriptor.descriptor if isinstance(descriptor, InputDescriptor) else descriptor._descriptor
     _keys(doc, ('schema_version', 'kind', 'name', 'weights', 'objects', 'observables', 'regions', 'histograms'),
-          ('description', 'efficiency_maps', 'systematics', 'event_record'), 'recipe')
+          ('description', 'efficiency_maps', 'systematics', 'event_record', 'event_weights', 'skim', 'features'),
+          'recipe')
     if doc['schema_version'] != 1 or doc['kind'] != 'columnar-analysis-recipe':
         raise ValueError('recipe needs schema_version 1 and kind columnar-analysis-recipe')
     _text(doc['name'], 'recipe name')
@@ -143,13 +295,7 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
     _keys(weights, ('generator', 'factors'), (), 'weights')
     event_fields = []
     if weights['generator'] is not None:
-        event_fields.append(weights['generator'])
-    if not isinstance(weights['factors'], list):
-        raise ValueError('weights.factors must be a list of event fields')
-    event_fields += weights['factors']
-    for name in event_fields:
-        if name not in descriptor.event:
-            raise ValueError(f'weight {name!r} is not an event field of the format descriptor ({sorted(descriptor.event)})')
+        event_fields.append(_event_field(weights['generator'], descriptor, 'generator weight'))
 
     maps = {}
     for name, spec in (doc.get('efficiency_maps') or {}).items():
@@ -280,16 +426,65 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
             raise ValueError(f'{label} must define an object (from, from_object, union) or be overlap_removal, '
                              'isolation, efficiency or pair_split')
 
+    weight_entries = _compile_weights(weights['factors'], descriptor, fields, event_fields)
+
     # ------------------------------------------------------------ observables
-    observables, names = [], set()
+    observables, names, met_names = [], set(), {'met'}
     if not isinstance(doc['observables'], list):
         raise ValueError('observables must be an ordered list')
     for i, spec in enumerate(doc['observables']):
-        obs = compile_observable(spec, fields=fields, previous=set(names), label=f'observable {i + 1}')
+        obs = compile_observable(spec, fields=fields, previous=set(names), met_names=met_names,
+                                 label=f'observable {i + 1}', base=base, event_fields=descriptor.event)
+        if obs.op == 'model_score':
+            if any(s.kind == 'efficiency' and s.spec.get('application') == 'enumerate' for s in steps):
+                raise ValueError('model_score refuses enumerated event replicas')
+            event_fields.append(obs.spec['group_id'])
         if obs.name in names:
             raise ValueError(f'observable {obs.name!r} is defined twice')
         names.add(obs.name)
         observables.append(obs)
+        if obs.op == 'met_override':
+            met_names.add(obs.name)
+
+    # Event maps use the shared, pinned map reader, but their range policy belongs to
+    # the event application rather than the object-efficiency application.
+    event_weights, event_variations = [], []
+    if not isinstance(doc.get('event_weights', []), list):
+        raise ValueError('event_weights must be a list')
+    for i, spec in enumerate(doc.get('event_weights', [])):
+        label = f'event weight {i + 1}'
+        _keys(spec, ('name', 'map', 'observables', 'out_of_range'), ('variations',), label)
+        name = _text(spec['name'], f'{label} name')
+        if name in {s['name'] for s in event_weights}:
+            raise ValueError(f'{label}: name {name!r} is defined twice')
+        coords = spec['observables']
+        if not isinstance(coords, list) or not 1 <= len(coords) <= 2:
+            raise ValueError(f'{label}: give one or two declared event observables')
+        for coord in coords:
+            if not isinstance(coord, str) or coord not in names:
+                raise ValueError(f'{label}: undeclared event observable {coord!r}')
+        if spec['out_of_range'] not in ('refuse', 'clamp', 'one'):
+            raise ValueError(f'{label}: out_of_range must be refuse, clamp or one')
+
+        def check_map(key):
+            if key not in maps or maps[key].semantics != 'scale_factor':
+                raise ValueError(f'{label}: map {key!r} must be a declared scale_factor map')
+            if len(maps[key].axes) != len(coords):
+                raise ValueError(f'{label}: give one observable per map axis')
+            for coord, axis in zip(coords, maps[key].axes):
+                obs = next(o for o in observables if o.name == coord)
+                if obs.unit is not None and obs.unit != axis['unit']:
+                    raise ValueError(f'{label}: observable {coord!r} unit differs from map axis')
+        check_map(spec['map'])
+        alternatives = spec.get('variations', {})
+        if not isinstance(alternatives, dict):
+            raise ValueError(f'{label}: variations must map pass names to maps')
+        for variation, key in alternatives.items():
+            check_map(key)
+            if maps[key].axes != maps[spec['map']].axes:
+                raise ValueError(f'{label}: varied map axes differ from nominal axes')
+            event_variations.append({'name': variation, 'kind': 'event-weight-map', 'weight': name, 'map': key})
+        event_weights.append(dict(spec))
 
     # ------------------------------------------------------------ regions
     regions = {}
@@ -309,8 +504,12 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
         if not isinstance(spec['cuts'], list):
             raise ValueError(f'{label}: cuts must be a list')
         for j, cut in enumerate(spec['cuts']):
-            _keys(cut, ('name', 'expr'), (), f'{label} cut {j + 1}')
-            cuts.append((_text(cut['name'], 'cut name'), compile_expression(cut['expr'], allowed=names)))
+            _keys(cut, ('name',), ('expr', 'any_of_by_period'), f'{label} cut {j + 1}')
+            if ('expr' in cut) == ('any_of_by_period' in cut):
+                raise ValueError(f'{label} cut {j + 1}: give exactly one of expr or any_of_by_period')
+            compiled = (compile_expression(cut['expr'], allowed=names) if 'expr' in cut else
+                        PeriodCut(cut['any_of_by_period'], descriptor, event_fields))
+            cuts.append((_text(cut['name'], 'cut name'), compiled))
         if len({c[0] for c in cuts}) != len(cuts):
             raise ValueError(f'{label}: cut names must be unique within the region')
         regions[name] = cuts
@@ -331,10 +530,10 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
 
     # ------------------------------------------------------------ systematics
     systematics, variations = [], []
-    for i, spec in enumerate(doc.get('systematics') or []):
+    for i, spec in enumerate([*(doc.get('systematics') or []), *event_variations]):
         label = f'systematic {i + 1}'
-        if not isinstance(spec, dict) or spec.get('kind') not in ('weight-factor', 'branch-variation', 'efficiency-map'):
-            raise ValueError(f'{label}: kind must be weight-factor, branch-variation or efficiency-map')
+        if not isinstance(spec, dict) or spec.get('kind') not in ('weight-factor', 'branch-variation', 'efficiency-map', 'event-weight-map'):
+            raise ValueError(f'{label}: kind must be weight-factor, branch-variation, efficiency-map or event-weight-map')
         name = _text(spec.get('name'), f'{label} name')
         if name == 'nominal' or name in {s['name'] for s in systematics}:
             raise ValueError(f'{label}: name {name!r} must be unique and not nominal')
@@ -344,7 +543,7 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
             if not isinstance(replace, dict) or not isinstance(multiply, list) or not (replace or multiply or 'generator' in spec):
                 raise ValueError(f'{label}: give replace, multiply or generator')
             for old, new_field in replace.items():
-                if old not in weights['factors']:
+                if old not in [e['field'] for e in weight_entries if e['kind'] == 'event-field']:
                     raise ValueError(f'{label}: {old!r} is not a weight factor of the recipe')
             for f in [*replace.values(), *multiply, *([spec['generator']] if 'generator' in spec else [])]:
                 if f not in descriptor.event:
@@ -358,6 +557,14 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
             if spec['variation'] not in descriptor.variations:
                 raise ValueError(f'{label}: {spec["variation"]!r} is not a variation of the format descriptor')
             variations.append(spec['variation'])
+        elif spec['kind'] == 'event-weight-map':
+            _keys(spec, ('name', 'kind', 'weight', 'map'), (), label)
+            target = next((s for s in event_weights if s['name'] == spec['weight']), None)
+            if target is None or spec['map'] not in maps:
+                raise ValueError(f'{label}: unknown event weight or map')
+            alternative, nominal = maps[spec['map']], maps[target['map']]
+            if alternative.semantics != 'scale_factor' or alternative.axes != nominal.axes:
+                raise ValueError(f'{label}: event weight alternative needs matching scale_factor axes')
         else:
             _keys(spec, ('name', 'kind', 'step', 'map'), (), label)
             if spec['step'] not in step_names or spec['map'] not in maps:
@@ -379,12 +586,47 @@ def compile_recipe(doc, descriptor, base, *, detector_card=None):
             if r not in regions:
                 raise ValueError(f'event_record: unknown region {r!r}')
 
+    skim = None
+    if 'skim' in doc:
+        from .skim import compile_skim
+        skim = compile_skim(doc['skim'], descriptor, regions, steps)
+
+    features = None
+    if 'features' in doc:
+        from .features import compile_features
+        features = compile_features(doc['features'], descriptor, regions, names, steps)
+        event_fields += [features['event_id'], features['group_id']]
+
     identity = hashlib.sha256(json.dumps({'recipe': recipe_sha256, 'descriptor': descriptor.sha256,
                                           'maps': {k: m.provenance['sha256'] for k, m in sorted(maps.items())}},
                                          sort_keys=True).encode()).hexdigest()
-    return Plan(doc, descriptor, maps, steps, observables, regions, histograms, systematics, record, fields,
+    descriptor = descriptor.requiring({name for step in steps for expr in step.expressions.values()
+                                       if hasattr(expr, 'names') for name in expr.names}
+                                      | {o.spec['field'] for o in observables if o.op == 'field'}) if descriptor.format == 'root' else descriptor
+    optional = {e['field'] for e in weight_entries if e.get('optional_in_files')}
+    required = {e['field'] for e in weight_entries if e['kind'] == 'event-field' and not e.get('optional_in_files')}
+    required.update(e['applies_when']['field'] for e in weight_entries if 'applies_when' in e)
+    required.add(weights['generator'])
+    for cuts in regions.values():
+        for _, cut in cuts:
+            if isinstance(cut, PeriodCut):
+                required.add(cut.period_field)
+                required.update(n for row in cut.table.values() for n in row)
+    for spec in systematics:
+        if spec['kind'] == 'weight-factor':
+            required.update(spec.get('replace', {}).values())
+            required.update(spec.get('multiply', []))
+            required.add(spec.get('generator'))
+    # Feature identities and model-score groups are read on every event; they are never optional.
+    required.update(o.spec['group_id'] for o in observables if o.op == 'model_score')
+    if features is not None:
+        required.update((features['event_id'], features['group_id']))
+    optional -= required
+    if optional:
+        descriptor = _OptionalEventDescriptor(descriptor, optional)
+    return Plan(doc, InputDescriptor(descriptor), maps, steps, observables, regions, histograms, systematics, record, fields,
                 list(dict.fromkeys(sources)), list(dict.fromkeys(event_fields)), variations, recipe_sha256, identity,
-                card_report, spec_nodes)
+                card_report, spec_nodes, event_weights, weight_entries, skim, features)
 
 
 def _strip_spec_items(doc):
@@ -412,6 +654,9 @@ def _strip_spec_items(doc):
     for spec in doc.get('observables') or []:
         if isinstance(spec, dict):
             take(spec, f'observable {spec.get("name")}')
+    for spec in doc.get('event_weights') or []:
+        if isinstance(spec, dict):
+            take(spec, f'event weight {spec.get("name")}')
     for region in doc.get('regions') or []:
         if isinstance(region, dict):
             for cut in region.get('cuts') or []:

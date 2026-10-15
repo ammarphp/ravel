@@ -40,7 +40,11 @@ finalize(package_pin, bindings, build_binding, final_manifest,
 
 Production returns a pinned package with manuscript.md, note.tex, integrity-request.json, actual prompt/model telemetry, full source/figure/template/format dependencies and all acceptance flags false. Integrity roles create existing exact decision-case bindings; genuine material send-back is the revision input. Build binding is `{rundir,receipt:pin3,result:pin3}` to the real ordinary successful stage. Review bindings are the actual independent original journal roles, not a fabricated three-item JSON list. Final manifest is the exact existing CI3 artifact population, compiled PDF in its visual/figure role. Whole-parent completion request is source-bound and accepted by task_completion.require_final; the shared task-completion-context producer can prepare readiness without granting acceptance. Keep author, build, full artifact population and original parent under a legitimate common review root; cannot borrow foreign files or manufacture votes.
 
+Build task is `{config:path}`. Closed build config is `{schema_version:1,package:pin3,runtime,runtime_base:absolute,max_seconds,max_ram_mib,max_output_bytes,max_main_pages:null|positive_int}`. The package preserves its authenticated original source_base; runtime_base separately preserves the caller's runtime directory. Relative formatting/template/source-basis and runtime pins retain their respective bases through different writer, package and ordinary-build directories. Native runtime is `{engine:pdflatex,compiler:pin2,pdfinfo:pin2,svg_converter:null|pin2,asset_trees:[{root,manifest:pin2}],max_ram_mib}`; each tree manifest is `{schema_version:1,files:{relative_path:sha256}}`. Native binaries are required regular files. Exact full selected class/font/bib tree, licenses and actual platform/load/TeX search closure need root qualification. Scientific study max_attempts=1; review max_redos=0; exact claim-scope identifier is `manuscript_pdf_delivery`, action delivery. This scope covers source-bound portable manuscript PDF rendering and page census only. Compilation and page census do not claim scientific acceptance.
+
 Author verification reconsumes the actual charged response and reproduces every emitted manuscript, TeX, asset, bibliography, format assessment and package byte. It checks the complete supplied-template character census as well. Rehashing replaced prose cannot borrow an unchanged author binding. The ordinary build counts physical interval unions for every emitted section, including main content after references and visible template prose; unclassified physical pages count conservatively as main text. Only explicit source-defined exclusions apply. Shared pages count once if any main content occupies them.
+
+SVG and JPEG originals remain unchanged source_output artifacts. The selected ordinary build produces actual supported PDF previews: rsvg-convert for SVG, or the same admitted pdflatex with an exact image-only source and recorder for JPEG. CI3 `visual_derivations` rows are `{source:pin3,preview:pin3,build:{rundir,receipt:pin3,result:pin3}}`; both the original and mandatory preview must be in the final population, with the preview in the actual figure roster. Only the authenticated same-build mapping admits the original unsupported media. Generic media rules, actual page/figure presentation and visual judgments remain strict.
 
 For blinded production, pre-author source preparation presents the complete source-derived data/support/machinery/custody census. Existing original independent roles and CI2 judge the exact current source context before the writer can see it; analytical data must already have genuine public-projection proof. Machine-side stage captures are rechecked but are never returned as model evidence. Final source lineage uses authenticated authored_manuscript or manuscript_build producers plus the original independently derived blind policy. No caller safe-pin list, class name or reviewer judgment proves secrecy or scientific truth.
 
@@ -69,6 +73,16 @@ environment,platform,platform_dependencies,custody_limits`. Destinations cannot
 overlap. Select the complete needed dependency closure and original licence/source
 records; do not copy unrelated whole TeX installations or omit consumed members.
 
+`--materialize REQUEST.json --sha256 SHA --out FRESH-DIRECTORY` resolves complete
+bounded aliases, captures every spelling/target/terminal identity and streams
+exact admitted bytes into regular copies preserving modes/layout. Compiler must
+remain named `pdflatex`, even when its source alias names `pdftex`. The output has
+`runtime/`, the existing relative-name/hash `tree-manifest.json`, and a pinned
+`closure-manifest.json` retaining source provenance and explicit qualification
+state. Cycles, dangling/escaped links, special files, changed source bytes or
+membership, duplicate destination names and excess capacities refuse. Failed
+partial output stays held; copying does not establish runtime qualification.
+
 Each selected tool has a closed explicit environment. Search roots must be
 admitted regular snapshot directories; empty/trailing search elements and host
 fallback, interpolation, preload and undeclared variables refuse. Compiler has
@@ -88,6 +102,15 @@ Bind each observation to the same successful ordinary `{rundir,receipt:pin3,
 observation:pin3}` and the original immutable qualification configuration. Do not
 rewrite that configuration to prepare a later build: the original receipt must
 remain current.
+
+`--qualify REQUEST.json --sha256 SHA --out FRESH-QUALIFIED-CLOSURE.json` consumes
+`{snapshot:pin3,observations:{compiler:binding,pdfinfo:binding,svg_converter:binding
+if selected}}`. It authenticates original source/runtime/configuration and current
+successful ordinary input/output custody, exact effective environment, native
+PID-tagged loader image records, and the TeX recorder's admitted `pdflatex.fmt`.
+This is a read-only evidence consumer, not a native job or a successful Boolean.
+Then make a fresh runtime `purpose:qualified` configuration using the derived
+closure pin and run a normal ordinarily approved build for final delivery.
 
 The first supported loader observation format is Apple's primary dyld UUID/path
 log, with `DYLD_PRINT_LIBRARIES=1` and `DYLD_PRINT_LIBRARIES_POST_LAUNCH=1`.
@@ -120,6 +143,12 @@ New prepared requests seal finite `completion_limits`. Completion files are boun
 
 
 ## Initial runtime validation within one observation
+
+Ordinary manuscript-build validation uses the existing live scientific
+`ValidationSession` to share deterministic facts about an initially unqualified
+runtime and its complete asset trees. Every original build load still reconsumes
+its actual author, Graph, external response and source/review bindings. No author
+receipt, approval, execution ceiling or acceptance result is memoized.
 
 The first runtime proof uses the original full-byte validators. Every reuse
 checks current controlling documents, exact selected policy, complete membership,

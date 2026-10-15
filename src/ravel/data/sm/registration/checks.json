@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "kind": "computed-check-registration-fragment",
+  "checks": [
+    {
+      "id": "check:sm.frame_declared",
+      "module": "ravel.validation.sm_checks",
+      "function": "frame_declared",
+      "dispatcher": "run",
+      "traps": [
+        "TS2"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "consult-sm-measurement"
+      ]
+    },
+    {
+      "id": "check:sm.covariance_assembled",
+      "module": "ravel.validation.sm_checks",
+      "function": "covariance_assembled",
+      "dispatcher": "run",
+      "traps": [
+        "TS3"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "measurement-analyst",
+        "measurement-combination-reviewer"
+      ]
+    },
+    {
+      "id": "check:sm.normalized_rule",
+      "module": "ravel.validation.sm_checks",
+      "function": "normalized_rule",
+      "dispatcher": "run",
+      "traps": [
+        "TS1"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "measurement-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.theory_cov_included",
+      "module": "ravel.validation.sm_checks",
+      "function": "theory_cov_included",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "measurement-comparison"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "measurement-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.prediction_convention",
+      "module": "ravel.validation.sm_checks",
+      "function": "prediction_convention",
+      "dispatcher": "run",
+      "traps": [
+        "TS4"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "theory-prediction-producer",
+        "consult-generators"
+      ]
+    },
+    {
+      "id": "check:sm.alphas_consistent",
+      "module": "ravel.validation.sm_checks",
+      "function": "alphas_consistent",
+      "dispatcher": "run",
+      "traps": [
+        "TS7"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "theory-prediction-producer",
+        "precision-theory-auditor"
+      ]
+    },
+    {
+      "id": "check:sm.prescription_declared",
+      "module": "ravel.validation.sm_checks",
+      "function": "prescription_declared",
+      "dispatcher": "run",
+      "traps": [
+        "TS8"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "precision-theory-auditor"
+      ]
+    },
+    {
+      "id": "check:sm.np_once",
+      "module": "ravel.validation.sm_checks",
+      "function": "np_once",
+      "dispatcher": "run",
+      "traps": [
+        "TS10"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "precision-theory-auditor"
+      ]
+    },
+    {
+      "id": "check:sm.unfolding_closure",
+      "module": "ravel.validation.sm_checks",
+      "function": "unfolding_closure",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "unfold"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "unfolding-reviewer"
+      ]
+    },
+    {
+      "id": "check:sm.unfolding_coverage",
+      "module": "ravel.validation.sm_checks",
+      "function": "unfolding_coverage",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "unfold"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "unfolding-reviewer"
+      ]
+    },
+    {
+      "id": "check:sm.regularization_declared",
+      "module": "ravel.validation.sm_checks",
+      "function": "regularization_declared",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "unfold"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "unfolding-reviewer"
+      ]
+    },
+    {
+      "id": "check:sm.tune_heldout",
+      "module": "ravel.validation.sm_checks",
+      "function": "tune_heldout",
+      "dispatcher": "run",
+      "traps": [
+        "TS14"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "generator-tuner"
+      ]
+    },
+    {
+      "id": "check:sm.pdf_not_circular",
+      "module": "ravel.validation.sm_checks",
+      "function": "pdf_not_circular",
+      "dispatcher": "run",
+      "traps": [
+        "TS13"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "pdf-impact-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.tolerance_declared",
+      "module": "ravel.validation.sm_checks",
+      "function": "tolerance_declared",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "pdf-impact"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "pdf-impact-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.ew_scheme",
+      "module": "ravel.validation.sm_checks",
+      "function": "ew_scheme",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "ew-fit"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "ew-fit-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.parametrization_range",
+      "module": "ravel.validation.sm_checks",
+      "function": "parametrization_range",
+      "dispatcher": "run",
+      "traps": [],
+      "stage_gates": [
+        "ew-fit"
+      ],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "ew-fit-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.measurement_overlap",
+      "module": "ravel.validation.sm_checks",
+      "function": "measurement_overlap",
+      "dispatcher": "run",
+      "traps": [
+        "TS15"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "measurement-combination-reviewer"
+      ]
+    },
+    {
+      "id": "check:sm.validity_range",
+      "module": "ravel.validation.sm_checks",
+      "function": "validity_range",
+      "dispatcher": "run",
+      "traps": [
+        "TS5"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "theory-prediction-producer"
+      ]
+    },
+    {
+      "id": "check:sm.reference_version",
+      "module": "ravel.validation.sm_checks",
+      "function": "reference_version",
+      "dispatcher": "run",
+      "traps": [
+        "TS6"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "theory-prediction-producer"
+      ]
+    },
+    {
+      "id": "check:sm.pdf_error_type",
+      "module": "ravel.validation.sm_checks",
+      "function": "pdf_error_type",
+      "dispatcher": "run",
+      "traps": [
+        "TS9"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "precision-theory-auditor",
+        "pdf-impact-analyst"
+      ]
+    },
+    {
+      "id": "check:sm.ew_combination",
+      "module": "ravel.validation.sm_checks",
+      "function": "ew_combination",
+      "dispatcher": "run",
+      "traps": [
+        "TS11"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "precision-theory-auditor"
+      ]
+    },
+    {
+      "id": "check:sm.amplitude_complete",
+      "module": "ravel.validation.sm_checks",
+      "function": "amplitude_complete",
+      "dispatcher": "run",
+      "traps": [
+        "TS12"
+      ],
+      "stage_gates": [],
+      "pure": true,
+      "inputs": [
+        "bundle",
+        "record"
+      ],
+      "returns": "list of errors; empty means supplied contract consistency only",
+      "roles": [
+        "theory-prediction-producer",
+        "precision-theory-auditor"
+      ]
+    }
+  ],
+  "handoff": "CHECKS exposes sm.* atlas IDs. Compose broker document dispatch through sm_checks.run(check_id, bundle, record); add the same IDs to validators/allowlist.json through the integration owner. Unknown or unmerged checks remain refused. Inputs are supplied JSON objects or local record files, never native commands."
+}

@@ -1,13 +1,19 @@
-"""Supplied production conventions never select an installed study denominator."""
+"""Supplied production conventions never select a denominator by process name."""
 from pathlib import Path
 import pytest
 from ravel.physics import cross_sections as xs, nlo_xsec
 from ravel.workflow import scan_orchestrator
 
 
-def test_local_calculation_denominators_are_not_product_defaults():
+def test_local_calculation_denominators_are_registered_tables_not_process_defaults():
+    # A locally computed table ships only as a registered table with its generator recorded and is
+    # selected by basis, energy and convention; a process label never selects one.
     root = Path(xs.__file__).parents[1] / 'data' / 'cross_sections'
-    assert not list(root.glob('*_lo_cteq6l1.json'))
+    registered = {t['file']: t for t in xs.registry()['tables']}
+    shipped = {path.name for path in root.glob('*_lo_cteq6l1.json')}
+    assert shipped and shipped <= set(registered)
+    assert all(registered[name]['source_kind'] == 'mg5-computed' and 'generator' in registered[name]
+               for name in shipped)
     with pytest.raises(ValueError) as error:
         nlo_xsec.load_lo_ref('ANA-0001')
     assert getattr(error.value, 'reason_code', None) == 'missing_cross_section_input'

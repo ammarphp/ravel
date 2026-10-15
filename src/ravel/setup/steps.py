@@ -4,6 +4,8 @@ new trees in a sibling ``.partial-<pid>`` directory that is renamed on success.
 """
 from __future__ import annotations
 
+import contextlib
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -11,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import uuid
 
 from .fetch import file_digests, safe_extract
 from .manifest import expand
@@ -95,7 +98,7 @@ def subprocess_environment(prefix, values, source=None):
     """A clean child environment: prefix-local caches, no conda/venv activation leakage."""
     env = dict(os.environ if source is None else source)
     for key in ("CONDA_PREFIX", "CONDA_DEFAULT_ENV", "CONDA_SHLVL", "CONDA_EXE", "CONDA_PYTHON_EXE",
-                "VIRTUAL_ENV", "PYTHONHOME", "PYTHONPATH", "PIP_REQUIRE_VIRTUALENV", "CONDA_SUBDIR"):
+                "VIRTUAL_ENV", "PYTHONHOME", "PYTHONPATH", "PYTHONSTARTUP", "PIP_REQUIRE_VIRTUALENV", "CONDA_SUBDIR"):
         env.pop(key, None)
     prefix = Path(prefix)
     env.update({
@@ -104,9 +107,15 @@ def subprocess_environment(prefix, values, source=None):
         "CONDA_AUTO_UPDATE_CONDA": "false", "CONDA_NOTIFY_OUTDATED_CONDA": "false",
         "PIP_CACHE_DIR": str(prefix / "cache/pip"), "PIP_DISABLE_PIP_VERSION_CHECK": "1",
         "XDG_CACHE_HOME": str(prefix / "cache"), "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "APPTAINER_CACHEDIR": str(prefix / "cache/apptainer"),
+        "APPTAINER_TMPDIR": str(prefix / "tmp/apptainer"),
         "CARGO_HOME": str(prefix / "cache/cargo"), "RUSTUP_HOME": str(prefix / "cache/rustup"),
         "MAKEFLAGS": "-j" + values["JOBS"],
     })
+    # macOS container tooling keeps its sockets under TMPDIR, and a prefix path is too long for them.
+    if str(values.get("PLATFORM", "")).startswith("linux"):
+        env["TMPDIR"] = str(prefix / "tmp")
     return env
 
 
@@ -412,18 +421,279 @@ def _container_pull(step, ctx):
 
 
 def _container_build(step, ctx):
-    entry = ctx.manifest["container_build"]
-    values = dict(ctx.values, RECIPE=step["recipe"])
-    module = entry["module"]
-    check = [ctx.values["HOST_PYTHON"], "-c",
-             f"import importlib.util,sys; sys.exit(0 if importlib.util.find_spec({module!r}) else 3)"]
-    code, _ = ctx.runner.capture(check, env=ctx.env())
-    if code != 0:
-        raise Deferred(f"the image builder {module} is not available in this checkout yet; "
-                       f"rerun the installer after updating RAVEL")
-    argv = [a.replace("{RECIPE}", step["recipe"]) for a in entry["argv"]]
-    ctx.run(expand(argv, values), extra_env=step.get("env"))
-    return {"recipe": step["recipe"], "argv": expand(argv, values)}
+    # In-process API accepts the prefix's pinned client; the CLI resolves PATH.
+    from ravel.workflow import execution_backend as eb
+    from ravel.workflow.backends import oci_local as oci
+    spec = expand(step, ctx.values)
+    recipe, context, receipt = Path(spec["containerfile"]), Path(spec["context"]), Path(spec["receipt"])
+    expected = {"containerfile": {"path": str(recipe.resolve()), "sha256": eb.file_sha256(recipe)},
+                "context": eb.identity(context), "bases": oci.containerfile_bases(recipe.read_text()),
+                "platform": spec["platform"], "tag": spec["tag"]}
+    with _container_environment(ctx):
+        if receipt.is_file():
+            try:
+                record = json.loads(receipt.read_text())
+                if (_matching_recipe(record, expected) and _image_present(record, ctx)):
+                    return {"recipe": step["recipe"], "receipt": str(receipt), "image": record["image"], "adopted": True}
+            except (ValueError, TypeError, KeyError):
+                pass
+            _retain(receipt, ctx)
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        record = oci.build_image(recipe, context, spec["tag"], receipt=receipt,
+                                 platform=spec["platform"], execute=True, client=ctx.values["CONTAINER_ENGINE"])
+        if not _image_present(record, ctx) or not receipt.is_file():
+            raise StepError("image build must be executed: true with an image id and a saved receipt")
+        if not _matching_recipe(record, expected):
+            raise StepError("image build receipt differs from the declared recipe")
+    return {"recipe": step["recipe"], "receipt": str(receipt), "image": record["image"], "adopted": False}
+
+
+def _matching_recipe(record, expected):
+    # A hand-built receipt may name another checkout of the same input bytes.
+    return (record.get("containerfile", {}).get("sha256") == expected["containerfile"]["sha256"]
+            and record.get("context", {}).get("sha256") == expected["context"]["sha256"]
+            and record.get("bases") == expected["bases"] and record.get("platform") == expected["platform"])
+
+
+@contextmanager
+def _container_environment(ctx):
+    previous = os.environ.get("RAVEL_CONTAINER_HOME")
+    os.environ["RAVEL_CONTAINER_HOME"] = ctx.values["CONTAINERS"]
+    try:
+        yield
+    finally:
+        if previous is None:
+            os.environ.pop("RAVEL_CONTAINER_HOME", None)
+        else:
+            os.environ["RAVEL_CONTAINER_HOME"] = previous
+
+
+def _image_present(record, ctx):
+    from ravel.workflow.backends import oci_local as oci
+    image_id = record.get("image", {}).get("id", "")
+    if record.get("executed") is not True or not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+        return False
+    client = oci.resolve_client(ctx.values["CONTAINER_ENGINE"])
+    code, _ = ctx.runner.capture([client["path"], "--connection", "ravel", "image", "inspect", image_id],
+                                 env=oci.client_environment(), timeout=60)
+    return code == 0
+
+
+def _retain(path, ctx):
+    """Retain failed/stale installer outputs; never remove a build tree."""
+    target = ctx.prefix / "trash" / (path.name + "-" + uuid.uuid4().hex)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    os.replace(path, target)
+    return target
+
+
+def _container_run(step, ctx):
+    from ravel.workflow import execution_backend as eb
+    from ravel.workflow.backends import oci_local as oci
+    expected_argv = ["/opt/ravel/bin/build-mcfm.sh", step["source"], step["overlay"], step["build"]]
+    if step.get("argv") != expected_argv:
+        raise StepError("container_run argv must be the declared build command")
+    authority = getattr(ctx, "install_authority", None)
+    if not authority or authority.get("kind") != "installer-command":
+        raise StepError("container compile needs installer-command authority")
+    spec = expand(step, ctx.values)
+    if Path(spec["build"]).is_symlink():
+        raise Conflict("symlinked build destination refused; left untouched")
+    source, overlay, build = (Path(spec[k]).resolve() for k in ("source", "overlay", "build"))
+    if len({source, overlay, build}) != 3 or any(a in b.parents for a in (source, overlay, build) for b in (source, overlay, build) if a != b):
+        raise StepError("source, overlay and build must be disjoint trees")
+    if not source.is_dir() or not overlay.is_dir():
+        raise StepError("source and overlay trees must exist before compilation")
+    image_receipt = Path(spec["image_receipt"])
+    record = json.loads(image_receipt.read_text())
+    installation = Path(spec["installation"])
+    launcher_path = Path(spec["launcher"])
+    marker = ctx.owned_marker("container-build", step["program"])
+    bindings = {"image_id": record.get("image", {}).get("id"),
+                "overlay_identity": eb.identity(overlay), "source": str(source),
+                "client": oci.resolve_client(ctx.values["CONTAINER_ENGINE"])}
+    with _container_environment(ctx):
+        if not _image_present(record, ctx):
+            raise StepError("compile needs an executed image build that is still present")
+        image = {"id": record["image"]["id"], "platform": record["platform"]}
+        if image["platform"] != oci.host_platform():
+            image["emulation"] = True
+        launcher = {"kind": "oci-local", "image": image,
+                    "client": oci.resolve_client(ctx.values["CONTAINER_ENGINE"]), "connection": "ravel",
+                    "cpus": int(ctx.values["JOBS"]), "memory_mib": 8192,
+                    "env": {"RAVEL_BUILD_JOBS": ctx.values["JOBS"], "LHAPDF_DATA_PATH": ctx.values["LHAPDF_DATA"]}}
+        oci.validate_launcher(launcher)
+        with _installer_build_scope():
+            if build.exists() and any(build.iterdir()):
+                if not marker.is_file() or json.loads(marker.read_text()).get("build") != str(build):
+                    raise Conflict(f"foreign non-empty build directory {build}; left untouched")
+                try:
+                    old = json.loads(installation.read_text())
+                    if (old.get("bindings") == bindings and old.get("program_sha256") == eb.file_sha256(build / spec["program"])
+                            and old.get("build_receipt_sha256") == eb.file_sha256(build / "build-receipt.json")):
+                        _mcfm_check(launcher, build, ctx)
+                        eb.atomic_json(launcher_path, launcher)
+                        return {"verified": True, "launcher": str(launcher_path), "installation": str(installation)}
+                except (OSError, ValueError, KeyError):
+                    pass
+                _retain(build, ctx)
+            build.mkdir(parents=True, exist_ok=True)
+            eb.atomic_json(marker, {"build": str(build), "authority": authority})
+            eb.atomic_json(launcher_path, launcher)
+            name = "ravel-install-" + uuid.uuid4().hex
+            argv = oci.launcher_command(launcher, spec["argv"], workdir=build,
+                                       readonly=(source, overlay), writable=(build,), name=name)
+            try:
+                ctx.run(argv)
+                for path in (build / spec["program"], build / "build-receipt.json"):
+                    if not path.is_file():
+                        raise StepError(f"compile did not produce {path}")
+                _mcfm_check(launcher, build, ctx)
+                eb.atomic_json(installation, {"schema_version": 1, "kind": "ravel-amplitude-installation",
+                    "group": "mcfm-amplitudes", "image": image, "program": str(build / spec["program"]),
+                    "readonly_trees": [{"path": str(p), "mount": str(p)} for p in (build, source, overlay, ctx.values["LHAPDF_DATA"])],
+                    "launcher": str(launcher_path), "site": {"client": launcher["client"]["path"], "connection": "ravel", "network": "none"},
+                    "env": {"LHAPDF_DATA_PATH": ctx.values["LHAPDF_DATA"]},
+                    "build_receipt": str(build / "build-receipt.json"),
+                    "build_receipt_sha256": eb.file_sha256(build / "build-receipt.json"),
+                    "program_sha256": eb.file_sha256(build / spec["program"]), "runtime_files": _mcfm_runtime_files(build), "build_serialization": BUILD_SERIALIZATION,
+                    "bindings": bindings,
+                    "authority": authority, "installed_utc": eb.utc_now()})
+            except BaseException:
+                for command in (["stop", "--time", "10", name], ["rm", "--force", name]):
+                    ctx.runner.capture([launcher["client"]["path"], "--connection", "ravel", *command],
+                                       env=oci.client_environment(), timeout=60)
+                _retain(build, ctx)
+                raise
+    return {"argv": argv, "launcher": str(launcher_path), "installation": str(installation), "authority": authority,
+            "build_receipt": str(build / "build-receipt.json"),
+            "build_receipt_sha256": eb.file_sha256(build / "build-receipt.json"), "image_build_receipt": str(image_receipt)}
+
+
+MCFM_RUNTIME_FILES = ("process.DAT", "br.sm1", "br.sm2")
+BUILD_SERIALIZATION = "installer prefix lock"
+
+
+def _installer_build_scope():
+    """A compile is an installer build, serialized by the installer's prefix lock like every other build.
+
+    The machine lease admits only an approved study stage, and install authority is not study
+    approval, so an installer build never asks for it.
+    """
+    return contextlib.nullcontext()
+
+
+def _mcfm_runtime_files(build):
+    """MCFM reads these from its working directory; each stage receives pinned copies."""
+    from ravel.workflow import execution_backend as eb
+    missing = [name for name in MCFM_RUNTIME_FILES if not (build / name).is_file()]
+    if missing:
+        raise StepError("compile did not install the MCFM runtime files " + ", ".join(missing))
+    return [{"path": str(build / name), "sha256": eb.file_sha256(build / name)} for name in MCFM_RUNTIME_FILES]
+
+
+def _mcfm_check(launcher, build, ctx):
+    from ravel.workflow.backends import oci_local as oci
+    argv = oci.launcher_command(launcher, ["/opt/ravel/bin/check-mcfm.sh", str(build)],
+                               workdir=build, readonly=(build,), name="ravel-install-check-" + uuid.uuid4().hex)
+    code, output = ctx.runner.capture(argv, env=ctx.env(), timeout=120)
+    _require_passed_verdict(code, output)
+
+
+def _require_passed_verdict(code, output):
+    # The capture joins the client's error stream to the check's one JSON line.
+    verdicts = []
+    for line in output.splitlines():
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict):
+            verdicts.append(row)
+    if code != 0 or len(verdicts) != 1 or verdicts[0].get("status") != "passed":
+        raise StepError("MCFM installation check failed: " + output[:500])
+
+
+def _native_environment(ctx, toolchain):
+    """The native toolchain first on PATH; its libraries found through the binary's run path."""
+    return {"PATH": str(toolchain) + os.pathsep + ctx.base_env.get("PATH", os.defpath),
+            "LDFLAGS": "-Wl,-rpath," + str(toolchain.parent / "lib"),
+            "RAVEL_BUILD_JOBS": str(ctx.values["JOBS"]),
+            "RAVEL_TOOLCHAIN_PROVIDER": "native toolchain " + str(toolchain)}
+
+
+def _native_mcfm_check(script, build, ctx, env):
+    code, output = ctx.runner.capture(["/bin/bash", str(script), str(build)], env=ctx.env(env), timeout=120)
+    _require_passed_verdict(code, output)
+
+
+def _native_compile(step, ctx):
+    """Compile the MCFM amplitude program on a Linux host with the installer's GNU toolchain."""
+    from ravel.workflow import execution_backend as eb
+    script = "{REPO}/native/containers/mcfm/build-mcfm.sh"
+    if step.get("argv") != [script, step["source"], step["overlay"], step["build"]]:
+        raise StepError("native_compile argv must be the declared build command")
+    authority = getattr(ctx, "install_authority", None)
+    if not authority or authority.get("kind") != "installer-command":
+        raise StepError("native compile needs installer-command authority")
+    spec = expand(step, ctx.values)
+    if Path(spec["build"]).is_symlink():
+        raise Conflict("symlinked build destination refused; left untouched")
+    source, overlay, build = (Path(spec[k]).resolve() for k in ("source", "overlay", "build"))
+    if len({source, overlay, build}) != 3 or any(a in b.parents for a in (source, overlay, build) for b in (source, overlay, build) if a != b):
+        raise StepError("source, overlay and build must be disjoint trees")
+    if not source.is_dir() or not overlay.is_dir():
+        raise StepError("source and overlay trees must exist before compilation")
+    toolchain = Path(spec["toolchain"])
+    compilers = {name: toolchain / name for name in ("gcc", "g++", "gfortran", "cmake", "python3")}
+    missing = [str(p) for p in compilers.values() if not p.is_file()]
+    if missing:
+        raise StepError("native toolchain incomplete: " + ", ".join(missing))
+    argv = [str(Path(spec["argv"][0])), str(source), str(overlay), str(build)]
+    checker = Path(argv[0]).with_name("check-mcfm.sh")
+    installation = Path(spec["installation"])
+    marker = ctx.owned_marker("native-build", step["program"])
+    env = _native_environment(ctx, toolchain)
+    bindings = {"toolchain": {name: eb.file_sha256(path) for name, path in compilers.items()},
+                "overlay_identity": eb.identity(overlay), "source": str(source),
+                "build_script": eb.file_sha256(Path(argv[0]))}
+    with _installer_build_scope():
+        if build.exists() and any(build.iterdir()):
+            if not marker.is_file() or json.loads(marker.read_text()).get("build") != str(build):
+                raise Conflict(f"foreign non-empty build directory {build}; left untouched")
+            try:
+                old = json.loads(installation.read_text())
+                if (old.get("bindings") == bindings and old.get("program_sha256") == eb.file_sha256(build / spec["program"])
+                        and old.get("build_receipt_sha256") == eb.file_sha256(build / "build-receipt.json")):
+                    _native_mcfm_check(checker, build, ctx, env)
+                    return {"verified": True, "installation": str(installation)}
+            except (OSError, ValueError, KeyError):
+                pass
+            _retain(build, ctx)
+        build.mkdir(parents=True, exist_ok=True)
+        eb.atomic_json(marker, {"build": str(build), "authority": authority})
+        try:
+            ctx.run(["/bin/bash", *argv], cwd=build, extra_env=env)
+            for path in (build / spec["program"], build / "build-receipt.json"):
+                if not path.is_file():
+                    raise StepError(f"compile did not produce {path}")
+            _native_mcfm_check(checker, build, ctx, env)
+            eb.atomic_json(installation, {"schema_version": 1, "kind": "ravel-amplitude-installation",
+                "group": "mcfm-amplitudes", "launcher": {"kind": "native", "toolchain": str(toolchain)},
+                "program": str(build / spec["program"]),
+                "readonly_trees": [{"path": str(p), "mount": str(p)} for p in (build, source, overlay, ctx.values["LHAPDF_DATA"])],
+                "env": {"LHAPDF_DATA_PATH": ctx.values["LHAPDF_DATA"]},
+                "build_receipt": str(build / "build-receipt.json"),
+                "build_receipt_sha256": eb.file_sha256(build / "build-receipt.json"),
+                "program_sha256": eb.file_sha256(build / spec["program"]), "runtime_files": _mcfm_runtime_files(build), "build_serialization": BUILD_SERIALIZATION,
+                    "bindings": bindings,
+                "authority": authority, "installed_utc": eb.utc_now()})
+        except BaseException:
+            _retain(build, ctx)
+            raise
+    return {"argv": argv, "installation": str(installation), "authority": authority,
+            "build_receipt": str(build / "build-receipt.json"),
+            "build_receipt_sha256": eb.file_sha256(build / "build-receipt.json")}
 
 
 def render_template(text, values):
@@ -531,6 +801,7 @@ HANDLERS = {
     "manual": _manual, "miniforge": _miniforge, "conda_env": _conda_env, "pip": _pip, "git": _git,
     "archive": _archive, "download": _download, "verify_file": _verify_file, "pdf_sets": _pdf_sets,
     "command": _command, "container_pull": _container_pull, "container_build": _container_build,
+    "container_run": _container_run, "native_compile": _native_compile,
     "wrapper": _wrapper, "options_file": _options_file, "link_children": _link_children,
     "write_file": _write_file,
 }

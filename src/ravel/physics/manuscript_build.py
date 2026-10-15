@@ -12,6 +12,7 @@ import shutil
 import time
 from ravel.physics import model_tool_bridge as custody
 from ravel.workflow import state_io
+from ravel.physics import manuscript_assets
 
 SCOPE = 'manuscript_pdf_delivery'
 
@@ -20,6 +21,14 @@ def _keys(obj, names): custody._keys(obj,names,'manuscript build')
 
 
 def validate(task): _keys(task,['config']); return task
+
+
+def _slides(task,base):
+    validate(task)
+    path=custody._regular(task['config'],base)
+    from ravel.workflow import report_integrity
+    if path.stat().st_size>report_integrity.MAX_OPERATIONAL_METADATA_BYTES:raise ValueError('build config metadata capacity exceeded')
+    return state_io.read_json(path).get('kind')=='manuscript-slides-build'
 
 
 def _tree(row, base, *, limits=None, _runtime_proof=None):
@@ -50,6 +59,10 @@ def load(task, base, *, _qualification_scope=None, _session=None):
 
 
 def _load(task, base, *, _qualification_scope, _session=None):
+    if _slides(task,base):
+        from ravel.physics import manuscript_slides
+        p,c,product=manuscript_slides.load(task,base)
+        return p,c,product['verified']['package']
     validate(task);p=custody._regular(task['config'],base)
     from ravel.workflow import report_integrity as ri, publication_runtime as pr
     high={'max_files':20000,'max_bytes':ri.MAX_CUSTODY_BYTES,'max_metadata_bytes':ri.MAX_OPERATIONAL_METADATA_BYTES}
@@ -96,7 +109,7 @@ def _load(task, base, *, _qualification_scope, _session=None):
     required=manuscript_format.required_runtime(contract,has_svg=any(Path(x['path']).suffix.lower()=='.svg' for x in package['figures']))
     if any(Path(x['path']).suffix.lower() in {'.jpg','.jpeg'} for x in package['figures']):
         required['asset_basenames'].extend(['article.cls','graphicx.sty'])
-    available={q.name for q in [*runtime_assets,*[custody._pin({k:x[k] for k in ('path','sha256')},source_base) for x in package['template_assets']]]}
+    available={q.name for q in [*runtime_assets,*[custody._pin({k:x[k] for k in ('path','sha256')},source_base) for x in manuscript_assets.pins(package['template_assets'])]]}
     if not set(required['asset_basenames'])<=available:raise ValueError('required selected venue/class/style/format dependencies absent')
     if not any(q.suffix.lower() in {'.tfm','.pfb','.otf','.ttf'} for q in runtime_assets):raise ValueError('source-bound font assets missing')
     if Path(package['latex']['path']).name!='note.tex':raise ValueError('source-defined note.tex entry required')
@@ -110,8 +123,11 @@ def inputs(task, base, *, _qualification_scope=None, _session=None):
 
 
 def _inputs(task, base, *, _qualification_scope, _session=None):
+    if _slides(task,base):
+        from ravel.physics import manuscript_slides
+        return manuscript_slides.inputs(task,base)
     p,c,package=load(task,base,_qualification_scope=_qualification_scope,_session=_session);rt=c['runtime'];runtime_base=Path(c['runtime_base']);source_base=Path(package['source_base']);files=[p,custody._pin({k:c['package'][k] for k in ('path','sha256')},p.parent)]
-    for row in [package['latex'],package['manuscript'],package['integrity_request'],package['model_provenance'],package['formatting_contract'],package['formatting_assessment_pin'],package['author_binding'],*package['figures'],*package['template_assets'],*package['input_pins']]:
+    for row in [package['latex'],package['manuscript'],package['integrity_request'],package['model_provenance'],package['formatting_contract'],package['formatting_assessment_pin'],package['author_binding'],*package['figures'],*manuscript_assets.pins(package['template_assets']),*package['input_pins']]:
         q=custody._pin({k:row[k] for k in ('path','sha256')},source_base)
         if row.get('size')!=q.stat().st_size:raise ValueError('complete manuscript source size changed')
         files.append(q)
@@ -228,6 +244,9 @@ def page_census(pdfinfo, aux, *, max_main_pages, segments=None):
 
 
 def run(task, base, output):
+    if _slides(task,base):
+        from ravel.physics import manuscript_slides
+        return manuscript_slides.run(task,base,output)
     out=Path(output).absolute();plan=_approved(task,out);p,c,package=load(task,base)
     from ravel.workflow import report_integrity as ri,publication_runtime as pr
     limits=ri.custody_limits(c.get('custody_limits'));rt=c['runtime'];snapshot=None
@@ -240,9 +259,12 @@ def run(task, base, output):
     if c['max_seconds']>plan['max_seconds']:raise ValueError('build exceeds ordinary admitted wall')
     if out.exists() or any(q.is_symlink() for q in (out,*out.parents)):raise ValueError('fresh regular build output required')
     out.mkdir(parents=True);source=out/'source';source.mkdir();copied=[]
-    for pin in [package['latex'],*package['figures'],*package['template_assets']]:
-        path=custody._pin({k:pin[k] for k in ('path','sha256')},p.parent);target=source/path.name
+    placements=[(pin,Path(pin['path']).name) for pin in [package['latex'],*package['figures']]]
+    placements+=manuscript_assets.placements(package['template_assets'],Path(package['source_base']))
+    for pin,relative in placements:
+        path=custody._pin({k:pin[k] for k in ('path','sha256')},Path(package['source_base']));target=source/relative
         if target.exists():raise ValueError('duplicate note asset basename')
+        target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(path,target)
         if custody._hash(target)!=pin['sha256']:raise ValueError('copied build source differs')
         copied.append((target,pin['sha256']))
@@ -382,6 +404,7 @@ def run(task, base, output):
             row['observed']=pages['main_text_pages'];row['state']='mechanically_passed' if row['observed']<=row['rule']['value'] else 'mechanically_failed'
     format_assessment['pending_rule_ids']=[row['rule']['id'] for row in format_assessment['rules'] if row['state'] not in {'mechanically_passed','not_required'}]
     result={'status':'passed','kind':'manuscript-pdf-build','scope':SCOPE,'package':c['package'],
+        'template_assets':deepcopy(package['template_assets']),
         'formatting_assessment':format_assessment,'pdf':{'path':str(pdf),'sha256':custody._hash(pdf),'size':pdf.stat().st_size},'pages':pages,
         'executions':receipts,'tex_input_observations':tex_input_observations,'figure_conversions':conversions,'input_identity':before,'output_bytes':_bytes(out,c['max_output_bytes']),
         'physics_validated':False,'scientific_acceptance':False,'visual_style_accepted':False,
@@ -437,6 +460,8 @@ def _verified_result(binding, *, base_dir, _qualification_scope):
     rundir=custody._regular(binding['rundir'],base_dir,directory=True)
     spec=science.execution_spec(rundir)
     if spec.get('schema_version')!=2 or spec.get('mode')!='manuscript-build':raise ValueError('foreign ordinary stage cannot certify manuscript rendering')
+    if _slides(spec['task'],rundir/'inputs'):
+        raise ValueError('slide rendering cannot substitute an authenticated note PDF build')
     stage_base=rundir/'inputs'
     p,c,package=load(spec['task'],stage_base,_qualification_scope=_qualification_scope)
     if c['schema_version']==2 and c['runtime']['purpose']!='qualified':

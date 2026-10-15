@@ -40,6 +40,24 @@
       "order": 220,
       "module": "ravel.workflow.gate_wiring",
       "render": "checkin_policy_section"
+    },
+    {
+      "id": "partition_fanout",
+      "order": 85,
+      "module": "ravel.physics.root_stream_partitions",
+      "render": "checkin_section"
+    },
+    {
+      "id": "site_tools",
+      "order": 230,
+      "module": "ravel.workflow.site_tools",
+      "render": "checkin_section"
+    },
+    {
+      "id": "replay",
+      "order": 230,
+      "module": "ravel.workflow.replay",
+      "render": "checkin_section"
     }
   ]
 }

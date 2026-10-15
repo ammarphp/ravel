@@ -51,8 +51,13 @@
       "check:validation.validate_task_contract.validate"
     ],
     "operations": [
+      "generate",
+      "generation-reconciliation",
+      "lhe-transform",
+      "llp-plane-recipe",
       "model-events",
-      "event-production"
+      "svj-recipe",
+      "weighted-events"
     ],
     "output": {
       "declared_outputs": [],
@@ -101,5 +106,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "add37f349c34883d1f46c74b119e09daee61c0da9fa727adccfdf7aab54e0d25"
+  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
 }

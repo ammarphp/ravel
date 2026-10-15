@@ -167,23 +167,143 @@ Resummino results), stored with their source URL, citation and sha256 in
 `src/ravel/data/cross_sections/`. `ravel xsec verify` re-hashes them;
 `ravel xsec fetch --table <id>` downloads one again and compares. A cross section
 computed by MadGraph is recorded as a separate source with its own order, PDF
-and scale; a k-factor is accepted only between two records on the same basis,
+and scale (three leading-order slepton tables computed with the shipped generation
+recipe are registered this way, `source_kind` `mg5-computed`, with their generator,
+run card, masses and PDF recorded and no download URL: `slepton_L_pair`,
+`slepton_LR_pair` for two degenerate generations and `slepton_LR_pair_with_stau`
+for three, all LO with cteq6l1); a k-factor is accepted only between two records on the same basis,
 energy, masses, charge and state count.
+
+The 13 TeV NLO+NLL gluino-pair, squark–antisquark, stop-pair and sbottom-pair
+tables (decoupled partners) are the NLL-fast 3.1 grids for MSTW2008NLO, CTEQ6.6M and
+NNPDF3.0NLO. Their authors state no redistribution terms, so the registry ships
+no numbers for them: `cross_sections/acquired-tables.json` pins the public
+archive, each member and their sha256, and the first lookup installs the members
+into the cache (`RAVEL_XSEC_CACHE`, else `~/.cache/ravel/cross_sections`) after
+checking both hashes. `ravel xsec acquire` does it ahead of time;
+`--archive <file>` installs a copy fetched elsewhere. The PDF must be named,
+because the three sets are different conventions. The grids give the scale
+uncertainty in picobarn and the PDF and alpha_s uncertainties in percent; they
+publish no total, so `up_pb` and `down_pb` are empty and the components are in
+`uncertainty` (`relative_scale_*`, `relative_pdf_*`, `relative_alphas_*`, and
+`relative_pdfas_*` for the combined NNPDF3.0 figure).
+
+The squark–antisquark grid has ten states (five flavours, left and right, the
+sbottom counted as light). A request must declare `state_count` as 10 or 8
+(u, d, s, c only); the 8-state result is the ten-state value times 8/10, valid
+only because the gluino is decoupled, and the result reports the basis and the
+factor under `state_basis` and `state_rescaling`. Any other count is refused.
+Every one-dimensional lookup reports `interpolation_error`: the difference
+between the log-log linear value and the four-node cubic interpolation, zero at
+a node. It estimates the interpolation step, not the table's own uncertainty.
 
 Supplied calculation tables and production-basis transformations use the same
 [convention service](cross-section-conventions.md), with explicit interpolation,
 state populations, component response ratios and justified approximations. Use
 `ravel xsec supplied` and `ravel xsec correct` for selected contracts.
 
+## Generation recipes
+
+`src/ravel/data/templates/model_recipes.json` lists shipped, hashed generation recipes for
+the card renderer (`ravel.physics.prepare_native_slepton`). The entry
+`slepton-bino-isrslep` names its process (`p p > chsleptons chsleptons j / susystrong @1`),
+its spectrum (six degenerate charged-slepton masses `MSLEP`, a lightest neutralino
+`MN1`, everything else decoupled), its explicit decay rows, its unmerged leading-order
+treatment (`ickkw` 0) and its PDF choices. The caller binds the two masses, the PDF, the
+event count and the seed; `python -m ravel.physics.prepare_native_slepton --library
+slepton-bino-isrslep --parameter MSLEP=<GeV> --parameter MN1=<GeV> --nevents <n> --seed <s>
+--pdf cteq6l1 --rundir <dir>` writes the cards and the launch script without running a
+tool. A native configuration selects the same entry with `[ravel.native] library`, the
+masses under `[madgraph.masses]` and the jet cuts under `[madgraph.run.options]`
+(`src/ravel/data/templates/slepton_scan_template.toml`); a scan binds the two masses to
+its axes through `subst`. A recipe is not an admission of an operation, and generation
+still needs CHECK-IN 1 approval.
+
 ## Resonance line shapes and widths
 
 `ravel lineshape` evaluates fixed-width Breit–Wigner, running-width and
 complex-pole propagators, converts between on-shell and pole mass and width,
-and computes leading-order partial widths for spin-0 states (to fermion pairs,
-WW, ZZ, gluons and photons through quark and W loops or effective couplings)
-and spin-1 states (to fermion pairs with vector and axial couplings, and to WW).
-It compares the declared total width with the sum of the partial widths at a
-stated tolerance.
+and assigns every neutral colour-singlet spin-0, spin-1 and spin-2 two-body
+channel one disposition: a leading-order formula, a selection-rule refusal,
+or a free-width path. The formula uses the declared real couplings, masses and
+constants. Spin 2, Z plus photon, vector plus scalar and scalar-pair decays use
+the free-width path. A colour-singlet spin-1 state cannot decay to two identical
+on-shell massless vectors (Landau–Yang theorem); this refusal applies to photons
+and gluons with every width source.
+
+Generate the complete conventions and formulas with `ravel lineshape table`,
+or write JSON with `ravel lineshape table --write channels.json`.
+`src/ravel/data/lineshape/channels.json` is generated from the module's single
+enumeration; `table_markdown` renders the region below from that JSON.
+`ff` rows distinguish zero or positive fermion mass and colour multiplicity
+one or three. All vector daughters are on shell.
+
+<!-- BEGIN GENERATED LINESHAPE CHANNELS -->
+| Spin | Parity or CP class | ff_massless_colour_1 | ff_massless_colour_3 | ff_massive_colour_1 | ff_massive_colour_3 | ww | zz | zgamma | photons | gluons | vector_scalar | scalar_pair |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | CP-even | formula | formula | formula | formula | formula | formula | free | formula | formula | free | free |
+| 0 | CP-odd | formula | formula | formula | formula | formula | formula | free | formula | formula | free | free |
+| 0 | mixed | formula | formula | formula | formula | formula | formula | free | formula | formula | free | free |
+| 1 | vector | formula | formula | formula | formula | formula | formula | free | forbidden | forbidden | free | free |
+| 1 | axial-vector | formula | formula | formula | formula | formula | formula | free | forbidden | forbidden | free | free |
+| 1 | mixed chiral | formula | formula | formula | formula | formula | formula | free | forbidden | forbidden | free | free |
+| 2 | even | free | free | free | free | free | free | free | free | free | free | free |
+<!-- END GENERATED LINESHAPE CHANNELS -->
+
+For spin 0, `scalar` and `pseudoscalar` remain aliases for `CP-even` and `CP-odd`;
+`mixed` accepts both real Yukawa couplings `coupling_scalar` and
+`coupling_pseudoscalar`. `vv_sm_like` is the CP-even tree tensor and refuses a
+CP-odd state with an instruction to use `vv_odd_effective`.
+`vv_even_effective`, `vv_odd_effective` and `vv_effective` select the field-strength
+tensors for `boson: W` or `boson: Z`. Declare `coupling_even_per_GeV` and/or
+`coupling_odd_per_GeV`; a pure class also accepts `coupling_per_GeV`.
+The tree tensor is `tree_coupling_GeV`, or `kappa` with the declared Fermi
+constant, giving `a = 2 kappa m_V^2/v` and `v = (sqrt(2) GF)^(-1/2)`.
+
+The coupling convention for ZZ is
+`L = a phi Z_mu Z^mu/2 - g_e phi Z_mn Z^mn/4 - g_o phi Z_mn Ztilde^mn/4`,
+with real `a` in GeV, real `g_e,g_o` in GeV^-1 and
+`Ztilde^mn = epsilon^mnrs Z_rs/2`. For W+W-, the three factors become
+`1, 1/2, 1/2` with charged conjugate fields. With `x = m_V^2/M^2` and
+`beta = sqrt(1-4x)`, pure even and odd field-strength widths are
+`S g_e^2 M^3 beta (1-4x+6x^2)/(32 pi)` and
+`S g_o^2 M^3 beta^3/(32 pi)`, where `S = 1` for WW and `1/2` for ZZ.
+The two transverse even amplitudes are `-(a+g_e d)` and the longitudinal
+amplitude is `a d/m_V^2 + g_e m_V^2`, with `d = M^2/2-m_V^2`.
+Squaring them retains the same-CP interference `6 a g_e d`; the two odd
+transverse amplitudes are `+/- g_o M|p|`, and their total interference with
+the even tensors vanishes. The existing photon/gluon loop kinds remain
+CP-even form-factor calculations; effective photon/gluon kinds also accept
+mixed even and odd couplings.
+
+For spin 1, `ff` uses `g_vector` and `g_axial`. `vector` requires zero axial
+coupling; `axial-vector` requires zero vector coupling; `mixed chiral` admits
+both. A pure class takes its absent coupling as zero. Legacy `scalar` and
+`pseudoscalar` labels retain their previous chiral behavior. `ww` retains the
+declared dimensionless triple-gauge coupling; its tensor conserves CP in the
+convention below, and with an axial-vector parent it violates P and C separately.
+`zz` (also `zz_bose`) declares real dimensionless `g4,g5` through
+`L = g4 X_mu Z_nu partial^nu Z^mu + g5 epsilon^munurs X_mu Z_nu partial_r Z_s`.
+The vertices are `g4 [(P.e1)(eX.e2)+(P.e2)(eX.e1)]` and
+`g5 epsilon(eX,e1,e2,q1-q2)`, with `P = q1+q2` and metric `+---`.
+In the neutral-current CP convention `X_mu(t,x) -> -X^mu(t,-x)` and the same
+for Z, g4 violates CP and g5 conserves CP for all three coupling classes; an
+omitted one is zero.
+Both tensors are Bose symmetric; their width is
+`M^3 beta^3 (g4^2+g5^2 beta^2)/(96 pi m_V^2)`, including the initial
+polarization average and identical-particle factor. Massive longitudinal
+polarizations have no massless limit.
+
+`computed` sums the listed partial widths; `declared_free` checks a supplied
+`total_width_GeV` against available partial widths at `rel_tol`.
+A free row refuses `computed` and names both explicit sources to use.
+`free` requires exactly one positive `total_width_GeV` or `width_over_mass`,
+allows an empty channel list, and records `width_source: free`.
+The total width is a free parameter of this study and is not derived from couplings.
+Formula partial widths are reported as information, without branching fractions or a consistency claim.
+`ravel lineshape plan --request request.json --rundir run --review-policy policy.json
+--source "Declared couplings"` adds the selected rows and that exact free-width
+sentence to the numbered CHECK-IN 1 assumptions before approval.
 
 ## Branching and filter factors
 

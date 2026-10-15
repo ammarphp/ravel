@@ -16,5 +16,15 @@
     "claude": ".claude/ravel-gate.sh",
     "codex": ".codex/ravel-gate.sh",
     "gemini": ".gemini/ravel-gate.sh"
+  },
+  "site_tools": {
+    "matcher": "mcp__.*",
+    "policy": "ravel/data/site_tools/policy.json",
+    "default": "effectful",
+    "pre_command": "python -m ravel.workflow.site_tools check",
+    "post_command": "python -m ravel.workflow.site_tools observe",
+    "input": "host tool-call JSON on stdin; pass --project and optionally --rundir",
+    "scope": "CHECK-IN 1 sections.site_tools: exact tool name, tool_input_sha256 and effects",
+    "hookless": "Explicit check before call and observation after call; no automatic host event registration"
   }
 }

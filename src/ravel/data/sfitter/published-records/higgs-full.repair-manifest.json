@@ -1,0 +1,42 @@
+{
+ "schema_version": 1,
+ "kind": "repair-manifest",
+ "review": {
+  "status": "reviewed",
+  "reviewer": "software translation of the 2026-10-10 development-line repair code; physicist review of each correction is pending",
+  "evidence": [
+   {
+    "path": "review-note.md",
+    "sha256": "062950bf7437618eb0c5c586a760d98a171f98b0559bc3954cce4ad444cb26c4"
+   }
+  ]
+ },
+ "sources": {
+  "card": {
+   "path": "sfitter/data/Higgs_Full.json",
+   "sha256": "8ae0a8bad6d38e570efe158b3a10717bce514909a2dd57d3e96dfd5229f756d0"
+  }
+ },
+ "context": {
+  "source_commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+  "source_license": "MIT",
+  "card_output": "derived-card.json",
+  "output_format": "json",
+  "identity": "sfitter-published-higgs-full",
+  "coalescence": "Original rows 0 and 276 are byte-identical measurement/prediction pairs (ID 1801); only that exactly identical row is coalesced, both original indices stay in the lineage, and no independent second measurement is claimed."
+ },
+ "card_source": "card",
+ "defect_registry": {
+  "path": "higgs-full.defect-registry.json",
+  "sha256": "e30983dceae6420ac74e445291e22a1a1ac1ed7922c0f9734e053025fb8ed65b"
+ },
+ "identity_template": "{identity}__sourceRow{row:03d}",
+ "transforms": [
+  {
+   "operation": "coalesce",
+   "path": "/observations",
+   "keep": 0,
+   "remove": 276
+  }
+ ]
+}

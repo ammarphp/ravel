@@ -309,7 +309,8 @@ def test_disk_numbers_agree(system):
     text = (ROOT / "docs/installation.md").read_text()
     assert "66 GB" not in text and "110 GB" not in text
     for name, disk in targets.items():
-        args = ("--preflight-only", "--no-disk-check") + (() if name == "default" else ("--profile", name))
+        # A named facility profile needs its explicit software-view choice even for a preflight.
+        args = ("--preflight-only", "--no-disk-check") + (() if name == "default" else ("--profile", name, "--lcg-view", "none"))
         result = run(*args, prefix=tmp / "p")
         assert result.returncode == 0, result.stderr
         assert f"about {disk} GB needed" in result.stdout

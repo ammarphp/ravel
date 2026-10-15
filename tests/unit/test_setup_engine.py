@@ -377,3 +377,16 @@ def test_wrapper_replaces_a_file_carrying_a_current_or_earlier_ownership_marker(
     assert result["status"] == "complete", result
     text = target.read_text()
     assert "stale wrapper" not in text and "# " + steps.OWNED_MARK in text.splitlines()
+
+
+def test_declared_revalidation_runs_on_resume_and_keeps_license_method(world):
+    """A receipt alone does not skip a step whose engine checks must run again."""
+    compile = world['manifest']['groups'][2]['steps'][0]
+    compile['revalidate'] = True
+    tool, _ = make(world)
+    assert tool.run()['status'] == 'complete'
+    tool.runner.calls.clear()
+    assert tool.run()['status'] == 'complete'
+    assert len(tool.runner.calls) == 1 and tool.runner.calls[0][0] == 'make-outputs'
+    accepted = state.InstallState(world['prefix']).data['licenses_accepted']
+    assert all(row['method'] == 'flag' for row in accepted.values())

@@ -15,6 +15,16 @@ Missing `fill_schema` raises `NativeGroupFillError` with `reason="missing_input"
 No source roster, namespace suffix, experimental mode, unit conversion or geometry
 is selected by a routine identity.
 
+The fill schemas of the three released routines whose fill sites were source-reviewed
+ship as descriptors in `src/ravel/data/analysis_assets/group-fills`.
+`ravel.physics.shipped_assets.group_fill_contract(routine, rivet_prefix=..., mode=...,
+weight_suffixes=...)` binds one to an installed Rivet 4.1.4 prefix: it checks the routine
+source and reference bytes against the descriptor's pins, takes edges from that reference,
+and returns the `fill_schema`, `outputs`, `reference`, `routine`, `native_analysis_alias`
+and `original_source_sha256` members for the run's contract. The native object census
+follows from the output tables and the selected weight suffixes; a routine that books other
+objects lists them in `extra_native_objects`.
+
 The supplied fill schema has `schema_version:1`, the same `routine` and
 `native_analysis_alias`, a pinned `source`, complete dependency `sources`,
 `sites`, `outputs`, `rules`, `native_object_paths`, and `study`. Each site specifies

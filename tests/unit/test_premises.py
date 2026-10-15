@@ -16,7 +16,7 @@ def ids(rows):
 def test_registry_consolidates_canonical_populations():
     registry = premises.registry()
     assert tuple(r['id'].removeprefix('trap:') for r in registry['premises']
-                 if r['id'].startswith('trap:T')) == trap_sweep.TRAP_IDS
+                 if r['id'].removeprefix('trap:') in trap_sweep.TRAP_IDS) == trap_sweep.TRAP_IDS
     original = json.loads((premises.DATA.parent / 'inference/interpretation_traps.json').read_text())
     interpretation = {r['id']: r for r in registry['premises'] if r['canonical']['kind'] == 'interpretation'}
     assert set(interpretation) == {'trap:' + r['id'] for r in original['traps']}

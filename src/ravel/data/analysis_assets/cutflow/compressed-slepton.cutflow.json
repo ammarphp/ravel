@@ -1,0 +1,181 @@
+{
+ "schema_version": 1,
+ "kind": "cutflow-definition",
+ "review": {
+  "status": "reviewed",
+  "reviewer": "software translation of the 2026-10-10 development-line cutflow constants; physicist review pending",
+  "evidence": [
+   {
+    "path": "review-note.md",
+    "sha256": "456ccf25ce0d763a1e79e4f37902bf3d3ebf8e4fa38213ee45c49f3093b5ada1"
+   }
+  ]
+ },
+ "sources": {
+  "selection": {
+   "path": "BOUND-AT-USE",
+   "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+ },
+ "context": {
+  "identity": "compressed-slepton-cutflow",
+  "parameters": {},
+  "datasets": [
+   "supplied-events"
+  ],
+  "output_format": "json"
+ },
+ "selection_source": "selection",
+ "predicates": [
+  "bad_jet_veto",
+  "baseline_lepton",
+  "signal_jet",
+  "two_signal_leptons",
+  "jpsi_veto",
+  "min_jet_met_dphi",
+  "leading_jet_met_dphi",
+  "mll_window",
+  "lepton_separation",
+  "leading_lepton_pt",
+  "jet_count",
+  "leading_jet_pt",
+  "b_veto",
+  "mtautau_veto",
+  "same_flavour",
+  "opposite_charge",
+  "met_preselection",
+  "mt2_gt_100",
+  "mt2_lt_140",
+  "mt2_lt_130",
+  "mt2_lt_120",
+  "mt2_lt_110",
+  "mt2_lt_105",
+  "mt2_lt_102",
+  "mt2_lt_101",
+  "mt2_lt_100p5",
+  "met_high",
+  "risr_high",
+  "subleading_pt_high",
+  "met_low",
+  "risr_low",
+  "subleading_pt_low",
+  "generator_filter",
+  "trigger",
+  "author16_veto",
+  "truth_matching"
+ ],
+ "unavailable": {
+  "generator_filter": "No matching ATLAS generator-filter event population",
+  "trigger": "No measured trigger decision or efficiency in Delphes2SA",
+  "author16_veto": "ATLAS lepton author unavailable in Delphes2SA",
+  "truth_matching": "Delphes2SA mother pointers do not retain truth matches"
+ },
+ "flows": {
+  "high": [
+   "bad_jet_veto",
+   "baseline_lepton",
+   "signal_jet",
+   "two_signal_leptons",
+   "jpsi_veto",
+   "min_jet_met_dphi",
+   "leading_jet_met_dphi",
+   "mll_window",
+   "lepton_separation",
+   "leading_lepton_pt",
+   "jet_count",
+   "leading_jet_pt",
+   "b_veto",
+   "mtautau_veto",
+   "same_flavour",
+   "opposite_charge",
+   "met_preselection",
+   "met_high",
+   "risr_high",
+   "subleading_pt_high",
+   "mt2_gt_100",
+   "mt2_lt_140",
+   "mt2_lt_130",
+   "mt2_lt_120",
+   "mt2_lt_110",
+   "mt2_lt_105",
+   "mt2_lt_102",
+   "mt2_lt_101",
+   "mt2_lt_100p5"
+  ],
+  "low": [
+   "bad_jet_veto",
+   "baseline_lepton",
+   "signal_jet",
+   "two_signal_leptons",
+   "jpsi_veto",
+   "min_jet_met_dphi",
+   "leading_jet_met_dphi",
+   "mll_window",
+   "lepton_separation",
+   "leading_lepton_pt",
+   "jet_count",
+   "leading_jet_pt",
+   "b_veto",
+   "mtautau_veto",
+   "same_flavour",
+   "opposite_charge",
+   "met_preselection",
+   "met_low",
+   "risr_low",
+   "subleading_pt_low",
+   "mt2_gt_100",
+   "mt2_lt_140",
+   "mt2_lt_130",
+   "mt2_lt_120",
+   "mt2_lt_110",
+   "mt2_lt_105",
+   "mt2_lt_102",
+   "mt2_lt_101",
+   "mt2_lt_100p5"
+  ]
+ },
+ "object_preconditions": [
+  "bad_jet_veto",
+  "baseline_lepton",
+  "signal_jet"
+ ],
+ "membership": [
+  {
+   "flow": "high",
+   "through": "mt2_lt_140",
+   "regions": [
+    "SR_S_high_eMT2a",
+    "SR_S_high_eMT2b",
+    "SR_S_high_eMT2c",
+    "SR_S_high_eMT2d",
+    "SR_S_high_eMT2e",
+    "SR_S_high_eMT2f",
+    "SR_S_high_eMT2g",
+    "SR_S_high_eMT2h"
+   ],
+   "exclusive": true
+  },
+  {
+   "flow": "low",
+   "through": "mt2_lt_140",
+   "regions": [
+    "SR_S_low_eMT2a",
+    "SR_S_low_eMT2b",
+    "SR_S_low_eMT2c",
+    "SR_S_low_eMT2d",
+    "SR_S_low_eMT2e",
+    "SR_S_low_eMT2f",
+    "SR_S_low_eMT2g",
+    "SR_S_low_eMT2h"
+   ],
+   "exclusive": true
+  }
+ ],
+ "normalization": {
+  "weight_unit": "pb",
+  "luminosity_pb_inverse": 140000.0,
+  "population_metadata": {},
+  "convention": "Original normalized event weights in pb; generated-sample total is not automatically the inclusive production basis."
+ },
+ "references": []
+}

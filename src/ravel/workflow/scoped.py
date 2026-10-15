@@ -61,7 +61,8 @@ def plan(rundir, spec_path):
             g = frozen["generation"]
             if re.search(r"[\s'\";]", str(rd)):
                 raise ValueError("native MadGraph adapter requires a run path without whitespace or quotes")
-            generation_plan = prepare_generation(rd, g, source.parent, inputs)
+            grant = spec.get("execution", {}).get("backend_plan", {}).get("resources", {}).get("cpus", 1)
+            generation_plan = prepare_generation(rd, g, source.parent, inputs, lease_cpus=grant)
             model_hash = generation_plan.pop("model_source_sha256")
         atomic_json(rd / SPEC, frozen)
         stage = {"stage": "parton" if spec["mode"] == "generate" else "likelihood",
@@ -163,7 +164,7 @@ def _resolve(value, base):
     return (Path(base) / path).resolve() if not path.is_absolute() else path.resolve()
 
 
-def prepare_generation(rd, g, base, inputs):
+def prepare_generation(rd, g, base, inputs, *, lease_cpus=1):
     """Bind the generator runtime, model, PDF, transform and intent of a generation plan.
 
     Mutates the frozen generation section ``g`` (runtime paths, copied inputs),
@@ -172,7 +173,14 @@ def prepare_generation(rd, g, base, inputs):
     """
     from ravel.physics import beam_content, generator_versions
     from ravel.workflow import spec_reconciliation
-    plan = {}
+    from ravel.physics.scoped import generation_resources, installed_pdf
+    resources = generation_resources(g, lease_cpus)
+    plan = {"generation_resources": resources} if "nb_core" in g else {}
+    install = installed_pdf(g, base)
+    if install:
+        g["pdf_install_record"] = install["path"]
+        inputs.append(install["path"])
+        inputs.append(install["set_path"])
     if "runtime" in g and "generator" in g:
         raise ValueError("supply either runtime paths or a generator version, not both")
     beams, errors = beam_content.content(g)
@@ -242,6 +250,8 @@ def prepare_generation(rd, g, base, inputs):
         lhaid = g["run_settings"]["lhaid"]
         row = beam_content.pdf_manifest_row(lhaid)
         config, info = lhapdf_set(g["runtime"]["lhapdf_config"], lhaid, base)
+        if install and info.resolve().parent.parent != Path(install["data_path"]).resolve():
+            raise ValueError("LHAPDF data path differs from the declared install record")
         if info.parent.name != row["name"]:
             raise ValueError(f"LHAPDF identifier {lhaid} is installed as {info.parent.name}, "
                              f"but native/setup/pdf-sets.json pins {row['name']}")
@@ -251,6 +261,8 @@ def prepare_generation(rd, g, base, inputs):
         plan["pdf"] = {"pdlabel": "lhapdf", "lhaid": lhaid, "name": row["name"], "manifest_sha256": row["sha256"],
                        "digest_status": row["digest_status"], "info_sha256": execution.file_hash(info),
                        "flavours": flavours}
+        if install:
+            plan["pdf"]["install_record"] = install
     else:
         plan["pdf"] = {"pdlabel": g["run_settings"]["pdlabel"], "lhaid": g["run_settings"]["lhaid"],
                        "builtin": True}
@@ -259,6 +271,15 @@ def prepare_generation(rd, g, base, inputs):
         raise ValueError("; ".join(errors))
     plan["beam_content"] = beams
     if "shower" in g:
+        if "tune" in g["shower"]:
+            from ravel.physics.pythia_cards import tune_commands
+            g["shower"]["settings"], plan["shower_tune"] = tune_commands(g["shower"]["tune"], g["shower"]["settings"])
+            from importlib.resources import files as package_files
+            inputs.append(str(package_files('ravel').joinpath('data/shower/tunes.json')))
+        for line in g["shower"]["settings"]:
+            if line.split('=', 1)[0].strip().lower() == "slha:file":
+                source_slha = input_file(line.split('=', 1)[1].strip(), base)
+                inputs.append(str(source_slha))
         from ravel.physics.scoped_shower import probe
         python = Path(g["shower"]["python"]).expanduser()
         python = (Path(base) / python).absolute() if not python.is_absolute() else python
@@ -273,6 +294,25 @@ def prepare_generation(rd, g, base, inputs):
         g["parameter_card"] = "inputs/param_card.dat"
         inputs.append(g["parameter_card"])
         param_text = (rd / g["parameter_card"]).read_text()
+        if "decay_states" in g:
+            from ravel.physics import simplified_spectrum as ss
+            doc = ss.parse_slha(param_text)
+            states = g["decay_states"]
+            closure = ss.check_card(doc, **states, sm_masses={}, model_pdgs=ss.ufo_particle_pdgs(files))
+            if not closure["passed"]:
+                raise ValueError("decay-state plan refused: " + "; ".join(f["message"] for f in closure["findings"]))
+            outside = closure["outside_model"]
+            plan["decay_states"] = closure
+            if outside:
+                shower_card = rd / "inputs/shower-spectrum.slha"
+                shower_card.write_text(param_text)
+                inputs.append("inputs/shower-spectrum.slha")
+                plan["shower_slha"] = {"path": "inputs/shower-spectrum.slha", "sha256": execution.file_hash(shower_card)}
+                param_text = ss.write_slha(ss.generator_document(doc, outside))
+                (rd / g["parameter_card"]).write_text(param_text)
+                if "shower" in g:
+                    from ravel.physics.pythia_cards import shower_decay_commands
+                    g["shower"]["settings"] = shower_decay_commands(g["shower"]["settings"], shower_card, outside)
     if "lhe_transform" in g:
         from ravel.physics import lhe_transform
         rules = lhe_transform.load_rules(input_file(g["lhe_transform"], base))
@@ -310,10 +350,31 @@ def prepare_generation(rd, g, base, inputs):
                              + (f" at point {point['id']}" if point else "") + ": " + "; ".join(record["violations"]))
     plan["spec_reconciliation"] = {k: {"satisfied": v["satisfied"], "unknowns": v["unknowns"], "flags": v["flags"]}
                                    for k, v in records.items()}
-    deviations = plan.get("lhe_transform", {}).get("deviations", [])
+    deviations = list(plan.get("lhe_transform", {}).get("deviations", []))
+    if plan.get("shower_slha"):
+        deviations.append("Outside-model stable invisible states and their decay channels are excluded from the generation card; "
+                          "full supplied SLHA is retained for the shower: " + str(plan["decay_states"]["outside_model"]))
     (rd / "DEVIATIONS.md").write_text("# Deviations\n\n" + ("\n".join("- " + d for d in deviations) if deviations else
                                      "None. A changed specification requires a new plan.") + "\n")
     return plan
+
+
+def lease_resources(rundir):
+    """CPU grant carried by the machine lease's reverified approved binding."""
+    rd = Path(rundir).resolve()
+    if not (rd / PLAN).is_file():
+        return None
+    proposal = read_json(rd / PLAN)
+    if proposal.get("mode") != "generate" or "generation_resources" not in proposal:
+        return None
+    proposal = verify_plan(rd, require_approval=True)
+    spec = read_json(rd / SPEC)
+    from ravel.physics.scoped import generation_resources
+    grant = spec.get("execution", {}).get("backend_plan", {}).get("resources", {}).get("cpus", 1)
+    expected = generation_resources(spec["generation"], grant)
+    if expected != proposal["generation_resources"]:
+        raise ValueError("generation CPU grant differs from the approved plan")
+    return expected
 
 
 def generation_notes(proposal):
@@ -329,6 +390,12 @@ def generation_notes(proposal):
                      f"through LHAPDF set {proposal['pdf'].get('name')} ({proposal['pdf']['lhaid']}).")
     if proposal.get("model_origin"):
         notes.append("Model: reviewed derived UFO from " + proposal["model_origin"]["handoff"]["path"] + ".")
+    if proposal.get("generation_resources"):
+        notes.append("MadGraph resources under one native-job lease: " + str(proposal["generation_resources"]) + ".")
+    if proposal.get("decay_states"):
+        notes.append("Outside-model stable invisible states: " + str(proposal["decay_states"]["outside_model"]) + ".")
+    if proposal.get("shower_tune"):
+        notes.append("Shower preset: " + proposal["shower_tune"]["name"] + "; source: " + proposal["shower_tune"]["source"] + ".")
     if proposal.get("lhe_transform"):
         t = proposal["lhe_transform"]
         notes.append(f"LHE transform '{t['name']}' before the shower: " + " ".join(t["deviations"])
@@ -506,6 +573,8 @@ def verify_supervised_stage(rundir, stage, command, inputs, outputs, depends_on,
 
 
 def run(rundir, *, resume=False):
+    from . import wms_policy
+    wms_policy.require_dispatch(rundir)
     rd = root_path(rundir)
     with file_lock(rd / "logs/scoped.lock", blocking=False):
         proposal = verify_plan(rd, require_approval=True)

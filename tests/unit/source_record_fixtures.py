@@ -4,8 +4,9 @@ import hashlib
 import json
 from pathlib import Path
 from ravel.physics import sfitter_higgs_support
+from analysis_package_fixtures import selected_source
 
-TRACE_PRODUCER = Path(__file__).resolve().parents[2] / 'analysis-packages' / 'selection-a' / 'selection.py'
+TRACE_PRODUCER = selected_source('selection-a')
 
 
 def pin(path):

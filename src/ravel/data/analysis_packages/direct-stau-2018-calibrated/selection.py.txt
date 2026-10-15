@@ -1,0 +1,233 @@
+"""ATLAS-SUSY-2018-04 projection of supplied calibrated event states.
+
+This is a separate, weighted implementation of paper Tables 1--3, not a
+modification or detector-validation claim for the MA5/CheckMATE comparators.
+Tau identification, overlap removal, trigger matching, top tagging, and mT2
+are supplied by a pinned producer. No efficiency is fitted from a benchmark.
+"""
+import math, hashlib, itertools, json
+IMPLEMENTATION = "ravel-atlas-susy-2018-04-weighted-paper-v2"
+# A selection correction must not reshuffle the original group-to-era draw.
+_ERA_HASH_NAMESPACE = "ravel-atlas-susy-2018-04-weighted-paper-v1"
+CHANNELS = ("QCR1cut_cuts", "QCR2cut_cuts", "SR1cut_cuts", "SR2cut_cuts", "WCRcut_cuts")
+MAX_BYTES, MAX_EVENTS, MAX_VARIATIONS = 128 * 1024 * 1024, 100_000, 128
+SOURCE = "https://arxiv.org/html/1911.06660v2"
+RESPONSE_COMPONENTS = {"baseline_objects", "tau_identification", "trigger_matching", "overlap_removal", "top_tagging", "mt2", "muon_isolation"}
+
+
+def _keys(value, expected, label):
+    if not isinstance(value, dict) or set(value) != set(expected):
+        raise ValueError(label + " requires exactly " + ", ".join(sorted(expected)))
+
+
+def _text(value, label):
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(label + " must be nonempty text")
+    return value
+
+
+def _number(value, label, *, nonnegative=False, positive=False):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(label + " must be finite")
+    if nonnegative and value < 0 or positive and value <= 0:
+        raise ValueError(label + " is outside its allowed range")
+    return float(value)
+
+
+def _boolean(value, label):
+    if type(value) is not bool:
+        raise ValueError(label + " must be boolean")
+
+
+def _count(value, label):
+    if type(value) is not int or value < 0:
+        raise ValueError(label + " must be a nonnegative integer")
+
+
+def _compact(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+
+
+def _eras(eras):
+    if not isinstance(eras, list) or not 0 < len(eras) <= 16:
+        raise ValueError("eras must be a bounded nonempty list")
+    names = []
+    for era in eras:
+        _keys(era, ("name", "luminosity_fb", "trigger_epoch"), "era")
+        names.append(_text(era["name"], "era name"))
+        _number(era["luminosity_fb"], "era luminosity", positive=True)
+        if era["trigger_epoch"] not in ("early", "late"):
+            raise ValueError("trigger_epoch must identify pre-2018 early or 2018 late thresholds")
+    if len(names) != len(set(names)):
+        raise ValueError("duplicate era names")
+    return sorted(eras, key=lambda era: era["name"])
+
+
+def stable_era(dataset_id, group_id, eras, seed):
+    """Stable group-coupled era, independent of file, partition, or row order.
+
+    Correlated subtraction/counterevents must carry the same original group_id.
+    Hashing the local row index is deliberately impossible through this API.
+    """
+    for label, value in (("dataset_id", dataset_id), ("group_id", group_id), ("seed", seed)):
+        _text(value, label)
+    eras = _eras(eras)
+    key = _compact([_ERA_HASH_NAMESPACE, dataset_id, group_id, seed])
+    u = int.from_bytes(hashlib.sha256(key).digest(), "big") / 2**256
+    total = math.fsum(era["luminosity_fb"] for era in eras)
+    cumulative = 0.0
+    for era in eras:
+        cumulative += era["luminosity_fb"] / total
+        if u < cumulative:
+            return era["name"]
+    return eras[-1]["name"]
+
+
+def _object(obj, kind):
+    expected = {"pt", "eta", "phi", "mass", "charge"} | ({"prongs", "id"} if kind == "tau" else {"isolated"})
+    _keys(obj, expected, kind)
+    for key in ("pt", "mass"):
+        _number(obj[key], kind + " " + key, nonnegative=True)
+    for key in ("eta", "phi"):
+        _number(obj[key], kind + " " + key)
+    if obj["charge"] not in (-1, 1) or type(obj["charge"]) is not int:
+        raise ValueError(kind + " must have unit signed charge")
+    if kind == "tau":
+        if type(obj["prongs"]) is not int or obj["prongs"] not in (1, 3) or obj["id"] not in ("loose", "medium", "tight"):
+            raise ValueError("tau requires explicit nested loose/medium/tight ID and one or three prongs")
+        if obj["pt"] <= 20 or abs(obj["eta"]) >= 2.5 or 1.37 < abs(obj["eta"]) < 1.52:
+            raise ValueError("tau lies outside the declared calibrated baseline acceptance")
+    else:
+        _boolean(obj["isolated"], "muon isolated")
+        if obj["pt"] <= 14 or abs(obj["eta"]) >= 2.7:
+            raise ValueError("muon lies outside the declared baseline acceptance")
+
+
+def validate_state(state):
+    _keys(state, ("taus", "muons", "n_electrons", "n_bjets", "met_pt", "met_phi", "mt2", "top_tagged", "triggers", "response_weights"), "calibrated state")
+    for kind, key in (("tau", "taus"), ("muon", "muons")):
+        if not isinstance(state[key], list) or len(state[key]) > 128:
+            raise ValueError(key + " must be a bounded list")
+        for obj in state[key]:
+            _object(obj, kind)
+    for key in ("n_electrons", "n_bjets"):
+        _count(state[key], key)
+    _number(state["met_pt"], "MET", nonnegative=True)
+    _number(state["met_phi"], "MET phi")
+    _keys(state["mt2"], ("loose_pair", "medium_pair", "mu_tau"), "supplied mT2")
+    for value in state["mt2"].values():
+        _number(value, "mT2", nonnegative=True)
+    _boolean(state["top_tagged"], "top-tag decision")
+    _keys(state["triggers"], ("asym_ditau", "ditau_met", "single_muon"), "matched trigger decisions")
+    for value in state["triggers"].values():
+        _boolean(value, "trigger decision")
+    _keys(state["response_weights"], CHANNELS, "complete channel response weights")
+    for value in state["response_weights"].values():
+        _number(value, "calibrated response weight", nonnegative=True)
+
+
+def _dphi(a, b):
+    return abs(math.remainder(a - b, 2 * math.pi))
+
+
+def _rapidity(obj):
+    """Rapidity from a validated baseline object's pT, eta and mass.
+
+    pz = pT sinh(eta), so y = asinh(pz / mT). Scaling pT and mass
+    before forming pT/mT avoids overflow even for finite very large inputs.
+    Baseline eta remains the supplied calibration coordinate and is bounded.
+    """
+    pt, mass = obj["pt"], obj["mass"]
+    if mass == 0:
+        return obj["eta"]
+    scale = max(pt, mass)
+    ratio = (pt / scale) / math.hypot(pt / scale, mass / scale)
+    return math.asinh(ratio * math.sinh(obj["eta"]))
+
+
+def _dr(a, b):
+    # Paper section 4, footnote 2: DeltaR uses rapidity, not pseudorapidity.
+    # This selection distance does not redefine the producer's overlap removal.
+    return math.hypot(_rapidity(a) - _rapidity(b), _dphi(a["phi"], b["phi"]))
+
+
+def _p4(a):
+    px, py, pz = a["pt"] * math.cos(a["phi"]), a["pt"] * math.sin(a["phi"]), a["pt"] * math.sinh(a["eta"])
+    return math.sqrt(a["mass"]**2 + px*px + py*py + pz*pz), px, py, pz
+
+
+def _mass(a, b):
+    e, px, py, pz = (x + y for x, y in zip(_p4(a), _p4(b)))
+    return math.sqrt(max(0.0, e*e - px*px - py*py - pz*pz))
+
+
+def _mt(obj, state):
+    return math.sqrt(2 * obj["pt"] * state["met_pt"] * (1 - math.cos(obj["phi"] - state["met_phi"])))
+
+
+def select_regions(state, trigger_epoch="early"):
+    """All five regions of paper Tables 1--3 using calibrated post-OR objects.
+
+    Source channel mapping is fixed by the released lowMass/highMass workspaces.
+    QCR selects CR-A (loose SS/OS, veto medium OS), not a same-sign-only region.
+    Baseline n_electrons counts qualified pT>17 GeV, |eta|<2.47 electrons;
+    muons use the paper pT>14 GeV baseline, not the auxiliary truth-code 10 GeV.
+    For >2 loose taus, leading-pT pairing and any-medium-OS veto are explicit
+    interpretations of the paper's orthogonality conditions, pending a native
+    same-event all-region reference.
+    """
+    validate_state(state)
+    if trigger_epoch not in ("early", "late"):
+        raise ValueError("unknown trigger epoch")
+    result = dict.fromkeys(CHANNELS, False)
+    loose = sorted(state["taus"], key=lambda obj: -obj["pt"])
+    medium = [obj for obj in loose if obj["id"] in ("medium", "tight")]
+    late = trigger_epoch == "late"
+    no_leptons = state["n_electrons"] == 0 and not state["muons"]
+    b_veto = state["n_bjets"] == 0
+
+    def ditau(pair, mt2):
+        if len(pair) < 2:
+            return False, False
+        a, b = pair[:2]
+        common = (no_leptons and b_veto and _mass(a, b) > 120 and _dphi(a["phi"], b["phi"]) > .8
+                  and _dr(a, b) < 3.2 and mt2 > 70)
+        low = (common and state["triggers"]["asym_ditau"] and a["pt"] > 95 and b["pt"] > (75 if late else 60)
+               and 75 < state["met_pt"] < 150)
+        high = (common and state["triggers"]["ditau_met"] and a["pt"] > (75 if late else 50)
+                and b["pt"] > 40 and state["met_pt"] > 150)
+        return low, high
+
+    if len(medium) == 2 and medium[0]["charge"] != medium[1]["charge"]:
+        low, high = ditau(medium, state["mt2"]["medium_pair"])
+        tight = sum(obj["id"] == "tight" for obj in medium)
+        result["SR1cut_cuts"], result["SR2cut_cuts"] = low and tight == 2, high and tight >= 1
+    if len(loose) >= 2 and not any(a["charge"] != b["charge"] for a, b in itertools.combinations(medium, 2)):
+        result["QCR1cut_cuts"], result["QCR2cut_cuts"] = ditau(loose, state["mt2"]["loose_pair"])
+    if len(loose) == 1 and len(medium) == 1 and len(state["muons"]) == 1:
+        tau, mu = medium[0], state["muons"][0]
+        mt_mu, mt_tau = _mt(mu, state), _mt(tau, state)
+        result["WCRcut_cuts"] = (state["n_electrons"] == 0 and b_veto and not state["top_tagged"]
+            and mu["isolated"] and state["triggers"]["single_muon"] and tau["charge"] != mu["charge"]
+            and tau["pt"] > 60 and mu["pt"] > 50 and state["met_pt"] > 60
+            and _mass(mu, tau) > 70 and 1 < _dr(mu, tau) < 3.5
+            and 50 < mt_mu < 150 and mt_mu + mt_tau > 250 and 30 < state["mt2"]["mu_tau"] < 70)
+    return result
+
+
+
+def sr_order():
+    return list(CHANNELS)
+
+
+def validate_generation(generation):
+    from ravel.physics.stau_adapter import _pin
+    _keys(generation, ("process", "decays", "tau_decay_coverage", "spin_correlations", "filter", "evidence"), "generation contract")
+    if generation["tau_decay_coverage"] not in ("inclusive", "stratified_complete"):
+        raise ValueError("all-region prediction requires inclusive or branching-weighted complete tau decays, including muonic WCR topology")
+    for key in ("process", "decays", "spin_correlations", "filter"):
+        _text(generation[key], "generation " + key)
+    if not isinstance(generation["evidence"], list) or not generation["evidence"]:
+        raise ValueError("generation/decay/filter evidence is required")
+    for pin in generation["evidence"]:
+        _pin(pin)

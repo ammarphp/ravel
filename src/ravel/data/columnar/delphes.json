@@ -23,6 +23,104 @@
     "Jet": {"fields": {
       "pt": "Jet.PT", "eta": "Jet.Eta", "phi": "Jet.Phi", "mass": "Jet.Mass",
       "btag": "Jet.BTag", "tautag": "Jet.TauTag", "charge": "Jet.Charge"}},
+    "FatJet": {
+      "optional": true,
+      "fields": {
+        "pt": "FatJet.PT",
+        "eta": "FatJet.Eta",
+        "phi": "FatJet.Phi",
+        "mass": "FatJet.Mass",
+        "tau1": {
+          "branch": "FatJet.Tau[5]",
+          "index": 0
+        },
+        "tau2": {
+          "branch": "FatJet.Tau[5]",
+          "index": 1
+        },
+        "tau3": {
+          "branch": "FatJet.Tau[5]",
+          "index": 2
+        },
+        "tau4": {
+          "branch": "FatJet.Tau[5]",
+          "index": 3
+        },
+        "tau5": {
+          "branch": "FatJet.Tau[5]",
+          "index": 4
+        },
+        "tau21": {
+          "ratio": [
+            {
+              "branch": "FatJet.Tau[5]",
+              "index": 1
+            },
+            {
+              "branch": "FatJet.Tau[5]",
+              "index": 0
+            }
+          ]
+        },
+        "tau32": {
+          "ratio": [
+            {
+              "branch": "FatJet.Tau[5]",
+              "index": 2
+            },
+            {
+              "branch": "FatJet.Tau[5]",
+              "index": 1
+            }
+          ]
+        },
+        "softdrop_mass": {
+          "mass_from": {
+            "px": {
+              "branch": "FatJet.SoftDroppedJet",
+              "member": ["fP", "fX"]
+            },
+            "py": {
+              "branch": "FatJet.SoftDroppedJet",
+              "member": ["fP", "fY"]
+            },
+            "pz": {
+              "branch": "FatJet.SoftDroppedJet",
+              "member": ["fP", "fZ"]
+            },
+            "e": {
+              "branch": "FatJet.SoftDroppedJet",
+              "member": ["fE"]
+            }
+          }
+        },
+        "trimmed_mass": {
+          "mass_from": {
+            "px": {
+              "branch": "FatJet.TrimmedP4[5]",
+              "member": ["fP", "fX"],
+              "index": 0
+            },
+            "py": {
+              "branch": "FatJet.TrimmedP4[5]",
+              "member": ["fP", "fY"],
+              "index": 0
+            },
+            "pz": {
+              "branch": "FatJet.TrimmedP4[5]",
+              "member": ["fP", "fZ"],
+              "index": 0
+            },
+            "e": {
+              "branch": "FatJet.TrimmedP4[5]",
+              "member": ["fE"],
+              "index": 0
+            }
+          },
+          "optional": true
+        }
+      }
+    },
     "EFlowTrack": {"fields": {
       "pt": "EFlowTrack.PT", "eta": "EFlowTrack.Eta", "phi": "EFlowTrack.Phi", "mass": "EFlowTrack.Mass",
       "charge": "EFlowTrack.Charge", "pid": "EFlowTrack.PID"}}

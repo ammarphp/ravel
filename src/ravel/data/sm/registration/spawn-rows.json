@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "spawn-row-catalogue-fragment",
+  "rows": [
+    {
+      "row": "sm-precision-theory",
+      "predicate": "stage",
+      "stages": [
+        "S4"
+      ],
+      "operations": [
+        "theory-uncertainty"
+      ],
+      "trigger": "every S4 stage and every theory-uncertainty operation",
+      "roles": [
+        {
+          "role": "precision-theory-auditor",
+          "count": 1,
+          "distinct_family_from": []
+        }
+      ],
+      "mode": "specialist",
+      "gate": "checkin2_accept"
+    },
+    {
+      "row": "sm-unfolding",
+      "predicate": "operation",
+      "stages": [],
+      "operations": [
+        "unfold"
+      ],
+      "trigger": "every unfold operation",
+      "roles": [
+        {
+          "role": "unfolding-reviewer",
+          "count": 1,
+          "distinct_family_from": []
+        }
+      ],
+      "mode": "specialist",
+      "gate": "checkin2_accept"
+    }
+  ],
+  "handoff": "spawn_rows.derive now appends sm_checks.derive_review_points(facts) once. Keep that seam once when merging rows; do not derive duplicate review IDs. The existing pending and gate_errors consume the ordinary review-point shape and enforce custody. Stage is exact /review/stage metadata or supplied node stage; theory-uncertainty and unfold are exact operations, so an undeclared stage cannot omit the theory review. No launch is added."
+}

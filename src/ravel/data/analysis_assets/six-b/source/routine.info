@@ -1,0 +1,61 @@
+Name: ATLAS_2024_I2845789
+Year: 2024
+Summary: ATLAS search for triple higgs boson production in the 6$b$ final state
+Experiment: ATLAS
+Collider: LHC
+InspireID: 2845789
+Status: VALIDATED
+Reentrant: true
+Authors:
+ - (author contact omitted from the shipped copy)
+References:
+ - 'Phys. Rev. D 111 (2025) 3, 032006'
+ - 'DOI:10.1103/PhysRevD.111.032006'
+ - 'arXiv:2411.02040'
+#RunInfo: <Describe event types, cuts, and other general generator config tips.>
+Beams: [p+, p+]
+Energies: [[6500,6500]]
+Luminosity_fb: 126.0
+Description:
+  'A search for the production of three Higgs bosons ($HHH$) in the
+  $b\bar{b}b\bar{b}b\bar{b}$ final state is presented.
+  The search uses 126~$\text{fb}^{-1}$ of proton--proton collision data at 
+  $\sqrt{s}=13$ TeV collected with the ATLAS detector at the Large Hadron Collider.
+  The analysis targets both non-resonant and resonant production of $HHH$.
+  The resonant interpretations primarily consider a cascade decay topology of 
+  $X\rightarrow SH\rightarrow HHH$ with masses of the new scalars $X$ and $S$ up to 
+  1.5 TeV and 1 TeV, respectively.
+  In addition to scenarios where $S$ is off-shell, the non-resonant interpretation
+  includes a search for standard model (SM) $HHH$ production, with limits on the 
+  tri-linear and quartic Higgs self-coupling set.
+  No evidence for $HHH$ production is observed.
+  An upper limit of 59 fb is set, at 95\% confidence level, on the cross-section for
+  Standard-Model $HHH$ production.'
+ValidationInfo:
+  'Normalised Neural network inputs outputs validated using Auxiliary Figures 2-13
+  (not on hepdata, I used a clicker).
+  Absolute bin-counts for a variety of mass-points validated using the Signal 
+  distributions in the HS3 likelihood jsons. Distributions were consistently within 
+  the "acceptable" 10-15% error range. Performance was slightly better in the SR (6b)
+  than the CR (5b).
+  See https://gitlab.com/apapaefs/twosinglet for information on generating param cards.
+  All event generation carried out with MG5.
+  See validation plots attached to Rivet MR !1110.
+  Note that for cutflows etc, the ATLAS published results set the XS to a fixed 50 fb.
+  ' 
+#ReleaseTests:
+# - $A my-hepmc-prefix :MODE=some_rivet_flag
+Keywords: []
+BibKey: ATLAS:2024xcs
+BibTeX: '@article{ATLAS:2024xcs,
+    author = "Aad, Georges and others",
+    collaboration = "ATLAS",
+    title = "{A search for triple Higgs boson production in the $6b$ final state using $pp$ collisions at $\sqrt{s}=13$ TeV with the ATLAS detector}",
+    eprint = "2411.02040",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ex",
+    reportNumber = "CERN-EP-2024-285",
+    month = "11",
+    year = "2024"
+}'
+

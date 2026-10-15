@@ -203,16 +203,20 @@ def generate(root=None):
         modes[mode]['curation_source'] = pin(path)
 
     manifest_path = root / 'native/setup/toolchain-manifest.json'
-    manifest = json.loads(manifest_path.read_text())
+    from ravel.setup import manifest as mf
+    manifest = mf.view(root)
+    pin(manifest_path)
     for group in manifest['groups']:
-        row = add('tool', group['id'], group['title'], group['title'], manifest_path,
+        source = root / 'native/setup/groups' / (group['id'] + '.json')
+        source = source if source.is_file() else manifest_path
+        row = add('tool', group['id'], group['title'], group['title'], source,
                   installer_group=group['id'], licenses=group.get('licenses', []),
                   depends_on=group.get('depends_on', []), qualification_status='not_installed',
                   qualification_scope='Installer declaration; installation not inspected')
         row['links']['checks'] = []
         for check in group.get('checks', []):
             cid = 'doctor/' + group['id'] + '/' + check['id']
-            add('check', cid, check['id'], 'Toolchain doctor declaration', manifest_path,
+            add('check', cid, check['id'], 'Toolchain doctor declaration', source,
                 check={'catches': check.get('instruction', check.get('kind', 'toolchain readiness'))})
             row['links']['checks'].append('check:' + cid)
     from ravel.setup import manifest as mf
@@ -285,6 +289,8 @@ def generate(root=None):
     roles_path = package / 'data/roles/registry.json'
     if roles_path.is_file():
         from .role_registry import registry_document, all_cards
+        from .role_registration import source_pins
+        source_pins(package, pin)
         pin(package / 'workflow/role_registry.py')
         role_document = registry_document(roles_root=roles_path.parent)
         for card in all_cards(document=role_document, roles_root=roles_path.parent):
@@ -479,6 +485,9 @@ def generate(root=None):
             if 'trap:' + tid not in entries: add('trap', tid, tid, premise['statement'], path)
             for mode in premise.get('operations', []):
                 if mode in modes: modes[mode]['links']['traps'].append('trap:' + tid)
+
+    from .higgs_registration import index_registration
+    index_registration(root, add, pin)
 
     cli_path = package / 'cli.py'
     commands = literal(cli_path, 'FOCUSED_COMMANDS')

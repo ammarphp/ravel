@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Submission repository layout",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "subdir", "snakefile", "rerun_target", "required_files"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "subdir": {"type": "string", "minLength": 1},
+    "snakefile": {"type": "string", "minLength": 1},
+    "rerun_target": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+    "required_files": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  }
+}

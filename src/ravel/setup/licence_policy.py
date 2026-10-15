@@ -170,7 +170,11 @@ def main(argv=None):
     parser.add_argument('--containerfile', type=Path, action='append', default=[])
     args = parser.parse_args(argv)
     root = repo_root()
-    manifest = read_json(args.manifest or root / 'native/setup/toolchain-manifest.json')
+    from ravel.setup.manifest import view
+    path = args.manifest or root / 'native/setup/toolchain-manifest.json'
+    # A tree's main file is read with its fragments; any other named file is read as given.
+    manifest = (view(path.parents[2]) if path.parts[-3:] == ('native', 'setup', 'toolchain-manifest.json')
+                else read_json(path))
     pins = read_json(args.pins or root / 'native/setup/tools-pins.json')
     from jsonschema import Draft202012Validator
     schema = read_json(root / 'native/setup/tools-pins.schema.json')

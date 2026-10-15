@@ -1,0 +1,2362 @@
+{
+ "schema_version": 1,
+ "kind": "repair-manifest",
+ "review": {
+  "status": "reviewed",
+  "reviewer": "software translation of the 2026-10-10 development-line repair code; physicist review of each correction is pending",
+  "evidence": [
+   {
+    "path": "review-note.md",
+    "sha256": "062950bf7437618eb0c5c586a760d98a171f98b0559bc3954cce4ad444cb26c4"
+   }
+  ]
+ },
+ "sources": {
+  "card": {
+   "path": "sfitter/data/Top_Full.json",
+   "sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8"
+  },
+  "earlier": {
+   "path": "sfitter/data/TopLikelihood_22WC.json",
+   "sha256": "e36925b18cadbdeea7292df18331565fafd8482f8ff1888da731ceb0c6bee688"
+  },
+  "note": {
+   "path": "sfitteragents/docs/CONFLICTS_AND_NOTES.md",
+   "sha256": "7a3c29afd3275d13d73b00e4b9d9766f9f3d52d3244b529bbfe884db38d89b3b"
+  }
+ },
+ "context": {
+  "source_commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+  "source_license": "MIT",
+  "card_output": "derived-card.json",
+  "output_format": "json",
+  "identity": "sfitter-published-top-full"
+ },
+ "card_source": "card",
+ "defect_registry": {
+  "path": "top-full.defect-registry.json",
+  "sha256": "3db487ee369de6dc6da7abbc8f67b89dde0ec512d48df6fecaaa32335d8634e2"
+ },
+ "identity_template": "{identity}__sourceRow{row:03d}",
+ "transforms": [
+  {
+   "operation": "copy",
+   "path": "/observations/1/ID",
+   "expected": "2130212_0",
+   "source": "earlier",
+   "source_path": "/observations/1/ID"
+  },
+  {
+   "operation": "copy",
+   "path": "/observations/1/name",
+   "expected": "SingleT_tch_tbar_8",
+   "source": "earlier",
+   "source_path": "/observations/1/name"
+  },
+  {
+   "operation": "copy",
+   "path": "/observations/1/Meas/data",
+   "expected": [
+    32.9
+   ],
+   "source": "earlier",
+   "source_path": "/observations/1/data"
+  },
+  {
+   "operation": "replace",
+   "path": "/observations/1/modifiers",
+   "expected": [
+    {
+     "name": "Matching",
+     "energy": "8TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      2.0
+     ]
+    },
+    {
+     "name": "PDF",
+     "energy": "8TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      2.2
+     ]
+    },
+    {
+     "name": "Scales",
+     "energy": "8TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      3.3
+     ]
+    },
+    {
+     "name": "ScalesT",
+     "energy": "8TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      10.0
+     ]
+    }
+   ],
+   "value": [
+    {
+     "name": "PDF",
+     "energy": "7TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      1.875
+     ]
+    },
+    {
+     "name": "ScaleSim",
+     "energy": "7TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      0.21875
+     ]
+    },
+    {
+     "name": "TopMass",
+     "energy": "7TeV",
+     "label": "Theo",
+     "type": "theo",
+     "data": [
+      2.8125
+     ]
+    }
+   ]
+  },
+  {
+   "operation": "replace",
+   "path": "/predictions/3/modifiers/33/name",
+   "expected": "D6qq18x6qt8",
+   "value": "D6qq18xD6qt8",
+   "evidence": {
+    "source": "note",
+    "line_start": 284,
+    "line_end": 284,
+    "quote": "  `D6qq18x6qt8` \u2014 a dropped `D` \u2014 illustrating the split-on-`x` fragility.)",
+    "quote_sha256": "f38df6cd160ded725480322bf51487a8198d403a3bef1615b14e65cd74933d8e"
+   }
+  },
+  {
+   "operation": "replace",
+   "path": "/predictions/18/modifiers/33/name",
+   "expected": "D6qq18x6qt8",
+   "value": "D6qq18xD6qt8",
+   "evidence": {
+    "source": "note",
+    "line_start": 284,
+    "line_end": 284,
+    "quote": "  `D6qq18x6qt8` \u2014 a dropped `D` \u2014 illustrating the split-on-`x` fragility.)",
+    "quote_sha256": "f38df6cd160ded725480322bf51487a8198d403a3bef1615b14e65cd74933d8e"
+   }
+  },
+  {
+   "operation": "project-last",
+   "path": "/predictions/13/modifiers",
+   "expected": [
+    {
+     "name": "D6qq38",
+     "data": [
+      -0.018328530151
+     ]
+    },
+    {
+     "name": "D6qq18",
+     "data": [
+      0.086737573176
+     ]
+    },
+    {
+     "name": "D6qu1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6ut1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qd1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6dt1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6phiqm",
+     "data": [
+      -0.092958133305
+     ]
+    },
+    {
+     "name": "D6phiq3",
+     "data": [
+      0.000472151575
+     ]
+    },
+    {
+     "name": "D6phit",
+     "data": [
+      0.060634659664
+     ]
+    },
+    {
+     "name": "D6phiphi",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6tw",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6tz",
+     "data": [
+      -0.003239458081
+     ]
+    },
+    {
+     "name": "D6qt8",
+     "data": [
+      0.070277581303
+     ]
+    },
+    {
+     "name": "D6tg",
+     "data": [
+      0.281031317251
+     ]
+    },
+    {
+     "name": "D6qu8",
+     "data": [
+      0.023219122936
+     ]
+    },
+    {
+     "name": "D6ut8",
+     "data": [
+      0.015630408283
+     ]
+    },
+    {
+     "name": "D6qd8",
+     "data": [
+      0.01885656669
+     ]
+    },
+    {
+     "name": "D6dt8",
+     "data": [
+      0.012329982393
+     ]
+    },
+    {
+     "name": "D6qq31",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qq11",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qt1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qq38xD6qq38",
+     "data": [
+      0.043421458562
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq38",
+     "data": [
+      -0.001741273493
+     ]
+    },
+    {
+     "name": "D6qq38xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd8xD6phiqm",
+     "data": [
+      -0.001259867143
+     ]
+    },
+    {
+     "name": "D6qd8xD6phit",
+     "data": [
+      0.00059800506
+     ]
+    },
+    {
+     "name": "D6qd8xD6tz",
+     "data": [
+      1.105957e-06
+     ]
+    },
+    {
+     "name": "D6qq38xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qd8",
+     "data": [
+      0.005495390981
+     ]
+    },
+    {
+     "name": "D6dt8xD6dt8",
+     "data": [
+      0.005705296543
+     ]
+    },
+    {
+     "name": "D6qq31xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6phiqm",
+     "data": [
+      -0.000528842111
+     ]
+    },
+    {
+     "name": "D6qq38xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6phit",
+     "data": [
+      0.000851814262
+     ]
+    },
+    {
+     "name": "D6dt8xD6tz",
+     "data": [
+      0.000130820142
+     ]
+    },
+    {
+     "name": "D6tgxD6dt8",
+     "data": [
+      0.004579983056
+     ]
+    },
+    {
+     "name": "D6qq31xD6qq31",
+     "data": [
+      0.195399855528
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq31",
+     "data": [
+      -0.00783573072
+     ]
+    },
+    {
+     "name": "D6qq31xD6qt1",
+     "data": [
+      -0.004922583264
+     ]
+    },
+    {
+     "name": "D6qq31xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6phiqm",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq31",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6phiqm",
+     "data": [
+      4.2809921e-05
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq11",
+     "data": [
+      0.195399855528
+     ]
+    },
+    {
+     "name": "D6qq11xD6qt1",
+     "data": [
+      0.046505480098
+     ]
+    },
+    {
+     "name": "D6qq11xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq11",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qt1",
+     "data": [
+      0.140410314677
+     ]
+    },
+    {
+     "name": "D6qt1xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6phit",
+     "data": [
+      3.6565194e-05
+     ]
+    },
+    {
+     "name": "D6qt1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6qu1",
+     "data": [
+      0.082369749733
+     ]
+    },
+    {
+     "name": "D6ut1xD6qu1",
+     "data": [
+      0.020514959283
+     ]
+    },
+    {
+     "name": "D6qu1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6ut1",
+     "data": [
+      0.045091160138
+     ]
+    },
+    {
+     "name": "D6ut1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd1xD6qd1",
+     "data": [
+      0.047849854776
+     ]
+    },
+    {
+     "name": "D6dt1xD6qd1",
+     "data": [
+      0.013786114605
+     ]
+    },
+    {
+     "name": "D6qd1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6tz",
+     "data": [
+      -0.000501646331
+     ]
+    },
+    {
+     "name": "D6qd1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd1xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6dt1",
+     "data": [
+      0.025673636925
+     ]
+    },
+    {
+     "name": "D6dt1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qt8",
+     "data": [
+      -0.001093872966
+     ]
+    },
+    {
+     "name": "D6tgxD6qq38",
+     "data": [
+      -0.001547858906
+     ]
+    },
+    {
+     "name": "D6dt1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6phiqmxD6phiqm",
+     "data": [
+      0.003681375942
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phiqm",
+     "data": [
+      2.2796895e-05
+     ]
+    },
+    {
+     "name": "D6phiqmxD6phit",
+     "data": [
+      -0.002125778903
+     ]
+    },
+    {
+     "name": "D6tzxD6phiqm",
+     "data": [
+      6.2424035e-05
+     ]
+    },
+    {
+     "name": "D6tgxD6phiqm",
+     "data": [
+      -0.015517318457
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq18",
+     "data": [
+      0.043421458562
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phiq3",
+     "data": [
+      2.758958e-05
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phit",
+     "data": [
+      4.62762e-06
+     ]
+    },
+    {
+     "name": "D6phiq3xD6tz",
+     "data": [
+      1.04802e-07
+     ]
+    },
+    {
+     "name": "D6tgxD6phiq3",
+     "data": [
+      5.9465884e-05
+     ]
+    },
+    {
+     "name": "D6phitxD6phit",
+     "data": [
+      0.003692832097
+     ]
+    },
+    {
+     "name": "D6tzxD6phit",
+     "data": [
+      3.5043129e-05
+     ]
+    },
+    {
+     "name": "D6qq18xD6qt8",
+     "data": [
+      0.010334551133
+     ]
+    },
+    {
+     "name": "D6tgxD6phit",
+     "data": [
+      0.011938722576
+     ]
+    },
+    {
+     "name": "D6tzxD6tz",
+     "data": [
+      0.077485740944
+     ]
+    },
+    {
+     "name": "D6tgxD6tz",
+     "data": [
+      0.009652139235
+     ]
+    },
+    {
+     "name": "D6qq18xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6tg",
+     "data": [
+      0.218206820268
+     ]
+    },
+    {
+     "name": "D6qq18xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq31",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq11",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6phiqm",
+     "data": [
+      -0.002951644472
+     ]
+    },
+    {
+     "name": "D6qq18xD6phit",
+     "data": [
+      0.001455837869
+     ]
+    },
+    {
+     "name": "D6qq18xD6tz",
+     "data": [
+      -0.000181966178
+     ]
+    },
+    {
+     "name": "D6qq38xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq18",
+     "data": [
+      0.019261676137
+     ]
+    },
+    {
+     "name": "D6qt8xD6qt8",
+     "data": [
+      0.031204194194
+     ]
+    },
+    {
+     "name": "D6qt8xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6qt8",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6phiqm",
+     "data": [
+      -0.001358317259
+     ]
+    },
+    {
+     "name": "D6qt8xD6phit",
+     "data": [
+      0.002069466367
+     ]
+    },
+    {
+     "name": "D6qt8xD6tz",
+     "data": [
+      0.000570824772
+     ]
+    },
+    {
+     "name": "D6tgxD6qt8",
+     "data": [
+      0.017466956082
+     ]
+    },
+    {
+     "name": "D6qq38xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6qu8",
+     "data": [
+      0.018304827763
+     ]
+    },
+    {
+     "name": "D6ut8xD6qu8",
+     "data": [
+      0.004558914267
+     ]
+    },
+    {
+     "name": "D6qq31xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qq31",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6phiqm",
+     "data": [
+      -0.001837864598
+     ]
+    },
+    {
+     "name": "D6qu8xD6phit",
+     "data": [
+      0.000869242488
+     ]
+    },
+    {
+     "name": "D6qu8xD6tz",
+     "data": [
+      -7.6615259e-05
+     ]
+    },
+    {
+     "name": "D6tgxD6qu8",
+     "data": [
+      0.007912414917
+     ]
+    },
+    {
+     "name": "D6ut8xD6ut8",
+     "data": [
+      0.010020184653
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq38",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6phiqm",
+     "data": [
+      -0.000785974294
+     ]
+    },
+    {
+     "name": "D6qq38xD6qt1",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6phit",
+     "data": [
+      0.001166994059
+     ]
+    },
+    {
+     "name": "D6ut8xD6tz",
+     "data": [
+      0.000485914452
+     ]
+    },
+    {
+     "name": "D6tgxD6ut8",
+     "data": [
+      0.007101343976
+     ]
+    },
+    {
+     "name": "D6qd8xD6qd8",
+     "data": [
+      0.01063328643
+     ]
+    },
+    {
+     "name": "D6dt8xD6qd8",
+     "data": [
+      0.003063494958
+     ]
+    },
+    {
+     "name": "D6qq31xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qd8",
+     "data": [
+      0.0
+     ]
+    }
+   ],
+   "key": "name"
+  },
+  {
+   "operation": "project-last",
+   "path": "/predictions/27/modifiers",
+   "expected": [
+    {
+     "name": "D6qq38",
+     "data": [
+      -0.018328530151
+     ]
+    },
+    {
+     "name": "D6qq18",
+     "data": [
+      0.086737573176
+     ]
+    },
+    {
+     "name": "D6qu1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6ut1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qd1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6dt1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6phiqm",
+     "data": [
+      -0.092958133305
+     ]
+    },
+    {
+     "name": "D6phiq3",
+     "data": [
+      0.000472151575
+     ]
+    },
+    {
+     "name": "D6phit",
+     "data": [
+      0.060634659664
+     ]
+    },
+    {
+     "name": "D6phiphi",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6tw",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6tz",
+     "data": [
+      -0.003239458081
+     ]
+    },
+    {
+     "name": "D6qt8",
+     "data": [
+      0.070277581303
+     ]
+    },
+    {
+     "name": "D6tg",
+     "data": [
+      0.281031317251
+     ]
+    },
+    {
+     "name": "D6qu8",
+     "data": [
+      0.023219122936
+     ]
+    },
+    {
+     "name": "D6ut8",
+     "data": [
+      0.015630408283
+     ]
+    },
+    {
+     "name": "D6qd8",
+     "data": [
+      0.01885656669
+     ]
+    },
+    {
+     "name": "D6dt8",
+     "data": [
+      0.012329982393
+     ]
+    },
+    {
+     "name": "D6qq31",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qq11",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qt1",
+     "data": [
+      4.6e-11
+     ]
+    },
+    {
+     "name": "D6qq38xD6qq38",
+     "data": [
+      0.043421458562
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq38",
+     "data": [
+      -0.001741273493
+     ]
+    },
+    {
+     "name": "D6qq38xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd8xD6phiqm",
+     "data": [
+      -0.001259867143
+     ]
+    },
+    {
+     "name": "D6qd8xD6phit",
+     "data": [
+      0.00059800506
+     ]
+    },
+    {
+     "name": "D6qd8xD6tz",
+     "data": [
+      1.105957e-06
+     ]
+    },
+    {
+     "name": "D6qq38xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qd8",
+     "data": [
+      0.005495390981
+     ]
+    },
+    {
+     "name": "D6dt8xD6dt8",
+     "data": [
+      0.005705296543
+     ]
+    },
+    {
+     "name": "D6qq31xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6phiqm",
+     "data": [
+      -0.000528842111
+     ]
+    },
+    {
+     "name": "D6qq38xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt8xD6phit",
+     "data": [
+      0.000851814262
+     ]
+    },
+    {
+     "name": "D6dt8xD6tz",
+     "data": [
+      0.000130820142
+     ]
+    },
+    {
+     "name": "D6tgxD6dt8",
+     "data": [
+      0.004579983056
+     ]
+    },
+    {
+     "name": "D6qq31xD6qq31",
+     "data": [
+      0.195399855528
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq31",
+     "data": [
+      -0.00783573072
+     ]
+    },
+    {
+     "name": "D6qq31xD6qt1",
+     "data": [
+      -0.004922583264
+     ]
+    },
+    {
+     "name": "D6qq31xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6phiqm",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq31",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6phiqm",
+     "data": [
+      4.2809921e-05
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq11",
+     "data": [
+      0.195399855528
+     ]
+    },
+    {
+     "name": "D6qq11xD6qt1",
+     "data": [
+      0.046505480098
+     ]
+    },
+    {
+     "name": "D6qq11xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq11",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qt1",
+     "data": [
+      0.140410314677
+     ]
+    },
+    {
+     "name": "D6qt1xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6phit",
+     "data": [
+      3.6565194e-05
+     ]
+    },
+    {
+     "name": "D6qt1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6qu1",
+     "data": [
+      0.082369749733
+     ]
+    },
+    {
+     "name": "D6ut1xD6qu1",
+     "data": [
+      0.020514959283
+     ]
+    },
+    {
+     "name": "D6qu1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu1xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6ut1",
+     "data": [
+      0.045091160138
+     ]
+    },
+    {
+     "name": "D6ut1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd1xD6qd1",
+     "data": [
+      0.047849854776
+     ]
+    },
+    {
+     "name": "D6dt1xD6qd1",
+     "data": [
+      0.013786114605
+     ]
+    },
+    {
+     "name": "D6qd1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6tz",
+     "data": [
+      -0.000501646331
+     ]
+    },
+    {
+     "name": "D6qd1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qd1xD6tz",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6dt1",
+     "data": [
+      0.025673636925
+     ]
+    },
+    {
+     "name": "D6dt1xD6phiqm",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6dt1xD6phit",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qt8",
+     "data": [
+      -0.001093872966
+     ]
+    },
+    {
+     "name": "D6tgxD6qq38",
+     "data": [
+      -0.001547858906
+     ]
+    },
+    {
+     "name": "D6dt1xD6tz",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6phiqmxD6phiqm",
+     "data": [
+      0.003681375942
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phiqm",
+     "data": [
+      2.2796895e-05
+     ]
+    },
+    {
+     "name": "D6phiqmxD6phit",
+     "data": [
+      -0.002125778903
+     ]
+    },
+    {
+     "name": "D6tzxD6phiqm",
+     "data": [
+      6.2424035e-05
+     ]
+    },
+    {
+     "name": "D6tgxD6phiqm",
+     "data": [
+      -0.015517318457
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq18",
+     "data": [
+      0.043421458562
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phiq3",
+     "data": [
+      2.758958e-05
+     ]
+    },
+    {
+     "name": "D6phiq3xD6phit",
+     "data": [
+      4.62762e-06
+     ]
+    },
+    {
+     "name": "D6phiq3xD6tz",
+     "data": [
+      1.04802e-07
+     ]
+    },
+    {
+     "name": "D6tgxD6phiq3",
+     "data": [
+      5.9465884e-05
+     ]
+    },
+    {
+     "name": "D6phitxD6phit",
+     "data": [
+      0.003692832097
+     ]
+    },
+    {
+     "name": "D6tzxD6phit",
+     "data": [
+      3.5043129e-05
+     ]
+    },
+    {
+     "name": "D6qq18xD6qt8",
+     "data": [
+      0.010334551133
+     ]
+    },
+    {
+     "name": "D6tgxD6phit",
+     "data": [
+      0.011938722576
+     ]
+    },
+    {
+     "name": "D6tzxD6tz",
+     "data": [
+      0.077485740944
+     ]
+    },
+    {
+     "name": "D6tgxD6tz",
+     "data": [
+      0.009652139235
+     ]
+    },
+    {
+     "name": "D6qq18xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6tg",
+     "data": [
+      0.218206820268
+     ]
+    },
+    {
+     "name": "D6qq18xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq31",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qq11",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq18xD6phiqm",
+     "data": [
+      -0.002951644472
+     ]
+    },
+    {
+     "name": "D6qq18xD6phit",
+     "data": [
+      0.001455837869
+     ]
+    },
+    {
+     "name": "D6qq18xD6tz",
+     "data": [
+      -0.000181966178
+     ]
+    },
+    {
+     "name": "D6qq38xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6tgxD6qq18",
+     "data": [
+      0.019261676137
+     ]
+    },
+    {
+     "name": "D6qt8xD6qt8",
+     "data": [
+      0.031204194194
+     ]
+    },
+    {
+     "name": "D6qt8xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6qt8",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6qd1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6dt1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt8xD6phiqm",
+     "data": [
+      -0.001358317259
+     ]
+    },
+    {
+     "name": "D6qt8xD6phit",
+     "data": [
+      0.002069466367
+     ]
+    },
+    {
+     "name": "D6qt8xD6tz",
+     "data": [
+      0.000570824772
+     ]
+    },
+    {
+     "name": "D6tgxD6qt8",
+     "data": [
+      0.017466956082
+     ]
+    },
+    {
+     "name": "D6qq38xD6dt8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6qu8",
+     "data": [
+      0.018304827763
+     ]
+    },
+    {
+     "name": "D6ut8xD6qu8",
+     "data": [
+      0.004558914267
+     ]
+    },
+    {
+     "name": "D6qq31xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut1xD6qu8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq38xD6qq31",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qu8xD6phiqm",
+     "data": [
+      -0.001837864598
+     ]
+    },
+    {
+     "name": "D6qu8xD6phit",
+     "data": [
+      0.000869242488
+     ]
+    },
+    {
+     "name": "D6qu8xD6tz",
+     "data": [
+      -7.6615259e-05
+     ]
+    },
+    {
+     "name": "D6tgxD6qu8",
+     "data": [
+      0.007912414917
+     ]
+    },
+    {
+     "name": "D6ut8xD6ut8",
+     "data": [
+      0.010020184653
+     ]
+    },
+    {
+     "name": "D6qq11xD6qq38",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq31xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6ut8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6qu1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6ut1",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6phiqm",
+     "data": [
+      -0.000785974294
+     ]
+    },
+    {
+     "name": "D6qq38xD6qt1",
+     "data": [
+      -0.0
+     ]
+    },
+    {
+     "name": "D6ut8xD6phit",
+     "data": [
+      0.001166994059
+     ]
+    },
+    {
+     "name": "D6ut8xD6tz",
+     "data": [
+      0.000485914452
+     ]
+    },
+    {
+     "name": "D6tgxD6ut8",
+     "data": [
+      0.007101343976
+     ]
+    },
+    {
+     "name": "D6qd8xD6qd8",
+     "data": [
+      0.01063328643
+     ]
+    },
+    {
+     "name": "D6dt8xD6qd8",
+     "data": [
+      0.003063494958
+     ]
+    },
+    {
+     "name": "D6qq31xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qq11xD6qd8",
+     "data": [
+      0.0
+     ]
+    },
+    {
+     "name": "D6qt1xD6qd8",
+     "data": [
+      0.0
+     ]
+    }
+   ],
+   "key": "name"
+  },
+  {
+   "operation": "retain",
+   "path": "/observations/15/Meas/modifiers/7",
+   "expected": {
+    "name": "hatPDFNLO",
+    "energy": "8TeV",
+    "label": "Theo",
+    "type": "theo",
+    "data": [
+     2.607
+    ]
+   }
+  }
+ ]
+}

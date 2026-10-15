@@ -56,6 +56,8 @@ def _stores(binding):
         raise ValueError('premise source changed')
     premises = _json(premise_path)
     bindings = _json(binding.get('role_bindings_path', package_data_path('knowledge', 'role_bindings.json')))
+    from .higgs_registration import compose_stores
+    premises, bindings = compose_stores(premises, bindings, atlas, premise_path, binding)
     if premises.get('kind') != 'physics-premises' or premises.get('schema_version') != 1:
         raise ValueError('physics-premises/v1 required')
     if bindings.get('schema_version') != 1 or not isinstance(bindings.get('roles'), dict):

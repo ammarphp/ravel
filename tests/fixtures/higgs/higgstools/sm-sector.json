@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "higgs-sector-bundle",
+  "input_kind": "effective-couplings",
+  "neutral_scalars": [
+    {
+      "id": "s1",
+      "mass_gev": 124.0,
+      "width_gev": 0.01,
+      "cp": "even",
+      "couplings": {
+        "cWW": 1.0,
+        "cZZ": 1.0
+      },
+      "branching_ratios": {
+        "bb": 0.5
+      },
+      "rates": []
+    }
+  ],
+  "charged_scalars": [],
+  "datasets": {
+    "hbdataset": {
+      "path": "hbdataset",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "files": [
+        {
+          "path": "synthetic.json",
+          "sha256": "6ee5ea7d1666389afb86eb816f4e6f3e098fee0a2fd2a7b745719b70c52e3b62"
+        }
+      ]
+    },
+    "hsdataset": {
+      "path": "hsdataset",
+      "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "files": [
+        {
+          "path": "synthetic.json",
+          "sha256": "377e10f0c311cdec4ac430a0a6bb88e3ab79f2ceacc51588866b30d2326c22e6"
+        }
+      ]
+    }
+  },
+  "mass_assignment": {
+    "window_gev": 3.0,
+    "basis": "Explicit synthetic native-assignment window",
+    "choices": []
+  },
+  "provenance": {
+    "source": "Synthetic sector file-protocol control",
+    "coupling_normalization": "Dimensionless amplitudes normalized to declared SM convention"
+  }
+}

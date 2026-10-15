@@ -5,10 +5,26 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+SHIPPED = ROOT / 'src' / 'ravel' / 'data' / 'analysis_packages'
+
+# Slot labels for the shipped packages, resolved from each manifest's declared interface so that
+# the tests name no upstream identity: a is the two-pass selection, b the squark/gluino counting
+# selection, c the chargino-neutralino counting selection and d the calibrated-event selection.
+_SLOTS = {'selection-a': lambda m: m['routine']['kind'] == 'two-pass',
+          'selection-b': lambda m: 'squark-neutralino' in m['compatibility']['models'],
+          'selection-c': lambda m: 'c1n2-wz' in m['compatibility']['models'],
+          'selection-d': lambda m: m['routine']['kind'] == 'calibrated'}
 
 
 def selected_manifest(label):
-    return ROOT / 'analysis-packages' / label / 'manifest.json'
+    found = [p for p in sorted(SHIPPED.glob('*/manifest.json')) if _SLOTS[label](json.loads(p.read_text()))]
+    assert len(found) == 1, (label, found)
+    return found[0]
+
+
+def selected_source(label):
+    manifest = selected_manifest(label)
+    return manifest.parent / json.loads(manifest.read_text())['routine']['path']
 
 
 def manifest_pin(label):

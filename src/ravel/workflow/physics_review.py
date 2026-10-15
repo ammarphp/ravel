@@ -1266,6 +1266,10 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
         if verdict == "accept":
             if view["state"] == "send_back" or findings:
                 raise ValueError("a rejected cycle cannot be accepted or silently overridden")
+            # Declared reviewer names are not authenticated: an epoch-two acceptance needs the attested receipts.
+            from . import review_points
+            refusal = review_points.legacy_accept_refusal(root)
+            if refusal: raise ValueError(refusal)
             scopes = reg["policy"]["claim_scopes"]
             if claim_scope not in scopes:
                 raise ValueError("acceptance needs a prospectively allowed claim scope")
@@ -1615,6 +1619,10 @@ def gate_errors(root, action, stage=None, *, _session=None, retained_study=False
         elif action in ("bulk", "delivery", "reuse", "final_task"):
             if view["state"] != "accepted":
                 raise ValueError(f"scientific review is {view['state']}; acceptance by all three reviewers is required")
+            # A recorded acceptance stays readable; on an epoch-two run it authorizes only with the attested receipts.
+            from . import review_points
+            refusal = review_points.legacy_accept_refusal(root)
+            if refusal: raise ValueError(f"recorded acceptance does not authorize {action}: {refusal}")
             scope = view["reviews"][0]["claim_scope"]
             authorized_action = "delivery" if action == "final_task" else action
             if authorized_action not in reg["policy"]["claim_scopes"][scope]["actions"]:

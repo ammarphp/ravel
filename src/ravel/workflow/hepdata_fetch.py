@@ -49,6 +49,7 @@ if not __package__:
 import argparse, json, os, re, ssl, sys, urllib.request, urllib.error
 
 from ravel.workflow import discovery_http
+from ravel.workflow.restriction_guard import SourceRestricted, require
 
 # Requests go out as a plain HTTP client asking for JSON (discovery_http): HEPData's bot
 # filter answers 403 to browser-imitating agents. TLS is verified with certifi when present.
@@ -63,6 +64,7 @@ def _ssl_context():
 
 
 def _open(url, timeout=30):
+    require('hepdata_fetch', {'url': url})
     return discovery_http.open_url(url, timeout=timeout)
 
 
@@ -72,6 +74,7 @@ def inspire_from_routine(name):
 
 
 def get_json(url):
+    require('hepdata_fetch', {'url': url})
     with _open(url) as r:
         return json.load(r)
 
@@ -129,6 +132,7 @@ def fetch_tables_via_record_data(rec, out_dir, manifest, get_json_fn=None):
     record JSON lists must land, parse as a dict, and carry a non-empty values[] -- anything
     less raises RuntimeError (-> the caller's loud nonzero exit). Tables land as
     tables/<slug>_data.json; classification summary printed."""
+    require('hepdata_fetch', {'record': rec, 'identifiers': {'inspire': [manifest['inspire']]} if manifest.get('inspire') else {}}, output=out_dir)
     get_json_fn = get_json_fn or get_json
     recid, version, idx = record_data_index(rec)
     tdir = os.path.join(out_dir, "tables")
@@ -170,6 +174,7 @@ def _tables_via_hepdata_cli(inspire, out_dir, manifest):
     VERIFY: submission.yaml must exist and parse, every declared data_file present and
     non-empty. Raises (ImportError/RuntimeError) on any failure -- the caller falls back to
     fetch_tables_via_record_data."""
+    require('hepdata_fetch', {'identifiers': {'inspire': [inspire if str(inspire).startswith('ins') else 'ins' + str(inspire)]}}, output=out_dir)
     tdir = os.path.join(out_dir, "tables")
     os.makedirs(tdir, exist_ok=True)
     from hepdata_cli.api import Client
@@ -225,6 +230,7 @@ def fetch_offline_fixture(fixture_dir, out_dir, *, tables=False, download_likeli
     corrupt fixture data fails closed; there is no network fallback. Resources
     remain local files, so this route does not unpack remote archives.
     """
+    require('hepdata_fetch', {'path': str(fixture_dir), 'identity_unresolved': True}, output=out_dir)
     from pathlib import Path
     from ravel.physics.published_model import _json
     from ravel.workflow.state_io import atomic_json
@@ -245,6 +251,7 @@ def fetch_offline_fixture(fixture_dir, out_dir, *, tables=False, download_likeli
             raise ValueError('fixture path escapes or traverses a symlink: ' + str(relative))
         if not target.is_file() or target.stat().st_size > 16 * 1024 * 1024:
             raise ValueError('fixture member missing or oversized: ' + str(relative))
+        require('hepdata_fetch', {'path': str(target)}, output=out_dir)
         raw = target.read_bytes()
         doc = _json(raw)
         manifest['fixture_files'].append({'file':str(path), 'sha256':hashlib.sha256(raw).hexdigest()})
@@ -304,6 +311,8 @@ def fetch_offline_fixture(fixture_dir, out_dir, *, tables=False, download_likeli
             fetch_tables_via_record_data(rec, str(out), manifest, get_json_fn=served.__getitem__)
             manifest['tables_route'] = 'offline-fixture'
         manifest['status'] = 'OK'
+    except SourceRestricted:
+        raise
     except (ValueError, OSError, KeyError, TypeError, RuntimeError) as exc:
         manifest['errors'].append(str(exc))
     if out.is_relative_to(root):
@@ -326,6 +335,12 @@ def main(argv=None):
     ap.add_argument("--tables", action="store_true",
                     help="download the COMPLETE numeric tables (SR yields, cutflows, covariance) via hepdata-cli")
     args = ap.parse_args(argv)
+    identity = args.inspire or inspire_from_routine(args.routine or '')
+    # Without --tables or --download-likelihood the online route reads record metadata only.
+    scope = {} if args.tables or args.download_likelihood else {'classes': ['public-metadata'], 'quantities': ['text']}
+    require('hepdata_fetch', {'path': args.offline_fixture, 'identity_unresolved': True} if args.offline_fixture else
+            {'identifiers': {'inspire': [identity if str(identity).startswith('ins') else 'ins' + str(identity)]}, **scope},
+            output=args.out)
     if args.offline and not args.offline_fixture:
         ap.error('--offline requires --offline-fixture; network acquisition is refused')
     if args.offline_fixture:

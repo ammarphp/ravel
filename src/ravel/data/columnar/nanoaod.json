@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "kind": "columnar-format",
+  "name": "nanoaod",
+  "format": "root",
+  "source": "NanoAOD-style flat Events tree; Jet.btag is the DeepFlavour B discriminant. The recipe must supply its working-point cut; no threshold or calibration is inferred. IsoTrack mass uses the charged-pion hypothesis declared here.",
+  "tree": "Events",
+  "collections": {
+    "Electron": {
+      "count": "nElectron",
+      "fields": {
+        "pt": "Electron_pt",
+        "eta": "Electron_eta",
+        "phi": "Electron_phi",
+        "mass": "Electron_mass",
+        "charge": "Electron_charge",
+        "isolation": "Electron_pfRelIso03_all",
+        "pdg_id": {
+          "fixed": 11,
+          "source": "Electron flavour"
+        }
+      }
+    },
+    "Muon": {
+      "count": "nMuon",
+      "fields": {
+        "pt": "Muon_pt",
+        "eta": "Muon_eta",
+        "phi": "Muon_phi",
+        "mass": "Muon_mass",
+        "charge": "Muon_charge",
+        "isolation": "Muon_pfRelIso04_all",
+        "pdg_id": {
+          "fixed": 13,
+          "source": "Muon flavour"
+        }
+      }
+    },
+    "Photon": {
+      "count": "nPhoton",
+      "fields": {
+        "pt": "Photon_pt",
+        "eta": "Photon_eta",
+        "phi": "Photon_phi",
+        "mass": {
+          "fixed": 0.0,
+          "source": "massless photon"
+        }
+      }
+    },
+    "Jet": {
+      "count": "nJet",
+      "fields": {
+        "pt": "Jet_pt",
+        "eta": "Jet_eta",
+        "phi": "Jet_phi",
+        "mass": "Jet_mass",
+        "btag": "Jet_btagDeepFlavB"
+      }
+    },
+    "IsoTrack": {
+      "count": "nIsoTrack",
+      "fields": {
+        "pt": "IsoTrack_pt",
+        "eta": "IsoTrack_eta",
+        "phi": "IsoTrack_phi",
+        "mass": {
+          "fixed": 0.13957039,
+          "source": "PDG charged pion mass hypothesis for isolated tracks; supply a different descriptor for another hypothesis"
+        },
+        "pdg_id": "IsoTrack_pdgId"
+      }
+    }
+  },
+  "met": {
+    "magnitude": "MET_pt",
+    "phi": "MET_phi"
+  },
+  "event": {
+    "weight": "genWeight",
+    "run": "run",
+    "lumi": "luminosityBlock",
+    "number": "event"
+  },
+  "variations": {}
+}

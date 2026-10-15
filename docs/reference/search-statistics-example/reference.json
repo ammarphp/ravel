@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "kind": "plot-coordinate-series",
+  "basis": "Synthetic coordinate reference only",
+  "axes": {
+    "x": {
+      "name": "x",
+      "unit": "",
+      "label": "First coordinate"
+    },
+    "y": {
+      "name": "y",
+      "unit": "",
+      "label": "Second coordinate"
+    }
+  },
+  "series": [
+    {
+      "id": "reference",
+      "label": "Synthetic reference contour",
+      "geometry": "polyline",
+      "records": [
+        {
+          "id": "a",
+          "x": 0.0,
+          "y": 1.5,
+          "status": "delivered"
+        },
+        {
+          "id": "b",
+          "x": 1.5,
+          "y": 0.0,
+          "status": "delivered"
+        }
+      ]
+    }
+  ]
+}

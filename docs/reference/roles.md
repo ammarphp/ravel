@@ -47,6 +47,7 @@ qualification status to make this test pass.
 | `consult-columnar` | no | `claude-cli-worker` | `[]` |
 | `consult-cosmology` | no | `claude-cli-worker` | `[]` |
 | `consult-feynrules` | no | `claude-cli-worker` | `[]` |
+| `consult-higgs` | no | `claude-cli-worker` | `[]` |
 | `consult-inference` | no | `claude-cli-worker` | `[]` |
 | `consult-latex` | no | `claude-cli-worker` | `[]` |
 | `consult-madgraph` | no | `claude-cli-worker` | `[]` |
@@ -57,11 +58,16 @@ qualification status to make this test pass.
 | `consult-rivet` | no | `claude-cli-worker` | `[]` |
 | `consult-symbolic` | no | `claude-cli-worker` | `[]` |
 | `consult-theory` | no | `claude-cli-worker` | `[]` |
+| `consult-workflow-manager` | no | `claude-cli-worker` | `[]` |
 | `coordinator` | no | `claude-cli-worker` | `[]` |
 | `detector-calibrator` | no | `claude-cli-worker` | `[]` |
 | `discrepancy-attributor` | no | `claude-cli-worker` | `[]` |
+| `extended-scalar-modeler` | no | `claude-cli-worker` | `[]` |
 | `figure-critic` | no | `claude-cli-worker` | `[]` |
 | `generator` | no | `claude-cli-worker` | `[]` |
+| `higgs-combination-reviewer` | no | `claude-cli-worker` | `[]` |
+| `higgs-coupling-analyst` | no | `claude-cli-worker` | `[]` |
+| `higgs-theory-uncertainty-auditor` | no | `claude-cli-worker` | `[]` |
 | `idea-proposer-a` | no | `claude-cli-worker` | `[]` |
 | `idea-proposer-b` | no | `claude-cli-worker` | `[]` |
 | `inference` | no | `claude-cli-worker` | `[]` |
@@ -222,3 +228,39 @@ Bindings name manifest groups and full handbooks; they establish neither tool
 qualification nor scientific acceptance. The failure graph refuses dispatch when
 its targeted knowledge provider or a required handbook is absent. See the
 specialist failure-advice APIs in `docs/workflow/steps/03-generate.md`.
+
+## Scalar roles and supplied-declaration checks
+
+The scalar role cards and bindings compose append-only fragments in
+`src/ravel/data/higgs/registration/`. `consult-higgs` advises on the declared
+framework; `higgs-coupling-analyst` and `extended-scalar-modeler` construct supplied
+inputs. `higgs-combination-reviewer` and `higgs-theory-uncertainty-auditor` review
+in fresh sessions distinct from those producers and cannot read producer headlines.
+Role-card check aliases must resolve even when an atlas row lists the name.
+
+Declare semantic facts in plan fields `/review/domain_tags` and
+`/review/experiments`. Tags `higgs` and `combination` staff the combination reviewer;
+`extended-scalar` staffs the modeler and consult. A `combination` with at least two
+distinct supplied experiment identities staffs the shared theory auditor. Study
+names, titles, parameter grids and output formats do not select these roles.
+
+Use `check run` with a card-named `check:higgs.*` ID and one source-bound workspace
+JSON document. `src/ravel/validation/higgs_checks.py` checks framework declarations
+and signal-theory correlations and delegates measurement, parameterization, basis,
+theory-constraint and cross-engine checks to their operation owners. Missing owner
+implementations or inputs return `inconclusive`, which cannot close an obligation.
+TH1–TH12 inspect supplied overlap, mass, loop, width, boundary, sign, basis, channel,
+statistic, release and tension declarations. The legacy T1–T12 sweep remains intact.
+Each validator row in the registration fragment states its input document. A missing
+field or an undeclared label is `inconclusive`. A role may run the check of every
+trap its card must read. Any two measurements sharing an event set need a supplied
+joint likelihood; a signal-theory correlation below one needs located evidence. A
+confidence-region dimension counts the jointly estimated parameters of interest, and
+a goodness-of-fit dimension is the observable count minus the fitted parameters.
+
+The `higgs` convention shard uses located authored evidence with the existing
+physics-knowledge kernel. Primary scientific sources and framework/tool handbooks
+remain required at use; these declarations establish neither a valid fit nor a
+qualified prediction. Native and remote work uses the existing method admission
+and supervised launch guard. See [inference conventions](inference-engines.md)
+for the requested statistic and likelihood scope.

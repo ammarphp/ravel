@@ -56,6 +56,62 @@ def _pin(path):
     return {'path': str(path), 'sha256': _hash(path)}
 
 
+_XSECTION_HEADER = re.compile(r'^XSECTION\s+(\S+)\s+(-?\d+)\s+(-?\d+)\s+(\d+)((?:\s+-?\d+)*)', re.I)
+
+
+def _pdg_list(value, label):
+    tokens = value.split() if isinstance(value, str) else list(value)
+    try:
+        pdgs = [int(token) for token in tokens]
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f'{label} must be integer PDG codes') from exc
+    if not pdgs or any(isinstance(t, bool) or (not isinstance(t, str) and type(t) is not int) for t in tokens):
+        raise ValueError(f'{label} must name at least one integer PDG code')
+    return pdgs
+
+
+def add_xsection(slha, sigma_pb, proc, *, sqrts_gev, qcd_order, code, output,
+                 initial=(2212, 2212), ew_order=0, scale_scheme=0, kappa_f=1.0, kappa_r=1.0, pdf_id=0):
+    """Write a copy of a supplied SLHA file with one XSECTION block for a production process.
+
+    SModelS reads production rates only from SLHA ``XSECTION`` blocks. The cross section,
+    the collision energy, the QCD order and the code or table that produced the value are
+    the caller's inputs and are never defaulted. ``proc`` names the final-state PDG codes
+    (space-separated text or a sequence). The supplied file is not changed: the block is
+    appended to a new file at ``output``. Existing blocks are kept; a second block for the
+    same energy, initial state and final state is refused. Returns the output pin."""
+    source = Path(slha).expanduser().resolve(strict=True)
+    target = Path(output).expanduser().resolve()
+    if target == source or target.exists():
+        raise ValueError('add_xsection writes a new output file; the supplied SLHA is preserved')
+    values = {'sigma_pb': sigma_pb, 'sqrts_gev': sqrts_gev, 'kappa_f': kappa_f, 'kappa_r': kappa_r}
+    for name, value in values.items():
+        if isinstance(value, bool) or type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            raise ValueError(f'{name} must be a positive finite number')
+    for name, value in (('qcd_order', qcd_order), ('ew_order', ew_order), ('scale_scheme', scale_scheme),
+                        ('pdf_id', pdf_id)):
+        if type(value) is not int or value < 0:
+            raise ValueError(f'{name} must be a nonnegative integer')
+    if not isinstance(code, str) or not code or any(c.isspace() for c in code):
+        raise ValueError('code must name the producer of the cross section as one token')
+    final = _pdg_list(proc, 'proc')
+    beams = _pdg_list(initial, 'initial')
+    if len(beams) != 2:
+        raise ValueError('initial must name the two colliding particles')
+    text = source.read_text(errors='replace')
+    for line in text.splitlines():
+        match = _XSECTION_HEADER.match(line.strip())
+        if match and math.isclose(float(match[1].replace('D', 'E').replace('d', 'e')), sqrts_gev, rel_tol=1e-9) \
+                and [int(match[2]), int(match[3])] == beams and sorted(map(int, match[5].split())) == sorted(final):
+            raise ValueError('the supplied SLHA already carries an XSECTION block for this process and energy')
+    block = (f'XSECTION  {sqrts_gev:.6E}  {beams[0]} {beams[1]}  {len(final)}  {" ".join(map(str, final))}\n'
+             f'  {scale_scheme}  {qcd_order}  {ew_order}  {kappa_f:.6E}  {kappa_r:.6E}  {pdf_id}  {sigma_pb:.8E}  {code}\n')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('x') as stream:
+        stream.write(text.rstrip('\n') + '\n' + block)
+    return _pin(target)
+
+
 def _keys(value, required, label):
     if not isinstance(value, dict) or set(value) != set(required):
         raise ValueError(label + ' requires exactly ' + ', '.join(required))

@@ -29,8 +29,8 @@ The study is planned, approved and run like any other science mode. The task is:
  "analysis_spec": "analysis-spec.json"}
 ```
 
-- `format` is `delphes` (the built-in descriptor for the standard Delphes 3.5 tree) or a path to
-  a format descriptor.
+- `format` is `delphes`, `nanoaod`, or a path to a supplied format descriptor.
+  The packaged descriptors and public record identities are described below.
 - `normalization` is `cross-section` (σ × L / sum of weights), `event-weights-in-pb` (the event
   weights already carry the cross section) or `none`. The cross section is a number with its
   source, `{"lhe_init": true}` for the LHE header, a pointer into a production receipt,
@@ -99,6 +99,86 @@ A recipe has `schema_version: 1` and `kind: columnar-analysis-recipe`, and these
 - `event_record`: an optional per-event record of the first events, for review.
 
 Every name is checked when the recipe compiles, before any event is read.
+
+## Object weights and period selection
+
+`weights` keeps its generator field (or `null`) and an ordered `factors` list. Each factor
+multiplies the event weight. Existing event-field strings remain valid; a typed event factor
+uses `{"field": "correction"}`. The other factor forms refer to the final selected collections:
+
+```json
+{"generator": "generator", "factors": [
+  "event_correction",
+  {"object_product": {"objects": "selected", "field": "identification_sf"}},
+  {"trigger_or_sf": {"objects": "selected", "data_eff": "data_eff", "mc_eff": "mc_eff"}},
+  {"field": "period_correction", "applies_when": {"field": "period", "in": [1, 2]},
+   "optional_in_files": true}
+]}
+```
+
+`object_product` multiplies the declared field over the selected objects in each event;
+an empty collection contributes one. Rejected objects contribute nothing. Fields must be
+finite; signed and zero weights are retained. Factors are evaluated on each surviving subset
+when efficiencies use `enumerate`, preserving the subsets' correlations in the squared weights.
+
+`trigger_or_sf` computes `(1 - product(1 - data_eff)) / (1 - product(1 - mc_eff))`.
+The supplied efficiencies must be finite probabilities between zero and one. The law assumes
+independent object trigger responses for the declared OR; use it only where that assumption
+describes the supplied efficiencies. A zero MC denominator, including an empty collection,
+refuses with the original file entry index. A one-object collection gives the efficiency ratio.
+
+Any typed factor may add `applies_when: {"field": "period", "in": [1, 2]}`. The field is
+required and must contain finite numeric values. The factor contributes one outside the listed
+periods; its values are checked only where it applies. Periods have no built-in meaning.
+
+For an event-field factor, `optional_in_files: true` allows its nominal branch to be absent
+from a ROOT input file; the factor then contributes one in that file. Its descriptor mapping
+is still required. A present branch with an invalid shape or value refuses. Object fields,
+generator weights, period fields, trigger fields and systematic replacement/multiply fields
+remain required. `optional_weights_missing` lists absent optional event fields in each input
+read record and in the final result's input provenance. Planning and execution use the same
+policy. Optional object fields and optional LHE weights are not supported.
+
+Weight-factor systematics can replace a typed event factor's `field`; they retain its period
+condition and optional declaration. A declared replacement field is required, including in a
+file without the nominal optional field. Branch variations apply the ordinary descriptor rules
+to present fields; an absent nominal optional field is omitted in every branch variation.
+
+A region cut may select boolean event fields by period instead of using an expression:
+
+```json
+{"name": "trigger selection", "any_of_by_period": {
+  "period_field": "period", "table": {"1": ["first", "second"], "2": ["second"]}
+}}
+```
+
+Table keys encode finite numeric period values (the event readers expose numeric fields).
+Each event passes the OR of exactly its period's listed fields, whose values must be zero or
+one. An unlisted period refuses with its value, even if an earlier cut rejected that event.
+An event cut declares exactly one of `expr` and `any_of_by_period`.
+
+## Recomputed missing momentum
+
+An observable can retain a new transverse vector while exposing its magnitude as its scalar
+value. `met_override` adds each selected collection's summed `(pt*cos(phi), pt*sin(phi))` to
+the base MET vector, treating these objects as invisible:
+
+```json
+[
+  {"name": "hidden_met", "op": "met_override", "base": "met", "add_invisible": ["selected"]},
+  {"name": "hidden_phi", "op": "met_phi", "met": "hidden_met"},
+  {"name": "mass", "op": "mt", "object": "remaining[0]", "met": "hidden_met"},
+  {"name": "angle", "op": "delta_phi", "a": "remaining[0]", "b": "hidden_met"},
+  {"name": "minimum", "op": "min_delta_phi_met", "collection": "jets", "met": "hidden_met"}
+]
+```
+
+`base` is `met` or an earlier override. `mt`, `met`, `met_phi` and `min_delta_phi_met` accept
+the optional `met` key; `delta_phi` accepts the vector name as either operand. References to
+future overrides or scalar observables refuse during compilation. The original `met` vector
+is preserved. An empty selected collection adds zero; `only_if` leaves both magnitude and
+vector undefined outside its selection. Declare disjoint collections in `add_invisible` to
+avoid counting the same object twice; duplicate collection names are refused.
 
 ## Object efficiencies
 
@@ -232,6 +312,72 @@ removed, so the veto counts only additional isolated tracks.
 
 ## Limits
 
+For bounded per-event `features` output and hash-pinned, held-out `model_score`
+observables, see the [population and frozen-score contract](../workflow/reference/scientific-studies.md#bounded-feature-populations-and-frozen-model-scores).
+The export records the sample role, weight treatment, sampling and group folds;
+prediction requires the existing frozen NumPy checkpoint, preprocessing and group custody.
+
 The engine reports the declared selection on the supplied events with Monte Carlo statistical
 uncertainties. Detector fidelity, generator accuracy and agreement with a published result are
 separate checks (step 3.5 and the certification in step 9).
+
+## Flat trees, large-radius jets and public record identities
+
+Select `format: "nanoaod"` for a NanoAOD-style `Events` tree. The packaged descriptor
+maps Electron, Muon, Photon, Jet and IsoTrack flat branches, their `nCollection`
+counts, scalar MET, `genWeight`, and run/luminosity-block/event identifiers. Integer
+identifiers retain their source precision. Counts must match each collection's
+object lengths. The descriptor defines a particular branch layout; a different
+production version or discriminant requires a supplied descriptor, with no branch
+substitution inferred from the file. IsoTrack uses a declared charged-pion mass
+hypothesis; supply a different descriptor when that hypothesis does not apply.
+
+`Jet.btag` is the `Jet_btagDeepFlavB` discriminant. The recipe supplies the
+working-point threshold in its object selection, with the chosen tagger, era and
+calibration source recorded in the supplied study inputs. The descriptor supplies
+no threshold, efficiency or scale factor. A discriminant cut alone does not
+establish tagging calibration.
+
+The `delphes` descriptor includes an ancillary `FatJet` collection. Its fields
+include `mass`, `softdrop_mass`, `tau1` through `tau5`, `tau21`, `tau32`, and
+`trimmed_mass` where present. These use the Delphes 3.5 Jet class's `Tau[5]`,
+`SoftDroppedJet` and `TrimmedP4[5]` members. The first trimmed four-vector is the
+whole trimmed jet; slots after it are subjets. Each four-vector is stored as one
+unsplit object branch, so its components are read as members of that branch;
+invariant masses follow the signed four-vector mass convention.
+A zero subjettiness denominator gives an undefined ratio, so a cut on it fails.
+Bulk inspection can omit an absent ancillary collection. A recipe selecting
+FatJet requires its branches. A missing ancillary field used in an object cut or
+field observable is refused before analysis; unused trimmed fields can be absent.
+The branch layout was read from an existing detector file; the numerical values
+still require qualification against a supplied file with independent references.
+
+Supplied ROOT descriptors can declare a scalar collection `count` branch, a
+collection or field `optional: true` for ancillary content, a branch field `index`
+for a fixed array slot, a branch field `member` (a list of nested member names) for
+a number inside an unsplit object branch, `ratio: [numerator, denominator]`, and
+`mass_from: {px, py, pz, e}`. Derived operands are field specifications, not
+executable code. Branch names are read literally, including array brackets.
+Unrequested absent ancillary fields are omitted, never filled with fabricated
+measurements. Recipes bind the fields used by cuts and field observables.
+
+Pinned dataset samples use `id_scheme: "dsid"` by default. Legacy integer DSIDs,
+Rucio-style member identifiers and delivery receipt structure retain their existing
+contract. A public sample instead supplies `id_scheme: "record"`, a nonempty
+`record_id`, and an `authority` containing a DOI or literal HTTP(S) landing URL.
+Record samples omit `dsid`. This is source identity, not a normalization rule.
+If the source has no member `did`, omit it. Retain a source-provided GUID when
+available; otherwise set `guid` to `<checksum algorithm>:<checksum value>` using
+that member's declared checksum. A checksum identity must match that checksum.
+
+Both pinned normalization documents must contain the same sample identity:
+`sample_id`, and either `dsid` or all of `id_scheme`, `record_id`, `authority`.
+The original population lists member `guid`, `entries`, and `did` when declared.
+The normalization source binds `original_population_sha256` and explicitly declares
+`sum_weights`, `luminosity_fb_inverse`, `cross_section_pb`, `filter_efficiency` and
+`k_factor`. A record authority does not supply or inherit any of those quantities.
+Use the existing `inputs: {dataset: <pin>}` and `normalization: {mode: "dataset"}`
+interface; local members retain their `file://` URIs. ROOT-stream context, worker,
+partition and final receipts carry the record identity and verify the same source
+binding. Dataset discovery and DSID-shaped supplied-ntuple operations retain their
+own contracts; public-record acquisition must supply a pinned dataset directly.

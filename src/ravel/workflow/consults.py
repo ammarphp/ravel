@@ -24,7 +24,8 @@ def bindings():
     value = read_json(DATA)
     if value.get('schema_version') != 1 or value.get('kind') != 'consult-bindings':
         raise ValueError('versioned consult bindings required')
-    return value
+    from .higgs_registration import compose
+    return compose(value, DATA)
 
 
 def for_tool(tool):

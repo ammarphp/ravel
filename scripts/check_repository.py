@@ -23,14 +23,19 @@ from ravel.paths import WORKFLOW_INSTRUCTIONS, workflow_instruction
 
 # Indexes that a shipped document may link to only in public mode.
 PUBLIC_INDEXES = {'DIRECTORY.md'}
-CONVENTIONAL = {'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'DIRECTORY.md', 'CHANGELOG.md', 'SKILL.md'}
+CONVENTIONAL = {'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', 'DIRECTORY.md', 'CHANGELOG.md',
+                'SKILL.md', 'THIRD-PARTY-NOTICES.md', 'ATTRIBUTION.md'}
+# Host entry documents whose upper-case name is the host's own convention, named by full path.
+CONVENTIONAL_PATHS = {'.antigravity/RAVEL.md', '.opencode/RAVEL.md'}
 LOCAL_TOOL_DIRS = {'.git', '.pytest_cache', '.ruff_cache', '__pycache__', 'dist', 'build', 'local-runs', 'logs'}
 PUBLIC_ROOTS = {
     'src', 'tests', 'docs', 'native', 'environment', 'scripts', 'distribution.json', 'export-provenance.json',
     '.github', '.claude', '.agents', 'README.md', 'CONTRIBUTING.md', 'AGENTS.md', 'CLAUDE.md', 'DIRECTORY.md',
     'CITATION.cff', 'LICENSE', 'NOTICE', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md', 'Makefile', 'pyproject.toml',
     'hatch_build.py', 'requirements-replay.txt', 'requirements-replay.lock', 'requirements-full.txt',
-    'requirements-site.txt', 'requirements-site-wms.txt', '.gitignore',
+    'requirements-site.txt', 'requirements-site-wms.txt', 'requirements-site-wms.in', 'requirements-site-wms.lock',
+    '.gitignore',
+    '.codex', '.gemini', '.opencode', '.antigravity', '.ravel', 'addons', 'GEMINI.md',
 }
 
 
@@ -198,7 +203,7 @@ def check(root=ROOT, public=False):
         name, suffix = Path(destination).name, Path(destination).suffix
         if suffix == '.py' and not re.fullmatch(r'[a-z_][a-z0-9_]*\.py', name):
             errors.append(f'{destination}: Python filename must use snake_case')
-        if suffix in ('.sh', '.md') and name not in CONVENTIONAL \
+        if suffix in ('.sh', '.md') and name not in CONVENTIONAL and destination not in CONVENTIONAL_PATHS \
                 and not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*\.(?:sh|md)', name):
             errors.append(f'{destination}: document/shell filename must use lowercase kebab-case')
         if suffix != '.md':

@@ -17,5 +17,12 @@
     "repository": "https://github.com/JHUGen/JHUGenMELA.git",
     "commit": "10d36ced1d71b5e4e21abb1c9834a02570bf31c0",
     "commit_status": "recorded 2026-10-12: upstream tag v2.4.4, the latest release tag at the owner-approved fetch"
+  },
+  "base_amd64": {
+    "repository": "registry.fedoraproject.org/fedora",
+    "tag_at_selection": "41",
+    "platform": "linux/amd64",
+    "digest": "sha256:3fb969dd07e631c17d12f5955bcb6db2078a6997eb68be76b6492e7bd6052e88",
+    "digest_status": "recorded 2026-10-12 at the owner-approved pull of registry.fedoraproject.org/fedora:41 for linux/amd64 (podman image inspect Digest, size 166581593 bytes)"
   }
 }

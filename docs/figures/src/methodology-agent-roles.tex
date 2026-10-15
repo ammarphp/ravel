@@ -1,0 +1,81 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Agent roles across a study}{Who acts at each point, from the request to the final check-in.}
+\tikzset{
+  cell/.style={chip=#1, minimum height=8.2mm, font=\ravelSmallFont, inner xsep=1.4mm, inner ysep=1.4mm},
+  lane/.style={rounded corners=2.4mm, line width=0.6pt, draw=rv#1line, fill=rv#1fill},
+  head/.style={chip=ravel, fill=rvravelfill, font=\ravelLabelFont\bfseries, minimum height=11mm},
+}
+% Columns: left edge and width (mm), 1.2 mm apart.
+\def\cA{5}\def\wA{22}  \def\cB{28.2}\def\wB{26}  \def\cC{55.4}\def\wC{26}
+\def\cD{82.6}\def\wD{26}  \def\cE{109.8}\def\wE{26}  \def\cF{137}\def\wF{26}
+% A cell: \cell[name]{layer}{column left}{width}{text}, hanging from the current lane top.
+\newcommand\cell[5][]{\node[cell=#2, anchor=north west, minimum width=#4 mm, text width=#4 mm - 2.8mm] (#1) at ([yshift=-6.2mm]#3,0 |- lanetop) {#5};}
+% A second cell under the first in the same column.
+\newcommand\below[6][]{\node[cell=#2, anchor=north west, minimum width=#4 mm, text width=#4 mm - 2.8mm] (#1) at ([yshift=-1.6mm]#3,0 |- #5.south) {#6};}
+% \lane{layer}{label}{nodes}: the band behind the cells, its label, and the next lane's top.
+\newcommand\lane[3]{%
+  \node[fit=#3, inner sep=0pt] (lanefit) {};
+  \begin{scope}[on background layer]
+    \path let \p1 = (lanetop), \p2 = (lanefit.south) in
+      [draw=rv#1line, fill=rv#1fill, rounded corners=2.4mm, line width=0.6pt] (3.6,\y1) rectangle (166.4,\y2-1.6mm);
+  \end{scope}
+  \node[bandlabel] at ([yshift=-1.3mm]6,0 |- lanetop) {#2};
+  \path let \p2 = (lanefit.south) in coordinate (lanetop) at (0,\y2-3.4mm);}
+% ---- Column heads: the steps of a study and its three check-ins.
+\tikzset{gatehead/.style={chipgate, anchor=north, minimum width=#1 mm - 3.2mm, inner xsep=0.8mm, chamfered rectangle xsep=1.6mm, minimum height=11mm}}
+\node[head, anchor=north west, minimum width=\wA mm, text width=\wA mm - 4.8mm, minimum height=11mm] at (\cA,-22) {Request and plan};
+\node[gatehead=\wB] at (\cB+\wB/2,-22) {CHECK-IN 1};
+\node[head, anchor=north west, minimum width=\wC mm, text width=\wC mm - 4.8mm, minimum height=11mm] at (\cC,-22) {Build and run};
+\node[gatehead=\wD] at (\cD+\wD/2,-22) {CHECK-IN 2};
+\node[head, anchor=north west, minimum width=\wE mm, text width=\wE mm - 4.8mm, minimum height=11mm] at (\cE,-22) {Research loop};
+\node[gatehead=\wF] at (\cF+\wF/2,-22) {CHECK-IN 3};
+\draw[flow] (5,-36.4) -- node[flowlabel, pos=0.5] {study time} (165,-36.4);
+\coordinate (lanetop) at (0,-40);
+% ---- You.
+\cell[y1]{people}{\cA}{\wA}{your question and inputs}
+\cell[y2]{people}{\cB}{\wB}{approve plan, scope, budget}
+\cell[y3]{people}{\cC}{\wC}{steer: note, redirect, pause, veto}
+\cell[y4]{people}{\cD}{\wD}{GO or adjust}
+\cell[y5]{people}{\cE}{\wE}{answer review questions}
+\cell[y6]{people}{\cF}{\wF}{accept or revisit}
+\lane{people}{YOU}{(y1)(y2)(y3)(y4)(y5)(y6)}
+% ---- Driver.
+\cell[d1]{agent}{\cA}{\wA}{routes the request, plans}
+\cell[d2]{agent}{\cB}{\wB}{presents the plan}
+\cell[d3]{agent}{\cC}{\wC}{dispatches workers}
+\cell[d4]{agent}{\cD}{\wD}{presents the waypoint}
+\cell[d5]{agent}{\cE}{\wE}{runs the protocol stages}
+\cell[d6]{agent}{\cF}{\wF}{presents the final deck}
+\lane{agent}{DRIVER (COORDINATOR)}{(d1)(d2)(d3)(d4)(d5)(d6)}
+% ---- Producers.
+\cell[p1]{agent}{\cA}{\wA}{ML planner}
+\cell[p3]{agent}{\cC}{\wC}{generator, model builder, analysis author, inference and 5 more}
+\below[p3b]{agent}{\cC}{\wC}{p3}{13 tool consultants}
+\cell[p4]{agent}{\cD}{\wD}{on a failure: investigators, physics improver}
+\cell[p5]{agent}{\cE}{\wE}{limitation census, two idea proposers, baseline, screen, evolver, rebuttal}
+\cell[p6]{agent}{\cF}{\wF}{manuscript writer}
+\lane{agent}{PRODUCERS}{(p1)(p3)(p3b)(p4)(p5)(p6)}
+% ---- Reviewers.
+\cell[s1]{guard}{\cA}{\wA}{plan critic}
+\cell[s4]{guard}{\cD}{\wD}{normalization, selection, discrepancy and trap auditors}
+\below[v4]{guard}{\cD}{\wD}{s4}{voting panel: critic, verifier, decider}
+\cell[s5]{guard}{\cE}{\wE}{novelty, sufficiency, comparison, ablation, meta-review}
+\cell[s6]{guard}{\cF}{\wF}{figure, assumption, integrity audits}
+\below[v6]{guard}{\cF}{\wF}{s6}{voting panel}
+\lane{guard}{INDEPENDENT REVIEWERS}{(s1)(s4)(v4)(s5)(s6)(v6)}
+% ---- Decision justification.
+\node[anchor=north west, font=\ravelSmallFont, text=rvmuted, text width=\wA mm] (j1) at ([yshift=-6.2mm]\cA,0 |- lanetop) {edge reviewer, critic, verifier};
+\cell[j2]{ravel}{\cB}{\wB}{R2 plan}
+\cell[j3]{ravel}{\cC}{\wC}{R2 launch, R0 dry and smoke}
+\cell[j4]{ravel}{\cD}{\wD}{R2 acceptance, correction}
+\cell[j5]{ravel}{\cE}{\wE}{R1 screen, R2 select, R3 method claim}
+\cell[j6]{ravel}{\cF}{\wF}{R3 delivery}
+\lane{ravel}{DECISION JUSTIFICATION}{(j1)(j2)(j3)(j4)(j5)(j6)}
+\path let \p1 = (lanetop) in coordinate (keytop) at (5,\y1);
+\begin{scope}[shift={(0,0 |- keytop)}]\ravellegend{-1}{people/You, agent/Agents, guard/Reviewers, ravel/RAVEL decisions}\end{scope}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

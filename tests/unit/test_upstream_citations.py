@@ -1,7 +1,8 @@
 """README Appendix B is rendered from src/ravel/data/citations/upstream.json.
 
-The data file holds one row per toolchain tool with the tool's own citation request,
-where it was found, and a note when only a release paper or the home page is given.
+The data file holds one row per toolchain tool with the tool's own citation request as full
+references (authors, title, venue, year and identifiers), where it was found, and a note when a
+release paper or the home page stands in for a request.
 """
 from __future__ import annotations
 
@@ -53,7 +54,24 @@ def test_every_row_is_complete_and_sourced():
         if row["basis"] in {"home-page", "release-paper"}:
             assert row.get("note"), f"{row['tool']}: say why no request is cited"
         for ref in refs:
-            assert REF.match(ref) if isinstance(ref, str) else ref.get("text"), (row["tool"], ref)
+            _assert_reference(row["tool"], ref)
+
+
+def _assert_reference(tool, ref):
+    """A shipped reference is complete: authors, a venue or publisher or year, and a resolvable identifier."""
+    assert isinstance(ref, dict) and ref.get("authors"), (tool, ref)
+    assert ref.get("journal") or ref.get("publisher") or ref.get("year") or ref.get("url"), (tool, ref)
+    assert ref.get("arxiv") or ref.get("doi") or ref.get("ascl") or ref.get("url"), (tool, ref)
+    assert set(ref) <= {"id", "authors", "title", "journal", "volume", "year", "pages", "publisher",
+                        "arxiv", "doi", "ascl", "url"}, (tool, sorted(ref))
+    if "id" in ref:
+        # The identifier the tool's request names is one of the reference's own links.
+        assert REF.match(ref["id"]), (tool, ref["id"])
+        kind, _, value = ref["id"].partition(":") if not ref["id"].startswith(("hep-", "astro-")) else ("arXiv", "", ref["id"])
+        assert {"arXiv": ref.get("arxiv"), "doi": ref.get("doi"), "ascl": ref.get("ascl")}[kind] == value, (tool, ref["id"])
+    if "title" not in ref:
+        # Only a requested reference whose title names another agent system is cited without it.
+        assert ref.get("arxiv") and ref.get("year"), (tool, ref)
 
 
 def test_every_toolchain_tool_has_a_data_row():
@@ -69,24 +87,46 @@ def test_readme_appendix_b_is_the_rendered_data():
     text = README.read_text(encoding="utf-8")
     assert renderer.render_readme(text, _rows()) == text, "run scripts/maintenance/render_citations.py"
     comments = re.findall(r"<!--.*?-->", text, re.S)
-    assert all(re.fullmatch(r"<!-- ravel:(toolchain|capabilities|disk):(start|end) -->", c) for c in comments), comments
+    assert all(re.fullmatch(r"<!-- ravel:(?:(toolchain|capabilities|disk):(start|end)|example-mode:[\w-]+) -->", c)
+               for c in comments), comments
 
 
-def test_renderer_formats_identifiers_and_home_pages():
+def test_renderer_formats_references_and_home_pages():
     renderer = _renderer()
     old_style = "hep-ph" + "/" + "0012345"  # synthetic old-style identifier
     new_style = syn.arxiv(1)  # synthetic new-style identifier
+    paper = {"id": "arXiv:" + new_style, "authors": "A. Author et al.", "title": "A tool", "journal": "J. Synth.",
+             "volume": "1", "year": 2000, "pages": "2", "arxiv": new_style, "doi": "10.1/a(b)c"}
+    note = {"authors": "B. Author", "title": "Notes", "publisher": "Archive", "year": 2001, "arxiv": old_style}
     row = {"tool": "Tool", "link": "https://t.example/", "home_page": "https://t.example/home", "used_for": "Work",
-           "basis": "request", "cite": ["arXiv:" + new_style, "doi:10.1/a(b)c"],
-           "also": [{"when": "for a stated case", "cite": [old_style]}]}
-    assert renderer.render_row(row) == (
-        f"| [Tool](https://t.example/) | Work | [arXiv:{new_style}](https://arxiv.org/abs/{new_style}) and "
-        "[doi:10.1/a(b)c](https://doi.org/10.1/a%28b%29c); for a stated case, also "
-        f"[{old_style}](https://arxiv.org/abs/{old_style}) |")
+           "basis": "request", "cite": [paper], "also": [{"when": "for a stated case", "cite": [note]}]}
+    lines, after = renderer.render_row(row, 4)
+    assert after == 6
+    assert lines == [
+        "**[Tool](https://t.example/)**: work.", "",
+        f"4. A. Author et al., “A tool”, *J. Synth.* **1** (2000) 2, [arXiv:{new_style}](https://arxiv.org/abs/{new_style}), "
+        "[doi:10.1/a(b)c](https://doi.org/10.1/a%28b%29c).",
+        f"5. For a stated case, also: B. Author, “Notes”, Archive (2001), [arXiv:{old_style}](https://arxiv.org/abs/{old_style})."]
     home = dict(row, basis="home-page", cite=[], also=[])
-    assert renderer.render_row(home).endswith("| [Home page](https://t.example/home) |")
-    text = dict(row, cite=[{"text": "A. Author, J. 1 (2000) 2"}, {"text": "B", "url": "https://b.example/"}], also=[])
-    assert renderer.render_row(text).endswith("| A. Author, J. 1 (2000) 2 and [B](https://b.example/) |")
+    assert renderer.render_row(home, 6) == (["**[Tool](https://t.example/)**: work. Home page: <https://t.example/home>."], 6)
+    software = {"authors": "C. Author", "title": "Package", "url": "https://p.example/"}
+    assert renderer.render_reference(software) == "C. Author, “Package”, <https://p.example/>."
+    untitled = {"authors": "D. Author", "year": 2002, "arxiv": new_style}
+    assert renderer.render_reference(untitled) == f"D. Author (2002), [arXiv:{new_style}](https://arxiv.org/abs/{new_style})."
+    preprint = dict(untitled, title="Draft")
+    assert renderer.render_reference(preprint).startswith("D. Author, “Draft” (2002), [arXiv:")
+    block = renderer.render_block([row, home])
+    assert block.startswith("**[Tool]") and "\n\n1. A. Author" in block and block.endswith("<https://t.example/home>.")
+
+
+def test_readme_appendix_b_is_collapsed_and_numbered_continuously():
+    text = README.read_text(encoding="utf-8")
+    renderer = _renderer()
+    section = text.split(renderer.HEADING, 1)[1].split("\n## ", 1)[0]
+    assert renderer.SUMMARY in section and section.rstrip().endswith(renderer.END)
+    numbers = [int(n) for n in re.findall(r"^(\d+)\. ", section, re.M)]
+    assert numbers == list(range(1, len(numbers) + 1))
+    assert len(numbers) == sum(len(row["cite"]) + sum(len(a["cite"]) for a in row.get("also", [])) for row in _rows())
 
 
 def test_no_citation_row_names_a_withheld_tool():

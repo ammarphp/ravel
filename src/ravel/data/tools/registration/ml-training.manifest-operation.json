@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "kind": "manifest-operation-registration",
+  "target": "native/setup/toolchain-manifest.json",
+  "merge": "upsert-identical-or-refuse",
+  "operations": [
+    {"mode": "ml-training", "groups": ["python-host", "ml"]}
+  ],
+  "handoff": "Preserve an identical existing mode row; refuse differing groups. Required interpreter binding is ravel.physics.ml_runtime with supervised science-worker admission."
+}

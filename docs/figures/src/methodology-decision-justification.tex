@@ -1,0 +1,72 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{Recursive Decision Justification}{Each action is justified down to verified evidence, reviewed hop by hop and authorized by code.}
+\tikzset{
+  tn/.style={chip=agent, minimum width=#1, text width=#1-3mm, font=\ravelSmallFont, minimum height=10mm, inner xsep=1.5mm},
+  tn/.default=30mm,
+  an/.style={chip=hep, fill=rvhepfill, minimum width=30mm, text width=27mm, font=\ravelSmallFont, minimum height=10mm, inner xsep=1.5mm},
+  sup/.style={flow},
+  rel/.style={font=\ravelSmallFont, text=rvmuted, fill=rvagentfill, inner sep=1pt},
+  rs/.style={chip=guard, minimum width=49mm, text width=45.5mm, font=\ravelSmallFont, minimum height=10.5mm, anchor=north west, align=left},
+}
+% ---- The justification tree.
+\begin{scope}[on background layer]
+  \draw[band=agent] (5,-22) rectangle (108,-117);
+\end{scope}
+\node[bandlabel] at (7.5,-23.4) {JUSTIFICATION TREE};
+\node[tn=48mm, font=\ravelLabelFont\bfseries] (act) at (56,-35) {Action: launch the scan};
+\node[tn] (a) at (22,-55) {claim: the plan was approved};
+\node[tn] (b) at (56,-55) {claim: cost fits the ceiling};
+\node[tn, dash pattern=on 3pt off 1.6pt] (alt) at (90,-55) {alternative: fewer points};
+\node[an] (a1) at (22,-77) {\textbf{user requirement}\\quoted approval span};
+\node[tn] (b1) at (56,-77) {claim: the pilot time was measured};
+\node[tn] (alt1) at (90,-77) {claim: the coverage needs the full grid};
+\node[an] (b2) at (56,-99) {\textbf{tool output}\\stage receipt, SHA-256};
+\node[an] (alt2) at (90,-99) {\textbf{input artifact}\\approved grid};
+\draw[sup] (a) -- node[rel, pos=0.45] {supports} (act);
+\draw[sup] (b) -- (act);
+\draw[loop] (alt) -- node[rel, pos=0.45] {chosen over} (act);
+\draw[sup] (a1) -- (a);
+\draw[sup] (b1) -- node[rel] {supports} (b);
+\draw[sup] (b2) -- (b1);
+\draw[sup] (alt1) -- node[rel] {rules out} (alt);
+\draw[sup] (alt2) -- (alt1);
+\node[font=\ravelSmallFont, text=rvmuted, anchor=north west, text width=30mm] at (7,-87)
+  {code asks “why?” of every node until each branch ends in verified evidence};
+% ---- Review and authorization.
+\begin{scope}[on background layer]
+  \draw[band=guard] (112,-22) rectangle (165,-117);
+\end{scope}
+\node[bandlabel] at (114.5,-23.4) {REVIEW, THEN CODE DECIDES};
+\node[rs] (e) at (114,-29) {\textbf{Edge reviewer}\\each hop: entailment, relevance, grounding};
+\node[rs, below=2mm of e] (cr) {\textbf{Critic}\\findings, materiality A, B or C};
+\node[rs, chip=agent, align=left, below=2mm of cr] (rv) {\textbf{Proposer revises}\\addresses named findings};
+\node[rs, below=2mm of rv] (ve) {\textbf{Verifier}\\each finding resolved or open};
+\node[rs, chip=ravel, fill=rvravelfill, align=left, below=2mm of ve] (cd) {\textbf{Code decides}\\authorize, gather evidence or escalate};
+\node[rs, chip=records, fill=rvrecordsfill, align=left, below=2mm of cd] (rc) {\textbf{Receipt}\\binds the case and action digest};
+\foreach \u/\v in {e/cr, cr/rv, rv/ve, ve/cd, cd/rc} \draw[flow] (\u) -- (\v);
+\draw[flow] (act.east) -- (e.west);
+% ---- Risk classes.
+\tikzset{rk/.style={chip=ravel, minimum width=38.5mm, text width=35mm, font=\ravelSmallFont, minimum height=13mm, anchor=north west, align=left}}
+\node[rk] (r0) at (5,-122)    {\textbf{R0}\quad depth 1\\no reviewers};
+\node[rk] (r1) at (45.5,-122) {\textbf{R1}\quad depth 1–2\\edge reviewer};
+\node[rk] (r2) at (86,-122)   {\textbf{R2}\quad depth 2–5\\three reviewers, an alternative};
+\node[rk] (r3) at (126.5,-122) {\textbf{R3}\quad depth 3–7\\tool evidence on every path};
+% ---- Custody.
+\begin{scope}[on background layer]
+  \draw[band=records] (5,-140) rectangle (165,-166);
+\end{scope}
+\node[bandlabel] at (7.5,-141.4) {CUSTODY, OUTSIDE THE RUN: EACH LINE HASHES THE PREVIOUS ONE};
+\tikzset{lg/.style={record, box=26mm, minimum height=10mm, font=\ravelSmallFont, anchor=north west}}
+\node[lg] (l1) at (8,-147.5)  {proposal};
+\node[lg] (l2) at (39,-147.5) {answers};
+\node[lg] (l3) at (70,-147.5) {reviews};
+\node[lg] (l4) at (101,-147.5) {critique, verdict};
+\node[lg] (l5) at (132,-147.5) {receipt};
+\foreach \u/\v in {l1/l2, l2/l3, l3/l4, l4/l5} \draw[flow] (\u) -- (\v);
+\ravellegend{-172}{agent/Proposer, hep/Verified evidence, guard/Reviewers, ravel/RAVEL, records/Custody}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

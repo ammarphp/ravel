@@ -57,7 +57,7 @@ def test_order_must_be_selected_and_switching_convention_follows_the_tables():
 
 def test_unavailable_convention_is_refused_with_alternatives_and_no_fallback():
     with pytest.raises(xs.ConventionUnavailable) as excinfo:
-        xs.lookup(request('gluino_pair', order='NLO+NLL', masses={'mass': 1000}))
+        xs.lookup(request('gluino_pair', sqrt_s=13600, order='NLO+NLL', masses={'mass': 1000}))
     assert 'aNNLO+NNLL' in str(excinfo.value)
     with pytest.raises(xs.ConventionUnavailable, match='PDF'):
         xs.lookup(request('wino_C1C1', pdf='NNPDF31', masses={'mass': 300}))

@@ -56,8 +56,8 @@ class Workers:
             self.fail.discard(role)
             return agent_worker.finish(rundir, spec, final=None, execution={'exit_status': 1})
         findings = [{'summary': 'synthetic', **f} for f in self.findings.get(role, [])]
-        worker = reviewed(rundir, spec, ws, findings)
-        assert worker['status'] == 'ok' and worker['schema_version'] == 2, worker
+        worker = reviewed(rundir, spec, ws, findings, **options)
+        assert worker['status'] == 'ok' and worker['schema_version'] == 3 and worker['actor_id'], worker
         assert worker['review_subject']['sha256'] == packet['subject_sha256']
         return worker
 

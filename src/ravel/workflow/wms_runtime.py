@@ -13,8 +13,19 @@ import sys
 
 
 def _site_wms_record():
-    """Seam for the site-wms record that a later package adds; returns an argv or None."""
-    return None
+    """Resolve the installed prefix's validated record to its isolated shim."""
+    from .site_contract import read_wms_record
+    prefix = os.environ.get('RAVEL_SITE_PREFIX') or os.environ.get('RAVEL_NATIVE_BUILD')
+    if not prefix and Path(sys.prefix).parent.name == '.ravel-site':
+        prefix = str(Path(sys.prefix).parent.parent)
+    if not prefix:
+        from ravel.paths import native_build_root
+        prefix = native_build_root()
+    try:
+        record = read_wms_record(prefix)
+    except ValueError:
+        return None
+    return _usable(record['shim'])
 
 
 def _usable(value):

@@ -103,6 +103,8 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
                 token_limit_field=self.token_limit_field)
             if len(json.dumps(body).encode()) > self.max_context_bytes:
                 raise GuardError('complete context exceeds declared bound; no truncation')
+            # The enclosing model effect persists this exact request with its result.
+            prompt = json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
             sent = True
             delivery = self.sender(deepcopy(body), timeout=timeout, max_cost_usd=max_cost_usd)
             if type(delivery) is not dict or set(delivery) != {'body', 'http_status'}:
@@ -110,6 +112,8 @@ class RavelTransportChatModel(SingleEffect, BaseChatModel):
             raw = delivery['body']
             status = delivery['http_status']
             evidence = {'request_sha256': digest(body), 'response_sha256': digest(raw),
+                        'prompt': prompt, 'prompt_sha256': digest(body), 'model_requested': self.model,
+                        'model_reported': raw.get('modelVersion' if self.adapter == 'gemini' else 'model') if type(raw) is dict else None,
                         'http_status': status, 'provider_usage': {}, 'usage': {}, 'message': None, 'error': None}
             if type(status) is not int or not 200 <= status < 300:
                 evidence['error'] = {'code': 'http_error', 'message': 'provider HTTP refusal'}

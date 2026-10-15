@@ -453,7 +453,7 @@ def test_run_creation_commands_record_the_journal(tmp_path, monkeypatch, machine
     monkeypatch.setattr(agent_graph, 'validate', lambda spec: spec)
     monkeypatch.setattr(agent_graph, 'status', lambda root: {})
     graph = tmp_path / 'graph-root'
-    agent_graph.create(graph, {'graph_id': 'synthetic', 'nodes': [{'id': 'only'}]})
+    agent_graph.create(graph, {'graph_id': 'synthetic', 'nodes': [{'id': 'only', 'inputs': []}]})
     assert routes(graph) == ['graph-scope'] and gw.dispatch_permitted(graph, 'only')[0]
 
 

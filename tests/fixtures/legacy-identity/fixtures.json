@@ -81,123 +81,123 @@
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-no_routine-dry": {
-   "record": "ecb7bf9b785f69205301e7cef47f9be81f7c89ce169e0120fdcbc574da04938a",
+   "record": "bb31d955750ad48366105d50aa77aa2ee6a1ef04e531a2933277f60d0c744ad3",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-no_routine-full": {
-   "record": "4006f7640f7eb7d60027c99efc836872a63d6594884755314a91c4a0a8e11565",
+   "record": "2646f75cfe7c45791ebc099b8729f8a79b7baa5ff2a736fcb2287ebd3c02a008",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-no_routine-none": {
-   "record": "b438c91ec76a58b932ff2d2a709041cfdfaa4a78df3e0c8c8244bb562ef69962",
+   "record": "0e3892bb9eacb612e614032b47aa7e812fb7da17444e27ff8e874228d3aba133",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-no_routine-scan": {
-   "record": "9101702dc55a5fa09044f5815f3415ff787ec6276ce9351d7e810f8359bb6c80",
+   "record": "2aaef4b05eea283c19f13b5665bcd0040d50d4eff0ba238cab55590ae215a34c",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-no_routine-smoke": {
-   "record": "5510f3151e7e6d9d39129d013cc2d09ec730ccc8332a8b838793b1715b300c0e",
+   "record": "d82589e61bab5481885203509004e00a5e442f78c9e592e06f5aee805d896c73",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-projection-dry": {
-   "record": "58669bec3822c6957a50527d812984c165d5c9c60e8a835b265de7cefa492c54",
+   "record": "e6b493e861b84d28245a180c4510a7dd67afa3245a9d2f408a1d8023c704be23",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-projection-full": {
-   "record": "c5b5758783c0d0aebd91b95a51811975bb5825160b1c3b5ffa38a590502807c3",
+   "record": "2fe560c78f96ce01cf6142fa8e46c4da40839f332148dc568b13936db9a62980",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-projection-none": {
-   "record": "4bda6a3f223f7168c7ca4997d122bee583f7351e789edf3aa8a24bcd0822407b",
+   "record": "44b0413b36c69e953055d4b332cc7ef4657cecfefed76f3f0b4167a41742eb49",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-projection-scan": {
-   "record": "e9766656441f553e9226af38312c53bb2e250fd50940f9dc3918e202cd04b754",
+   "record": "e314d2f5a6f3cd2e5c700ed637084202f5de7a47ff124934b4d5c30b4d66ced3",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-projection-smoke": {
-   "record": "2c93fefd4bc963a1bbc535bc08bce55d75f191c27564ed95426ce1bbc97880c8",
+   "record": "f46f413e0b197a1af378d97a12cd27e4a18ea5d0a2e07e7d0fbae3d9533f8efe",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reinterpret-dry": {
-   "record": "bae8061e9381a29fb0da326746905f91fd53cccbe203114a9ac0e22198b48cff",
+   "record": "ab8fd95bc61bbdb0d0b66c0dd9760e215b90fae0b9d90eeff10448023bd7a130",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reinterpret-full": {
-   "record": "e0326d685da428a4946b1b2dee3b794d8b5d6516bf2db858255f20ef61ac704c",
+   "record": "063688a52ae10994f0831c45a1c8a50a7f897c82f36bbd1a7c8db7493f8846bf",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reinterpret-none": {
-   "record": "312733212fcba2dfe9a92638e637412421a083e4a0bacb076e28a4f0d574cd9e",
+   "record": "888578ae57c6ca13e4f5e8f399533c02cdfa5fa86cb4c96b3c2ae9c34446c991",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reinterpret-scan": {
-   "record": "8dbe26543e3c2cccca3c8ad770d83a037bf0fd6b97865bee8ac79c1e5d23acf7",
+   "record": "166699f83d953b06fee5cc6d45e182132e1e10cbbd8101e27e1b34128d02fe1a",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reinterpret-smoke": {
-   "record": "600d13b3d716eee5c2d3582646dd9e63b0f7f76bb7ed70f405b3915784a7d2ec",
+   "record": "61951b2f86f2147d1eafe1e077058b68c1fa0c3b53782d32a1797138d342037b",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reproduce-dry": {
-   "record": "acdad3b766e45697af14434f48e54327bcb4056fec4dd6d94aa8319324fda8f1",
+   "record": "df094989c07e72e95cac8930e66eabf28f7b409d965c813024bf784c0574e60d",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reproduce-full": {
-   "record": "a57c3058af82ed7b26a28ece2c1b72ddf080da6ab35bad56e18c7cbd68b6a3aa",
+   "record": "e46972c0d7f894c41e566378abe820c41f37697995288fb9fcdb06641031c47a",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reproduce-none": {
-   "record": "38b00325037bc243b2ec9b1db9d0e28e79ff7a05d47df66648add34bf39671ab",
+   "record": "9036f4dbf59e564c3edb3392303e0ceda7f048d52171c0d739a592cb83d510c2",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reproduce-scan": {
-   "record": "6590ed5f67f94599512b8cf8c20aa115247b39325c91274914ee82667a60ed55",
+   "record": "462692a4fabcbf002b92c519be9786fd148e26fab894c2a900768e200d367633",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-reproduce-smoke": {
-   "record": "e9652d390f3bd2dfaa3038ddd71e817698f7ee7b935ad7f1b3ae7d22227da2c1",
+   "record": "3d273c46c11dc9dd91996d6680ecc38e14cc02763a056ff5d9c836f1351204e0",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-research-dry": {
-   "record": "e5b74f10bb3288c881d4e84d973b7abb1c6e7a92b472c68124ff0951b306671f",
+   "record": "3f14dfd86ab836c9118b95bb99fb2389a115eaa3957adee20ba9ccc90d777bbb",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-research-full": {
-   "record": "824a86119b5a1cb583571a976c09006178f4de1502aeddd6eb899f4cc4cfc42b",
+   "record": "348b8916dd6726e89b2c5133f566c39ee7ea0d5a9f12dcd1d873db9fef549f7d",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-research-none": {
-   "record": "f8259a3333a1fda00a2c80d2d9fddf518a34dfbb889e2a6d9c2bb600fee84942",
+   "record": "b49570e23f51de90ddea57040e7fed493347d0162b5f1d9d5fd068c83b78b915",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-research-scan": {
-   "record": "829dd709e1f4deaa4fe2b316100f01cc976d7607f8337737ca964279ddc2240c",
+   "record": "d60cf4f31131f1eb6f2f53b1a9a2d722256d82e8289aec41948b473bfacdc09e",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-research-smoke": {
-   "record": "41e04ccd940697d199e1009e2df9a82c6d312fb652b4160649647a4f7f625475",
+   "record": "6c7b29715116eb94b0e5944a935662b23e2bee5e41fb7bd078c6227242dbb095",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-scan-dry": {
-   "record": "bf9316451acde981deb24b363721c84002d6a4c6056c2c40d892771ba88716b5",
+   "record": "25bc8bcd621b0cfbf976ef49d120bc9a83f5344d4aa5f0bd44e652d3e7ac47fb",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-scan-full": {
-   "record": "6f0c854accfc1e67a9b03b6c57e4b210e9f82fa1dd6ac80d9581d313ac5a16e0",
+   "record": "88cbb46f553c24dae6ed9bafab09cb0d4cf4f38383367ea82e202aa121eb3bbf",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-scan-none": {
-   "record": "d68aebf64f3b44424e8caf7c8ecb2a26eb88abe4e850010fc4349d380ee9d2cb",
+   "record": "7eb902775a833a68c6aacd8cab9844acbb6c675bb7dbed99877975bb4805dd45",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-scan-scan": {
-   "record": "f80e5eb9a3401d944a9951b406037f417c99239acd7ad7fd0047a3389f78df47",
+   "record": "0a61bd01266c09e468eb70253ba19dc7337fc89aa380d55b8ac151e83023d35a",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-scan-smoke": {
-   "record": "19898ce3b43bb52e14cda7ca426ec8379b6db7ecfc7285c87f5bf44170850481",
+   "record": "304617e9033e99611d790749400d5ddc910b0e6f52603d4e6bee038887ae37f0",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-summary_plot-dry": {
@@ -241,23 +241,23 @@
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-unsupported-dry": {
-   "record": "2efbf3a6036873bd3cb00fb0f6c7c0a399b792b70508576723e4e14526f4cc9b",
+   "record": "38528f6bb313f2a9039a648de1b27e991bb50d226e2917653916a6ee56757e59",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-unsupported-full": {
-   "record": "d26057de5b539914beb000d8a87a5904692f61f3aa68f85c4f81580dc64657d7",
+   "record": "b7fb21c69d3500b10bb910b0973384ec321371045b52d7a8214094f6b6eac32b",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-unsupported-none": {
-   "record": "0c894f27d5b9f0f5f7c675cd1f83b0b5b2294500f47f6b089459333672ec00a9",
+   "record": "cf82117da914b5ce972dcac7965583e60e02072116363c76819cfceff53f5b71",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-unsupported-scan": {
-   "record": "abf18b3a0dc6894b78cbfc19b4fd2ff482ccf598be2badf21113a194c9fa990c",
+   "record": "967bd954b83a67552302a6f0287d6a7e82af9934fe378e918eda3f997b3e72e7",
    "verdict": "FAIL"
   },
   "2026-07-01_fixture-unsupported-smoke": {
-   "record": "a4d225715be3343a543a0358c3e647a55490d3e106eade585b2cf9787fcbe575",
+   "record": "780c42d831fb14571e17b3797e2ee7805e007eb99d78fa66060f745b93af2577",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-anomaly_search-dry": {
@@ -341,123 +341,123 @@
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-no_routine-dry": {
-   "record": "e92fbc6e1d9ab00b392939a3bb399eb9228e5a3e98a78f6723bf6d9b6753d8fb",
+   "record": "0e0c5ab7acd7a483fa535179f75877f55101f96857798281ac4dd52516149869",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-no_routine-full": {
-   "record": "b63eb50736f0fcc3bddf32fbfb0ae2a70420332b80545f5f8ce65dbc46b30a2a",
+   "record": "dc280ffaee0b5ebd2b9d746dd25057d233ac3ee07152b0c27b5d179a2c58e3e2",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-no_routine-none": {
-   "record": "6f09ad973d0e9121d3f655334ad829286f194a4e6ece4c85defd386cdc6cf54d",
+   "record": "73d3135dc0ee1c13d124ead675f296b3e2fed4eca83700fe99880038b82c3b25",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-no_routine-scan": {
-   "record": "dae773a7f110242ed9b57f7c4c4d773299153532ee5478605f673d02db32f3fe",
+   "record": "2b8999fa7cc38100939f7a836de77840d831ffc11c34981393683f6fc9a1b55f",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-no_routine-smoke": {
-   "record": "ca84030838b090991eb9f0372c8a6a07457b3a9e858b7265a66fcd775b70b041",
+   "record": "9fde471e77cfde6a146433516dfc33aa6999d748033eb1b17bd36550ea398eb4",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-projection-dry": {
-   "record": "8e5cfa32154735d85e7c5657e1ae4b2b8221662a4385153a798f2cce2f2f372a",
+   "record": "21fcda54b8fe5d57607e8166021319e48f15d9c539975aec34923b403881a401",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-projection-full": {
-   "record": "ee5cf29f3b14dc27e7433d123ae23982870b8e05fc7ff7d2e04b4ebfa076654a",
+   "record": "4b144aa5ca92959a621d80734ae866d5857e464dc0999da06dd9c018cb0eb40c",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-projection-none": {
-   "record": "8526410a1b35f4dbcf01ac0819ed22497754dc59bbcfe922ff8206565f421259",
+   "record": "584828c78e30ece5742ad8401df4d9d26660422e0a108578ed11941798acc723",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-projection-scan": {
-   "record": "aabda1ea7cb49b7162abf4ec64e4ce827ad33fd25beb24dd217336ae7e1d45f0",
+   "record": "837ba6ab1f85bbea87f797b948f116f45bfced43d7290e363a0d5961a34615be",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-projection-smoke": {
-   "record": "d0a90be836e50580e04b5d8b3bedcfca42ea3292f0c0eca88042aeb95fad5aa0",
+   "record": "5f86a3b217df9940fb36e90e2e9a47a5bd078f71e4f23bdcf9c97e89bbdf1759",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reinterpret-dry": {
-   "record": "c9f0aa9d80caa218152350857a533e314c9f2a7ff4655f10c1b076d51c9eabbb",
+   "record": "7eb96945290b2a17645143bbdd53a8aa2887251df9dff194178f4d7ba6ac5612",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reinterpret-full": {
-   "record": "44e1a3bd6b0f80140d236c0a1cb829b96c9d1360fb9482ec9326a8b25dbc164f",
+   "record": "6bdaa7e2aab97ae3de64016c2d2b6207ffb492ef5bbd597b204d8e5bbd738031",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reinterpret-none": {
-   "record": "38c43ed4f897599c854ea53b0ef75b9ee8221377c4ce1646368caaf6aa615f19",
+   "record": "cc1fcdb312877ebd749c0fbb17a41a64adf5d96f8f12016e9fc71412dacd1f01",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reinterpret-scan": {
-   "record": "b9839e7bf4eb4193358e0cef648a46aae35bdb65a6e7484aeb7ab17f10be5950",
+   "record": "73e11563fb4ed048f7729920e9141874735667838d5b7e38171021aa083cff2c",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reinterpret-smoke": {
-   "record": "d876f74c43b52c0b0db527a5c450fe9c1f1974b9df6e55e6adec18c9f259016a",
+   "record": "6320f9bde13aa9cba97b050436ce7ee0a3d097686abc2a0843d03d4238604302",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reproduce-dry": {
-   "record": "ba6d6abd23f79a59fe6b79571e4768c8665cd9b6db998db682d0d7d8ddcc973a",
+   "record": "4c192c0918f096aef54896d1c64033f7fe2d137491d21beca2233fb0889c21f6",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reproduce-full": {
-   "record": "1e1ac7e1004cbc2ed046f059d4c081b9864715b8142d63704bc900017cc7bb28",
+   "record": "3c4b14a8fc11547f1409177ca1036553ddefce297f46129a8768c313ce0e2c87",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reproduce-none": {
-   "record": "068db76f0e06646478d7c906eea0630353ea0cc0d74113a82d6a799b88d35521",
+   "record": "ca759d706b6c4aff6b98ce046d6f6fb5d40b2ecb9229659b3a48f43597302d0c",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reproduce-scan": {
-   "record": "66089d61483c0b06d149ca05b8dbc30e3b7e69087758de225609b27c2d6bd174",
+   "record": "b789c14a3fb390e6ab59c51499c71ef1be1ebcb21c016b357dd81d1f98926289",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-reproduce-smoke": {
-   "record": "b618c62c844341a1c12568672fb44dd97e2b556759fedb589e5e5ffea3aa5ef8",
+   "record": "1af3d89fe82fda3d94a42a1dd26ad9867241b168a33bf1bb4c797ba5220fd793",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-research-dry": {
-   "record": "2b3d66bbf5c904d5dad76540fcca9c72690de60c318b091e6a1de5bed71ea4b0",
+   "record": "4cf3913506695e02ef67110b6b81dd67e632e7f11e57a5345bbdbef02241e1e3",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-research-full": {
-   "record": "597c409d37eeb4ae523f3539c2ce6a18621da53a9b42de7cba58430449dc066f",
+   "record": "bee4b3f1b31cb9a777818f7f99fc1011f14ff20de8abf5a1ac491dc40fc816bf",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-research-none": {
-   "record": "0f98b6ab4079b8ec0027b6d8efb66dd4cb598c829780d71c22f120c12a869b5d",
+   "record": "9bac1b52e280910af2ca4b893c41f9441449ff9f9c20fba480da2a88eebd8715",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-research-scan": {
-   "record": "3704ddce41309314ed388216c2f900c3ee74dbce0832b154a59ca5fde98425c0",
+   "record": "f31e8ad9d3b55ff3dde94db2b038d7d5c60107547f76247be0856d69ca1b0aa4",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-research-smoke": {
-   "record": "a1e42acb24dc017418036ba6777133590a6cc423b369a5a866309bc3005d96f4",
+   "record": "ad7db57a6db5bd9fd8dcff452434a9f8e31e7dc1e03ce04023369f1cf66d969a",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-scan-dry": {
-   "record": "4938f4d109b0b27c887d681f192e93e462b6dc4e7ae9547374817baccc91301e",
+   "record": "8a38c2821307e3c23f3df5cfea03f48bc083127ab711e4e73a8aa83297f458cf",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-scan-full": {
-   "record": "8a117185e1f4b8d146b72e84fc753f189621a0763d4bb125d9deb21a05a74ce2",
+   "record": "7ba81eafa4f73aeb25a4966bf358f52c3dca3ef4eb414af707b3f58e07ba219d",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-scan-none": {
-   "record": "097467f6912e17b8ed6743cfbc91eab521864a57e12330000d9dfe9cf296c5c9",
+   "record": "c90d676ec46ee1392a7c7b0cebed33a0788cc76745cbc608dc28aa564f43c8d9",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-scan-scan": {
-   "record": "1a301d307abdf8f7986447d2780b6801d05b372a5c8e5402158f95bbd8c3edc7",
+   "record": "5e731bbce7ddd09b6bd393a9cdc7c93c2401edc63c23061440bc5d7d7645c395",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-scan-smoke": {
-   "record": "c88eee78550761baa2bba916ae8b5e8d8829280b23aa22f8d2554ec2f7b5a93d",
+   "record": "b0dddde319e798cbcad0e9c65265e48ea82fc430d5bace92d8051fac9a3ff0dd",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-summary_plot-dry": {
@@ -501,26 +501,26 @@
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-unsupported-dry": {
-   "record": "0997eeef1ce92feaf06ca87e9c51e656d111cd9dd096b06649c5b609433da259",
+   "record": "ea098c82e6de42134e3ae08fa34014626c89423c8c283fa409e8ecf22f2e456d",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-unsupported-full": {
-   "record": "33f6b13281e064876afb1144b6f953054d555096f02ef9fb8142eefc7d7bbd5f",
+   "record": "429687d069135c393ad3393a126dadda2c9c87f1a121c537b2be6bafca1ae32f",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-unsupported-none": {
-   "record": "c3cf225b0786772cbad4056c25156f672d61b9d2810175873b92178706df2309",
+   "record": "43792ba66fcf8ee05f41d1540296ffb1688ae7d6f60efa4ce66d4d78fa2e8a2f",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-unsupported-scan": {
-   "record": "8837f33e0b8ec7558d1bd12281a2c5f0c15c0dac81d371c9d069c3c8a608b428",
+   "record": "fe0fd371a52123b91ca2f4fc71c4be6e7fdfd5e03e3e42e3854cb2da573ddf89",
    "verdict": "FAIL"
   },
   "2026-10-11_fixture-unsupported-smoke": {
-   "record": "647fe45710df2e6ee5df145d3b149e9890bce33a4f6b7c625ee6dd2fa5d5ce9a",
+   "record": "5c230f83d3592fe3663d062e9d2e3513a0203cc1d60ce38aac00e7471215d15e",
    "verdict": "FAIL"
   }
  },
- "recorded_at": "fd215d4",
+ "recorded_at": "fdcb9c3",
  "schema_version": 1
 }

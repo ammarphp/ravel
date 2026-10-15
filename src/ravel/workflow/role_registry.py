@@ -36,7 +36,10 @@ def registry_document(*, roles_root=None):
     path = root / 'registry.json'
     if not path.is_file() and roles_root is not None:
         path = package_data_path('roles', 'registry.json')
-    return json.loads(path.read_text())
+    from .role_registration import apply
+    from .higgs_registration import compose
+    # Explicit role fragments first, then the source-owned scalar role fragments; both are append-only.
+    return compose(apply(path.parent, json.loads(path.read_text())), path)
 
 
 def _identity(role_id, document):
@@ -166,6 +169,8 @@ def validate_card(card, *, root=None, known_ids=None):
                 errors.append('reviewer must forbid ' + key)
         if any('lessons' in s for s in card['knowledge']['derive'] + card['knowledge']['must_read']):
             errors.append('reviewer cannot derive or read lessons')
+    from ravel.validation.higgs_checks import card_errors
+    errors += card_errors(card)
     cap = 2700 if card['family'] in ('production', 'consult', 'research', 'writing', 'upstream') else 1200
     if card['stop']['max_wall_seconds'] > cap:
         errors.append('role wall ceiling exceeds family cap')
@@ -178,6 +183,8 @@ def validate_card(card, *, root=None, known_ids=None):
     if card['independence']['kind'] == 'voting' and budget == 0:
         if card['requires']['tools'] != 'none' or card['requires']['isolation_min'] != 'cli-policy':
             errors.append('zero-budget voting card requires tools none and cli-policy isolation')
+    from ravel.validation.sm_checks import registered_review_card_errors
+    errors += registered_review_card_errors(card)
     return errors
 
 
@@ -394,6 +401,8 @@ def render(surface, *, document=None, roles_root=None) -> dict[str, str]:
     if surface in ('claude', 'codex', 'gemini'):
         rel, content = gate_shim(surface, document=document, roles_root=roles_root)
         files[rel] = content
+    from .site_tools import declaration
+    files['.ravel/site-tools/' + surface + '.json'] = json.dumps(declaration(surface), indent=2, sort_keys=True) + '\n'
     if surface == 'codex':
         config = '# ' + mark + '\n'
         for card in cards:
@@ -537,6 +546,8 @@ def main(argv=None):
         for surface in SURFACES:
             for relative, text in render(surface).items():
                 path = root / relative
+                if path.is_file() and not path.is_symlink() and path.read_bytes() == text.encode():
+                    continue
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(text)
         print('Rendered role surfaces; protected .claude/hooks and active settings were not changed.')

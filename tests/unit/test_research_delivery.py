@@ -73,6 +73,9 @@ def reviewed(tmp_path, *, reviewers=('physics_critic', 'skeptical_verifier', 'ph
     review.open_cycle(rd, effective_settings=['inputs/settings.cfg'], stage_receipts=[record['attempt_record']],
                       check_results='inputs/checks.json')
     actors = review._read(review._root(rd))[0]['policy']['actors']
+    # An epoch-two acceptance stands on the attested worker receipts of its CHECK-IN 2 review points.
+    from test_review_points import credit_pending
+    assert credit_pending(rd)
     for role in reviewers:
         review.submit_review(rd, role=role, actor_id=actors[role], verdict='accept',
                              summary='Evidence supports the stated scope', claim_scope='reproduction')

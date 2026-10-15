@@ -191,3 +191,34 @@ def test_symlinked_mirror_cannot_gain_logical_projection(repo):
     (repo / mirror).symlink_to(repo / logical)
     with pytest.raises(FileNotFoundError):
         hygiene.navigation_document(repo, mirror)
+
+
+SHIPPED_ROOTS = ('.codex', '.gemini', '.opencode', '.antigravity', '.ravel', 'addons', 'GEMINI.md')
+SHIPPED_NAMES = ('GEMINI.md', 'THIRD-PARTY-NOTICES.md', '.antigravity/RAVEL.md', '.opencode/RAVEL.md',
+                 'addons/gpl/mcfm-amplitudes/ATTRIBUTION.md', 'scripts/live/ordinary-review-cell.sh')
+
+
+def test_every_shipped_root_is_a_public_root_in_the_registry_selection(repo):
+    registry = json.loads((REPO / 'distribution.json').read_text())['distribution']
+    declared = {Path(p).parts[0] for p in registry['trees'] + registry['files'] + registry.get('extra_files', [])}
+    assert set(SHIPPED_ROOTS) <= declared
+    assert declared <= set(hygiene.PUBLIC_ROOTS)
+
+
+def test_shipped_roots_and_conventional_names_pass_the_public_check(repo):
+    for relative in SHIPPED_NAMES:
+        write(repo, relative)
+    for root in SHIPPED_ROOTS:
+        if not (repo / root).exists():
+            write(repo, root, '') if root.endswith('.md') else (repo / root).mkdir()
+    errors, _ = hygiene.check(repo, public=True)
+    assert not [e for e in errors if 'forbidden public root' in e or 'kebab-case' in e], errors
+
+
+def test_upper_case_names_stay_refused_outside_the_conventional_set(repo):
+    write(repo, 'docs/RAVEL.md')
+    write(repo, 'scripts/live/ordinary_review_cell.sh')
+    write(repo, 'tests/RAVEL.md')
+    errors, _ = hygiene.check(repo, public=True)
+    refused = {e.split(':')[0] for e in errors if 'kebab-case' in e}
+    assert {'docs/RAVEL.md', 'scripts/live/ordinary_review_cell.sh', 'tests/RAVEL.md'} <= refused

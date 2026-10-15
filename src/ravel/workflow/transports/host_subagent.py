@@ -7,7 +7,9 @@ toolbelt in custody. ``serve_broker`` keeps the broker open while the subagent w
 is built by the shared ``tool_gate.production_broker`` over that pinned toolbelt, so the
 brief lists exactly the tools the broker serves, every call passes the gate, and every
 tool output still counts only through a broker receipt. ``complete`` writes the worker receipt from
-the host-reported final record.
+the host-reported final record. When the run pins a project instruction document, the brief
+carries its text for the subagent to read first. The receipt records the brief and the sha256
+the host reported back; it shows delivery only when that report names the pinned document.
 
 These routes are never blind-capable and never serve a voting or blind role: the host's
 own tool policy is the only boundary (``cli-policy``), user configuration is loaded, and
@@ -26,7 +28,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from copy import deepcopy
 
-from .. import broker, transport_registry as tr
+from .. import broker, project_instructions, transport_registry as tr
 from ..state_io import atomic_json
 from .cli_worker import LaunchRefused, _card, _refuse, toolbelt_for
 
@@ -99,6 +101,12 @@ def brief(rundir, spec, workspace, *, transport_id, card=None):
               'tools': tools, 'toolbelt_manifest_sha256': belt['manifest_sha256'],
               'declared_outputs': spec['declared_outputs'], 'final_record_schema': spec['final_record_schema'],
               'budgets': spec['budgets'], 'attestation': 'host_attested', 'isolation': 'cli-policy'}
+    try:
+        declared = project_instructions.for_packet(project_instructions.for_run(run))
+    except project_instructions.ProjectInstructionsError as exc:
+        raise LaunchRefused(str(exc), exc.missing) from None
+    if declared is not None:
+        packet['project_instructions'] = declared
     target = ws / 'inputs' / 'host-brief.json'
     from .. import gate_wiring
     try:
@@ -155,8 +163,13 @@ def serve_broker(rundir, spec, packet):
         yield tool_broker
 
 
-def complete(rundir, spec, packet, *, final):
-    """The worker receipt for a host-reported final record; never more than ``host_attested``."""
+def complete(rundir, spec, packet, *, final, instructions_sha256=None):
+    """The worker receipt for a host-reported final record; never more than ``host_attested``.
+
+    ``instructions_sha256`` is the host's report of the project instruction document its subagent
+    read (the sha256 printed in the brief). A run that pins a document credits the session only
+    when that report names the pinned document; the brief alone shows that RAVEL prepared the text.
+    """
     from .. import agent_worker
     document = _document(packet['transport_id'])
     if packet['declaration_sha256'] != tr.declaration_sha256(document):
@@ -165,9 +178,17 @@ def complete(rundir, spec, packet, *, final):
     run = broker.ordinary(rundir)
     start = _start_path(run, spec)
     acknowledged = read_json(start) if start.is_file() and not start.is_symlink() else None
+    # A host may hand back the packet without the instruction record; the start is then matched
+    # against the packet with the record RAVEL kept in custody, so any other change still refuses.
+    kept_brief = broker.custody(rundir) / (agent_worker._key(spec['node_id'], spec['attempt']) + '.host-brief.json')
+    admitted = packet
+    if 'project_instructions' not in packet and kept_brief.is_file() and not kept_brief.is_symlink():
+        kept_record = read_json(kept_brief).get('project_instructions')
+        if kept_record is not None:
+            admitted = {**packet, 'project_instructions': kept_record}
     if (type(acknowledged) is not dict or acknowledged.get('kind') != 'host-subagent-start'
             or acknowledged.get('node_id') != spec['node_id'] or acknowledged.get('attempt') != spec['attempt']
-            or acknowledged.get('brief_sha256') != _brief_sha256(packet)):
+            or acknowledged.get('brief_sha256') != _brief_sha256(admitted)):
         # No admitted start for this attempt and brief: the work ran outside a steering-admitted
         # window, so no receipt is written for it.
         raise LaunchRefused('host subagent refused: steering (no admitted start is recorded for this attempt; '
@@ -179,6 +200,14 @@ def complete(rundir, spec, packet, *, final):
                  'isolation': {'profile': 'cli-policy', 'user_configuration_loaded': True,
                                'evidence': {'confirmed': False, 'basis': 'host-reported; RAVEL observed no process'}},
                  'model': {'requested': None, 'observed': None, 'family': None, 'effort': None}}
+    # The delivery record comes from the brief RAVEL kept in custody, not from the packet handed back.
+    kept = broker.custody(rundir) / (agent_worker._key(spec['node_id'], spec['attempt']) + '.host-brief.json')
+    if kept.is_file():
+        from ..state_io import read_json
+        declared = read_json(kept).get('project_instructions')
+        if declared is not None:
+            execution['transport']['project_instructions'] = project_instructions.acknowledged(
+                declared['record'], instructions_sha256)
     return agent_worker.finish(rundir, spec, final=deepcopy(final), execution=execution)
 
 

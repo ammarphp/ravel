@@ -44,6 +44,7 @@ Useful options:
 | `--profile site` | Install the Linux analysis-facility target instead of the default toolchain |
 | `--only madgraph,lhapdf-sets` | Install these groups and what they need |
 | `--prefix PATH` | Install the tools somewhere else (default: `native/build` in the checkout) |
+| `--lcg-view PATH` | For `site`, choose an explicit LCG view path or `none`; `auto` lists candidates and refuses |
 | `--adopt` | Keep existing conda environments and Git checkouts in the prefix instead of creating them |
 | `--offline` | Take Miniforge and every archive from the download cache and refuse any that is missing; conda, pip and Git steps still use the network |
 | `--jobs N` | Build with N parallel jobs (default: half the cores) |
@@ -51,13 +52,13 @@ Useful options:
 | Target | Contents | Disk and time |
 |---|---|---|
 | `default` | Every released tool and its dependencies | Printed by `--dry-run` |
-| `site` | Python layer, site environments and facility checks | Printed by `--profile site --dry-run` |
+| `site` | Python host, isolated hash-locked Snakemake and cluster-generic, facility checks, PDF/graph tools; pyhf statistics | Printed by `--profile site --dry-run`; caches and both site environments sit under the chosen work prefix |
 
 `site` is the only named profile. On a Linux analysis facility such as lxplus, install it in a
 work area with enough space:
 
 ```bash
-bash scripts/setup/install.sh --profile site --prefix /path/to/work/area/ravel-tools
+bash scripts/setup/install.sh --profile site --prefix /path/to/work/area/ravel-tools --lcg-view none
 ```
 
 ## What gets installed
@@ -130,7 +131,18 @@ when one of these is missing:
   proves the activation and loads FeynRules, SARAH, FeynCalc and FeynArts, each in a fresh kernel. Without a
   kernel, Wolfram-backed operations are held with a message naming it, and each lists its fallback (a supplied
   model, a pregenerated spectrum or a Python evaluator).
-- **Facility access**: grid proxy (`voms-proxy-init`) and Kerberos (`kinit`).
+- **TeX** for manuscripts: install TeX Live with the full scheme (it includes REVTeX), or use an
+  existing full-scheme installation. In the prefix's `bin` directory, put `pdflatex` and `kpsewhich`
+  wrappers that set `TEXMFHOME` to the prefix's `share/texmf` and run that installation's programs.
+  Springer Nature's `sn-jnl` class is not on CTAN: take it from the publisher's
+  [LaTeX template package](https://www.springernature.com/gp/authors/campaigns/latex-author-support)
+  and place it in that `TEXMFHOME`. `ravel doctor --group tex` checks `pdflatex`, REVTeX and `sn-jnl`.
+  Collaboration and other publisher templates come with each manuscript; record them with
+  `python scripts/setup/publication_runtime.py --inventory DIR`.
+- **Facility access**: grid proxy (`voms-proxy-init`) and Kerberos (`kinit`). ServiceX queries take their
+  HTTPS endpoint, and the environment variable that holds the access token, from the `service` block of the
+  operation's own configuration; RAVEL ships no endpoint and does not read `servicex.yaml`. A query
+  that names no endpoint is refused ([the supplied contract](reference/dataset-query-quantities.md)).
 - **Model access** for research and review roles (next section).
 
 ## Choose a provider and capability profile
@@ -177,11 +189,16 @@ RESPONSE.json` records the answer with that session's identity.
 
 ## Linux analysis facilities
 
-`--profile site` installs Miniforge, RAVEL's Python layer and two site environments: one for
-analysis with XRootD access and one for Snakemake. When CVMFS is mounted, it also records the
-newest LCG view for this machine; `source .ravel-site/lcg-view.sh` loads it for ROOT, XRootD,
-HTCondor and rucio tools. CMS Combine runs through apptainer. `ravel doctor --profile site` checks
-CVMFS, the grid proxy, Kerberos, HTCondor, apptainer and the Claude Code or Codex command line.
+`--profile site` installs pinned Miniforge, RAVEL's Python layer and two environments under
+`<prefix>/.ravel-site/`: site-analysis for analysis and site-wms for hash-locked Snakemake
+and cluster-generic. Choose `--lcg-view /absolute/view/path` or `--lcg-view none` explicitly.
+Run `<prefix>/bin/ravel-snakemake` to isolate it from facility Python settings. Apptainer caches
+and temporary files use the prefix. Keep the checkout, runs and transcripts in work space too.
+One prefix holds one release per campaign; install an upgrade into a new prefix after the
+campaign ends. The target retains PDF/graph tools, omits Combine and TeX, and uses pyhf.
+Run `ravel site doctor --profile generic --prefix <prefix> --runs-dir <work-runs>
+--transcripts-dir <work-transcripts>` for locks, plugins, quota, locations, caches, leases,
+bubblewrap and stored worker qualification. See [site installation and qualification](reference/site-workflows.md#required-linux-installation).
 
 From a Mac, print the commands for a facility checkout with
 `python3.12 scripts/setup/site_installation.py --plan --linux-root /path/to/ravel/on/the/site`.
@@ -193,11 +210,15 @@ From a Mac, print the commands for a facility checkout with
   what was installed) and `config/`.
 - Python environments: `.venv`, `.venv-smodels` and `.venv-sfitter` in the checkout.
 - A different `--prefix` is remembered in `.ravel/native-prefix`, so RAVEL finds it later.
-- Analysis catalogue: `share/ravel/analysis-catalog.json` in the prefix. The installer builds
-  it from the pinned Rivet and SimpleAnalysis source checkouts. Catalogue readers use
-  `RAVEL_ANALYSIS_CATALOG` first, the user cache second, then the installed prefix. No shell
-  setup is needed to find the installed catalogue. The doctor checks the catalogue's schema
-  and pinned Rivet revision and prints the exact rebuild command when it fails.
+- Analysis catalogue: the package ships a pinned snapshot of the public Rivet and SimpleAnalysis
+  routine metadata (with its public probability-model index associations), so routine lookup works
+  before anything is installed. The installer's catalogue group refreshes it into
+  `share/ravel/analysis-catalog.json` in the prefix, built from the pinned Rivet and SimpleAnalysis
+  source checkouts. Catalogue readers use `RAVEL_ANALYSIS_CATALOG` first, the user cache second, the
+  installed prefix third, then the shipped snapshot. No shell setup is needed to find the installed
+  catalogue. The doctor checks the installed catalogue's schema and pinned Rivet revision and prints
+  the exact rebuild command when it fails. A catalogue row is discovery only: it confers neither
+  execution admission nor physics validation.
 
 The installer does not edit your shell start-up files, conda or container settings in your home
 directory, Wolfram settings or agent configuration. `config/ravel-env.sh` in the prefix sets the

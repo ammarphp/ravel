@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: RAVEL columnar schema 1 with uproot 5.3.12, Awkward Array 2.6.7 and NumPy 1.26.4. Native routine and site execution need their own pinned runtime.
 allowed-tools: Bash Read
 metadata:
-  ravel-requires-modes: "columnar-analysis authored-analysis reco-ntuple-routine ntuple-inventory mc-expected-construction root-stream"
+  ravel-requires-modes: "columnar-analysis authored-analysis reco-ntuple-routine ntuple-inventory mc-expected-construction root-stream dataset-query-quantities"
   upstream-version: "pypi:uproot=5.3.12 pypi:awkward=2.6.7 pypi:numpy=1.26.4"
   last-reviewed: "2026-10-11"
 ---
@@ -63,11 +63,12 @@ represent the requested operation. It needs its own source and output witnesses.
 `reco-ntuple-routine` runs a native analysis with an explicit reconstructed
 format descriptor. `ntuple-inventory` prepares a nominal selection and can emit a
 `root-stream` specification. `mc-expected-construction` transports a completed
-stream's full SR/CR basis into statistical construction. These preparation and native paths have
+stream's full SR/CR basis into statistical construction. `dataset-query-quantities` checks
+source-bound DAOD query requirements. These preparation and native paths have
 separate admission and result scopes; recipe compilation does not qualify them.
 
-See `docs/reference/columnar-analysis.md`, `columnar-analysis-modes.md`
-and the cross-section-normalization handbook.
+See `docs/reference/columnar-analysis.md`, `columnar-analysis-modes.md`,
+`dataset-query-quantities.md` and the cross-section-normalization handbook.
 
 ## Pitfalls
 

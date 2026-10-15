@@ -34,7 +34,17 @@ without the flag, signed general results remain supported.
 
 The result must be captured by the current accepted review of `RUN` under the
 named claim scope. Pass the result file as an extra review input so the review
-cycle records its hash. Two result forms are read:
+cycle records its hash. A run with `agent_layer_epoch: 2` also passes the
+delivery gate. A run without delegation delivers under its human approvals and
+must clear every refusal of the review-point provider: pending blocking points,
+standing findings, changed review obligations, an action outside the plan, an
+unsafe fan-out, a required decision receipt, and an original requirement that no
+accepted output maps to. A delegated run passes the whole `delivery` decision
+gate, as result packaging does; that gate needs the R3 delivery decision
+receipt, which `fill-template` does not produce, so a delegated run fills a
+template only after that decision is recorded. The command names what refuses.
+On an epoch-two run the accepted review itself stands only while the attested
+worker receipts credit its CHECK-IN 2 review points. Two result forms are read:
 
 - the `quantities.json` output of a `quantities` study (choose a stream with
   `--weight` when there are several);
@@ -118,3 +128,60 @@ record.
 
 The provenance record holds the template, result and output hashes, the review
 scope and sequence, units, conventions, the bin-by-bin mapping and the totals.
+
+## Provisional delivery at a study deadline
+
+A study can declare a delivery deadline in its task contract, as an absolute UTC
+time or as a wall budget from the recorded run start:
+
+```json
+"deadline": {"utc": "2030-01-01T12:00:00Z", "margin_s": 3600}
+"deadline": {"budget_s": 86400, "start_utc": "2030-01-01T00:00:00Z", "margin_s": 3600}
+```
+
+`margin_s` is the delivery margin before the deadline. `ravel status` shows
+`study_deadline` with the deadline, the seconds left and `in_margin`. Inside the
+margin it adds a warning and the one action that delivers something valid:
+
+| `action.kind` | When |
+|---|---|
+| `reviewed-fill` | The review has accepted; fill from the accepted result |
+| `provisional-fill` | The review is still open and a valid stage receipt pins an output |
+| `finish-review` | Neither applies; finish the review (or produce and open one) |
+
+`--provisional` fills from an output that is not yet reviewed. It is refused
+unless the contract declares a deadline, the margin has been reached, a valid
+stage receipt pins the exact result bytes, and an open, unresolved review
+(`awaiting_review`) cites the result. A hand-made file, a changed output, an
+accepted review (use the ordinary fill) or a sent-back or held review is refused.
+
+```sh
+ravel fill-template --provisional --template template.yaml --result RUN/outputs/histogram.json \
+  --rundir RUN --claim-scope diagnostic --out deliverables/provisional.yaml \
+  --deliver-into requester.yaml
+```
+
+The filled file says so: a YAML file starts with a `# RAVEL PROVISIONAL FILL`
+comment block that names the open review and claim scope, and a JSON file gains a
+top-level `provisional` object. The provenance record has `provisional: true`,
+`acceptance.accepted: false`, the stage receipt, the open review (with its
+attestation) and the deadline state at the fill.
+
+When the review accepts, the reviewed fill supersedes the provisional one in place:
+
+```sh
+ravel fill-template --template template.yaml --result RUN/outputs/histogram.json \
+  --rundir RUN --claim-scope diagnostic --out deliverables/reviewed.yaml \
+  --deliver-into requester.yaml --supersedes deliverables/provisional.yaml.provenance.json
+```
+
+The requester file must still hold exactly what the provisional fill delivered.
+The reviewed provenance records `supersedes`; the provisional record is never
+rewritten, and a `.superseded.json` sidecar beside it links both records. A
+provisional record can be superseded once.
+
+A provisional fill never stands in for reviewed evidence. A claim record, a
+CHECK-IN 3 claim census, an accepted fill and `export-submission` refuse a
+provisional file, its provenance and its supersession sidecar
+(`result_templates.provisional_errors`). Python callers pass
+`fill(..., provisional=True)` or `fill(..., supersedes=PATH, deliver_into=PATH)`.

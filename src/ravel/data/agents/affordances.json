@@ -836,6 +836,100 @@
    "tool": "check_validation_validate_task_contract_validate"
   },
   {
+   "atlas_id": "role:consult-higgs",
+   "executes_through": "structured_output",
+   "role": "consult-higgs",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "consult-higgs",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-higgs",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-higgs",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-higgs",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-higgs",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "consult-higgs",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "consult-higgs",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:higgs.framework_declared",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "consult-higgs",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_framework_declared"
+  },
+  {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": null,
+   "owner": "broker action registration",
+   "role": "consult-higgs",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
    "atlas_id": "role:consult-inference",
    "executes_through": "structured_output",
    "role": "consult-inference",
@@ -1676,6 +1770,90 @@
    "tool": "check_validation_validate_task_contract_validate"
   },
   {
+   "atlas_id": "role:consult-workflow-manager",
+   "executes_through": "structured_output",
+   "role": "consult-workflow-manager",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "consult-workflow-manager",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-workflow-manager",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-workflow-manager",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-workflow-manager",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "consult-workflow-manager",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "consult-workflow-manager",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "consult-workflow-manager",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:validation.validate_task_contract.validate",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "consult-workflow-manager",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_validation_validate_task_contract_validate"
+  },
+  {
    "atlas_id": "role:coordinator",
    "executes_through": "structured_output",
    "role": "coordinator",
@@ -2046,6 +2224,129 @@
    "tool": "cmd_review-context_read"
   },
   {
+   "atlas_id": "role:extended-scalar-modeler",
+   "executes_through": "structured_output",
+   "role": "extended-scalar-modeler",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "extended-scalar-modeler",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:write",
+   "role": "extended-scalar-modeler",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_write"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "extended-scalar-modeler",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "extended-scalar-modeler",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "extended-scalar-modeler",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "extended-scalar-modeler",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:higgs.scalar_basis",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_scalar_basis"
+  },
+  {
+   "atlas_id": "check:higgs.theory_constraints",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_theory_constraints"
+  },
+  {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": null,
+   "owner": "broker action registration",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
+   "atlas_id": "role:consult-higgs",
+   "executes_through": null,
+   "owner": "nested consult graph",
+   "role": "extended-scalar-modeler",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "consult_consult-higgs"
+  },
+  {
    "atlas_id": "role:figure-critic",
    "executes_through": "structured_output",
    "role": "figure-critic",
@@ -2261,6 +2562,327 @@
    "status": "absent",
    "test": null,
    "tool": "consult_consult-madgraph"
+  },
+  {
+   "atlas_id": "role:higgs-combination-reviewer",
+   "executes_through": "structured_output",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-combination-reviewer",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "higgs-combination-reviewer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "higgs-combination-reviewer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:higgs.cross_engine",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "higgs-combination-reviewer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_cross_engine"
+  },
+  {
+   "atlas_id": "check:higgs.measurement_bundle",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "higgs-combination-reviewer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_measurement_bundle"
+  },
+  {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": null,
+   "owner": "broker action registration",
+   "role": "higgs-combination-reviewer",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
+   "atlas_id": "role:higgs-coupling-analyst",
+   "executes_through": "structured_output",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:write",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_write"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-coupling-analyst",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:higgs.measurement_bundle",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_measurement_bundle"
+  },
+  {
+   "atlas_id": "check:higgs.parameterization_closure",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_parameterization_closure"
+  },
+  {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": null,
+   "owner": "broker action registration",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "cmd_review-context_read"
+  },
+  {
+   "atlas_id": "role:consult-higgs",
+   "executes_through": null,
+   "owner": "nested consult graph",
+   "role": "higgs-coupling-analyst",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "consult_consult-higgs"
+  },
+  {
+   "atlas_id": "role:higgs-theory-uncertainty-auditor",
+   "executes_through": "structured_output",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "card output schema",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "submit_final"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": "broker:read",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "broker workspace actions",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "ws_read"
+  },
+  {
+   "atlas_id": "cmd:knowledge find",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_find"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_show"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_for_node"
+  },
+  {
+   "atlas_id": "cmd:knowledge",
+   "executes_through": "broker:knowledge query",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": "workflow/knowledge.py query ops",
+   "status": "typed",
+   "test": "tests/unit/test_toolbelt.py::test_typed_tools_execute_through_the_broker",
+   "tool": "knowledge_coverage"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker workspace listing action",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_list"
+  },
+  {
+   "atlas_id": "cmd:work",
+   "executes_through": null,
+   "owner": "broker figure/page render action",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "ws_render"
+  },
+  {
+   "atlas_id": "check:higgs.theory_correlation",
+   "executes_through": null,
+   "owner": "broker with the validator registry (data/validators/registry.json)",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "check_higgs_theory_correlation"
+  },
+  {
+   "atlas_id": "cmd:review-context read",
+   "executes_through": null,
+   "owner": "broker action registration",
+   "role": "higgs-theory-uncertainty-auditor",
+   "schema_source": null,
+   "status": "absent",
+   "test": null,
+   "tool": "cmd_review-context_read"
   },
   {
    "atlas_id": "role:idea-proposer-a",

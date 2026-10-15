@@ -55,6 +55,8 @@ import re
 
 import numpy as np
 
+from ravel.workflow.restriction_guard import require
+
 from .figure_io import (axis_title, code_identity, finite_list, hex_rgb, load_spec, natural_label,
                         new_output_dir, read_bytes, resolve, rgb_hex, scale_of, sha256_bytes,
                         write_new_bytes, write_new_json)
@@ -70,6 +72,7 @@ _MANTISSA_TIMES_TEN = re.compile(r'^([+-]?(?:\d+\.?\d*|\.\d+))\s*[×x·]\s*10$')
 
 
 def sha256_file(path):
+    require('digitize', {'path': str(path)})
     return sha256_bytes(read_bytes(path))
 
 
@@ -201,6 +204,7 @@ class PageContent:
 
 
 def parse_pdf_page(path, page=1):
+    require('digitize', {'path': str(path)})
     from pypdf import PdfReader
     from pypdf.generic import ContentStream
     reader = PdfReader(io.BytesIO(read_bytes(path)))
@@ -565,7 +569,7 @@ def merge_runs(texts):
     return out
 
 
-def numeric_labels(content):
+def _numeric_labels(content):
     """Numeric text items, merging mathtext powers of ten (10 with a raised exponent)."""
     texts = sorted(merge_runs(content.texts), key=lambda t: (t['y'], t['x']))
     used = set()
@@ -694,7 +698,7 @@ def _calibrate_vector(axis, which, content, frame, ticks):
         return Calibration(anchors, scale, 'tick_values', VECTOR_POSITION_FLOOR)
     if method != 'tick_labels':
         raise ValueError(f'{which} axis calibration method must be tick_labels, tick_values or anchors')
-    labels = _axis_labels(numeric_labels(content), frame, which)
+    labels = _axis_labels(_numeric_labels(content), frame, which)
     if len(labels) < 2:
         raise ValueError(f'{which} axis: fewer than two numeric tick labels found; declare tick values or anchors')
     available = list(major)
@@ -958,6 +962,7 @@ def _to_data(points, cx, cy, extra_x=0.0, extra_y=0.0):
 # ===================================================================== inventory
 def inventory(path, page=1, region=None):
     """Summarise what a PDF page draws, for choosing selections and calibration."""
+    require('digitize', {'path': str(path)})
     content = _restrict(parse_pdf_page(path, page), tuple(region) if region else None)
     try:
         frame = detect_frame(content)
@@ -986,7 +991,7 @@ def inventory(path, page=1, region=None):
             'texts': [{'text': t['text'], 'x': round(t['x'], 2), 'y': round(t['y'], 2), 'size': round(t['size'], 2)}
                       for t in content.texts],
             'numeric_labels': [{'text': l['text'], 'value': l['value'], 'x': round(l['x'], 2), 'y': round(l['y'], 2)}
-                               for l in numeric_labels(content)],
+                               for l in _numeric_labels(content)],
             'tick_marks': {'x': ticks['x'][0], 'y': ticks['y'][0]},
             'minor_tick_marks': {'x': ticks['x'][1], 'y': ticks['y'][1]}}
 
@@ -1115,6 +1120,7 @@ def _review_png(background, to_pixel, series_points, anchors, labels, size):
 # ===================================================================== entry point
 def run_spec(spec_path, out_dir):
     """Digitise according to a specification; write digitized.json and review.png into out_dir."""
+    require('digitize', {'specification': str(spec_path)}, output=out_dir)
     spec, base = load_spec(spec_path)
     allowed = {'schema_version', 'source', 'region', 'frame', 'axes', 'series', 'description'}
     if set(spec) - allowed:
@@ -1217,6 +1223,7 @@ def load_series(document, name):
     """Return one series of a digitized-series document by name."""
     if not isinstance(document, dict) or document.get('kind') != 'digitized-series':
         raise ValueError('a digitized-series document is required')
+    require('digitize', document.get('source') or {'identity_unresolved': True})
     for series in document.get('series', []):
         if series.get('name') == name:
             return series

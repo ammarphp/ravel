@@ -31,6 +31,19 @@ class ProviderFailure(ValueError):
     pass
 
 
+def admit(host, run, input_pins=()):
+    """Policy seam shared by HTTP and command model dispatch, before credentials."""
+    from . import provider_policy
+    declaration = host.transport
+    actual = provider_policy.account_class(declaration) if declaration else 'undeclared'
+    # An HTTP host's effective credential kind must agree with its named route.
+    if declaration and host.adapter in HTTP_ADAPTERS:
+        kind = host.auth['kind'] if host.auth is not None else 'env' if host._api_key is not None else 'none'
+        if kind != declaration['auth']['kind']:
+            actual = kind + ':' + declaration['billing']
+    return provider_policy.admission(run, declaration, actual, input_pins=input_pins)
+
+
 def loopback(endpoint):
     # Literal addresses only: no ambient DNS decision in local-only mode.
     if endpoint.hostname == 'localhost':
@@ -377,3 +390,129 @@ def response(adapter, document, capabilities, loads):
     if type(value) is not dict:
         raise ProviderFailure('public record must be an object')
     return value, _identity(model, 'observed model'), _identity(identity, 'response identity'), usage, details
+
+
+def audit_control(control, node):
+    """Record dispatched HTTP request bytes inside the existing guarded call.
+
+    No headers, credentials or response bodies enter the record. A cached guarded
+    result does not create another prompt. Failed sends retain unknown usage.
+    The provider result is returned unchanged. The record is kept under the
+    control's run root, or a session folder under the state directory when rootless.
+    """
+    from pathlib import Path
+    import time
+    from . import agent_audit, agent_graph
+    from .state_io import atomic_json
+    from .prompt_log import session_recording_destination
+    from uuid import uuid4
+
+    class RecordingControl:
+        def __getattr__(self, name):
+            return getattr(control, name)
+
+        def call(self, label, kind, request, function, **kwargs):
+            if kind != 'model' or label not in HTTP_ADAPTERS:
+                return control.call(label, kind, request, function, **kwargs)
+            def recorded():
+                prompt = json.dumps(request, sort_keys=True, separators=(',', ':'), allow_nan=False)
+                if len(prompt.encode()) > 16 * 1024 * 1024:
+                    raise ProviderFailure('prompt record exceeds byte bound')
+                call_id = agent_graph.digest({'attempt_id': getattr(control, 'attempt_id', None), 'label': label})
+                rootless = getattr(control, 'root', None) is None
+                recording_session = None
+                if rootless:
+                    destination, recording_session = session_recording_destination()
+                    # A rootless control need not expose attempt identities. Each
+                    # dispatched call needs its own record even within one session.
+                    call_id = uuid4().hex
+                else:
+                    destination = Path(control.root)
+                path = destination / 'prompt-receipts' / (call_id + '.json')
+                row = {'schema_version': 1, 'kind': 'model-prompt-receipt', 'call_id': call_id,
+                       'rootless': rootless, 'recording_session_id': recording_session,
+                       'node_id': getattr(control, 'node_id', None), 'role': node.get('role'), 'stream': 'provider', 'prompt_index': 1,
+                       'timestamp': agent_audit.utc_now(), 'prompt': prompt,
+                       'prompt_sha256': hashlib.sha256(prompt.encode()).hexdigest(),
+                       # Some adapters carry the model in the URL, not the body.
+                       'model_requested': request.get('model') or (node.get('parameters') or {}).get('model'),
+                       'model_reported': None,
+                       'model_build_exact': False, 'cli_version': None, 'session_id': None,
+                       # An HTTP request carries no declared project document.
+                       'instruction_document_sha256': None,
+                       'usage': None, 'status': 'started', 'elapsed_seconds': None}
+                atomic_json(path, row)
+                began = time.monotonic()
+                try:
+                    result = function()
+                    transport = result.get('transport') or {}
+                    reported = transport.get('observed_model')
+                    from .prompt_log import exact_model
+                    row.update(status='completed', model_reported=reported,
+                               model_build_exact=exact_model(reported), session_id=transport.get('response_id'),
+                               usage=result.get('usage'))
+                    return result
+                except Exception as exc:
+                    row.update(status='failed', error_type=type(exc).__name__)
+                    raise
+                finally:
+                    row['elapsed_seconds'] = time.monotonic() - began
+                    atomic_json(path, row)
+            return control.call(label, kind, request, recorded, **kwargs)
+    return RecordingControl()
+
+
+def recorded_dispatch(root, prepared, *, role, model_requested, dispatch):
+    """Run a caller-supplied dispatcher with the request it is handed kept before the call.
+
+    ``prepared`` is the result of ``agent_graph.prepare_external``. The record holds the exact
+    bytes of the sealed request file, written before ``dispatch`` runs, and the outcome after
+    it: the model and usage the returned response file reports, or the failure. What the
+    dispatcher itself sends on is outside RAVEL and is not in the record. The dispatcher's
+    return value is passed through unchanged.
+    """
+    from pathlib import Path
+    import time
+    from . import agent_audit, agent_graph
+    from .state_io import atomic_json
+    from .prompt_log import exact_model
+    raw = Path(prepared['request_file']).read_bytes()
+    if len(raw) > 16 * 1024 * 1024:
+        raise ProviderFailure('prompt record exceeds byte bound')
+    prompt = raw.decode('utf-8')
+    # The graph journals this dispatch under the same identity; the collector keeps one row for both.
+    call_id = agent_graph.digest({'attempt_id': Path(prepared['request_file']).stem, 'label': 'external'})
+    path = Path(root) / 'prompt-receipts' / (call_id + '.json')
+    row = {'schema_version': 1, 'kind': 'model-prompt-receipt', 'call_id': call_id, 'rootless': False,
+           'recording_session_id': None, 'node_id': prepared.get('node_id'), 'role': role, 'stream': 'dispatcher',
+           'prompt_index': 1, 'timestamp': agent_audit.utc_now(), 'prompt': prompt,
+           'prompt_sha256': hashlib.sha256(raw).hexdigest(), 'prompt_scope': 'sealed request handed to a caller-supplied dispatcher',
+           'request_id': prepared.get('request_id'), 'model_requested': model_requested, 'model_reported': None,
+           'model_build_exact': False, 'cli_version': None, 'session_id': None,
+           # The request carries no declared project document.
+           'instruction_document_sha256': None,
+           'usage': None, 'status': 'started', 'elapsed_seconds': None}
+    atomic_json(path, row)
+    began = time.monotonic()
+    try:
+        response = dispatch()
+        reported, session, usage = None, None, None
+        try:
+            document = json.loads(Path(response).read_text())
+            reported = document.get('observed_model') if type(document.get('observed_model')) is str else None
+            session = document.get('invocation_id') if type(document.get('invocation_id')) is str else None
+            tokens = (document.get('usage_report') or {}).get('tokens')
+            if type(tokens) is dict and all(type(tokens.get(k)) is int for k in ('input_tokens', 'output_tokens')):
+                usage = {'input_tokens': tokens['input_tokens'], 'output_tokens': tokens['output_tokens'],
+                         'total_tokens': tokens['input_tokens'] + tokens['output_tokens']}
+        except (OSError, ValueError, TypeError, AttributeError):
+            pass  # an unreadable response leaves the reported fields unknown; delivery judges the response itself
+        row.update(status='completed', model_reported=reported, model_build_exact=exact_model(reported),
+                   session_id=session, usage=usage)
+        return response
+    except Exception as exc:
+        row.update(status='failed', error_type=type(exc).__name__)
+        raise
+    finally:
+        row['elapsed_seconds'] = time.monotonic() - began
+        atomic_json(path, row)

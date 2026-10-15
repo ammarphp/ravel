@@ -100,7 +100,7 @@ class Registry:
             raise ValueError(f'{name}: kind must be normsys or histosys')
         common = {'name', 'kind', 'applies_to', 'correlation', 'origin', 'citation', 'statement', 'description'}
         specific = ({'relative', 'up', 'down'} if kind == 'normsys'
-                    else {'construction', 'alternative', 'alternative_up', 'alternative_down'})
+                    else {'construction', 'alternative', 'alternative_up', 'alternative_down', 'sample_metadata', 'alternative_kind'})
         if set(raw) - common - specific:
             raise ValueError(f'{name}: unsupported fields ' + ', '.join(sorted(set(raw) - common - specific)))
         origin = raw.get('origin')
@@ -131,10 +131,31 @@ class Registry:
                 source['up'] = _positive(raw.get('up'), f'{name}: up')
                 source['down'] = _positive(raw.get('down'), f'{name}: down')
         else:
+            alternative_kind = raw.get('alternative_kind', 'template')
+            if alternative_kind not in ('template', 'generator'):
+                raise ValueError(f'{name}: alternative_kind must be template or generator')
+            metadata = raw.get('sample_metadata')
+            if alternative_kind == 'generator' and metadata is None:
+                raise ValueError(f'{name}: alternative generator needs sample_metadata process and campaign')
             construction = raw.get('construction')
             if construction not in CONSTRUCTIONS:
                 raise ValueError(f'{name}: construction must be one of ' + ', '.join(CONSTRUCTIONS))
             source['construction'] = construction
+            source['alternative_kind'] = alternative_kind
+            if metadata is not None:
+                keys = {'nominal', 'alternative_up', 'alternative_down'} if construction == 'two-sided' else {'nominal', 'alternative'}
+                if type(metadata) is not dict or set(metadata) != keys:
+                    raise ValueError(f'{name}: sample_metadata must identify nominal and every alternative')
+                for key, row in metadata.items():
+                    if type(row) is not dict or set(row) != {'process', 'campaign'}:
+                        raise ValueError(f'{name}: sample_metadata needs process and campaign')
+                    for field in ('process', 'campaign'):
+                        _text(row[field], f'{name}: {key} {field} must be nonblank')
+                for key, row in metadata.items():
+                    for field in ('process', 'campaign'):
+                        if row[field] != metadata['nominal'][field]:
+                            raise ValueError(f'{name}: alternative sample {field} mismatch')
+                source['sample_metadata'] = deepcopy(metadata)
             if construction == 'two-sided':
                 source['alternative_up'] = _yields(raw.get('alternative_up'), f'{name}: alternative_up')
                 source['alternative_down'] = _yields(raw.get('alternative_down'), f'{name}: alternative_down')
@@ -222,5 +243,7 @@ class Registry:
                              'origin': s['origin'], 'provenance': s['provenance'],
                              'samples': s['samples'], 'regions': s['regions'],
                              **({'up': s['up'], 'down': s['down']} if s['kind'] == 'normsys'
-                                else {'construction': s['construction']})} for s in self.sources],
+                                else {'construction': s['construction'], 'alternative_kind': s['alternative_kind'],
+                                      'comparability': 'verified-declarations' if 'sample_metadata' in s else 'not-declared',
+                                      'sample_metadata': s.get('sample_metadata')})} for s in self.sources],
                 'absent': deepcopy(self.absent)}

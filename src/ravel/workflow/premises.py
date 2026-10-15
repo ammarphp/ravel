@@ -30,7 +30,7 @@ from . import physics_knowledge
 
 DATA = Path(__file__).resolve().parents[1] / 'data' / 'knowledge'
 SHARDS = ('generation', 'normalization', 'statistics', 'interference-cp',
-          'theory-procedures', 'reinterpretation', 'detector-models')
+          'theory-procedures', 'reinterpretation', 'detector-models', 'higgs')
 _SEMANTIC = ('tags', 'observables', 'claim_kind', 'basis')
 _FLAGS = ('interference', 'broad_resonance', 'wide_resonance', 'single_charge',
           'signed_weights', 'compressed', 'displaced', 'unfolding', 'eft')
@@ -50,7 +50,8 @@ def _read(path):
     raw = Path(path).read_bytes()
     if len(raw) > physics_knowledge.MAX_DOCUMENT_BYTES:
         raise ValueError('premise document exceeds bounded source size')
-    return physics_knowledge._json(raw)
+    from .higgs_registration import compose
+    return compose(physics_knowledge._json(raw), path)
 
 
 def _concerns():
@@ -218,9 +219,10 @@ def shard_request(name: str, *, text='physics conventions', tags=None, roots=Non
 
 
 def _result(op, args, rows):
+    from .higgs_registration import premise_pin
     pin = _pin(DATA / 'premises.json')
     results = [{**r, 'kind': r['id'].split(':')[0], 'summary': r['statement'],
-                'source_pin': pin,
+                'source_pin': premise_pin(r, pin),
                 'why': r.get('why', 'Located convention or canonical premise reference')}
                for r in rows]
     result = {'schema_version': 1, 'kind': 'knowledge-result', 'op': op,

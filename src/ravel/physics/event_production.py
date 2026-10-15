@@ -242,8 +242,9 @@ def shower_commands(shower, base):
     for key, _ in pairs:
         if key.lower() in RESERVED_PYTHIA:
             raise ValueError(f'{key} is set by the production stage (input file, chunking and seeds)')
-    from ravel.physics.pythia_cards import parse
+    from ravel.physics.pythia_cards import parse, tune_commands
     parse('\n'.join(commands))
+    commands, _ = tune_commands(shower.get('tune'), commands)
     return commands
 
 
@@ -251,13 +252,19 @@ def _merged_commands(commands, merging):
     if merging is None:
         return list(commands)
     settings = merging['settings']
-    return list(commands) + [f'{k} = {v}' for k, v in settings.items()]
+    from ravel.physics.model_events import literal
+    supplied = _settings(commands)
+    for key, value in settings.items():
+        if key.lower() in supplied and literal(supplied[key.lower()][1]) != literal(str(value)):
+            raise ValueError('shower command disagrees with MLM matching block: ' + key)
+    rows = [line for line in commands if line.split('=', 1)[0].strip().lower() not in {k.lower() for k in settings}]
+    return rows + [f'{k} = {v}' for k, v in settings.items()]
 
 
 def check_merging(header, merging):
     """Refuse a merged plan without complete matching settings, and the reverse."""
     ickkw = header['run_card'].get('ickkw')
-    generated_merged = ickkw is not None and int(float(ickkw)) == 1
+    generated_merged = ickkw is not None and float(ickkw) == 1
     if merging is None:
         if generated_merged:
             raise ValueError('the sample was generated with ickkw = 1; showering it without MLM matching '
@@ -294,6 +301,10 @@ def check_merging(header, merging):
         raise ValueError(f'JetMatching:qCut {qcut:g} is below the generation xqcut {float(xqcut):g}')
     if njetmax < 0:
         raise ValueError('JetMatching:nJetMax must be nonnegative')
+    if not math.isfinite(qcut) or not math.isfinite(float(xqcut)) or qcut <= 0 or float(xqcut) <= 0:
+        raise ValueError('MLM qCut and xqcut must be finite positive matching scales')
+    if not re.fullmatch(r'[1-6]', str(settings['JetMatching:nQmatch'])):
+        raise ValueError('JetMatching:nQmatch must be an explicit quark flavour count from 1 to 6')
     return {'scheme': 'MLM', 'settings': {k: str(v) for k, v in settings.items()}, 'base_partons': merging['base_partons'],
             'ickkw': int(float(ickkw)), 'xqcut': float(xqcut), 'qcut': qcut, 'njetmax': njetmax}
 
@@ -351,7 +362,7 @@ def validate(task):
         raise ValueError('events.max_events must be a positive integer')
     _keys(task['model'], ('name', 'invisible'), ('visible_stable', 'slha', 'produced', 'closure_report', 'bsm_pdgs', 'ufo'), 'model')
     _text(task['model']['name'], 'model.name')
-    _keys(task['shower'], ('seed',), ('commands', 'cmnd', 'merging', 'variants', 'census_events'), 'shower')
+    _keys(task['shower'], ('seed',), ('commands', 'cmnd', 'merging', 'variants', 'census_events', 'tune'), 'shower')
     if type(task['shower']['seed']) is not int or not 1 <= task['shower']['seed'] <= 900_000_000 - 10_000:
         raise ValueError('shower.seed must be an integer from 1 to 899990000 (Pythia seeds; chunks add their index)')
     for variant in task['shower'].get('variants', []):
@@ -493,6 +504,12 @@ def generation_link(task, base, lhe, commands_by_variant=()):
         return {'receipt': None, 'point': None, 'match': 'transformed', 'transform': _transform_record(separate, commands_by_variant)}
     path = _regular(base, events['generation_receipt'], 'events.generation_receipt')
     document = json.loads(path.read_text())
+    if isinstance(document, dict) and document.get('status_scope') == 'source_bound_generated_event_delivery':
+        matching = model_events_matching(document, path.parent, lhe)
+        if separate is not None:
+            raise ValueError('model-events MLM handoff requires the original generated LHE')
+        return {'receipt': _pin(path), 'kind': 'model-events-native', 'point': None,
+                'matching': matching, 'transform': None}
     if not isinstance(document, dict) or document.get('kind') != 'generation-receipt':
         if separate is not None:
             raise ValueError('events.lhe_transform is linked through a RAVEL generation receipt (kind generation-receipt)')
@@ -557,6 +574,98 @@ def _transform_record(record, commands_by_variant):
             'events_changed': record['events_changed'],
             'required_downstream_settings': record['required_downstream_settings'],
             'deviations': record['deviations']}
+
+
+def model_events_matching(document, base, lhe):
+    """Consume the existing native receipt and pinned cards, without emitter changes.
+
+    All required shower settings must have been explicitly recorded. No matching
+    scale, flavour count or jet multiplicity is supplied by a guessed default.
+    """
+    from ravel.physics import model_events as me, pythia_cards
+    if document.get('status') != 'passed':
+        raise ValueError('MLM handoff requires a passed model-events receipt')
+    c = document['intended']
+    if c['generation']['scheme'] != 'mlm':
+        raise ValueError('model-events handoff currently requires the declared mlm scheme')
+    records = document.get('generated_artifacts', [])
+    lhe_digest = sha256(lhe)
+    linked = [r for r in records if r['sha256'] == lhe_digest and r['path'].endswith(('.lhe', '.lhe.gz'))]
+    if len(linked) != 1:
+        raise ValueError('model-events receipt does not uniquely name this generated LHE')
+
+    def card(pin, label):
+        path = _regular(base, pin['path'], label)
+        if sha256(path) != pin['sha256']:
+            raise ValueError(label + ' differs from the generation receipt')
+        return path.read_text()
+
+    generated_lhe = _regular(base, linked[0]['path'], 'generated LHE')
+    if generated_lhe != lhe and sha256(generated_lhe) != lhe_digest:
+        raise ValueError('generated LHE differs from the generation receipt')
+
+    def ending_card(name):
+        # rendered_cards pins pre-launch bytes; native MG may rewrite its cards.
+        # The complete generated-artifact census carries the ending bytes.
+        path = _regular(base, document['rendered_cards'][name]['path'], 'generation ' + name + ' card')
+        found = [r for r in records if _resolve(base, r['path']) == path]
+        if len(found) != 1:
+            raise ValueError('MLM receipt lacks a unique ending ' + name + ' card pin')
+        return card(found[0], 'generation ' + name + ' card')
+
+    process = card(c['cards']['process'], 'generation process card')
+    processes = me.process_commands(process, c)
+    run = me.assignments(ending_card('run'), native_lo_empty_strings=True)
+    py = pythia_cards.parse(ending_card('pythia'))['settings']
+    me.matches(run, document['observed_settings']['run'], 'MLM ending run observation', native_run_lists=True)
+    me.matches(py, document['observed_settings']['shower'], 'MLM ending shower observation')
+    header = read_header(lhe)
+    me.matches(run, c['generation']['run_settings'], 'MLM receipt run settings', native_run_lists=True)
+    me.matches(run, {'ickkw': 1, 'xqcut': header['run_card'].get('xqcut')}, 'MLM LHE run settings')
+    required = {k: py[k.lower()] for k in MLM_REQUIRED if k.lower() in py}
+    if len(required) != len(MLM_REQUIRED):
+        raise ValueError('model-events receipt lacks explicit complete MLM shower settings')
+    me.matches(py, {'JetMatching:qCut': c['shower']['merging_scale_gev'],
+                    'JetMatching:nJetMax': max(c['generation']['jet_multiplicities'])}, 'MLM receipt shower settings')
+    multiplicities = c['generation']['jet_multiplicities']
+    jet = c['generation']['jet_token']
+    aliases = {line.split()[1]: line.split('=', 1)[1].split() for line in processes if line.startswith('define ')}
+    qcd = {'g', 'u', 'u~', 'd', 'd~', 's', 's~', 'c', 'c~', 'b', 'b~'}
+    base_counts = []
+    for line in processes:
+        if line.startswith('define '):
+            continue
+        final = line.split('>', 1)[1].split('@')[0].split('/')[0].split()
+        hard = 0
+        for token in final:
+            if token == jet:
+                continue
+            values = set(aliases.get(token, [token]))
+            if values & qcd and not values <= qcd:
+                raise ValueError('MLM base-parton alias mixes QCD and non-QCD particles')
+            hard += int(bool(values & qcd))
+        base_counts.append(hard)
+    if len(set(base_counts)) != 1:
+        raise ValueError('MLM multiplicities have different hard base-parton populations')
+    block = {'scheme': 'MLM', 'settings': required, 'base_partons': base_counts[0] + min(multiplicities)}
+    check_merging(header, block)
+    return {**block, 'xqcut': float(run['xqcut']), 'jet_multiplicities': multiplicities}
+
+
+def receipt_merging(header, requested, generation):
+    """Fill the MLM block from a validated receipt and refuse conflicting typing."""
+    matching = (generation or {}).get('matching')
+    if matching is None:
+        return check_merging(header, requested)
+    block = {k: matching[k] for k in ('scheme', 'settings', 'base_partons')}
+    effective = check_merging(header, block)
+    if requested is not None:
+        observed = check_merging(header, requested)
+        from ravel.physics.model_events import literal
+        if (observed['base_partons'] != effective['base_partons'] or
+                any(literal(observed['settings'][k]) != literal(effective['settings'][k]) for k in MLM_REQUIRED)):
+            raise ValueError('hand-typed MLM block disagrees with the generation receipt xqcut/multiplicities/settings')
+    return effective
 
 
 def ledger_receipt_block(ledger):
@@ -626,10 +735,24 @@ def compile_task(task, base):
     base = Path(base)
     lhe = _regular(base, task['events']['lhe'], 'events.lhe')
     header = read_header(lhe)
-    merging = check_merging(header, task['shower'].get('merging'))
+    generation = generation_link(task, base, lhe)
+    merging = receipt_merging(header, task['shower'].get('merging'), generation)
     commands = shower_commands(task['shower'], base)
+    from ravel.physics.pythia_cards import resolve_tune
+    tune = resolve_tune(task['shower'].get('tune'))
+    census = dc.invisible_census(task['model'], base)
+    if census.get('outside_model'):
+        slha = _regular(base, task['model']['slha'], 'model.slha')
+        settings = _settings(commands)
+        if 'slha:file' in settings and _regular(base, settings['slha:file'][1], 'SLHA:file') != slha:
+            raise ValueError('outside-model decay states require the full model.slha as SLHA:file')
+        commands = [line for line in commands if line.split('=', 1)[0].strip().lower() != 'slha:file']
+        from ravel.physics.pythia_cards import shower_decay_commands
+        commands = shower_decay_commands(commands, slha, census['outside_model'])
     variants = [{'name': 'nominal', 'commands': _merged_commands(commands, merging)}]
     for variant in task['shower'].get('variants', []):
+        from ravel.physics.pythia_cards import tune_commands
+        tune_commands(task['shower'].get('tune'), variant['commands'])
         changed = _settings(variant['commands'])
         for key in changed:
             if key in RESERVED_PYTHIA:
@@ -645,9 +768,13 @@ def compile_task(task, base):
     extra_inputs = []
     for variant in variants:
         settings = _settings(variant['commands'])
+        if census.get('outside_model'):
+            if (_regular(base, settings.get('slha:file', ('', ''))[1], 'SLHA:file') != slha
+                    or settings.get('slha:readfrom', ('', ''))[1] != '2'):
+                raise ValueError('every shower variant must retain the full outside-model SLHA:file')
+            shower_decay_commands(variant['commands'], slha, census['outside_model'])
         if 'slha:file' in settings:
             extra_inputs.append(_regular(base, settings['slha:file'][1], 'SLHA:file'))
-    census = dc.invisible_census(task['model'], base)
     cards = []
     for card in task['detector']['cards']:
         path = _regular(base, card['card'], f'detector card {card["name"]}')
@@ -671,12 +798,20 @@ def compile_task(task, base):
     process = _process(task, header)
     return {'lhe': lhe, 'header': header, 'merging': merging, 'variants': variants, 'census': census,
             'cards': cards, 'model': identity, 'ufo_files': ufo_files, 'sigma': sigma, 'tools': tools,
-            'process': process, 'extra_inputs': extra_inputs, 'generation': generation}
+            'process': process, 'extra_inputs': extra_inputs, 'generation': generation, 'tune': tune}
 
 
 def inputs(task, base):
     compiled = compile_task(task, base)
     files = [compiled['lhe'], *compiled['extra_inputs'], *compiled['ufo_files']]
+    from importlib.resources import files as package_files
+    files.append(Path(str(package_files('ravel').joinpath('data/shower/tunes.json'))))
+    if (compiled.get('generation') or {}).get('kind') == 'model-events-native':
+        receipt_path = _regular(base, task['events']['generation_receipt'], 'events.generation_receipt')
+        document = json.loads(receipt_path.read_text())
+        root = receipt_path.parent
+        files += [_regular(root, document['intended']['cards']['process']['path'], 'generation process card')]
+        files += [_regular(root, pin['path'], 'generation rendered card') for pin in document['rendered_cards'].values()]
     for key in ('generation_receipt', 'lhe_transform'):
         if task['events'].get(key):
             files.append(_regular(base, task['events'][key], f'events.{key}'))

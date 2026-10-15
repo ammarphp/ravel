@@ -1,0 +1,40 @@
+{
+ "schema_version": 1,
+ "param_template": "slepton_bino_param_template.slha",
+ "run_template": "madgraph_run_default_lo.dat",
+ "process_card": "slepton_isrslep_generate.mg5",
+ "launch_template": "madgraph_native_launch.mg5",
+ "parameters": {
+  "MSLEP": 150,
+  "MN1": 140
+ },
+ "bindings": [
+  {"parameter": "MSLEP", "placeholder": "MSLEP"},
+  {"parameter": "MN1", "placeholder": "MN1"}
+ ],
+ "run_controls": {
+  "nevents": 20000,
+  "iseed": 0,
+  "ebeam1": 6500,
+  "ebeam2": 6500,
+  "pdlabel": "cteq6l1",
+  "ickkw": 0,
+  "use_syst": false,
+  "mmjj": 0,
+  "mmjjmax": -1,
+  "deltaeta": 0,
+  "ktdurham": -1,
+  "xqcut": -1,
+  "ptj": 20,
+  "ptj1min": 50
+ },
+ "expected_masses": {
+  "1000011": 150,
+  "1000013": 150,
+  "1000015": 150,
+  "2000011": 150,
+  "2000013": 150,
+  "2000015": 150,
+  "1000022": 140
+ }
+}

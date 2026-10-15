@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "default": "monash",
+  "presets": {
+    "monash": {
+      "kind": "builtin",
+      "index": 14,
+      "source": "https://pythia.org/latest-manual/Tunes.html",
+      "pdf_requirement": {
+        "name": "NNPDF23_lo_as_0130_qed",
+        "provider": "Pythia internal PDF selected by the built-in tune",
+        "external_install": false
+      }
+    },
+    "monash-no-reconnection": {
+      "kind": "settings",
+      "settings": ["Tune:pp = 14", "ColourReconnection:reconnect = off"],
+      "source": "https://pythia.org/latest-manual/ColourReconnection.html",
+      "basis_source": "https://pythia.org/latest-manual/Tunes.html",
+      "description": "Declared variation of the built-in Monash tune with colour reconnection disabled; not an independently fitted tune.",
+      "pdf_requirement": {
+        "name": "NNPDF23_lo_as_0130_qed",
+        "provider": "Pythia internal PDF selected by the baseline tune",
+        "external_install": false
+      }
+    }
+  }
+}

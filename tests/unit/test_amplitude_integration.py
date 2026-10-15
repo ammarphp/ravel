@@ -368,3 +368,119 @@ def test_a_submission_that_failed_after_recording_an_identity_is_cancelled(tmp_p
     with pytest.raises(OSError, match='lost the connection'):
         backend_driver.drive(spec, tmp_path / 'attempt', tmp_path, backend=fake)
     assert calls == [{'pid': 1}]
+
+
+def _installed(tmp_path, monkeypatch):
+    prefix = tmp_path / 'native'
+    build = prefix / 'tools/mcfm-build'; build.mkdir(parents=True)
+    program = build / 'ravel_mcfm_amplitudes'; program.write_text('fictional program')
+    receipt = build / 'build-receipt.json'; receipt.write_text('{}')
+    launcher = prefix / 'containers/mcfm-amplitudes-launcher.json'; launcher.parent.mkdir()
+    launcher.write_text('{}')
+    record = {'schema_version': 1, 'kind': 'ravel-amplitude-installation', 'group': 'mcfm-amplitudes',
+              'image': {'id': 'sha256:' + 'b' * 64, 'platform': 'linux/amd64', 'emulation': True},
+              'program': str(program), 'program_sha256': hashlib.sha256(program.read_bytes()).hexdigest(),
+              'readonly_trees': [{'path': str(p), 'mount': str(p)} for p in (build, prefix / 'source', prefix / 'overlay', prefix / 'pdf')],
+              'build_receipt': str(receipt), 'build_receipt_sha256': hashlib.sha256(receipt.read_bytes()).hexdigest(),
+              'launcher': str(launcher), 'site': {'client': str(prefix / 'inert-client'), 'connection': 'ravel', 'network': 'none'},
+              'env': {'LHAPDF_DATA_PATH': str(prefix / 'pdf')}}
+    path = prefix / 'installations/mcfm-amplitudes.json'; path.parent.mkdir()
+    path.write_text(json.dumps(record))
+    monkeypatch.setenv('RAVEL_NATIVE_BUILD', str(prefix))
+    return path, record
+
+
+def test_installation_defaults_preserve_explicit_fields_and_pin_record(tmp_path, monkeypatch):
+    path, record = _installed(tmp_path, monkeypatch)
+    task = _document(tmp_path, backend={'kind': 'oci-local', 'resources': {'cpus': 1, 'memory_mib': 1024}})
+    ctx = ai.load(task, tmp_path)
+    assert ctx['doc']['backend']['program'] == record['program']
+    assert ctx['doc']['backend']['image'] == record['image']
+    assert ctx['doc']['backend']['readonly_trees'] == record['readonly_trees']
+    assert path in ai.inputs(task, tmp_path)
+    before = ai._stage_spec(ctx, 'fictional', tmp_path / 'store/stages/fictional', ['input.ini'], ['out'], 60)
+    pin = next(i for i in before['inputs'] if i['path'] == str(path))
+    assert pin['sha256'] == hashlib.sha256(path.read_bytes()).hexdigest()
+    from ravel.workflow import execution_backend
+    execution_backend.validate_spec(before)
+    from ravel.workflow.backends.oci_local import OciLocalBackend
+    OciLocalBackend().validate(before)
+    doc = json.loads(Path(task['input']).read_text()); doc['backend']['program'] = '/fictional/own'
+    doc['backend']['image'] = {'id': 'sha256:' + 'c' * 64, 'platform': 'linux/amd64'}
+    Path(task['input']).write_text(json.dumps(doc))
+    changed = ai.load(task, tmp_path)['doc']['backend']
+    assert changed['program'] == '/fictional/own' and changed['image']['id'] == 'sha256:' + 'c' * 64
+    record['env']['LHAPDF_DATA_PATH'] = '/fictional/new-pdf'; path.write_text(json.dumps(record))
+    after = ai._stage_spec(ai.load(task, tmp_path), 'fictional', tmp_path / 'store/stages/fictional', ['input.ini'], ['out'], 60)
+    assert pin != next(i for i in after['inputs'] if i['path'] == str(path))
+    with pytest.raises(ValueError, match='changed'):
+        ai._stage_spec(ctx, 'fictional', tmp_path / 'store/stages/fictional', ['input.ini'], ['out'], 60)
+
+
+def test_example_checks_with_installed_program(tmp_path, monkeypatch):
+    import copy
+    from ravel.physics import amplitude_cli
+    _installed(tmp_path, monkeypatch)
+    example = copy.deepcopy(amplitude_cli.EXAMPLES['amplitude-integration'])
+    assert 'program' not in example['backend'] and 'image' not in example['backend']
+    (tmp_path / 'mixed.ini').write_text(CARD)
+    example['cohorts'][0]['card']['sha256'] = hashlib.sha256((tmp_path / 'mixed.ini').read_bytes()).hexdigest()
+    path = tmp_path / 'example.json'; path.write_text(json.dumps(example))
+    assert amplitude_cli.check('amplitude-integration', path)['status'] == 'checked'
+
+
+def test_installation_changed_receipt_is_refused(tmp_path, monkeypatch):
+    path, record = _installed(tmp_path, monkeypatch)
+    task = _document(tmp_path, backend={'kind': 'oci-local', 'resources': {'cpus': 1, 'memory_mib': 1024}})
+    Path(record['build_receipt']).write_text('{"changed":true}')
+    with pytest.raises(ValueError, match='receipt'):
+        ai.load(task, tmp_path)
+
+
+def test_complete_explicit_backend_does_not_depend_on_installed_runtime(tmp_path, monkeypatch):
+    path, record = _installed(tmp_path, monkeypatch)
+    Path(record['build_receipt']).unlink()
+    backend = {'kind': 'oci-local', 'program': '/fictional/own', 'resources': {'cpus': 1, 'memory_mib': 1024},
+               'image': {'id': 'sha256:' + 'c' * 64, 'platform': 'linux/amd64'}, 'readonly_trees': []}
+    task = _document(tmp_path, backend=backend)
+    assert ai.load(task, tmp_path)['doc']['backend'] == backend
+    assert path not in ai.inputs(task, tmp_path)
+
+
+def test_native_installation_fills_program_and_passes_the_card_in_place(tmp_path, monkeypatch):
+    path, record = _installed(tmp_path, monkeypatch)
+    oci_record = dict(record)
+    native = {k: v for k, v in record.items() if k not in ('image', 'site')}
+    native['launcher'] = {'kind': 'native', 'toolchain': '/fictional/toolchain/bin'}
+    data = Path(native['program']).parent / 'process.DAT'; data.write_text('fictional process table')
+    native['runtime_files'] = [{'path': str(data), 'sha256': hashlib.sha256(data.read_bytes()).hexdigest()}]
+    Path(native['program']).chmod(0o755)
+    path.write_text(json.dumps(native))
+    task = _document(tmp_path, backend={'kind': 'native', 'resources': {'cpus': 1, 'memory_mib': 1024}})
+    ctx = ai.load(task, tmp_path)
+    backend = ctx['doc']['backend']
+    assert backend['program'] == native['program'] and backend['env'] == native['env']
+    assert 'image' not in backend and 'readonly_trees' not in backend and 'workdir' not in backend
+    stage = tmp_path / 'store/stages/fictional'
+    spec = ai._stage_spec(ctx, 'fictional', stage, ['input.ini'], ['out'], 60)
+    # The program finds its control, points and grid files next to the card it is given.
+    assert spec['argv'] == [native['program'], str(stage / 'input.ini')]
+    assert any(i['path'] == str(path) for i in spec['inputs'])
+    from ravel.workflow import execution_backend
+    execution_backend.validate_spec(spec)
+    from ravel.workflow.backends.native import NativeBackend
+    NativeBackend().validate(spec)
+    assert data in ai.inputs(task, tmp_path)
+    cohort = next(iter(ctx['cohorts'].values()))
+    stage_dir, files = ai._prepare_stage(ctx, 'copies', cohort, 1, 10, 3)
+    assert 'process.DAT' in files and (stage_dir / 'process.DAT').read_text() == 'fictional process table'
+    data.write_text('changed')
+    with pytest.raises(ValueError, match='runtime file .* changed'):
+        ai._prepare_stage(ctx, 'copies', cohort, 1, 10, 3)
+    oci_task = _document(tmp_path, backend={'kind': 'oci-local', 'resources': {'cpus': 1, 'memory_mib': 1024}})
+    with pytest.raises(ValueError, match='built for the native backend'):
+        ai.load(oci_task, tmp_path)
+    path.write_text(json.dumps(oci_record))
+    task = _document(tmp_path, backend={'kind': 'native', 'resources': {'cpus': 1, 'memory_mib': 1024}})
+    with pytest.raises(ValueError, match='built for the oci-local backend'):
+        ai.load(task, tmp_path)

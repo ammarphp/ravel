@@ -173,7 +173,9 @@ class GraphLLM:
         prepared=agent_graph.prepare_external(self.root,'generate')
         # There is no retry. A dispatch exception leaves the existing Graph's
         # ambiguous reservation intact and blocks later steps.
-        response=self.dispatcher(prepared)
+        from . import provider_transport
+        response=provider_transport.recorded_dispatch(self.root,prepared,role=node['role'],
+            model_requested=self.model,dispatch=lambda:self.dispatcher(prepared))
         self.valid()
         agent_graph.deliver_external(self.root,'generate',response)
         state=agent_graph.status(self.root);reference=state['nodes']['generate']['result']

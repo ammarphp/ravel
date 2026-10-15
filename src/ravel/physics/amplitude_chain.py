@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 
 from ravel.workflow import research_cycle as custody, research_protocol, state_io, task_completion
-from . import amplitude_basis as ab, amplitude_integration as integration
+from . import amplitude_basis as ab, amplitude_integration as integration, amplitude_polynomial, rivet_fit
 from . import amplitude_predictions as predictions, amplitude_records, amplitude_store as store, weighted_events, yield_hub
 from .inference import applicability, common, differential, differential_likelihood, documents, gof, intervals, record
 
@@ -84,7 +84,7 @@ def instances():
 
 def _sources():
     return [custody._pin(m.__file__) for m in (ab, integration, predictions, amplitude_records, store, weighted_events,
-        yield_hub, differential_likelihood, common, differential, documents, intervals, gof, applicability,
+        yield_hub, amplitude_polynomial, rivet_fit, differential_likelihood, common, differential, documents, intervals, gof, applicability,
         record, research_protocol, task_completion, custody, state_io)] + [custody._pin(__file__)]
 
 
@@ -104,7 +104,7 @@ def _measurement(request):
 
 def _validate(request):
     required = {'schema_version', 'kind', 'question', 'goal_binding', 'histogram', *DOCUMENTS}
-    ab.require(type(request) is dict and set(request) == required, 'complete interference research request required')
+    ab.require(type(request) is dict and required <= set(request) <= required | {'born_comparison'}, 'complete interference research request required')
     ab.require(request['schema_version'] == 1 and request['kind'] == 'interference-research-request',
                'interference research request version 1 required')
     parent = task_completion.binding_projection(request['goal_binding'], base_dir=Path.cwd())
@@ -120,6 +120,7 @@ def _validate(request):
         ab.require(type(conventions.get(name)) is list and conventions[name], f'supplied {name} required')
         for row in conventions[name]:
             ab.text(row, name)
+    rivet_fit.tolerance(request.get('born_comparison'))
     pred, events, measurement = (docs[n] for n in ('predictions', 'events', 'measurement'))
     ab.require(pred.get('kind') == 'amplitude-predictions' and pred.get('coupling_scaling'),
                'predictions must declare a coupling polynomial')
@@ -139,9 +140,9 @@ def _validate(request):
     histogram = next((h for h in events['rivet']['histograms'] if h['path'] == request['histogram']), None)
     ab.require(histogram is not None and histogram['representation'] == pred['normalization']['representation']
                and events['unit'] == pred['normalization']['unit'], 'RAW and prediction units/representation differ')
-    ab.require('factor' not in pred['normalization'], 'RAW parity requires the same absolute normalization without an extra factor')
-    for name in ('hypotheses', 'reference', 'reference_description'):
-        ab.require(events[name] == pred[name], 'event and prediction hypothesis/reference contracts differ')
+    ab.require('factor' not in pred['normalization'], 'RAW handoff requires absolute normalization without an extra factor')
+    for name in ('hypotheses', 'reference', 'reference_description', 'coupling_scaling'):
+        ab.require(events.get(name) == pred[name], 'event and prediction hypothesis/reference contracts differ')
     root = Path(request['predictions']['path']).parent
     store_dir = predictions._regular(pred['store'], root)
     for name in ('integration', 'events'):
@@ -254,57 +255,34 @@ def audit_interference(task, base, prediction_pin):
             'scope': 'Signed-term consistency of the supplied stored amplitudes; not physical accuracy'}
 
 
-def _quantity_parity(docs, prediction, raw):
+def _selected(docs, ctx, raw):
     histogram = raw[docs['histogram']]
-    pred = prediction['streams']
-    ab.require(histogram['edges'] == prediction['edges'], 'RAW and prediction bin edges differ')
-    nb = len(prediction['edges']) - 1
-    names = prediction['joint_layout']['streams']
-    expected_names = weighted_events.stream_names([h['id'] for h in docs['events']['hypotheses']], docs['events']['reference'])
-    ab.require(set(histogram['streams']) == set(expected_names), 'RAW stream roster differs')
-    indices = [names.index(name) * (nb + 2) + i for name in expected_names for i in range(nb + 2)]
-    observed_joint = np.asarray(histogram['joint_covariance'])
-    expected_joint = np.asarray(prediction['joint_covariance'])[np.ix_(indices, indices)]
-    ab.require(observed_joint.shape == expected_joint.shape and np.isfinite(observed_joint).all()
-               and np.allclose(observed_joint, expected_joint, rtol=1e-7, atol=1e-20), 'RAW joint cross-covariance differs')
-    divide = (np.diff(prediction['edges']) if prediction['normalization']['representation'] == 'differential'
-              else np.ones(nb))
-    joint = np.asarray(prediction['joint_covariance'])
-    for name, stream in histogram['streams'].items():
-        other = pred[name]
-        offset = names.index(name) * (nb + 2)
-        covariance = joint[offset:offset + nb, offset:offset + nb] / np.outer(divide, divide)
-        ab.require(np.allclose(stream['values'], other['values'], rtol=1e-8, atol=1e-15) and
-                   np.allclose(stream['mc_covariance'], covariance, rtol=1e-7, atol=1e-20) and
-                   np.allclose([stream['underflow'], stream['overflow']], [other['underflow'], other['overflow']],
-                               rtol=1e-8, atol=1e-15), 'RAW and stored-point quantity/normalization differ')
+    selected = rivet_fit.selected_prediction(docs['events'], ctx['hypotheses'], histogram, edges=ctx['edges'])
+    ab.require(selected['provenance']['histogram'] == docs['histogram'], 'RAW selected histogram differs')
+    expected = [{'id': b['id'], 'cohort': b['cohort'], 'attempted': b['summary']['attempted'], 'events': b['points']}
+                for b in ctx['manifest']['blocks']]
+    ab.require(selected['census'] == expected, 'RAW exposure differs from the stored blocks')
+    ab.require(histogram['provenance']['representation'] == ctx['doc']['normalization']['representation'],
+               'RAW representation differs')
+    return selected
+
+
+def _quantity_parity(docs, prediction, raw):
+    """Retain the Born comparison as a diagnostic, with explicit tolerances."""
+    selected = rivet_fit.selected_prediction(docs['events'], docs['events']['hypotheses'], raw[docs['histogram']],
+                                             edges=prediction['edges'])
+    return rivet_fit.born_diagnostic(prediction, selected, declared_tolerance=docs.get('born_comparison'))
 
 
 def _likelihood(docs, ctx, prediction, *, ablated):
     measurement = deepcopy(docs['measurement'])
     measurement['kind'] = 'differential-likelihood'
-    fragment = predictions.likelihood_input(ctx, prediction)
+    fragment = rivet_fit.likelihood_input(docs['events'], ctx['hypotheses'], prediction, ablated=ablated)
     measurement['signal'] = fragment['signal']
     measurement['reference'] = fragment['reference_prediction']
     measurement['hypotheses'] = fragment['hypotheses']
-    names = [name for name, _ in prediction['definitions']]
-    nb = len(ctx['edges']) - 1
-    for hypothesis in measurement['hypotheses']:
-        if ablated:
-            hypothesis['terms'] = [t for t in hypothesis['terms'] if t['kind'] != 'interference']
-        # The current likelihood consumes covariance of the *stacked term
-        # vectors*, scaling it at each fitted coupling. The component fragment
-        # carries only a collapsed covariance at mc_covariance_at, so it cannot
-        # be passed through unchanged. Select all term cross-covariances here.
-        suffix = {'other': 'constant', 'interference': 'interference', 'pure-signal': 'pure-signal'}
-        indices = [names.index(hypothesis['id'] + ':' + suffix[t['kind']]) * (nb + 2) + i
-                   for t in hypothesis['terms'] for i in range(nb)]
-        divide = np.tile(prediction['divide'], len(hypothesis['terms']))
-        covariance = prediction['joint']['covariance'][np.ix_(indices, indices)] / np.outer(divide, divide)
-        hypothesis['mc_covariance'] = covariance.tolist()
     if ablated:
-        # A nuisance referring to a removed term needs a new declared contract;
-        # do not silently reinterpret numeric term indices or a supplied law.
+        # A nuisance referring to a removed term needs a new declared contract.
         ab.require(not measurement.get('nuisances'), 'interference ablation with nuisances requires an explicit arm mapping')
     return measurement
 
@@ -320,6 +298,7 @@ def run(parent_pin, *, runners=None):
     for pin in manifest['input_pins']:
         _check(pin)
     ab.require(current_inputs == manifest['input_pins'], 'prepared input closure changed')
+    docs = {**docs, 'histogram': request['histogram'], 'born_comparison': request.get('born_comparison')}
     out = Path(parent_pin['path']).parent
     progress_path = out / 'progress.json'
     progress = state_io.read_json(progress_path) if progress_path.exists() else []
@@ -376,13 +355,18 @@ def run(parent_pin, *, runners=None):
             predictions.run({'input': request[name]['path']}, stage_dir, stage_dir)
             outputs = [custody._pin(stage_dir / 'predictions.json'), custody._pin(stage_dir / 'differential-likelihood-input.json')]
             raw = _read(receipts['events']['outputs'][1])
-            _quantity_parity({**docs, 'histogram': request['histogram']}, _read(outputs[0]), raw)
+            ctx = predictions.load({'input': request['predictions']['path']}, stage_dir)
+            selected = _selected(docs, ctx, raw)
+            diagnostic = _quantity_parity(docs, _read(outputs[0]), raw)
+            outputs += [_write(stage_dir / 'born-rivet-diagnostic.json', diagnostic),
+                        _write(stage_dir / 'rivet-likelihood-input.json',
+                               rivet_fit.likelihood_input(docs['events'], ctx['hypotheses'], selected))]
         elif name == 'interference':
             audit = audit_interference({'input': request['predictions']['path']}, stage_dir, receipts['predictions']['outputs'][0])
             outputs = [_write(stage_dir / 'interference.json', audit)]
         elif name in ('inference', 'ablation'):
             ctx = predictions.load({'input': request['predictions']['path']}, stage_dir)
-            prediction = predictions.predict(ctx)
+            prediction = _selected(docs, ctx, _read(receipts['events']['outputs'][1]))
             document = _likelihood(docs, ctx, prediction, ablated=name == 'ablation')
             input_pin = _write(stage_dir / 'input.json', document)
             result = differential_likelihood.run({'input': input_pin['path']}, stage_dir, stage_dir)
@@ -390,16 +374,22 @@ def run(parent_pin, *, runners=None):
             outputs = [custody._pin(stage_dir / 'inference.json'), input_pin]
         else:
             ctx = predictions.load({'input': request['predictions']['path']}, stage_dir)
-            prediction = predictions.predict(ctx)
+            prediction = _selected(docs, ctx, _read(receipts['events']['outputs'][1]))
             signed = [yield_hub.write(stage_dir / (h['id'] + '-interference.json'),
-                       predictions.binned_values(ctx, h['id'] + ':interference', prediction['streams'][h['id'] + ':interference']))
+                       weighted_events._binned(next(spec for spec in docs['events']['rivet']['histograms']
+                                                   if spec['path'] == docs['histogram']), ctx['edges'].tolist(),
+                                              h['id'] + ':interference', prediction['streams'][h['id'] + ':interference'],
+                                              docs['events']['unit']))
                       for h in ctx['hypotheses'] if h['id'] != ctx['doc']['reference']]
             signed = [custody._pin(p['path']) for p in signed]
             checks = yield_hub.delivery_checks(out, path='stages/inference/inference.json')
             ab.require(not any(c['status'] == 'fail' for c in checks), 'yield delivery check failed')
             report = {'schema_version': 1, 'kind': 'interference-measurement-delivery', 'question': request['question'],
                 'goal_binding': request['goal_binding'], 'stages': deepcopy(progress),
-                'prediction': receipts['predictions']['outputs'][0], 'interference': _read(receipts['interference']['outputs'][0]),
+                'prediction': receipts['predictions']['outputs'][0],
+                'fitted_prediction': receipts['events']['outputs'][1], 'fitted_stage': prediction['provenance'],
+                'fitted_terms': receipts['predictions']['outputs'][3],
+                'born_comparison': _read(receipts['predictions']['outputs'][2]), 'interference': _read(receipts['interference']['outputs'][0]),
                 'inference': receipts['inference']['outputs'][0], 'ablation': receipts['ablation']['outputs'][0],
                 'three_columns': {'ours': {'quantity': docs['comparison']['quantity'], 'unit': docs['comparison']['unit'],
                     'statistic': docs['measurement']['statistic'], 'source': receipts['inference']['outputs'][0],
@@ -408,14 +398,14 @@ def run(parent_pin, *, runners=None):
                     'reproduced_reference': {'values': prediction['streams'][ctx['doc']['reference']]['values'],
                         'quantity': ctx['doc']['observable'], 'unit': docs['measurement']['measurement']['unit'],
                         'mc_uncertainty': prediction['streams'][ctx['doc']['reference']]['uncertainty'],
-                        'source': receipts['predictions']['outputs'][0]}},
+                        'source': receipts['events']['outputs'][1], 'stage': prediction['provenance']}},
                 'ablation_controls': {'removed': 'interference terms and their MC covariance rows/columns',
                     'fixed': ['original question', 'stored amplitudes', 'measurement', 'experimental covariance laws',
                               'reference prediction', 'scan', 'domain', 'statistic', 'pure-signal and constant terms'],
                     'mechanism_claim_accepted': False},
                 'signed_binned': signed, 'yield_checks': checks, 'physics_validated': False, 'parent_task_accepted': False,
                 'limitations': ['Mock or ordinary component delivery is not scientific acceptance.',
-                    'RAW and stored-point predictions must describe the same fiducial quantity.',
+                    'Fitted terms are Rivet-selected; the Born comparison is diagnostic and does not certify shower accuracy.',
                     'MC covariance retains all term cross-covariances from independent blocks; coverage is not calibrated.',
                     'Whole-question methodology, independent amplitude accuracy, detector and phase qualification remain separate.']}
             outputs = [*signed, _write(stage_dir / 'measurement-delivery.json', report)]

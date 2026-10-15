@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "package": "higgs-couplings",
+  "operation_signatures": {
+    "higgs-parameterization": {
+      "summary": "Supplied kappa and HEFT leading-order rate dictionaries with explicit loops and width assumptions.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "higgs-parameterization",
+        "module": "ravel.physics.higgs_parameterization"
+      },
+      "consumes": [
+        {
+          "slot": "framework",
+          "kind": "document"
+        },
+        {
+          "slot": "reference_tables",
+          "kind": "document"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "parameterization",
+          "kind": "document"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "task",
+        "forecast": null,
+        "ceiling_pointer": null
+      },
+      "critical_fields": [
+        "/task/input",
+        "/task/output"
+      ],
+      "basis": {
+        "adds": [
+          {
+            "element": "generated_prediction",
+            "origin": "designed"
+          }
+        ],
+        "passes": [
+          "framework",
+          "reference_tables"
+        ]
+      },
+      "tools": [
+        "numpy"
+      ],
+      "stages": [],
+      "review": {
+        "checks": [
+          "check:higgs.parameterization_closure",
+          "check:higgs.prediction_convention"
+        ]
+      },
+      "fidelity_rank": 1
+    }
+  },
+  "mode_descriptors": {
+    "higgs-parameterization": {
+      "summary": "Supplied kappa and HEFT leading-order rate dictionaries with explicit loops and width assumptions.",
+      "operations": [
+        "higgs_parameterization"
+      ],
+      "tools": [
+        "numpy"
+      ],
+      "inputs": [
+        "supplied measurements",
+        "declared parameters",
+        "reference conventions"
+      ],
+      "observables": [
+        "signal strength",
+        "coupling modifier",
+        "Higgs rate"
+      ],
+      "outputs": [
+        "parameterization bundle"
+      ],
+      "context": [
+        "kappa framework",
+        "HEFT",
+        "correlation"
+      ],
+      "applicability": {
+        "scope": "general"
+      },
+      "input_contract": "src/ravel/data/higgs/schemas/parameterization-bundle.json"
+    }
+  },
+  "manifest": {
+    "operations": [
+      {
+        "mode": "higgs-parameterization",
+        "groups": [
+          "python-host"
+        ]
+      }
+    ]
+  },
+  "adapter": {
+    "module": "ravel.physics.higgs_parameterization",
+    "validate": "validate",
+    "inputs": "inputs",
+    "run": "run"
+  },
+  "provided_checks": {
+    "check:higgs.parameterization_closure": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_parameterization_closure"
+    },
+    "check:higgs.prediction_convention": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_prediction_convention"
+    }
+  },
+  "workflow": {
+    "entry": "Use the existing science plan, admission and supervised worker; this fragment does not add a launch path.",
+    "task_fields": [
+      "schema_version",
+      "input",
+      "output"
+    ],
+    "output": "Supply {filename: a safe basename, format: json or json-compact}.",
+    "inputs": "Reference local regular files; input discovery pins every referenced bundle and correlation table.",
+    "closure": "Supply independent held-out rate values, uncertainties and tolerance; runtime closure uses the shared polynomial comparator.",
+    "scope": "Conditional on supplied rate mappings and correlations; physics validity and global optimizer qualification remain independent."
+  },
+  "handoffs": {
+    "shared_registration": "Compose operation signatures, mode descriptors and manifest rows; bind the adapter through the existing science adapter resolver and named checks through the review check resolver.",
+    "workflow_embedding": "Embed task fields and supported treatments in the supplied-data workflow at registry composition; preserve scientific admission and regenerate the instruction bundle there.",
+    "reference_tables": "reference_branching_fractions(table, decay_rows, mass_gev=...) accepts supplied exact reference row identities. Version-two coefficient ingestion remains with the reference table producer.",
+    "fit_consumers": "fit(measurements, parameterization, treatment=..., scans=..., predictor=...) exposes the in-process prediction seam. The callable returns a finite vector in measurement row order; callers qualify their own prediction closure.",
+    "directory": "Map the new physics modules and validation module as software, schemas/fragments as data and synthetic fixtures/tests as software/data at composition."
+  }
+}

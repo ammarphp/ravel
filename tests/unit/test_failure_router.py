@@ -54,7 +54,7 @@ def test_twelve_bindings_resolve_readonly_cards_and_tool_groups():
     from ravel.workflow.consults import bindings
     from ravel.workflow import role_registry
     rows = bindings()['consults']
-    assert len(rows) == 12
+    assert len(rows) == 13 and list(rows)[12:] == ['consult-higgs']
     groups = {g for row in rows.values() for g in row['manifest_groups']}
     assert {'madgraph', 'rivet-shower', 'recast-base', 'site-access', 'finite-integrals'} <= groups
     for row in rows.values():

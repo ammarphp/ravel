@@ -18,6 +18,27 @@ def _catalogue():
     return json.loads(files('ravel').joinpath('data/review_points.json').read_text())
 
 
+def delegated_contract(contract, root=None) -> bool:
+    """Whether the run records a delegation.
+
+    The delegation record is the contract's ``autonomy`` pin (written at intake) or, for a
+    delegation granted in the CHECK-IN 1 response, the transition beside the contract
+    (``scientific_autonomy.effective_document``): the contract is byte-bound to its run_init
+    snapshot, so a later delegation can only be that sidecar. The older ``delegated`` and
+    ``delegation`` keys still count. A transition that does not belong to this contract is
+    refused, never read as "not delegated".
+    """
+    if contract.get('autonomy') or contract.get('delegated') or contract.get('delegation'):
+        return True
+    if root is None:
+        return False
+    from . import scientific_autonomy
+    try:
+        return 'autonomy' in scientific_autonomy.effective_document(contract, Path(root))
+    except (OSError, KeyError, TypeError) as exc:
+        raise ValueError(f'CI1 authority transition cannot be read: {exc}') from None
+
+
 def _facts(rundir: Path) -> dict:
     """Single intake seam: read the contract and its byte-bound request plan."""
     root = Path(rundir)
@@ -49,8 +70,11 @@ def _facts(rundir: Path) -> dict:
     if not isinstance(plan, dict):
         raise ValueError('request plan must be an object')
     value = deepcopy(plan)
-    value.update(agent_layer_epoch=2, delegated=bool(contract.get('delegated') or contract.get('delegation')),
-                 contract=contract, plan=plan)
+    value.update(agent_layer_epoch=2, delegated=delegated_contract(contract, root), contract=contract, plan=plan)
+    from . import project_instructions
+    pinned = project_instructions.for_run(root)
+    if pinned is not None:
+        value['project_instructions'] = pinned
     return value
 
 
@@ -227,6 +251,12 @@ def derive(facts: dict) -> list[dict]:
         order.get(p['roles'][0]['role'], 0) if p['roles'] else 0, p['id']))
 
 
+REVIEW_RECEIPT_VERSIONS = (2, 3)
+# Point modes whose credit needs an actor: one dispatcher-assigned worker session per credited receipt.
+ACTOR_MODES = ('specialist', 'voting', 'producer')
+REVIEWER_MODES = ('specialist', 'voting')
+
+
 def subject_digest(facts, point):
     """Bind a review to the exact current claim/node and its stable point ID."""
     plan = facts.get('plan', facts)
@@ -257,17 +287,23 @@ def credit_refusal(receipt, facts, point):
     """Why a registered worker receipt earns no credit for ``point``; None when its subject matches.
 
     Readers dispatch on the receipt version. Version 1 predates ``review_subject``: it stays
-    valid for its original use but earns no review credit. Version 2 must name this point's
-    current subject scope and digest.
+    valid for its original use but earns no review credit. Versions 2 and 3 must name this
+    point's current subject scope and digest.
     """
     if receipt.get('kind') != 'agent-worker-receipt':
         return 'receipt_invalid'
     if receipt.get('schema_version') == 1:
         return 'receipt_predates_review_subject'
-    if receipt.get('schema_version') != 2:
+    if receipt.get('schema_version') not in REVIEW_RECEIPT_VERSIONS:
         return 'receipt_invalid'
     if point is None or receipt.get('review_subject') != review_subject(facts, point):
         return 'review_subject'
+    pinned = facts.get('project_instructions')
+    if pinned is not None:
+        # The run pins a project instruction document: a session that was not shown it earns no credit.
+        from . import project_instructions
+        if project_instructions.receipt_problem(receipt, pinned) is not None:
+            return 'project_instructions'
     return None
 
 
@@ -302,8 +338,7 @@ def invalid_input_diagnostics(rundir, gate, action):
     if not path.is_relative_to(root):
         return []
     plan = read_json(path)
-    facts = {**plan, 'plan': plan, 'agent_layer_epoch': 2,
-             'delegated': bool(contract.get('delegated') or contract.get('delegation'))}
+    facts = {**plan, 'plan': plan, 'agent_layer_epoch': 2, 'delegated': delegated_contract(contract, root)}
     points = derive(facts)
     errors = []
     if approval.get('derived_points_sha256') != jdigest(points):
@@ -336,13 +371,117 @@ def attestation_label(receipt, registered_verified_label=None):
 
 
 def worker_label(receipt, registered_verified_label=None):
-    """The label of a registered receipt. The worker dispatcher writes version-2 receipts with no
-    execution mode and registers each with the label it computed from the transport's own
-    verification; that registration is the authority, never the receipt's ``attestation`` field."""
+    """The label of a registered receipt. The worker dispatcher registers each review receipt
+    with the label it computed from the transport's own verification; that registration is the
+    authority, never the receipt's ``attestation`` field. A version-3 receipt also carries the
+    launch mode the dispatcher observed, and its label is the weaker of the two. A version-2
+    receipt written before the mode existed takes the registered label."""
     if receipt.get('schema_version') == 2 and 'execution_mode' not in receipt:
         from .rdj_custody import WORKER_LABELS
         return registered_verified_label if registered_verified_label in WORKER_LABELS else 'self_attested'
     return attestation_label(receipt, registered_verified_label)
+
+
+def registered_actor(receipt, registration):
+    """The actor the worker dispatcher assigned to this receipt's worker session, or None.
+
+    The custody registration is the authority: it carries the transport id, model id, worker
+    session id and attempt id the dispatcher bound at spawn, and their sha256. The receipt's
+    ``actor_id`` must equal that digest, and the bound attempt and transport must be the
+    receipt's own. A receipt that only declares an ``actor_id`` has no actor.
+    """
+    from .rdj_custody import ACTOR_FIELDS, actor_id
+    actor = (registration or {}).get('actor')
+    if type(actor) is not dict:
+        return None
+    try:
+        expected = actor_id(*(actor.get(k) for k in ACTOR_FIELDS))
+    except ValueError:
+        return None
+    if actor.get('actor_id') != expected or receipt.get('actor_id') != expected:
+        return None
+    if actor['attempt_id'] != f"{receipt.get('node_id')}/{receipt.get('attempt')}":
+        return None
+    transport = receipt.get('transport')
+    if type(transport) is dict and transport.get('id') not in (None, actor['transport_id']):
+        return None
+    # The registered family is the trusted one. A receipt that states another family is not this actor's.
+    stated = (receipt.get('model') or {}).get('family')
+    if stated is not None and actor.get('family') is not None and stated != actor['family']:
+        return None
+    return dict(actor)
+
+
+def _is_producer(receipt, point):
+    return (receipt.get('final_record') or {}).get('schema') == 'producer.v1' or (point or {}).get('mode') == 'producer'
+
+
+def _session_keys(rec):
+    """What makes one credited worker session distinct: its observed session on its transport, its
+    actor and the worker session the dispatcher drew. The actor is the registered one."""
+    actor = rec['_actor']
+    return {('session', actor['transport_id'], rec.get('session_id')), ('actor', actor['actor_id']),
+            ('worker_session', actor['worker_session_id'])}
+
+
+def _claim_nodes(plan):
+    """For each claim, the plan nodes its result is computed from: the nodes it inherits and
+    every node upstream of them along the plan's edges."""
+    parents = {}
+    for edge in plan.get('edges') or []:
+        source, target = (edge.get('from') or {}).get('ref'), (edge.get('to') or {}).get('ref')
+        if source and target:
+            parents.setdefault(target, set()).add(source)
+    found = {}
+    for claim in plan.get('claims') or []:
+        nodes, queue = set(), list(claim.get('inherits') or [])
+        while queue:
+            node = queue.pop()
+            if node not in nodes:
+                nodes.add(node)
+                queue.extend(parents.get(node, ()))
+        found[claim['id']] = nodes
+    return found
+
+
+def output_scopes(point, plan):
+    """The outputs a point concerns: its claim with the nodes that claim is computed from, its
+    node with the claims computed from it, or (``*``) the whole plan."""
+    nodes = _claim_nodes(plan or {})
+    if point.get('claim_id'):
+        return {'claim:' + point['claim_id'], *('node:' + n for n in nodes.get(point['claim_id'], ()))}
+    if point.get('node_id'):
+        return {'node:' + point['node_id'], *('claim:' + c for c, used in nodes.items() if point['node_id'] in used)}
+    return {'*'}
+
+
+def producer_sessions(records, points, facts=None):
+    """For each reviewer point, the session keys of the producers of the output it reviews.
+
+    A producer's actor never reviews its own output. A producer is known only from verified
+    custody: a registered receipt with the actor the dispatcher assigned. A record that is
+    unregistered, or only states an actor, names no producer and removes no credit. The
+    exclusion follows the output: a producer of one claim or node is excluded from the points
+    that review that claim or node (and from a point that reviews the whole plan), not from the
+    review of an independent claim.
+    """
+    plan = (facts or {}).get('plan') or {}
+    by_id = {p['id']: p for p in points}
+    producers = []
+    for rec in records:
+        point = by_id.get(rec.get('review_point_id'))
+        if rec.get('_actor') is None or not _is_producer(rec, point):
+            continue
+        made = output_scopes(point if point is not None else {'node_id': rec.get('node_id')}, plan)
+        producers.append((_session_keys(rec), made))
+    excluded = {}
+    for point in points:
+        if point['mode'] not in REVIEWER_MODES:
+            continue
+        reviewed = output_scopes(point, plan)
+        excluded[point['id']] = set().union(*(keys for keys, made in producers
+                                              if '*' in made or '*' in reviewed or made & reviewed))
+    return excluded
 
 
 def finding_record(finding):
@@ -378,21 +517,27 @@ def _receipt_records(root, facts):
         value['_path'] = rel
         value['_eligible'] = False
         value['_label'] = 'self_attested'
+        value['_actor'] = None
         reason = 'receipt_unregistered'
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if path.resolve().is_relative_to(root) and rdj_custody.worker_registered(root, rel, digest):
             registration = rdj_custody.worker_row(root, rel, digest)
             value['_label'] = worker_label(value, registration.get('verified_label'))
+            value['_actor'] = registered_actor(value, registration)
             reason = 'receipt_invalid'
             final = value.get('final_record') or {}
             point = points.get(value.get('review_point_id'))
-            if value.get('kind') == 'agent-worker-receipt' and value.get('schema_version') in (1, 2) and final.get('path'):
+            if (value.get('kind') == 'agent-worker-receipt' and value.get('schema_version') in (1, *REVIEW_RECEIPT_VERSIONS)
+                    and final.get('path')):
                 target = (path.parent / final['path']).resolve()
                 if (target.is_relative_to(path.parent.resolve()) and target.is_relative_to(root) and target.is_file()
                         and hashlib.sha256(target.read_bytes()).hexdigest() == final.get('sha256')):
                     value['findings'] = read_json(target).get('findings', [])
                     reason = credit_refusal(value, facts, point)
                     value['_eligible'] = reason is None
+                    if reason is None and point['mode'] in ACTOR_MODES and value['_actor'] is None:
+                        # Still listed for its findings; it earns no credit at this point.
+                        reason = 'actor_unassigned'
         value['_advisory'] = reason
         yield value
 
@@ -402,54 +547,143 @@ def _receipts(root, facts=None):
     return (r for r in _receipt_records(root, facts) if r['_eligible'])
 
 
-def _missing(points, receipts):
+def _candidates(point, role, receipts, excluded):
+    """The receipts that could fill a seat of ``role`` at ``point``, each checked on its own."""
     ranks = ATTESTATION_RANK
-    result = {}
-    # Session/actor reuse in one voting panel is not independent review.
-    sessions = {}; actors = {}; credited = set()
+    found, seen = [], set()
+    for rec in receipts:
+        identity = (rec.get('node_id'), rec.get('attempt'))
+        if (identity in seen or rec.get('review_point_id') != point['id']
+                or rec.get('role', {}).get('id') != role['role']
+                or rec.get('status') != 'ok' or rec.get('run_tree', {}).get('modified') is not False
+                or rec.get('final_record', {}).get('valid') is not True):
+            continue
+        label = rec['_label']
+        if point['mode'] in ACTOR_MODES and not independent(label):
+            continue
+        if ranks[label] < {'self': 0, 'host': 1, 'transport': 2}[point['attestation_min']]:
+            continue
+        if point['mode'] in ACTOR_MODES:
+            if not rec.get('session_id') or rec.get('_actor') is None:
+                continue
+            if point['mode'] in REVIEWER_MODES and (_session_keys(rec) & excluded or _is_producer(rec, None)):
+                continue
+        seen.add(identity)
+        found.append(rec)
+    return found
+
+
+def _credit(members, receipts, producers):
+    """Fill the role seats of the points of one scope with the largest consistent set of receipts.
+
+    Constraints: a receipt fills one seat; the sessions credited at actor points of the scope
+    are pairwise distinct; a role that names ``distinct_family_from`` is credited only when
+    each named role is credited in the scope and every family involved is known and differs.
+    The choice is a search over points and receipts in a canonical order (point id, then
+    receipt node and attempt), so it depends on neither the order the points were derived in
+    nor the order the receipts were read in: a fresh retry is used when the first receipt of a
+    role cannot satisfy every role, and equal inputs always credit the same seats.
+    """
+    from itertools import combinations
+    groups = []
+    for point in sorted(members, key=lambda p: p['id']):
+        for index, role in enumerate(point['roles']):
+            found = _candidates(point, role, receipts, producers.get(point['id'], set()))
+            groups.append({'point': point, 'index': index, 'role': role,
+                           'candidates': sorted(found, key=lambda r: (str(r.get('node_id')), str(r.get('attempt'))))})
+    # Every point of a role another role names comes first, so a dependent role is judged
+    # against a settled choice. Roles that name each other are taken in the canonical order.
+    ordered, placed = [], set()
+    while len(ordered) < len(groups):
+        ready = [g for g in groups if id(g) not in placed
+                 and all(id(o) in placed for o in groups
+                         if o is not g and o['role']['role'] in g['role'].get('distinct_family_from', []))]
+        for group in ready or [g for g in groups if id(g) not in placed][:1]:
+            placed.add(id(group)); ordered.append(group)
+    capacity = [sum(min(g['role']['count'], len(g['candidates'])) for g in ordered[i:]) for i in range(len(ordered) + 1)]
+    best = {'filled': -1, 'choice': None}
+    budget = [20000]
+
+    def family(rec):
+        return (rec.get('_actor') or {}).get('family')
+
+    def admissible(group, picked, chosen, keys):
+        named = group['role'].get('distinct_family_from', [])
+        used = set(keys)
+        for rec in picked:
+            if group['point']['mode'] in ACTOR_MODES:
+                own = _session_keys(rec)
+                if own & used:
+                    return None
+                used |= own
+            if named:
+                mine = family(rec)
+                for name in named:
+                    theirs = [family(r) for g, rows in chosen for r in rows if g['role']['role'] == name]
+                    if mine is None or not theirs or None in theirs or mine in theirs:
+                        return None
+        return used
+
+    def search(position, chosen, keys, filled):
+        if filled + capacity[position] <= best['filled'] or budget[0] <= 0:
+            return
+        if position == len(ordered):
+            best.update(filled=filled, choice=list(chosen))
+            return
+        group = ordered[position]
+        limit = min(group['role']['count'], len(group['candidates']))
+        for size in range(limit, -1, -1):
+            for picked in combinations(group['candidates'], size):
+                budget[0] -= 1
+                used = admissible(group, picked, chosen, keys)
+                if used is None:
+                    continue
+                chosen.append((group, picked))
+                search(position + 1, chosen, used, filled + size)
+                chosen.pop()
+                if best['filled'] == capacity[0] or budget[0] <= 0:
+                    return
+
+    search(0, [], set(), 0)
+    counts = {point['id']: [0] * len(point['roles']) for point in members}
+    for group, picked in best['choice'] or []:
+        counts[group['point']['id']][group['index']] = len(picked)
+    return counts
+
+
+def _missing(points, receipts, producers=()):
+    """Role counts each point still lacks. ``producers`` is ``producer_sessions`` of the run.
+
+    At a specialist, voting or producer point a receipt is credited only for an actor the
+    dispatcher assigned: one worker session, fresh and distinct from every other credited
+    session in the same scope. A session is its observed session id on its transport. The
+    producer of an output earns no reviewer credit for that output. A role that names
+    ``distinct_family_from`` needs a registered transport family different from each named
+    role's. Families are the registered ones, never the receipt body's.
+    """
+    producers = producers if isinstance(producers, dict) else {}
+    scopes = {}
     for point in points:
-        missing = []
         scope = point.get('claim_id') or ('parent' if point['row'] == 11 else point['id'])
-        for role in point['roles']:
-            count = 0
-            for rec in receipts:
-                identity = (rec.get('node_id'), rec.get('attempt'))
-                role_id = rec.get('role', {}).get('id')
-                if (identity in credited or rec.get('review_point_id') != point['id'] or role_id != role['role']
-                        or rec.get('status') != 'ok' or rec.get('run_tree', {}).get('modified') is not False
-                        or rec.get('final_record', {}).get('valid') is not True):
-                    continue
-                label = rec['_label']
-                if point['mode'] in {'specialist', 'voting', 'producer'} and not independent(label):
-                    continue
-                if ranks[label] < {'self': 0, 'host': 1, 'transport': 2}[point['attestation_min']]:
-                    continue
-                session, actor = rec.get('session_id'), rec.get('actor_id')
-                if point['mode'] in {'specialist', 'voting', 'producer'}:
-                    if not session or not actor or session in sessions.get(scope, set()) or actor in actors.get(scope, set()):
-                        continue
-                    if rec.get('model', {}).get('family') in role.get('distinct_family_from', []):
-                        continue
-                    sessions.setdefault(scope, set()).add(session); actors.setdefault(scope, set()).add(actor)
-                credited.add(identity); count += 1
-                if count == role['count']:
-                    break
-            if count < role['count']:
-                missing.append({**role, 'count': role['count'] - count})
-        result[point['id']] = missing
-    return result
+        scopes.setdefault(scope, []).append(point)
+    counts = {}
+    for members in scopes.values():
+        counts.update(_credit(members, receipts, producers))
+    return {point['id']: [{**role, 'count': role['count'] - filled}
+                          for role, filled in zip(point['roles'], counts[point['id']]) if filled < role['count']]
+            for point in points}
 
 
 def _receipt_report(receipt):
     return {'path': receipt['_path'], 'attestation': receipt['_label'],
-            'independent': receipt['_eligible'] and independent(receipt['_label']),
+            'independent': receipt['_eligible'] and receipt['_advisory'] is None and independent(receipt['_label']),
             'advisory': receipt['_advisory'] or ('self_attested' if not independent(receipt['_label']) else None)}
 
 
 def pending(rundir: Path) -> list[dict]:
     facts = _facts(Path(rundir)); points = derive(facts)
     records = list(_receipt_records(rundir, facts))
-    missing = _missing(points, [r for r in records if r['_eligible']])
+    missing = _missing(points, [r for r in records if r['_eligible']], producer_sessions(records, points, facts))
     result = []
     for p in points:
         reports = [_receipt_report(r) for r in records if r.get('review_point_id') == p['id']]
@@ -461,8 +695,27 @@ def pending(rundir: Path) -> list[dict]:
     return result
 
 
+def legacy_accept_refusal(rundir):
+    """Why an epoch-two run refuses a legacy physics-review acceptance; None when it may stand.
+
+    The legacy cycle names its three reviewers by the policy's declared actors, which nothing
+    authenticates. On an epoch-two run an acceptance stands only on the attested worker
+    receipts that credit the run's CHECK-IN 2 review points: dispatcher-assigned actors in
+    fresh sessions and isolated workspaces. ``physics_review`` applies this when a reviewer
+    submits ``accept`` and again wherever a recorded acceptance is consumed. A run without an
+    epoch-two contract keeps its legacy rule; its records stay readable either way.
+    """
+    root = Path(rundir)
+    if not (root / 'inputs/task_contract.json').is_file():
+        return None
+    if _facts(root).get('agent_layer_epoch') != 2:
+        return None
+    lacking = [p['id'] for p in pending(root) if p['blocking'] and p['gate'] == 'checkin2_accept' and p['roles']]
+    return 'accept requires the attested receipts: ' + ', '.join(lacking) if lacking else None
+
+
 def satisfied(rundir: Path, point_id: str) -> bool:
-    points = derive(_facts(Path(rundir)))
+    facts = _facts(Path(rundir)); points = derive(facts)
     point = next((p for p in points if p['id'] == point_id), None)
     if point is None:
         raise ValueError('unknown review point: ' + point_id)
@@ -470,7 +723,8 @@ def satisfied(rundir: Path, point_id: str) -> bool:
         # RDJ satisfaction depends on the exact action. Only gate_errors can
         # decide it; an empty worker-role list is never RDJ authorization.
         return False
-    return not _missing(points, list(_receipts(rundir)))[point_id]
+    records = list(_receipt_records(rundir, facts))
+    return not _missing(points, [r for r in records if r['_eligible']], producer_sessions(records, points, facts))[point_id]
 
 
 def checkin3_section(rundir):
@@ -594,7 +848,8 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
         points = derive(facts)
     except ValueError as exc:
         return [_error(gate, 'parallel_unsafe', ['plan:parallel_safety'], str(exc))]
-    receipts = list(_receipts(rundir)); missing = _missing(points, receipts)
+    records = list(_receipt_records(rundir, facts)); receipts = [r for r in records if r['_eligible']]
+    missing = _missing(points, receipts, producer_sessions(records, points, facts))
     errors = []
     approval = Path(rundir) / 'inputs/review_points_approval.json'
     if approval.exists() and read_json(approval).get('derived_points_sha256') != jdigest(points):
@@ -611,6 +866,7 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
         errors += _rdj_errors(rundir, {'id': 'RP17:action', 'row': 17, 'gate': 'unblind',
                                        'node_id': action.get('node_id') or 'action', 'rdj_class': 'R3',
                                        'human_approval': True, 'receipt_gate': 'unblind'}, gate, action)
+    trusted_checks = []
     for point in points:
         relevant = point['gate'] == gate
         if gate in {'delivery', 'final_task', 'export'} and point['gate'] == 'checkin2_accept':
@@ -638,6 +894,12 @@ def gate_errors(rundir: Path, gate: str, action: dict) -> list:
         for rec in receipts:
             if rec.get('review_point_id') != point['id']:
                 continue
+            if rec.get('findings') and not trusted_checks:
+                # A sandboxed reviewer cannot register a check result; RAVEL runs the registered
+                # ledger validator itself, once per ledger state, before it weighs any finding.
+                from ravel.physics import normalization_ledger
+                normalization_ledger.ensure_recorded(rundir)
+                trusted_checks.append(True)
             for finding in rec.get('findings', []):
                 if blocking_finding(rundir, finding):
                     evidence = finding_record(finding)['evidence_locators']

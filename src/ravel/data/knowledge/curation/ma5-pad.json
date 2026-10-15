@@ -2,7 +2,8 @@
  "id": "op:ma5-pad",
  "op": {
   "do_not_use_when": [
-   "SAF-based delivery: use ma5-saf."
+   "SAF-based delivery: use ma5-saf.",
+   "CheckMATE: use checkmate-events."
   ],
   "examples": [
    {

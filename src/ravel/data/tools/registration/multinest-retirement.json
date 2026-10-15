@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "tool-refusal-retirement-registration",
+  "package": "samplers",
+  "target": "native/setup/toolchain-manifest.json",
+  "retire": {
+    "id": "SP-06-multinest",
+    "requires_group": "samplers",
+    "requires_checks": ["multinest", "pymultinest"],
+    "requires_qualification": "reference values supplied at run time"
+  },
+  "handoff": "Apply this retirement only when immutable installation receipts and an admitted qualification receipt are available."
+}

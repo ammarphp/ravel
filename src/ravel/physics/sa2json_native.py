@@ -2,13 +2,16 @@
 """Convert native SimpleAnalysis ROOT weighted yields to a HistFactory signal patch.
 
 Selected weights and their squares are retained, with explicit optional shapesys
-or staterror constraints from the actual MC moments. A complete supplied channel map declares every signal region, flavour mask
-and zero-signal channel. Negative net yields and unresolved multiplicative uncertainties fail.
+or staterror constraints from the actual MC moments. A complete channel map declares every signal region, flavour mask
+and zero-signal channel; it is either supplied (--channel-map) or a map shipped for a published
+workspace (--shipped-channel-map, data/likelihoods/registry.json). Negative net yields and
+unresolved multiplicative uncertainties fail.
 The patch follows original workspace channel order. A provenance sidecar records
 all moments and precision omissions; no detector or theory nuisances are copied.
 
-Usage: -i <SA.root> -o <patch.json> -n <name> -b <bkgonly.json> -l <lumi> -c
-       --channel-map <mapping.json> --mc-stat shapesys --signal-metadata <path>
+Usage: -i <SA.root> -o <patch.json> -n <name> -b <bkgonly.json> -l <lumi>
+       --channel-map <mapping.json> | --shipped-channel-map <id>
+       --mc-stat shapesys --signal-metadata <path>
 Repeated inputs sum independent physical components; they do not pool independent
 seeds of the same process. Multiple inputs require an explicit combination choice.
 """
@@ -67,16 +70,81 @@ class MissingChannelMap(ValueError):
     """Signal injection requires a complete supplied channel map."""
 
 
+_LIKELIHOODS = None
+
+
+def published_likelihoods():
+    """The shipped registry of published workspaces and their explicit channel maps."""
+    global _LIKELIHOODS
+    if _LIKELIHOODS is None:
+        from ..paths import package_data_path
+        document = json.loads(package_data_path('likelihoods', 'registry.json').read_text())
+        if document.get('kind') != 'published-likelihood-registry' or document.get('schema_version') != 1:
+            raise ValueError('published-likelihood registry has an unknown kind or schema version')
+        _LIKELIHOODS = document
+    return _LIKELIHOODS
+
+
+def _shipped_maps():
+    return [(likelihood, entry) for likelihood in published_likelihoods()['likelihoods']
+            for entry in likelihood['channel_maps']]
+
+
+def shipped_channel_map(map_id):
+    """One shipped channel map as (mapping, record); its bytes must match the registry pin."""
+    from ..paths import package_data_path
+    for likelihood, entry in _shipped_maps():
+        if entry['id'] != map_id:
+            continue
+        path = package_data_path(*entry['file'].split('/'))
+        raw = path.read_bytes()
+        digest = hashlib.sha256(raw).hexdigest()
+        if digest != entry['sha256']:
+            raise ValueError(f'shipped channel map {map_id} changed (sha256 {digest} != {entry["sha256"]})')
+        return json.loads(raw), {'id': entry['id'], 'path': str(path), 'sha256': digest,
+                                 'published_likelihood': likelihood['id'],
+                                 'signal_model': entry['signal_model'],
+                                 'workspace_sha256': likelihood['workspace']['sha256'],
+                                 'omissions': list(entry['omissions']),
+                                 'acceptance_validated': entry['acceptance_validated']}
+    known = ', '.join(entry['id'] for _, entry in _shipped_maps())
+    raise MissingChannelMap(f'no shipped channel map {map_id!r}; shipped maps: {known}')
+
+
 def compressed_channel_map(workspace, mode=None, *, mapping=None):
-    """Compatibility entry point; region definitions belong to supplied inputs."""
-    if mapping is None:
+    """A complete channel map for a published workspace.
+
+    An explicit ``mapping`` is validated against the workspace. Otherwise ``mode`` ("full" or
+    "sr-only-diagnostic") selects the shipped map of that signal model whose channel set equals
+    the workspace's channel set exactly; no other workspace is mapped by name or pattern.
+    """
+    if mapping is not None:
+        return validate_channel_map(mapping, workspace)
+    if mode is None:
         raise MissingChannelMap('explicit complete channel map required')
-    return validate_channel_map(mapping, workspace)
+    if mode not in ('full', 'sr-only-diagnostic'):
+        raise ValueError('unknown compressed signal-model mode')
+    names = {channel['name'] for channel in workspace.get('channels', [])}
+    for likelihood, entry in _shipped_maps():
+        if entry['signal_model'] == mode and set(likelihood['workspace']['channels']) == names:
+            return validate_channel_map(shipped_channel_map(entry['id'])[0], workspace)
+    raise MissingChannelMap(f'no shipped {mode} channel map covers this workspace; '
+                            'explicit complete channel map required')
 
 
-def JSONtoSA(SRname, background):
-    """Legacy implicit name conversion cannot establish channel semantics."""
-    raise MissingChannelMap('explicit complete channel map required')
+def JSONtoSA(SRname, background=None, *, channel_map=None):
+    """Native region of one workspace channel under an explicit map; None is a declared zero.
+
+    ``channel_map`` is a mapping or the id of a shipped map. A channel name is never converted
+    by pattern, so a call without a map refuses.
+    """
+    if channel_map is None:
+        raise MissingChannelMap('explicit complete channel map required')
+    mapping = shipped_channel_map(channel_map)[0] if isinstance(channel_map, str) else channel_map
+    if SRname not in mapping:
+        raise MissingChannelMap(f'channel {SRname!r} is absent from the channel map')
+    entry = mapping[SRname]
+    return None if entry is None else entry['region']
 
 
 def validate_channel_map(mapping, workspace):
@@ -239,6 +307,8 @@ def main(argv=None):
     p.add_argument("-c", "--compressed", action="store_true",
                    help="legacy flag; all region and flavour semantics require --channel-map")
     p.add_argument("--channel-map",help="explicit JSON channel -> {region, flavour?} mapping; null declares zero signal")
+    p.add_argument("--shipped-channel-map", metavar="ID",
+                   help="id of a channel map shipped in data/likelihoods/registry.json instead of --channel-map")
     p.add_argument("--compressed-signal-model", choices=("full", "sr-only-diagnostic"),
                    help="legacy signal-model label; --channel-map supplies channel semantics")
     p.add_argument("--mc-stat", choices=("none", "shapesys", "staterror"),
@@ -248,7 +318,9 @@ def main(argv=None):
                    help="required for repeated inputs; additive components only. Replica pooling requires a separately validated helper")
     args = p.parse_args(argv)
     missing = (["--mc-stat"] if args.mc_stat is None else [])
-    if not args.channel_map:missing.append("--channel-map")
+    if args.channel_map and args.shipped_channel_map:
+        p.error("--channel-map and --shipped-channel-map are mutually exclusive")
+    if not (args.channel_map or args.shipped_channel_map):missing.append("--channel-map")
     if args.compressed and args.compressed_signal_model is None:
         missing.append("--compressed-signal-model")
     if missing:
@@ -267,8 +339,20 @@ def main(argv=None):
 
     with open(args.background) as f:
         spec = json.load(f)
-    with open(args.channel_map) as stream:
-        mapping = validate_channel_map(json.load(stream),spec)
+    shipped = None
+    if args.shipped_channel_map:
+        raw_mapping, shipped = shipped_channel_map(args.shipped_channel_map)
+        if args.compressed_signal_model and args.compressed_signal_model != shipped["signal_model"]:
+            p.error(f"--compressed-signal-model {args.compressed_signal_model} differs from the shipped "
+                    f"map's signal model {shipped['signal_model']}")
+        if shipped["signal_model"] == "sr-only-diagnostic":
+            print("DIAGNOSTIC ONLY: control-region signal is omitted")
+        map_path = Path(shipped["path"])
+    else:
+        with open(args.channel_map) as stream:
+            raw_mapping = json.load(stream)
+        map_path = Path(args.channel_map)
+    mapping = validate_channel_map(raw_mapping,spec)
     pyhf.Workspace(spec)
     signal_poi(spec)
 
@@ -276,8 +360,7 @@ def main(argv=None):
     metadata_output = Path(args.signal_metadata or (str(output) + ".metadata.json"))
     inputs = [Path(path).resolve() for path in args.input]
     protected = {*inputs, Path(args.background).resolve()}
-    if args.channel_map:
-        protected.add(Path(args.channel_map).resolve())
+    protected.add(map_path.resolve())
     if output.resolve() in protected or metadata_output.resolve() in protected or output.resolve() == metadata_output.resolve():
         raise ValueError("signal outputs must be distinct from all inputs and each other")
     sources = [fingerprint(path) for path in inputs]
@@ -294,8 +377,14 @@ def main(argv=None):
                                         input_combination=args.input_combination)
     metadata.update(inputs=sources, background=fingerprint(args.background),
                     converter=fingerprint(__file__), compressed_signal_model=(args.compressed_signal_model if args.compressed else None))
-    if args.channel_map:
-        metadata["channel_map"] = fingerprint(args.channel_map)
+    metadata["channel_map"] = fingerprint(map_path)
+    if shipped is not None:
+        metadata["published_likelihood"] = {
+            "id": shipped["published_likelihood"], "channel_map_id": shipped["id"],
+            "signal_model": shipped["signal_model"], "omissions": shipped["omissions"],
+            "acceptance_validated": shipped["acceptance_validated"],
+            "registry_workspace_sha256": shipped["workspace_sha256"],
+            "workspace_bytes_match_registry": metadata["background"]["sha256"] == shipped["workspace_sha256"]}
     encoded_patch = (json.dumps(patch, sort_keys=True, indent=4, allow_nan=False) + "\n").encode()
     metadata["patch"] = {"path": str(output.resolve()), "sha256": hashlib.sha256(encoded_patch).hexdigest()}
     encoded_metadata = json.dumps(metadata, sort_keys=True, indent=2, allow_nan=False) + "\n"

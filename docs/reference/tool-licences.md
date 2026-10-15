@@ -95,7 +95,6 @@ inventory; no blanket licence is asserted.
 | `softsusy` | GPL-3.0-or-later | true | never | never | pending licence-file sha256 |
 | `multinest` | LicenseRef-MultiNest | false | never | never | pending licence-file sha256 |
 | `pymultinest` | GPL-3.0-only | true | never | never | pending licence-file sha256 |
-| `hi-class` | LicenseRef-hi_class | false | never | never | pending licence-file sha256 |
 | `feynarts` | LGPL-3.0-or-later | true | never | never | pending licence-file sha256 |
 | `feyncalc` | GPL-3.0-or-later | true | never | never | pending licence-file sha256 |
 | `flexiblesusy` | GPL-3.0-only | true | never | never | pending licence-file sha256 |
@@ -105,6 +104,7 @@ inventory; no blanket licence is asserted.
 | `easyscan` | Apache-2.0 | true | allowed | allowed | pending licence-file sha256 |
 | `gm2calc` | GPL-3.0-or-later | true | never | never | pending licence-file sha256 |
 | `phasetracer` | GPL-3.0-or-later | true | never | never | pending licence-file sha256 |
+| `checkmate` | GPL-2.0-only | true | never | never | pending licence-file sha256 |
 | `root` | LGPL-2.1-or-later | true | never | never | pending licence-file sha256 |
 | `torch` | BSD-3-Clause | true | allowed | allowed | pending licence-file sha256 |
 | `torch-geometric` | MIT | true | allowed | allowed | pending licence-file sha256 |

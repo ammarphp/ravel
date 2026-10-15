@@ -24,12 +24,13 @@ FOCUSED_COMMANDS = {
     'backend': ('workflow.execution_backend', 'execution backends (native, container, HTCondor/SLURM): doctor, plans, handles, recovery, images'),
     'partitions': ('workflow.partitioned_execution', 'split an input population into partitions, run them through a backend and merge additive outputs'),
     'site': ('workflow.site_doctor', 'Linux analysis-site readiness checks and no-root install plan'),
-    'ntuples': ('physics.dataset_resolution', 'resolve grid datasets into ROOT members and build MC normalization from supplied sources'),
+    'ntuples': ('physics.dataset_resolution', 'expand container datasets, resolve file members and normalize MC from declared inputs'),
     'root-stream': ('physics.root_stream', 'inspect explicit complete ROOT member/DSID/weight/blinding contracts; execution uses ordinary science'),
     'tree-array-export': ('physics.tree_array_export', 'inspect the source-bound mini-tree array export with its fixed inputs and handoff (not a general exporter); execution uses ordinary science'),
     'parameter-space-sampling': ('physics.parameter_space_sampling', 'inspect supplied scan contracts; execution uses ordinary science'),
     'figure': ('physics.figure_comparison', 'digitise published figures and draw parameter-plane and measurement overlays with natural-language labels'),
     'compare': ('validation.fidelity', 'compare a result with a reference under declared transformations, metrics and tolerances'),
+    'dataset-query-quantities': ('physics.dataset_query_quantities', 'inspect the source-bound columnar adapter for its stored released questions (general columnar work: columnar-analysis); execution uses ordinary science'),
     'columnar-analysis': ('physics.columnar_analysis', 'check event files and recipes for reconstructed-event analysis, run partitions and draw control plots; studies use ordinary science'),
     'event-production': ('physics.event_production', 'check a shower and detector production task, read an LHE header and check a production receipt; production runs through ordinary science'),
     'detector-card': ('physics.detector_card', 'check a Delphes card against the model\'s invisible states and write a managed derived or skimmed card'),
@@ -50,6 +51,7 @@ FOCUSED_COMMANDS = {
     'spec-reconcile': ('workflow.spec_reconciliation', 'compare a declared physics intent with MadGraph proc, run and parameter cards (read only)'),
     'research-cycle': ('workflow.research_cycle', 'connect bounded hypotheses, ordinary studies, reviews and reproducible synthesis'),
     'backend-provider': ('physics.backend_provider', 'discover backend source catalogues and prepare native input contracts'),
+    'checkmate-events': ('physics.checkmate_events', 'prepare a source-bound supplied-HepMC2 ordinary study'),
     'task-completion': ('workflow.task_completion', 'inspect original-task coverage or require bound whole-parent acceptance'),
     'fill-template': ('workflow.result_templates', 'fill a supplied numeric result template from an accepted result without changing its bins'),
     'contur-yoda': ('physics.contur_yoda', 'prepare a source-bound fresh Contur single-YODA ordinary study'),
@@ -109,6 +111,7 @@ FOCUSED_COMMANDS = {
 
 # Supplied-contract inspection command block.
 FOCUSED_COMMANDS['tree-array-export'] = ('physics.tree_array_export', 'inspect supplied tree branches, shapes, padding and array destinations; execution uses ordinary science')
+FOCUSED_COMMANDS['dataset-query-quantities'] = ('physics.dataset_query_quantities', 'inspect supplied datasets, queries, observables and presentation contracts; execution uses ordinary science')
 
 
 # Lifecycle governance commands over modules whose entry points need an adapter: a required
@@ -734,7 +737,7 @@ def _approve_by_kind(args) -> int:
         return approve(args.rundir, args.quote, scripted=args.scripted)
 
 
-def _native_approve(args) -> int:
+def _native_approve_without_scripted(args) -> int:
     """A native run's CHECK-IN 1 approval: workflow_state approve over checkin1.json and the budget."""
     from .workflow import workflow_state
     from .validation.validate_task_contract import load_contract
@@ -810,6 +813,8 @@ def _approve_delegated_plan(rundir) -> int:
 
 
 def _run(args) -> int:
+    from .workflow import wms_policy
+    wms_policy.require_dispatch(args.rundir)
     if (args.rundir / "inputs/science-plan.json").exists():
         from .workflow.science import run
     else:
@@ -888,7 +893,7 @@ def _register_prepared(arguments):
         _register(Path(out), active_run.session_from_env(), "research-orchestrate prepare")
 
 
-def main(argv=None) -> int:
+def _ordinary_main(argv=None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
     try:
         # These focused modules own their subcommands. Early dispatch preserves
@@ -941,7 +946,7 @@ FOCUSED_COMMANDS['review'] = ('workflow.graphs.review', 'run review points on th
 FOCUSED_COMMANDS['work'] = ('workflow.production_executor', 'production work orders (next, seal, dispatch --node, waive, host-authored), sandboxed workers, broker receipts, recovery and stop state, and the toolbelt over MCP (work mcp)')
 FOCUSED_COMMANDS['drive'] = ('workflow.graphs.lifecycle', 'drive a run through the lifecycle graph; it stops at every human CHECK-IN and resumes on drive respond')
 
-# SCRUB: the analysis catalogue is built locally from the user's own upstream checkouts; none ships.
+# The package ships a pinned catalogue snapshot; this command rebuilds one from the user's own checkouts.
 FOCUSED_COMMANDS['catalogue'] = ('workflow.analysis_catalog_build', 'build the local analysis catalogue from your Rivet and SimpleAnalysis checkouts')
 
 # Public steering names retain the existing gate-wiring producers and custody.
@@ -949,8 +954,6 @@ FOCUSED_COMMANDS['steer'] = ('workflow.steer_cli', 'record steering through gate
 FOCUSED_COMMANDS['respond'] = ('workflow.respond_cli', 'record responses through gate-wiring')
 
 # Preserve scripted authority on the native path as well as the scientific path.
-_native_approve_without_scripted = _native_approve
-
 def _native_approve(args) -> int:
     if not getattr(args, 'scripted', False):
         return _native_approve_without_scripted(args)
@@ -966,6 +969,42 @@ def _native_approve(args) -> int:
                                 '--plan', plan, '--scripted'])
 
 FOCUSED_COMMANDS['method-decision'] = ('workflow.method_selection', 'validate and render the cheapest sufficient method in CHECK-IN 1')
+
+# Workflow-manager-first launch; each approved stage becomes a Snakemake rule before it runs.
+# The launch module also routes `adopt|adopt-run|adopt-status` to external Snakefile adoption.
+FOCUSED_COMMANDS['wms'] = ('workflow.wms_launch', 'workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile')
+
+# Review rubrics as data and their pinned overlays.
+FOCUSED_COMMANDS['review-rubric'] = ('workflow.review_rubric', 'show a review rubric, record the rubric and pinned overlay of a run, and apply it to a review packet')
+
+FOCUSED_COMMANDS['deliver-workspace'] = ('workflow.requester_delivery', 'copy accepted study artifacts into a supplied requester layout and verify provenance')
+
+# Conformance policy is supplied by the requester; checks only inspect records.
+FOCUSED_COMMANDS['conformance'] = ('workflow.submission_conformance', 'check a git working tree and declared run records against a supplied rule pack')
+
+# Supplied document sources; native compilation stays in ordinary manuscript-build.
+FOCUSED_COMMANDS['manuscript'] = ('physics.manuscript_slides', 'pin supplied class bundles and prepare source-bound slides')
+
+# One declared project instruction document per run, delivered to every session the run starts.
+FOCUSED_COMMANDS['project-instructions'] = ('workflow.project_instructions', 'pin one project instruction document for a run; every worker and reviewer session receives it, and a changed document needs an approved re-pin')
+
+# Command blocks outside the ordinary parser: prompt exports extend the checkout audit, and
+# `ravel replay prepare|approval-gate|run|compare|template` is the governed replay of a completed
+# run (workflow.replay). Any other replay call reaches the ordinary parser and is refused.
+REPLAY_OPERATIONS = ('prepare', 'approval-gate', 'run', 'compare', 'template')
+def main(argv=None) -> int:
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:2] == ['audit', 'prompt-log']:
+        from .workflow import prompt_log
+        return prompt_log.main(arguments[2:])
+    if arguments[:1] == ['replay'] and arguments[1:2] and arguments[1] in REPLAY_OPERATIONS:
+        from .workflow.replay import main as replay
+        try:
+            return replay(arguments[1:])
+        except (OSError, ValueError) as exc:
+            print(f"ravel: {exc}", file=sys.stderr)
+            return 2
+    return _ordinary_main(arguments)
 
 
 if __name__ == "__main__":

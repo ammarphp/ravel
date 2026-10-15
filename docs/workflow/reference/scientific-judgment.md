@@ -231,6 +231,15 @@ the graph pauses for `checkin2_response`; answer with `--respond FILE`. The gate
 refuses unless the response pins this run's `science.approve` record. Epoch-two runs of
 `research-orchestrate` delegate their review here.
 
+A run is delegated when its contract carries the `autonomy` pin (the delegation record
+intake writes), when the CHECK-IN 1 transition `inputs/autonomy-transition.json` beside the
+contract records a delegation granted in the CHECK-IN 1 response, or when the contract has
+the older `delegated` key. The contract is byte-bound to its `run_init` snapshot, so a later
+delegation is always that transition. A transition that does not belong to the contract
+refuses the gate. A delegated run's points require `attestation_min: transport` and its plan
+point is a blocking vote. Review points and the delegated-transition gate read this one
+record (`review_points.delegated_contract`).
+
 `decision_gate.check(rundir, gate, action)` only reads evidence. It neither writes
 receipts nor starts processes. Errors include `pins`, the missing evidence IDs.
 The packaged provider registry declares mandatory providers by gate and scope;
@@ -317,19 +326,76 @@ current SHA-256. The worker dispatcher owns registration and the verified label.
 versioned by `schema_version`. Version 1 is the original field set and stays valid, byte for
 byte, for its original use. It earns no review credit; the advisory is
 `receipt_predates_review_subject`. A review dispatch carries `parent.review_subject`, so the
-dispatcher writes version 2: version 1 plus `review_subject` (`scope` and `sha256`), bound by
-the transcript's receipt digest. The dispatcher registers each version-2 receipt with the label
-the transport's own verification produced. Credit needs a confined `final_record.path` with
+dispatcher writes version 3: version 1 plus `review_subject` (`scope` and `sha256`) and
+`execution_mode` (the launch mode the dispatcher observed), bound by the transcript's receipt
+digest. Version 2 (`review_subject` only) still loads. The dispatcher registers each review
+receipt with the label the transport's own verification produced and with the actor it
+assigned. Credit needs a confined `final_record.path` with
 matching bytes and a `review_subject` equal to `review_points.review_subject(facts, point)`:
 the scope (`claim:<id>`, `node:<id>` or `plan`) and `subject_digest(facts, point)`, the
 canonical JSON of the point ID and current claim, plan node, or whole-plan subject. Reusing a
 point ID does not preserve a review after its subject changes. `pending()` reports
 unregistered/invalid/stale receipts as advisory; unregistered ones carry `receipt_unregistered`.
 
+An actor is one worker session. The dispatcher assigns `actor_id` at spawn as the SHA-256 of
+the transport id, the model id, a worker session id it draws and the attempt id
+(`<node>/<attempt>`), keeps it in the worker's custody record, writes it into the receipt
+and registers it with the receipt (`agent_worker.launch`, or `agent_worker.bind_actor` for a
+dispatcher that completes a worker itself). A worker never declares its own actor: a
+receipt whose `actor_id` is missing or differs from the registered assignment, or whose
+stated family differs from the registered one, has the advisory `actor_unassigned` and
+earns no credit at voting, specialist, producer and blind auditor points. Two actors are
+independent when their ids differ and they ran as separate fresh sessions in isolated
+workspaces, which is what the `transport_attested` label verifies. Only a supervised launch
+observes a transport: a worker the host completes itself, with no launch on record, is
+registered `host_attested` at most and earns no independent credit.
+
+Credit is the largest consistent set of receipts, chosen in a canonical order (point id,
+then receipt node and attempt), so neither the order of points nor the order of receipts
+changes it and a fresh retry is used when a role's first receipt cannot satisfy every role.
+Within one claim no session is credited twice; a session is its observed session id on its
+transport, so the same id from two transports is two sessions. A voting point with count k
+needs k distinct actors. A role entry that names `distinct_family_from` needs a registered
+transport family different from each named role's credited receipt; a family that is
+unknown on either side shows no difference. Families come from the registered actor, never
+from the receipt body. A producer earns no reviewer credit for its own output: its claim
+with the nodes that claim is computed from, its node with the claims computed from it, and
+any point that reviews the whole plan. It is a valid reviewer of an independent claim. A
+producer is known only from a registered receipt with its assigned actor; an unregistered
+record names no producer and removes no credit.
+
+A plan node that an author role produces carries a producer point. Its ordinary dispatch
+(`ravel work dispatch`) names that point and its current subject, so the dispatcher writes
+a version-3 receipt for the node's own production work and that receipt credits the point
+at the `launch` gate. A node with two producer points for one role is refused; nothing is
+dispatched twice.
+
+RDJ role calls follow the same rule. The dispatcher registers an RDJ worker receipt with
+its assigned actor and observed label; `rdj_loop` takes the reviewer identity from that
+registration, and a receipt that only states an actor is one unattested call. On the
+agent-graph route the identity is built from the dispatcher's own request (adapter, model,
+request id and graph node); actor text in a host response is not read.
+
+A role whose card declares `requires.blind` is blind on every dispatch. It receives the
+item packet the review graph computes for its own item (a hand-written packet for the same
+role and point is refused), the run files its card admits, and a work order only as the
+sealed order of its own production node. A JSON input and an explicit packet subject pass the card's
+forbidden classes and field redaction; a forbidden subject refuses the packet. A blind card
+that cannot be read, or that differs from the digest the dispatch pins, refuses the
+dispatch. The custody record holds one blind flag (`blind_actions`): a graph-blind role is
+launched with workspace read and write only, a card-blind role with those and the actions
+its own card names, and the supervisor and the launch toolbelt both apply it.
+
+The legacy three-reviewer cycle (`physics_review`) names its reviewers by declared policy
+actors. On an epoch-two run an `accept` verdict is refused until the attested receipts
+credit every blocking CHECK-IN 2 review point, and a recorded acceptance authorizes
+delivery, reuse and bulk compute only while they do. Earlier records stay readable.
+
 Labels are `transport_attested`, `host_attested`, `self_attested`, `human_manual`.
 `transport_attested_cli` is an execution mode, never a label. Label calculation
 uses `decision_case.label_for` capped at the custody registration's verified
-strength, as in RDJ. A version-2 dispatcher receipt has no execution mode and takes
+strength, as in RDJ. A version-3 receipt carries the observed mode (`transport_attested_cli`
+for a governed CLI worker). A version-2 dispatcher receipt has no execution mode and takes
 the registration's verified label. Without a verified registration every mode is self-attested.
 Receipt-body `execution_mode` and `attestation` cannot increase authority.
 `human_manual` worker bodies remain self-attested until a system-owned human
@@ -346,7 +412,12 @@ a generic task-contract read.
 Findings use RDJ's `materiality`, `evidence_class`, `evidence_locators` vocabulary.
 Legacy `severity/new_receipt/code_check/evidence_request` records are adapted.
 A `new_receipt` needs a current custody-registered stage from a recognized
-producer; a `code_check` needs `rdj_loop.critic_basis == "verified"`; a pending
+producer; a `code_check` needs `rdj_loop.critic_basis == "verified"`. A sandboxed reviewer
+cannot register a check result, so before a gate weighs review findings RAVEL runs its
+registered ledger validator on `inputs/normalization_ledger.json` and registers the result
+as `check:normalization-ledger`, once per ledger state
+(`normalization_ledger.ensure_recorded`); a finding that cites that check blocks when the
+recorded result failed for the current ledger bytes. A pending
 request remains blocking until `rdj_loop.evidence_request_answered` verifies its
 item as done with externally verified resolution pins. A missing, deleted,
 withdrawn or merely edited queue item cannot clear a registered finding. RDJ and

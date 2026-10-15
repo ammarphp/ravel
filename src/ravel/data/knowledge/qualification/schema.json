@@ -423,6 +423,148 @@
           }
         ]
       }
+    },
+    "census_homes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "census_id",
+          "kind"
+        ],
+        "properties": {
+          "census_id": {
+            "type": "string",
+            "pattern": "^(census|component)-[a-z0-9-]+$"
+          },
+          "kind": {
+            "enum": [
+              "package",
+              "qualification-job",
+              "deferral",
+              "data-format"
+            ]
+          },
+          "group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "job": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "command",
+              "inputs",
+              "walltime_minutes",
+              "disk_gb"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "command": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "inputs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "walltime_minutes": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "disk_gb": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "package"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "group"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "qualification-job"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "job"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "deferral"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "reason"
+              ],
+              "properties": {
+                "reason": {
+                  "const": "site-only; qualified at a site"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "data-format"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "reason"
+              ],
+              "properties": {
+                "reason": {
+                  "const": "data-format only, no install"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   },
   "$defs": {

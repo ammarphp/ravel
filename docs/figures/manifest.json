@@ -116,6 +116,33 @@
     },
     "source_sha256": "d1c88f966ee3e014723f5bd2fc854be183ec39e730bfb614fd5403fa607ea7c7"
   },
+  "methodology-agent-roles": {
+    "outputs": {
+      "pdf/methodology-agent-roles.pdf": "0a7c08e10e5ca9fb9fbe35b53a803e429821e3d3caf7a0cf371381c8e0c09ceb",
+      "png/methodology-agent-roles.png": "4782b018e2934d49b6631bf6f08284b008dfd41588def81b832aac3bade24f6b",
+      "svg/dark/methodology-agent-roles.svg": "c4e3ab6e907b8f4092f9e0625a24c97f1aba0b55c46739c9d1fe596e55c13201",
+      "svg/light/methodology-agent-roles.svg": "e58a4cd32a5590220521e1e6fbd74388ad07fda05c49d2e3658538a0952866b3"
+    },
+    "source_sha256": "e3ac92dd3f5c11e74e262d0ed7e15fd2a2d2f956d847ddb54499ffe2752da89f"
+  },
+  "methodology-decision-justification": {
+    "outputs": {
+      "pdf/methodology-decision-justification.pdf": "848b0ae80b9d2533733569a30fac3838ac682c1bdf77d319acf2152bae54714a",
+      "png/methodology-decision-justification.png": "374325254b2e714eaebb6e0445faad33e61b8a8b79660a8e96a29e41f0bbf336",
+      "svg/dark/methodology-decision-justification.svg": "3b5a531aac1e289339be0f093559b27a21b90286021b24a327a9cc62a2fc4e27",
+      "svg/light/methodology-decision-justification.svg": "b9e8e44022cf0375fe2300703ebd5eb6ca2f7b4c2a55d6814f294fcefc6efa58"
+    },
+    "source_sha256": "f759e707515f6f464b60b2a2293bc4f19b7eda5f7781e0602f175fc1c248193f"
+  },
+  "methodology-research-loop": {
+    "outputs": {
+      "pdf/methodology-research-loop.pdf": "e6bce42e70a51f37e91dcef58227909d50b51a35a58dbe06aa4fadac05550b89",
+      "png/methodology-research-loop.png": "8c7026d7c46ce3544d53c4206cd72f9cbca5fd063f9d4a710a98d651b28571fc",
+      "svg/dark/methodology-research-loop.svg": "bcc53294f44e1bea61129c070af075ae2d8b57cf161d271791633f8c833eedc3",
+      "svg/light/methodology-research-loop.svg": "54761532e627ccb3e513dffa18c6b8ca30966f45b531e79f60be7dce045d44d4"
+    },
+    "source_sha256": "4706f162e5df73a0b281bf1b6cf5c208fb78e5c049dd044406da67045ccbbead"
+  },
   "overview": {
     "outputs": {
       "pdf/overview.pdf": "dca066ee290d433b322c4210f62a4be77f2071a6c889520c6469283115fc03c7",
@@ -127,12 +154,12 @@
   },
   "readme-overview": {
     "outputs": {
-      "pdf/readme-overview.pdf": "1a43105e44032c3134a11d74b8c04b200e1206518505a714d9f70bd0a821d151",
-      "png/readme-overview.png": "f0940ce868474baec9c315c36eca40e266cf82b47306300783abf3b298f2c519",
-      "svg/dark/readme-overview.svg": "b5ee7b64e2f1f3c517b8a0e064737d2f4bae963bf0dc9cdb612466f3faaa3111",
-      "svg/light/readme-overview.svg": "630bf9d421bad7fc62dbbf7a63e006cd3ed1cc19df43c81da8e5a51ad12d1501"
+      "pdf/readme-overview.pdf": "889f5285d2f6807e4935acec16a5182d179e156199db8567c24f404ac3b7f3cd",
+      "png/readme-overview.png": "1d50148257a9d8b55046fbcd87f5ad53a79a58619ee018c2d0e485d9ad0288b5",
+      "svg/dark/readme-overview.svg": "a9b5c39ffcf7d3e8d75c002e7c9355ff200c48dba4d11b730184db15027da097",
+      "svg/light/readme-overview.svg": "b56dbae6a6de86960e2499d6b6e85df231b8852b1a5bf05a6131e5637601b6df"
     },
-    "source_sha256": "899ffa65d1594db2c05653e37066f0cbf723f63a1f7b661365f06aea93ec3598"
+    "source_sha256": "5cbeed11496947042b29317442c529e5c0e49ef79262c6702834e9b9098e0eda"
   },
   "records": {
     "outputs": {

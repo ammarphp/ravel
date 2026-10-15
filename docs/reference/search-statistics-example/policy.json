@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "schema_version": 1,
+    "actors": {
+      "proposer": "proposer",
+      "executor": "executor",
+      "physics_critic": "critic",
+      "skeptical_verifier": "verifier",
+      "physics_decider": "decider"
+    },
+    "max_redos": 0,
+    "allowed_changed_paths": [],
+    "allowed_stages": [
+      "science"
+    ],
+    "required_checks": [
+      {
+        "id": "integrity",
+        "kind": "integrity"
+      },
+      {
+        "id": "statistic",
+        "kind": "scientific"
+      }
+    ],
+    "claim_scopes": {
+      "inference_delivery": {
+        "checks": [
+          "integrity",
+          "statistic"
+        ],
+        "actions": [
+          "delivery",
+          "reuse"
+        ]
+      }
+    }
+  },
+  "correction_contract": {
+    "task_fields": [],
+    "input_slots": []
+  }
+}

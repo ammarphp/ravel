@@ -47,8 +47,12 @@ def derive(root, name, manifest=None):
             keep, remove = change['keep'], change['remove']
             if not 0 <= keep < remove < len(lineage):
                 raise records.SourceRecordError('source_scope_mismatch', 'ordered paired coalescence indices required')
+            from .sfitter_higgs_support import _physical_value
             for field in ('observations', 'predictions'):
-                if records.encoded(derived[field][keep]) != records.encoded(derived[field][remove]):
+                # Identical means equal typed records with exact rational numbers: the literal
+                # spellings 0 and 0.0 of one coefficient are the same value; names, strings,
+                # booleans and ordering stay distinct.
+                if _physical_value(derived[field][keep]) != _physical_value(derived[field][remove]):
                     raise records.SourceRecordError('source_scope_mismatch', 'coalescence requires identical paired rows')
                 del derived[field][remove]
             lineage[keep].extend(lineage.pop(remove))

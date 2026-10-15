@@ -85,8 +85,15 @@ Bayesian prior. Posterior, convergence, interval and coverage qualification rema
 unknown, including after native plots exist.
 
 Source repairs and holds come from explicitly selected, byte-bound reviewed records.
-`sfitter_card_derivation` requires a supplied repair manifest and defect registry;
-there is no built-in card roster, repair table or row-count exception. Every copy,
+`sfitter_card_derivation` requires a repair manifest and defect registry; there is no
+built-in card roster, repair table or row-count exception in the engine. The records for
+the three released full cards (`Top_Full.json`, `Higgs_Full.json`,
+`Higgs_Full_with_CtG.json`) ship as data in `src/ravel/data/sfitter/published-records` and
+are bound to a selected source root by `ravel.physics.sfitter_published_records` (`bind`,
+`derive`, or the `--source-root/--card/--output` command), which refuses card bytes that
+differ from the record's pin. The shipped Higgs records keep the released row 197/5019
+response held as an unresolved defect; the shipped Top records hold the unresolved intents of
+the shadowed `D6qt1xD6qt1` term and the unused measurement nuisance as assumptions. Every copy,
 replacement, retained field and parser projection keeps its original values in
 lineage. Coalescence requires identical observation and prediction rows. Missing
 records and unresolved physical defects refuse before derived-card publication.

@@ -16,15 +16,33 @@ The selection recipe is `columnar_ntuple_recipe.validate_recipe` (schema 1, nomi
 or `columnar_selection` (schema 2, changed working points, ordered delta-R overlap removal
 and a source-declared joint trigger response from `columnar_response`).
 
-RAVEL holds no table of ntuple containers, periods or branch meanings. A recipe carries them
-as a supplied `branch_roles` descriptor, required for schema 2 and optional for schema 1:
+No ntuple container, period or branch table is built into the code. A recipe carries them
+as a `branch_roles` descriptor, required for schema 2 and optional for schema 1. The value
+is either the descriptor below or the identifier of a packaged one
+(`ravel.physics.columnar_ntuple_recipe.library_names()`); a named descriptor is resolved into
+the recipe, so the recipe's digest covers the exact roles used:
 
 ```json
 {"schema_version": 1, "kind": "columnar-branch-roles", "name": "...", "source": "...",
  "branches": [{"name": "...", "role": "scale_weight", "shape": "scalar", "unit": "1"}],
  "families": [{"pattern": "<regex>", "role": "baseline_or", "shape": "jagged", "unit": "1"}],
- "periods": ["2018"], "period_scoped_weights": {"<scalar weight>": ["2018"]}}
+ "periods": ["2018"], "period_scoped_weights": {"<scalar weight>": ["2018"]},
+ "containers": [{"prefix": "el", "selections": ["baseline", "signal"], "overlap_selections": ["baseline"]},
+                {"prefix": "fatjet", "selections": ["stored"], "overlap_removal": ["largeR"],
+                 "tagger": true, "tagger_valid": "<regex for the calibrated-range flag>"}]}
 ```
+
+`containers` is optional. When present the container list is closed: a recipe object must use a
+listed `prefix` and one of its `selections` (`overlap_selections` while stored overlap removal
+applies), a tagger needs `"tagger": true` and a name matching `tagger_valid`, and
+`overlap_removal` limits the recipe's overlap choice for that container.
+
+Packaged descriptors:
+
+| Identifier | Format |
+|---|---|
+| `atlas-cp-nominal-ntuple` | Flat ntuples written by ATLAS CP-algorithms analysis configurations: `<container>_<decoration>[_NOSYS]` kinematics in MeV, `select_` flags and stored overlap-removal flags, scale-factor, trigger, stored-MET and `PL_` particle-level families, the Run 2 and Run 3 period keys, the Run 2-only beamspot weight and the lepton/photon/tau/jet/large-R container table. This reproduces the former built-in role table; whether a branch exists remains the branch schema's to establish |
+| `atlas-opendata-13tev-ntuple` | The ATLAS Open Data 13 TeV ntuple branch table (`lep_`, `jet_`, `photon_`, `largeRjet_`, `tau_` families, `scaleFactor_*`, `met_*`, `trig*`); dimensionful units are null because the public page states none |
 
 Exact names take precedence over family patterns. A `null` unit means the format fixes no
 absolute unit, so the branch list must state one. A branch with a known role cannot be retyped

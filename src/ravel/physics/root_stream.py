@@ -72,21 +72,8 @@ def _load(task, base, capture):
         n = sample['normalization']
         if n is not None:
             original = capture.document(n['original_population'],base)
-            core.keys(original, ('schema_version','sample_id','dsid','members'), 'original normalization population')
-            core.require(original['schema_version']==1 and type(original['schema_version']) is int and original['sample_id']==sample['id'] and original['dsid']==sample['dsid'], 'original normalization sample differs')
-            core.require(type(original['members']) is list and original['members'], 'full original normalization members required')
-            rows={}
-            for row in original['members']:
-                core.keys(row, ('guid','did','entries'), 'original member exposure')
-                core.text(row['guid']); core.text(row['did']); core.integer(row['entries'],0,10**15,'original entries')
-                core.require(row['guid'] not in rows,'original member duplicate'); rows[row['guid']]=row
-            for member in sample['members']:
-                core.require(rows.get(member['guid'])=={k:member[k] for k in ('guid','did','entries')}, 'processed source is not bound to original normalization population')
-            record=capture.document(n['source'],base)
-            fields=('schema_version','sample_id','dsid','original_population_sha256','sum_weights','luminosity_fb_inverse','cross_section_pb','filter_efficiency','k_factor')
-            core.keys(record,fields,'original full normalization record')
-            core.require(record['schema_version']==1 and type(record['schema_version']) is int and record['sample_id']==sample['id'] and record['dsid']==sample['dsid'] and record['original_population_sha256']==n['original_population']['sha256'], 'normalization origin differs')
-            for name in fields[4:]: core.require(record[name]==n[name] and type(record[name]) in (int,float), 'normalization source value differs')
+            record = capture.document(n['source'],base)
+            core.normalization_records(sample, original, record)
         for member in sample['members']:
             capture.read(member['checksum']['authority'],base)
             u=urlsplit(member['uri'])
@@ -163,7 +150,7 @@ def context_inputs(task,base):
 
 def context(task,base):
     capture=core.Capture();_,c,ds,a=_load(task,base,capture);capture.finish()
-    value={'schema_version':1,'kind':'root-stream-source-context','sample_ids':[{'id':s['id'],'kind':s['kind'],'dsid':s['dsid']} for s in ds['samples']],
+    value={'schema_version':1,'kind':'root-stream-source-context','sample_ids':[{'id':s['id'],'kind':s['kind'],**core.sample_identity(s)} for s in ds['samples']],
         'branch_contract':a['branch_contract'],'quantity_ids':[q['id'] for q in a['quantities']],
         'blinding':None if a['blinding'] is None else {'policy':a['blinding']['policy'],'allowed_regions':a['blinding']['allowed_regions'],'model_fields':a['blinding']['model_fields'],'original_policy_sha256':a['blinding']['source']['sha256']},
         'site':{k:c['site'][k] for k in ('id','rse','durable_output_policy')},'limits':c['limits'],
@@ -503,13 +490,13 @@ def validate_delivery(value,ds,a,limits,request_config=None):
         expected={'guid':m['guid'],'size_bytes':m['size_bytes'],'checksum':{'algorithm':m['checksum']['algorithm'],'value':m['checksum']['value']},'entries':m['entries']}
         core.require(r['member']==m['id'] and r['before']==expected and r['after']==expected,'native observed member identity differs')
     for s,r in zip(ds['samples'],d['samples']):
-        core.keys(r,('id','kind','dsid','normalization','raw_mc_weights','weight_contract','quantities'),'whole sample delivery')
+        core.keys(r,('id','kind',*core.sample_identity(s),'normalization','raw_mc_weights','weight_contract','quantities'),'whole sample delivery')
         raw=r['raw_mc_weights']
         if s['kind']=='data':core.require(raw is None,'data cannot acquire MC weights')
         else:
             core.keys(raw,('sumw','sumw2','scope',*(['record_sumw2'] if grouped else [])),'original analyzed MC weights')
             core.scalar(raw['sumw']);core.require(core.scalar(raw['sumw2'])>=0 and raw['scope']==('complete declared physical groups; record_sumw2 retains original entry squares; full denominator is separate' if grouped else 'analyzed original entries; retained full denominator is separate'),'original raw MC moment scope differs')
-        core.require(r.get('normalization')==s['normalization'] and r.get('kind')==s['kind'] and r.get('dsid')==s['dsid'] and r.get('weight_contract')==a['weight_contract'],'sample normalization/weight law differs')
+        core.require(r.get('normalization')==s['normalization'] and r.get('kind')==s['kind'] and all(r.get(k)==v for k,v in core.sample_identity(s).items()) and r.get('weight_contract')==a['weight_contract'],'sample normalization/weight law differs')
         core.require(set(r.get('quantities',{}))=={q['id'] for q in a['quantities']},'complete quantities required')
         for q in a['quantities']:
             result=r['quantities'][q['id']];c=deepcopy(q['contract']);c['normalization']['scale']=core.scale(s)

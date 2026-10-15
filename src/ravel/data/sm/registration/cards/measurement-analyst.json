@@ -1,0 +1,122 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "production",
+  "id": "measurement-analyst",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "producer"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [
+      {
+        "role": "consult-inference",
+        "when": "on_use"
+      }
+    ],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "hb:sm-measurements",
+      "hb:yoda-multiweights",
+      "conv:sm",
+      "trap:TS1",
+      "trap:TS2",
+      "trap:TS3",
+      "trap:TS4",
+      "trap:TS5",
+      "trap:TS6"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "agent"
+  },
+  "must_check": [
+    "check:sm.covariance_assembled",
+    "check:sm.normalized_rule",
+    "check:sm.theory_cov_included"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "producer.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Assemble supplied measurement bundles with all bin, uncertainty and covariance source definitions retained.",
+    "Retain the supplied bin population and format; assemble covariance from every marginal-error and correlation contribution. Declare asymmetric symmetrization and any central shift.",
+    "For a normalized distribution, state bin weights and the covariance rank; use a declared dropped bin or the pseudoinverse. Include supplied theory covariance without turning an envelope into an undeclared Gaussian.",
+    "Give every finding a located record path and pointer, check ID or source locator and an evidence class. Computed supplied-record checks establish contract consistency; they do not authenticate inputs or grant physics certification.",
+    "Preserve missing inputs, conflicting sources and unresolved obligations. Request the cheapest discriminating test; never invent an efficiency, covariance, factor or uncertainty.",
+    "Any scientific execution must use the existing admitted method decision, approved plan and supervised launch guard. This card creates no direct native or remote launch path. Never accept your own work or widen approval."
+  ],
+  "purpose": "Assemble supplied measurement bundles with all bin, uncertainty and covariance source definitions retained.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": false,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-full"
+  },
+  "reviewed_by": [
+    "precision-theory-auditor",
+    "measurement-combination-reviewer"
+  ],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [],
+    "profile": "workspace"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 400,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 60,
+    "max_wall_seconds": 2700
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/",
+      "outputs/"
+    ],
+    "validators": [
+      "check:sm.covariance_assembled",
+      "check:sm.normalized_rule",
+      "check:sm.theory_cov_included"
+    ]
+  },
+  "version": "2.1.0"
+}

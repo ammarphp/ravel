@@ -27,7 +27,12 @@ def test_selected_analysis_package_loader_interface():
 def test_fixed_product_populations_and_source_bindings_are_gone(module,bindings):
     assert all(not hasattr(module,name) for name in bindings)
 
-def test_cumulant_package_ships_no_source_snapshot():
+def test_cumulant_package_ships_its_pinned_source_bundle_and_mapping():
+    """The engine holds no snapshot or table; the data directory carries the pinned bundle."""
+    import hashlib,json
     from pathlib import Path
     root=Path(cumulant.__file__).resolve().parents[1]/'data/native_cumulants'
-    assert {p.name for p in root.iterdir()}=={'README.md'}
+    mapping=json.loads((root/'mapping.json').read_text())
+    assert {p['path'] for p in mapping['sources']}<={p.name for p in root.iterdir()}
+    assert all(hashlib.sha256((root/p['path']).read_bytes()).hexdigest()==p['sha256'] for p in mapping['sources'])
+    assert {'README.md','mapping.json','source-map.json','LICENSE.Rivet.txt','LICENSE.YODA.txt'}<={p.name for p in root.iterdir()}

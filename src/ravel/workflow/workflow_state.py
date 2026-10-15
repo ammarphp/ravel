@@ -477,6 +477,8 @@ def approval_input_paths(rundir):
         paths.extend(operation_paths)
     from . import work_dispatch
     paths.extend(work_dispatch.approval_input_paths(rundir))
+    from . import site_tools
+    paths.extend(site_tools.approval_input_paths(rundir))
     from .method_selection import DECISION_PATH
     method = os.path.join(rundir, DECISION_PATH)
     if os.path.exists(method):

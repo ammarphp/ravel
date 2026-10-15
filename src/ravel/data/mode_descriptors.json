@@ -10,6 +10,32 @@
  },
  "threshold": 2,
  "modes": {
+  "manuscript-build": {
+   "summary": "Build a PDF manuscript or note from retained run results with pdflatex.",
+   "operations": [
+    "manuscript"
+   ],
+   "tools": [
+    "LaTeX",
+    "pdflatex",
+    "BibTeX"
+   ],
+   "inputs": [],
+   "observables": [],
+   "outputs": [
+    "manuscript",
+    "preprint",
+    "write-up",
+    "internal note",
+    "journal submission",
+    "re:\\b(?:write|draft|prepare|compose|typeset)\\b[^.;\\n]{0,60}\\b(?:paper|article|letter|note|draft|report)\\b",
+    "re:\\bPDF\\s+(?:output|document|file|version|manuscript)\\b|\\bas\\s+(?:a\\s+)?PDF\\b"
+   ],
+   "context": [],
+   "applicability": {
+    "scope": "general"
+   }
+  },
   "task-completion-context": {
    "summary": "Prepare whole-parent completion review evidence.",
    "operations": [],
@@ -1710,6 +1736,27 @@
     "scope": "general"
    }
   },
+  "checkmate-events": {
+   "summary": "CheckMATE signal-region tables from supplied HepMC2 events.",
+   "operations": [
+    "supplied_events"
+   ],
+   "tools": [
+    "CheckMATE"
+   ],
+   "inputs": [
+    "HepMC"
+   ],
+   "observables": [],
+   "outputs": [],
+   "context": [
+    "signal regions",
+    "recast"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
   "sfitter-native-fit": {
    "summary": "Native SFitter global fit.",
    "operations": [],
@@ -1862,6 +1909,37 @@
      ]
     ],
     "general_operation": null
+   }
+  },
+  "dataset-query-quantities": {
+   "summary": "Source-bound columnar adapter for its stored released-question population; not a general columnar analysis.",
+   "operations": [],
+   "tools": [
+    "ServiceX",
+    "coffea",
+    "func_adl",
+    "IRIS-HEP"
+   ],
+   "inputs": [
+    "DAOD",
+    "PHYSLITE"
+   ],
+   "observables": [
+    "columnar analysis"
+   ],
+   "outputs": [],
+   "context": [
+    "awkward"
+   ],
+   "applicability": {
+    "scope": "source-bound",
+    "bound_to": "its stored released-question identities and their observable counts",
+    "select_when": [
+     [
+      "re:(?<![\\w-])dataset-query-quantities(?![\\w-])"
+     ]
+    ],
+    "general_operation": "columnar-analysis"
    }
   },
   "contur-yoda": {

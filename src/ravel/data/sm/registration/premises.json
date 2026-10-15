@@ -1,0 +1,1905 @@
+{
+  "schema_version": 1,
+  "kind": "physics-premises-fragment",
+  "license": "Apache-2.0",
+  "premises": [
+    {
+      "id": "trap:TS1",
+      "title": "Measurement interpretation mechanism TS1",
+      "statement": "A normalized distribution covariance is singular along its normalization constraint; a full-rank inverse loses that constraint.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.normalized_rule.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS1"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts1"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS1",
+          "description": "Inspect the supplied records with check:sm.normalized_rule.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS2",
+      "title": "Measurement interpretation mechanism TS2",
+      "statement": "A prediction and data at different particle levels or fiducial definitions compare different quantities.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.frame_declared.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS2"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts2"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS2",
+          "description": "Inspect the supplied records with check:sm.frame_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS3",
+      "title": "Measurement interpretation mechanism TS3",
+      "statement": "Marginal errors alone omit supplied bin correlations and cannot replace their covariance.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.covariance_assembled.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS3"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts3"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS3",
+          "description": "Inspect the supplied records with check:sm.covariance_assembled.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS4",
+      "title": "Measurement interpretation mechanism TS4",
+      "statement": "Rescaling a lower-order shape to a different-order rate without a declaration hides the prediction convention.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.prediction_convention.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS4"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts4"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS4",
+          "description": "Inspect the supplied records with check:sm.prediction_convention.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS5",
+      "title": "Measurement interpretation mechanism TS5",
+      "statement": "A fixed-order prediction outside its supplied low-momentum validity domain need not describe the observable.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.validity_range.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS5"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts5"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS5",
+          "description": "Inspect the supplied records with check:sm.validity_range.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS6",
+      "title": "Measurement interpretation mechanism TS6",
+      "statement": "A routine reference and measurement bundle from different source revisions can disagree after a source correction.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.reference_version.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS6"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts6"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS6",
+          "description": "Inspect the supplied records with check:sm.reference_version.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS7",
+      "title": "Measurement interpretation mechanism TS7",
+      "statement": "A matrix-element strong coupling different from the selected PDF coupling is an inconsistent input prescription.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.alphas_consistent.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS7"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts7"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS7",
+          "description": "Inspect the supplied records with check:sm.alphas_consistent.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS8",
+      "title": "Measurement interpretation mechanism TS8",
+      "statement": "A scale envelope does not itself specify a Gaussian or a bin correlation model.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.prescription_declared.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS8"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts8"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS8",
+          "description": "Inspect the supplied records with check:sm.prescription_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS9",
+      "title": "Measurement interpretation mechanism TS9",
+      "statement": "Replica and Hessian member populations require different uncertainty formulas and declared confidence rescaling.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.pdf_error_type.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS9"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts9"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS9",
+          "description": "Inspect the supplied records with check:sm.pdf_error_type.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS10",
+      "title": "Measurement interpretation mechanism TS10",
+      "statement": "Applying a nonperturbative correction to inputs that already include it counts the correction twice.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.np_once.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS10"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts10"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS10",
+          "description": "Inspect the supplied records with check:sm.np_once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS11",
+      "title": "Measurement interpretation mechanism TS11",
+      "statement": "An electroweak correction combined with QCD without its additive and multiplicative comparison hides combination uncertainty.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.ew_combination.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS11"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts11"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS11",
+          "description": "Inspect the supplied records with check:sm.ew_combination.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS12",
+      "title": "Measurement interpretation mechanism TS12",
+      "statement": "A supplied prediction may omit required continuum, loop-induced or interference terms sharing its final state.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.amplitude_complete.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS12"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts12"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS12",
+          "description": "Inspect the supplied records with check:sm.amplitude_complete.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS13",
+      "title": "Measurement interpretation mechanism TS13",
+      "statement": "Impact assessed using data already fitted by the selected PDF set is circular.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.pdf_not_circular.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS13"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts13"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS13",
+          "description": "Inspect the supplied records with check:sm.pdf_not_circular.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS14",
+      "title": "Measurement interpretation mechanism TS14",
+      "statement": "Validation on observables used to select a tune is not held-out evidence.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.tune_heldout.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS14"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts14"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS14",
+          "description": "Inspect the supplied records with check:sm.tune_heldout.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "trap:TS15",
+      "title": "Measurement interpretation mechanism TS15",
+      "statement": "Combining measurements from a shared dataset or systematic source as independent double counts information.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.measurement_overlap.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "interpretation",
+        "path": "src/ravel/data/inference/interpretation_traps.json",
+        "id": "TS15"
+      },
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [
+        "conv:sm-trap-ts15"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:TS15",
+          "description": "Inspect the supplied records with check:sm.measurement_overlap.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "premise:sm-theory-review",
+      "title": "Independent theory-review",
+      "statement": "Require precision-theory-auditor in a fresh session distinct from the producer before the result is used.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Require the matching per-node specialist review point.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "stage",
+        "path": "src/ravel/data/sm/registration/spawn-rows.json",
+        "id": "sm-theory-review"
+      },
+      "tags": [
+        "precision-prediction"
+      ],
+      "conventions": [
+        "conv:sm-theory"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-theory-review",
+          "description": "Require precision-theory-auditor review.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "premise:sm-unfold-review",
+      "title": "Independent unfold-review",
+      "statement": "Require unfolding-reviewer in a fresh session distinct from the producer before the result is used.",
+      "predicate": {
+        "any": [
+          {
+            "operations_any": [
+              "unfold"
+            ]
+          }
+        ]
+      },
+      "operations": [
+        "unfold"
+      ],
+      "severity": "warning",
+      "check": "Require the matching per-node specialist review point.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "canonical": {
+        "kind": "stage",
+        "path": "src/ravel/data/sm/registration/spawn-rows.json",
+        "id": "sm-unfold-review"
+      },
+      "tags": [
+        "unfolding"
+      ],
+      "conventions": [
+        "conv:sm-unfolding"
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-unfold-review",
+          "description": "Require unfolding-reviewer review.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "conventions": [
+    {
+      "id": "conv:sm",
+      "title": "sm",
+      "statement": "Measurement comparisons require supplied particle level, fiducial scope, normalization, covariance, source revision and uncertainty prescriptions. Contract consistency does not certify scientific applicability.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-levels",
+      "title": "sm levels",
+      "statement": "Born, bare and photon-dressed lepton definitions differ. A dressed definition states its supplied photon radius; prompt-lepton and tau-feed-down rules and fiducial selections are part of the comparison frame.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-levels"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-levels",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-normalization",
+      "title": "sm normalization",
+      "statement": "Absolute, normalized and ratio quantities require different covariance accounting. A normalized distribution has a covariance null direction given by its bin-integration weights; declare the retained rank and either a dropped bin or a pseudoinverse.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-normalization"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-normalization",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-asymmetric",
+      "title": "sm asymmetric",
+      "statement": "Asymmetric marginal errors need an explicit average, maximum or central-shift symmetrization rule. Retain the shift and bin correlations instead of silently discarding them.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-asymmetric"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-asymmetric",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-theory",
+      "title": "sm theory",
+      "statement": "Scale envelopes require their complete member census and a separately declared bin correlation and probability model when used as covariance. Retain PDF member ErrorType, confidence rescaling and matching matrix-element and PDF strong coupling. Apply nonperturbative corrections once and compare additive and multiplicative electroweak combinations.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-theory"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-theory",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-scales",
+      "title": "sm scales",
+      "statement": "A seven-point scale prescription includes the central, common and single-scale half or double variations while excluding opposite half/double pairs. A nine-point prescription retains all pairs. An independent prescription states the actual member population and correlations.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-scales"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-scales",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-pdf",
+      "title": "sm pdf",
+      "statement": "Replica, symmetric Hessian and paired Hessian members use their respective uncertainty formulas. State source and target confidence levels and the rescaling model; retain combination prescription and matching strong-coupling variations. PDF impact requires a fitted-data overlap census, tolerance and effective replica accounting.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-pdf"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-pdf",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-ew",
+      "title": "sm ew",
+      "statement": "Declare the electroweak input scheme, additive or multiplicative QCD combination, photon-induced contribution, fixed or running width definition, pole conversion, mixing-angle definition, top mass scheme and quoted mass. Oblique fits require the scalar and top reference masses and scheme.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-ew"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-ew",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-nonperturbative",
+      "title": "sm nonperturbative",
+      "statement": "Hadronization and multiple-parton-interaction correction ratios require supplied numerator and denominator definitions and uncertainty scope. Record whether input tables already include them and apply each correction once.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-nonperturbative"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-nonperturbative",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-tuning",
+      "title": "sm tuning",
+      "statement": "A tune requires supplied observable weights, tolerance or eigentune definition and a disjoint held-out observable population. An over-weighted observable can bias the fit; fitted observables do not establish held-out validation.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-tuning"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-tuning",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-unfolding",
+      "title": "sm unfolding",
+      "statement": "Regularization, nominal prior and prior variations must be stated. Response closure, distinct stress tests and interval coverage answer different questions; a successful nominal closure does not establish robustness or coverage.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-unfolding"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-unfolding",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-combination",
+      "title": "sm combination",
+      "statement": "Measurement combinations must census common datasets, luminosity and systematic sources, declare cross-covariances and state linear-combination assumptions. Zero correlation for shared inputs requires a located justification.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction",
+              "unfolding",
+              "pdf-impact",
+              "tuning",
+              "ew-fit"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect and declare this convention in supplied records.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement",
+        "sm-combination"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:sm-combination",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts1",
+      "title": "Measurement interpretation mechanism TS1",
+      "statement": "A normalized distribution covariance is singular along its normalization constraint; a full-rank inverse loses that constraint.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.normalized_rule.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS1",
+          "description": "Inspect the supplied records with check:sm.normalized_rule.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts2",
+      "title": "Measurement interpretation mechanism TS2",
+      "statement": "A prediction and data at different particle levels or fiducial definitions compare different quantities.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.frame_declared.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS2",
+          "description": "Inspect the supplied records with check:sm.frame_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts3",
+      "title": "Measurement interpretation mechanism TS3",
+      "statement": "Marginal errors alone omit supplied bin correlations and cannot replace their covariance.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.covariance_assembled.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS3",
+          "description": "Inspect the supplied records with check:sm.covariance_assembled.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts4",
+      "title": "Measurement interpretation mechanism TS4",
+      "statement": "Rescaling a lower-order shape to a different-order rate without a declaration hides the prediction convention.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.prediction_convention.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS4",
+          "description": "Inspect the supplied records with check:sm.prediction_convention.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts5",
+      "title": "Measurement interpretation mechanism TS5",
+      "statement": "A fixed-order prediction outside its supplied low-momentum validity domain need not describe the observable.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.validity_range.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS5",
+          "description": "Inspect the supplied records with check:sm.validity_range.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts6",
+      "title": "Measurement interpretation mechanism TS6",
+      "statement": "A routine reference and measurement bundle from different source revisions can disagree after a source correction.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.reference_version.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS6",
+          "description": "Inspect the supplied records with check:sm.reference_version.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts7",
+      "title": "Measurement interpretation mechanism TS7",
+      "statement": "A matrix-element strong coupling different from the selected PDF coupling is an inconsistent input prescription.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.alphas_consistent.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS7",
+          "description": "Inspect the supplied records with check:sm.alphas_consistent.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts8",
+      "title": "Measurement interpretation mechanism TS8",
+      "statement": "A scale envelope does not itself specify a Gaussian or a bin correlation model.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.prescription_declared.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS8",
+          "description": "Inspect the supplied records with check:sm.prescription_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts9",
+      "title": "Measurement interpretation mechanism TS9",
+      "statement": "Replica and Hessian member populations require different uncertainty formulas and declared confidence rescaling.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.pdf_error_type.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS9",
+          "description": "Inspect the supplied records with check:sm.pdf_error_type.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts10",
+      "title": "Measurement interpretation mechanism TS10",
+      "statement": "Applying a nonperturbative correction to inputs that already include it counts the correction twice.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.np_once.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS10",
+          "description": "Inspect the supplied records with check:sm.np_once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts11",
+      "title": "Measurement interpretation mechanism TS11",
+      "statement": "An electroweak correction combined with QCD without its additive and multiplicative comparison hides combination uncertainty.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.ew_combination.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS11",
+          "description": "Inspect the supplied records with check:sm.ew_combination.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts12",
+      "title": "Measurement interpretation mechanism TS12",
+      "statement": "A supplied prediction may omit required continuum, loop-induced or interference terms sharing its final state.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.amplitude_complete.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS12",
+          "description": "Inspect the supplied records with check:sm.amplitude_complete.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts13",
+      "title": "Measurement interpretation mechanism TS13",
+      "statement": "Impact assessed using data already fitted by the selected PDF set is circular.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.pdf_not_circular.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS13",
+          "description": "Inspect the supplied records with check:sm.pdf_not_circular.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts14",
+      "title": "Measurement interpretation mechanism TS14",
+      "statement": "Validation on observables used to select a tune is not held-out evidence.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.tune_heldout.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS14",
+          "description": "Inspect the supplied records with check:sm.tune_heldout.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts15",
+      "title": "Measurement interpretation mechanism TS15",
+      "statement": "Combining measurements from a shared dataset or systematic source as independent double counts information.",
+      "predicate": {
+        "any": [
+          {
+            "tags_any": [
+              "measurement",
+              "precision-prediction"
+            ]
+          }
+        ]
+      },
+      "operations": [],
+      "severity": "warning",
+      "check": "Inspect the supplied records with check:sm.measurement_overlap.",
+      "citation": [
+        {
+          "title": "Authored measurement comparison conventions",
+          "locator": "src/ravel/data/sm/registration/premises.json, conventions",
+          "license": "Apache-2.0",
+          "verification": "authored_contract"
+        }
+      ],
+      "license": "Apache-2.0",
+      "tags": [
+        "measurement"
+      ],
+      "conventions": [],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS15",
+          "description": "Inspect the supplied records with check:sm.measurement_overlap.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "handoff": "Merge premise and convention rows through the knowledge registration owner. Source-inspection obligations retain null arithmetic-check fields because physics_knowledge has a closed arithmetic vocabulary; actual sm.* checks register separately. The exact S4 staffing predicate is implemented in derive_review_points, not inferred from free text."
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "analysis-package",
+  "package_id": "DirectStau2018Calibrated",
+  "package_version": "1.0",
+  "analysis_ids": [
+    "DirectStau2018Calibrated",
+    "ATLAS-SUSY-2018-04",
+    "ins1765529"
+  ],
+  "compatibility": {
+    "models": [
+      "supplied-calibrated-events"
+    ],
+    "preparations": [
+      "supplied-events"
+    ],
+    "detectors": [
+      "calibrated-post-overlap-removal"
+    ],
+    "statistics": [
+      "yields"
+    ]
+  },
+  "routine": {
+    "path": "selection.py.txt",
+    "sha256": "41384a508f03a5d2ed43203083eec299636d5c54f15accd0a8e72076702e12a3",
+    "kind": "calibrated",
+    "regions": [
+      "QCR1cut_cuts",
+      "QCR2cut_cuts",
+      "SR1cut_cuts",
+      "SR2cut_cuts",
+      "WCRcut_cuts"
+    ],
+    "flavour_flags": [],
+    "accepts_parameters": false,
+    "helper_outputs": [],
+    "arguments": []
+  },
+  "qualification": {
+    "status": "pending",
+    "evidence": []
+  }
+}

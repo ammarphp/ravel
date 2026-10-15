@@ -105,6 +105,7 @@ def compile_task(task, base):
     if descriptor.origin.get('kind') == 'file':
         files.append(Path(descriptor.origin['path']))
     files += [Path(m.provenance['path']) for m in plan.maps.values()]
+    files += [path for obs in plan.observables if obs.model is not None for path in obs.model.input_files]
     if normalization_path is not None:
         files.append(normalization_path)
     xs = normalization.get('cross_section_pb') if isinstance(normalization, dict) else None
@@ -172,6 +173,7 @@ def run(task, base, destination):
     chunk = task.get('chunk_size', 100_000)
     if plan.dataset is not None:
         from .yield_hub import member_path, dataset_normalization
+        from .root_stream_core import sample_identity
         samples = []
         for index, sample in enumerate(plan.dataset['samples']):
             paths = [member_path(m) for m in sample['members']]
@@ -180,7 +182,7 @@ def run(task, base, destination):
                          'chunk_size': chunk}, plan) for i, (path, member) in enumerate(zip(paths, sample['members']))]
             summary = engine.finalize(engine.merge(partials), plan, dataset_normalization(sample),
                                       out_dir=Path(destination) / OUTPUT / f'sample-{index}', input_files=paths, base=base)
-            samples.append({'sample': sample['id'], 'dsid': sample['dsid'], 'normalization': summary['normalization'],
+            samples.append({'sample': sample['id'], **sample_identity(sample), 'normalization': summary['normalization'],
                             'histograms': summary['histograms'], 'events': summary['events'],
                             'check_results': summary['check_results'],
                             'files': [{**f, 'path': f'{OUTPUT}/sample-{index}/{f["path"]}'} for f in summary['files']]})

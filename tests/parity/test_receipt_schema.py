@@ -87,13 +87,19 @@ def put(run, ws, rel, text):
     assert reply['status'] == 'ok', reply
 
 
-def receipt_via_finish(root, document, *, execution=None, final=FINAL, tag=''):
+def receipt_via_finish(root, document, *, execution=None, final=FINAL, tag='', launched=False):
     run = root / ('run-' + document['id'] + tag)
     run.mkdir()
     s = spec('parity.' + document['id'].replace('.', '-'))
     ws = worker.materialize(run, s)
     put(run, ws, 'outputs/result.txt', 'stub output')
-    return run, s, worker.finish(run, s, final=final, execution=execution or execution_for(document))
+    execution = execution or execution_for(document)
+    if launched:
+        # A transport label is only ever written for a worker the dispatcher launched: the stub
+        # adapter's execution record then follows the dispatcher's own launch reservation.
+        from worker_supervision import descriptor, reserved
+        reserved(run, s, {**descriptor(), 'transport': execution['transport'], 'model': execution['model']})
+    return run, s, worker.finish(run, s, final=final, execution=execution)
 
 
 def receipt_via_host_adapter(root, document):
@@ -155,12 +161,15 @@ def test_attestation_reflects_the_transport_not_the_stub(env):
     labels = {}
     for kind, document in representatives().items():
         receipt = receipt_via_host_adapter(env, document) if kind == 'host-subagent' else \
-            receipt_via_finish(env, document)[2]
+            receipt_via_finish(env, document, launched=True)[2]
         labels[kind] = receipt['attestation']
     assert labels['external-relay'] == 'self_attested'       # a relay is never better than self-attested
     assert labels['host-subagent'] == 'host_attested'        # RAVEL observed no process
     assert labels['ravel-loop'] == labels['http-model'] == 'transport_attested'
     assert labels['cli-oneshot'] in ('host_attested', 'transport_attested')
+    # The same execution record with no launch on record is the host's own word: never transport-attested.
+    document = representatives()['http-model']
+    assert receipt_via_finish(env, document, tag='-unlaunched')[2]['attestation'] == 'host_attested'
 
 
 def test_a_schema_difference_is_detected():

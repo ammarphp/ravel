@@ -1,0 +1,6 @@
+# Required isolated likelihood environment.
+numpy==2.2.6
+scipy==1.15.3
+lxml==5.4.0
+setuptools==80.9.0
+wheel==0.45.1

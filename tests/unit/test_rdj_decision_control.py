@@ -10,7 +10,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
-from rdj_fixtures import (PROPOSER, Roles, Run, add, authorize_tuning_case, challenge, critic, critic_once, escalate,
+from rdj_fixtures import (PROPOSER, assigned, Roles, Run, add, authorize_tuning_case, challenge, critic, critic_once, escalate,
                           node, prepare_case, record_decision, said, two_level_r2, verifier)
 
 TEST_REQUEST = {"kind": "experiment", "description": "Rerun the scan on a coarser grid and compare the yields"}
@@ -337,7 +337,11 @@ def test_resolve_worker_receipt_with_cli_mode_not_rejected(tmp_path):
                                mode="transport_attested_cli", verified_label="transport_attested")
     case_id = full_r2(run, roles=Roles(critic=cli))
     critic_ = run.case(case_id)["critique"]["reviewer"]
-    assert critic_["actor_id"] == "critic" and critic_["attestation"] == "transport_attested"
+    # The identity is the actor the dispatcher assigned and registered, never a name the receipt states.
+    node_id = next(p.parent.parent.name for p in (run.root / "agent-work").glob("*/1/receipt.json")
+                   if json.loads(p.read_text())["actor_id"] == critic_["actor_id"])
+    assert critic_["actor_id"] == assigned("critic", node_id)["actor_id"]
+    assert critic_["attestation"] == "transport_attested"
 
 
 def test_attestation_field_on_receipt_not_trusted(tmp_path):

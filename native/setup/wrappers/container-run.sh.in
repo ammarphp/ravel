@@ -4,6 +4,9 @@
 # The working directory is mounted at /work and the shared LHAPDF data read-only.
 # The container has no network. Arguments are passed through unchanged.
 set -euo pipefail
+export APPTAINER_CACHEDIR="@PREFIX@/cache/apptainer"
+export APPTAINER_TMPDIR="@PREFIX@/tmp/apptainer"
+mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
 ENGINE="${RAVEL_CONTAINER_ENGINE:-@ENGINE@}"
 IMAGE="@IMAGE@"
 WORK="$(pwd -P)"

@@ -365,6 +365,26 @@
     "torch_geometric": {
       "environment": "optional",
       "provider": "PyTorch Geometric, an optional graph backend absent from the pinned host and isolated requirements; the adapter refuses when it cannot import it"
+    },
+    "pyarrow": {
+      "environment": "optional",
+      "provider": "pyarrow, the optional Parquet runtime of columnar skims (a site's LCG view provides it); absent from the pinned host requirements, so a Parquet skim fails before reading when it cannot import it"
+    },
+    "Higgs": {
+      "environment": "native",
+      "provider": "HiggsTools Python bindings in the separate interpreter of toolchain group higgstools; only its worker imports them"
+    },
+    "lilith": {
+      "environment": "native",
+      "provider": "Lilith in the separate interpreter of toolchain group lilith; only its worker imports it"
+    },
+    "pymultinest": {
+      "environment": "native",
+      "provider": "PyMultiNest in the easyscan environment of toolchain group samplers; only its worker imports it"
+    },
+    "pip": {
+      "environment": "site",
+      "provider": "pip's vendored packaging in the Linux site bootstrap interpreter, read only when packaging is absent"
     }
   },
   "isolated_required": [

@@ -1,14 +1,15 @@
-"""Build the local analysis catalogue from the user's own upstream routine sources.
+"""Build the analysis catalogue from upstream routine sources.
 
-RAVEL ships no list of upstream analyses. This module inventories pinned Git objects of a Rivet
-checkout and/or a SimpleAnalysis checkout that the user has cloned or installed (it imports,
-compiles and certifies nothing) and writes the catalogue to the user's cache, where
-`ravel analyses ...` reads it:
+This module inventories pinned Git objects of a Rivet checkout and/or a SimpleAnalysis checkout
+(it imports, compiles and certifies nothing). The package's shipped snapshot
+(`data/analysis-catalog.json`) is its output for the pinned public revisions; the installer's
+catalogue group and a user's own checkouts rebuild one, which `ravel analyses ...` then prefers:
 
     ravel catalogue --rivet <rivet checkout> [--simpleanalysis <checkout>] [--models <index.json>]
 
-The output defaults to `ravel.analysis_catalog.catalog_path()` (RAVEL_ANALYSIS_CATALOG or the user
-cache directory). PyYAML is needed for Rivet metadata only.
+The output defaults to `ravel.analysis_catalog.user_catalog_path()` (RAVEL_ANALYSIS_CATALOG or the
+user cache directory). The probability-model index defaults to the one the package ships
+(`--no-models` omits it). PyYAML is needed for Rivet metadata only.
 """
 from __future__ import annotations
 import argparse
@@ -20,9 +21,11 @@ import re
 import subprocess
 import sys
 
-from ..analysis_catalog import SCHEMA_VERSION, catalog_path, classify, summarize, validate_catalog
+from ..analysis_catalog import (SCHEMA_VERSION, classify, packaged_model_index_path, summarize,
+                                user_catalog_path, validate_catalog)
 
-LHC_DIRS = {'pluginATLAS', 'pluginCMS', 'pluginALICE', 'pluginLHCb', 'pluginLHCf', 'pluginTOTEM'}
+PUBLIC_MODEL_INDEX_URL = 'https://pyhf.github.io/public-probability-models/atlas.json'
+
 FIELDS = ('Name', 'Year', 'Summary', 'Experiment', 'Collider', 'InspireID', 'Status',
           'References', 'Keywords', 'Beams', 'Energies', 'Options', 'Reentrant',
           'NeedCrossSection', 'RefMatch', 'RefUnmatch', 'ReleaseTests')
@@ -143,10 +146,11 @@ def rivet_rows(root, revision):
     for n in sorted(x for x in names if x.endswith('.info')):
         meta, issues = metadata(raw[n]); name = Path(n).stem
         if meta.get('Name', name) != name: issues.append('metadata Name differs from file identity')
-        is_lhc = (Path(n).parent.name in LHC_DIRS or
-                  re.search(r'\bLHC\b', str(meta.get('Collider',''))) or name.startswith(('FASER_', 'SNDLHC_')))
-        if name.startswith('MC_'): is_lhc = False
-        if not is_lhc: ignored.append(n); continue
+        # Catalog every declared physics routine, independent of collider type.
+        # Generic Monte-Carlo validation helpers are not routines with a physics
+        # measurement contract and remain explicitly excluded.
+        is_routine = not name.startswith('MC_')
+        if not is_routine: ignored.append(n); continue
         direct = str(Path(n).with_suffix('.cc'))
         sources = [direct] if direct in inv else aliases.get(name, [])
         if not sources: issues.append('no direct or declared alias source identified')
@@ -181,11 +185,11 @@ def rivet_rows(root, revision):
                  'physics_validated_by_ravel':False}
         entry.update(classify(entry)); rows.append(entry)
     covered = {f['path'] for row in rows for f in row['source_files']}
-    orphan = [n for n in source_names if Path(n).parent.name in LHC_DIRS and n not in covered]
+    orphan = [n for n in source_names if not Path(n).stem.startswith('MC_') and n not in covered]
     return rows, {'repository':'https://gitlab.com/hepcedar/rivet','revision':commit,'requested_ref':revision,
                   'all_info_files':sum(n.endswith('.info') for n in names), 'selected_info_files':len(rows),
                   'excluded_non_lhc_metadata':len(ignored), 'unmatched_lhc_source_files':orphan,
-                  'method':'LHC experiment plugin directories plus Collider=LHC metadata and FASER/SNDLHC names; SND at VEPP and generic MC validation routines are excluded.'}
+                  'method':'All upstream physics-routine metadata is selected regardless of collider; generic MC validation routines are excluded.'}
 
 
 def sa_rows(root, revision):
@@ -219,7 +223,8 @@ def sa_rows(root, revision):
                   'method':'All literal DefineAnalysis registrations in SimpleAnalysisCodes/src/*.cxx; distinct variants retained.'}
 
 
-def build(rivet_root=None, sa_root=None, models_path=None, retrieved=None, rivet_ref='HEAD', sa_ref='HEAD'):
+def build(rivet_root=None, sa_root=None, models_path=None, retrieved=None, rivet_ref='HEAD', sa_ref='HEAD',
+          models_url=None):
     """The catalogue for the supplied checkouts; at least one source is required."""
     if rivet_root is None and sa_root is None:
         raise ValueError('supply a Rivet checkout, a SimpleAnalysis checkout or both')
@@ -240,8 +245,8 @@ def build(rivet_root=None, sa_root=None, models_path=None, retrieved=None, rivet
                     row['model_index_matches'].append({'analysis_ids': ids, 'publication_url': model['link'],
                         'hepdata_url': model['hepdata'].rstrip('?'), 'match_basis': 'exact analysis or INSPIRE identity',
                         'status': 'listed-only; workspace bytes and schema not checked'})
-        sources['probability-models'] = {'path': Path(models_path).name, 'sha256': hashlib.sha256(model_bytes).hexdigest(),
-                                         'entries': len(models)}
+        sources['probability-models'] = {'url': models_url} if models_url else {'path': Path(models_path).name}
+        sources['probability-models'].update(sha256=hashlib.sha256(model_bytes).hexdigest(), entries=len(models))
     result = {'schema_version': SCHEMA_VERSION, 'retrieved_at_utc': retrieved,
               'scope': 'Routine metadata of the supplied upstream checkouts at their pinned revisions; '
                        'not every published analysis or private implementation.',
@@ -255,15 +260,24 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog='ravel catalogue', description=__doc__.split('\n\n')[0])
     ap.add_argument('--rivet', type=Path, help='a Git checkout of Rivet')
     ap.add_argument('--simpleanalysis', type=Path, help='a Git checkout of SimpleAnalysis')
-    ap.add_argument('--models', type=Path, help='an optional public probability-model index (JSON array)')
+    ap.add_argument('--models', type=Path, help='a public probability-model index (JSON array); default: the '
+                    'index the package ships')
+    ap.add_argument('--no-models', action='store_true', help='build without a probability-model index')
+    ap.add_argument('--models-url', help='where --models was retrieved, recorded as its provenance')
     ap.add_argument('--rivet-ref', default='HEAD'); ap.add_argument('--simpleanalysis-ref', default='HEAD')
     ap.add_argument('--retrieved-at', help='date recorded in the catalogue (default: today, UTC)')
     ap.add_argument('--out', type=Path, help='output path (default: the user catalogue path)')
     ap.add_argument('--force', action='store_true', help='replace an existing catalogue')
     args = ap.parse_args(argv)
-    result = build(args.rivet, args.simpleanalysis, args.models, args.retrieved_at, args.rivet_ref,
-                   args.simpleanalysis_ref)
-    out = args.out or catalog_path()
+    models, url = args.models, args.models_url
+    if models is None and not args.no_models:
+        models = packaged_model_index_path()
+        url = url or (PUBLIC_MODEL_INDEX_URL if models else None)
+    elif args.no_models:
+        models = None
+    result = build(args.rivet, args.simpleanalysis, models, args.retrieved_at, args.rivet_ref,
+                   args.simpleanalysis_ref, models_url=url)
+    out = args.out or user_catalog_path()
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open('w' if args.force else 'x', encoding='utf-8') as handle:
         json.dump(result, handle, indent=2, ensure_ascii=False, allow_nan=False); handle.write('\n')

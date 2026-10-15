@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "package": "higgs-couplings",
+  "operation_signatures": {
+    "higgs-coupling-fit": {
+      "summary": "Correlated reduced-rate coupling fits with declared asymmetric treatments and profiled intervals.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "higgs-coupling-fit",
+        "module": "ravel.physics.higgs_couplings"
+      },
+      "consumes": [
+        {
+          "slot": "measurements",
+          "kind": "document"
+        },
+        {
+          "slot": "parameterization",
+          "kind": "document"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "fit",
+          "kind": "inference"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "task",
+        "forecast": null,
+        "ceiling_pointer": null
+      },
+      "critical_fields": [
+        "/task/input",
+        "/task/output"
+      ],
+      "basis": {
+        "adds": [
+          {
+            "element": "constructed_statistical_model",
+            "origin": "designed"
+          }
+        ],
+        "passes": [
+          "measurements",
+          "parameterization"
+        ]
+      },
+      "tools": [
+        "iminuit",
+        "numpy",
+        "scipy"
+      ],
+      "stages": [
+        "statistic"
+      ],
+      "review": {
+        "checks": [
+          "check:higgs.measurement_bundle",
+          "check:higgs.prediction_convention",
+          "check:higgs.boundary_parameters",
+          "check:higgs.parameterization_closure"
+        ]
+      },
+      "fidelity_rank": 1
+    }
+  },
+  "mode_descriptors": {
+    "higgs-coupling-fit": {
+      "summary": "Correlated reduced-rate coupling fits with declared asymmetric treatments and profiled intervals.",
+      "operations": [
+        "higgs_coupling_fit"
+      ],
+      "tools": [
+        "iminuit",
+        "numpy",
+        "scipy"
+      ],
+      "inputs": [
+        "supplied measurements",
+        "declared parameters",
+        "reference conventions"
+      ],
+      "observables": [
+        "signal strength",
+        "coupling modifier",
+        "Higgs rate"
+      ],
+      "outputs": [
+        "best fit",
+        "profile interval",
+        "delta chi-square scan",
+        "SM p-value"
+      ],
+      "context": [
+        "kappa framework",
+        "HEFT",
+        "correlation"
+      ],
+      "applicability": {
+        "scope": "general"
+      },
+      "input_contract": "src/ravel/data/higgs/schemas/measurement-bundle.json"
+    }
+  },
+  "manifest": {
+    "operations": [
+      {
+        "mode": "higgs-coupling-fit",
+        "groups": [
+          "python-host"
+        ]
+      }
+    ]
+  },
+  "adapter": {
+    "module": "ravel.physics.higgs_couplings",
+    "validate": "validate",
+    "inputs": "inputs",
+    "run": "run"
+  },
+  "provided_checks": {
+    "check:higgs.measurement_bundle": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_measurement_bundle"
+    },
+    "check:higgs.prediction_convention": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_prediction_convention"
+    },
+    "check:higgs.boundary_parameters": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_boundary_parameters"
+    },
+    "check:higgs.parameterization_closure": {
+      "module": "ravel.validation.higgs_bundle_checks",
+      "function": "check_parameterization_closure"
+    }
+  },
+  "workflow": {
+    "entry": "Use the existing science plan, admission and supervised worker; this fragment does not add a launch path.",
+    "task_fields": [
+      "schema_version",
+      "input",
+      "output"
+    ],
+    "output": "Supply {filename: a safe basename, format: json or json-compact}.",
+    "inputs": "Reference local regular files; input discovery pins every referenced bundle and correlation table.",
+    "closure": "Supply independent held-out rate values, uncertainties and tolerance; runtime closure uses the shared polynomial comparator.",
+    "scope": "Conditional on supplied rate mappings and correlations; physics validity and global optimizer qualification remain independent.",
+    "treatments": [
+      "symmetric-gaussian",
+      "variable-width-gaussian",
+      "log-normal"
+    ],
+    "scans": "Supply one or two free parameter names and their explicit axes. Nuisances are profiled with iminuit; thresholds use the selected coordinate count.",
+    "intervals": "68 denotes 68.268949 percent (delta chi-square one for one parameter); 95 denotes 95 percent. Both are profile intervals."
+  },
+  "handoffs": {
+    "shared_registration": "Compose operation signatures, mode descriptors and manifest rows; bind the adapter through the existing science adapter resolver and named checks through the review check resolver.",
+    "workflow_embedding": "Embed task fields and supported treatments in the supplied-data workflow at registry composition; preserve scientific admission and regenerate the instruction bundle there.",
+    "reference_tables": "reference_branching_fractions(table, decay_rows, mass_gev=...) accepts supplied exact reference row identities. Version-two coefficient ingestion remains with the reference table producer.",
+    "fit_consumers": "fit(measurements, parameterization, treatment=..., scans=..., predictor=...) exposes the in-process prediction seam. The callable returns a finite vector in measurement row order; callers qualify their own prediction closure.",
+    "directory": "Map the new physics modules and validation module as software, schemas/fragments as data and synthetic fixtures/tests as software/data at composition."
+  },
+  "reserved_modes": {
+    "mass-combination": "refused by this adapter; a separate mass adapter owns the mode"
+  }
+}

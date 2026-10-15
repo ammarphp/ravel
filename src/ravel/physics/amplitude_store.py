@@ -82,13 +82,20 @@ def validate_header(header):
     ab.text(header.get('factor_unit'), 'factor_unit')
     audit = header.get('audit_points', 0)
     ab.require(type(audit) is int and audit >= 0, 'audit_points must be a non-negative integer')
+    pairing = header.get('pairing')
+    if pairing is not None:
+        ab.require(type(pairing) is dict and set(pairing) == {'exchange'}
+                   and type(pairing['exchange']) is list and pairing['exchange']
+                   and all(type(v) is bool for v in pairing['exchange']), 'pairing needs literal exchange flags')
     return {'k': len(basis), 'observables': len(observables),
             'momenta': 0 if particles is None else 4 * len(particles['pdg']),
-            'particles': 0 if particles is None else len(particles['pdg']), 'audit': audit}
+            'particles': 0 if particles is None else len(particles['pdg']), 'audit': audit,
+            'helicities': 0 if pairing is None else len(pairing['exchange'])}
 
 
 def _layout(shape):
-    return 1 + shape['observables'] + shape['momenta'] + shape['k'] ** 2
+    extra = 0 if not shape['helicities'] else 3 + 4 * shape['helicities'] * shape['k']
+    return 1 + shape['observables'] + shape['momenta'] + shape['k'] ** 2 + extra
 
 
 class BlockWriter:
@@ -118,7 +125,7 @@ class BlockWriter:
                 raise ValueError(f'block {self.path} was neither finished nor abandoned')
         return False
 
-    def append(self, *, gram, factor, observables=None, momenta=None, amplitudes=None):
+    def append(self, *, gram, factor, observables=None, momenta=None, amplitudes=None, pairing=None):
         ab.require(self.state == 'open', 'block writer is closed')
         gram = np.asarray(gram, dtype=complex)
         n = gram.shape[0] if gram.ndim == 3 else -1
@@ -139,6 +146,19 @@ class BlockWriter:
         ab.require(np.allclose(gram, ab.unpack(packed, k), rtol=1e-12, atol=1e-300 + 1e-12 * np.abs(gram).max(initial=0)),
                    'gram matrices must be Hermitian')
         rows = np.concatenate([factor[:, None], obs, mom, packed], axis=1)
+        if self.shape['helicities']:
+            ab.require(type(pairing) is dict and set(pairing) == {'amplitudes', 'identical', 'selected_direct', 'normalization'},
+                       'complete retained pairing payload required')
+            a = np.asarray(pairing['amplitudes'], complex)
+            ab.require(a.shape == (n, 2, self.shape['helicities'], k), 'retained pairing dimensions differ')
+            flags = [np.asarray(pairing[key]) for key in ('identical', 'selected_direct')]
+            norm = np.asarray(pairing['normalization'], float)
+            ab.require(all(f.shape == (n,) and f.dtype == bool for f in flags) and norm.shape == (n,),
+                       'pairing flags and normalization need one value per point')
+            flat = a.reshape(n, 2 * self.shape['helicities'] * k)
+            rows = np.column_stack([rows, *flags, norm, flat.real, flat.imag])
+        else:
+            ab.require(pairing is None, 'declare pairing in the header before retaining amplitudes')
         ab.require(np.isfinite(rows).all(), 'stored values must be finite')
         if self.shape['audit'] and self.points < self.shape['audit'] and amplitudes is not None:
             take = min(n, self.shape['audit'] - self.points)
@@ -210,9 +230,16 @@ def _split(rows, shape):
     n = rows.shape[0]
     o, m, k = shape['observables'], shape['momenta'], shape['k']
     out = {'factor': rows[:, 0].copy(), 'observables': rows[:, 1:1 + o].copy(),
-           'gram': ab.unpack(rows[:, 1 + o + m:], k)}
+           'gram': ab.unpack(rows[:, 1 + o + m:1 + o + m + k*k], k)}
     if m:
         out['momenta'] = rows[:, 1 + o:1 + o + m].reshape(n, shape['particles'], 4).copy()
+    if shape['helicities']:
+        extra = rows[:, 1 + o + m + k*k:]
+        ab.require(np.isin(extra[:, :2], [0., 1.]).all(), 'invalid retained pairing flags')
+        size = 2 * shape['helicities'] * k
+        out['pairing'] = {'identical': extra[:, 0].astype(bool), 'selected_direct': extra[:, 1].astype(bool),
+                          'normalization': extra[:, 2].copy(),
+                          'amplitudes': (extra[:, 3:3+size] + 1j * extra[:, 3+size:]).reshape(n, 2, shape['helicities'], k)}
     return out
 
 

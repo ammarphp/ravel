@@ -1,10 +1,9 @@
 # Supplied width-input source packages
 
-Use `width-inputs` to materialize a request-selected, pinned source package. The
-package supplies the study identity, table files, extraction metadata and source
-population. The request supplies the mass/width grid, point attachments and output
-representations. The product carries no released table population or extraction
-mapping.
+Use `width-inputs` to materialize a request-selected, pinned source package, or a
+packaged published-table descriptor. The package or descriptor supplies the study
+identity, table files, extraction metadata and source population. The request
+supplies the mass/width grid, point attachments and output representations.
 
 Submit an ordinary version-2 science specification with mode `width-inputs`,
 `goal_binding`, an independent review policy, and task `{input, input_sha256}`:
@@ -57,13 +56,30 @@ supplies the downstream result and report representations. The returned
 specification goes through ordinary `ravel plan`; preparation never authorizes
 its generation or fit descendants.
 
-For a legacy release, create an external package containing its exact original
-pins, ordered headers/qualifiers, region identities, quantity units,
-normalization applicability, discrepancies and missing scientific inputs. Select
-it explicitly, supply the grid and output contract, then compare the old and new
-synthetic reference bytes and normalized construction. No release package ships
-as a default. Missing package, grid or output fields raise `MissingInputError`
-with reason `missing-input` and a field identifier.
+### Packaged published-table descriptors
+
+`source_package` may instead be `{"descriptor", "directory", "analysis"}`.
+`descriptor` names a packaged descriptor (`ravel.physics.width_inputs.descriptor_names()`)
+or is an inline descriptor of the same closed shape. A descriptor is a package without
+paths: `files` (published file name to sha256), `submission`, `tables`, `reference_metadata`,
+`analysis`, `analysis_inputs` and `expect`. `directory` holds the files under their
+published names; every digest comes from the descriptor, so a changed byte refuses. The
+request's `analysis` supplies what the tables cannot, namely `pdg` and `generation`
+(and optional `references` pins). `expect` pins record facts beyond the digests (each
+table's DOI, the region window population, the limit mass population); a mismatch refuses.
+In a table mapping, a qualifier `value` written as a plain number matches the source
+qualifier by numeric value rather than by its literal text.
+
+One descriptor ships: the four regional distributions and the coupling and
+cross-section-times-branching-times-acceptance limit tables of the published ATLAS
+dijet-plus-photon search (HEPData release, version 1; see the descriptor's `source`), with the exact digests,
+ordered headers, region identities, units, applicability and source discrepancies the
+earlier source-specific producer carried. The downloaded files are not shipped.
+
+For another release, write a descriptor (or an external package) with its exact pins,
+ordered headers/qualifiers, region identities, quantity units, normalization
+applicability, discrepancies and missing scientific inputs. Missing package, grid or
+output fields raise `MissingInputError` with reason `missing-input` and a field identifier.
 
 Published postfit curves remain references. Never round them into integer
 observations or turn marginal bands into joint covariance or auxiliary sampling

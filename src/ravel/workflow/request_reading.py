@@ -419,7 +419,10 @@ def signal_yield_request(text):
 
 _RECO_SAMPLES = re.compile(r"\bPHYSLITE\b|\bDAOD\w*\b|\bNanoAOD\b|\bMiniAOD\b|\bn-?tuples?\b|"
                            r"\breconstructed\s+(?:\w+\s+){0,2}(?:samples?|events?|data)\b|"
-                           r"\b(?:supplied|provided|given|attached|our|my)\s+(?:\w+\s+){0,3}?(?:MC|Monte\s+Carlo|samples?|data\s*sets?|ROOT\s+files?)\b|"
+                           r"\b(?:supplied|provided|given|attached|our|my)\s+(?:\w+\s+){0,5}?(?:MC|Monte\s+Carlo|samples?|data\s*sets?|ROOT\s+files?)\b|"
+                           # The supplier may follow the noun: "the samples we supply", "the samples provided".
+                           r"\b(?:samples?|data\s*sets?)\s+(?:that\s+)?(?:(?:we|I)\s+(?:have\s+)?(?:suppl(?:y|ied)|provided?|attach(?:ed)?)|"
+                           r"(?:supplied|provided|attached)\b(?!\s+by\s+the\s+(?:paper|publication|collaboration)))|"
                            r"\bROOT\s+files?\b", re.I)
 _NEW_SEARCH = re.compile(r"\b(?:design|develop|perform|carry\s+out|conduct|build|optimi[sz]e|construct|set\s+up|run)\b"
                          r"[^.;\n]{0,80}?\b(?:new\s+|dedicated\s+|blinded\s+|blind\s+)?(?:search|analysis)\b", re.I)

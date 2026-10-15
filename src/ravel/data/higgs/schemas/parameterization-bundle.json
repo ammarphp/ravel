@@ -1,0 +1,773 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "higgs-parameterization-bundle"
+    },
+    "framework": {
+      "enum": [
+        "kappa",
+        "heft-lo"
+      ]
+    },
+    "mass_gev": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "convention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pdf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branching_program": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "order",
+        "pdf",
+        "branching_program"
+      ]
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "initial": {
+            "type": "number"
+          },
+          "sm": {
+            "type": "number"
+          },
+          "fixed": {
+            "type": "boolean"
+          },
+          "bounds": {
+            "type": "array",
+            "items": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "required": [
+          "initial",
+          "sm",
+          "fixed",
+          "bounds"
+        ]
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "production": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "parameter": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "parameter"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loop": {
+                "enum": [
+                  "g",
+                  "gamma",
+                  "Zgamma"
+                ]
+              }
+            },
+            "required": [
+              "loop"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constant": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "constant"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "polynomial": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "terms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "coefficient": {
+                          "type": "number"
+                        },
+                        "powers": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "minProperties": 0,
+                          "propertyNames": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "required": [
+                        "coefficient",
+                        "powers"
+                      ]
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "terms"
+                ]
+              }
+            },
+            "required": [
+              "polynomial"
+            ]
+          }
+        ]
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "decays": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "parameter": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "parameter"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loop": {
+                "enum": [
+                  "g",
+                  "gamma",
+                  "Zgamma"
+                ]
+              }
+            },
+            "required": [
+              "loop"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constant": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "constant"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "polynomial": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "terms": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "coefficient": {
+                          "type": "number"
+                        },
+                        "powers": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "minProperties": 0,
+                          "propertyNames": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "required": [
+                        "coefficient",
+                        "powers"
+                      ]
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "terms"
+                ]
+              }
+            },
+            "required": [
+              "polynomial"
+            ]
+          }
+        ]
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "branching_fractions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "rates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "production": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decay": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unit": {
+            "enum": [
+              "1",
+              "pb",
+              "fb",
+              "ab"
+            ]
+          },
+          "sm_value": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "mass_gev": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "convention": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "order": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pdf": {
+                "type": "string",
+                "minLength": 1
+              },
+              "branching_program": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "order",
+              "pdf",
+              "branching_program"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "production",
+          "decay",
+          "unit",
+          "sm_value"
+        ]
+      },
+      "minItems": 1
+    },
+    "loops": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "g": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "resolved"
+                },
+                "polynomial": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "terms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "coefficient": {
+                            "type": "number"
+                          },
+                          "powers": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "minProperties": 0,
+                            "propertyNames": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "coefficient",
+                          "powers"
+                        ]
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "terms"
+                  ]
+                }
+              },
+              "required": [
+                "mode",
+                "polynomial"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "effective"
+                },
+                "parameter": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "mode",
+                "parameter"
+              ]
+            }
+          ]
+        },
+        "gamma": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "resolved"
+                },
+                "polynomial": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "terms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "coefficient": {
+                            "type": "number"
+                          },
+                          "powers": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "minProperties": 0,
+                            "propertyNames": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "coefficient",
+                          "powers"
+                        ]
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "terms"
+                  ]
+                }
+              },
+              "required": [
+                "mode",
+                "polynomial"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "effective"
+                },
+                "parameter": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "mode",
+                "parameter"
+              ]
+            }
+          ]
+        },
+        "Zgamma": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "resolved"
+                },
+                "polynomial": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "terms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "coefficient": {
+                            "type": "number"
+                          },
+                          "powers": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "minProperties": 0,
+                            "propertyNames": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "coefficient",
+                          "powers"
+                        ]
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "terms"
+                  ]
+                }
+              },
+              "required": [
+                "mode",
+                "polynomial"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "mode": {
+                  "const": "effective"
+                },
+                "parameter": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "mode",
+                "parameter"
+              ]
+            }
+          ]
+        }
+      },
+      "required": []
+    },
+    "bsm_parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "combined": {
+          "type": "string",
+          "minLength": 1
+        },
+        "invisible": {
+          "type": "string",
+          "minLength": 1
+        },
+        "undetected": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": []
+    },
+    "vector_parameters": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "vector_upper_bound": {
+      "const": 1.0,
+      "description": "Limits the magnitude of every declared vector parameter to one."
+    },
+    "width_constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "sigma": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "value",
+        "sigma"
+      ]
+    },
+    "heft_dictionary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kappa_V": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kappa_F": {
+          "type": "string",
+          "minLength": 1
+        },
+        "c_gg": {
+          "type": "string",
+          "minLength": 1
+        },
+        "c_gammagamma": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kappa_2V": {
+          "type": "string",
+          "minLength": 1
+        },
+        "c_2": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kappa_V",
+        "kappa_F",
+        "c_gg",
+        "c_gammagamma",
+        "kappa_2V",
+        "c_2"
+      ]
+    },
+    "heft_normalization": {
+      "type": "string",
+      "minLength": 1
+    },
+    "closure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "parameters": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "minProperties": 0,
+                "propertyNames": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1
+              },
+              "uncertainty": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "parameters",
+              "values",
+              "uncertainty"
+            ]
+          },
+          "minItems": 1
+        },
+        "tolerance_sigma": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "points",
+        "tolerance_sigma"
+      ]
+    },
+    "source_pins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "source",
+          "sha256"
+        ]
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "framework",
+    "mass_gev",
+    "convention",
+    "parameters",
+    "production",
+    "decays",
+    "branching_fractions",
+    "rates"
+  ],
+  "description": "Supplied dimensionless production and partial-width modifiers; complete SM decay fractions; total width scaled by 1/(1-BR_BSM). Each loop declares resolved polynomial or effective squared modifier. HEFT contact normalization is supplied. Closure values use rate order and declared rate units."
+}

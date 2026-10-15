@@ -26,7 +26,7 @@ def test_no_upstream_routine_is_registered_without_an_alias(monkeypatch):
 
 
 def test_an_alias_reaches_its_adapter_and_keeps_its_identity(tmp_path, monkeypatch):
-    adapter = next(iter(nc.discover_capabilities()))
+    adapter = 'ANA-0001'  # the supplied, qualified package; shipped packages are qualification-pending
     row = nc.discover_capabilities()[adapter]
     monkeypatch.setenv(nc.ALIAS_ENV, str(_aliases(tmp_path, {'FakeSearchZ': {'adapter': adapter,
                                                                                 'analysis_ids': ['XYZ-9030-01']}})))
@@ -47,6 +47,6 @@ def test_malformed_alias_files_are_refused(tmp_path, rows):
 
 
 def test_an_alias_cannot_shadow_an_adapter(tmp_path):
-    adapter = next(iter(nc.discover_capabilities()))
+    adapter = next(iter(nc.discover_capabilities()))  # a shipped package shadows as well as a supplied one
     with pytest.raises(ValueError, match='shadows'):
         nc.load_aliases(_aliases(tmp_path, {adapter: {'adapter': adapter}}))

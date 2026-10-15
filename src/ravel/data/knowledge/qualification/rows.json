@@ -1302,5 +1302,185 @@
       "status": "pending",
       "evidence": null
     }
+  ],
+  "census_homes": [
+    {
+      "census_id": "census-supplied-array-layout",
+      "kind": "data-format",
+      "reason": "data-format only, no install"
+    },
+    {
+      "census_id": "census-collier-or-looptools",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-dsixtools",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-form-standalone",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-geant4-gdml",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-higgstools-lilith",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-multinest",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-powheg",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-sherpa",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-softsusy",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-tmva",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-hi-class",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-micromegas-as-a-general-dm-tool",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-micromegas-7-1-susy-hit-feynhiggs-higgsbounds",
+      "kind": "package",
+      "group": "census-source-pending"
+    },
+    {
+      "census_id": "census-qgraf-model-format",
+      "kind": "data-format",
+      "reason": "data-format only, no install"
+    },
+    {
+      "census_id": "census-cvmfs-x-509-grid-proxy-kerberos-htcondor-apptainer-agent-cli",
+      "kind": "deferral",
+      "reason": "site-only; qualified at a site"
+    },
+    {
+      "census_id": "census-htcondor-slurm",
+      "kind": "deferral",
+      "reason": "site-only; qualified at a site"
+    },
+    {
+      "census_id": "census-docker-apptainer-podman-on-linux",
+      "kind": "deferral",
+      "reason": "site-only; qualified at a site"
+    },
+    {
+      "census_id": "census-agentrivet-e4d12ecc",
+      "kind": "qualification-job",
+      "job": {
+        "name": "agent-source-import-and-version",
+        "command": [
+          "ravel",
+          "plan",
+          "--rundir",
+          "<qualification-run-directory>",
+          "--spec",
+          "<qualification-specification>"
+        ],
+        "inputs": [
+          "pinned source checkout",
+          "declared revision",
+          "method-decision record"
+        ],
+        "walltime_minutes": 10,
+        "disk_gb": 1.0
+      }
+    },
+    {
+      "census_id": "census-magnus-cli-agpl",
+      "kind": "qualification-job",
+      "job": {
+        "name": "agent-command-import-and-version",
+        "command": [
+          "ravel",
+          "plan",
+          "--rundir",
+          "<qualification-run-directory>",
+          "--spec",
+          "<qualification-specification>"
+        ],
+        "inputs": [
+          "pinned source checkout",
+          "declared revision",
+          "method-decision record"
+        ],
+        "walltime_minutes": 10,
+        "disk_gb": 1.0
+      }
+    },
+    {
+      "census_id": "census-langgraph-1-2-14-checkpoint-4-2-0-sqlite-saver-3-1-1-langchain-core-1-6-7-pydantic-2-14-0",
+      "kind": "qualification-job",
+      "job": {
+        "name": "agent-runtime-import-and-version",
+        "command": [
+          "ravel",
+          "plan",
+          "--rundir",
+          "<qualification-run-directory>",
+          "--spec",
+          "<qualification-specification>"
+        ],
+        "inputs": [
+          "installed environment",
+          "declared package versions",
+          "method-decision record"
+        ],
+        "walltime_minutes": 10,
+        "disk_gb": 0.1
+      }
+    },
+    {
+      "census_id": "census-model-providers-anthropic-messages-openai-responses-gemini-openai-compatible-chat-completions",
+      "kind": "qualification-job",
+      "job": {
+        "name": "agent-provider-import-and-version",
+        "command": [
+          "ravel",
+          "plan",
+          "--rundir",
+          "<qualification-run-directory>",
+          "--spec",
+          "<qualification-specification>"
+        ],
+        "inputs": [
+          "provider configuration",
+          "declared client versions",
+          "method-decision record"
+        ],
+        "walltime_minutes": 10,
+        "disk_gb": 0.1
+      }
+    }
   ]
 }

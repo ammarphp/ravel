@@ -13,5 +13,12 @@
     "repository": "https://gitlab.com/mcfm-team/releases.git",
     "commit": "0adaa4ed4079de1b17c84417a0a428a468f57e69",
     "arm64_note": "MCFM 10.3 has published linux-aarch64 builds; 10.2.1 on aarch64 is confirmed only by building it here"
+  },
+  "base_amd64": {
+    "repository": "registry.fedoraproject.org/fedora",
+    "tag_at_selection": "41",
+    "platform": "linux/amd64",
+    "digest": "sha256:3fb969dd07e631c17d12f5955bcb6db2078a6997eb68be76b6492e7bd6052e88",
+    "digest_status": "recorded 2026-10-12 at the owner-approved pull of registry.fedoraproject.org/fedora:41 for linux/amd64 (podman image inspect Digest, size 166581593 bytes)"
   }
 }

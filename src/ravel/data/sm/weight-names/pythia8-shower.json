@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "generator": "pythia8-shower",
+  "fields": {
+    "MUR": "mu_r",
+    "MUF": "mu_f",
+    "PDF": "pdf_lhaid",
+    "MEMBER": "pdf_member",
+    "DYN_SCALE": "dyn_scale",
+    "ALPHAS": "alpha_s_mz"
+  },
+  "rules": [
+    {
+      "pattern": "(?:isr|fsr):muRfac=[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?",
+      "ignore_case": true,
+      "metadata": {
+        "class": "shower"
+      }
+    },
+    {
+      "pattern": "(?:isr|fsr):(?:cNS|cns)=[-+]?\\d+(?:\\.\\d+)?",
+      "ignore_case": true,
+      "metadata": {
+        "class": "shower"
+      }
+    }
+  ],
+  "scope": "Explicit named grammars only; numeric ids require retained headers. Installed-generator naming and physics interpretation require separate source qualification. Unknown streams are preserved as unclassified.",
+  "header_contract": "Retained id/attributes/description/canonical_header_xml from model_event_weights; never infer a variation from numeric id."
+}

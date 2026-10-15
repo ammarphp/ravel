@@ -183,7 +183,8 @@ def site_spec(tmp_path, scheduler_name, **extra):
                         {'name': 'skim.root', 'remote_uri': str(eos / 'skim.root')}],
             'quantities': [{'name': 'n', 'output': 'h.json', 'pointer': '/n'}],
             'resources': {'cpus': 1, 'memory_mib': 2000, 'wall_seconds': 7200},
-            'site': {'scheduler': scheduler_name, 'options': {'+JobFlavour': '"longlunch"'} if scheduler_name == 'htcondor' else {'partition': 'short'}}}
+            'site': {'scheduler': scheduler_name, **({'job_length_classes': {'extended': 10800}}
+                                                     if scheduler_name == 'htcondor' else {'options': {'partition': 'short'}})}}
     spec.update(extra)
     return spec
 
@@ -196,7 +197,7 @@ def test_site_round_trip_with_eos_output(tmp_path, scheduler, scheduler_name):
     if scheduler_name == 'htcondor':
         sub = (job / 'job.sub').read_text()
         assert 'request_memory = 2000' in sub and f'+RavelTag = "{handle["tag"]}"' in sub
-        assert '+MaxRuntime = 7200' in sub and '+JobFlavour = "longlunch"' in sub
+        assert '+MaxRuntime = 7200' in sub and '+JobFlavour = "extended"' in sub
     else:
         sbatch = (job / 'job.sbatch').read_text()
         assert f'#SBATCH --job-name={handle["tag"]}' in sbatch and '#SBATCH --time=2:00:00' in sbatch

@@ -73,9 +73,25 @@ def claimed_level(claim):
     return None
 
 
+def _claim_paths(root, claim):
+    """Every local artifact path a claim pins (its quantity and receipts)."""
+    pins = [claim.get('quantity'), *(p for key in ('execution_receipts', 'validator_receipts')
+                                     if isinstance(claim.get(key), list) for p in claim[key])]
+    paths = []
+    for pin in pins:
+        value = pin.get('path') if isinstance(pin, dict) else pin if isinstance(pin, str) else None
+        if isinstance(value, str) and value:
+            paths.append(Path(value) if Path(value).is_absolute() else Path(root) / value)
+    return paths
+
+
 def claim_record(root, claim, *, _inputs=None, regime=None, require_trials=True):
     if type(claim) is not dict or type(claim.get('id')) is not str or not claim['id']:
         raise ValueError('named delivered claim required')
+    # A deadline-labelled provisional fill never feeds a claim or a CHECK-IN 3 record.
+    from .result_templates import provisional_errors
+    refused = provisional_errors(_claim_paths(Path(claim.get('rundir', root)).absolute() if _inputs is None else _inputs.base, claim))
+    if refused: raise ValueError('provisional_not_reviewed: ' + refused[0])
     if require_trials and (type(claim.get('n_trials')) is not int or claim['n_trials'] < 0):
         raise ValueError('trials_unreported: every delivered claim must report N trials')
     claimed = claimed_level(claim)

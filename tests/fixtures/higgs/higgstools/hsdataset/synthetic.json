@@ -1,0 +1,18 @@
+{
+  "kind": "synthetic-measurements",
+  "measurements": [
+    {
+      "id": "m1",
+      "chi2": 2.0
+    },
+    {
+      "id": "m2",
+      "chi2": 3.0
+    },
+    {
+      "id": "m3",
+      "chi2": 4.0
+    }
+  ],
+  "sm_chi2_total": 3.0
+}

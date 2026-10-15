@@ -163,7 +163,7 @@ def test_checkin_variant_is_the_single_contract_reader():
     assert shape["core"] == vc.CHECKIN1_CORE
     assert shape["allowed"] == ("calculation",)
     assert shape["sections"]["calculation"] == vc.CHECKIN1_VARIANTS["calculation"]
-    assert vc.checkin_variant({"task_mode": "reinterpret"})["allowed"] == ("reproduction",)
+    assert vc.checkin_variant({"task_mode": "reinterpret"})["allowed"] == ("reproduction", "reference_withheld")
     assert vc.checkin_variant({"task_mode": "research", "intake": {"kind": "manuscript"}})["allowed"] == ("manuscript",)
     assert vc.checkin_variant(None)["allowed"] is None
 

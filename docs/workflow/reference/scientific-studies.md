@@ -54,6 +54,18 @@ For an explicitly authorized scripted experiment, set
 `approval_mode: "scripted_yes"` and add `--scripted` to `approve`. The quotation
 must describe the actual authorization. No expert review is inferred.
 
+For `search-statistics` on supplied yields, the [synthetic worked example](../../reference/search-statistics-example/README.md)
+shows two control regions, a held-out validation region, an external ABCD background,
+and a five-point irregular signal grid. The adapter always writes `points.json` with
+input pins, CLs, Asimov significance and signal yields. Use
+`contours.interpolation.method: "delaunay-linear"` for explicitly declared interpolation
+coordinates; triangulation is recorded and never extrapolated beyond the convex hull.
+`reference_contour: {path, sha256}` overlays a supplied coordinate series.
+`toys: {count, seed}` adds bounded conditional-null discovery toys.
+Alternative-generator variations require matching process and campaign declarations.
+Review ABCD closure flags and the stated sideband approximation before accepting a
+scientific claim. The example's observed-on-pseudo-data CLs are explicitly simulated.
+
 Version 1 specifications retain the existing one-attempt lifecycle for existing
 operations. New `contrast`, `analysis-ir`, `routine-build`, `rivet-built`, `model-probe`,
 `statistical-model`, `published-model`, `model-portfolio`, `likelihood-parity`,
@@ -141,6 +153,7 @@ These modes use the same `ravel plan`, `approve`, `run` and CHECK-IN 2 lifecycle
 | `feyn-graph` | Enumerate every Feynman diagram for a model and process and export SVG or TikZ drawings | [Model-bound diagrams](../../reference/model-bound-diagrams.md) |
 | `diagram-analysis` | Pass enumerated diagrams to NDA width estimates and Diagrammatica code | [Model-bound diagrams](../../reference/model-bound-diagrams.md) |
 | `feynarts-amplitude` | Build amplitudes with FeynArts and FeynCalc and export diagram PDFs | [Model-bound diagrams](../../reference/model-bound-diagrams.md) |
+| `manuscript-build` | Compile an authored manuscript and its figures to PDF | [Manuscript production](../../reference/manuscript-production.md) |
 | Result templates (`ravel fill-template`) | Copy accepted values into a supplied HEPData-style YAML or JSON template, keeping its bins and headers | [Result templates](result-templates.md) |
 
 ## Compare Rivet output with HEPData
@@ -512,6 +525,11 @@ Event cutflow diagnostics consume a supplied reviewed definition. Its predicate
 population, ordered flows, unavailable decisions, membership checks, source-row
 mapping, normalization population and luminosity are inputs. The trace header
 binds the definition; missing definitions refuse with `missing_cutflow_definition`.
+The predicate flows, unavailable decisions and region membership of the compressed
+slepton selection ship as `src/ravel/data/analysis_assets/cutflow/compressed-slepton.cutflow.json`;
+`ravel.physics.shipped_assets.cutflow_definition(selection_source, directory)` writes the
+definition bound to the selected producer's bytes and returns its pin. It carries no
+published-table row mapping or mass-point comparison; those are supplied references.
 Use the data-only comparator after a trace exists:
 
 ```bash
@@ -837,6 +855,46 @@ emit MC projections in `binned-values/` for a whole delivery, retaining covarian
 and named weights; one partition's public record carries no projections. These
 convenience files do not widen the existing blinded DATA evidence roster.
 
+A `columnar-analysis` recipe may declare event-observable correction maps:
+
+```json
+"event_weights": [
+  {"name": "radiation correction", "map": "central correction",
+   "observables": ["radiation_count", "recoil_pt"], "out_of_range": "clamp",
+   "variations": {"correction up": "upper correction", "correction down": "lower correction"}}
+]
+```
+
+The maps are declared in `efficiency_maps` using the existing pinned file reader,
+with `semantics: "scale_factor"` and `allow_above_one: true` when needed. Each map
+has one or two axes; `observables` supplies a declared event observable for each
+axis in order. Declared observable units must match axis units. Alternative maps
+have the same axis names and units. These are event corrections applied after
+object construction and observable evaluation, before all cutflow and histogram
+accumulation. Their named variations join the usual `systematics` passes. An
+explicit systematic may also use `kind: "event-weight-map"`, with `weight` naming
+the event-weight application and `map` naming its alternative map. Pass names
+must be unique, including variations declared by applications.
+
+The application's mandatory `out_of_range` overrides the map's object lookup
+policy: `refuse` stops with the file index, original event index and observable;
+`clamp` uses the closest edge bin; `one` uses a unit correction for the entire
+map if any coordinate is outside. Bins are half-open. Undefined or non-finite
+coordinates always refuse. Per-axis counts and evaluated-row totals appear in
+`event_weights` for every variation in partial and final results. With object
+efficiency enumeration these counts refer to subsets; corrections use each
+subset's observables and original-event contributions are summed before
+squaring for `sumw2`. Generator exposure and its normalization denominator stay
+unchanged. Map sources remain in the pinned input roster and provenance.
+
+Independent minimisation controls use dense grids and multiple local starts
+on synthetic populations. Split-leaf ROOT controls exercise the consumed
+detector layout and empty collections; they do not reproduce C++ class
+streamers or object links. The supplied-file control runs when
+`RAVEL_TEST_DELPHES_FILE` names a local file and reads only its first 100 events. These checks
+establish software behavior within the declared recipe, with detector fidelity
+and scientific validation requiring separate evidence.
+
 A columnar task can use `inputs: {"dataset": {"path": "dataset.json", "sha256":
 "..."}}` and `normalization: {"mode": "dataset"}`. The dataset uses the existing
 root-stream schema and complete membership authority. Each MC sample retains
@@ -885,3 +943,193 @@ For a supplied parameter population, `stau_adapter.project_contract` takes `stud
 and its complete projection `document`; datasets provide the original event records. Output
 supplies `format` (`json` or `jsonl`) and a new `path`. Parameter values label the supplied event
 predictions; the adapter never infers model-dependent event changes from those labels.
+
+## Columnar skims and partition throughput
+
+A compiled columnar recipe can retain a physical-event selection for later passes:
+
+```json
+"skim": {"region": "selected", "branches": "all-declared", "format": "root"}
+```
+
+`region` must name a declared region. A region with no cuts is a pre-selection.
+`branches` is either `"all-declared"` or a nonempty list of unique raw branch names
+from the format descriptor. Only those columns are exported. The format is
+`"root"` or `"parquet"`; Parquet requires the optional `pyarrow` runtime. ROOT
+may add structural count branches for jagged arrays. Source weight columns are
+retained only when declared in the branch selection.
+
+Use the partition engine with an explicit new output directory:
+
+```python
+from ravel.physics.columnar import engine
+
+partial = engine.analyse(partition, plan, skim_dir=output_directory)
+```
+
+A partition payload may instead set `RAVEL_OUTPUT_DIR` to its own new output
+parent. The parent contains `<output-parent>/skim/events.root` (or `<output-parent>/skim/events.parquet`) and
+`<output-parent>/skim/custody.json`. Each partition needs a distinct output parent. This is a
+per-partition interface; callers driving several partitions in one process must
+supply a distinct `skim_dir` for each call. No execution approval is granted by
+this interface: scientific passes retain their supervised stage approval.
+
+The source columns needed for analysis and export are read together, in bounded
+chunks. Export is nominal only. Enumerated efficiency replicas are refused because
+they are weighted replicas rather than selected physical events. The reserved
+columns are `ravel_event_number` (the descriptor's event field `number`, or the
+original source entry if none is declared), `ravel_source_entry` (original entry),
+`ravel_file_index` and `ravel_weight` (the nominal generator × event factors ×
+object efficiency product). An original event identifier is retained by including
+its raw branch. Replay uses the original raw weight columns, so it does not
+multiply by the stored product again.
+
+Custody records bind the recipe and descriptor hashes, source checksum pins and
+entry ranges, selected branches, entry counts, and signed weight-product sums
+before and after selection. Local source checksums are checked; remote input
+checksums remain declared pins, with their verification status disclosed. Remote
+export requires `source_checksum`. Partial source ranges also carry source pins.
+Data paths are relative to custody records so fetched or relocated custody/data
+pairs remain usable. Failed writes retain incomplete files and are never accepted
+as a finished custody record.
+
+`engine.merge(partials)` retains the skim pins and checks the source ranges,
+contracts, data checksums, output counts, selected identities and weight sums.
+`engine.finalize(...)` writes `skim-manifest.json` referring to the original
+partition files. It does not copy or concatenate the population. The manifest
+must remain alongside access to its pinned custody/data files.
+
+For `ravel partitions`, declare the custody JSON with merge kind `skim` and
+the data file with merge kind `none`. Fetch both files together. The merge verifies
+the custody against the partition's declared input membership and checksums,
+then emits a manifest referencing the fetched data. The library equivalent is
+`partitioned_execution.merge_documents('skim', custody_pins)`, where each pin
+contains a custody JSON `path` and `sha256`.
+
+A later recipe can list a custody JSON or merged manifest among its input files,
+using the original format descriptor. The engine checks the manifest and each
+partition before streaming ROOT or Parquet columns through that descriptor. It
+requires all branches used by the later recipe. The recipe may differ, and may
+write another skim; original identities remain intact. Branch-variation replay
+is refused until a contract for retained varied columns is implemented. Input
+manifest entry ranges are refused; select the required events in the later recipe.
+Full-original-population normalization still requires a declared original
+normalization denominator; skim entry counts or selected weight sums cannot
+replace that denominator.
+
+Run an approved partition pilot, retain its `columnar-partial` JSON as a fetched
+output, then use `ravel partitions forecast --workdir <partition-workdir>`.
+The forecast validates pilot receipts and output checksums. ROOT partials record
+elapsed processing time, events processed, decoded bytes of the columns actually
+read, and their names. The forecast reports `seconds_per_event`,
+`seconds_per_byte`, `bytes_read_per_event`, the full declared population's
+`projected_wall_hours` and `projected_core_hours`, remaining-work estimates,
+and `pilot_spread` with the observed minimum, maximum and standard deviation of
+partition rates. Native stages use one concurrent slot, matching their machine
+lease. Core hours are allocated cores × processing wall time, not measured CPU
+utilization. The pilot spread is descriptive, not a confidence interval or a
+runtime guarantee. Cache state, storage contention, uneven partitions and changing
+column selection can change the eventual rate.
+
+Decoded-column bytes are a measured in-memory payload basis. They do not measure
+compressed baskets, network transfer, metadata reads or cache traffic. File-size
+bytes remain separately labelled dataset size. Without column measurements, the
+legacy elapsed-time projection remains available but column byte metrics are
+null. Without completed pilots, the forecast is `uncalibrated`, with null
+projections.
+
+`cost_record` uses the shared cost class, profile, resource vector and uncertainty
+fields. `cost_approval_seam` explicitly reports that the current calibrated-cost
+approval consumer accepts generation pilot forecasts only. A partition forecast
+is not an approval artifact. The separate partition consumer needs receipt and
+machine binding before it can authorize a production pass. Site throughput
+measurements remain a prerequisite for any site-specific forecast claim.
+
+## Bounded feature populations and frozen model scores
+
+A recipe can add a `features` output to a declared region:
+
+```json
+"features": {
+  "region": "selected", "observables": ["momentum", "angle"],
+  "label": "simulation", "event_id": "identifier", "group_id": "group",
+  "max_events": 100000, "sampling_seed": 71,
+  "weight_policy": {"negative": "refuse", "unequal": "refuse"},
+  "folds": {"k": 5, "salt": "features-v1"}
+}
+```
+
+Both identity fields must be declared event fields. Original ROOT integer IDs retain
+full precision; scaled identities and floating identities that may have rounded are
+refused. Events sharing a group receive the same `ml_crossfit.fold_map` fold. The
+optional `folds` block defaults to the values above. Enumerated efficiency replicas
+are refused. Observable values and the nominal per-event weight product must be
+finite in the selected region. Feature populations contain nominal events only;
+histogram variations remain separate.
+
+`engine.analyse` includes bounded candidate rows in its JSON partial. `engine.merge`
+combines them, including through aggregate merges. `engine.finalize` writes
+`features.npz` and `features.json` under its output directory. At most 100,000 events
+and 64 MiB are exported. The retained events are the lowest SHA256 hashes of
+`sampling_seed:event_id`, in hash order; a byte limit retains a shorter prefix.
+Sampling is independent of chunks, partition order and merge grouping. Supply globally
+unique event IDs for one sample; duplicate retained IDs are refused. No full input
+population is accumulated. Fewer than three eligible retained events are refused.
+
+The NPZ contains exactly `x, region, weight, event_id, group_id`, with feature columns
+in the declared order. This single-region export encodes `region` as numeric zero;
+the sidecar records the selected region's name and this encoding. Consumers must
+configure their region interpretation accordingly. `label` is the declared sample
+role in the sidecar, never a truth column or an inferred training target. The sidecar
+also binds the recipe, source inputs and population checksum, sampling denominator,
+weight choices, dropped-negative fraction and retained group folds. Event weights
+are the nominal products before histogram normalization.
+
+An explicit weight policy is required for each sample export. `negative` can be
+`refuse`, `drop`, or `absolute`. `drop` discards negative-weight selected events and
+records their fraction; `absolute` retains their magnitudes and records the choice.
+Zero weights are refused. `unequal` can be `refuse` or `weighted-qualification`.
+The latter retains unequal positive magnitudes and marks the population as requiring
+the existing weighted permutation/inference qualification route. That choice does
+not qualify the study: `ml_crossfit.load_events` still refuses it by default and
+accepts it only with its explicit `allow_sampling_weights=True` route. The exporter
+never equalizes unequal weights. Populations with equal positive weights pass the
+default loader unchanged.
+
+A score observable uses an earlier ordered list of observables and a pinned model:
+
+```json
+{"name": "score", "op": "model_score",
+ "model": {"path": "model.json", "sha256": "<sha256>"},
+ "features": ["momentum", "angle"], "group_id": "group"}
+```
+
+The version-one `model.json` record has kind `columnar-frozen-model`, `features`,
+`checkpoint`, `transform`, `group_scope`, `freeze`, and
+`folds: {k, salt, test_fold}`. Each artifact field is a `{path, sha256}` pin.
+Artifact paths resolve relative to the recipe directory. Feature order must match
+exactly. The checkpoint is the existing ML layer's portable selected NumPy format:
+`architecture`, `layers`, and numbered `w0,b0,...` arrays for logistic,
+quadratic-logistic or MLP predictions. Loading always uses `allow_pickle=False`.
+The transform is the existing `standardize` or `region_quantile` JSON record. A
+region-quantile model also needs `region` on the observable, naming an earlier
+observable with exact integer region indices.
+
+`freeze` is the ML freeze record whose `models` includes the checkpoint and whose
+`histories` pins include exactly one matching model history. That history must bind
+the same checkpoint, transform, group scope, salt and held-out fold. `group_scope`
+has the existing `train_groups`, `validation_groups`, `preprocessing_groups` and
+`test_groups` string lists. The scope audit must pass; every evaluated group must
+belong to the test list, avoid training/validation/preprocessing groups, and hash to
+`test_fold` using `ml_crossfit.fold_map`. Unknown or in-fold groups are refused.
+`only_if` restricts which events are evaluated using its existing semantics.
+
+The model wrapper declares the feature names and fold count for the frozen ML
+artifacts; the freezing owner must supply it with the original feature order and
+split contract. The observable supplies neither training nor statistical
+qualification. Hashes and frozen history prevent accidental artifact substitution;
+they do not certify an externally authored training history. Regular pinned files
+are included in columnar planning inputs. Existing `sealed://` custody can be read
+only in its originating evaluator process. Missing custody after process exit fails
+closed; this adapter does not persist sealed models or provide a durable evaluator
+store. Prediction consumes the admitted byte snapshot; it never unpickles a model.

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "analysis-package",
+  "package_id": "EwkThreeLeptonERJR2018",
+  "package_version": "1.0",
+  "analysis_ids": [
+    "EwkThreeLeptonERJR2018",
+    "ATLAS-SUSY-2018-06",
+    "ins1771533"
+  ],
+  "compatibility": {
+    "models": [
+      "c1n2-wz"
+    ],
+    "preparations": [
+      "explicit-cards"
+    ],
+    "detectors": [
+      "simpleanalysis-delphes"
+    ],
+    "statistics": [
+      "yields",
+      "mapped-likelihood"
+    ]
+  },
+  "routine": {
+    "path": "selection.py.txt",
+    "sha256": "a05443a6c84b8a03a775fbd130c9ee28ee5d258c3ba7fb3a1375ff4617a6787d",
+    "kind": "counting",
+    "regions": [
+      "Preselection",
+      "SRlow",
+      "SRISR",
+      "CRlow",
+      "CRISR",
+      "VRlow",
+      "VRISR",
+      "VRISRsmallPTsoft",
+      "VRISRsmallRjetsinv"
+    ],
+    "flavour_flags": [
+      "ge2e",
+      "ge2mu"
+    ],
+    "accepts_parameters": false,
+    "helper_outputs": [],
+    "arguments": []
+  },
+  "qualification": {
+    "status": "pending",
+    "evidence": []
+  }
+}

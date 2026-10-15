@@ -878,6 +878,10 @@ def approved_binding(rundir, stage, route, rung=None):
     """The approved stage a machine lease is taken for, verified now (machine_lease.acquire re-verifies it)."""
     binding = {'rundir': str(Path(rundir).resolve()), 'node_id': stage, 'route': route, 'rung': rung}
     verify_stage_binding(binding)
+    from .scoped import lease_resources
+    resources = lease_resources(rundir)
+    if resources is not None:
+        binding['generation_resources'] = resources
     return binding
 
 
@@ -909,6 +913,10 @@ def verify_stage_binding(binding):
             raise ValueError('the stage is not an approved scoped likelihood stage')
         from . import scoped
         scoped.verify_plan(root, require_approval=True)  # the pinned plan and its full CHECK-IN 1 approval, now
+    if 'generation_resources' in binding:
+        from .scoped import lease_resources
+        if binding['generation_resources'] != lease_resources(root):
+            raise ValueError('machine-lease CPU grant differs from the approved scoped plan')
     return binding
 
 
@@ -1239,6 +1247,7 @@ def main(argv=None):
     lj.add_argument('--image-reference', help='name@sha256:<digest>')
     lj.add_argument('--image-id', help='local image id sha256:<digest> (from an image-build receipt)')
     lj.add_argument('--platform', default=None)
+    lj.add_argument('--emulation', action='store_true', help='accept an image platform that differs from this host (runs emulated)')
     lj.add_argument('--connection', default='ravel')
     lj.add_argument('--cpus', type=int, default=1)
     lj.add_argument('--memory-mib', type=int, default=4096)
@@ -1327,6 +1336,8 @@ def main(argv=None):
                 raise ValueError('pass exactly one of --image-reference or --image-id')
             image = {'platform': args.platform or oci_local.host_platform()}
             image.update({'reference': args.image_reference} if args.image_reference else {'id': args.image_id})
+            if args.emulation:
+                image['emulation'] = True
             env = dict(item.split('=', 1) for item in args.env)
             launcher = {'kind': 'oci-local', 'image': image, 'client': oci_local.resolve_client(),
                         'connection': args.connection, 'cpus': args.cpus, 'memory_mib': args.memory_mib}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "chains": [
+    {
+      "id": "binned-yield-prediction",
+      "requires": {
+        "claim_kind": "prediction",
+        "artifact": "binned_values",
+        "template_alternative": true,
+        "model_point": true,
+        "effect": "generates-events",
+        "routine": "not_selected"
+      },
+      "modes": [
+        "model-events",
+        "event-production",
+        "columnar-analysis",
+        "cross-section",
+        "normalization-ledger",
+        "fill-template"
+      ],
+      "task_fields": {
+        "columnar-analysis": ["analysis_spec"]
+      },
+      "preconditions": [
+        "Resolve whether compatible events and a reusable routine exist through the resource census; reuse them when qualified.",
+        "Resolve the generation effect and the source-bound model, process, decays, shower and detector specification before any execution.",
+        "Prepare the typed analysis_spec and bind its source spans and recipe coverage before choosing columnar-analysis.",
+        "Check the cross-section source, convention and normalization ledger against the declared source restrictions; never substitute restricted published yields.",
+        "Prepare and obtain ordinary CHECK-IN 1 approval for each child; candidate presence supplies no execution approval or physics validation."
+      ]
+    }
+  ]
+}

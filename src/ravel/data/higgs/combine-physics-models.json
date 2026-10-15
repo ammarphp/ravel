@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "combine_release": "9.2.1",
+  "image_digest": "sha256:5da96967107b141708fd7c53a8565ce7844ae82bfd21b36e3c070f65f9d48020",
+  "models": [],
+  "admission_status": "awaits-pinned-module-source-inventory",
+  "admission_requirements": [
+    "module and exported model from the pinned release source",
+    "complete POI population and exact ordered physics options",
+    "separate admitted runtime qualification against supplied reference values"
+  ]
+}

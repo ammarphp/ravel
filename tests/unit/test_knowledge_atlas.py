@@ -75,7 +75,7 @@ def test_descriptor_byte_identity():
     released = {**document, 'modes': {k: v for k, v in document['modes'].items() if k not in held}}
     encoded = (json.dumps(released, indent=1, ensure_ascii=False) + '\n').encode()
     assert held or encoded == data
-    assert hashlib.sha256(encoded).hexdigest() == '52857965124a8973aac8ae4ff09860d1e1c6cc27a0e0ba56e49f47e0275e2e96'
+    assert hashlib.sha256(encoded).hexdigest() == '13f2ff9625ea36f36d2058d865f81ab9163514fae144df2aab295fbcde58bb01'
 
 
 def test_default_gate_requires_operation_curation(atlas, monkeypatch):
@@ -130,10 +130,16 @@ def test_curation_unknown_fields_refused(atlas,tmp_path):
 
 def test_tool_installation_and_census_qualification(atlas):
     rows={r['id']:r for r in atlas['entries']}
-    manifest=json.loads((ROOT/'native/setup/toolchain-manifest.json').read_text())
+    manifest=mf.view(ROOT)
     assert all('tool:'+g['id'] in rows for g in manifest['groups'] if g['id'] not in mf.unreleased_groups(manifest))
     qualifications=json.loads((ROOT/ka.QUALIFICATION).read_text())
-    assert len([r for r in qualifications['tools'] if 'parent_census_row' not in r])==85
+    # The historical census holds 85 rows; a row added later names the registration fragment it came from.
+    historical=[r for r in qualifications['tools'] if 'parent_census_row' not in r
+                and r['source_locator'].startswith('tools-and-validation-census.md:')]
+    assert len(historical)==85
+    for item in qualifications['tools']:
+        if 'parent_census_row' not in item and item not in historical:
+            assert (ROOT/item['source_locator'].split('#')[0]).is_file() and '/registration/' in item['source_locator']
     for item in qualifications['tools']:
         if mf.withheld_tool(manifest, item):
             continue

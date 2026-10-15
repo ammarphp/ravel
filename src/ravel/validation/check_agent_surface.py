@@ -508,9 +508,10 @@ def check_handbooks(root, budget=None):
     modes = (_tree_json(root, "src/ravel/data/mode_descriptors.json") or {}).get("modes", {})
     pyproject = os.path.join(root, "pyproject.toml")
     tests = os.path.join(root, "tests", "skills")
+    from ravel.setup.manifest import view
     return hb.check_all(os.path.join(root, HANDBOOK_ROOT), modes=set(modes),
                         budget=budget or hb.TOKEN_BUDGET,
-                        manifest=_tree_json(root, "native/setup/toolchain-manifest.json"),
+                        manifest=view(root) if os.path.exists(os.path.join(root, "native/setup/toolchain-manifest.json")) else None,
                         pyproject_text=open(pyproject, encoding="utf-8").read() if os.path.exists(pyproject) else "",
                         fields_path=os.path.join(root, "src/ravel/data/skills/operation-fields.json"),
                         src_root=os.path.join(root, "src"),

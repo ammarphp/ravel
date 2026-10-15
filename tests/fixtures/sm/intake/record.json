@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "kind": "hepdata-record",
+  "record": "ANA-0001",
+  "version": 2,
+  "tables": [
+    {
+      "name": "Table A",
+      "independent_variables": [
+        {
+          "header": {
+            "name": "x"
+          },
+          "values": [
+            {
+              "low": 0,
+              "high": 1
+            },
+            {
+              "low": 1,
+              "high": 2
+            },
+            {
+              "low": 2,
+              "high": 3
+            }
+          ]
+        }
+      ],
+      "dependent_variables": [
+        {
+          "header": {
+            "name": "value",
+            "units": "fb"
+          },
+          "values": [
+            {
+              "value": 10.0,
+              "errors": [
+                {
+                  "label": "stat",
+                  "symerror": 1.0
+                },
+                {
+                  "label": "shape",
+                  "symerror": 2.0
+                },
+                {
+                  "label": "scale",
+                  "symerror": 1.0
+                },
+                {
+                  "label": "local",
+                  "symerror": 0.5
+                },
+                {
+                  "label": "lumi",
+                  "symerror": "2%"
+                },
+                {
+                  "label": "total",
+                  "symerror": 2.5079872407968904
+                }
+              ]
+            },
+            {
+              "value": 20.0,
+              "errors": [
+                {
+                  "label": "stat",
+                  "symerror": 2.0
+                },
+                {
+                  "label": "shape",
+                  "symerror": 1.0
+                },
+                {
+                  "label": "scale",
+                  "symerror": 2.0
+                },
+                {
+                  "label": "local",
+                  "symerror": 0.5
+                },
+                {
+                  "label": "lumi",
+                  "symerror": "2%"
+                },
+                {
+                  "label": "total",
+                  "symerror": 3.0675723300355937
+                }
+              ]
+            },
+            {
+              "value": 30.0,
+              "errors": [
+                {
+                  "label": "stat",
+                  "symerror": 3.0
+                },
+                {
+                  "label": "shape",
+                  "symerror": 2.0
+                },
+                {
+                  "label": "scale",
+                  "symerror": 1.0
+                },
+                {
+                  "label": "local",
+                  "symerror": 0.5
+                },
+                {
+                  "label": "lumi",
+                  "symerror": "2%"
+                },
+                {
+                  "label": "total",
+                  "symerror": 3.8223029707232783
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

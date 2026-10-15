@@ -102,7 +102,9 @@ def _path(value):
 
 
 def _pin(pin):
-    _keys(pin, {"id", "path", "sha256"}, "artifact pin")
+    _keys(pin, {"id", "path", "sha256", *({'restricted'} if 'restricted' in pin else set())}, "artifact pin")
+    if 'restricted' in pin and type(pin['restricted']) is not bool:
+        raise GraphError('input pin restricted must be boolean')
     _id(pin["id"], "artifact ID")
     if type(pin["sha256"]) is not str or not SHA.fullmatch(pin["sha256"]):
         raise GraphError("invalid artifact digest")
@@ -111,7 +113,11 @@ def _pin(pin):
 
 def validate(spec):
     """Validate a finite DAG; dependencies schedule, never implicitly expose context."""
-    _keys(spec, {"schema_version", "graph_id", "budget", "nodes", *({"goal_binding"} if "goal_binding" in spec else set())}, "agent graph")
+    _keys(spec, {"schema_version", "graph_id", "budget", "nodes", *({"goal_binding"} if "goal_binding" in spec else set()),
+                 *({'data_classification'} if 'data_classification' in spec else set())}, "agent graph")
+    if 'data_classification' in spec:
+        from .provider_policy import classification
+        classification(spec['data_classification'])
     if "goal_binding" in spec:
         from .task_completion import binding_projection
         binding_projection(spec["goal_binding"], base_dir=Path.cwd())
@@ -230,7 +236,17 @@ def _event(state, event_name, **values):
 def create(root, spec):
     spec = validate(spec)
     root = _path(str(root))
+    from . import provider_policy
+    declaration = spec.get('data_classification')
+    inherited = provider_policy.inherited_declaration(root.parent)
+    if declaration is not None and inherited is not None and declaration != inherited:
+        raise provider_policy.PolicyRefused('child graph cannot override its run data classification')
+    if declaration is None:
+        declaration = inherited
+    provider_policy.validate_start(declaration, [p for n in spec['nodes'] for p in n['inputs']])
     root.mkdir(parents=True, exist_ok=False)
+    provider_policy.start(root, data_classification=declaration,
+                          input_pins=[p for n in spec['nodes'] for p in n['inputs']])
     from . import gate_wiring
     gate_wiring.initialize_steering(root, route='graph-scope')
     for name in ("specs", "attempts", "calls"):
@@ -814,6 +830,12 @@ def revise(root, spec, *, reason, expected_spec_sha256=None, expected_state_sha2
     root = _root(root); new = validate(spec); _text(reason, "revision reason", 4000)
     with file_lock(root / "run.lock", blocking=False), file_lock(root / "state.lock"):
         old, state = _load(root)
+        from . import provider_policy
+        current_policy = provider_policy.inherited_declaration(root)
+        if (old.get('data_classification') != new.get('data_classification')
+                and new.get('data_classification') != current_policy):
+            raise provider_policy.PolicyRefused('graph provider policy change requires an explicit approval record')
+        provider_policy.validate_start(current_policy, [p for n in new['nodes'] for p in n['inputs']])
         for expected in (expected_spec_sha256, expected_state_sha256):
             if expected is not None and (type(expected) is not str or not SHA.fullmatch(expected)):
                 raise GraphError('exact revision fence SHA required')
@@ -967,6 +989,9 @@ def prepare_external(root, node_id):
             request = _request(spec, state, node, digest(prepared_host["identity"]))
             attempt_id = current["attempt_id"]
             prepared = prepare_model_context(node, request)
+            from . import provider_policy
+            if provider_policy.inherited_declaration(root) is not None:
+                prepared['context']['provider_policy_run'] = str(provider_policy.find_run(root))
             document = {"schema_version": 1, "kind": "external_agent_request", "request": request,
                         **prepared, "execution_mode": "host_mediated_external",
                         "completion_limits": completion_limits(prepared["parameters"]),
@@ -974,6 +999,15 @@ def prepare_external(root, node_id):
                         "limitations": ["No model has executed when this request is prepared.",
                             "Fresh context and model identity require the external host's attestation.",
                             "No OS sandbox; internal inference call/token use is unavailable."]}
+            declaring_run, unresolved_run = _declaring_run(root)
+            if declaring_run is not None:
+                # The request names the run whose pinned project document its session receives; the
+                # request digest binds it, so the name travels with the file wherever it is answered.
+                document["project_run"] = declaring_run
+            elif unresolved_run is not None:
+                # The graph's run pins nothing under a tree that pins a document. The request says so,
+                # and it is answered only by a caller that names this run.
+                document["project_run_unresolved"] = unresolved_run
             document["sha256"] = digest(document)
             _event(state, "external_node_prepared", node_id=node_id, request_id=request["request_id"])
             _save(root, state)
@@ -1344,6 +1378,7 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
                        "local_transport_observed" if mode == "provider_http_local" else
                        "control_only" if mode == "responses_http_loopback_control" else "unestablished")
         attestation, session = _receipt_attestation(root, transport, observation, isolation)
+        _require_declared_instructions(root, isolation)
         if mode == "transport_attested_cli":
             observation = "transport_attested_cli" if attestation == "transport_attested" else "unestablished"
         receipt = {"schema_version": 1, "kind": "agent_model_receipt", "node_id": node_id,
@@ -1378,6 +1413,53 @@ def role_receipt(root, node_id, *, expected_subject_sha256, expected_packet_sha2
         if completion_evidence is not None and _external_completion_evidence(root, node, current, saved) != completion_evidence:
             raise GraphError("external completion changed during ending receipt consumption")
         return receipt
+
+
+def _declaring_run(root):
+    """``(declaring, unresolved)``: the run that owns this graph when that run pins a project instruction document.
+
+    Both are None for a graph whose run declares nothing. A graph in a run that pins nothing under a
+    declaring run's tree returns that inner run as ``unresolved``: answering its request asks for the
+    run by name. A pin that custody knows and the run tree no longer shows is not a missing
+    declaration; it refuses the preparation.
+    """
+    from . import project_instructions
+    try:
+        run = project_instructions.owning_run(root)
+        return (str(run) if run is not None and project_instructions.for_run(run) is not None else None), None
+    except project_instructions.ProjectInstructionsError as exc:
+        if project_instructions.unsettled(exc):
+            return None, str(project_instructions.nearest_run(root))
+        raise GraphError(str(exc)) from None
+
+
+def _require_declared_instructions(root, isolation):
+    """Refuse a model review whose session was not shown the pinned project instruction document of the graph's run.
+
+    The session's isolation evidence names the document it was given. A run that pins a document
+    credits no review without that record, and none that names another document.
+    """
+    from . import project_instructions
+    evidence = isolation.get("transport_evidence") if type(isolation) is dict else None
+    try:
+        try:
+            pinned = project_instructions.for_path(root)
+        except project_instructions.ProjectInstructionsError as exc:
+            # The session was started for a named run. That name settles a run that pins nothing under a
+            # tree that pins a document, exactly as it did at dispatch; it must be the graph's nearest run.
+            named = evidence.get("project_run") if type(evidence) is dict else None
+            if not project_instructions.unsettled(exc) or type(named) is not str:
+                raise
+            pinned = project_instructions.for_path(root, named)
+    except project_instructions.ProjectInstructionsError as exc:
+        raise GraphError(str(exc)) from None
+    if pinned is None:
+        return
+    problem = project_instructions.supplied_problem(
+        evidence.get("project_instructions") if type(evidence) is dict else None, pinned)
+    if problem is not None:
+        raise GraphError("model review session was not shown the run's pinned project instruction document "
+                         f"({problem}); it is not credited")
 
 
 def _receipt_attestation(root, transport, observation, isolation=None):

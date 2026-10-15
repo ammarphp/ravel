@@ -27,6 +27,15 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-bash.sh\""
           }
         ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-mcp.sh\""
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -66,6 +75,15 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-generate-guard.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/posttooluse-observer.sh\""
           }
         ]
       }

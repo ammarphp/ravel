@@ -1,9 +1,10 @@
-"""Versioned worker receipts: version 1 stays valid byte for byte; version 2 binds ``review_subject``.
+"""Versioned worker receipts: version 1 stays valid byte for byte; later versions bind ``review_subject``.
 
 The receipt writer is ``agent_worker.finish`` (through ``_write_receipt``). A review dispatch whose
-spec carries a review subject writes version 2 and the dispatcher registers it with the label it
-computed from the transport's own verification; ``review_points`` grants credit only to a version-2
-receipt whose subject matches the point. No model, network or native tool is involved.
+spec carries a review subject writes version 3 (subject and observed execution mode) and the
+dispatcher registers it with the label it computed from the transport's own verification and the
+actor it assigned; ``review_points`` grants credit only to a version-2 or version-3 receipt whose
+subject matches the point. No model, network or native tool is involved.
 """
 import hashlib
 import json
@@ -15,6 +16,8 @@ import pytest
 from ravel.workflow import agent_worker as worker, broker, rdj_custody, role_registry
 from ravel.workflow import review_points as rp
 from ravel.workflow import transport_registry as tr
+
+from worker_supervision import descriptor, supervised
 
 GOLDEN = Path(__file__).resolve().parents[1] / 'fixtures/worker_receipt_v1'
 # sha256 of the golden receipt as the base code wrote it (step 0 capture).
@@ -71,24 +74,35 @@ def cli_transport():
 def real_execution(node_id):
     """The execution record the cli-worker adapter hands the dispatcher after its verification passed."""
     return {'exit_status': 0, 'attestation': 'transport_attested', 'transport': cli_transport(),
-            'session_id': 'session-' + node_id, 'actor_id': 'actor-' + node_id, 'cli_version': 'stub 0.0',
+            'session_id': 'session-' + node_id, 'cli_version': 'stub 0.0',
             'model': {'requested': 'm', 'observed': 'm', 'family': 'f-' + node_id, 'effort': None}}
 
 
 def stub_execution():
     """What the stub transport hands the dispatcher: no verified envelope, so no attestation."""
     return {'exit_status': 0, 'transport': {'id': 'stub', 'transport_kind': 'stub'},
-            'session_id': 'stub-session', 'actor_id': 'stub-actor'}
+            'session_id': 'stub-session'}
 
 
 def close(run, s, execution):
+    """Complete one worker as the dispatcher does. A transport observation only comes out of a
+    supervised launch; the stub transport hands back no envelope and the host completes it."""
     ws = worker.materialize(run, s)
     tool = broker.Broker(run, ws, node_id=s['node_id'], attempt=1, allowed_actions=['write'], max_calls=100)
     reply = tool.call({'call_id': 'put-' + s['node_id'], 'action': 'write',
                        'args': {'path': 'outputs/review.json', 'content': '{"findings": []}'}})
     assert reply['status'] == 'ok', reply
-    return worker.finish(run, s, execution=execution,
-                         final={'completed': True, 'disposition': 'supported', 'findings': []})
+    final = {'completed': True, 'disposition': 'supported', 'findings': []}
+    transport = execution['transport']
+    if transport['transport_kind'] == 'cli-worker':
+        launch = {**descriptor(), 'transport': transport, 'model': execution['model']}
+        return supervised(run, s, final=final, session=execution['session_id'], attestation=execution['attestation'],
+                          launch_spec=launch, observed={'cli_version': execution['cli_version']})
+    # The dispatcher assigns the actor of this worker session at spawn; the execution record never names one.
+    worker.bind_actor(run, s['node_id'], s['attempt'], transport_id=transport['id'],
+                      model_id=(execution.get('model') or {}).get('requested') or 'unspecified',
+                      family=(execution.get('model') or {}).get('family'))
+    return worker.finish(run, s, execution=execution, final=final)
 
 
 def advisory(run, point, node_id):
@@ -99,9 +113,14 @@ def advisory(run, point, node_id):
 # ---------------------------------------------------------------- 1. version 1 is unchanged
 
 
-def seat_golden(run):
-    """Place the base-written receipt in a fresh run's dispatcher custody, byte for byte."""
+def seat_golden(run, monkeypatch):
+    """Place the base-written receipt in a fresh run's dispatcher custody, byte for byte.
+
+    The base dispatched against the card as it then was; the registry answers with that
+    card's digest here, so the dispatch pin is the card it names.
+    """
     s = json.loads((GOLDEN / 'spec.json').read_text())
+    monkeypatch.setattr(role_registry, 'card_sha256', lambda role_id, **options: s['role']['card_sha256'])
     ws = worker.materialize(run, s)
     for name in ('receipt.json', 'transcript.jsonl', 'final.json', 'outputs/review.json'):
         shutil.copyfile(GOLDEN / name.replace('/', '__'), ws / name)
@@ -112,10 +131,10 @@ def seat_golden(run):
     return s, ws
 
 
-def test_a_base_written_receipt_still_validates_byte_for_byte(env):
+def test_a_base_written_receipt_still_validates_byte_for_byte(env, monkeypatch):
     raw = (GOLDEN / 'receipt.json').read_bytes()
     assert hashlib.sha256(raw).hexdigest() == GOLDEN_SHA
-    s, ws = seat_golden(env)
+    s, ws = seat_golden(env, monkeypatch)
     loaded = worker.load_receipt(env, s['node_id'], 1)
     assert loaded == json.loads(raw) and worker.receipt_version(loaded) == 1
     assert set(loaded) == worker.RECEIPT_FIELDS == worker.RECEIPT_VERSIONS[1]
@@ -138,12 +157,17 @@ def test_a_dispatch_without_a_review_subject_still_writes_version_one(env):
 # ---------------------------------------------------------------- 2. version 2 binds review_subject
 
 
-def test_a_review_dispatch_writes_version_two_and_binds_its_subject(env):
+def test_a_review_dispatch_writes_version_three_and_binds_its_subject(env):
     facts, point = plan(env)
     subject = rp.review_subject(facts, point)
     receipt = close(env, spec('v2', point_id=point['id'], subject=subject), real_execution('v2'))
-    assert receipt['schema_version'] == 2 and receipt['review_subject'] == subject
-    assert set(receipt) == worker.RECEIPT_VERSIONS[2] and worker.receipt_version(receipt) == 2
+    assert receipt['schema_version'] == 3 and receipt['review_subject'] == subject
+    assert receipt['execution_mode'] == 'transport_attested_cli'
+    assert set(receipt) == worker.RECEIPT_VERSIONS[3] and worker.receipt_version(receipt) == 3
+    # The actor is the dispatcher's custody assignment: sha256 over transport, model, worker session and attempt.
+    actor = worker._record(env, 'v2', 1)['actor']
+    assert receipt['actor_id'] == actor['actor_id'] == rdj_custody.actor_id(
+        actor['transport_id'], actor['model_id'], actor['worker_session_id'], 'v2/1')
     assert worker.load_receipt(env, 'v2', 1) == receipt
     row = json.loads(broker.locate(env, receipt['transcript']['path']).read_text())
     assert row['ravel']['receipt_sha256'] == worker._link_digest(receipt)
@@ -176,7 +200,7 @@ def test_a_malformed_review_subject_is_refused_at_dispatch(env, subject, point_i
 # ---------------------------------------------------------------- 3. credit from a real transport
 
 
-def test_a_real_transport_version_two_receipt_with_a_matching_subject_earns_credit(env):
+def test_a_real_transport_receipt_with_a_matching_subject_earns_credit(env):
     facts, point = plan(env)
     assert not rp.satisfied(env, point['id'])
     close(env, spec('real', point_id=point['id'], subject=rp.review_subject(facts, point)), real_execution('real'))
@@ -225,7 +249,8 @@ def test_the_base_written_golden_receipt_predates_review_subject(env):
 def test_a_stub_transport_receipt_cannot_earn_independent_credit(env):
     facts, point = plan(env)
     receipt = close(env, spec('stub', point_id=point['id'], subject=rp.review_subject(facts, point)), stub_execution())
-    assert receipt['schema_version'] == 2 and receipt['attestation'] == 'self_attested'
+    assert receipt['schema_version'] == 3 and receipt['attestation'] == 'self_attested'
+    assert receipt['execution_mode'] == 'worker_stub'
     row = next(r['record'] for r in rdj_custody.rows(env, 'workers') if r['record']['path'].startswith('agent-work/stub/'))
     assert row['verified_label'] == 'self_attested'
     assert not rp.satisfied(env, point['id'])

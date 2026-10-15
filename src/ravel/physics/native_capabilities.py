@@ -1,4 +1,8 @@
-"""Discover supplied native selection compatibility without an installed analysis population."""
+"""Discover native selection compatibility from the shipped and supplied analysis packages.
+
+Registration means a package declares an interface the adapter can execute. It never grants
+qualification, an acceptance certificate or permission to serve a scientific result.
+"""
 from __future__ import annotations
 import json
 import os

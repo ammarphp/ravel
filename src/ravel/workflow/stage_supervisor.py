@@ -859,7 +859,11 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
     stage name. ``node_id`` is the node a production launch names; it must agree with the plan.
     """
     root = Path(rundir).resolve()
-    from . import method_selection, physics_review
+    from . import method_selection, physics_review, wms_policy
+    # Every approval route is governed; only a stage with no approval route is outside this check.
+    if physics_review._science_run(root) or _authorized_branch(
+            root, required_plan, authorization_plan, (root / 'inputs/scoped-plan.json').exists()):
+        wms_policy.require_dispatch(root)
     if _engineering_only:
         from .approval_authority import AGENT_MARKERS
         inert_selftest = _engineering_only is _ENGINEERING_SELFTEST and tuple(cmd or ()) in _ENGINEERING_SELFTEST_COMMANDS
@@ -1005,6 +1009,12 @@ def supervise(stage, rundir, events, logrel, cmd=None, kill_secs=None, stall_sec
                                                          lease_wait_seconds(lease_wait, kill_secs),
                                                          nested=parent_authority is not None, binding=binding))
         record = execution.begin_attempt(root, stage, specification, logrel)
+        if lease is not None:
+            from . import machine_lease
+            allocation = machine_lease.allocation_identity()
+            if allocation is not None:
+                # The host or Slurm allocation whose lease this attempt ran under.
+                record["allocation"] = allocation
         if parent_authority is not None:
             record["parent_authority"] = parent_authority
         if operation_authority is not None:

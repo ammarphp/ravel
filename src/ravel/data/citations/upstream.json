@@ -1,308 +1,418 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "kind": "upstream-citations",
-  "as_of": "2026-10-12",
-  "description": "One row per cited upstream tool; every tool the generated README toolchain table lists has a row. 'cite' holds the tool's own requested reference(s); a string is an arXiv, DOI or ASCL identifier and an object is a reference without one. 'basis' records where the reference comes from: 'request' (the tool asks to be cited this way), 'listed-reference' (the tool's own page or README names its reference paper), 'release-paper' (the tool's own pages were unreachable or name no reference, and the release paper was confirmed at its arXiv abstract page) or 'home-page' (no reference found; cite the home page). 'also' holds references the tool asks for in a stated case. scripts/maintenance/render_citations.py renders README Appendix B from this file.",
+  "as_of": "2026-10-14",
+  "description": "One row per cited upstream tool; every tool the generated README toolchain table lists has a row. 'cite' holds the tool's own requested reference(s), each a full reference: 'authors', 'title', 'journal', 'volume', 'year' and first page ('pages') or a 'publisher', with its 'arxiv', 'doi', 'ascl' or 'url' identifiers; 'id' is the identifier the tool's request names. A requested reference whose title names an agent system other than the tool is given without its title. 'basis' records where the reference comes from: 'request' (the tool asks to be cited this way), 'listed-reference' (the tool's own page or README names its reference paper), 'release-paper' (the tool's own pages were unreachable or name no reference, and the release paper was confirmed at its arXiv abstract page) or 'home-page' (no reference found; cite the home page). 'also' holds references the tool asks for in a stated case. Bibliographic fields were taken from INSPIRE-HEP, the DOI registry and the ASCL on 2026-10-14. 'withheld' rows keep identifier strings until their tool ships. scripts/maintenance/render_citations.py renders README Appendix B from this file.",
   "tools": [
-    {"tool": "MadGraph5_aMC@NLO", "area": "Event generation and simulation", "link": "https://github.com/mg5amcnlo/mg5amcnlo", "home_page": "https://launchpad.net/mg5amcnlo",
-     "used_for": "Event generation", "basis": "request", "cite": ["arXiv:1405.0301"],
-     "also": [{"when": "for mixed-coupling or NLO electroweak computations", "cite": ["arXiv:1804.10017"]}],
-     "source_url": "https://launchpad.net/mg5amcnlo"},
-    {"tool": "Pythia 8", "area": "Event generation and simulation", "link": "https://pythia.org/", "home_page": "https://pythia.org/",
-     "used_for": "Showering and hadronisation", "basis": "request", "cite": ["arXiv:2203.11601"],
-     "source_url": "https://pythia.org/"},
-    {"tool": "Herwig 7", "area": "Event generation and simulation", "link": "https://herwig.hepforge.org/", "home_page": "https://herwig.hepforge.org/",
-     "used_for": "Event generation and showering", "basis": "release-paper", "cite": ["arXiv:1512.01178"],
-     "source_url": "https://arxiv.org/abs/1512.01178",
-     "note": "The home page served an automated-browser check, so no citation text was retrieved; the Herwig 7.0 release note was confirmed at arXiv."},
-    {"tool": "HepMC3", "area": "Event generation and simulation", "link": "https://gitlab.cern.ch/hepmc/HepMC3", "home_page": "https://hepmc.web.cern.ch/hepmc/",
-     "used_for": "Event records", "basis": "listed-reference", "cite": ["arXiv:1912.08005"],
-     "source_url": "https://hepmc.web.cern.ch/hepmc/",
-     "note": "The home page names the HepMC3 paper through its InSpire record; the arXiv identifier was confirmed at arXiv."},
-    {"tool": "Delphes", "area": "Event generation and simulation", "link": "https://github.com/delphes/delphes", "home_page": "https://delphes.github.io/",
-     "used_for": "Detector simulation", "basis": "request", "cite": ["arXiv:1307.6346"],
-     "source_url": "https://delphes.github.io/",
-     "note": "Delphes also asks for FastJet and the clustering algorithm when jets are used."},
-    {"tool": "FastJet", "area": "Event generation and simulation", "link": "https://fastjet.fr/", "home_page": "https://fastjet.fr/",
-     "used_for": "Jet clustering", "basis": "request", "cite": ["arXiv:1111.6097"],
-     "also": [{"when": "optionally", "cite": ["hep-ph/0512210"]}],
-     "source_url": "https://fastjet.fr/about.html",
-     "note": "FastJet also asks for the papers of the jet algorithms used."},
-    {"tool": "LHAPDF", "area": "Event generation and simulation", "link": "https://lhapdf.hepforge.org/", "home_page": "https://lhapdf.hepforge.org/",
-     "used_for": "Parton densities", "basis": "release-paper", "cite": ["arXiv:1412.7420"],
-     "source_url": "https://arxiv.org/abs/1412.7420",
-     "note": "The home page served an automated-browser check and the repository README names no reference; the LHAPDF6 paper was confirmed at arXiv."},
-    {"tool": "Rivet", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/rivet", "home_page": "https://rivet.hepforge.org/",
-     "used_for": "Analysis routines", "basis": "release-paper", "cite": ["arXiv:2404.15984"],
-     "source_url": "https://arxiv.org/abs/2404.15984",
-     "note": "The home page served an automated-browser check and the repository README names no reference; the Rivet 4 release note was confirmed at arXiv."},
-    {"tool": "YODA", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/yoda", "home_page": "https://yoda.hepforge.org/",
-     "used_for": "Histograms", "basis": "release-paper", "cite": ["arXiv:2312.15070"],
-     "source_url": "https://arxiv.org/abs/2312.15070",
-     "note": "The home page served an automated-browser check and the repository README names no reference; the YODA 2 paper was confirmed at arXiv."},
-    {"tool": "ATLAS SimpleAnalysis", "area": "Analysis and reinterpretation", "link": "https://gitlab.cern.ch/atlas-sa/simple-analysis", "home_page": "https://gitlab.cern.ch/atlas-sa/simple-analysis",
-     "used_for": "Public ATLAS selections", "basis": "home-page", "cite": [],
-     "source_url": "https://simpleanalysis.docs.cern.ch/",
-     "note": "The documentation names no reference; the repository page served an automated-browser check."},
-    {"tool": "RestFrames", "area": "Analysis and reinterpretation", "link": "https://github.com/crogan/RestFrames", "home_page": "http://restframes.com/",
-     "used_for": "Recursive-jigsaw reconstruction", "basis": "home-page", "cite": [],
-     "source_url": "http://restframes.com/",
-     "note": "The home page and README carry no citation request."},
-    {"tool": "MAPyDE", "area": "Analysis and reinterpretation", "link": "https://github.com/scipp-atlas/mapyde", "home_page": "https://github.com/scipp-atlas/mapyde",
-     "used_for": "Card conventions and event conversion", "basis": "request", "cite": ["doi:10.5281/zenodo.7796373", "arXiv:2306.11055"],
-     "source_url": "https://github.com/scipp-atlas/mapyde/blob/HEAD/CITATION.cff",
-     "note": "CITATION.cff names the article without an identifier; its arXiv identifier was confirmed by title at arXiv."},
-    {"tool": "MadAnalysis 5", "area": "Analysis and reinterpretation", "link": "https://github.com/MadAnalysis/madanalysis5", "home_page": "https://github.com/MadAnalysis/madanalysis5",
-     "used_for": "Reinterpretation", "basis": "request",
-     "cite": ["arXiv:1206.1599", "arXiv:1405.3982", "arXiv:1407.3278", "arXiv:1808.00480", "arXiv:1910.11418", "arXiv:2006.09387", "arXiv:2112.05163", "doi:10.21468/SciPostPhys.14.1.009", "doi:10.1140/epjc/s10052-023-11779-2"],
-     "source_url": "https://github.com/MadAnalysis/madanalysis5#credits"},
-    {"tool": "SModelS", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels", "home_page": "https://smodels.github.io/",
-     "used_for": "Simplified-model constraints", "basis": "request",
-     "cite": ["arXiv:2409.12942", "arXiv:2306.17676", "arXiv:2112.00769", "arXiv:2009.01809", "arXiv:1811.10624", "arXiv:1701.06586", "arXiv:1312.4175"],
-     "source_url": "https://smodels.github.io/",
-     "note": "SModelS also asks for the cross-section and database tools it calls when those are used."},
-    {"tool": "Contur", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/contur", "home_page": "https://hepcedar.gitlab.io/contur-webpage/",
-     "used_for": "Constraints from measurements", "basis": "listed-reference", "cite": ["arXiv:1606.05296", "arXiv:2102.04377"],
-     "source_url": "https://gitlab.com/hepcedar/contur#readme",
-     "note": "The README names the method paper and the manual through InSpire records; both arXiv identifiers were confirmed by title at arXiv."},
-    {"tool": "AgentRivet", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/AgentRivet", "home_page": "https://gitlab.com/hepcedar/AgentRivet",
-     "used_for": "Agent-built Rivet routines", "basis": "home-page", "cite": [],
-     "source_url": "https://gitlab.com/hepcedar/AgentRivet#readme",
-     "note": "The README carries no citation request."},
-    {"tool": "HEPData", "area": "Analysis and reinterpretation", "link": "https://www.hepdata.net/", "home_page": "https://www.hepdata.net/",
-     "used_for": "Published data tables", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/HEPData/hepdata#readme",
-     "note": "hepdata.net refused automated access (HTTP 403); the hepdata and hepdata-cli READMEs carry no citation request. Cite each record's own DOI for the data used."},
-    {"tool": "pyhf", "area": "Statistics", "link": "https://github.com/scikit-hep/pyhf", "home_page": "https://pyhf.readthedocs.io/",
-     "used_for": "Likelihood fits", "basis": "request", "cite": ["doi:10.5281/zenodo.1169739", "doi:10.21105/joss.02823"],
-     "source_url": "https://github.com/scikit-hep/pyhf/blob/HEAD/CITATION.cff"},
-    {"tool": "ROOT", "area": "Statistics", "link": "https://root.cern/", "home_page": "https://root.cern/",
-     "used_for": "Data handling and RooFit", "basis": "request", "cite": ["doi:10.1016/S0168-9002(97)00048-X"],
-     "source_url": "https://github.com/root-project/root#cite"},
-    {"tool": "CMS Combine", "area": "Statistics", "link": "https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit", "home_page": "https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/",
-     "used_for": "Statistical combinations", "basis": "request", "cite": ["arXiv:2404.06614"],
-     "source_url": "https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/"},
-    {"tool": "Spey", "area": "Statistics", "link": "https://github.com/SpeysideHEP/spey", "home_page": "https://github.com/SpeysideHEP/spey",
-     "used_for": "Measurement likelihoods", "basis": "listed-reference", "cite": ["arXiv:2307.06996"],
-     "source_url": "https://github.com/SpeysideHEP/spey#readme",
-     "note": "The README links its arXiv paper and carries no separate citation request."},
-    {"tool": "iminuit", "area": "Statistics", "link": "https://github.com/scikit-hep/iminuit", "home_page": "https://scikit-hep.org/iminuit/",
-     "used_for": "Minimisation", "basis": "request", "cite": ["doi:10.5281/zenodo.7695764", "doi:10.1016/0010-4655(75)90039-9"],
-     "source_url": "https://github.com/scikit-hep/iminuit/blob/HEAD/CITATION.cff"},
-    {"tool": "Wolfram Engine", "area": "Models and theory", "link": "https://www.wolfram.com/engine/", "home_page": "https://www.wolfram.com/engine/",
-     "used_for": "Symbolic kernel", "basis": "home-page", "cite": [],
-     "source_url": "https://www.wolfram.com/engine/",
-     "note": "The product page carries no citation request."},
-    {"tool": "FeynRules", "area": "Models and theory", "link": "https://feynrules.irmp.ucl.ac.be/", "home_page": "https://feynrules.irmp.ucl.ac.be/",
-     "used_for": "Model files from a Lagrangian", "basis": "request", "cite": ["arXiv:1310.1921"],
-     "source_url": "https://feynrules.irmp.ucl.ac.be/",
-     "note": "The home page asks for the papers of each component used; the FeynRules 2.0 manual is the core reference."},
-    {"tool": "SARAH", "area": "Models and theory", "link": "https://sarah.hepforge.org/", "home_page": "https://sarah.hepforge.org/",
-     "used_for": "Model files and spectrum generators", "basis": "release-paper", "cite": ["arXiv:1309.7223"],
-     "source_url": "https://arxiv.org/abs/1309.7223",
-     "note": "The home page served an automated-browser check; the SARAH 4 paper was confirmed at arXiv."},
-    {"tool": "FeynArts", "area": "Models and theory", "link": "https://feynarts.de/", "home_page": "https://feynarts.de/",
-     "used_for": "Diagram generation", "basis": "listed-reference", "cite": ["hep-ph/0012260"],
-     "source_url": "https://feynarts.de/",
-     "note": "The home page names the publication; its MSSM model files have their own references there."},
-    {"tool": "FeynCalc", "area": "Models and theory", "link": "https://github.com/FeynCalc/feyncalc", "home_page": "https://feyncalc.github.io/",
-     "used_for": "Amplitude algebra", "basis": "request",
-     "cite": ["arXiv:2512.19858", "arXiv:2312.14089", "arXiv:2001.04407", "arXiv:1601.01167", {"text": "Comput. Phys. Commun. 64 (1991) 345"}],
-     "source_url": "https://github.com/FeynCalc/feyncalc#readme"},
-    {"tool": "HEPTAPOD", "area": "Models and theory", "link": "https://github.com/tonymenzo/heptapod", "home_page": "https://github.com/tonymenzo/heptapod",
-     "used_for": "Diagram estimates", "basis": "request", "cite": ["arXiv:2512.15867"],
-     "source_url": "https://github.com/tonymenzo/heptapod#citation"},
-    {"tool": "Diagrammatica", "area": "Models and theory", "link": "https://github.com/tonymenzo/heptapod", "home_page": "https://github.com/tonymenzo/heptapod",
-     "used_for": "Code from diagrams", "basis": "request", "cite": ["arXiv:2603.26990"],
-     "source_url": "https://github.com/tonymenzo/heptapod#citation"},
-    {"tool": "FeynGraph", "area": "Models and theory", "link": "https://github.com/jens-braun/feyngraph", "home_page": "https://github.com/jens-braun/feyngraph",
-     "used_for": "Feynman diagrams", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/jens-braun/feyngraph#readme",
-     "note": "The README carries no citation request; the HEPTAPOD README asks for the Diagrammatica paper when its FeynGraph bundle is used."},
-    {"tool": "FlexibleSUSY", "area": "Models and theory", "link": "https://github.com/FlexibleSUSY/FlexibleSUSY", "home_page": "https://flexiblesusy.hepforge.org/",
-     "used_for": "Spectra and decays", "basis": "request", "cite": ["arXiv:1406.2319", "arXiv:1710.03760"],
-     "source_url": "https://github.com/FlexibleSUSY/FlexibleSUSY#readme",
-     "note": "The README lists further papers for specific features and asks for SARAH and SOFTSUSY alongside FlexibleSUSY."},
-    {"tool": "SPheno", "area": "Models and theory", "link": "https://spheno.hepforge.org/", "home_page": "https://spheno.hepforge.org/",
-     "used_for": "Spectra and decays", "basis": "release-paper", "cite": ["hep-ph/0301101", "arXiv:1104.1573"],
-     "source_url": "https://arxiv.org/abs/hep-ph/0301101",
-     "note": "The home page served an automated-browser check; both SPheno papers were confirmed at arXiv."},
-    {"tool": "PySLHA", "area": "Models and theory", "link": "https://pypi.org/project/pyslha/", "home_page": "https://pypi.org/project/pyslha/",
-     "used_for": "Spectrum files", "basis": "request", "cite": ["arXiv:1305.4194"],
-     "source_url": "https://pypi.org/project/pyslha/"},
-    {"tool": "pySecDec", "area": "Models and theory", "link": "https://github.com/secdec-research/secdec", "home_page": "https://secdec.readthedocs.io/",
-     "used_for": "Loop integrals", "basis": "listed-reference", "cite": ["arXiv:2305.19768", "arXiv:2108.10807", "arXiv:1811.11720", "arXiv:1703.09692"],
-     "source_url": "https://github.com/secdec-research/secdec#readme",
-     "note": "The README names these papers as the description of the implementation."},
-    {"tool": "SymPy", "area": "Models and theory", "link": "https://www.sympy.org/", "home_page": "https://www.sympy.org/",
-     "used_for": "Symbolic evaluation", "basis": "request", "cite": ["doi:10.7717/peerj-cs.103"],
-     "source_url": "https://github.com/sympy/sympy#citation"},
-    {"tool": "PDG", "area": "Models and theory", "link": "https://pdg.lbl.gov/", "home_page": "https://pdg.lbl.gov/",
-     "used_for": "Particle data", "basis": "listed-reference",
-     "cite": [{"text": "F. Takahashi et al. (Particle Data Group), Int. J. Mod. Phys. A 41, 2630011 (2026)"}],
-     "source_url": "https://pdg.lbl.gov/"},
-    {"tool": "SFitterAgents", "area": "Fits and scans", "link": "https://github.com/heidelberg-hepml/SFitterAgents", "home_page": "https://github.com/heidelberg-hepml/SFitterAgents",
-     "used_for": "Higgs and EFT fits", "basis": "request", "cite": ["arXiv:2607.22813", "arXiv:2601.21015", "arXiv:2411.00942"],
-     "source_url": "https://github.com/heidelberg-hepml/SFitterAgents#citation",
-     "note": "The README also asks for the SMEFT@NLO model and MadGraph5_aMC@NLO that produce the predictions."},
-    {"tool": "EasyScan_HEP", "area": "Fits and scans", "link": "https://github.com/phyzhangyang/EasyScan_HEP", "home_page": "https://github.com/phyzhangyang/EasyScan_HEP",
-     "used_for": "Parameter scans", "basis": "listed-reference", "cite": ["arXiv:2304.03636", "arXiv:2606.31214"],
-     "source_url": "https://github.com/phyzhangyang/EasyScan_HEP#readme",
-     "note": "The README names these papers as its documentation."},
-    {"tool": "GM2Calc", "area": "Fits and scans", "link": "https://github.com/GM2Calc/GM2Calc", "home_page": "https://github.com/GM2Calc/GM2Calc",
-     "used_for": "Muon g−2 predictions", "basis": "listed-reference", "cite": ["arXiv:1510.08071", "arXiv:2110.13238"],
-     "source_url": "https://github.com/GM2Calc/GM2Calc#readme"},
-    {"tool": "PhaseTracer", "area": "Fits and scans", "link": "https://github.com/PhaseTracer/PhaseTracer", "home_page": "https://github.com/PhaseTracer/PhaseTracer",
-     "used_for": "Phase transitions", "basis": "request", "cite": ["arXiv:2412.04881", "arXiv:2003.02859"],
-     "source_url": "https://github.com/PhaseTracer/PhaseTracer#citing"},
-    {"tool": "WCxf", "area": "Fits and scans", "link": "https://wcxf.github.io/", "home_page": "https://wcxf.github.io/",
-     "used_for": "Wilson-coefficient exchange format", "basis": "listed-reference", "cite": ["arXiv:1712.05298"],
-     "source_url": "https://wcxf.github.io/"},
-    {"tool": "Wilson", "area": "Fits and scans", "link": "https://github.com/wilson-eft/wilson", "home_page": "https://wilson-eft.github.io/",
-     "used_for": "Running and matching", "basis": "request", "cite": ["arXiv:1804.05033"],
-     "source_url": "https://github.com/wilson-eft/wilson#citation"},
-    {"tool": "flavio", "area": "Fits and scans", "link": "https://github.com/flav-io/flavio", "home_page": "https://flav-io.github.io/",
-     "used_for": "Flavour and precision observables", "basis": "request", "cite": ["arXiv:1810.08132"],
-     "source_url": "https://github.com/flav-io/flavio#citation"},
-    {"tool": "smelli", "area": "Fits and scans", "link": "https://github.com/smelli/smelli", "home_page": "https://github.com/smelli/smelli",
-     "used_for": "Global EFT likelihood", "basis": "request", "cite": ["arXiv:1810.07698"],
-     "source_url": "https://github.com/smelli/smelli#citation",
-     "note": "smelli also asks for the flavio and Wilson papers."},
-    {"tool": "CAMB", "area": "Cosmology", "link": "https://camb.info/", "home_page": "https://camb.info/",
-     "used_for": "Cosmological power spectra", "basis": "request", "cite": ["arXiv:2607.14854", "astro-ph/9911177"],
-     "source_url": "https://github.com/cmbant/CAMB#citation"},
-    {"tool": "CLASS", "area": "Cosmology", "link": "https://lesgourg.github.io/class_public/class.html", "home_page": "https://lesgourg.github.io/class_public/class.html",
-     "used_for": "Cosmological power spectra", "basis": "request", "cite": ["arXiv:1104.2933"],
-     "source_url": "https://github.com/lesgourg/class_public#using-the-code"},
-    {"tool": "Cobaya", "area": "Cosmology", "link": "https://cobaya.readthedocs.io/", "home_page": "https://cobaya.readthedocs.io/",
-     "used_for": "Cosmological inference", "basis": "request", "cite": ["arXiv:2005.05290", "ascl:1910.019"],
-     "source_url": "https://github.com/CobayaSampler/cobaya#how-to-cite-us",
-     "note": "cobaya-bib lists the references of the samplers, theory codes and likelihoods in an input file."},
-    {"tool": "Nyx", "area": "Cosmology", "link": "https://github.com/AMReX-Astro/Nyx", "home_page": "https://amrex-astro.github.io/Nyx/",
-     "used_for": "Cosmological simulation", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/AMReX-Astro/Nyx#readme",
-     "note": "The README carries no citation request."},
-    {"tool": "AMReX", "area": "Cosmology", "link": "https://github.com/AMReX-Codes/amrex", "home_page": "https://amrex-codes.github.io/amrex/",
-     "used_for": "Adaptive mesh refinement for Nyx", "basis": "request", "cite": ["doi:10.21105/joss.01370", "doi:10.1177/10943420211022811"],
-     "also": [{"when": "with pyAMReX or more modern features of AMReX", "cite": ["doi:10.1177/10943420241271017"]}],
-     "source_url": "https://github.com/AMReX-Codes/amrex#citation"},
-    {"tool": "SUNDIALS", "area": "Cosmology", "link": "https://github.com/LLNL/sundials", "home_page": "https://computing.llnl.gov/projects/sundials",
-     "used_for": "Differential-equation solvers for Nyx", "basis": "request", "cite": ["doi:10.1145/3539801", "doi:10.1145/1089014.1089020"],
-     "also": [{"when": "with GPU features of SUNDIALS", "cite": ["doi:10.1016/j.parco.2021.102836"]},
-              {"when": "with its ARKODE package", "cite": ["doi:10.1145/3594632"]}],
-     "source_url": "https://github.com/LLNL/sundials/blob/main/CITATIONS.md",
-     "note": "SUNDIALS also asks for a citation of the user documentation of the package and version used."},
-    {"tool": "uproot", "area": "Data access and workflows", "link": "https://github.com/scikit-hep/uproot5", "home_page": "https://github.com/scikit-hep/uproot5",
-     "used_for": "ROOT files in Python", "basis": "request", "cite": ["doi:10.5281/zenodo.4340632"],
-     "source_url": "https://github.com/scikit-hep/uproot5/blob/HEAD/CITATION.cff"},
-    {"tool": "Awkward Array", "area": "Data access and workflows", "link": "https://github.com/scikit-hep/awkward", "home_page": "https://awkward-array.org/",
-     "used_for": "Columnar arrays", "basis": "request", "cite": ["doi:10.5281/zenodo.4341376"],
-     "source_url": "https://github.com/scikit-hep/awkward/blob/HEAD/CITATION.cff"},
-    {"tool": "XRootD", "area": "Data access and workflows", "link": "https://github.com/xrootd/xrootd", "home_page": "https://xrootd.slac.stanford.edu/",
-     "used_for": "Remote file access", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/xrootd/xrootd#readme",
-     "note": "The README carries no citation request."},
-    {"tool": "Snakemake", "area": "Data access and workflows", "link": "https://github.com/snakemake/snakemake", "home_page": "https://snakemake.github.io/",
-     "used_for": "Facility workflows", "basis": "listed-reference", "cite": ["doi:10.12688/f1000research.29032.2"],
-     "source_url": "https://snakemake.github.io/",
-     "note": "The home page links this paper as the Snakemake paper."},
-    {"tool": "LangGraph", "area": "Data access and workflows", "link": "https://github.com/langchain-ai/langgraph", "home_page": "https://github.com/langchain-ai/langgraph",
-     "used_for": "Research graph", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/langchain-ai/langgraph#readme",
-     "note": "The README carries no citation request."},
-    {"tool": "Podman", "area": "Data access and workflows", "link": "https://podman.io/", "home_page": "https://podman.io/",
-     "used_for": "Containers", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/containers/podman#readme",
-     "note": "The README carries no citation request."},
-    {"tool": "PyTorch", "area": "Machine learning and figures", "link": "https://pytorch.org/", "home_page": "https://pytorch.org/",
-     "used_for": "Machine learning", "basis": "request", "cite": ["doi:10.1145/3620665.3640366"],
-     "source_url": "https://github.com/pytorch/pytorch/blob/HEAD/CITATION.cff"},
-    {"tool": "scikit-learn", "area": "Machine learning and figures", "link": "https://scikit-learn.org/", "home_page": "https://scikit-learn.org/",
-     "used_for": "Machine learning", "basis": "request",
-     "cite": [{"text": "Pedregosa et al., JMLR 12 (2011) 2825", "url": "https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html"}],
-     "source_url": "https://scikit-learn.org/stable/about.html"},
-    {"tool": "ONNX Runtime", "area": "Machine learning and figures", "link": "https://onnxruntime.ai/", "home_page": "https://onnxruntime.ai/",
-     "used_for": "Published classifiers", "basis": "request",
-     "cite": [{"text": "ONNX Runtime developers, ONNX Runtime", "url": "https://onnxruntime.ai/"}],
-     "source_url": "https://github.com/microsoft/onnxruntime/blob/HEAD/CITATION.cff",
-     "note": "CITATION.cff names the developers and the home page and gives no paper or DOI."},
-    {"tool": "Matplotlib", "area": "Machine learning and figures", "link": "https://matplotlib.org/", "home_page": "https://matplotlib.org/",
-     "used_for": "Figures", "basis": "request", "cite": ["doi:10.1109/MCSE.2007.55"],
-     "source_url": "https://matplotlib.org/stable/project/citing.html"},
-    {"tool": "mplhep", "area": "Machine learning and figures", "link": "https://github.com/scikit-hep/mplhep", "home_page": "https://github.com/scikit-hep/mplhep",
-     "used_for": "HEP figure style", "basis": "request", "cite": ["doi:10.5281/zenodo.3766157"],
-     "source_url": "https://github.com/scikit-hep/mplhep/blob/HEAD/CITATION.cff"},
-    {"tool": "Miniforge", "area": "Data access and workflows", "link": "https://github.com/conda-forge/miniforge", "home_page": "https://github.com/conda-forge/miniforge",
-     "used_for": "Bootstrap Python and conda environments", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/conda-forge/miniforge",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "LHAPDF PDF sets", "area": "Event generation and simulation", "link": "https://lhapdf.hepforge.org/pdfsets.html", "home_page": "https://lhapdf.hepforge.org/pdfsets.html",
-     "used_for": "Parton-density data sets", "basis": "home-page", "cite": [],
-     "source_url": "https://lhapdf.hepforge.org/pdfsets.html",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "MG5aMC_PY8_interface", "area": "Event generation and simulation", "link": "https://launchpad.net/mg5amcnlo", "home_page": "https://launchpad.net/mg5amcnlo",
-     "used_for": "MadGraph's own Pythia 8 showering", "basis": "home-page", "cite": [],
-     "source_url": "https://launchpad.net/mg5amcnlo",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "vfkit", "area": "Data access and workflows", "link": "https://github.com/crc-org/vfkit", "home_page": "https://github.com/crc-org/vfkit",
-     "used_for": "Container virtual machine on macOS", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/crc-org/vfkit",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "gvproxy", "area": "Data access and workflows", "link": "https://github.com/containers/gvisor-tap-vsock", "home_page": "https://github.com/containers/gvisor-tap-vsock",
-     "used_for": "Container virtual-machine networking", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/containers/gvisor-tap-vsock",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "FORM", "area": "Models and theory", "link": "https://github.com/form-dev/form", "home_page": "https://github.com/form-dev/form",
-     "used_for": "Symbolic manipulation for loop integrals", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/form-dev/form",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "SModelS database 3.2.1", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels-database-release", "home_page": "https://github.com/SModelS/smodels-database-release",
-     "used_for": "Simplified-model results database", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/SModelS/smodels-database-release",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "SModelS database 3.1.1", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels-database-release", "home_page": "https://github.com/SModelS/smodels-database-release",
-     "used_for": "Simplified-model results database (earlier release)", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/SModelS/smodels-database-release",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "ThePEG", "area": "Event generation and simulation", "link": "https://thepeg.hepforge.org/", "home_page": "https://thepeg.hepforge.org/",
-     "used_for": "Event-generator toolkit under Herwig", "basis": "home-page", "cite": [],
-     "source_url": "https://thepeg.hepforge.org/",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "ALGLIB", "area": "Fits and scans", "link": "https://www.alglib.net/", "home_page": "https://www.alglib.net/",
-     "used_for": "Numerical library for phase-transition scans", "basis": "home-page", "cite": [],
-     "source_url": "https://www.alglib.net/",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "poppler", "area": "Machine learning and figures", "link": "https://poppler.freedesktop.org/", "home_page": "https://poppler.freedesktop.org/",
-     "used_for": "PDF rendering for reports", "basis": "home-page", "cite": [],
-     "source_url": "https://poppler.freedesktop.org/",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "Graphviz", "area": "Machine learning and figures", "link": "https://graphviz.org/", "home_page": "https://graphviz.org/",
-     "used_for": "Graph layout for reports", "basis": "home-page", "cite": [],
-     "source_url": "https://graphviz.org/",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "librsvg", "area": "Machine learning and figures", "link": "https://gitlab.gnome.org/GNOME/librsvg", "home_page": "https://gitlab.gnome.org/GNOME/librsvg",
-     "used_for": "SVG rendering for reports", "basis": "home-page", "cite": [],
-     "source_url": "https://gitlab.gnome.org/GNOME/librsvg",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "pypdfium2", "area": "Machine learning and figures", "link": "https://github.com/pypdfium2-team/pypdfium2", "home_page": "https://github.com/pypdfium2-team/pypdfium2",
-     "used_for": "PDF page rendering in Python", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/pypdfium2-team/pypdfium2",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "pypdf", "area": "Machine learning and figures", "link": "https://github.com/py-pdf/pypdf", "home_page": "https://github.com/py-pdf/pypdf",
-     "used_for": "PDF reading and assembly in Python", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/py-pdf/pypdf",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "PyTorch Geometric", "area": "Machine learning and figures", "link": "https://github.com/pyg-team/pytorch_geometric", "home_page": "https://github.com/pyg-team/pytorch_geometric",
-     "used_for": "Graph neural networks", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/pyg-team/pytorch_geometric",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "PDG Review of Particle Physics data", "area": "Data access and workflows", "link": "https://pdg.lbl.gov/", "home_page": "https://pdg.lbl.gov/",
-     "used_for": "Particle properties", "basis": "home-page", "cite": [],
-     "source_url": "https://pdg.lbl.gov/",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."},
-    {"tool": "pdg Python package", "area": "Data access and workflows", "link": "https://github.com/particledatagroup/api", "home_page": "https://github.com/particledatagroup/api",
-     "used_for": "Offline access to PDG data", "basis": "home-page", "cite": [],
-     "source_url": "https://github.com/particledatagroup/api",
-     "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it."}
+    {"tool": "MadGraph5_aMC@NLO", "area": "Event generation and simulation", "link": "https://github.com/mg5amcnlo/mg5amcnlo", "home_page": "https://launchpad.net/mg5amcnlo", "used_for": "Event generation", "basis": "request", "source_url": "https://launchpad.net/mg5amcnlo",
+     "cite": [
+      {"id": "arXiv:1405.0301", "authors": "J. Alwall et al.", "title": "The automated computation of tree-level and next-to-leading order differential cross sections, and their matching to parton shower simulations", "journal": "JHEP", "volume": "07", "year": 2014, "pages": "079", "doi": "10.1007/JHEP07(2014)079", "arxiv": "1405.0301"}
+     ],
+     "also": [
+      {"when": "for mixed-coupling or NLO electroweak computations", "cite": [
+        {"id": "arXiv:1804.10017", "authors": "R. Frederix et al.", "title": "The automation of next-to-leading order electroweak calculations", "journal": "JHEP", "volume": "11", "year": 2021, "pages": "085", "doi": "10.1007/JHEP11(2021)085", "arxiv": "1804.10017"}
+      ]}
+     ]
+    },
+    {"tool": "Pythia 8", "area": "Event generation and simulation", "link": "https://pythia.org/", "home_page": "https://pythia.org/", "used_for": "Showering and hadronisation", "basis": "request", "source_url": "https://pythia.org/",
+     "cite": [
+      {"id": "arXiv:2203.11601", "authors": "C. Bierlich et al.", "title": "A comprehensive guide to the physics and usage of PYTHIA 8.3", "journal": "SciPost Phys. Codeb.", "volume": "8", "year": 2022, "doi": "10.21468/SciPostPhysCodeb.8", "arxiv": "2203.11601"}
+     ]
+    },
+    {"tool": "Herwig 7", "area": "Event generation and simulation", "link": "https://herwig.hepforge.org/", "home_page": "https://herwig.hepforge.org/", "used_for": "Event generation and showering", "basis": "release-paper", "source_url": "https://arxiv.org/abs/1512.01178", "note": "The home page served an automated-browser check, so no citation text was retrieved; the Herwig 7.0 release note was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:1512.01178", "authors": "J. Bellm et al.", "title": "Herwig 7.0/Herwig++ 3.0 release note", "journal": "Eur. Phys. J. C", "volume": "76", "year": 2016, "pages": "196", "doi": "10.1140/epjc/s10052-016-4018-8", "arxiv": "1512.01178"}
+     ]
+    },
+    {"tool": "HepMC3", "area": "Event generation and simulation", "link": "https://gitlab.cern.ch/hepmc/HepMC3", "home_page": "https://hepmc.web.cern.ch/hepmc/", "used_for": "Event records", "basis": "listed-reference", "source_url": "https://hepmc.web.cern.ch/hepmc/", "note": "The home page names the HepMC3 paper through its InSpire record; the arXiv identifier was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:1912.08005", "authors": "A. Buckley et al.", "title": "The HepMC3 event record library for Monte Carlo event generators", "journal": "Comput. Phys. Commun.", "volume": "260", "year": 2021, "pages": "107310", "doi": "10.1016/j.cpc.2020.107310", "arxiv": "1912.08005"}
+     ]
+    },
+    {"tool": "Delphes", "area": "Event generation and simulation", "link": "https://github.com/delphes/delphes", "home_page": "https://delphes.github.io/", "used_for": "Detector simulation", "basis": "request", "source_url": "https://delphes.github.io/", "note": "Delphes also asks for FastJet and the clustering algorithm when jets are used.",
+     "cite": [
+      {"id": "arXiv:1307.6346", "authors": "J. de Favereau et al. (DELPHES 3 Collaboration)", "title": "DELPHES 3, A modular framework for fast simulation of a generic collider experiment", "journal": "JHEP", "volume": "02", "year": 2014, "pages": "057", "doi": "10.1007/JHEP02(2014)057", "arxiv": "1307.6346"}
+     ]
+    },
+    {"tool": "FastJet", "area": "Event generation and simulation", "link": "https://fastjet.fr/", "home_page": "https://fastjet.fr/", "used_for": "Jet clustering", "basis": "request", "source_url": "https://fastjet.fr/about.html", "note": "FastJet also asks for the papers of the jet algorithms used.",
+     "cite": [
+      {"id": "arXiv:1111.6097", "authors": "M. Cacciari, G. P. Salam and G. Soyez", "title": "FastJet User Manual", "journal": "Eur. Phys. J. C", "volume": "72", "year": 2012, "pages": "1896", "doi": "10.1140/epjc/s10052-012-1896-2", "arxiv": "1111.6097"}
+     ],
+     "also": [
+      {"when": "optionally", "cite": [
+        {"id": "hep-ph/0512210", "authors": "M. Cacciari and G. P. Salam", "title": "Dispelling the $N^3$ myth for the $k_t$ jet-finder", "journal": "Phys. Lett. B", "volume": "641", "year": 2006, "pages": "57", "doi": "10.1016/j.physletb.2006.08.037", "arxiv": "hep-ph/0512210"}
+      ]}
+     ]
+    },
+    {"tool": "LHAPDF", "area": "Event generation and simulation", "link": "https://lhapdf.hepforge.org/", "home_page": "https://lhapdf.hepforge.org/", "used_for": "Parton densities", "basis": "release-paper", "source_url": "https://arxiv.org/abs/1412.7420", "note": "The home page served an automated-browser check and the repository README names no reference; the LHAPDF6 paper was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:1412.7420", "authors": "A. Buckley et al.", "title": "LHAPDF6: parton density access in the LHC precision era", "journal": "Eur. Phys. J. C", "volume": "75", "year": 2015, "pages": "132", "doi": "10.1140/epjc/s10052-015-3318-8", "arxiv": "1412.7420"}
+     ]
+    },
+    {"tool": "Rivet", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/rivet", "home_page": "https://rivet.hepforge.org/", "used_for": "Analysis routines", "basis": "release-paper", "source_url": "https://arxiv.org/abs/2404.15984", "note": "The home page served an automated-browser check and the repository README names no reference; the Rivet 4 release note was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:2404.15984", "authors": "C. Bierlich et al.", "title": "Robust independent validation of experiment and theory: Rivet version 4 release note", "journal": "SciPost Phys. Codeb.", "volume": "36", "year": 2024, "doi": "10.21468/SciPostPhysCodeb.36", "arxiv": "2404.15984"}
+     ]
+    },
+    {"tool": "YODA", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/yoda", "home_page": "https://yoda.hepforge.org/", "used_for": "Histograms", "basis": "release-paper", "source_url": "https://arxiv.org/abs/2312.15070", "note": "The home page served an automated-browser check and the repository README names no reference; the YODA 2 paper was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:2312.15070", "authors": "A. Buckley et al.", "title": "Consistent, multidimensional differential histogramming and summary statistics with YODA 2", "journal": "SciPost Phys. Codeb.", "volume": "45", "year": 2025, "doi": "10.21468/SciPostPhysCodeb.45", "arxiv": "2312.15070"}
+     ]
+    },
+    {"tool": "ATLAS SimpleAnalysis", "area": "Analysis and reinterpretation", "link": "https://gitlab.cern.ch/atlas-sa/simple-analysis", "home_page": "https://gitlab.cern.ch/atlas-sa/simple-analysis", "used_for": "Public ATLAS selections", "basis": "home-page", "source_url": "https://simpleanalysis.docs.cern.ch/", "note": "The documentation names no reference; the repository page served an automated-browser check.",
+     "cite": []
+    },
+    {"tool": "RestFrames", "area": "Analysis and reinterpretation", "link": "https://github.com/crogan/RestFrames", "home_page": "http://restframes.com/", "used_for": "Recursive-jigsaw reconstruction", "basis": "home-page", "source_url": "http://restframes.com/", "note": "The home page and README carry no citation request.",
+     "cite": []
+    },
+    {"tool": "MAPyDE", "area": "Analysis and reinterpretation", "link": "https://github.com/scipp-atlas/mapyde", "home_page": "https://github.com/scipp-atlas/mapyde", "used_for": "Card conventions and event conversion", "basis": "request", "source_url": "https://github.com/scipp-atlas/mapyde/blob/HEAD/CITATION.cff", "note": "CITATION.cff names the article without an identifier; its arXiv identifier was confirmed by title at arXiv.",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.7796373", "authors": "M. Hance and G. Stark", "title": "mapyde", "publisher": "Zenodo", "doi": "10.5281/zenodo.7796373"},
+      {"id": "arXiv:2306.11055", "authors": "G. Stark, C. A. Ots and M. Hance", "title": "Reduce, Reuse, Reinterpret: an end-to-end pipeline for recycling particle physics results", "journal": "SciPost Phys. Codeb.", "volume": "27", "year": 2024, "doi": "10.21468/SciPostPhysCodeb.27", "arxiv": "2306.11055"}
+     ]
+    },
+    {"tool": "CheckMATE", "area": "Analysis and reinterpretation", "link": "https://github.com/CheckMATE2/checkmate2", "home_page": "https://github.com/CheckMATE2/checkmate2", "used_for": "Reinterpretation", "basis": "request", "source_url": "https://github.com/CheckMATE2/checkmate2#readme",
+     "cite": [
+      {"id": "arXiv:2507.08565", "authors": "I. Lara and K. Rolbiecki", "title": "Implementation of full and simplified likelihoods in CheckMATE", "journal": "Eur. Phys. J. C", "volume": "86", "year": 2026, "pages": "221", "doi": "10.1140/epjc/s10052-026-15414-8", "arxiv": "2507.08565"},
+      {"id": "arXiv:1611.09856", "authors": "D. Dercks et al.", "title": "CheckMATE 2: From the model to the limit", "journal": "Comput. Phys. Commun.", "volume": "221", "year": 2017, "pages": "383", "doi": "10.1016/j.cpc.2017.08.021", "arxiv": "1611.09856"}
+     ]
+    },
+    {"tool": "MadAnalysis 5", "area": "Analysis and reinterpretation", "link": "https://github.com/MadAnalysis/madanalysis5", "home_page": "https://github.com/MadAnalysis/madanalysis5", "used_for": "Reinterpretation", "basis": "request", "source_url": "https://github.com/MadAnalysis/madanalysis5#credits",
+     "cite": [
+      {"id": "arXiv:1206.1599", "authors": "E. Conte, B. Fuks and G. Serret", "title": "MadAnalysis 5, A User-Friendly Framework for Collider Phenomenology", "journal": "Comput. Phys. Commun.", "volume": "184", "year": 2013, "pages": "222", "doi": "10.1016/j.cpc.2012.09.009", "arxiv": "1206.1599"},
+      {"id": "arXiv:1405.3982", "authors": "E. Conte et al.", "title": "Designing and recasting LHC analyses with MadAnalysis 5", "journal": "Eur. Phys. J. C", "volume": "74", "year": 2014, "pages": "3103", "doi": "10.1140/epjc/s10052-014-3103-0", "arxiv": "1405.3982"},
+      {"id": "arXiv:1407.3278", "authors": "B. Dumont et al.", "title": "Toward a public analysis database for LHC new physics searches using MADANALYSIS 5", "journal": "Eur. Phys. J. C", "volume": "75", "year": 2015, "pages": "56", "doi": "10.1140/epjc/s10052-014-3242-3", "arxiv": "1407.3278"},
+      {"id": "arXiv:1808.00480", "authors": "E. Conte and B. Fuks", "title": "Confronting new physics theories to LHC data with MADANALYSIS 5", "journal": "Int. J. Mod. Phys. A", "volume": "33", "year": 2018, "pages": "1830027", "doi": "10.1142/S0217751X18300272", "arxiv": "1808.00480"},
+      {"id": "arXiv:1910.11418", "authors": "J. Y. Araz, M. Frank and B. Fuks", "title": "Reinterpreting the results of the LHC with MadAnalysis 5: uncertainties and higher-luminosity estimates", "journal": "Eur. Phys. J. C", "volume": "80", "year": 2020, "pages": "531", "doi": "10.1140/epjc/s10052-020-8076-6", "arxiv": "1910.11418"},
+      {"id": "arXiv:2006.09387", "authors": "J. Y. Araz, B. Fuks and G. Polykratis", "title": "Simplified fast detector simulation in MADANALYSIS 5", "journal": "Eur. Phys. J. C", "volume": "81", "year": 2021, "pages": "329", "doi": "10.1140/epjc/s10052-021-09052-5", "arxiv": "2006.09387"},
+      {"id": "arXiv:2112.05163", "authors": "J. Y. Araz et al.", "title": "Recasting LHC searches for long-lived particles with MadAnalysis 5", "journal": "Eur. Phys. J. C", "volume": "82", "year": 2022, "pages": "597", "doi": "10.1140/epjc/s10052-022-10511-w", "arxiv": "2112.05163"},
+      {"id": "doi:10.21468/SciPostPhys.14.1.009", "authors": "G. Alguero et al.", "title": "Signal region combination with full and simplified likelihoods in MadAnalysis 5", "journal": "SciPost Phys.", "volume": "14", "year": 2023, "pages": "009", "doi": "10.21468/SciPostPhys.14.1.009", "arxiv": "2206.14870"},
+      {"id": "doi:10.1140/epjc/s10052-023-11779-2", "authors": "J. Y. Araz, A. Buckley and B. Fuks", "title": "Searches for new physics with boosted top quarks in the MadAnalysis 5 and Rivet frameworks", "journal": "Eur. Phys. J. C", "volume": "83", "year": 2023, "pages": "664", "doi": "10.1140/epjc/s10052-023-11779-2", "arxiv": "2303.03427"}
+     ]
+    },
+    {"tool": "SModelS", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels", "home_page": "https://smodels.github.io/", "used_for": "Simplified-model constraints", "basis": "request", "source_url": "https://smodels.github.io/", "note": "SModelS also asks for the cross-section and database tools it calls when those are used.",
+     "cite": [
+      {"id": "arXiv:2409.12942", "authors": "M. M. Altakach et al.", "title": "SModelS v3: going beyond $\\mathcal{Z}_2$ topologies", "journal": "JHEP", "volume": "11", "year": 2024, "pages": "074", "doi": "10.1007/JHEP11(2024)074", "arxiv": "2409.12942"},
+      {"id": "arXiv:2306.17676", "authors": "M. M. Altakach et al.", "title": "SModelS v2.3: Enabling global likelihood analyses", "journal": "SciPost Phys.", "volume": "15", "year": 2023, "pages": "185", "doi": "10.21468/SciPostPhys.15.5.185", "arxiv": "2306.17676"},
+      {"id": "arXiv:2112.00769", "authors": "G. Alguero et al.", "title": "Constraining new physics with SModelS version 2", "journal": "JHEP", "volume": "08", "year": 2022, "pages": "068", "doi": "10.1007/JHEP08(2022)068", "arxiv": "2112.00769"},
+      {"id": "arXiv:2009.01809", "authors": "G. Alguero, S. Kraml and W. Waltenberger", "title": "A SModelS interface for pyhf likelihoods", "journal": "Comput. Phys. Commun.", "volume": "264", "year": 2021, "pages": "107909", "doi": "10.1016/j.cpc.2021.107909", "arxiv": "2009.01809"},
+      {"id": "arXiv:1811.10624", "authors": "F. Ambrogi et al.", "title": "SModelS v1.2: long-lived particles, combination of signal regions, and other novelties", "journal": "Comput. Phys. Commun.", "volume": "251", "year": 2020, "pages": "106848", "doi": "10.1016/j.cpc.2019.07.013", "arxiv": "1811.10624"},
+      {"id": "arXiv:1701.06586", "authors": "F. Ambrogi et al.", "title": "SModelS v1.1 user manual: Improving simplified model constraints with efficiency maps", "journal": "Comput. Phys. Commun.", "volume": "227", "year": 2018, "pages": "72", "doi": "10.1016/j.cpc.2018.02.007", "arxiv": "1701.06586"},
+      {"id": "arXiv:1312.4175", "authors": "S. Kraml et al.", "title": "SModelS: a tool for interpreting simplified-model results from the LHC and its application to supersymmetry", "journal": "Eur. Phys. J. C", "volume": "74", "year": 2014, "pages": "2868", "doi": "10.1140/epjc/s10052-014-2868-5", "arxiv": "1312.4175"}
+     ]
+    },
+    {"tool": "Contur", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/contur", "home_page": "https://hepcedar.gitlab.io/contur-webpage/", "used_for": "Constraints from measurements", "basis": "listed-reference", "source_url": "https://gitlab.com/hepcedar/contur#readme", "note": "The README names the method paper and the manual through InSpire records; both arXiv identifiers were confirmed by title at arXiv.",
+     "cite": [
+      {"id": "arXiv:1606.05296", "authors": "J. M. Butterworth et al.", "title": "Constraining new physics with collider measurements of Standard Model signatures", "journal": "JHEP", "volume": "03", "year": 2017, "pages": "078", "doi": "10.1007/JHEP03(2017)078", "arxiv": "1606.05296"},
+      {"id": "arXiv:2102.04377", "authors": "A. Buckley et al. (Contur Collaboration)", "title": "Testing new physics models with global comparisons to collider measurements: the Contur toolkit", "journal": "SciPost Phys. Core", "volume": "4", "year": 2021, "pages": "013", "doi": "10.21468/SciPostPhysCore.4.2.013", "arxiv": "2102.04377"}
+     ]
+    },
+    {"tool": "AgentRivet", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/AgentRivet", "home_page": "https://gitlab.com/hepcedar/AgentRivet", "used_for": "Agent-built Rivet routines", "basis": "home-page", "source_url": "https://gitlab.com/hepcedar/AgentRivet#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "HEPData", "area": "Analysis and reinterpretation", "link": "https://www.hepdata.net/", "home_page": "https://www.hepdata.net/", "used_for": "Published data tables", "basis": "home-page", "source_url": "https://github.com/HEPData/hepdata#readme", "note": "hepdata.net refused automated access (HTTP 403); the hepdata and hepdata-cli READMEs carry no citation request. Cite each record's own DOI for the data used.",
+     "cite": []
+    },
+    {"tool": "pyhf", "area": "Statistics", "link": "https://github.com/scikit-hep/pyhf", "home_page": "https://pyhf.readthedocs.io/", "used_for": "Likelihood fits", "basis": "request", "source_url": "https://github.com/scikit-hep/pyhf/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.1169739", "authors": "L. Heinrich, M. Feickert and G. Stark", "title": "pyhf", "publisher": "Zenodo", "doi": "10.5281/zenodo.1169739"},
+      {"id": "doi:10.21105/joss.02823", "authors": "L. Heinrich et al.", "title": "pyhf: pure-Python implementation of HistFactory statistical models", "journal": "J. Open Source Softw.", "volume": "6", "year": 2021, "pages": "2823", "doi": "10.21105/joss.02823"}
+     ]
+    },
+    {"tool": "ROOT", "area": "Statistics", "link": "https://root.cern/", "home_page": "https://root.cern/", "used_for": "Data handling and RooFit", "basis": "request", "source_url": "https://github.com/root-project/root#cite",
+     "cite": [
+      {"id": "doi:10.1016/S0168-9002(97)00048-X", "authors": "R. Brun and F. Rademakers", "title": "ROOT — An object oriented data analysis framework", "journal": "Nucl. Instrum. Meth. A", "volume": "389", "year": 1997, "pages": "81", "doi": "10.1016/S0168-9002(97)00048-X"}
+     ]
+    },
+    {"tool": "CMS Combine", "area": "Statistics", "link": "https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit", "home_page": "https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/", "used_for": "Statistical combinations", "basis": "request", "source_url": "https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/latest/",
+     "cite": [
+      {"id": "arXiv:2404.06614", "authors": "CMS Collaboration", "title": "The CMS Statistical Analysis and Combination Tool: Combine", "journal": "Comput. Softw. Big Sci.", "volume": "8", "year": 2024, "pages": "19", "doi": "10.1007/s41781-024-00121-4", "arxiv": "2404.06614"}
+     ]
+    },
+    {"tool": "Spey", "area": "Statistics", "link": "https://github.com/SpeysideHEP/spey", "home_page": "https://github.com/SpeysideHEP/spey", "used_for": "Measurement likelihoods", "basis": "listed-reference", "source_url": "https://github.com/SpeysideHEP/spey#readme", "note": "The README links its arXiv paper and carries no separate citation request.",
+     "cite": [
+      {"id": "arXiv:2307.06996", "authors": "J. Y. Araz", "title": "Spey: Smooth inference for reinterpretation studies", "journal": "SciPost Phys.", "volume": "16", "year": 2024, "pages": "032", "doi": "10.21468/SciPostPhys.16.1.032", "arxiv": "2307.06996"}
+     ]
+    },
+    {"tool": "iminuit", "area": "Statistics", "link": "https://github.com/scikit-hep/iminuit", "home_page": "https://scikit-hep.org/iminuit/", "used_for": "Minimisation", "basis": "request", "source_url": "https://github.com/scikit-hep/iminuit/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.7695764", "authors": "H. Dembinski et al.", "title": "iminuit", "publisher": "Zenodo", "doi": "10.5281/zenodo.7695764"},
+      {"id": "doi:10.1016/0010-4655(75)90039-9", "authors": "F. James and M. Roos", "title": "Minuit: A System for Function Minimization and Analysis of the Parameter Errors and Correlations", "journal": "Comput. Phys. Commun.", "volume": "10", "year": 1975, "pages": "343", "doi": "10.1016/0010-4655(75)90039-9"}
+     ]
+    },
+    {"tool": "Wolfram Engine", "area": "Models and theory", "link": "https://www.wolfram.com/engine/", "home_page": "https://www.wolfram.com/engine/", "used_for": "Symbolic kernel", "basis": "home-page", "source_url": "https://www.wolfram.com/engine/", "note": "The product page carries no citation request.",
+     "cite": []
+    },
+    {"tool": "FeynRules", "area": "Models and theory", "link": "https://feynrules.irmp.ucl.ac.be/", "home_page": "https://feynrules.irmp.ucl.ac.be/", "used_for": "Model files from a Lagrangian", "basis": "request", "source_url": "https://feynrules.irmp.ucl.ac.be/", "note": "The home page asks for the papers of each component used; the FeynRules 2.0 manual is the core reference.",
+     "cite": [
+      {"id": "arXiv:1310.1921", "authors": "A. Alloul et al.", "title": "FeynRules 2.0 - A complete toolbox for tree-level phenomenology", "journal": "Comput. Phys. Commun.", "volume": "185", "year": 2014, "pages": "2250", "doi": "10.1016/j.cpc.2014.04.012", "arxiv": "1310.1921"}
+     ]
+    },
+    {"tool": "SARAH", "area": "Models and theory", "link": "https://sarah.hepforge.org/", "home_page": "https://sarah.hepforge.org/", "used_for": "Model files and spectrum generators", "basis": "release-paper", "source_url": "https://arxiv.org/abs/1309.7223", "note": "The home page served an automated-browser check; the SARAH 4 paper was confirmed at arXiv.",
+     "cite": [
+      {"id": "arXiv:1309.7223", "authors": "F. Staub", "title": "SARAH 4: A tool for (not only SUSY) model builders", "journal": "Comput. Phys. Commun.", "volume": "185", "year": 2014, "pages": "1773", "doi": "10.1016/j.cpc.2014.02.018", "arxiv": "1309.7223"}
+     ]
+    },
+    {"tool": "FeynArts", "area": "Models and theory", "link": "https://feynarts.de/", "home_page": "https://feynarts.de/", "used_for": "Diagram generation", "basis": "listed-reference", "source_url": "https://feynarts.de/", "note": "The home page names the publication; its MSSM model files have their own references there.",
+     "cite": [
+      {"id": "hep-ph/0012260", "authors": "T. Hahn", "title": "Generating Feynman diagrams and amplitudes with FeynArts 3", "journal": "Comput. Phys. Commun.", "volume": "140", "year": 2001, "pages": "418", "doi": "10.1016/S0010-4655(01)00290-9", "arxiv": "hep-ph/0012260"}
+     ]
+    },
+    {"tool": "FeynCalc", "area": "Models and theory", "link": "https://github.com/FeynCalc/feyncalc", "home_page": "https://feyncalc.github.io/", "used_for": "Amplitude algebra", "basis": "request", "source_url": "https://github.com/FeynCalc/feyncalc#readme",
+     "cite": [
+      {"id": "arXiv:2512.19858", "authors": "V. Shtabovenko", "title": "FeynCalc 10.2 and FeynHelpers 2: Multiloop calculations streamlined", "year": 2025, "arxiv": "2512.19858"},
+      {"id": "arXiv:2312.14089", "authors": "V. Shtabovenko, R. Mertig and F. Orellana", "title": "FeynCalc 10: Do multiloop integrals dream of computer codes?", "journal": "Comput. Phys. Commun.", "volume": "306", "year": 2025, "pages": "109357", "doi": "10.1016/j.cpc.2024.109357", "arxiv": "2312.14089"},
+      {"id": "arXiv:2001.04407", "authors": "V. Shtabovenko, R. Mertig and F. Orellana", "title": "FeynCalc 9.3: New features and improvements", "journal": "Comput. Phys. Commun.", "volume": "256", "year": 2020, "pages": "107478", "doi": "10.1016/j.cpc.2020.107478", "arxiv": "2001.04407"},
+      {"id": "arXiv:1601.01167", "authors": "V. Shtabovenko, R. Mertig and F. Orellana", "title": "New Developments in FeynCalc 9.0", "journal": "Comput. Phys. Commun.", "volume": "207", "year": 2016, "pages": "432", "doi": "10.1016/j.cpc.2016.06.008", "arxiv": "1601.01167"},
+      {"id": "doi:10.1016/0010-4655(91)90130-D", "authors": "R. Mertig, M. Böhm and A. Denner", "title": "FEYN CALC: Computer algebraic calculation of Feynman amplitudes", "journal": "Comput. Phys. Commun.", "volume": "64", "year": 1991, "pages": "345", "doi": "10.1016/0010-4655(91)90130-D"}
+     ]
+    },
+    {"tool": "HEPTAPOD", "area": "Models and theory", "link": "https://github.com/tonymenzo/heptapod", "home_page": "https://github.com/tonymenzo/heptapod", "used_for": "Diagram estimates", "basis": "request", "source_url": "https://github.com/tonymenzo/heptapod#citation",
+     "cite": [
+      {"id": "arXiv:2512.15867", "authors": "T. Menzo et al.", "title": "HEPTAPOD: Orchestrating High Energy Physics Workflows Towards Autonomous Agency", "year": 2025, "arxiv": "2512.15867"}
+     ]
+    },
+    {"tool": "Diagrammatica", "area": "Models and theory", "link": "https://github.com/tonymenzo/heptapod", "home_page": "https://github.com/tonymenzo/heptapod", "used_for": "Code from diagrams", "basis": "request", "source_url": "https://github.com/tonymenzo/heptapod#citation",
+     "cite": [
+      {"id": "arXiv:2603.26990", "authors": "T. Menzo et al.", "title": "Agentic Diagrammatica: Towards Autonomous Symbolic Computation in High Energy Physics", "year": 2026, "arxiv": "2603.26990"}
+     ]
+    },
+    {"tool": "FeynGraph", "area": "Models and theory", "link": "https://github.com/jens-braun/feyngraph", "home_page": "https://github.com/jens-braun/feyngraph", "used_for": "Feynman diagrams", "basis": "home-page", "source_url": "https://github.com/jens-braun/feyngraph#readme", "note": "The README carries no citation request; the HEPTAPOD README asks for the Diagrammatica paper when its FeynGraph bundle is used.",
+     "cite": []
+    },
+    {"tool": "FlexibleSUSY", "area": "Models and theory", "link": "https://github.com/FlexibleSUSY/FlexibleSUSY", "home_page": "https://flexiblesusy.hepforge.org/", "used_for": "Spectra and decays", "basis": "request", "source_url": "https://github.com/FlexibleSUSY/FlexibleSUSY#readme", "note": "The README lists further papers for specific features and asks for SARAH and SOFTSUSY alongside FlexibleSUSY.",
+     "cite": [
+      {"id": "arXiv:1406.2319", "authors": "P. Athron et al.", "title": "FlexibleSUSY—A spectrum generator generator for supersymmetric models", "journal": "Comput. Phys. Commun.", "volume": "190", "year": 2015, "pages": "139", "doi": "10.1016/j.cpc.2014.12.020", "arxiv": "1406.2319"},
+      {"id": "arXiv:1710.03760", "authors": "P. Athron et al.", "title": "FlexibleSUSY 2.0: Extensions to investigate the phenomenology of SUSY and non-SUSY models", "journal": "Comput. Phys. Commun.", "volume": "230", "year": 2018, "pages": "145", "doi": "10.1016/j.cpc.2018.04.016", "arxiv": "1710.03760"}
+     ]
+    },
+    {"tool": "SPheno", "area": "Models and theory", "link": "https://spheno.hepforge.org/", "home_page": "https://spheno.hepforge.org/", "used_for": "Spectra and decays", "basis": "release-paper", "source_url": "https://arxiv.org/abs/hep-ph/0301101", "note": "The home page served an automated-browser check; both SPheno papers were confirmed at arXiv.",
+     "cite": [
+      {"id": "hep-ph/0301101", "authors": "W. Porod", "title": "SPheno, a program for calculating supersymmetric spectra, SUSY particle decays and SUSY particle production at e+ e- colliders", "journal": "Comput. Phys. Commun.", "volume": "153", "year": 2003, "pages": "275", "doi": "10.1016/S0010-4655(03)00222-4", "arxiv": "hep-ph/0301101"},
+      {"id": "arXiv:1104.1573", "authors": "W. Porod and F. Staub", "title": "SPheno 3.1: Extensions including flavour, CP-phases and models beyond the MSSM", "journal": "Comput. Phys. Commun.", "volume": "183", "year": 2012, "pages": "2458", "doi": "10.1016/j.cpc.2012.05.021", "arxiv": "1104.1573"}
+     ]
+    },
+    {"tool": "PySLHA", "area": "Models and theory", "link": "https://pypi.org/project/pyslha/", "home_page": "https://pypi.org/project/pyslha/", "used_for": "Spectrum files", "basis": "request", "source_url": "https://pypi.org/project/pyslha/",
+     "cite": [
+      {"id": "arXiv:1305.4194", "authors": "A. Buckley", "title": "PySLHA: a Pythonic interface to SUSY Les Houches Accord data", "journal": "Eur. Phys. J. C", "volume": "75", "year": 2015, "pages": "467", "doi": "10.1140/epjc/s10052-015-3638-8", "arxiv": "1305.4194"}
+     ]
+    },
+    {"tool": "pySecDec", "area": "Models and theory", "link": "https://github.com/secdec-research/secdec", "home_page": "https://secdec.readthedocs.io/", "used_for": "Loop integrals", "basis": "listed-reference", "source_url": "https://github.com/secdec-research/secdec#readme", "note": "The README names these papers as the description of the implementation.",
+     "cite": [
+      {"id": "arXiv:2305.19768", "authors": "G. Heinrich et al.", "title": "Numerical scattering amplitudes with pySecDec", "journal": "Comput. Phys. Commun.", "volume": "295", "year": 2024, "pages": "108956", "doi": "10.1016/j.cpc.2023.108956", "arxiv": "2305.19768"},
+      {"id": "arXiv:2108.10807", "authors": "G. Heinrich et al.", "title": "Expansion by regions with pySecDec", "journal": "Comput. Phys. Commun.", "volume": "273", "year": 2022, "pages": "108267", "doi": "10.1016/j.cpc.2021.108267", "arxiv": "2108.10807"},
+      {"id": "arXiv:1811.11720", "authors": "S. Borowka et al.", "title": "A GPU compatible quasi-Monte Carlo integrator interfaced to pySecDec", "journal": "Comput. Phys. Commun.", "volume": "240", "year": 2019, "pages": "120", "doi": "10.1016/j.cpc.2019.02.015", "arxiv": "1811.11720"},
+      {"id": "arXiv:1703.09692", "authors": "S. Borowka et al.", "title": "pySecDec: A toolbox for the numerical evaluation of multi-scale integrals", "journal": "Comput. Phys. Commun.", "volume": "222", "year": 2018, "pages": "313", "doi": "10.1016/j.cpc.2017.09.015", "arxiv": "1703.09692"}
+     ]
+    },
+    {"tool": "SymPy", "area": "Models and theory", "link": "https://www.sympy.org/", "home_page": "https://www.sympy.org/", "used_for": "Symbolic evaluation", "basis": "request", "source_url": "https://github.com/sympy/sympy#citation",
+     "cite": [
+      {"id": "doi:10.7717/peerj-cs.103", "authors": "A. Meurer et al.", "title": "SymPy: symbolic computing in Python", "journal": "PeerJ Comput. Sci.", "volume": "3", "year": 2017, "pages": "e103", "doi": "10.7717/peerj-cs.103"}
+     ]
+    },
+    {"tool": "PDG", "area": "Models and theory", "link": "https://pdg.lbl.gov/", "home_page": "https://pdg.lbl.gov/", "used_for": "Particle data", "basis": "listed-reference", "source_url": "https://pdg.lbl.gov/",
+     "cite": [
+      {"id": "doi:10.1142/S0217751X26300115", "authors": "F. Takahashi et al. (Particle Data Group)", "title": "Review of Particle Physics", "journal": "Int. J. Mod. Phys. A", "volume": "41", "year": 2026, "pages": "2630011", "doi": "10.1142/S0217751X26300115"}
+     ]
+    },
+    {"tool": "SFitterAgents", "area": "Fits and scans", "link": "https://github.com/heidelberg-hepml/SFitterAgents", "home_page": "https://github.com/heidelberg-hepml/SFitterAgents", "used_for": "Higgs and EFT fits", "basis": "request", "source_url": "https://github.com/heidelberg-hepml/SFitterAgents#citation", "note": "The README also asks for the SMEFT@NLO model and MadGraph5_aMC@NLO that produce the predictions.",
+     "cite": [
+      {"id": "arXiv:2607.22813", "authors": "S. Diefenbacher et al.", "title": "Agentic Re-Casting using Agentic Re-Simulations", "year": 2026, "arxiv": "2607.22813"},
+      {"id": "arXiv:2601.21015", "authors": "T. Plehn, D. Schiller and N. Schmal", "year": 2026, "arxiv": "2601.21015"},
+      {"id": "arXiv:2411.00942", "authors": "T. Heimel, T. Plehn and N. Schmal", "title": "Profile Likelihoods on ML-Steroids", "year": 2024, "arxiv": "2411.00942"}
+     ]
+    },
+    {"tool": "EasyScan_HEP", "area": "Fits and scans", "link": "https://github.com/phyzhangyang/EasyScan_HEP", "home_page": "https://github.com/phyzhangyang/EasyScan_HEP", "used_for": "Parameter scans", "basis": "listed-reference", "source_url": "https://github.com/phyzhangyang/EasyScan_HEP#readme", "note": "The README names these papers as its documentation.",
+     "cite": [
+      {"id": "arXiv:2304.03636", "authors": "L. Shang and Y. Zhang", "title": "EasyScan_HEP: A tool for connecting programs to scan the parameter space of physics models", "journal": "Comput. Phys. Commun.", "volume": "296", "year": 2024, "pages": "109027", "doi": "10.1016/j.cpc.2023.109027", "arxiv": "2304.03636"},
+      {"id": "arXiv:2606.31214", "authors": "Y. Xiao, Y. Yue and Y. Zhang", "title": "EasyScan_HEP 2: LLM-agent parameter-scan workflows in high energy physics", "journal": "Eur. Phys. J. C", "volume": "86", "year": 2026, "pages": "1101", "doi": "10.1140/epjc/s10052-026-16358-9", "arxiv": "2606.31214"}
+     ]
+    },
+    {"tool": "GM2Calc", "area": "Fits and scans", "link": "https://github.com/GM2Calc/GM2Calc", "home_page": "https://github.com/GM2Calc/GM2Calc", "used_for": "Muon g−2 predictions", "basis": "listed-reference", "source_url": "https://github.com/GM2Calc/GM2Calc#readme",
+     "cite": [
+      {"id": "arXiv:1510.08071", "authors": "P. Athron et al.", "title": "GM2Calc: Precise MSSM prediction for $(g - 2)$ of the muon", "journal": "Eur. Phys. J. C", "volume": "76", "year": 2016, "pages": "62", "doi": "10.1140/epjc/s10052-015-3870-2", "arxiv": "1510.08071"},
+      {"id": "arXiv:2110.13238", "authors": "P. Athron et al.", "title": "Two-loop prediction of the anomalous magnetic moment of the muon in the Two-Higgs Doublet Model with GM2Calc 2", "journal": "Eur. Phys. J. C", "volume": "82", "year": 2022, "pages": "229", "doi": "10.1140/epjc/s10052-022-10148-9", "arxiv": "2110.13238"}
+     ]
+    },
+    {"tool": "PhaseTracer", "area": "Fits and scans", "link": "https://github.com/PhaseTracer/PhaseTracer", "home_page": "https://github.com/PhaseTracer/PhaseTracer", "used_for": "Phase transitions", "basis": "request", "source_url": "https://github.com/PhaseTracer/PhaseTracer#citing",
+     "cite": [
+      {"id": "arXiv:2412.04881", "authors": "P. Athron et al.", "title": "PhaseTracer2: from the effective potential to gravitational waves", "journal": "Eur. Phys. J. C", "volume": "85", "year": 2025, "pages": "559", "doi": "10.1140/epjc/s10052-025-14258-y", "arxiv": "2412.04881"},
+      {"id": "arXiv:2003.02859", "authors": "P. Athron et al.", "title": "PhaseTracer: tracing cosmological phases and calculating transition properties", "journal": "Eur. Phys. J. C", "volume": "80", "year": 2020, "pages": "567", "doi": "10.1140/epjc/s10052-020-8035-2", "arxiv": "2003.02859"}
+     ]
+    },
+    {"tool": "WCxf", "area": "Fits and scans", "link": "https://wcxf.github.io/", "home_page": "https://wcxf.github.io/", "used_for": "Wilson-coefficient exchange format", "basis": "listed-reference", "source_url": "https://wcxf.github.io/",
+     "cite": [
+      {"id": "arXiv:1712.05298", "authors": "J. Aebischer et al.", "title": "WCxf: an exchange format for Wilson coefficients beyond the Standard Model", "journal": "Comput. Phys. Commun.", "volume": "232", "year": 2018, "pages": "71", "doi": "10.1016/j.cpc.2018.05.022", "arxiv": "1712.05298"}
+     ]
+    },
+    {"tool": "Wilson", "area": "Fits and scans", "link": "https://github.com/wilson-eft/wilson", "home_page": "https://wilson-eft.github.io/", "used_for": "Running and matching", "basis": "request", "source_url": "https://github.com/wilson-eft/wilson#citation",
+     "cite": [
+      {"id": "arXiv:1804.05033", "authors": "J. Aebischer, J. Kumar and D. M. Straub", "title": "Wilson: a Python package for the running and matching of Wilson coefficients above and below the electroweak scale", "journal": "Eur. Phys. J. C", "volume": "78", "year": 2018, "pages": "1026", "doi": "10.1140/epjc/s10052-018-6492-7", "arxiv": "1804.05033"}
+     ]
+    },
+    {"tool": "flavio", "area": "Fits and scans", "link": "https://github.com/flav-io/flavio", "home_page": "https://flav-io.github.io/", "used_for": "Flavour and precision observables", "basis": "request", "source_url": "https://github.com/flav-io/flavio#citation",
+     "cite": [
+      {"id": "arXiv:1810.08132", "authors": "D. M. Straub", "title": "flavio: a Python package for flavour and precision phenomenology in the Standard Model and beyond", "year": 2018, "arxiv": "1810.08132"}
+     ]
+    },
+    {"tool": "smelli", "area": "Fits and scans", "link": "https://github.com/smelli/smelli", "home_page": "https://github.com/smelli/smelli", "used_for": "Global EFT likelihood", "basis": "request", "source_url": "https://github.com/smelli/smelli#citation", "note": "smelli also asks for the flavio and Wilson papers.",
+     "cite": [
+      {"id": "arXiv:1810.07698", "authors": "J. Aebischer et al.", "title": "A Global Likelihood for Precision Constraints and Flavour Anomalies", "journal": "Eur. Phys. J. C", "volume": "79", "year": 2019, "pages": "509", "doi": "10.1140/epjc/s10052-019-6977-z", "arxiv": "1810.07698"}
+     ]
+    },
+    {"tool": "CAMB", "area": "Cosmology", "link": "https://camb.info/", "home_page": "https://camb.info/", "used_for": "Cosmological power spectra", "basis": "request", "source_url": "https://github.com/cmbant/CAMB#citation",
+     "cite": [
+      {"id": "arXiv:2607.14854", "authors": "A. Lewis", "title": "CAMB 2: cosmological power spectra for high-precision surveys", "journal": "JCAP", "volume": "10", "year": 2026, "pages": "013", "doi": "10.1088/1475-7516/2026/10/013", "arxiv": "2607.14854"},
+      {"id": "astro-ph/9911177", "authors": "A. Lewis, A. Challinor and A. Lasenby", "title": "Efficient computation of CMB anisotropies in closed FRW models", "journal": "Astrophys. J.", "volume": "538", "year": 2000, "pages": "473", "doi": "10.1086/309179", "arxiv": "astro-ph/9911177"}
+     ]
+    },
+    {"tool": "CLASS", "area": "Cosmology", "link": "https://lesgourg.github.io/class_public/class.html", "home_page": "https://lesgourg.github.io/class_public/class.html", "used_for": "Cosmological power spectra", "basis": "request", "source_url": "https://github.com/lesgourg/class_public#using-the-code",
+     "cite": [
+      {"id": "arXiv:1104.2933", "authors": "D. Blas, J. Lesgourgues and T. Tram", "title": "The Cosmic Linear Anisotropy Solving System (CLASS) II: Approximation schemes", "journal": "JCAP", "volume": "07", "year": 2011, "pages": "034", "doi": "10.1088/1475-7516/2011/07/034", "arxiv": "1104.2933"}
+     ]
+    },
+    {"tool": "Cobaya", "area": "Cosmology", "link": "https://cobaya.readthedocs.io/", "home_page": "https://cobaya.readthedocs.io/", "used_for": "Cosmological inference", "basis": "request", "source_url": "https://github.com/CobayaSampler/cobaya#how-to-cite-us", "note": "cobaya-bib lists the references of the samplers, theory codes and likelihoods in an input file.",
+     "cite": [
+      {"id": "arXiv:2005.05290", "authors": "J. Torrado and A. Lewis", "title": "Cobaya: Code for Bayesian Analysis of hierarchical physical models", "journal": "JCAP", "volume": "05", "year": 2021, "pages": "057", "doi": "10.1088/1475-7516/2021/05/057", "arxiv": "2005.05290"},
+      {"id": "ascl:1910.019", "authors": "J. Torrado and A. Lewis", "title": "Cobaya: Bayesian analysis in cosmology", "publisher": "Astrophysics Source Code Library", "year": 2019, "ascl": "1910.019"}
+     ]
+    },
+    {"tool": "Nyx", "area": "Cosmology", "link": "https://github.com/AMReX-Astro/Nyx", "home_page": "https://amrex-astro.github.io/Nyx/", "used_for": "Cosmological simulation", "basis": "home-page", "source_url": "https://github.com/AMReX-Astro/Nyx#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "AMReX", "area": "Cosmology", "link": "https://github.com/AMReX-Codes/amrex", "home_page": "https://amrex-codes.github.io/amrex/", "used_for": "Adaptive mesh refinement for Nyx", "basis": "request", "source_url": "https://github.com/AMReX-Codes/amrex#citation",
+     "cite": [
+      {"id": "doi:10.21105/joss.01370", "authors": "W. Zhang et al.", "title": "AMReX: a framework for block-structured adaptive mesh refinement", "journal": "J. Open Source Softw.", "volume": "4", "year": 2019, "pages": "1370", "doi": "10.21105/joss.01370"},
+      {"id": "doi:10.1177/10943420211022811", "authors": "W. Zhang et al.", "title": "AMReX: Block-structured adaptive mesh refinement for multiphysics applications", "journal": "Int. J. High Perform. Comput. Appl.", "volume": "35", "year": 2021, "pages": "508", "doi": "10.1177/10943420211022811"}
+     ],
+     "also": [
+      {"when": "with pyAMReX or more modern features of AMReX", "cite": [
+        {"id": "doi:10.1177/10943420241271017", "authors": "A. Myers et al.", "title": "AMReX and pyAMReX: Looking beyond the exascale computing project", "journal": "Int. J. High Perform. Comput. Appl.", "volume": "38", "year": 2024, "pages": "599", "doi": "10.1177/10943420241271017"}
+      ]}
+     ]
+    },
+    {"tool": "SUNDIALS", "area": "Cosmology", "link": "https://github.com/LLNL/sundials", "home_page": "https://computing.llnl.gov/projects/sundials", "used_for": "Differential-equation solvers for Nyx", "basis": "request", "source_url": "https://github.com/LLNL/sundials/blob/main/CITATIONS.md", "note": "SUNDIALS also asks for a citation of the user documentation of the package and version used.",
+     "cite": [
+      {"id": "doi:10.1145/3539801", "authors": "D. J. Gardner et al.", "title": "Enabling New Flexibility in the SUNDIALS Suite of Nonlinear and Differential/Algebraic Equation Solvers", "journal": "ACM Trans. Math. Softw.", "volume": "48", "year": 2022, "doi": "10.1145/3539801"},
+      {"id": "doi:10.1145/1089014.1089020", "authors": "A. C. Hindmarsh et al.", "title": "SUNDIALS", "journal": "ACM Trans. Math. Softw.", "volume": "31", "year": 2005, "pages": "363", "doi": "10.1145/1089014.1089020"}
+     ],
+     "also": [
+      {"when": "with GPU features of SUNDIALS", "cite": [
+        {"id": "doi:10.1016/j.parco.2021.102836", "authors": "C. J. Balos et al.", "title": "Enabling GPU accelerated computing in the SUNDIALS time integration library", "journal": "Parallel Comput.", "volume": "108", "year": 2021, "pages": "102836", "doi": "10.1016/j.parco.2021.102836"}
+      ]},
+      {"when": "with its ARKODE package", "cite": [
+        {"id": "doi:10.1145/3594632", "authors": "D. R. Reynolds et al.", "title": "ARKODE: A Flexible IVP Solver Infrastructure for One-step Methods", "journal": "ACM Trans. Math. Softw.", "volume": "49", "year": 2023, "doi": "10.1145/3594632"}
+      ]}
+     ]
+    },
+    {"tool": "ServiceX", "area": "Data access and workflows", "link": "https://github.com/ssl-hep/ServiceX", "home_page": "https://servicex.readthedocs.io/", "used_for": "Remote columnar data", "basis": "home-page", "source_url": "https://github.com/ssl-hep/ServiceX#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "func-adl-servicex-xaodr25", "area": "Data access and workflows", "link": "https://github.com/iris-hep/func_adl_servicex_xaodr25", "home_page": "https://github.com/iris-hep/func_adl_servicex_xaodr25", "used_for": "Query translation for ServiceX", "basis": "home-page", "source_url": "https://github.com/iris-hep/func_adl_servicex_xaodr25", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "uproot", "area": "Data access and workflows", "link": "https://github.com/scikit-hep/uproot5", "home_page": "https://github.com/scikit-hep/uproot5", "used_for": "ROOT files in Python", "basis": "request", "source_url": "https://github.com/scikit-hep/uproot5/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.4340632", "authors": "J. Pivarski et al.", "title": "Uproot", "publisher": "Zenodo", "doi": "10.5281/zenodo.4340632"}
+     ]
+    },
+    {"tool": "Awkward Array", "area": "Data access and workflows", "link": "https://github.com/scikit-hep/awkward", "home_page": "https://awkward-array.org/", "used_for": "Columnar arrays", "basis": "request", "source_url": "https://github.com/scikit-hep/awkward/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.4341376", "authors": "J. Pivarski et al.", "title": "Awkward Array", "publisher": "Zenodo", "doi": "10.5281/zenodo.4341376"}
+     ]
+    },
+    {"tool": "XRootD", "area": "Data access and workflows", "link": "https://github.com/xrootd/xrootd", "home_page": "https://xrootd.slac.stanford.edu/", "used_for": "Remote file access", "basis": "home-page", "source_url": "https://github.com/xrootd/xrootd#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "Snakemake", "area": "Data access and workflows", "link": "https://github.com/snakemake/snakemake", "home_page": "https://snakemake.github.io/", "used_for": "Facility workflows", "basis": "listed-reference", "source_url": "https://snakemake.github.io/", "note": "The home page links this paper as the Snakemake paper.",
+     "cite": [
+      {"id": "doi:10.12688/f1000research.29032.2", "authors": "F. Mölder et al.", "title": "Sustainable data analysis with Snakemake", "journal": "F1000Research", "volume": "10", "year": 2021, "pages": "33", "doi": "10.12688/f1000research.29032.2"}
+     ]
+    },
+    {"tool": "LangGraph", "area": "Data access and workflows", "link": "https://github.com/langchain-ai/langgraph", "home_page": "https://github.com/langchain-ai/langgraph", "used_for": "Research graph", "basis": "home-page", "source_url": "https://github.com/langchain-ai/langgraph#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "Podman", "area": "Data access and workflows", "link": "https://podman.io/", "home_page": "https://podman.io/", "used_for": "Containers", "basis": "home-page", "source_url": "https://github.com/containers/podman#readme", "note": "The README carries no citation request.",
+     "cite": []
+    },
+    {"tool": "PyTorch", "area": "Machine learning and figures", "link": "https://pytorch.org/", "home_page": "https://pytorch.org/", "used_for": "Machine learning", "basis": "request", "source_url": "https://github.com/pytorch/pytorch/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.1145/3620665.3640366", "authors": "J. Ansel et al.", "title": "PyTorch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation", "journal": "Proc. ASPLOS '24", "volume": "2", "year": 2024, "pages": "929", "doi": "10.1145/3620665.3640366"}
+     ]
+    },
+    {"tool": "scikit-learn", "area": "Machine learning and figures", "link": "https://scikit-learn.org/", "home_page": "https://scikit-learn.org/", "used_for": "Machine learning", "basis": "request", "source_url": "https://scikit-learn.org/stable/about.html",
+     "cite": [
+      {"authors": "F. Pedregosa et al.", "title": "Scikit-learn: Machine Learning in Python", "journal": "J. Mach. Learn. Res.", "volume": "12", "year": 2011, "pages": "2825", "url": "https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html"}
+     ]
+    },
+    {"tool": "ONNX Runtime", "area": "Machine learning and figures", "link": "https://onnxruntime.ai/", "home_page": "https://onnxruntime.ai/", "used_for": "Published classifiers", "basis": "request", "source_url": "https://github.com/microsoft/onnxruntime/blob/HEAD/CITATION.cff", "note": "CITATION.cff names the developers and the home page and gives no paper or DOI.",
+     "cite": [
+      {"authors": "ONNX Runtime developers", "title": "ONNX Runtime", "url": "https://onnxruntime.ai/"}
+     ]
+    },
+    {"tool": "Matplotlib", "area": "Machine learning and figures", "link": "https://matplotlib.org/", "home_page": "https://matplotlib.org/", "used_for": "Figures", "basis": "request", "source_url": "https://matplotlib.org/stable/project/citing.html",
+     "cite": [
+      {"id": "doi:10.1109/MCSE.2007.55", "authors": "J. D. Hunter", "title": "Matplotlib: A 2D Graphics Environment", "journal": "Comput. Sci. Eng.", "volume": "9", "year": 2007, "pages": "90", "doi": "10.1109/MCSE.2007.55"}
+     ]
+    },
+    {"tool": "mplhep", "area": "Machine learning and figures", "link": "https://github.com/scikit-hep/mplhep", "home_page": "https://github.com/scikit-hep/mplhep", "used_for": "HEP figure style", "basis": "request", "source_url": "https://github.com/scikit-hep/mplhep/blob/HEAD/CITATION.cff",
+     "cite": [
+      {"id": "doi:10.5281/zenodo.3766157", "authors": "A. Novak et al.", "title": "mplhep", "publisher": "Zenodo", "doi": "10.5281/zenodo.3766157"}
+     ]
+    },
+    {"tool": "Miniforge", "area": "Data access and workflows", "link": "https://github.com/conda-forge/miniforge", "home_page": "https://github.com/conda-forge/miniforge", "used_for": "Bootstrap Python and conda environments", "basis": "home-page", "source_url": "https://github.com/conda-forge/miniforge", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "LHAPDF PDF sets", "area": "Event generation and simulation", "link": "https://lhapdf.hepforge.org/pdfsets.html", "home_page": "https://lhapdf.hepforge.org/pdfsets.html", "used_for": "Parton-density data sets", "basis": "home-page", "source_url": "https://lhapdf.hepforge.org/pdfsets.html", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "MG5aMC_PY8_interface", "area": "Event generation and simulation", "link": "https://launchpad.net/mg5amcnlo", "home_page": "https://launchpad.net/mg5amcnlo", "used_for": "MadGraph's own Pythia 8 showering", "basis": "home-page", "source_url": "https://launchpad.net/mg5amcnlo", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "vfkit", "area": "Data access and workflows", "link": "https://github.com/crc-org/vfkit", "home_page": "https://github.com/crc-org/vfkit", "used_for": "Container virtual machine on macOS", "basis": "home-page", "source_url": "https://github.com/crc-org/vfkit", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "gvproxy", "area": "Data access and workflows", "link": "https://github.com/containers/gvisor-tap-vsock", "home_page": "https://github.com/containers/gvisor-tap-vsock", "used_for": "Container virtual-machine networking", "basis": "home-page", "source_url": "https://github.com/containers/gvisor-tap-vsock", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "FORM", "area": "Models and theory", "link": "https://github.com/form-dev/form", "home_page": "https://github.com/form-dev/form", "used_for": "Symbolic manipulation for loop integrals", "basis": "home-page", "source_url": "https://github.com/form-dev/form", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "SModelS database 3.2.1", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels-database-release", "home_page": "https://github.com/SModelS/smodels-database-release", "used_for": "Simplified-model results database", "basis": "home-page", "source_url": "https://github.com/SModelS/smodels-database-release", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "SModelS database 3.1.1", "area": "Analysis and reinterpretation", "link": "https://github.com/SModelS/smodels-database-release", "home_page": "https://github.com/SModelS/smodels-database-release", "used_for": "Simplified-model results database (earlier release)", "basis": "home-page", "source_url": "https://github.com/SModelS/smodels-database-release", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "ThePEG", "area": "Event generation and simulation", "link": "https://thepeg.hepforge.org/", "home_page": "https://thepeg.hepforge.org/", "used_for": "Event-generator toolkit under Herwig", "basis": "home-page", "source_url": "https://thepeg.hepforge.org/", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "ALGLIB", "area": "Fits and scans", "link": "https://www.alglib.net/", "home_page": "https://www.alglib.net/", "used_for": "Numerical library for phase-transition scans", "basis": "home-page", "source_url": "https://www.alglib.net/", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "poppler", "area": "Machine learning and figures", "link": "https://poppler.freedesktop.org/", "home_page": "https://poppler.freedesktop.org/", "used_for": "PDF rendering for reports", "basis": "home-page", "source_url": "https://poppler.freedesktop.org/", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "Graphviz", "area": "Machine learning and figures", "link": "https://graphviz.org/", "home_page": "https://graphviz.org/", "used_for": "Graph layout for reports", "basis": "home-page", "source_url": "https://graphviz.org/", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "librsvg", "area": "Machine learning and figures", "link": "https://gitlab.gnome.org/GNOME/librsvg", "home_page": "https://gitlab.gnome.org/GNOME/librsvg", "used_for": "SVG rendering for reports", "basis": "home-page", "source_url": "https://gitlab.gnome.org/GNOME/librsvg", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "pypdfium2", "area": "Machine learning and figures", "link": "https://github.com/pypdfium2-team/pypdfium2", "home_page": "https://github.com/pypdfium2-team/pypdfium2", "used_for": "PDF page rendering in Python", "basis": "home-page", "source_url": "https://github.com/pypdfium2-team/pypdfium2", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "pypdf", "area": "Machine learning and figures", "link": "https://github.com/py-pdf/pypdf", "home_page": "https://github.com/py-pdf/pypdf", "used_for": "PDF reading and assembly in Python", "basis": "home-page", "source_url": "https://github.com/py-pdf/pypdf", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "PyTorch Geometric", "area": "Machine learning and figures", "link": "https://github.com/pyg-team/pytorch_geometric", "home_page": "https://github.com/pyg-team/pytorch_geometric", "used_for": "Graph neural networks", "basis": "home-page", "source_url": "https://github.com/pyg-team/pytorch_geometric", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "PDG Review of Particle Physics data", "area": "Data access and workflows", "link": "https://pdg.lbl.gov/", "home_page": "https://pdg.lbl.gov/", "used_for": "Particle properties", "basis": "home-page", "source_url": "https://pdg.lbl.gov/", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    },
+    {"tool": "pdg Python package", "area": "Data access and workflows", "link": "https://github.com/particledatagroup/api", "home_page": "https://github.com/particledatagroup/api", "used_for": "Offline access to PDG data", "basis": "home-page", "source_url": "https://github.com/particledatagroup/api", "note": "Listed in the released toolchain; this row gives the project home page, and no citation request was looked up for it.",
+     "cite": []
+    }
   ]
 }

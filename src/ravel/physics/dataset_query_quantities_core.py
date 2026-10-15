@@ -141,6 +141,10 @@ class MissingColumnarInput(ValueError):
     """A supplied columnar contract omitted a required input."""
 
 
+class MissingServiceEndpoint(MissingColumnarInput):
+    """A dispatching operation names no ServiceX endpoint; none is shipped, installed or read from the home directory."""
+
+
 def context_description():
     return 'inspect supplied dataset, query, observable and presentation requirements; no dispatch'
 
@@ -346,6 +350,12 @@ def config(c):
         if c['service'] is not None or c['remote_request'] is not None:
             raise ValueError('returned-file analysis has no service dispatch or credential')
     else:
+        if c['service'] is None or type(c['service']) is dict and not c['service'].get('endpoint'):
+            raise MissingServiceEndpoint(
+                c['operation'] + ' dispatches to a ServiceX endpoint and the configuration names none: supply your own '
+                'HTTPS endpoint as service.endpoint and, when it needs an access token, the environment variable that '
+                'holds it as service.credential_reference. RAVEL ships no endpoint and does not read servicex.yaml; '
+                'use analyze_returned_native_files for native files you already hold.')
         keys(c['service'], ('endpoint', 'credential_reference', 'codegen', 'result_format', 'cancel_if_failed'), 'native service')
         public_uri(c['service']['endpoint'])
         if urlsplit(c['service']['endpoint']).scheme != 'https':

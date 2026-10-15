@@ -250,6 +250,8 @@ class Broker:
         if derivation == 'registered_validator':
             path = Path(__file__).parents[1] / 'data/validators/allowlist.json'
             entries=read_json(path) if path.is_file() else []
+            from .higgs_registration import compose
+            entries=compose(entries, path)
             entries=entries.get('validators',[]) if type(entries) is dict else entries
             ids={r.get('id') if type(r) is dict else r for r in entries}
             declared = set(validator_ids) if validator_ids is not None else {validator_id}

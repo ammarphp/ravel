@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "kind": "model-recipe-library",
+ "purpose": "Shipped, hashed generation recipes for the card renderer (prepare_native_slepton). Each recipe names its process, spectrum, PDF, matching and decay choices; the renderer binds the masses and run controls the caller supplies. A recipe is a statement of how a sample is produced, not an admission of a physics operation: the native adapter still checks the process, the declared masses and the shower, and CHECK-IN 1 approval still precedes any generation.",
+ "recipes": {
+  "slepton-bino-isrslep": {
+   "description": "Direct production of mass-degenerate charged sleptons in the MSSM_SLHA2 model with a bino-like lightest neutralino, one explicit ISR parton, unmerged leading order.",
+   "recipe": "slepton_bino_isrslep_recipe.json",
+   "scan_template": "slepton_scan_template.toml",
+   "shower_card": "pythia8_mg_interface_card.dat",
+   "process": "p p > chsleptons chsleptons j / susystrong @1 (the chsleptons multiparticle holds el, er, mul, mur, ta1 and ta2 of both charges; one explicit extra parton, no merging)",
+   "spectrum": "All six charged-slepton masses equal MSLEP; the lightest neutralino mass is MN1; squarks, gluino, sneutrinos, charginos and heavier neutralinos at 4.5e9 GeV. The mixing blocks are those of the shipped parameter template: the model reads the physical masses and the slepton and neutralino mixing matrices from the card, so this is a supplied simplified-model spectrum, not a diagonalized MSSM spectrum.",
+   "decays": "Explicit branching-ratio rows of 1.0 for slepton to lightest neutralino plus its lepton for el, er, mul, mur, ta1 and ta2, so Pythia imports a complete DECAY table. No width-only decay table is shipped.",
+   "matching": "None: ickkw = 0 with xqcut and ktdurham at -1. The sample carries one explicit parton and is not an MLM or CKKW-L merged sample; a merged production needs a different native adapter.",
+   "pdf_choices": {
+    "cteq6l1": {"pdlabel": "cteq6l1"},
+    "nn23nlo": {"pdlabel": "nn23nlo"},
+    "nnpdf30": {"pdlabel": "lhapdf", "lhaid": 260000}
+   },
+   "parameters": {
+    "MSLEP": {"unit": "GeV", "pdg": [1000011, 1000013, 1000015, 2000011, 2000013, 2000015], "meaning": "common mass of the six charged sleptons"},
+    "MN1": {"unit": "GeV", "pdg": [1000022], "meaning": "mass of the lightest neutralino"}
+   },
+   "scan_substitutions": {
+    "madgraph.masses.MSLEP": "<axis bound to the slepton mass>",
+    "madgraph.masses.MN1": "<axis bound to the neutralino mass>"
+   },
+   "run_cuts": "The recipe's run controls carry the jet cuts of the reference sample (ptj 20, ptj1min 50, mmjj 0, mmjjmax -1, deltaeta 0). A configuration that declares [madgraph.run.options] overrides them key by key; dropping the cut block changes the tagged cross section by about a factor of two.",
+   "source": {
+    "process_card": "mapyde 0.5.0 cards/process/isrslep (Apache-2.0), definitions block",
+    "param_template": "mapyde 0.5.0 cards/param/SleptonBino.slha (Apache-2.0); the six slepton masses and the neutralino mass are the placeholders MSLEP and MN1",
+    "run_template": "mapyde 0.5.0 cards/run/default_LO.dat (Apache-2.0)",
+    "shower_card": "mapyde 0.5.0 cards/pythia/pythia8_card.dat (Apache-2.0), the MadGraph-interface card the native shower wrapper translates for unmerged LO",
+    "licence": "LICENSE.mapyde.txt"
+   },
+   "lo_denominators": [
+    "mg5-lo-slepton-l-pair-cteq6l1",
+    "mg5-lo-slepton-lr-pair-2gen-cteq6l1",
+    "mg5-lo-slepton-lr-pair-with-stau-cteq6l1"
+   ]
+  }
+ }
+}

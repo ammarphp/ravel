@@ -20,6 +20,9 @@ rescales anything.
 existing generator normalization record and the cross-section registry;
 ``engine_normalization`` gives the columnar analysis engine's normalization
 block, and ``check_engine_scale`` verifies the scale the engine applied.
+``record_check`` is RAVEL's own run of ``check`` on a run's ledger: it writes the
+check-result record under ``checks/`` and registers it in custody, so a failed
+recomputation is evidence a review finding can cite as ``check:<check_id>``.
 """
 from __future__ import annotations
 
@@ -551,6 +554,76 @@ def checkin_lines(report, ledger):
     return lines
 
 
+PRODUCER = 'ravel.physics.normalization_ledger'
+CHECK_ID = 'normalization-ledger'
+
+
+LEDGER = 'inputs/normalization_ledger.json'
+
+
+def _ledger_bytes(rundir, ledger):
+    root = Path(rundir).resolve()
+    rel = Path(ledger)
+    path = root / rel
+    if rel.is_absolute() or '..' in rel.parts or path.is_symlink() or not path.is_file():
+        raise ValueError(f'the ledger must be a regular file of the run: {ledger}')
+    return root, rel, path.read_bytes()
+
+
+def _register_check(root, rel, raw, check_id, passed, failures):
+    import hashlib
+    from ravel.workflow import rdj_custody
+    from ravel.workflow.state_io import atomic_json
+    record = {'schema_version': 1, 'kind': rdj_custody.CHECK_RESULT_KIND, 'check_id': check_id, 'producer': PRODUCER,
+              'status': 'passed' if passed else 'failed', 'failures': failures,
+              'pins': [{'path': rel.as_posix(), 'sha256': hashlib.sha256(raw).hexdigest()}]}
+    target = f'checks/{check_id}.json'
+    atomic_json(root / target, record)
+    rdj_custody.register_check_result(root, target)
+    return record
+
+
+def record_check(rundir, ledger=LEDGER, *, check_id=CHECK_ID, delivered=None,
+                 certifier_sigma_fb=None, rel_tol=1e-12):
+    """Run ``check`` on a run's ledger and register the result as ``check:<check_id>``.
+
+    The record pins the ledger bytes it was computed for, so it stops counting when the
+    ledger changes. This module is a registered validator (``data/rdj/policy.json``): a
+    failed record makes a reviewer's ``code_check`` finding that cites it blocking.
+    """
+    root, rel, raw = _ledger_bytes(rundir, ledger)
+    report = check(json.loads(raw), delivered=delivered, certifier_sigma_fb=certifier_sigma_fb, rel_tol=rel_tol)
+    return _register_check(root, rel, raw, check_id, report['passed'], report['failures'])
+
+
+def ensure_recorded(rundir, ledger=LEDGER):
+    """The registered ``check:normalization-ledger`` result for the run's current ledger bytes.
+
+    The review path calls this before it weighs review findings: a sandboxed reviewer cannot
+    write custody, so RAVEL runs the validator itself. A result registered for these exact
+    bytes is returned as it is; otherwise the check runs and is registered. A ledger that
+    cannot be read as a ledger is a failed result. A run without a ledger has none.
+    """
+    import hashlib
+    from ravel.workflow import rdj_custody
+    try:
+        root, rel, raw = _ledger_bytes(rundir, ledger)
+    except ValueError:
+        return None
+    pins = [{'path': rel.as_posix(), 'sha256': hashlib.sha256(raw).hexdigest()}]
+    try:
+        current = rdj_custody.check_result(root, CHECK_ID)
+    except (OSError, ValueError, TypeError):
+        current = None
+    if current is not None and current.get('producer') == PRODUCER and current.get('pins') == pins:
+        return current
+    try:
+        report = check(json.loads(raw))
+    except (ValueError, KeyError, TypeError) as exc:
+        report = {'passed': False, 'failures': [{'code': 'ledger_invalid', 'explanation': str(exc)}]}
+    return _register_check(root, rel, raw, CHECK_ID, report['passed'], report['failures'])
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='ravel normalization-ledger', description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -560,6 +633,9 @@ def main(argv=None):
     c.add_argument('--delivered', type=Path, help='JSON mapping region names to delivered per-bin yields')
     c.add_argument('--certifier-sigma-fb', type=float)
     c.add_argument('--rel-tol', type=float, default=1e-12)
+    c.add_argument('--record', type=Path, metavar='RUNDIR',
+                   help='register the result in this run\'s custody; --ledger is then a path inside the run')
+    c.add_argument('--check-id', default=CHECK_ID)
     e = sub.add_parser('engine', help='print the analysis-engine normalization block for a ledger')
     e.add_argument('--ledger', required=True, type=Path)
     e.add_argument('--receipt')
@@ -570,6 +646,10 @@ def main(argv=None):
         return 0
     delivered = json.loads(args.delivered.read_text()) if args.delivered else None
     report = check(ledger, delivered=delivered, certifier_sigma_fb=args.certifier_sigma_fb, rel_tol=args.rel_tol)
+    if args.record:
+        inside = args.ledger.resolve().relative_to(args.record.resolve()).as_posix()
+        record_check(args.record, inside, check_id=args.check_id, delivered=delivered,
+                     certifier_sigma_fb=args.certifier_sigma_fb, rel_tol=args.rel_tol)
     print(json.dumps({k: v for k, v in report.items() if k != 'expected'}, indent=2))
     for line in checkin_lines(report, ledger):
         print(line)

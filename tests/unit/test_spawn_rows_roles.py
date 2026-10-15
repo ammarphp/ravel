@@ -96,7 +96,7 @@ def test_catalogue_rows_are_appended_with_registered_roles():
     catalogue = spawn_rows.catalogue()
     assert [r['row'] for r in catalogue['rows']][:5] == ['K1', 'K4', 'K5', 'K6', 'K7']
     added = {r['row']: r for r in catalogue['rows'][5:]}
-    assert set(added) == {'K7S', 'K8', 'K10', 'K11'}
+    assert set(added) == {'K7S', 'K8', 'K10', 'K11', 'KH1', 'KH2', 'KH3'}
     document = role_registry.registry_document()
     for row in added.values():
         for role in [r['role'] for r in row['roles']] + [row[k] for k in ('exploit_role', 'explore_role') if k in row]:

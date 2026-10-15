@@ -1,0 +1,314 @@
+{
+ "schema_version": 1,
+ "kind": "native-group-fill-descriptors",
+ "rivet_version": "4.1.4",
+ "naming_sources": [
+  {
+   "role": "analysis_header",
+   "package_path": "six-b/include/Rivet/Analysis.hh",
+   "sha256": "03118ad57c24cb2d61d9d32422f1f75bf57ce848cdbeef7ccc26a8e7ce499492"
+  },
+  {
+   "role": "analysis_source",
+   "package_path": "six-b/src/Core/Analysis.cc",
+   "sha256": "d10488d59bc2651fc9d4bd6a26059ba8b349870b69610ac2e85e488c1194fee5"
+  },
+  {
+   "role": "handler_source",
+   "package_path": "six-b/src/Core/AnalysisHandler.cc",
+   "sha256": "f0dade9eb1cfb7a2442f2297b8b90598b9d0a44b59ceca2dd0771c5e046746ff"
+  }
+ ],
+ "units_header": {
+  "prefix_path": "include/Rivet/Math/Units.hh",
+  "accepted_sha256": [
+   "b1a24ace33601c10de247b0d241baf04bb701a195daf479715bc47a493d862c4",
+   "1ba7b5b99ae95b4ae8a22bffc390889fe99c155cfd8c5b428b2786bd054555d1"
+  ]
+ },
+ "routines": {
+  "CMS_2011_I912560": {
+   "source": "share/Rivet/CMS_2011_I912560.cc",
+   "source_sha256": "c6920fd71424cb8dadcdafd0e460be7fb96cc9382f0b187f9d271b1c307e3e29",
+   "reference": "share/Rivet/CMS_2011_I912560.yoda.gz",
+   "reference_sha256": "5ee642d58f100782a0fb88159f64053ce2d3c9579f59e6a13cf86b376a0acbed",
+   "sites": [
+    {
+     "id": 0,
+     "arity": 1,
+     "anchor": "_h_tmp_dijet->fill(HT / TeV);",
+     "count": 1,
+     "max_per_event": 1
+    },
+    {
+     "id": 1,
+     "arity": 1,
+     "anchor": "_h_tmp_trijet->fill(HT / TeV);",
+     "count": 1,
+     "max_per_event": 1
+    }
+   ],
+   "rules": [
+    {
+     "kind": "implies",
+     "sites": [
+      1,
+      0
+     ]
+    }
+   ],
+   "alias": "{routine}",
+   "modes": {},
+   "outputs": [
+    {
+     "id": "dijet",
+     "site": 0,
+     "path": "/{alias}/TMP/dijet",
+     "reference": "/{routine}/d01-x01-y01",
+     "axis_unit": "TeV"
+    },
+    {
+     "id": "trijet",
+     "site": 1,
+     "path": "/{alias}/TMP/trijet",
+     "reference": "/{routine}/d01-x01-y01",
+     "axis_unit": "TeV"
+    }
+   ]
+  },
+  "ATLAS_2017_I1609448": {
+   "source": "share/Rivet/ATLAS_2017_I1609448.cc",
+   "source_sha256": "74a212213ca0c1484aaffd6fe5de971c013c77a616acded183a00aa6d17d52a0",
+   "reference": "share/Rivet/ATLAS_2017_I1609448.yoda.gz",
+   "reference_sha256": "744b2ac95500a9b15a0216dc1fbb90d4b5f650f413babfafe2e9a0dc82125f51",
+   "sites": [
+    {
+     "id": 0,
+     "arity": 1,
+     "anchor": "_h[\"met_mono\"].fill(met);",
+     "count": 1,
+     "max_per_event": 1
+    },
+    {
+     "id": 1,
+     "arity": 1,
+     "anchor": "_h[\"met_vbf\"].fill(met / GeV);",
+     "count": 1,
+     "max_per_event": 1
+    },
+    {
+     "id": 2,
+     "arity": 1,
+     "anchor": "_h[\"mjj_vbf\"].fill(mjj / GeV);",
+     "count": 1,
+     "max_per_event": 1
+    },
+    {
+     "id": 3,
+     "arity": 1,
+     "anchor": "_h[\"dphijj_vbf\"].fill(dphijj);",
+     "count": 1,
+     "max_per_event": 1
+    }
+   ],
+   "rules": [
+    {
+     "kind": "equal_count",
+     "sites": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "ordered",
+     "sites": [
+      0,
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "alias": "{routine}:LMODE={mode}",
+   "modes": {
+    "NU": {
+     "y": 2,
+     "prefix": "_",
+     "ancillary": true
+    },
+    "EL": {
+     "y": 4,
+     "prefix": "",
+     "ancillary": false
+    }
+   },
+   "options_key": "LMODE",
+   "outputs": [
+    {
+     "id": "d1",
+     "site": 0,
+     "path": "/{alias}/{prefix}d01-x01-y{y:02d}",
+     "reference": "/{routine}/d01-x01-y{y:02d}",
+     "axis_unit": "GEV"
+    },
+    {
+     "id": "d2",
+     "site": 1,
+     "path": "/{alias}/{prefix}d02-x01-y{y:02d}",
+     "reference": "/{routine}/d02-x01-y{y:02d}",
+     "axis_unit": "GEV"
+    },
+    {
+     "id": "d3",
+     "site": 2,
+     "path": "/{alias}/{prefix}d03-x01-y{y:02d}",
+     "reference": "/{routine}/d03-x01-y{y:02d}",
+     "axis_unit": "GEV"
+    },
+    {
+     "id": "d4",
+     "site": 3,
+     "path": "/{alias}/{prefix}d04-x01-y{y:02d}",
+     "reference": "/{routine}/d04-x01-y{y:02d}",
+     "axis_unit": "RAD"
+    }
+   ]
+  },
+  "ATLAS_2018_I1634970": {
+   "source": "share/Rivet/ATLAS_2018_I1634970.cc",
+   "source_sha256": "57ea54d18debe06785fa219fe593f97f0779ba6da13a28de74cafe37c487cdc8",
+   "reference": "share/Rivet/ATLAS_2018_I1634970.yoda.gz",
+   "reference_sha256": "d57c2e900422f531403bb09618ab16feeb7e7ab2d68fbcf5542b1c33fff00c73",
+   "sites": [
+    {
+     "id": 0,
+     "arity": 2,
+     "anchor": "_pThistograms->fill(absy, jet.pt() / GeV);",
+     "count": 1,
+     "max_per_event": 65536
+    },
+    {
+     "id": 1,
+     "arity": 2,
+     "anchor": "_mjjhistograms->fill(ystar, mass / GeV);",
+     "count": 1,
+     "max_per_event": 65536
+    }
+   ],
+   "rules": [],
+   "alias": "{routine}",
+   "modes": {},
+   "outputs": [
+    {
+     "id": "d1",
+     "site": 0,
+     "path": "/{alias}/d01-x01-y01",
+     "reference": "/{routine}/d01-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 0.0,
+     "group_high": 0.5
+    },
+    {
+     "id": "d2",
+     "site": 0,
+     "path": "/{alias}/d02-x01-y01",
+     "reference": "/{routine}/d02-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 0.5,
+     "group_high": 1.0
+    },
+    {
+     "id": "d3",
+     "site": 0,
+     "path": "/{alias}/d03-x01-y01",
+     "reference": "/{routine}/d03-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 1.0,
+     "group_high": 1.5
+    },
+    {
+     "id": "d4",
+     "site": 0,
+     "path": "/{alias}/d04-x01-y01",
+     "reference": "/{routine}/d04-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 1.5,
+     "group_high": 2.0
+    },
+    {
+     "id": "d5",
+     "site": 0,
+     "path": "/{alias}/d05-x01-y01",
+     "reference": "/{routine}/d05-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 2.0,
+     "group_high": 2.5
+    },
+    {
+     "id": "d6",
+     "site": 0,
+     "path": "/{alias}/d06-x01-y01",
+     "reference": "/{routine}/d06-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 2.5,
+     "group_high": 3.0
+    },
+    {
+     "id": "d7",
+     "site": 1,
+     "path": "/{alias}/d07-x01-y01",
+     "reference": "/{routine}/d07-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 0.0,
+     "group_high": 0.5
+    },
+    {
+     "id": "d8",
+     "site": 1,
+     "path": "/{alias}/d08-x01-y01",
+     "reference": "/{routine}/d08-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 0.5,
+     "group_high": 1.0
+    },
+    {
+     "id": "d9",
+     "site": 1,
+     "path": "/{alias}/d09-x01-y01",
+     "reference": "/{routine}/d09-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 1.0,
+     "group_high": 1.5
+    },
+    {
+     "id": "d10",
+     "site": 1,
+     "path": "/{alias}/d10-x01-y01",
+     "reference": "/{routine}/d10-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 1.5,
+     "group_high": 2.0
+    },
+    {
+     "id": "d11",
+     "site": 1,
+     "path": "/{alias}/d11-x01-y01",
+     "reference": "/{routine}/d11-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 2.0,
+     "group_high": 2.5
+    },
+    {
+     "id": "d12",
+     "site": 1,
+     "path": "/{alias}/d12-x01-y01",
+     "reference": "/{routine}/d12-x01-y01",
+     "axis_unit": "GeV",
+     "group_low": 2.5,
+     "group_high": 3.0
+    }
+   ]
+  }
+ }
+}

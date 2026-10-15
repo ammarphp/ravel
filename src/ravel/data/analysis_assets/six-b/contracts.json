@@ -1,0 +1,4746 @@
+{
+ "heavyres.even": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH_radius",
+    "model_metadata_feature": "mHradius",
+    "offset": 47.20694643363743,
+    "offset_literal": "47.20694643363743",
+    "operation": "normalize",
+    "scale": 59.40082386268775,
+    "scale_literal": "59.40082386268775",
+    "source_expression": "mH_radius"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8563803577167377,
+    "offset_literal": "0.8563803577167377",
+    "operation": "normalize",
+    "scale": 0.13753528116411218,
+    "scale_literal": "0.13753528116411218",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_mjj",
+    "model_metadata_feature": "rmsmBB",
+    "offset": 124.98261251722589,
+    "offset_literal": "124.98261251722589",
+    "operation": "normalize",
+    "scale": 63.10435995474167,
+    "scale_literal": "63.10435995474167",
+    "source_expression": "RMS_mjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.0561533427163634,
+    "offset_literal": "1.0561533427163634",
+    "operation": "normalize",
+    "scale": 0.5984805323874831,
+    "scale_literal": "0.5984805323874831",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 1.3301328646728403,
+    "offset_literal": "1.3301328646728403",
+    "operation": "normalize",
+    "scale": 0.6762753571204695,
+    "scale_literal": "0.6762753571204695",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 1.9357911667798637,
+    "offset_literal": "1.9357911667798637",
+    "operation": "normalize",
+    "scale": 0.7780235534401898,
+    "scale_literal": "0.7780235534401898",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH1",
+    "model_metadata_feature": "mH1",
+    "offset": 129.51450179779408,
+    "offset_literal": "129.51450179779408",
+    "operation": "normalize",
+    "scale": 47.976802543144096,
+    "scale_literal": "47.976802543144096",
+    "source_expression": "mH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_eta",
+    "model_metadata_feature": "rmsEta",
+    "offset": 0.7397420654373438,
+    "offset_literal": "0.7397420654373438",
+    "operation": "normalize",
+    "scale": 0.28240301739528617,
+    "scale_literal": "0.28240301739528617",
+    "source_expression": "RMS_eta"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.09079087436274103,
+    "offset_literal": "0.09079087436274103",
+    "operation": "normalize",
+    "scale": 0.06230001751037274,
+    "scale_literal": "0.06230001751037274",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Sphericity_allj",
+    "model_metadata_feature": "sphere3dv2",
+    "offset": 0.47234062026400625,
+    "offset_literal": "0.47234062026400625",
+    "operation": "normalize",
+    "scale": 0.1624424970261717,
+    "scale_literal": "0.1624424970261717",
+    "source_expression": "Sphericity_allj"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/heavyres.even.onnx",
+   "sha256": "a925ef7e78f951c734f49f623875575e1792774fb1bf71c55da366ef1bc7e04f"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__33"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_4/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_4/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_3/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_3/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__34"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input",
+     "shape": [
+      {
+       "symbol": "unk__35"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.09079087436274103",
+    "aplan3dv2b_std": "16.05135985448966",
+    "dRH1_mean": "-1.0561533427163634",
+    "dRH1_std": "1.670898125977062",
+    "dRH2_mean": "-1.3301328646728403",
+    "dRH2_std": "1.4786876225357761",
+    "dRH3_mean": "-1.9357911667798637",
+    "dRH3_std": "1.2853081318403485",
+    "input_0": "mHradius",
+    "input_1": "rmsdRBB",
+    "input_2": "rmsmBB",
+    "input_3": "dRH1",
+    "input_4": "dRH2",
+    "input_5": "dRH3",
+    "input_6": "mH1",
+    "input_7": "rmsEta",
+    "input_8": "aplan3dv2b",
+    "input_9": "sphere3dv2",
+    "mH1_mean": "-129.51450179779408",
+    "mH1_std": "0.0208434065421665",
+    "mHradius_mean": "-47.20694643363743",
+    "mHradius_std": "0.0168347833409116",
+    "offset": "47.20694643363743,0.8563803577167377,124.98261251722589,1.0561533427163634,1.3301328646728403,1.9357911667798637,129.51450179779408,0.7397420654373438,0.09079087436274103,0.47234062026400625",
+    "rmsEta_mean": "-0.7397420654373438",
+    "rmsEta_std": "3.5410386518649566",
+    "rmsdRBB_mean": "-0.8563803577167377",
+    "rmsdRBB_std": "7.270861640270783",
+    "rmsmBB_mean": "-124.98261251722589",
+    "rmsmBB_std": "0.015846765591429786",
+    "scale": "59.40082386268775,0.13753528116411218,63.10435995474167,0.5984805323874831,0.6762753571204695,0.7780235534401898,47.976802543144096,0.28240301739528617,0.06230001751037274,0.1624424970261717",
+    "sphere3dv2_mean": "-0.47234062026400625",
+    "sphere3dv2_std": "6.1560245521151185"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input"
+     ],
+     "name": "model/masking/NotEqual__24",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__24:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__24:0",
+      "const_fold_opt__34"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__27",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__27:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__27:0"
+     ],
+     "name": "Cast__29",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__29:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__29:0"
+     ],
+     "name": "ReduceSum__31",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__31:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__31:0",
+      "zero_reduce__33"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_3/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/Relu:0",
+      "model/batch_normalization_3/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_3/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_3/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_3/batchnorm/mul_1:0",
+      "model/batch_normalization_3/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_3/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_3/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_3/batchnorm/add_1:0",
+      "model/dense_4/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_4/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_4/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_4/MatMul:0",
+      "model/dense_4/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_4/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_4/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_4/BiasAdd:0"
+     ],
+     "name": "model/dense_4/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_4"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_4",
+     "shape": [
+      {
+       "symbol": "unk__36"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "a925ef7e78f951c734f49f623875575e1792774fb1bf71c55da366ef1bc7e04f",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "even"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ },
+ "heavyres.odd": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH_radius",
+    "model_metadata_feature": "mHradius",
+    "offset": 47.38169283630046,
+    "offset_literal": "47.38169283630046",
+    "operation": "normalize",
+    "scale": 59.52146387987955,
+    "scale_literal": "59.52146387987955",
+    "source_expression": "mH_radius"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8562136893595034,
+    "offset_literal": "0.8562136893595034",
+    "operation": "normalize",
+    "scale": 0.13735032215608795,
+    "scale_literal": "0.13735032215608795",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_mjj",
+    "model_metadata_feature": "rmsmBB",
+    "offset": 125.0545138625694,
+    "offset_literal": "125.0545138625694",
+    "operation": "normalize",
+    "scale": 63.23740085201237,
+    "scale_literal": "63.23740085201237",
+    "source_expression": "RMS_mjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.0568372451724581,
+    "offset_literal": "1.0568372451724581",
+    "operation": "normalize",
+    "scale": 0.6002367519185998,
+    "scale_literal": "0.6002367519185998",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 1.3310954086648759,
+    "offset_literal": "1.3310954086648759",
+    "operation": "normalize",
+    "scale": 0.6769700718406547,
+    "scale_literal": "0.6769700718406547",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 1.9364473416797996,
+    "offset_literal": "1.9364473416797996",
+    "operation": "normalize",
+    "scale": 0.7791496976601643,
+    "scale_literal": "0.7791496976601643",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH1",
+    "model_metadata_feature": "mH1",
+    "offset": 129.78198165091158,
+    "offset_literal": "129.78198165091158",
+    "operation": "normalize",
+    "scale": 48.45443342854892,
+    "scale_literal": "48.45443342854892",
+    "source_expression": "mH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_eta",
+    "model_metadata_feature": "rmsEta",
+    "offset": 0.7398469340454441,
+    "offset_literal": "0.7398469340454441",
+    "operation": "normalize",
+    "scale": 0.2820346370274012,
+    "scale_literal": "0.2820346370274012",
+    "source_expression": "RMS_eta"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.09093085264170402,
+    "offset_literal": "0.09093085264170402",
+    "operation": "normalize",
+    "scale": 0.062234804283466685,
+    "scale_literal": "0.062234804283466685",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Sphericity_allj",
+    "model_metadata_feature": "sphere3dv2",
+    "offset": 0.4724186314232279,
+    "offset_literal": "0.4724186314232279",
+    "operation": "normalize",
+    "scale": 0.16247449618903123,
+    "scale_literal": "0.16247449618903123",
+    "source_expression": "Sphericity_allj"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/heavyres.odd.onnx",
+   "sha256": "f2dab12771775ba733fb601171798d5156f1ad870f23b2270a1d8793a260f2fc"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__50"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_4/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_4/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_3/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_3/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__51"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input_1",
+     "shape": [
+      {
+       "symbol": "unk__52"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.09093085264170402",
+    "aplan3dv2b_std": "16.06817939757963",
+    "dRH1_mean": "-1.0568372451724581",
+    "dRH1_std": "1.6660092818435308",
+    "dRH2_mean": "-1.3310954086648759",
+    "dRH2_std": "1.4771701757524371",
+    "dRH3_mean": "-1.9364473416797996",
+    "dRH3_std": "1.2834504113947078",
+    "input_0": "mHradius",
+    "input_1": "rmsdRBB",
+    "input_2": "rmsmBB",
+    "input_3": "dRH1",
+    "input_4": "dRH2",
+    "input_5": "dRH3",
+    "input_6": "mH1",
+    "input_7": "rmsEta",
+    "input_8": "aplan3dv2b",
+    "input_9": "sphere3dv2",
+    "mH1_mean": "-129.78198165091158",
+    "mH1_std": "0.020637946401222577",
+    "mHradius_mean": "-47.38169283630046",
+    "mHradius_std": "0.0168006620606325",
+    "offset": "47.38169283630046,0.8562136893595034,125.0545138625694,1.0568372451724581,1.3310954086648759,1.9364473416797996,129.78198165091158,0.7398469340454441,0.09093085264170402,0.4724186314232279",
+    "rmsEta_mean": "-0.7398469340454441",
+    "rmsEta_std": "3.5456637898799803",
+    "rmsdRBB_mean": "-0.8562136893595034",
+    "rmsdRBB_std": "7.280652744764427",
+    "rmsmBB_mean": "-125.0545138625694",
+    "rmsmBB_std": "0.015813426651424076",
+    "scale": "59.52146387987955,0.13735032215608795,63.23740085201237,0.6002367519185998,0.6769700718406547,0.7791496976601643,48.45443342854892,0.2820346370274012,0.062234804283466685,0.16247449618903123",
+    "sphere3dv2_mean": "-0.4724186314232279",
+    "sphere3dv2_std": "6.154812130246881"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input_1"
+     ],
+     "name": "model/masking/NotEqual__41",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__41:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__41:0",
+      "const_fold_opt__51"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__44",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__44:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__44:0"
+     ],
+     "name": "Cast__46",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__46:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__46:0"
+     ],
+     "name": "ReduceSum__48",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__48:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__48:0",
+      "zero_reduce__50"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input_1",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_3/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/Relu:0",
+      "model/batch_normalization_3/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_3/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_3/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_3/batchnorm/mul_1:0",
+      "model/batch_normalization_3/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_3/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_3/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_3/batchnorm/add_1:0",
+      "model/dense_4/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_4/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_4/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_4/MatMul:0",
+      "model/dense_4/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_4/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_4/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_4/BiasAdd:0"
+     ],
+     "name": "model/dense_4/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_4"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_4",
+     "shape": [
+      {
+       "symbol": "unk__53"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "f2dab12771775ba733fb601171798d5156f1ad870f23b2270a1d8793a260f2fc",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "odd"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ },
+ "nonres.even": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH_radius",
+    "model_metadata_feature": "mHradius",
+    "offset": 46.3783153511815,
+    "offset_literal": "46.3783153511815",
+    "operation": "normalize",
+    "scale": 47.7454659203155,
+    "scale_literal": "47.7454659203155",
+    "source_expression": "mH_radius"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_mjj",
+    "model_metadata_feature": "rmsmBB",
+    "offset": 87.93608520587314,
+    "offset_literal": "87.93608520587314",
+    "operation": "normalize",
+    "scale": 53.312946698715635,
+    "scale_literal": "53.312946698715635",
+    "source_expression": "RMS_mjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8323783733722057,
+    "offset_literal": "0.8323783733722057",
+    "operation": "normalize",
+    "scale": 0.15054420707943897,
+    "scale_literal": "0.15054420707943897",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.4355140276059815,
+    "offset_literal": "1.4355140276059815",
+    "operation": "normalize",
+    "scale": 0.6675708180803183,
+    "scale_literal": "0.6675708180803183",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_eta",
+    "model_metadata_feature": "rmsEta",
+    "offset": 0.7785581333776932,
+    "offset_literal": "0.7785581333776932",
+    "operation": "normalize",
+    "scale": 0.294300706523051,
+    "scale_literal": "0.294300706523051",
+    "source_expression": "RMS_eta"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH1",
+    "model_metadata_feature": "mH1",
+    "offset": 127.05483656505567,
+    "offset_literal": "127.05483656505567",
+    "operation": "normalize",
+    "scale": 43.8052435118773,
+    "scale_literal": "43.8052435118773",
+    "source_expression": "mH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 1.757335531573648,
+    "offset_literal": "1.757335531573648",
+    "operation": "normalize",
+    "scale": 0.7049314439688842,
+    "scale_literal": "0.7049314439688842",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 2.3212515255708954,
+    "offset_literal": "2.3212515255708954",
+    "operation": "normalize",
+    "scale": 0.7072391396438048,
+    "scale_literal": "0.7072391396438048",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.11991185331528105,
+    "offset_literal": "0.11991185331528105",
+    "operation": "normalize",
+    "scale": 0.07562670220649688,
+    "scale_literal": "0.07562670220649688",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "TransverseSphericity_6j",
+    "model_metadata_feature": "sphere3dbtrans",
+    "offset": 0.42850388124081895,
+    "offset_literal": "0.42850388124081895",
+    "operation": "normalize",
+    "scale": 0.2220576616183627,
+    "scale_literal": "0.2220576616183627",
+    "source_expression": "TransverseSphericity_6j"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/nonres.even.onnx",
+   "sha256": "6ac17f5947b6dd07509d5833df9b83dfcddbd6df8e6a0bbfdeedc3820e08fd5b"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__33"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__34"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input",
+     "shape": [
+      {
+       "symbol": "unk__35"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.11991185331528105",
+    "aplan3dv2b_std": "13.222842869301958",
+    "dRH1_mean": "-1.4355140276059815",
+    "dRH1_std": "1.4979684146104868",
+    "dRH2_mean": "-1.757335531573648",
+    "dRH2_std": "1.4185776624884678",
+    "dRH3_mean": "-2.3212515255708954",
+    "dRH3_std": "1.4139488949998467",
+    "input_0": "mHradius",
+    "input_1": "rmsmBB",
+    "input_2": "rmsdRBB",
+    "input_3": "dRH1",
+    "input_4": "rmsEta",
+    "input_5": "mH1",
+    "input_6": "dRH2",
+    "input_7": "dRH3",
+    "input_8": "aplan3dv2b",
+    "input_9": "sphere3dbtrans",
+    "mH1_mean": "-127.05483656505567",
+    "mH1_std": "0.02282831733897019",
+    "mHradius_mean": "-46.3783153511815",
+    "mHradius_std": "0.020944397142734845",
+    "offset": "46.3783153511815,87.93608520587314,0.8323783733722057,1.4355140276059815,0.7785581333776932,127.05483656505567,1.757335531573648,2.3212515255708954,0.11991185331528105,0.42850388124081895",
+    "rmsEta_mean": "-0.7785581333776932",
+    "rmsEta_std": "3.3978851488814734",
+    "rmsdRBB_mean": "-0.8323783733722057",
+    "rmsdRBB_std": "6.642567119652245",
+    "rmsmBB_mean": "-87.93608520587314",
+    "rmsmBB_std": "0.01875716991692922",
+    "scale": "47.7454659203155,53.312946698715635,0.15054420707943897,0.6675708180803183,0.294300706523051,43.8052435118773,0.7049314439688842,0.7072391396438048,0.07562670220649688,0.2220576616183627",
+    "sphere3dbtrans_mean": "-0.42850388124081895",
+    "sphere3dbtrans_std": "4.503334821739411"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input"
+     ],
+     "name": "model/masking/NotEqual__24",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__24:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__24:0",
+      "const_fold_opt__34"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__27",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__27:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__27:0"
+     ],
+     "name": "Cast__29",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__29:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__29:0"
+     ],
+     "name": "ReduceSum__31",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__31:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__31:0",
+      "zero_reduce__33"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_3"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_3",
+     "shape": [
+      {
+       "symbol": "unk__36"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "6ac17f5947b6dd07509d5833df9b83dfcddbd6df8e6a0bbfdeedc3820e08fd5b",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "even"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ },
+ "nonres.odd": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH_radius",
+    "model_metadata_feature": "mHradius",
+    "offset": 46.26280956143745,
+    "offset_literal": "46.26280956143745",
+    "operation": "normalize",
+    "scale": 47.90352901406243,
+    "scale_literal": "47.90352901406243",
+    "source_expression": "mH_radius"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_mjj",
+    "model_metadata_feature": "rmsmBB",
+    "offset": 87.85724908382821,
+    "offset_literal": "87.85724908382821",
+    "operation": "normalize",
+    "scale": 53.32391297457951,
+    "scale_literal": "53.32391297457951",
+    "source_expression": "RMS_mjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8317037980015138,
+    "offset_literal": "0.8317037980015138",
+    "operation": "normalize",
+    "scale": 0.15054965650537172,
+    "scale_literal": "0.15054965650537172",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.4313604577760637,
+    "offset_literal": "1.4313604577760637",
+    "operation": "normalize",
+    "scale": 0.6637259268147381,
+    "scale_literal": "0.6637259268147381",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_eta",
+    "model_metadata_feature": "rmsEta",
+    "offset": 0.7766608922311895,
+    "offset_literal": "0.7766608922311895",
+    "operation": "normalize",
+    "scale": 0.2933081602910405,
+    "scale_literal": "0.2933081602910405",
+    "source_expression": "RMS_eta"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "mH1",
+    "model_metadata_feature": "mH1",
+    "offset": 127.17665357807753,
+    "offset_literal": "127.17665357807753",
+    "operation": "normalize",
+    "scale": 44.32146871275457,
+    "scale_literal": "44.32146871275457",
+    "source_expression": "mH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 1.7526738022187422,
+    "offset_literal": "1.7526738022187422",
+    "operation": "normalize",
+    "scale": 0.7018500907848214,
+    "scale_literal": "0.7018500907848214",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 2.322137820338505,
+    "offset_literal": "2.322137820338505",
+    "operation": "normalize",
+    "scale": 0.7043802659326939,
+    "scale_literal": "0.7043802659326939",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.12027349957025445,
+    "offset_literal": "0.12027349957025445",
+    "operation": "normalize",
+    "scale": 0.07568081556530358,
+    "scale_literal": "0.07568081556530358",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "TransverseSphericity_6j",
+    "model_metadata_feature": "sphere3dbtrans",
+    "offset": 0.4286030602880313,
+    "offset_literal": "0.4286030602880313",
+    "operation": "normalize",
+    "scale": 0.22203337288863134,
+    "scale_literal": "0.22203337288863134",
+    "source_expression": "TransverseSphericity_6j"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/nonres.odd.onnx",
+   "sha256": "04e53fc20333b9387edab2dba2fcece037979f70b0b4e6e0468d998833ddc3fe"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__50"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__51"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input_1",
+     "shape": [
+      {
+       "symbol": "unk__52"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.12027349957025445",
+    "aplan3dv2b_std": "13.213388261350309",
+    "dRH1_mean": "-1.4313604577760637",
+    "dRH1_std": "1.5066459808178085",
+    "dRH2_mean": "-1.7526738022187422",
+    "dRH2_std": "1.4248056859005063",
+    "dRH3_mean": "-2.322137820338505",
+    "dRH3_std": "1.4196877004722244",
+    "input_0": "mHradius",
+    "input_1": "rmsmBB",
+    "input_2": "rmsdRBB",
+    "input_3": "dRH1",
+    "input_4": "rmsEta",
+    "input_5": "mH1",
+    "input_6": "dRH2",
+    "input_7": "dRH3",
+    "input_8": "aplan3dv2b",
+    "input_9": "sphere3dbtrans",
+    "mH1_mean": "-127.17665357807753",
+    "mH1_std": "0.022562429202898367",
+    "mHradius_mean": "-46.26280956143745",
+    "mHradius_std": "0.020875288743475304",
+    "offset": "46.26280956143745,87.85724908382821,0.8317037980015138,1.4313604577760637,0.7766608922311895,127.17665357807753,1.7526738022187422,2.322137820338505,0.12027349957025445,0.4286030602880313",
+    "rmsEta_mean": "-0.7766608922311895",
+    "rmsEta_std": "3.409383492800648",
+    "rmsdRBB_mean": "-0.8317037980015138",
+    "rmsdRBB_std": "6.642326679531941",
+    "rmsmBB_mean": "-87.85724908382821",
+    "rmsmBB_std": "0.018753312429954615",
+    "scale": "47.90352901406243,53.32391297457951,0.15054965650537172,0.6637259268147381,0.2933081602910405,44.32146871275457,0.7018500907848214,0.7043802659326939,0.07568081556530358,0.22203337288863134",
+    "sphere3dbtrans_mean": "-0.4286030602880313",
+    "sphere3dbtrans_std": "4.503827451657843"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input_1"
+     ],
+     "name": "model/masking/NotEqual__41",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__41:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__41:0",
+      "const_fold_opt__51"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__44",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__44:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__44:0"
+     ],
+     "name": "Cast__46",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__46:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__46:0"
+     ],
+     "name": "ReduceSum__48",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__48:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__48:0",
+      "zero_reduce__50"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input_1",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_3"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_3",
+     "shape": [
+      {
+       "symbol": "unk__53"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "04e53fc20333b9387edab2dba2fcece037979f70b0b4e6e0468d998833ddc3fe",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "odd"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ },
+ "res.even": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "HT_6j",
+    "model_metadata_feature": "htbjet",
+    "offset": 454.8374624999389,
+    "offset_literal": "454.8374624999389",
+    "operation": "normalize",
+    "scale": 169.38975531210076,
+    "scale_literal": "169.38975531210076",
+    "source_expression": "HT_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8712214182269916,
+    "offset_literal": "0.8712214182269916",
+    "operation": "normalize",
+    "scale": 0.17238594318492942,
+    "scale_literal": "0.17238594318492942",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 2.0649993015285935,
+    "offset_literal": "2.0649993015285935",
+    "operation": "normalize",
+    "scale": 0.712328608376953,
+    "scale_literal": "0.712328608376953",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "eta_mHHH",
+    "model_metadata_feature": "massfraceta",
+    "offset": 0.4576501764909644,
+    "offset_literal": "0.4576501764909644",
+    "operation": "normalize",
+    "scale": 0.21991522548232162,
+    "scale_literal": "0.21991522548232162",
+    "source_expression": "eta_mHHH"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Sphericity_6j",
+    "model_metadata_feature": "sphere3dv2b",
+    "offset": 0.49288282643596004,
+    "offset_literal": "0.49288282643596004",
+    "operation": "normalize",
+    "scale": 0.18301209953512398,
+    "scale_literal": "0.18301209953512398",
+    "source_expression": "Sphericity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.11682439863849046,
+    "offset_literal": "0.11682439863849046",
+    "operation": "normalize",
+    "scale": 0.0815583578490229,
+    "scale_literal": "0.0815583578490229",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.7542197258276122,
+    "offset_literal": "1.7542197258276122",
+    "operation": "normalize",
+    "scale": 0.7002952858377226,
+    "scale_literal": "0.7002952858377226",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 2.5652577961909664,
+    "offset_literal": "2.5652577961909664",
+    "operation": "normalize",
+    "scale": 0.6619112413495725,
+    "scale_literal": "0.6619112413495725",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Skewness_DeltaAjj",
+    "model_metadata_feature": "skewnessdABB",
+    "offset": 0.8442579185068941,
+    "offset_literal": "0.8442579185068941",
+    "operation": "normalize",
+    "scale": 0.8056044110637969,
+    "scale_literal": "0.8056044110637969",
+    "source_expression": "Skewness_DeltaAjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "cosTheta",
+    "model_metadata_feature": "mHcosTheta",
+    "offset": -0.03785893663738506,
+    "offset_literal": "-0.03785893663738506",
+    "operation": "normalize",
+    "scale": 0.5924632070974697,
+    "scale_literal": "0.5924632070974697",
+    "source_expression": "cosTheta"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/res.even.onnx",
+   "sha256": "fc9ad711a31faa215a7307c70afd1bf37e8ba556cf84bfd947366c8bd46b8b8f"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__33"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__34"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input",
+     "shape": [
+      {
+       "symbol": "unk__35"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.11682439863849046",
+    "aplan3dv2b_std": "12.261159081343376",
+    "dRH1_mean": "-1.7542197258276122",
+    "dRH1_std": "1.427969058514735",
+    "dRH2_mean": "-2.0649993015285935",
+    "dRH2_std": "1.4038464667009638",
+    "dRH3_mean": "-2.5652577961909664",
+    "dRH3_std": "1.5107765777796696",
+    "htbjet_mean": "-454.8374624999389",
+    "htbjet_std": "0.005903544746006033",
+    "input_0": "htbjet",
+    "input_1": "rmsdRBB",
+    "input_2": "dRH2",
+    "input_3": "massfraceta",
+    "input_4": "sphere3dv2b",
+    "input_5": "aplan3dv2b",
+    "input_6": "dRH1",
+    "input_7": "dRH3",
+    "input_8": "skewnessdABB",
+    "input_9": "mHcosTheta",
+    "mHcosTheta_mean": "0.03785893663738506",
+    "mHcosTheta_std": "1.6878685258770576",
+    "massfraceta_mean": "-0.4576501764909644",
+    "massfraceta_std": "4.547206760272209",
+    "offset": "454.8374624999389,0.8712214182269916,2.0649993015285935,0.4576501764909644,0.49288282643596004,0.11682439863849046,1.7542197258276122,2.5652577961909664,0.8442579185068941,-0.03785893663738506",
+    "rmsdRBB_mean": "-0.8712214182269916",
+    "rmsdRBB_std": "5.800937022615795",
+    "scale": "169.38975531210076,0.17238594318492942,0.712328608376953,0.21991522548232162,0.18301209953512398,0.0815583578490229,0.7002952858377226,0.6619112413495725,0.8056044110637969,0.5924632070974697",
+    "skewnessdABB_mean": "-0.8442579185068941",
+    "skewnessdABB_std": "1.2413040274686489",
+    "sphere3dv2b_mean": "-0.49288282643596004",
+    "sphere3dv2b_std": "5.46411959941522"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input"
+     ],
+     "name": "model/masking/NotEqual__24",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__24:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__24:0",
+      "const_fold_opt__34"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__27",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__27:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__27:0"
+     ],
+     "name": "Cast__29",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__29:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__29:0"
+     ],
+     "name": "ReduceSum__31",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__31:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__31:0",
+      "zero_reduce__33"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_3"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_3",
+     "shape": [
+      {
+       "symbol": "unk__36"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "fc9ad711a31faa215a7307c70afd1bf37e8ba556cf84bfd947366c8bd46b8b8f",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "even"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ },
+ "res.odd": {
+  "event_reconstruction_qualified": false,
+  "feature_preprocessing_state": "callable_declared_source_arithmetic",
+  "features": [
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "HT_6j",
+    "model_metadata_feature": "htbjet",
+    "offset": 455.41869433779914,
+    "offset_literal": "455.41869433779914",
+    "operation": "normalize",
+    "scale": 171.43111019527643,
+    "scale_literal": "171.43111019527643",
+    "source_expression": "HT_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "RMS_DeltaRjj",
+    "model_metadata_feature": "rmsdRBB",
+    "offset": 0.8714728289307826,
+    "offset_literal": "0.8714728289307826",
+    "operation": "normalize",
+    "scale": 0.17227152443155364,
+    "scale_literal": "0.17227152443155364",
+    "source_expression": "RMS_DeltaRjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH2",
+    "model_metadata_feature": "dRH2",
+    "offset": 2.067946170006791,
+    "offset_literal": "2.067946170006791",
+    "operation": "normalize",
+    "scale": 0.7118337943541236,
+    "scale_literal": "0.7118337943541236",
+    "source_expression": "DeltaRH2"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "eta_mHHH",
+    "model_metadata_feature": "massfraceta",
+    "offset": 0.45678436061659466,
+    "offset_literal": "0.45678436061659466",
+    "operation": "normalize",
+    "scale": 0.21994455687334113,
+    "scale_literal": "0.21994455687334113",
+    "source_expression": "eta_mHHH"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Sphericity_6j",
+    "model_metadata_feature": "sphere3dv2b",
+    "offset": 0.4929012088035002,
+    "offset_literal": "0.4929012088035002",
+    "operation": "normalize",
+    "scale": 0.18264307717925174,
+    "scale_literal": "0.18264307717925174",
+    "source_expression": "Sphericity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Aplanarity_6j",
+    "model_metadata_feature": "aplan3dv2b",
+    "offset": 0.11688542829361422,
+    "offset_literal": "0.11688542829361422",
+    "operation": "normalize",
+    "scale": 0.08120068319198169,
+    "scale_literal": "0.08120068319198169",
+    "source_expression": "Aplanarity_6j"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH1",
+    "model_metadata_feature": "dRH1",
+    "offset": 1.7552596814556676,
+    "offset_literal": "1.7552596814556676",
+    "operation": "normalize",
+    "scale": 0.695039593388558,
+    "scale_literal": "0.695039593388558",
+    "source_expression": "DeltaRH1"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "DeltaRH3",
+    "model_metadata_feature": "dRH3",
+    "offset": 2.5649236327369302,
+    "offset_literal": "2.5649236327369302",
+    "operation": "normalize",
+    "scale": 0.6581601688382254,
+    "scale_literal": "0.6581601688382254",
+    "source_expression": "DeltaRH3"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "Skewness_DeltaAjj",
+    "model_metadata_feature": "skewnessdABB",
+    "offset": 0.8452919319714345,
+    "offset_literal": "0.8452919319714345",
+    "operation": "normalize",
+    "scale": 0.8062517768328946,
+    "scale_literal": "0.8062517768328946",
+    "source_expression": "Skewness_DeltaAjj"
+   },
+   {
+    "arithmetic": "binary32_each",
+    "cast": "float32",
+    "id": "cosTheta",
+    "model_metadata_feature": "mHcosTheta",
+    "offset": -0.03188048510439905,
+    "offset_literal": "-0.03188048510439905",
+    "operation": "normalize",
+    "scale": 0.5962903680337444,
+    "scale_literal": "0.5962903680337444",
+    "source_expression": "cosTheta"
+   }
+  ],
+  "kind": "source-classifier-feature-contract/v2",
+  "model": {
+   "path": "models/res.odd.onnx",
+   "sha256": "664944c0af9ae9abcd73fff8b0039ca17087ef45aec02aa2b248c80f99ce7765"
+  },
+  "model_static": {
+   "external_payload_dependencies": [],
+   "inference_executed": false,
+   "initializers": [
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 1,
+     "external_data": {},
+     "name": "zero_reduce__50"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      1
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_3/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_2/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense_1/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      10,
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/MatMul/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/dense/BiasAdd/ReadVariableOp:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_2/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization_1/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/sub:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [
+      24
+     ],
+     "element_type": 1,
+     "external_data": {},
+     "name": "model/batch_normalization/batchnorm/mul:0"
+    },
+    {
+     "data_location": 0,
+     "dims": [],
+     "element_type": 6,
+     "external_data": {},
+     "name": "const_fold_opt__51"
+    }
+   ],
+   "inputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "input_1",
+     "shape": [
+      {
+       "symbol": "unk__52"
+      },
+      {
+       "value": 10
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "ir_version": 4,
+   "kind": "static-source-onnx-contract",
+   "local_function_count": 0,
+   "metadata": {
+    "aplan3dv2b_mean": "-0.11688542829361422",
+    "aplan3dv2b_std": "12.315167319906822",
+    "dRH1_mean": "-1.7552596814556676",
+    "dRH1_std": "1.4387669558861456",
+    "dRH2_mean": "-2.067946170006791",
+    "dRH2_std": "1.4048223165736906",
+    "dRH3_mean": "-2.5649236327369302",
+    "dRH3_std": "1.519386993237809",
+    "htbjet_mean": "-455.41869433779914",
+    "htbjet_std": "0.005833246946023416",
+    "input_0": "htbjet",
+    "input_1": "rmsdRBB",
+    "input_2": "dRH2",
+    "input_3": "massfraceta",
+    "input_4": "sphere3dv2b",
+    "input_5": "aplan3dv2b",
+    "input_6": "dRH1",
+    "input_7": "dRH3",
+    "input_8": "skewnessdABB",
+    "input_9": "mHcosTheta",
+    "mHcosTheta_mean": "0.03188048510439905",
+    "mHcosTheta_std": "1.6770353063013246",
+    "massfraceta_mean": "-0.45678436061659466",
+    "massfraceta_std": "4.546600353360266",
+    "offset": "455.41869433779914,0.8714728289307826,2.067946170006791,0.45678436061659466,0.4929012088035002,0.11688542829361422,1.7552596814556676,2.5649236327369302,0.8452919319714345,-0.03188048510439905",
+    "rmsdRBB_mean": "-0.8714728289307826",
+    "rmsdRBB_std": "5.8047898705239405",
+    "scale": "171.43111019527643,0.17227152443155364,0.7118337943541236,0.21994455687334113,0.18264307717925174,0.08120068319198169,0.695039593388558,0.6581601688382254,0.8062517768328946,0.5962903680337444",
+    "skewnessdABB_mean": "-0.8452919319714345",
+    "skewnessdABB_std": "1.2403073441006034",
+    "sphere3dv2b_mean": "-0.4929012088035002",
+    "sphere3dv2b_std": "5.475159614281838"
+   },
+   "native_runtime_qualified": false,
+   "nodes": [
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "input_1"
+     ],
+     "name": "model/masking/NotEqual__41",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/NotEqual__41:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__41:0",
+      "const_fold_opt__51"
+     ],
+     "name": "model/masking/NotEqual",
+     "operator": "Equal",
+     "outputs": [
+      "model/masking/NotEqual:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual:0"
+     ],
+     "name": "model/masking/NotEqual__44",
+     "operator": "Not",
+     "outputs": [
+      "model/masking/NotEqual__44:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/NotEqual__44:0"
+     ],
+     "name": "Cast__46",
+     "operator": "Cast",
+     "outputs": [
+      "Cast__46:0"
+     ]
+    },
+    {
+     "attribute_count": 2,
+     "domain": "",
+     "inputs": [
+      "Cast__46:0"
+     ],
+     "name": "ReduceSum__48",
+     "operator": "ReduceSum",
+     "outputs": [
+      "ReduceSum__48:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "ReduceSum__48:0",
+      "zero_reduce__50"
+     ],
+     "name": "model/masking/Any",
+     "operator": "Greater",
+     "outputs": [
+      "model/masking/Any:0"
+     ]
+    },
+    {
+     "attribute_count": 1,
+     "domain": "",
+     "inputs": [
+      "model/masking/Any:0"
+     ],
+     "name": "model/masking/Cast",
+     "operator": "Cast",
+     "outputs": [
+      "model/masking/Cast:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "input_1",
+      "model/masking/Cast:0"
+     ],
+     "name": "model/masking/mul",
+     "operator": "Mul",
+     "outputs": [
+      "model/masking/mul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/masking/mul:0",
+      "model/dense/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/MatMul:0",
+      "model/dense/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/BiasAdd:0"
+     ],
+     "name": "model/dense/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense/Relu:0",
+      "model/batch_normalization/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/mul_1:0",
+      "model/batch_normalization/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization/batchnorm/add_1:0",
+      "model/dense_1/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_1/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/MatMul:0",
+      "model/dense_1/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_1/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_1/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/BiasAdd:0"
+     ],
+     "name": "model/dense_1/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_1/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_1/Relu:0",
+      "model/batch_normalization_1/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/mul_1:0",
+      "model/batch_normalization_1/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_1/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_1/batchnorm/add_1:0",
+      "model/dense_2/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_2/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/MatMul:0",
+      "model/dense_2/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_2/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_2/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/BiasAdd:0"
+     ],
+     "name": "model/dense_2/Relu",
+     "operator": "Relu",
+     "outputs": [
+      "model/dense_2/Relu:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_2/Relu:0",
+      "model/batch_normalization_2/batchnorm/mul:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/mul_1",
+     "operator": "Mul",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/mul_1:0",
+      "model/batch_normalization_2/batchnorm/sub:0"
+     ],
+     "name": "model/batch_normalization_2/batchnorm/add_1",
+     "operator": "Add",
+     "outputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/batch_normalization_2/batchnorm/add_1:0",
+      "model/dense_3/MatMul/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/MatMul",
+     "operator": "MatMul",
+     "outputs": [
+      "model/dense_3/MatMul:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/MatMul:0",
+      "model/dense_3/BiasAdd/ReadVariableOp:0"
+     ],
+     "name": "model/dense_3/BiasAdd",
+     "operator": "Add",
+     "outputs": [
+      "model/dense_3/BiasAdd:0"
+     ]
+    },
+    {
+     "attribute_count": 0,
+     "domain": "",
+     "inputs": [
+      "model/dense_3/BiasAdd:0"
+     ],
+     "name": "model/dense_3/Sigmoid",
+     "operator": "Sigmoid",
+     "outputs": [
+      "dense_3"
+     ]
+    }
+   ],
+   "opsets": [
+    {
+     "domain": "",
+     "version": 9
+    }
+   ],
+   "outputs": [
+    {
+     "element_type": 1,
+     "fixed_element_count": null,
+     "name": "dense_3",
+     "shape": [
+      {
+       "symbol": "unk__53"
+      },
+      {
+       "value": 1
+      }
+     ],
+     "tensor": true
+    }
+   ],
+   "scope": "Static tensor/metadata/operator/dependency census only; attributes/weights/operator semantics require the pinned native runtime. Symbolic dimensions are not silently fixed.",
+   "source_sha256": "664944c0af9ae9abcd73fff8b0039ca17087ef45aec02aa2b248c80f99ce7765",
+   "training_graph_count": 0
+  },
+  "native_runtime_qualified": false,
+  "routine": "ATLAS_2024_I2845789",
+  "routing": {
+   "kind": "event_number_cxx_modulo",
+   "modulus": 2,
+   "odd_only_remainder": 1,
+   "otherwise": "even",
+   "selected": "odd"
+  },
+  "runtime_obligations": [
+   "Qualify exact ORT runtime/library/ABI and standard/custom opset support",
+   "Observe actual input/output names, tensor types, dimensions and batch policy; symbolic dimensions remain unresolved",
+   "Bind Rivet loader asset search and environment RIVET_ORT_MAX_THREADS/OMP policy",
+   "Qualify object projections, selection, event-number routing and metadata retrieval overloads with complete native outputs"
+  ],
+  "source": {
+   "path": "source/routine.cc",
+   "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+  },
+  "source_arithmetic_not_native_bitwise_equivalence": true,
+  "source_excerpts": [
+   {
+    "end": 77,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 62,
+    "text": "      _nnRes = {getONNX(name(), \"res.odd\"), getONNX(name(), \"res.even\")};\n      _nnNonRes = {getONNX(name(), \"nonres.odd\"), getONNX(name(), \"nonres.even\")};\n      _nnHeavyRes = {getONNX(name(), \"heavyres.odd\"), getONNX(name(), \"heavyres.even\")};\n      // And the norms...\n      _nnResNorms = {_nnRes.first->retrieve<float>(\"scale\"), _nnRes.second->retrieve<float>(\"scale\")};\n      _nnNonResNorms = {_nnNonRes.first->retrieve<float>(\"scale\"),\n                        _nnNonRes.second->retrieve<float>(\"scale\")};\n      _nnHeavyResNorms = {_nnHeavyRes.first->retrieve<float>(\"scale\"),\n                          _nnHeavyRes.second->retrieve<float>(\"scale\")};\n      // And the offsets...\n      _nnResOffsets = {_nnRes.first->retrieve<float>(\"offset\"), _nnRes.second->retrieve<float>(\"offset\")};\n      _nnNonResOffsets = {_nnNonRes.first->retrieve<float>(\"offset\"),\n                          _nnNonRes.second->retrieve<float>(\"offset\")};\n      _nnHeavyResOffsets = {_nnHeavyRes.first->retrieve<float>(\"offset\"),\n                            _nnHeavyRes.second->retrieve<float>(\"offset\")};\n"
+   },
+   {
+    "end": 347,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 322,
+    "text": "      vector<float> _resInputs = {HT_6j,         RMS_DeltaRjj, DeltaRH2, eta_mHHH,          Sphericity_6j,\n                                  Aplanarity_6j, DeltaRH1,     DeltaRH3, Skewness_DeltaAjj, cosTheta};\n      vector<float> _nonResInputs = {\n          mH_radius, RMS_mjj,  RMS_DeltaRjj, DeltaRH1,      RMS_eta,\n          mH1,       DeltaRH2, DeltaRH3,     Aplanarity_6j, TransverseSphericity_6j};\n      vector<float> _heavyResInputs = {mH_radius, RMS_DeltaRjj, RMS_mjj, DeltaRH1,      DeltaRH2,\n                                       DeltaRH3,  mH1,          RMS_eta, Aplanarity_6j, Sphericity_allj};\n\n      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs"
+   },
+   {
+    "end": 610,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 599,
+    "text": "    vector<float> normaliseInputs(const vector<float>& inputs,\n                                  const vector<float>& offsets,\n                                  const vector<float>& scales) {\n      vector<float> outputs;\n      outputs.reserve(inputs.size());\n\n      // n.b. assume someone else has been rigorous in ensuring in/off/scales are the right len\n      for (size_t i = 0; i < inputs.size(); ++i) {\n        outputs.push_back((inputs[i] - offsets[i]) / scales[i]);\n      }\n      return outputs;\n    }"
+   },
+   {
+    "end": 360,
+    "file": {
+     "path": "source/routine.cc",
+     "sha256": "493a89383d75388d56527f298b5a9ab93177ac77816378c3fccf3644f97fec61"
+    },
+    "start": 330,
+    "text": "      vector<float> resScore, nonResScore, heavyResScore;\n      // TODO is this cleanest way to alternate events? Is there anything safer?\n      if (event.hepmcEvent().event_number() % 2 == 1) {\n        resScore = _nnRes.first->compute(normaliseInputs(_resInputs, _nnResOffsets.first, _nnResNorms.first));\n        nonResScore = _nnNonRes.first->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.first, _nnNonResNorms.first));\n        heavyResScore = _nnHeavyRes.first->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.first, _nnHeavyResNorms.first));\n      }\n      else {\n        resScore = _nnRes.second->compute(\n            normaliseInputs(_resInputs, _nnResOffsets.second, _nnResNorms.second));\n        nonResScore = _nnNonRes.second->compute(\n            normaliseInputs(_nonResInputs, _nnNonResOffsets.second, _nnNonResNorms.second));\n        heavyResScore = _nnHeavyRes.second->compute(\n            normaliseInputs(_heavyResInputs, _nnHeavyResOffsets.second, _nnHeavyResNorms.second));\n      }\n      // Let's record the outputs\n      _h[\"resNN_\" + bjetMultiplicityString + \"b\"]->fill(resScore[0], triggerfrac);\n      _h[\"nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonResScore[0], triggerfrac);\n      _h[\"heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyResScore[0], triggerfrac);\n\n      _s[\"Final_resNN_\" + bjetMultiplicityString + \"b\"]->fill(resNNlowerbin(resScore[0]), triggerfrac);\n      _s[\"Final_nonResNN_\" + bjetMultiplicityString + \"b\"]->fill(nonresNNlowerbin(nonResScore[0]),\n                                                                 triggerfrac);\n      _s[\"Final_heavyResNN_\" + bjetMultiplicityString + \"b\"]->fill(heavyresNNlowerbin(heavyResScore[0]),\n                                                                   triggerfrac);\n    }\n\n\n    /// Normalise histograms etc., after the run"
+   }
+  ],
+  "source_output_operation": {
+   "complete_model_output_width": 1,
+   "downstream_categorical_lowering": "source-defined NNlowerbin; not implemented by this adapter",
+   "index": 0,
+   "kind": "scalar_index",
+   "source_fill_weight": "triggerfrac; effective native event/fill weights unqualified",
+   "unused_output_indices": []
+  }
+ }
+}

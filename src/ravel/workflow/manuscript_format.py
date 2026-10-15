@@ -9,12 +9,13 @@ subset; actual visual and semantic rules remain material independent questions.
 from copy import deepcopy
 import re
 from . import candidate_experiments as ce, report_integrity as custody
+from ravel.physics import manuscript_assets
 
 PROFILES={'internal-note','research-paper','epjc','prd','nature','page-limited-note','user'}
 KINDS={'required_sections','section_order','max_title_characters','max_abstract_words','max_main_words',
     'min_abstract_words','line_numbers','graphics_in_compilation','max_figures','max_tables','max_references','max_main_pages','numeric_appearance','reference_titles','exact_template',
     'layout_instruction','caption_same_page','font_requirement','bibliography_style','appendix_policy',
-    'statistical_reporting','authorship_disclosure','instruction','excluded_sections'}
+    'statistical_reporting','authorship_disclosure','instruction','excluded_sections','required_text'}
 
 SEMANTICS=('title','abstract','strategy','background','validation','methods','results',
     'discovery-sensitivity','run2-comparison','limitations','appendix','authors','affiliations',
@@ -103,7 +104,7 @@ def load(pin,base,consumed):
         if (value['profile']!='epjc' or render['frontmatter']!='title-before-abstract' or
                 render['citation_style']!='numeric-brackets'):
             raise ValueError('native sn-jnl recipe requires explicit EPJC title/abstract and numeric reference policy')
-        names=[asset['path'].replace('\\','/').rsplit('/',1)[-1] for asset in value['template_assets']]
+        names=[asset['path'].replace('\\','/').rsplit('/',1)[-1] for asset in manuscript_assets.pins(value['template_assets'])]
         if not {'sn-jnl.cls','sn-mathphys-num.bst'}<=set(names):
             raise ValueError('actual source-bound sn-jnl class and selected numeric bibliography style required')
     ids=set()
@@ -124,8 +125,7 @@ def load(pin,base,consumed):
         if rule['kind']=='excluded_sections':
             if rule['scope'] not in {'main-pages','main-words'}:raise ValueError('explicit physical/word counting exclusion required')
             if rule['origin']!='user' and rule['source_basis'] is None:raise ValueError('source-defined counting exclusion required')
-    for asset in custody._rows(value['template_assets'],'complete actual template source assets'):
-        custody._raw(asset,base,consumed)
+    manuscript_assets.pins(value['template_assets'],base,verify=True,consumed=consumed)
     if value['profile']=='page-limited-note' and 'rule_pack' not in value:
         raise ValueError('page-limited note requires a supplied rule pack')
     if 'rule_pack' in value:_apply_rule_pack(value,rule_pack(value,base,consumed))
@@ -140,7 +140,11 @@ RULE_PACK_FIELDS=('schema_version','kind','id','title','origin','source_basis','
 
 def validate_rule_pack(value):
     """A supplied page-limited note rule pack: limits and section obligations as data."""
-    ce.keys(value,list(RULE_PACK_FIELDS))
+    ce.keys(value,list(RULE_PACK_FIELDS)+(['required_sentences'] if 'required_sentences' in value else []))
+    sentences=value.get('required_sentences',[])
+    if type(sentences) is not list or len(sentences)!=len(set(sentences)):
+        raise ValueError('distinct supplied required sentences required')
+    for sentence in sentences:custody._text(sentence)
     if type(value['schema_version']) is not int or value['schema_version']!=1 or value['kind']!='note-rule-pack':
         raise ValueError('note-rule-pack/v1 required')
     ce.identity(value['id']);custody._text(value['title'],256)
@@ -181,6 +185,9 @@ def _apply_rule_pack(contract,pack):
             raise ValueError(f'rule pack {key} ceiling of {pack[key]} is missing or weakened')
     if not pack['allow_user_count_exclusions'] and any(r['kind']=='excluded_sections' and r['origin']=='user' for r in rules):
         raise ValueError('user counting exclusions cannot weaken this rule pack')
+    for sentence in pack.get('required_sentences',[]):
+        if not any(r['kind']=='required_text' and r['value']==sentence and r['scope']=='document' for r in rules):
+            raise ValueError('supplied rule-pack sentence missing or weakened')
     represented={s for row in section_layout(contract) for s in row['semantics']}
     missing=set(pack['required_semantics'])-represented
     if missing:raise ValueError('rule pack sections are not mapped: '+', '.join(sorted(missing)))
@@ -209,6 +216,8 @@ def build_note_contract(pack,pack_pin,*,stage,article_type,render,source_basis=N
     required=[*['title','abstract'],*[r for r in pack['required_semantics'] if r not in {'title','abstract'}]]
     rule('required-sections','required_sections','main',[*required,*[r for r in ('methods','results','limitations') if r not in required]])
     if pack['excluded_sections']:rule('page-count-exclusions','excluded_sections','main-pages',list(pack['excluded_sections']))
+    for i,sentence in enumerate(pack.get('required_sentences',[])):
+        rule('required-sentence-'+str(i+1),'required_text','document',sentence)
     rules.extend(deepcopy(list(extra_rules)))
     contract={'schema_version':1,'profile':'page-limited-note','stage':stage,'article_type':article_type,
         'render':deepcopy(render),'rules':rules,'template_assets':list(template_assets),'rule_pack':dict(pack_pin)}
@@ -226,6 +235,9 @@ def assess(contract,value,*,template,compiled_pages=None):
     for rule in contract['rules']:
         k=rule['kind'];expected=rule['value'];observed=None;state='pending_actual_visual_or_semantic_review'
         if k=='required_sections':observed=order;state='mechanically_passed' if set(expected)<=set(order) else 'mechanically_failed'
+        elif k=='required_text':
+            observed=expected in '\n'.join(texts.values()) if rule['scope']=='document' else expected in texts.get(rule['scope'],'')
+            state='mechanically_passed' if observed else 'mechanically_failed'
         elif k=='section_order':
             observed=[x for x in order if x in expected];state='mechanically_passed' if observed==expected else 'mechanically_failed'
         elif k=='max_title_characters':observed=sum(len(p['text']) for p in paragraphs if 'title' in next(r for r in section_layout(contract) if r['id']==p['section'])['semantics'])
@@ -253,6 +265,7 @@ def assess(contract,value,*,template,compiled_pages=None):
         rows.append({'rule':deepcopy(rule),'state':state,'observed':observed,
             'limit':'Literal counts/source assets only; publisher applicability/layout/scientific interpretation require actual evidence-bound independent review.'})
     return {'kind':'manuscript-format-assessment','profile':contract['profile'],'stage':contract['stage'],'article_type':contract['article_type'],
+        'template_assets':deepcopy(contract.get('template_assets',[])),
         'rules':rows,'mechanical_failures':[r['rule']['id'] for r in rows if r['state']=='mechanically_failed'],
         'pending_rule_ids':[r['rule']['id'] for r in rows if r['state'] not in {'mechanically_passed','not_required'}],
         'complete_publisher_or_user_conformance':False,'visual_review_complete':False,'publication_accepted':False}

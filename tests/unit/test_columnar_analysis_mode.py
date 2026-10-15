@@ -149,3 +149,53 @@ def test_reference_worked_recipe_compiles_and_runs(tmp_path):
     partial = engine.analyse({'inputs': [{'path': str(path), 'file_index': 0}], 'chunk_size': 64}, plan)
     rows = partial['variations']['nominal']['cutflows']['three leptons and no isolated track']
     assert rows[0][0] == 200 and rows[-1][0] <= rows[-2][0]
+
+
+def test_typed_synthetic_two_region_spec_refuses_open_ambiguity_then_runs(tmp_path):
+    from ravel.workflow.analysis_spec import span_for
+    from test_columnar_inputs import write_delphes
+    source = b'Jets have transverse momentum above 20 GeV.\nLow region: at least one jet and recoil above 30 GeV.\nHigh region: at least one jet; recoil threshold is 100 or 150 GeV.\n'
+    (tmp_path / 'paper.txt').write_bytes(source)
+    def field(value, line):
+        return {'value': value, 'status': 'explicit', 'span': span_for(source, 'paper', line, line)}
+    doc = {'schema_version': 1, 'kind': 'columnar-analysis-recipe', 'name': 'synthetic two region selection',
+           'weights': {'generator': 'weight', 'factors': []},
+           'objects': [{'name': 'jets', 'from': 'Jet', 'select': 'pt > 20', 'spec_item': 'jets'}],
+           'observables': [{'name': 'n', 'op': 'count', 'collection': 'jets', 'spec_item': 'count'},
+                           {'name': 'recoil', 'op': 'met', 'spec_item': 'recoil'}],
+           'regions': [{'name': name, 'cuts': [{'name': 'selection', 'expr': f'n >= 1 and recoil > {cut}',
+                                              'spec_item': name}]} for name, cut in [('low', 30), ('high', 100)]],
+           'histograms': []}
+    items = [{'id': 'jets', 'role': 'object', 'family': 'jet', 'fields': {'pt_min': field(20, 1)}},
+             {'id': 'count', 'role': 'observable', 'collection': field('jets', 1), 'fields': {'definition': field('count jets', 1)}},
+             {'id': 'recoil', 'role': 'observable', 'fields': {'definition': field('missing transverse momentum', 2)}}]
+    for name, value, line in [('low', 30, 2), ('high', 100, 3)]:
+        items.append({'id': name, 'role': 'cut', 'region': name, 'order': 1, 'impact_estimate': .4,
+                      'collection': field('jets', line), 'fields': {'threshold': field(value, line)}})
+    spec = {'schema_version': 1, 'kind': 'typed-analysis-spec', 'analysis': 'synthetic two-region selection',
+            'sources': [{'id': 'paper', 'path': 'paper.txt'}], 'items': items}
+    spec['items'][-1]['fields']['threshold'] = {'value': None, 'status': 'ambiguous', 'readings': [100, 150],
+                                               'span': span_for(source, 'paper', 3, 3)}
+    (tmp_path / 'recipe.json').write_text(json.dumps(doc))
+    spec_path = tmp_path / 'spec.json'
+    spec_path.write_text(json.dumps(spec))
+    write_delphes(tmp_path / 'sample.root', [{'MET': met, 'METPhi': 0, 'Weight': 1,
+                                             'Jet': [{'PT': 40, 'Eta': 0, 'Phi': 0, 'Mass': 5}]}
+                                            for met in [20, 50, 120, 170]])
+    task = {'recipe': 'recipe.json', 'format': 'delphes', 'inputs': ['sample.root'],
+            'normalization': {'mode': 'none'}, 'analysis_spec': 'spec.json'}
+    with pytest.raises(ValueError, match='open ambiguities.*high variable_consistency'):
+        mode.inputs(task, tmp_path)
+    source = source.replace(b'recoil threshold is 100 or 150 GeV', b'recoil above 100 GeV')
+    (tmp_path / 'paper.txt').write_bytes(source)
+    spec['items'][-1]['collection'] = field('jets', 3)
+    spec['items'][-1]['fields']['threshold'] = field(100, 3)
+    spec_path.write_text(json.dumps(spec))
+    files = mode.inputs(task, tmp_path)
+    assert {p.name for p in files} == {'recipe.json', 'spec.json', 'paper.txt', 'sample.root'}
+    plan, _, _, _ = mode.compile_task(task, tmp_path)
+    assert plan.spec_report['coverage']['passed'] and plan.spec_report['ambiguities']['blocking'] == []
+    result = mode.run(task, tmp_path, tmp_path / 'output')
+    assert result['region_yields']['low']['yield'] == 3
+    assert result['region_yields']['high']['yield'] == 2
+    assert result['physics_validated'] is False

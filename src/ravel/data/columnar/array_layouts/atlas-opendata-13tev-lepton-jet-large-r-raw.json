@@ -1,0 +1,297 @@
+{
+ "schema_version": 1,
+ "kind": "tree-array-layout",
+ "name": "atlas-opendata-13tev-lepton-jet-large-r-raw",
+ "source": "Raw per-event array over the ATLAS Open Data 13 TeV ntuple branches (https://opendata.atlas.cern/docs/documentation/data_format/ntuple): two leptons and four jets as (pt, eta, phi, E), the leading large-R jet as (pt, eta, phi, E, m), then missing momentum, weights and scale factors. Positional entries are in stored order and NaN padded; no sorting or selection is applied.",
+ "layout": {
+  "dtype": "float64",
+  "columns": [
+   {
+    "name": "lep_pt[0]",
+    "kind": "jagged",
+    "branch": "lep_pt",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "lep_eta[0]",
+    "kind": "jagged",
+    "branch": "lep_eta",
+    "index": 0,
+    "unit": "1"
+   },
+   {
+    "name": "lep_phi[0]",
+    "kind": "jagged",
+    "branch": "lep_phi",
+    "index": 0,
+    "unit": "rad"
+   },
+   {
+    "name": "lep_E[0]",
+    "kind": "jagged",
+    "branch": "lep_E",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "lep_pt[1]",
+    "kind": "jagged",
+    "branch": "lep_pt",
+    "index": 1,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "lep_eta[1]",
+    "kind": "jagged",
+    "branch": "lep_eta",
+    "index": 1,
+    "unit": "1"
+   },
+   {
+    "name": "lep_phi[1]",
+    "kind": "jagged",
+    "branch": "lep_phi",
+    "index": 1,
+    "unit": "rad"
+   },
+   {
+    "name": "lep_E[1]",
+    "kind": "jagged",
+    "branch": "lep_E",
+    "index": 1,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_pt[0]",
+    "kind": "jagged",
+    "branch": "jet_pt",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_eta[0]",
+    "kind": "jagged",
+    "branch": "jet_eta",
+    "index": 0,
+    "unit": "1"
+   },
+   {
+    "name": "jet_phi[0]",
+    "kind": "jagged",
+    "branch": "jet_phi",
+    "index": 0,
+    "unit": "rad"
+   },
+   {
+    "name": "jet_E[0]",
+    "kind": "jagged",
+    "branch": "jet_E",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_pt[1]",
+    "kind": "jagged",
+    "branch": "jet_pt",
+    "index": 1,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_eta[1]",
+    "kind": "jagged",
+    "branch": "jet_eta",
+    "index": 1,
+    "unit": "1"
+   },
+   {
+    "name": "jet_phi[1]",
+    "kind": "jagged",
+    "branch": "jet_phi",
+    "index": 1,
+    "unit": "rad"
+   },
+   {
+    "name": "jet_E[1]",
+    "kind": "jagged",
+    "branch": "jet_E",
+    "index": 1,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_pt[2]",
+    "kind": "jagged",
+    "branch": "jet_pt",
+    "index": 2,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_eta[2]",
+    "kind": "jagged",
+    "branch": "jet_eta",
+    "index": 2,
+    "unit": "1"
+   },
+   {
+    "name": "jet_phi[2]",
+    "kind": "jagged",
+    "branch": "jet_phi",
+    "index": 2,
+    "unit": "rad"
+   },
+   {
+    "name": "jet_E[2]",
+    "kind": "jagged",
+    "branch": "jet_E",
+    "index": 2,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_pt[3]",
+    "kind": "jagged",
+    "branch": "jet_pt",
+    "index": 3,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "jet_eta[3]",
+    "kind": "jagged",
+    "branch": "jet_eta",
+    "index": 3,
+    "unit": "1"
+   },
+   {
+    "name": "jet_phi[3]",
+    "kind": "jagged",
+    "branch": "jet_phi",
+    "index": 3,
+    "unit": "rad"
+   },
+   {
+    "name": "jet_E[3]",
+    "kind": "jagged",
+    "branch": "jet_E",
+    "index": 3,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "largeRjet_pt[0]",
+    "kind": "jagged",
+    "branch": "largeRjet_pt",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "largeRjet_eta[0]",
+    "kind": "jagged",
+    "branch": "largeRjet_eta",
+    "index": 0,
+    "unit": "1"
+   },
+   {
+    "name": "largeRjet_phi[0]",
+    "kind": "jagged",
+    "branch": "largeRjet_phi",
+    "index": 0,
+    "unit": "rad"
+   },
+   {
+    "name": "largeRjet_E[0]",
+    "kind": "jagged",
+    "branch": "largeRjet_E",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "largeRjet_m[0]",
+    "kind": "jagged",
+    "branch": "largeRjet_m",
+    "index": 0,
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "met_et",
+    "kind": "scalar",
+    "branch": "met_et",
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "met_phi",
+    "kind": "scalar",
+    "branch": "met_phi",
+    "unit": "rad"
+   },
+   {
+    "name": "mcWeight",
+    "kind": "scalar",
+    "branch": "mcWeight",
+    "unit": "1"
+   },
+   {
+    "name": "SumWeights",
+    "kind": "scalar",
+    "branch": "SumWeights",
+    "unit": "1"
+   },
+   {
+    "name": "XSection",
+    "kind": "scalar",
+    "branch": "XSection",
+    "unit": "as stored in the source tree"
+   },
+   {
+    "name": "scaleFactor_PILEUP",
+    "kind": "scalar",
+    "branch": "scaleFactor_PILEUP",
+    "unit": "1"
+   },
+   {
+    "name": "scaleFactor_ELE",
+    "kind": "scalar",
+    "branch": "scaleFactor_ELE",
+    "unit": "1"
+   },
+   {
+    "name": "scaleFactor_MUON",
+    "kind": "scalar",
+    "branch": "scaleFactor_MUON",
+    "unit": "1"
+   },
+   {
+    "name": "scaleFactor_BTAG",
+    "kind": "scalar",
+    "branch": "scaleFactor_BTAG",
+    "unit": "1"
+   },
+   {
+    "name": "scaleFactor_LepTRIGGER",
+    "kind": "scalar",
+    "branch": "scaleFactor_LepTRIGGER",
+    "unit": "1"
+   }
+  ],
+  "jagged_groups": [
+   [
+    "lep_pt",
+    "lep_eta",
+    "lep_phi",
+    "lep_E"
+   ],
+   [
+    "jet_pt",
+    "jet_eta",
+    "jet_phi",
+    "jet_E"
+   ],
+   [
+    "largeRjet_pt",
+    "largeRjet_eta",
+    "largeRjet_phi",
+    "largeRjet_E",
+    "largeRjet_m"
+   ]
+  ],
+  "padding": null,
+  "overflow": "truncate"
+ }
+}

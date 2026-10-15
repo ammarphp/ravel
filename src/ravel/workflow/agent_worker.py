@@ -33,9 +33,16 @@ RECEIPT_FIELDS = {'schema_version','kind','node_id','attempt','role','review_poi
     'rdj','completion_claimed_without_receipts','identity_sha256','epoch'}
 # Receipt ``schema_version`` -> field set. Version 1 is the field set above, unchanged, so every
 # stored receipt keeps its bytes and digest. Version 2 adds ``review_subject``: the review point's
-# subject scope and digest, written when the dispatch carries one and bound into the receipt digest.
-RECEIPT_VERSIONS = {1: frozenset(RECEIPT_FIELDS), 2: frozenset(RECEIPT_FIELDS | {'review_subject'})}
+# subject scope and digest, bound into the receipt digest. Version 3 adds ``execution_mode``: the
+# launch mode the dispatcher observed. A review dispatch writes version 3; version 2 still loads.
+RECEIPT_VERSIONS = {1: frozenset(RECEIPT_FIELDS), 2: frozenset(RECEIPT_FIELDS | {'review_subject'}),
+                    3: frozenset(RECEIPT_FIELDS | {'review_subject', 'execution_mode'})}
+REVIEW_RECEIPT_VERSION = 3
 REVIEW_SUBJECT_FIELDS = {'scope','sha256'}
+# A run that pins a project instruction document adds no receipt field and no version: the adapter's
+# delivery record (sha256, bytes, mechanism) is ``transport.project_instructions``, already bound by
+# the receipt digest, and ``outcome.computed_checks.project_instructions`` says whether it shows the
+# pinned document. Receipts of runs without a pin keep their exact bytes.
 SPEC_FIELDS = {'schema_version','kind','node_id','attempt','role','transport_preference','inputs',
     'declared_outputs','budgets','final_record_schema','work_order','rdj_challenges','parent'}
 
@@ -154,7 +161,15 @@ def receipt_version(receipt):
     if type(version) is not int or version not in RECEIPT_VERSIONS or set(receipt) != RECEIPT_VERSIONS[version]:
         raise ValueError('worker receipt schema changed')
     if version >= 2:_review_subject(receipt['review_subject'])
+    if version >= 3 and (type(receipt['execution_mode']) is not str or not receipt['execution_mode']):
+        raise ValueError('worker receipt requires its observed execution mode')
     return version
+
+
+def execution_mode(transport):
+    """The launch mode the dispatcher observed (never a label): a governed CLI worker, else the transport kind."""
+    kind=(transport or {}).get('transport_kind')
+    return 'transport_attested_cli' if kind=='cli-worker' else 'worker_'+str(kind or 'unavailable').replace('-','_')
 
 
 def _link_digest(receipt):
@@ -197,6 +212,79 @@ def blind_roles():
     """Roles that see only a code-computed role packet (the graph's blind review roles)."""
     from .agent_graph import BLIND_GRAPH_ROLES
     return BLIND_GRAPH_ROLES
+
+
+def _blind_card(spec):
+    """The registered card of a role that declares ``requires.blind``, else None.
+
+    This fails closed. A registered card that cannot be read leaves the role's blindness
+    unknown, and a blind card that differs from the dispatch's own pin is not the card the
+    dispatcher planned with: both refuse the dispatch. A role with no registered card has no
+    card to declare blindness.
+    """
+    from . import role_registry
+    role_id=spec['role']['id']
+    document=role_registry.registry_document()
+    if role_id not in document['roles'] and role_id not in document.get('aliases',{}):return None
+    try:
+        card=role_registry.load(role_id)
+        current=role_registry.card_sha256(role_id) if (card.get('requires') or {}).get('blind') is True else None
+    except (OSError,ValueError,KeyError,TypeError):
+        raise ValueError(f'role card {role_id} cannot be read, so its blindness is unknown; nothing is dispatched') from None
+    if current is None:return None
+    if current!=spec['role']['card_sha256']:
+        raise ValueError(f'blind role card {role_id} differs from the card this dispatch pins')
+    return card
+
+
+def blind_actions(card):
+    """The broker actions a card-blind role may be launched with: workspace read and write and
+    the actions its own card names."""
+    return sorted({'read','write',*card['tools'].get('ravel_actions',[])})
+
+
+def _screen_blind_inputs(run, spec, card, *, first=True):
+    """Refuse a raw input the blind role's card does not let it see.
+
+    A role whose card declares ``requires.blind`` receives its own code-computed review item
+    packet and the run files its card's projection carries; anything else, a producer result
+    included, never reaches its workspace. This holds for every dispatch of the role. On the
+    first materialization the item packet must also be the one the review graph computes now
+    for that item; a re-attach finds the copy already in custody and verifies its bytes.
+    """
+    from . import review_projection
+    if spec['work_order'] is not None:
+        # A work order is free text to a worker. The only one a blind role receives is the
+        # sealed order of its own production node, which code built from the approved plan.
+        from . import production_executor
+        try:
+            order=read_json(_pin(run,spec['work_order']))
+            sealed=order==production_executor.load_order(run,spec['node_id']) and order.get('role')==spec['role']['id']
+        except (OSError,ValueError,KeyError,TypeError):sealed=False
+        if not sealed:
+            raise ValueError(f"a blind role receives a work order only as the sealed order of its own production "
+                             f"node; refused {spec['work_order'].get('path')}")
+    for item in spec['inputs']:
+        pin=item.get('pin') if type(item) is dict else None
+        rel=pin.get('path') if type(pin) is dict else None
+        if type(rel) is not str:raise ValueError('input copy requires pin and as')
+        if rel.startswith(review_projection.ITEM_PACKETS):
+            try:document=read_json(_pin(run,pin))
+            except (OSError,ValueError):document=None
+            own=(type(document) is dict and document.get('kind')=='review-item-packet'
+                 and document.get('role')==spec['role']['id']
+                 and document.get('point_id')==spec['parent'].get('review_point_id'))
+            reason=None if own else 'another_review_packet'
+            if own and first:
+                from .graphs import review
+                try:computed=review.authentic_packet(run,rel,document)
+                except (OSError,ValueError,KeyError,TypeError):computed=False
+                if not computed:reason='packet_not_code_computed'
+        else:
+            reason=review_projection.raw_input_class(run,card,rel)
+        if reason is not None:
+            raise ValueError(f"a blind role receives only code-computed packets and the inputs its card admits; "
+                             f"refused {rel} ({reason})")
 
 
 def _packet_binding(packet):
@@ -258,7 +346,9 @@ def materialize(rundir: Path, spec: dict, *, graph=None, framework_step=None, pa
     blind=spec['role']['id'] in blind_roles()
     if blind and (packet is None or spec['inputs'] or spec['work_order'] is not None):
         raise ValueError('a blind role receives only its code-computed role packet; raw inputs and work orders are refused')
+    card=None if blind else _blind_card(spec)
     ws=workspace(run,spec['node_id'],spec['attempt']);record_path=_record_path(run,spec['node_id'],spec['attempt'])
+    if card is not None:_screen_blind_inputs(run,spec,card,first=not record_path.exists())
     with file_lock(record_path.with_suffix('.lock')):
         if record_path.exists():
             record=read_json(record_path)
@@ -287,6 +377,7 @@ def materialize(rundir: Path, spec: dict, *, graph=None, framework_step=None, pa
         for folder in ('inputs','outputs','scratch','calls'):(ws/folder).mkdir()
         inputs=_copy_packet(ws,packet,spec['role']['id']) if packet is not None else []
         try:
+            from . import review_projection
             from .knowledge_broker import filter_inputs
             for item in filter_inputs(run, ws, spec):
                 if type(item) is not dict or set(item) != {'pin','as'}:
@@ -294,14 +385,21 @@ def materialize(rundir: Path, spec: dict, *, graph=None, framework_step=None, pa
                 source=_pin(run,item['pin']);dest=broker.confined(ws,item['as'])
                 if Path(item['as']).parts[0] != 'inputs' or Path(item['as']).parts[:2]==('inputs','packet'):
                     raise ValueError('input copy restricted to inputs/, outside the role packet')
-                dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(source.read_bytes())
-                if broker.sha(dest) != item['pin']['sha256']:raise ValueError('input changed during copy')
+                raw=source.read_bytes()
+                if hashlib.sha256(raw).hexdigest() != item['pin']['sha256']:raise ValueError('input changed during copy')
+                if card is not None and not item['pin']['path'].startswith(review_projection.ITEM_PACKETS):
+                    # A blind role's raw JSON input is carried as its card's projection carries it.
+                    raw=review_projection.withheld_fields(card,item['pin']['path'],raw)[0]
+                dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
                 dest.chmod(0o400);inputs.append({'path':item['as'],'sha256':broker.sha(dest)})
             # Work orders are handed in by the dispatcher; artifact contents do not construct one.
             if order is not None:
                 atomic_json(ws/'inputs/work-order.json',order)
                 inputs.append({'path':'inputs/work-order.json','sha256':broker.sha(ws/'inputs/work-order.json')})
-            record={'spec':spec,'input_copies':inputs,'packet':packet,'protected':protected,'blind':blind,'effect':effect,
+            record={'spec':spec,'input_copies':inputs,'packet':packet,'protected':protected,'blind':blind,
+                    'card_blind':card is not None,'effect':effect,'actor':None,
+                    # One blind flag for the whole dispatch: the actions a blind worker may be launched with.
+                    'blind_actions':['read','write'] if blind else blind_actions(card) if card is not None else None,
                     'run_tree_before':_protected(run,spec,packet),'graph':deepcopy(graph),
                     'framework_step':framework_step,'started_utc':broker.utc(),'started_epoch':time.time(),
                     'launch':None,'receipt':None,'execution':None}
@@ -356,9 +454,10 @@ def _prior(rundir, spec):
 
 def _write_receipt(run, spec, receipt, record):
     ws=workspace(run,spec['node_id'],spec['attempt'])
-    # A review dispatch writes version 2 with its subject; every other dispatch writes version 1.
+    # A review dispatch writes version 3 with its subject and observed mode; every other dispatch writes version 1.
     if 'review_subject' in spec['parent']:
-        receipt['schema_version']=2;receipt['review_subject']=deepcopy(spec['parent']['review_subject'])
+        receipt['schema_version']=REVIEW_RECEIPT_VERSION;receipt['review_subject']=deepcopy(spec['parent']['review_subject'])
+        receipt['execution_mode']=execution_mode(receipt['transport'])
     receipt_version(receipt)
     # A mutual file hash is impossible: transcript links a documented canonical
     # receipt projection (all fields except its transcript digest).
@@ -477,16 +576,36 @@ def _ensure_published(run, node_id, attempt, receipt, pin):
         # The RDJ custody producer API is optional until that module is installed.
         try:from .rdj_custody import register_worker_receipt
         except ImportError:return
-        register_worker_receipt(run,pin['path'])
+        register_worker_receipt(run,pin['path'],**_registration(run,node_id,attempt,receipt))
         broker.append_ledger(run,'rdj-registrations',{'pin':pin,'node_id':node_id,'attempt':attempt})
     elif (receipt['schema_version']>=2 and receipt['rdj'] is None
           and not any(r['record']['pin']==pin for r in broker.ledger(run,'review-registrations'))):
-        # A review receipt is registered with the label this dispatcher computed from the
-        # transport's own verification; the review-credit reader takes the label from here.
-        from .rdj_custody import WORKER_LABELS, register_worker_receipt
-        label=receipt['attestation'] if receipt['attestation'] in WORKER_LABELS else 'self_attested'
-        register_worker_receipt(run,pin['path'],verified_label=label)
-        broker.append_ledger(run,'review-registrations',{'pin':pin,'node_id':node_id,'attempt':attempt,'label':label})
+        from .rdj_custody import register_worker_receipt
+        evidence=_registration(run,node_id,attempt,receipt)
+        register_worker_receipt(run,pin['path'],**evidence)
+        broker.append_ledger(run,'review-registrations',{'pin':pin,'node_id':node_id,'attempt':attempt,
+                                                         'label':evidence['verified_label']})
+
+
+def _registration(run, node_id, attempt, receipt):
+    """What the dispatcher registers with a review or RDJ receipt: the label it computed from the
+    transport's own verification and the actor it assigned at spawn. Credit readers take both
+    from the registration, never from the receipt's own fields."""
+    from .rdj_custody import WORKER_LABELS
+    record=_record(run,node_id,attempt)
+    label=_observed_label(record,receipt['attestation'] if receipt['attestation'] in WORKER_LABELS else 'self_attested')
+    actor=record.get('actor')
+    return {'verified_label':label,**({'actor':actor} if actor and actor['actor_id']==receipt['actor_id'] else {})}
+
+
+def _observed_label(record, label):
+    """The label a completion can carry: only a supervised launch observes a transport.
+
+    A worker the host completes itself, with no launch reservation in custody, had no
+    supervisor, sandbox probe or transport envelope; it is at most host-attested whatever
+    the caller's execution record states.
+    """
+    return 'host_attested' if record.get('launch') is None and label=='transport_attested' else label
 
 
 def _publish(run, ws, node_id, attempt):
@@ -583,6 +702,8 @@ def finish(rundir: Path, spec: dict, *, final=None, execution=None):
         checks['broker_receipts']=not pending
         checks['broker_decision_clear']=not any(r['reply'].get('error',{}).get('code')=='decision_block'
             for r in check_receipts if r['reply'].get('error'))
+        delivery=_instruction_delivery(run,execution)
+        if delivery is not None:checks['project_instructions']=delivery
         strict=all(checks.values())
         status='ok' if strict else 'failed';failure=None
         if not unchanged:
@@ -604,8 +725,9 @@ def finish(rundir: Path, spec: dict, *, final=None, execution=None):
             'role':spec['role'],'review_point_id':spec['parent'].get('review_point_id'),
             'transport':transport,'argv_sha256':execution.get('argv_sha256'),'cli_version':execution.get('cli_version'),
             'model':execution.get('model',{'requested':None,'observed':None,'family':None,'effort':None}),
-            'session_id':execution.get('session_id'),'actor_id':execution.get('actor_id'),
-            'attestation':execution.get('attestation','self_attested'),
+            # The actor is the dispatcher's assignment in custody; an execution or worker field never names one.
+            'session_id':execution.get('session_id'),'actor_id':(record.get('actor') or {}).get('actor_id'),
+            'attestation':_observed_label(record,execution.get('attestation','self_attested')),
             'isolation':execution.get('isolation',{'profile':'unestablished','user_configuration_loaded':True,'evidence':{}}),
             'pass_env_names':execution.get('pass_env_names',[]),
             'request_sha256':broker.digest({'role':spec['role'],'work_order':spec['work_order'],'inputs':spec['inputs'],'budgets':spec['budgets']}),
@@ -633,6 +755,54 @@ def finish(rundir: Path, spec: dict, *, final=None, execution=None):
             'role':spec['role']['id'],'transport':transport.get('id'),'model':receipt['model'].get('observed'),
             'effort':receipt['model'].get('effort')},'completion_claimed_without_receipts':True})
         return _write_receipt(run,spec,receipt,record)
+
+
+def _instruction_delivery(run, execution):
+    """None when the run pins no project instruction document; else whether this session's
+    transport record shows delivery of the pinned document. An unreadable pin counts as not shown."""
+    from . import project_instructions
+    try:pinned=project_instructions.for_run(run)
+    except ValueError:return False
+    if pinned is None:return None
+    record=(execution.get('transport') or {}).get('project_instructions')
+    return project_instructions.record_problem(record,pinned) is None
+
+
+class _InstructionsRefused(Exception):
+    """The declared project document no longer matches what the prepared launch carries."""
+
+
+def _declared_document_refusal(run, descriptor, ws):
+    """None, or ``(detail, missing)`` when a prepared launch may not start under the run's current pin.
+
+    Preparing a launch does not fix the document. The dispatcher and the supervisor read the
+    declaration again: the document must still hold the pinned bytes, the delivery record
+    in the descriptor must name that pin, and the instruction files above the workspace ``ws``
+    must be the ones the record lists, byte for byte. A run without a pin asks for nothing.
+    """
+    from . import project_instructions
+    try:
+        pinned=project_instructions.for_run(run)
+        if pinned is None:return None
+        project_instructions.text_of(pinned)
+    except project_instructions.ProjectInstructionsError as exc:
+        return str(exc),list(exc.missing)
+    record=(descriptor.get('transport') or {}).get('project_instructions')
+    problem=project_instructions.record_problem(record,pinned)
+    if problem is not None:
+        return (f'project instructions refused: {problem} (the prepared launch does not carry the document this run '
+                'pins now; prepare the launch again)',[problem])
+    # The CLI loads these files by itself, so a file edited or added after preparation reaches the worker unrecorded.
+    adapter=importlib.import_module('ravel.workflow.transports.cli_worker')
+    rows=lambda found:sorted((str(r.get('path')),str(r.get('relation')),str(r.get('sha256'))) for r in found)
+    try:
+        detail=(None if rows(adapter._no_instruction_files(Path(ws),pinned))==rows(record['ambient']['ancestor_files'])
+                else 'the instruction files above the workspace are not the ones the launch was prepared with')
+    except adapter.LaunchRefused as exc:
+        detail=str(exc)
+    if detail is None:return None
+    problem='project_instructions:ancestors-changed'
+    return f'project instructions refused: {problem} ({detail}; prepare the launch again)',[problem]
 
 
 def completion_cells(rundir):
@@ -670,6 +840,36 @@ def _process_record(rundir, value):
 
 def _control(path, token, action):
     return broker.socket_call(path,{'token':token,'action':action})
+
+
+def _new_actor(node_id, attempt, transport_id, model_id, family):
+    from .rdj_custody import actor_record
+    return actor_record(transport_id,model_id,uuid.uuid4().hex,f'{node_id}/{attempt}',family=family)
+
+
+def _descriptor_actor(spec, descriptor):
+    """The actor of the worker session this launch starts, from the trusted launch descriptor."""
+    transport=descriptor.get('transport') or {};model=descriptor.get('model') or {}
+    return _new_actor(spec['node_id'],spec['attempt'],transport.get('id') or 'stub',
+                      model.get('requested') or 'unspecified',model.get('family'))
+
+
+def bind_actor(rundir, node_id, attempt, *, transport_id, model_id, family=None):
+    """Trusted dispatcher seam: assign the actor of one worker session before it runs.
+
+    An actor is one worker session. Its id is sha256 over the transport id, the model id, a
+    worker session id this dispatcher draws here and the attempt id (``<node>/<attempt>``).
+    ``launch`` calls the same assignment for every worker it spawns; a dispatcher that
+    completes a worker without ``launch`` calls this. The worker never supplies an actor.
+    """
+    path=_record_path(rundir,node_id,attempt)
+    with file_lock(path.with_suffix('.lock')):
+        record=read_json(path)
+        if record['receipt'] or record['launch'] is not None:raise ValueError('assign the actor before the worker starts')
+        if record.get('actor'):raise ValueError('a worker session has exactly one dispatcher-assigned actor')
+        record['actor']=_new_actor(node_id,attempt,transport_id,model_id,family)
+        atomic_json(path,record)
+        return deepcopy(record['actor'])
 
 
 def bind_season(rundir, node_id, attempt, *, actor_id, season):
@@ -748,6 +948,27 @@ def _user_home(descriptor, ws):
     return broker.ordinary(value)
 
 
+def supervisor_env(run, ws, descriptor, pass_env):
+    """The worker supervisor's whole environment: no user configuration or secrets by default.
+
+    A test lock domain survives this boundary only as this process's validated grant
+    (``machine_lease.child_env``), so a supervisor started under a test registers its receipts in
+    the test's custody store, never in the account's machine-state directory.
+    """
+    from . import machine_lease
+    env={'PATH':'/usr/bin:/bin','HOME':str(ws/'scratch'), 'RAVEL_STATE_DIR':str(broker.custody(run).parents[1]),
+         'RAVEL_WORK_ROOT':str(broker.work_root(run).parent),
+         'PYTHONPATH':str(Path(__file__).resolve().parents[2]), 'PYTHONDONTWRITEBYTECODE':'1',
+         'TMPDIR':str(broker.runtime_dir())}
+    # Declared transport variables only; their values are never recorded.
+    env.update({name:os.environ[name] for name in pass_env if name in os.environ and name not in ACCOUNT_ENV})
+    env.update(_account_env(descriptor))
+    # A test lock domain crosses the supervisor boundary only as this process's validated
+    # grant; ordinary execution keeps the fixed machine custody domain.
+    env.update(machine_lease.child_env())
+    return env
+
+
 def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None, protected=(), effect=None):
     """Start exactly one supervisor. An uncertain launch is never blindly repeated."""
     spec=_validate(spec);run=broker.ordinary(rundir);ws=materialize(run,spec,packet=packet,protected=protected,effect=effect)
@@ -782,25 +1003,18 @@ def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None
     with gate_wiring.steering_dispatch(run, spec['node_id']), file_lock(path.with_suffix('.lock')):
         record=read_json(path)
         if record['receipt']:return load_receipt(run,spec['node_id'],spec['attempt'])
-        if record['launch'] is None:
+        # Nothing starts when the declared document or the pin changed after the launch was prepared.
+        refused=_declared_document_refusal(run,descriptor,ws) if record['launch'] is None else None
+        if record['launch'] is None and refused is None:
             token=uuid.uuid4().hex
             descriptor_path=broker.custody(run)/(_key(spec['node_id'],spec['attempt'])+'.launch.json')
             atomic_json(descriptor_path,descriptor)
             record['launch']={'token':token,'descriptor_sha256':broker.sha(descriptor_path),'pid':None,
                               'control_socket':None,'status':'reserved'}
+            # The dispatcher assigns the actor at spawn, once per worker session.
+            if not record.get('actor'):record['actor']=_descriptor_actor(spec,descriptor)
             atomic_json(path,record)
-            # The supervisor's environment has no user config/secrets by default.
-            env={'PATH':'/usr/bin:/bin','HOME':str(ws/'scratch'), 'RAVEL_STATE_DIR':str(broker.custody(run).parents[1]),
-                 'RAVEL_WORK_ROOT':str(broker.work_root(run).parent),
-                 'PYTHONPATH':str(Path(__file__).resolve().parents[2]), 'PYTHONDONTWRITEBYTECODE':'1',
-                 'TMPDIR':str(broker.runtime_dir())}
-            # Declared transport variables only; their values are never recorded.
-            env.update({name:os.environ[name] for name in pass_env if name in os.environ and name not in ACCOUNT_ENV})
-            env.update(_account_env(descriptor))
-            # A test lock domain crosses the supervisor boundary only as this process's validated
-            # grant; ordinary execution keeps the fixed machine custody domain.
-            from . import machine_lease
-            env.update(machine_lease.child_env())
+            env=supervisor_env(run,ws,descriptor,pass_env)
             proc=subprocess.Popen([sys.executable,'-B','-m','ravel.workflow.agent_worker','supervise',
                 '--rundir',str(run),'--node',spec['node_id'],'--attempt',str(spec['attempt'])],
                 env=env,cwd=ws,start_new_session=True,stdin=subprocess.DEVNULL,
@@ -810,6 +1024,9 @@ def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None
             _process_record(run, {'node_id': spec['node_id'], 'attempt': spec['attempt'], 'pid': proc.pid,
                 'pgid': proc.pid, 'status': 'starting', 'control_socket': None, 'token': token,
                 'child_pid': None, 'child_pgid': None, 'verified_gone': False, 'termination': None})
+    if refused is not None:
+        return finish(run,spec,execution={'refusal':'transport_refused','refusal_detail':refused[0],
+                                          'refusal_missing':refused[1]})
     # Reattach through custody+nonce. We do not look up or signal a process by name.
     if not wait:return {'status':'running','node_id':spec['node_id'],'attempt':spec['attempt']}
     deadline=time.monotonic()+spec['budgets']['max_wall_seconds']+15
@@ -874,8 +1091,10 @@ def supervise(rundir: Path, node_id: str, attempt: int):
             raise sandbox.ReadRootRefused('read roots must lie inside the tool runtime paths')
         stdin_path,cli_home,network,launch_env=_cli_launch(descriptor,ws);keychain_home=_user_home(descriptor,ws)
         verified=set((descriptor.get('transport') or {}).get('verified_env') or [])
-        # A blind role uses read and write on its packet copy and its own outputs only.
-        if record.get('blind') and not set(allowed_actions)<={'read','write'}:raise _BlindRefused('blind_action_refused')
+        # A graph-blind role uses read and write on its packet copy and its own outputs only; a
+        # card-blind role adds the actions its own card names. Both come from the one flag in custody.
+        limit=record['blind_actions'] if 'blind_actions' in record else ['read','write'] if record.get('blind') else None
+        if limit is not None and not set(allowed_actions)<=set(limit):raise _BlindRefused('blind_action_refused')
         # The denial probe runs the exact profile the child launches with: its CLI home and network.
         evidence=sandbox.probe(ws,forbidden=_denied_probe_targets(run,path,record),read_paths=reads,protected=protected,
                                home=cli_home,network=network,keychain_home=keychain_home)
@@ -899,6 +1118,9 @@ def supervise(rundir: Path, node_id: str, attempt: int):
             env.update(_account_env(descriptor))
             env.update(launch_env)
             if stop_event.is_set():raise _StopBeforeLaunch()
+            # The last check before the child exists: the document and the pin as they are now.
+            changed=_declared_document_refusal(run,descriptor,ws)
+            if changed is not None:raise _InstructionsRefused(*changed)
             # stdout and stderr reach supervisor custody through pipes, never a worker-writable file.
             captures={name:capture_path(run,node_id,attempt,name) for name in ('stdout','stderr')}
             with (stdin_path.open('rb') if stdin_path else open(os.devnull,'rb')) as source:
@@ -944,6 +1166,8 @@ def supervise(rundir: Path, node_id: str, attempt: int):
         execution['refusal']=str(exc)
     except _StopBeforeLaunch:
         execution['refusal']='stop_requested'
+    except _InstructionsRefused as exc:
+        execution.update(refusal='transport_refused',refusal_detail=exc.args[0],refusal_missing=list(exc.args[1]))
     except Exception:
         execution['ambiguous']=child is not None
         if child is None:execution['refusal']='process_error'
@@ -960,6 +1184,9 @@ def supervise(rundir: Path, node_id: str, attempt: int):
         # Verify the child group is gone before any completion is credited.
         gone=child is None or not _group_alive(registration['child_pgid'])
         if not gone:execution['ambiguous']=True
+        if child is None and 'project_instructions' in (execution.get('transport') or {}):
+            # No session started, so nothing was delivered: the receipt says so instead of keeping the prepared record.
+            execution['transport']={**execution['transport'],'project_instructions':{'status':'not_started'}}
         transport=descriptor.get('transport') or {}
         if gone and (transport.get('cli_home_owned') or transport.get('user_home')):
             # The per-worker CLI home holds copied login material, and the keychain home links

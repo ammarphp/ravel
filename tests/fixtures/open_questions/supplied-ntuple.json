@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "open-question-fixture",
+  "id": "supplied-ntuple",
+  "synthetic": true,
+  "structure": "search on supplied event records: a model-agnostic localized-excess search against a declared smooth background",
+  "prompt": "Search the supplied ntuple for a localized excess over a declared smooth background with a model-agnostic method. Deliver an excess figure and an internal note; retain failed and inconclusive evidence.",
+  "expected_task_mode": "anomaly_search",
+  "claim_kind": "finding",
+  "quantity": {"id": "local-excess-sigma", "unit": "1",
+               "meaning": "Synthetic local excess in units of the background-only spread; not a discovery claim."},
+  "method": "def local_excess(observed, expected, spread):\n    return (observed - expected) / spread\n",
+  "hypotheses": {"citation_led": "An excess is localized in one window of the supplied observable.",
+                 "speculative": "The supplied records agree with the smooth background everywhere."},
+  "precision_target": {"kind": "mean_standard_error", "sigma_bound": 1.0, "absolute_error": 0.1},
+  "answer": {"verdict": "no_significant_excess", "value": 1.1},
+  "grading": {"verdicts": ["no_significant_excess", "excess"], "reference": {"verdict": "no_significant_excess", "value": 1.1},
+              "tolerance": {"absolute": 0.2}},
+  "figure_inputs": {"kind": "poi_scan", "axis": {"name": "observable", "unit": "1"},
+                    "points": [0.1, 0.3, 0.5, 0.7, 0.9], "values": [0.2, 1.1, 0.4, -0.3, 0.1]}
+}

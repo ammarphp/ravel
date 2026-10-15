@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "open-question-fixture",
+  "id": "interference",
+  "synthetic": true,
+  "structure": "measurement: a resonance-continuum interference parameter with its uncertainty, from a supplied final state",
+  "prompt": "Measure the interference strength between a scalar resonance and its continuum background in a supplied two-photon final state. Deliver the measured parameter with its uncertainty and an internal note; retain failed and inconclusive evidence.",
+  "expected_task_mode": "research",
+  "claim_kind": "finding",
+  "quantity": {"id": "interference-strength", "unit": "1",
+               "meaning": "Synthetic interference coefficient relative to the pure-resonance term; supplied arithmetic only."},
+  "method": "def interference(total, resonance, continuum):\n    return total - resonance - continuum\n",
+  "hypotheses": {"citation_led": "The interference term is destructive below the resonance.",
+                 "speculative": "The interference term is negligible at the supplied resolution."},
+  "answer": {"verdict": "measured", "value": -0.18},
+  "grading": {"verdicts": ["measured", "not_measurable"], "reference": {"verdict": "measured", "value": -0.18},
+              "tolerance": {"absolute": 0.04}},
+  "figure_inputs": {"kind": "measurement_overlay", "parameter": "interference-strength", "value": -0.18,
+                    "uncertainty": [0.03, 0.03], "reference": {"value": -0.2, "uncertainty": [0.05, 0.05]}}
+}

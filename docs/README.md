@@ -14,6 +14,12 @@ toolchain. The command-line reference describes each command you can also run on
 | Follow an existing run | [Session guide](workflow/session-guide.md) |
 | Understand what is supported | [Capabilities](reference/capabilities.md), [scope](reference/scope.md), and [limitations](reference/limitations.md) |
 
+## Methodology
+
+The [methodology pages](methodology/README.md) describe the [agent architecture](methodology/agent-architecture.md),
+the [research loop](methodology/research-loop.md) and
+[Recursive Decision Justification](methodology/decision-justification.md).
+
 ## Using and checking results
 
 The [workflow guide](workflow/README.md) connects the numbered steps, analysis
@@ -30,9 +36,10 @@ defines the fields that make a request executable and reviewable.
 
 ## Analysis expansion
 
-Build a local routine catalogue from your own Rivet and SimpleAnalysis checkouts
-with `ravel catalogue`, then use `ravel analyses` ([command-line reference](cli.md)) for
-source-backed routine discovery. Neither demonstrates physics support.
+The package ships a pinned snapshot of the public Rivet and SimpleAnalysis routine metadata, so
+`ravel analyses` ([command-line reference](cli.md)) discovers routines offline. Build a fresh
+catalogue from your own checkouts with `ravel catalogue`; it outranks the snapshot. Neither
+demonstrates physics support.
 
 The source-bound continuation references cover [literal source tables](reference/source-tables.md), [complete-group arithmetic](reference/full-cohort-arithmetic.md) and [registered historical helpers](reference/registered-historical-helpers.md). Source transport and engineering checks do not qualify scientific results.
 

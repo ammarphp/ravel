@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "kind": "role-knowledge-bindings-fragment",
+  "roles": {
+    "consult-sm-measurement": {
+      "include": [
+        "hb:sm-measurements",
+        "hb:rivet-routine",
+        "hb:hepdata-retrieval",
+        "conv:sm"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "measurement-analyst": {
+      "include": [
+        "hb:sm-measurements",
+        "hb:yoda-multiweights",
+        "conv:sm",
+        "trap:TS1",
+        "trap:TS2",
+        "trap:TS3",
+        "trap:TS4",
+        "trap:TS5",
+        "trap:TS6"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "theory-prediction-producer": {
+      "include": [
+        "hb:theory-prescriptions",
+        "conv:sm"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "consult-generators": {
+      "include": [
+        "hb:sherpa",
+        "hb:herwig",
+        "hb:powheg-box",
+        "hb:madgraph-launch",
+        "hb:yoda-multiweights"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "precision-theory-auditor": {
+      "include": [
+        "hb:theory-prescriptions",
+        "conv:sm-theory",
+        "trap:TS7",
+        "trap:TS8",
+        "trap:TS9",
+        "trap:TS10",
+        "trap:TS11",
+        "trap:TS12"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "unfolding-reviewer": {
+      "include": [
+        "hb:rooUnfold",
+        "hb:omnifold",
+        "conv:sm-unfolding",
+        "conv:unfolding"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "generator-tuner": {
+      "include": [
+        "hb:apprentice-tuning",
+        "hb:pythia-shower-cards",
+        "conv:sm-tuning"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "pdf-impact-analyst": {
+      "include": [
+        "hb:pdf-profiling",
+        "hb:lhapdf-pdf-sets",
+        "hb:pineappl-grids",
+        "conv:sm-pdf"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "ew-fit-analyst": {
+      "include": [
+        "hb:ewpo-fit",
+        "conv:sm-ew"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    },
+    "measurement-combination-reviewer": {
+      "include": [
+        "conv:sm",
+        "trap:TS13",
+        "trap:TS14",
+        "trap:TS15"
+      ],
+      "premise_tags": [
+        "measurement",
+        "precision-prediction",
+        "unfolding"
+      ],
+      "sections": {}
+    }
+  },
+  "handoff": "Merge these bindings after real handbook IDs resolve. Keep producer headlines out of specialist knowledge and preserve the existing knowledge_bundles authentication and forbidden-ID controls."
+}

@@ -1,7 +1,9 @@
 """Pinned schema-driven tree-to-array export through the ordinary science worker.
 
 Required readers are imported in the approved worker. All source rows, raw
-values and positional order survive; shapes and output formats are supplied.
+values and positional order survive; shapes and output formats are supplied,
+either inline or by the identifier of a packaged public-format layout template
+(:func:`library_layout`).
 """
 from copy import deepcopy
 import hashlib
@@ -16,6 +18,7 @@ from ravel.physics.ma5_pad import InputCapture
 from ravel.physics.ma5_saf import _keys, _json, _identity
 
 SCOPE = 'source_bound_tree_raw_array_delivery'
+LIBRARY = Path(__file__).resolve().parents[1] / 'data' / 'columnar' / 'array_layouts'
 
 
 class MissingArrayInput(ValueError):
@@ -74,7 +77,26 @@ def _numeric(value):
     require(float(value) == value, 'supplied number not representable as float64')
 
 
+def layout_names():
+    """Identifiers of the packaged array layout templates."""
+    return sorted(p.stem for p in LIBRARY.glob('*.json'))
+
+
+def library_layout(name):
+    """One packaged layout by identifier, validated like a supplied layout."""
+    import re
+    require(type(name) is str and re.fullmatch('[a-z0-9][a-z0-9._-]{0,95}', name), 'layout library identifier required')
+    path = LIBRARY / (name + '.json')
+    require(path.is_file(), 'no packaged array layout named ' + repr(name) + '; available: ' + ', '.join(layout_names()))
+    doc = _json(path.read_bytes())
+    _keys(doc, ('schema_version', 'kind', 'name', 'source', 'layout'), 'packaged array layout')
+    require(doc['schema_version'] == 1 and doc['kind'] == 'tree-array-layout' and doc['name'] == name and
+            type(doc['source']) is str and doc['source'].strip(), 'packaged array layout identity required')
+    return validate_layout(doc['layout'])
+
+
 def validate_layout(value):
+    if type(value) is str: value = library_layout(value)
     _closed(value, ('dtype', 'columns', 'jagged_groups', 'padding', 'overflow'), 'array layout')
     require(value['dtype'] == 'float64', 'supported float64 output dtype required')
     require(value['overflow'] in ('truncate', 'refuse'), 'explicit object overflow policy required')
@@ -137,7 +159,7 @@ def export_contract(d):
     require(type(d['sources']) is list and 1 <= len(d['sources']) <= 256, 'supplied source commitments required')
     _closed(d['source_premises'], ('units', 'ordering', 'weight_semantics'), 'source premises')
     for name, value in d['source_premises'].items(): _text(value, name)
-    validate_layout(d['layout'])
+    d = {**d, 'layout': validate_layout(d['layout'])}
     require(type(d['datasets']) is list and 1 <= len(d['datasets']) <= 256, 'nonempty supplied dataset population required')
     ids, destinations = set(), set()
     for row in d['datasets']:

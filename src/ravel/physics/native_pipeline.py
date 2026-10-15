@@ -887,6 +887,8 @@ def generate_activated(plan):
     This entry does not activate conda again. It reuses original approval and
     emits an explicit subprocess record; only the supervisor can accept a stage.
     """
+    from ravel.workflow import wms_policy
+    wms_policy.require_custody(plan["rundir"])
     verify_execution_approval(plan)
     verify_effective_settings(plan)
     verify_native_stage_authority(plan, "madgraph", inside_supervised=True)
@@ -947,6 +949,8 @@ def verify_activated_result(plan, attempt):
 
 def generate(plan):
     """Keep each mutable MadGraph PROC and publish only its completed LHE."""
+    from ravel.workflow import wms_policy
+    wms_policy.require_custody(plan["rundir"])
     verify_execution_approval(plan)
     verify_effective_settings(plan)
     verify_native_stage_authority(plan, "madgraph", inside_supervised=True)

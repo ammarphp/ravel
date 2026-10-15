@@ -52,7 +52,28 @@ def load_subset(verify=True):
     raw = (REFERENCE / "pdg-subset.json").read_bytes()
     if verify and hashlib.sha256(raw).hexdigest() != load_source()["subset_sha256"]:
         raise ConstantsError("pdg-subset.json does not match the checksum recorded in SOURCE.json")
-    return json.loads(raw)
+    return validate_subset(json.loads(raw))
+
+
+def validate_subset(subset):
+    """Require every pinned value to retain its database identity and edition."""
+    if not isinstance(subset, dict) or subset.get("schema_version") != 1 or subset.get("kind") != "ravel-pdg-subset":
+        raise ConstantsError("PDG subset schema 1 required")
+    edition = subset.get("edition")
+    rows = subset.get("quantities")
+    if not isinstance(edition, str) or not edition or not isinstance(rows, dict) or not rows:
+        raise ConstantsError("PDG subset requires an edition and quantities")
+    for key, row in rows.items():
+        if not isinstance(key, str) or not isinstance(row, dict):
+            raise ConstantsError("PDG subset has an invalid quantity row")
+        if not isinstance(row.get("pdgid"), str) or not row["pdgid"]:
+            raise ConstantsError(f"{key}: pdgid is required")
+        if row.get("edition") != edition:
+            raise ConstantsError(f"{key}: edition must match subset edition")
+        # The database gives a dimensionless quantity an empty unit; a missing unit is refused.
+        if not isinstance(row.get("unit"), str) or not isinstance(row.get("value"), (int, float)):
+            raise ConstantsError(f"{key}: value and unit are required")
+    return subset
 
 
 def _cited(mapping, key):
@@ -178,22 +199,67 @@ def fetch_higgs_source(name, cache_dir=None, *, directory=None, opener=None):
     return target
 
 
-def load_higgs_tables(directory=None, *, allow_synthetic=False):
+def higgs_reference_install_steps(source, destination):
+    """Build existing installer steps from a reviewed runtime table registration.
+
+    No acquisition runs here. The installer owns network policy and digest checks.
+    Reference values and source identities are supplied, never selected by this helper.
+    Primary documents remain locator/hash registrations unless separately acquired.
+    """
+    pin = source.get("table") if isinstance(source, dict) else None
+    if not isinstance(pin, dict):
+        raise ConstantsError("reviewed Higgs table pin required")
+    name, digest, url, size = (pin.get(k) for k in ("path", "sha256", "url", "bytes"))
+    if (not isinstance(name, str) or not name or Path(name).name != name or name in (".", "..")
+            or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+            or not isinstance(url, str) or not url.startswith("https://")
+            or type(size) is not int or size <= 0):
+        raise ConstantsError("table pin requires basename, HTTPS URL, sha256 and byte size")
+    if pin.get("licence") not in ("CC-BY-4.0", "CC0-1.0"):
+        raise ConstantsError("table redistribution requires a reviewed CC BY or CC0 licence")
+    if (source.get("kind") != "higgs-reference-source" or source.get("schema_version") != 1
+            or source.get("status") != "installed" or not isinstance(source.get("source_files"), list)
+            or not source["source_files"] or name == "SOURCE.json"):
+        raise ConstantsError("complete reviewed source registration required")
+    root = Path(destination)
+    return [{"id": "reference-table", "kind": "download", "url": url, "sha256": digest, "size": size,
+             "dest": str(root / name)},
+            {"id": "reference-source", "kind": "write_file", "path": str(root / "SOURCE.json"),
+             "content": json.dumps(source, indent=2, allow_nan=False) + "\n"}]
+
+
+def load_higgs_tables(directory=None, *, version=None, allow_synthetic=False):
     """Load reviewed local tables only after table and primary-source pin checks.
 
-    There is no downloader or interpolation. Synthetic data require an explicit
+    Version 2 defaults to the installed cache under RAVEL_CACHE_DIR; a supplied
+    directory overrides it. There is no downloader or interpolation. Synthetic data require an explicit
     test-only opt-in and cannot silently substitute for absent physics tables.
     """
+    if version is not None and (type(version) is not int or version not in (1, 2)):
+        raise ConstantsError("Higgs table version must be 1 or 2")
+    if directory is None and version == 2:
+        import os
+        directory = Path(os.environ.get("RAVEL_CACHE_DIR")
+                         or Path.home() / ".cache" / "ravel") / "higgs-tables-v2"
     directory = Path(directory or HIGGS_REFERENCE)
     source = load_higgs_source(directory)
     if source["status"] != "installed":
         raise ConstantsError(source["status"])
-    document = json.loads(_pinned_higgs_bytes(directory, source.get("table")))
+    pin = source.get("table_versions", {}).get(str(version), source.get("table"))
+    document = json.loads(_pinned_higgs_bytes(directory, pin))
+    if version is not None and document.get("schema_version") != version:
+        raise ConstantsError("Higgs installed table version differs from requested version")
     findings = check_higgs_tables(document)
     if findings:
         raise ConstantsError("invalid Higgs tables: " + json.dumps(findings, allow_nan=False))
     if document["synthetic"] and not allow_synthetic:
         raise ConstantsError("synthetic Higgs tables are test-only, not physics reference data")
+    if document["schema_version"] == 2 and not document["synthetic"]:
+        # The inherited digests are declared by the document itself; bind them to the installed rows.
+        base = json.loads(_pinned_higgs_bytes(HIGGS_REFERENCE, load_higgs_source(HIGGS_REFERENCE).get("table")))
+        for section in ("rows", "ratios"):
+            if document["legacy_" + section + "_sha256"] != {r["id"]: _higgs_row_digest(r) for r in base[section]}:
+                raise ConstantsError("version 2 Higgs tables must inherit exactly the installed version 1 " + section)
     pins = source.get("source_files")
     if not isinstance(pins, list) or not pins:
         raise ConstantsError("Higgs tables require primary source pins")
@@ -237,6 +303,9 @@ def check_higgs_tables(document):
     if not isinstance(citations, dict) or not isinstance(rows, list) or not isinstance(ratios, list):
         return out
     by_id = {}
+    v2 = document.get("schema_version") == 2
+    legacy = document.get("legacy_rows_sha256", {}) if v2 else {}
+    bins = []
     for i, row in enumerate(rows):
         if not isinstance(row, dict):
             continue
@@ -245,12 +314,18 @@ def check_higgs_tables(document):
         if not isinstance(key, str) or not key.strip():
             out.append({"field_path": here, "kind": "uncited", "reason": "table value requires citation_key"})
         elif key not in citations:
-            out.append({"field_path": here, "kind": "citation", "reason": "citation_key does not resolve"})
+            out.append({"field_path": f"rows[{i}].citation_key" if v2 else here, "kind": "citation", "reason": "citation_key does not resolve"})
         identity = row.get("id")
         if isinstance(identity, str):
             if identity in by_id:
                 out.append({"field_path": f"rows[{i}].id", "kind": "schema", "reason": "duplicate table row"})
             by_id[identity] = row
+        if v2 and (not isinstance(legacy, dict) or not isinstance(identity, str) or identity not in legacy):
+            if not isinstance(row.get("locator"), dict):
+                out.append({"field_path": f"rows[{i}].locator", "kind": "provenance",
+                            "reason": "new row requires printed-source locator and extraction digest"})
+        if v2 and row.get("quantity") == "stxs_bin":
+            bins.append((i, row))
         value, reference, uncertainty = row.get("value"), row.get("reference_value"), row.get("uncertainty")
         if isinstance(uncertainty, dict) and all(_finite(v) for v in
                 (value, reference, uncertainty.get("minus"), uncertainty.get("plus"))):
@@ -280,8 +355,74 @@ def check_higgs_tables(document):
                 raise ConstantsError("ratio differs from recomputed table-row quotient")
         except (ConstantsError, KeyError, TypeError) as exc:
             out.append({"field_path": here, "kind": "ratio", "reason": str(exc)})
+    if v2:
+        _check_higgs_legacy(document, out)
+        _check_higgs_bins(bins, out)
     _nonfinite(document, "", out)
     return out
+
+
+def _higgs_row_digest(row):
+    return hashlib.sha256(json.dumps(row, sort_keys=True, separators=(",", ":"),
+                                     allow_nan=False).encode()).hexdigest()
+
+
+def _check_higgs_legacy(document, out):
+    """Bind inherited JSON row content without adding fields to inherited rows."""
+    for section in ("rows", "ratios"):
+        pins = document.get("legacy_" + section + "_sha256", {})
+        if not isinstance(pins, dict):
+            continue
+        current = {r.get("id"): r for r in document[section]
+                   if isinstance(r, dict) and isinstance(r.get("id"), str)}
+        for identity, digest in pins.items():
+            try:
+                valid = identity in current and _higgs_row_digest(current[identity]) == digest
+            except (ValueError, TypeError):
+                valid = False
+            if not valid:
+                out.append({"field_path": "legacy_" + section + "_sha256." + identity,
+                            "kind": "identity", "reason": "inherited row missing or changed"})
+
+
+def _check_higgs_bins(bins, out):
+    """Check supplied rectangular half-open bins; null denotes an unbounded end."""
+    valid = []
+    for i, row in bins:
+        bounds = row.get("boundaries")
+        if not isinstance(bounds, dict) or not bounds:
+            continue
+        intervals = {}
+        for axis, interval in bounds.items():
+            if not isinstance(interval, dict):
+                continue
+            lo, hi = interval.get("lower"), interval.get("upper")
+            if ("lower" not in interval or "upper" not in interval
+                    or lo is not None and not _finite(lo)
+                    or hi is not None and not _finite(hi)
+                    or lo is not None and hi is not None and lo >= hi):
+                out.append({"field_path": f"rows[{i}].boundaries.{axis}",
+                            "kind": "boundary", "reason": "strictly ordered finite or unbounded ends required"})
+                continue
+            intervals[axis] = (float("-inf") if lo is None else lo,
+                               float("inf") if hi is None else hi, interval.get("unit"))
+        if len(intervals) == len(bounds):
+            valid.append((i, row, intervals))
+    for position, (i, row, intervals) in enumerate(valid):
+        for _, other, other_intervals in valid[:position]:
+            if (row.get("process"), row.get("stage")) != (other.get("process"), other.get("stage")):
+                continue
+            if row.get("bin_id") == other.get("bin_id"):
+                out.append({"field_path": f"rows[{i}].bin_id", "kind": "identity",
+                            "reason": "duplicate bin identity in process and stage"})
+            if intervals.keys() != other_intervals.keys() or any(
+                    intervals[a][2] != other_intervals[a][2] for a in intervals):
+                out.append({"field_path": f"rows[{i}].boundaries", "kind": "boundary",
+                            "reason": "same process and stage require comparable axes and units"})
+            elif all(max(intervals[a][0], other_intervals[a][0])
+                     < min(intervals[a][1], other_intervals[a][1]) for a in intervals):
+                out.append({"field_path": f"rows[{i}].boundaries", "kind": "overlap",
+                            "reason": "overlapping half-open bins in the same process and stage"})
 
 
 def _finite(value):

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "package": "dark-matter-observables",
+  "mode_descriptors": {
+    "dark-matter-observables": {
+      "summary": "Relic density, freeze-out and channels, nucleon scattering and present-day annihilation from supplied models and source-reviewed native bindings.",
+      "applicability": {
+        "scope": "general"
+      },
+      "tools": [
+        "micrOMEGAs"
+      ],
+      "requires": [
+        "source-pinned CalcHEP or UFO model package",
+        "source-reviewed version-bound binding",
+        "compiled per-model driver",
+        "complete particle and co-annihilation inventory",
+        "supplied coupling, rate and astrophysical conventions",
+        "ordinary method decision and scientific admission"
+      ]
+    }
+  },
+  "operation_signatures": {
+    "dark-matter-observables": {
+      "summary": "Supplied model observables with cited exact-node limit comparisons.",
+      "implementation": {
+        "kind": "science-adapter",
+        "module": "ravel.physics.dark_matter"
+      },
+      "consumes": [
+        {
+          "slot": "config",
+          "kind": "source_pin"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "observables",
+          "kind": "quantities"
+        }
+      ],
+      "effects": [
+        "executes_native"
+      ],
+      "tools": [
+        "micrOMEGAs"
+      ],
+      "stages": [
+        "science"
+      ],
+      "review": {
+        "checks": [
+          "integrity",
+          "model_completeness",
+          "observable_conventions"
+        ]
+      }
+    }
+  },
+  "manifest_operations": [
+    {
+      "mode": "dark-matter-observables",
+      "groups": [
+        "dark-matter"
+      ]
+    }
+  ],
+  "science_dispatch": {
+    "mode": "dark-matter-observables",
+    "adapter": "ravel.physics.dark_matter",
+    "worker_call": "adapter.run(task, base, out / mode)",
+    "report_call": "adapter.write_report(result, out)",
+    "required_guard": "science.verify_worker then selected mode/task/output and delivery-only scope checks; existing execute_native resource supervision"
+  },
+  "handoff": "Registration integrator installs the descriptor, signature, manifest operation and existing guarded science dispatch. This fragment grants no runtime admission or native qualification.",
+  "workflow_instructions": [
+    "docs/workflow/reference/dark-matter-observables.md"
+  ],
+  "change_registry_handoff": "Register supplied dark-matter transport, source-held toolchain and guarded build integration with this workflow reference; no native qualification is established."
+}

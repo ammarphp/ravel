@@ -323,22 +323,33 @@ def test_graph_schema_requires_explicit_topology_and_tensor_shape(tmp_path):
 
 def test_graph_library_dispatch_uses_the_small_backend_interface(monkeypatch):
     from ravel.physics import ml_backends as backends
+    from ravel.physics import ml_runtime
     arm={'backend':'torch-geometric','architecture':'gnn','config':{}}
     monkeypatch.setattr(backends,'available',lambda:{'torch-geometric':True})
     seen=[]
-    monkeypatch.setattr(backends,'_fit_graph',lambda *args:seen.append(args) or {'graph_nodes':np.array(2)})
+    monkeypatch.setattr(ml_runtime,'fit',lambda *args:seen.append(args) or
+                        {'graph_nodes':np.array(2), '_runtime_backend':np.array('torch-geometric')})
     x=np.zeros((4,2,2)); y=np.array([0.,1.,0.,1.]); w=np.ones(4)
     state=backends.fit(arm,x,y,w,3,2,lambda:None)
     assert len(seen)==1 and seen[0][1] is x
-    monkeypatch.setattr(backends,'_predict_graph',lambda state,x:np.full(len(x),.5))
+    monkeypatch.setattr(ml_runtime,'predict',lambda state,x:np.full(len(x),.5))
     np.testing.assert_array_equal(backends.predict(state,x),np.full(4,.5))
 
 
 @pytest.mark.parametrize('backend,architecture', [('sklearn','logistic'),('torch','mlp'),('torch-geometric','gnn')])
-def test_installed_backend_seed_replay(backend, architecture):
-    """Runs only on an installed optional runtime; retained for installer queue."""
+def test_installed_backend_seed_replay(backend, architecture, monkeypatch):
+    """Installed-runtime qualification control; retained for the installer queue.
+
+    It exercises the local algorithms in this interpreter. The bound worker
+    transport needs an admitted science worker and is covered by the runtime tests.
+    """
+    from importlib.util import find_spec
     from ravel.physics import ml_backends as backends
-    if not backends.available()[backend]: pytest.skip(f'{backend} is not installed')
+    packages=[backends.PACKAGES[backend]]+(['torch'] if backend=='torch-geometric' else [])
+    if any(find_spec(package) is None for package in packages): pytest.skip(f'{backend} is not installed')
+    monkeypatch.setattr(backends,'available',lambda:{backend:True})
+    monkeypatch.setattr(backends,'fit',backends._runtime_local_fit)
+    monkeypatch.setattr(backends,'predict',backends._runtime_local_predict)
     config={'learning_rate':.1}
     if architecture in ('mlp','gnn'): config['hidden_units']=4
     if architecture=='gnn': config.update(nodes=2,edge_index=[[0,1],[1,0]])

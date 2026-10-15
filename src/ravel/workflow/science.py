@@ -16,6 +16,7 @@ from ravel.workflow import execution
 from ravel.workflow.state_io import atomic_json, file_lock, read_json
 
 MODES = (
+    'manuscript-build',
     'task-completion-context',
     'ntuple-inventory',
     'mc-expected-construction',
@@ -95,6 +96,7 @@ MODES = (
     'feyn-graph',
     'diagram-analysis',
     'feynarts-amplitude',
+    'checkmate-events',
     'sfitter-native-fit',
     'sfitter-scan-extraction',
     'sfitter-observed-events',
@@ -102,6 +104,7 @@ MODES = (
     'eft-toolchain',
     'finite-integrals',
     'parameter-space-sampling',
+    'dataset-query-quantities',
     'contur-yoda',
     'contur-companion',
     'ma5-saf',
@@ -127,6 +130,9 @@ MODES = (
     'event-production',
     'ml-training',
 )
+# Provider seam: a mode whose adapter lives outside ravel.physics. It follows the whole science
+# lifecycle. It joins MODES together with its descriptor in data/mode_descriptors.json.
+PROVIDER_MODES = {'external-workflow': 'ravel.workflow.wms_adopt'}
 AMPLITUDE_MODES = {'amplitude-integration': 'amplitude_integration', 'amplitude-predictions': 'amplitude_predictions',
                    'weighted-events': 'weighted_events', 'amplitude-crosscheck': 'amplitude_crosscheck'}
 SPEC = 'inputs/science.json'
@@ -157,6 +163,8 @@ class MissingPrerequisite(ValueError):
 def applicability(mode):
     """The registered applicability of a dispatchable mode: general, or source-bound with its predicate."""
     from .capability_routing import declared_descriptors
+    if mode in PROVIDER_MODES:
+        return {'scope': 'general'}
     if mode not in MODES:
         raise ValueError('unknown science mode: ' + str(mode))
     row = declared_descriptors().get(mode)
@@ -173,6 +181,8 @@ def _applicability_notice(mode):
 
 
 def adapter(spec):
+    if spec['mode'] in PROVIDER_MODES:
+        return __import__('importlib').import_module(PROVIDER_MODES[spec['mode']])
     if spec['mode'] == 'ml-training':
         from ravel.physics import ml_training
         return ml_training
@@ -342,7 +352,7 @@ def validate(spec):
             required.add('output_policy')
     if not isinstance(spec, dict) or set(spec) != required or type(version) is not int or version not in (1, 2):
         raise ValueError('science specification requires exactly ' + ', '.join(sorted(required)))
-    if spec['mode'] not in MODES or spec['approval_mode'] not in ('physicist', 'scripted_yes'):
+    if spec['mode'] not in (*MODES, *PROVIDER_MODES) or spec['approval_mode'] not in ('physicist', 'scripted_yes'):
         raise ValueError('invalid science mode or approval mode')
     if not isinstance(spec['source'], str) or not spec['source'].strip():
         raise ValueError('a scientific source or explicitly synthetic-control description is required')
@@ -528,6 +538,8 @@ def _literal_approval_paths(rd):
     paths.extend(scientific_autonomy.input_paths(spec,rd))
     from . import work_dispatch
     paths.extend(work_dispatch.approval_input_paths(rd))
+    from . import site_tools
+    paths.extend(site_tools.approval_input_paths(rd))
     from .method_selection import DECISION_PATH
     if (rd / DECISION_PATH).exists(): paths.append(str(rd / DECISION_PATH))
     return list(dict.fromkeys(paths))
@@ -987,6 +999,7 @@ def validate_review_contract(spec):
 
 def _new_capability(spec):
     if spec['mode'] == 'ml-training': return True
+    if spec['mode'] in PROVIDER_MODES: return True
     if spec['mode']=='manuscript-build':return True
     if spec['mode'] in AMPLITUDE_MODES:return True
     if spec['mode']=='reco-ntuple-routine':return True
@@ -1399,6 +1412,8 @@ def approval_input_paths(rundir):
     paths.extend(scientific_autonomy.input_paths(read_json(rd / SPEC), rd))
     from . import work_dispatch
     paths.extend(work_dispatch.approval_input_paths(rd))
+    from . import site_tools
+    paths.extend(site_tools.approval_input_paths(rd))
     from .method_selection import DECISION_PATH
     if (rd / DECISION_PATH).exists(): paths.append(str(rd / DECISION_PATH))
     return list(dict.fromkeys(paths))
@@ -2315,6 +2330,7 @@ def _accepted_resume_observed(rd):
 
 
 def run(rundir, *, resume=False):
+    from .wms_policy import require_dispatch; require_dispatch(rundir)
     from .research_evaluation import verify_run_dispatch
     verify_run_dispatch(rundir)
     rd = root(rundir)

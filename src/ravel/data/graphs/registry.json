@@ -237,7 +237,7 @@
     },
     {
       "id": "consult.case",
-      "version": 1,
+      "version": 2,
       "kernel_version": 1,
       "module": "ravel.workflow.graphs.consult",
       "builder": "build",
@@ -255,12 +255,13 @@
         "consult-theory",
         "consult-recast",
         "consult-symbolic",
-        "consult-normalization"
+        "consult-normalization",
+        "consult-higgs"
       ],
       "gates": {},
       "subgraphs": [],
       "interrupts": [],
-      "structure_sha256": "6541686c0491e9492ccfd7ac4ae3100354185ef90fb202578cd37e97151f81c2",
+      "structure_sha256": "cfddcf0d04d6c2899623efb1a91a471f22684dacbc14d93c294bf49ef1a6e1f6",
       "owner": "intake-and-consult"
     },
     {

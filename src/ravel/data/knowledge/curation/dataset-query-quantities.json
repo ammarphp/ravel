@@ -1,0 +1,27 @@
+{
+ "id": "op:dataset-query-quantities",
+ "op": {
+  "do_not_use_when": [
+   "A request without reviewed source selection, event correspondence or quantity normalization."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/dataset-query-quantities-example --spec specs/dataset-query-quantities.json",
+    "phrase": "Analyze a supplied native dataset with explicit queries, observables, domain and presentation.",
+    "spec": {
+     "mode": "dataset-query-quantities",
+     "task": {
+      "config": {
+       "path": "inputs/request.json",
+       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "size": 1024
+      }
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Source-bound columnar query or complete native-file quantities with supplied dataset and observable contracts."
+  ]
+ }
+}

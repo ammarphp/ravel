@@ -38,6 +38,47 @@ def relative(value):
     return value
 
 
+def sample_identity(sample):
+    """Keep legacy receipt bytes; public records carry their explicit authority."""
+    if sample.get('id_scheme', 'dsid') == 'record':
+        return {k: sample[k] for k in ('id_scheme', 'record_id', 'authority')}
+    return {'dsid': sample['dsid']}
+
+
+def member_exposure(member):
+    return {k: member[k] for k in ('guid', 'did', 'entries') if k in member}
+
+
+def normalization_records(sample, original, record, *, closed=True):
+    """Bind both normalization sources to the same scheme, authority and exposure."""
+    identity = sample_identity(sample)
+    require(type(original) is dict and type(record) is dict, 'normalization source records required')
+    fields = ('schema_version', 'sample_id', *identity, 'original_population_sha256',
+              'sum_weights', 'luminosity_fb_inverse', 'cross_section_pb', 'filter_efficiency', 'k_factor')
+    if closed:
+        keys(original, ('schema_version', 'sample_id', *identity, 'members'), 'original normalization population')
+        keys(record, fields, 'original full normalization record')
+    for doc in (original, record):
+        require(type(doc.get('schema_version')) is int and doc['schema_version'] == 1 and
+                doc.get('sample_id') == sample['id'] and all(doc.get(k) == v for k, v in identity.items()),
+                'normalization source sample identity/authority differs')
+    require(type(original.get('members')) is list and original['members'], 'full original normalization members required')
+    rows = {}
+    for row in original['members']:
+        require(type(row) is dict, 'original member exposure required')
+        keys(row, ('guid', 'entries', *(['did'] if sample.get('id_scheme', 'dsid') == 'dsid' or 'did' in row else [])), 'original member exposure')
+        text(row['guid']); integer(row['entries'], 0, 10**15, 'original entries')
+        if 'did' in row: text(row['did'])
+        require(row['guid'] not in rows, 'original member duplicate')
+        rows[row['guid']] = row
+    for member in sample['members']:
+        require(rows.get(member['guid']) == member_exposure(member), 'processed source is not bound to original normalization population')
+    n = sample['normalization']
+    require(record.get('original_population_sha256') == n['original_population']['sha256'], 'normalization origin differs')
+    for name in ('sum_weights', 'luminosity_fb_inverse', 'cross_section_pb', 'filter_efficiency', 'k_factor'):
+        require(type(record.get(name)) in (int, float) and record[name] == n[name], 'normalization source value differs')
+
+
 def dataset(value):
     keys(value, ('schema_version', 'membership_authority', 'ordering', 'samples'), 'ROOT dataset')
     require(type(value['schema_version']) is int and value['schema_version'] == 1, 'ROOT dataset schema1 required')
@@ -46,14 +87,28 @@ def dataset(value):
     require(type(value['samples']) is list and 1 <= len(value['samples']) <= 10000, 'complete bounded samples required')
     samples, members, uris, guids = set(), set(), set(), set()
     for s in value['samples']:
-        keys(s, ('id', 'kind', 'dsid', 'process', 'normalization', 'members'), 'sample')
+        require(type(s) is dict, 'closed sample required')
+        scheme = s.get('id_scheme', 'dsid')
+        require(scheme in ('dsid', 'record'), 'sample id_scheme must be dsid or record')
+        identity_fields = ('id_scheme', 'record_id', 'authority') if scheme == 'record' else ('dsid', *(['id_scheme'] if 'id_scheme' in s else []))
+        if scheme == 'record':
+            require('authority' in s, 'record sample authority is required')
+        keys(s, ('id', 'kind', *identity_fields, 'process', 'normalization', 'members'), 'sample')
+        if scheme == 'record':
+            text(s['record_id'], 'record id'); text(s['authority'], 'record authority')
+            import re
+            u = urlsplit(s['authority'])
+            doi = re.fullmatch(r'(?:doi:)?10\.\d{4,9}/[^\s?#]+', s['authority'])
+            require(doi is not None or (u.scheme in ('https', 'http') and u.hostname and u.path.startswith('/')
+                                       and not (u.username or u.password or u.query or u.fragment)),
+                    'record authority must be a DOI or literal landing URL')
         text(s['id']); text(s['process'])
         require(s['id'] not in samples and s['kind'] in KINDS, 'unique explicit sample/kind required')
         samples.add(s['id'])
         if s['kind'] == 'data':
-            require(s['dsid'] is None and s['normalization'] is None, 'data must not inherit MC normalization')
+            require((scheme == 'record' or s['dsid'] is None) and s['normalization'] is None, 'data must not inherit MC normalization')
         else:
-            integer(s['dsid'], 1, 10**12, 'explicit DSID')
+            if scheme == 'dsid': integer(s['dsid'], 1, 10**12, 'explicit DSID')
             n = s['normalization']
             keys(n, ('source', 'original_population', 'sum_weights', 'luminosity_fb_inverse',
                      'cross_section_pb', 'filter_efficiency', 'k_factor'), 'original MC normalization')
@@ -64,8 +119,10 @@ def dataset(value):
             scale(s)
         require(type(s['members']) is list and s['members'], 'complete nonempty member population required')
         for m in s['members']:
-            keys(m, ('id', 'did', 'guid', 'uri', 'tree', 'entries', 'size_bytes', 'checksum'), 'ROOT member')
-            for name in ('id', 'did', 'guid', 'tree'): text(m[name], name)
+            require(type(m) is dict, 'closed ROOT member required')
+            keys(m, ('id', 'guid', 'uri', 'tree', 'entries', 'size_bytes', 'checksum',
+                     *(['did'] if scheme == 'dsid' or 'did' in m else [])), 'ROOT member')
+            for name in ('id', 'guid', 'tree', *(['did'] if 'did' in m else [])): text(m[name], name)
             text(m['uri'], 'unsigned source URI')
             u = urlsplit(m['uri'])
             require(u.scheme in ('file', 'root') and not (u.username or u.password or u.query or u.fragment),
@@ -83,6 +140,8 @@ def dataset(value):
                     re.fullmatch('[a-f0-9]{64}' if c['algorithm'] == 'sha256' else '[a-f0-9]{8}', c['value']) is not None,
                     'explicit checksum algorithm/value required')
             pin(c['authority'])
+            if scheme == 'record' and m['guid'].startswith(('sha256:', 'adler32:')):
+                require(m['guid'] == c['algorithm'] + ':' + c['value'], 'member checksum identity differs from its own checksum identity')
     return deepcopy(value)
 
 
@@ -309,7 +368,7 @@ class Stream:
     def finish(self):
         require(self.index == len(self.members) and self.offset == 0, 'complete original member/entry population is unfinished')
         return {'schema_version':1,'kind':'root-stream-moments','samples':[
-            {'id':s['id'],'kind':s['kind'],'dsid':s['dsid'],'normalization':deepcopy(s['normalization']),
+            {'id':s['id'],'kind':s['kind'],**sample_identity(s),'normalization':deepcopy(s['normalization']),
              'raw_mc_weights':None if s['kind']=='data' else {'sumw':self.raw[s['id']][0].value(),'sumw2':self.raw[s['id']][1].value(),'scope':'analyzed original entries; retained full denominator is separate'},
              'weight_contract':deepcopy(self.a['weight_contract']),
              'quantities':{q:self.moments[s['id']][q].result(scale(s)) for q in self.moments[s['id']]}}

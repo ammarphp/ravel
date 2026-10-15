@@ -255,7 +255,7 @@ REGISTRY = {
     'src/ravel/workflow/workflow_state.py::cmd_status::state.get[compute_plan]#0': ('fail-closed', 'report-field'),
     'src/ravel/workflow/workflow_state.py::selftest::state.subscript[task_mode]#0': ('unreachable-for-v2', 'selftest'),
     # Sites added after the first classification (reading-plan, completion, research launch and protocol)
-    'src/ravel/cli.py::_native_approve::load_contract(contract_path).subscript[compute_plan]#0': ('fail-closed', 'subscript'),
+    'src/ravel/cli.py::_native_approve_without_scripted::load_contract(contract_path).subscript[compute_plan]#0': ('fail-closed', 'subscript'),
     'src/ravel/cli.py::_native_approve::load_contract(path).subscript[compute_plan]#0': ('fail-closed', 'subscript'),
     'src/ravel/physics/native_pipeline.py::require_claim_inputs::record.get[task_mode]#0': ('port-before-v2', 'trigger-lost'),
     'src/ravel/validation/certification_tolerances.py::_requires_section::contract.get[stat_mode]#0': ('port-before-v2', 'trigger-lost'),

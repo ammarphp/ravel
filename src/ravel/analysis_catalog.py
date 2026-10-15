@@ -1,12 +1,16 @@
 """Source-backed analysis discovery and adaptation planning. Never authorizes execution.
 
-RAVEL ships no catalogue of upstream analyses. `ravel catalogue` (`ravel.workflow.analysis_catalog_build`)
-builds one from the user's own Rivet and SimpleAnalysis checkouts into `catalog_path()`, and every
-reader here loads that local file.
+The package ships a pinned snapshot of the public Rivet and SimpleAnalysis routine metadata
+(`data/analysis-catalog.json`, with its public probability-model index associations), so routine
+lookup works offline. `ravel catalogue` (`ravel.workflow.analysis_catalog_build`) rebuilds one from the
+user's own checkouts, and a catalogue built there, by the installer or named by RAVEL_ANALYSIS_CATALOG
+takes precedence over the snapshot (see `catalog_path()`). Neither confers execution admission or
+physics validation.
 """
 from __future__ import annotations
 from collections import Counter
 import hashlib
+from importlib.resources import files
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -16,6 +20,7 @@ import subprocess
 SCHEMA_VERSION = 1
 FAMILIES = {
     'fiducial-measurement': 'Particle-level observable and reference comparison',
+    'event-shape': 'Inclusive event-shape observable and reference comparison',
     'search-recast': 'Search selection and detector-response validation',
     'heavy-ion': 'Ion beams, centrality and nuclear reference treatment',
     'long-lived': 'Lifetime, decay geometry and non-prompt response',
@@ -39,6 +44,10 @@ FAMILY_REQUIREMENTS = {
     'calibration': [
         'Treat this as an auxiliary calibration; identify its dependent physics routines and beam/energy applicability.',
         'Validate the calibration sample, percentile mapping and correlated uncertainty before reuse.',
+    ],
+    'event-shape': [
+        'Validate the particle-level definition: stable-particle lifetime cut, charged or all particles, and the treatment of initial-state radiation.',
+        'Match beams, centre-of-mass energy, hadronization and shower settings to the measurement; declare normalized versus absolute spectra and their bin correlations.',
     ],
     'fiducial-measurement': [
         'Validate stable-particle/dressed-lepton definitions, jet algorithm and generator cuts.',
@@ -104,6 +113,8 @@ def classify(row):
         family='search-recast'
     elif 'flavour-domain' in f or (row['experiment']=='LHCb' and re.search(r'decay|branching|asymmetry',text)):
         family='flavour'
+    elif re.search(r'event.?shape|thrust|sphericity|aplanarity', text):
+        family='event-shape'
     else: family='fiducial-measurement'
     # Absence of a pattern is never evidence that the dependency is absent.
     return {'family':family, 'classification_basis':'automated conservative triage; manual paper and transitive-dependency review required'}
@@ -186,23 +197,48 @@ def validate_catalog(catalog):
 
 
 CATALOG_ENV = 'RAVEL_ANALYSIS_CATALOG'
+PACKAGED_CATALOG = 'data/analysis-catalog.json'
+PACKAGED_MODEL_INDEX = 'data/probability-models.json'
 
 
 class CatalogUnavailable(FileNotFoundError):
-    """No analysis catalogue has been built on this machine."""
+    """No analysis catalogue is available on this machine."""
+
+
+def user_catalog_path():
+    """Where a catalogue built on this machine is written: RAVEL_ANALYSIS_CATALOG, else the user cache."""
+    if os.environ.get(CATALOG_ENV):
+        return Path(os.environ[CATALOG_ENV]).expanduser()
+    cache = Path(os.environ.get('XDG_CACHE_HOME') or Path.home() / '.cache')
+    return cache / 'ravel' / 'analysis-catalog.json'
+
+
+def packaged_catalog_path():
+    """The snapshot shipped in the package, or None when this installation has none."""
+    path = Path(str(files('ravel').joinpath(PACKAGED_CATALOG)))
+    return path if path.is_file() else None
+
+
+def packaged_model_index_path():
+    """The shipped public probability-model index the snapshot's associations were built from."""
+    path = Path(str(files('ravel').joinpath(PACKAGED_MODEL_INDEX)))
+    return path if path.is_file() else None
 
 
 def catalog_path():
     """RAVEL_ANALYSIS_CATALOG; else the user-cache catalogue when it exists; else the catalogue the
-    installer built in the prefix when it exists; else the user-cache location (where to build one)."""
+    installer built in the prefix when it exists; else the snapshot shipped in the package; else the
+    user-cache location (where to build one). A catalogue built from the user's own checkouts therefore
+    always outranks the shipped snapshot."""
     if os.environ.get(CATALOG_ENV):
-        return Path(os.environ[CATALOG_ENV]).expanduser()
-    cache = Path(os.environ.get('XDG_CACHE_HOME') or Path.home() / '.cache')
-    cached = cache / 'ravel' / 'analysis-catalog.json'
+        return user_catalog_path()
+    cached = user_catalog_path()
     if cached.is_file():
         return cached
     installed = installed_catalog_path()
-    return installed if installed.is_file() else cached
+    if installed.is_file():
+        return installed
+    return packaged_catalog_path() or cached
 
 
 def _unique_json(pairs):

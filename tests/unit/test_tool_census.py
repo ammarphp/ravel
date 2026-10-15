@@ -19,7 +19,7 @@ def test_every_census_tool_has_atlas_doctor_and_status(tmp_path):
     qualification = json.loads((ROOT / 'src/ravel/data/knowledge/qualification.json').read_text())
     assert {r['id'] for r in census['tools']} == {r['id'] for r in qualification['tools']}
     assert all('tool:' + r['id'] in ids for r in census['tools'] if not mf.withheld_tool(mf.load(ROOT)[0], r))
-    manifest = json.loads((ROOT / 'native/setup/toolchain-manifest.json').read_text())
+    manifest = mf.view(ROOT)
     # Every manifest target is replaced with an inert versioned executable. No native runtime is used.
     for group in manifest['groups']:
         for check in group['checks']:
@@ -85,7 +85,7 @@ def test_required_tool_wording_has_no_optional_label():
 
 def test_generated_status_table_is_current_and_detects_mutation():
     from ravel.workflow import tool_census
-    census = portfolio.load_census()
+    census = portfolio.load_census(catalog=tool_census.shipped_catalog(ROOT))
     text = (ROOT / tool_census.STATUS_TABLE).read_text()
     assert text == tool_census.render_status(census)
     mutated = deepcopy(census)
@@ -200,3 +200,76 @@ def test_user_facing_census_text_has_no_internal_stream_labels():
     for name, text in texts.items():
         assert not re.search(r'\b(?:KM-\d|KM-F|WD-L|M-\d\d)\b', text), name
     assert 'external GPL backend is external' not in texts['diagrammatica']
+
+
+def test_every_unqualified_census_row_has_a_package_or_recorded_home():
+    """Every unfinished census entry is installable or has an explicit next action."""
+    census = portfolio.load_census()
+    qualification = json.loads((ROOT / 'src/ravel/data/knowledge/qualification/rows.json').read_text())
+    manifest, _ = mf.load(ROOT)
+
+    group_ids = {group['id'] for group in manifest['groups']}
+    named = {record['group'] for record in qualification['census_homes'] if record['kind'] == 'package'}
+    for row in census['tools']:
+        named |= set(row['installer_groups']) | {check['group'] for check in row['doctor_checks']
+                                                 if check['kind'] == 'manifest'}
+    if 'unreleased' in manifest:
+        # A tree carrying its withheld list declares every group, withheld or not: an undeclared
+        # name there is an error, never a held group.
+        assert named <= group_ids, sorted(named - group_ids)
+    # A group the release withholds (explicitly, or by not declaring it in a released tree) is the
+    # recorded home of the tools bound to it.
+    homes_of = group_ids | mf.held_groups(manifest, named)
+
+    def uncovered(document, homes):
+        by_census = {}
+        for home in homes:
+            by_census.setdefault(home['census_id'], []).append(home)
+        missing = []
+        for row in document['tools']:
+            if row['status'] == 'qualified':
+                continue
+            manifest_groups = {check['group'] for check in row['doctor_checks']
+                               if check['kind'] == 'manifest'}
+            package = (bool(row['installer_groups']) and set(row['installer_groups']) <= homes_of) \
+                or bool(manifest_groups) and manifest_groups <= homes_of
+            records = by_census.get(row['id'], [])
+            recorded = any(
+                record['kind'] in {'qualification-job', 'data-format'}
+                or record['kind'] == 'deferral' and record['reason'] == 'site-only; qualified at a site'
+                or record['kind'] == 'package' and record['group'] in homes_of
+                for record in records
+            )
+            if not package and not recorded:
+                missing.append(row['id'])
+        return missing
+
+    assert uncovered(census, qualification['census_homes']) == []
+
+    recorded_ids = [row['census_id'] for row in qualification['census_homes']]
+    assert len(recorded_ids) == len(set(recorded_ids))
+    assert set(recorded_ids) <= {row['id'] for row in census['tools']}
+
+    homes = {row['census_id']: row for row in qualification['census_homes']}
+    # A package home installs by default, or the release withholds it explicitly (a pending home without
+    # source records or qualification).
+    withheld = mf.held_groups(manifest, named)
+    assert all((row['group'] in manifest['default']['groups']) != (row['group'] in withheld)
+               for row in homes.values() if row['kind'] == 'package')
+    agent_rows = {
+        'census-agentrivet-e4d12ecc',
+        'census-magnus-cli-agpl',
+        'census-langgraph-1-2-14-checkpoint-4-2-0-sqlite-saver-3-1-1-langchain-core-1-6-7-pydantic-2-14-0',
+        'census-model-providers-anthropic-messages-openai-responses-gemini-openai-compatible-chat-completions',
+    }
+    assert all(homes[identity]['kind'] == 'qualification-job' for identity in agent_rows)
+    assert all(homes[identity]['job']['name'].endswith('import-and-version') for identity in agent_rows)
+    assert all(homes[identity]['job']['command'][:2] == ['ravel', 'plan'] for identity in agent_rows)
+
+    planted = deepcopy(census)
+    planted['tools'].append({
+        'id': 'census-planted-uncovered', 'status': 'not_installed', 'installer_groups': [],
+        'doctor_checks': [{'kind': 'unprovided'}],
+    })
+    with pytest.raises(AssertionError, match='census-planted-uncovered'):
+        assert uncovered(planted, qualification['census_homes']) == []

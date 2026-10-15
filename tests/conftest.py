@@ -28,6 +28,8 @@ os.environ["LANGGRAPH_STRICT_MSGPACK"] = "true"
 ROOT = Path(__file__).resolve().parents[1]
 SRC = str(ROOT / "src")
 sys.path.insert(0, SRC)
+if str(ROOT / "tests") not in sys.path:
+    sys.path.append(str(ROOT / "tests"))  # machine_state_guard, importable from every test directory
 os.environ["PYTHONPATH"] = os.pathsep.join([SRC, *[p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep)
                                                    if p and p != SRC]])
 
@@ -85,6 +87,48 @@ def _machine_lease_test_domain(tmp_path_factory, monkeypatch, _machine_lease_mod
 def lock_domain_at(monkeypatch):
     """Enter another marked test lock domain for the rest of one test."""
     return lambda path: enter_lock_domain(monkeypatch, path)
+
+
+import machine_state_guard  # noqa: E402
+
+
+def _record_temporary_roots():
+    """Every temporary directory this process makes (``tempfile.mkdtemp`` and all built on it) is a
+    root of this session: a run below one is this session's run, wherever the directory lies."""
+    import tempfile
+    if getattr(tempfile.mkdtemp, "ravel_recording", False):
+        return
+    original = tempfile.mkdtemp
+
+    def mkdtemp(*args, **kwargs):
+        path = original(*args, **kwargs)
+        machine_state_guard.TEMP_ROOTS.append(path)
+        return path
+    mkdtemp.ravel_recording = True
+    tempfile.mkdtemp = mkdtemp
+
+
+_record_temporary_roots()
+
+
+@pytest.fixture(autouse=True)
+def _account_machine_state_untouched(tmp_path_factory, _machine_lease_test_domain):
+    """Guard: no test writes into the account's real machine-state directory.
+
+    The whole tree is stamped before the test: custody stores and their ledgers, the run
+    index, the lease, its fence and the exposure ledger. Afterwards every new or changed
+    entry is checked against this session's temporary roots (pytest's base directory and
+    every directory ``tempfile`` made) and its process. The directory is shared with real
+    runs and other sessions; a change tied to neither is theirs and is left alone.
+    """
+    real = machine_state_guard.account_machine_dir()
+    before = machine_state_guard.tree_stamp(real)
+    yield
+    roots = [tmp_path_factory.getbasetemp(), *machine_state_guard.TEMP_ROOTS]
+    leaks = machine_state_guard.leaks_since(real, before, roots, pids={os.getpid()})
+    if leaks:
+        pytest.fail("this test wrote into the account's machine-state directory; pass the test lock domain "
+                    "(the validated grant of machine_lease.child_env) to every child process: " + "; ".join(leaks))
 
 
 @pytest.fixture

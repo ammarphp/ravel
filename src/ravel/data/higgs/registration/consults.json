@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "registry-registration",
+  "target": "consult-bindings",
+  "append": {
+    "consults": {
+      "consult-higgs": {
+        "role": "consult-higgs",
+        "manifest_groups": [],
+        "tools": [
+          "higgs",
+          "higgstools",
+          "scalar-sector"
+        ],
+        "operations": [],
+        "handbooks": []
+      }
+    }
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "kind": "site-tool-policy",
+  "default": "effectful",
+  "rules": [
+    {
+      "server": "*af-uchicago*",
+      "tool": "rucio_list_dids",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "rucio_list_files",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "ami_query_metadata",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "condor_q",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "condor_status",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "list_files",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "read_file",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*download*",
+      "classification": "effectful",
+      "effect": "download",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*transfer*",
+      "classification": "effectful",
+      "effect": "transfer",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*submit*",
+      "classification": "effectful",
+      "effect": "job-submit",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*cancel*",
+      "classification": "effectful",
+      "effect": "job-cancel",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*remove_job*",
+      "classification": "effectful",
+      "effect": "job-cancel",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*execute*",
+      "classification": "effectful",
+      "effect": "notebook-execute",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*run_cell*",
+      "classification": "effectful",
+      "effect": "notebook-execute",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*write*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*delete*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*mkdir*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "*af-uchicago*",
+      "tool": "*rename*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "https://usatlas.github.io/af-docs/ai/",
+      "note": "Illustrative name patterns for the documented af-uchicago plugin capabilities; actual server/tool inventory must be reviewed at installation. Supplied public-doc context, not a live probe."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "lookup_dataset",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "query_metadata",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "job_status",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "list_files",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "read_file",
+      "classification": "read-only",
+      "effect": "none",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*download*",
+      "classification": "effectful",
+      "effect": "download",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*transfer*",
+      "classification": "effectful",
+      "effect": "transfer",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*submit*",
+      "classification": "effectful",
+      "effect": "job-submit",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*cancel*",
+      "classification": "effectful",
+      "effect": "job-cancel",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*remove_job*",
+      "classification": "effectful",
+      "effect": "job-cancel",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*execute*",
+      "classification": "effectful",
+      "effect": "notebook-execute",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*run_cell*",
+      "classification": "effectful",
+      "effect": "notebook-execute",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*write*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*delete*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*mkdir*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "*rename*",
+      "classification": "effectful",
+      "effect": "file-write",
+      "source": "docs/reference/host-enforcement.md",
+      "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    }
+  ]
+}

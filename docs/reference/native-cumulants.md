@@ -2,8 +2,12 @@
 
 `native_cumulant` transports complete supplied finalized Scatter2D outputs and
 RAW Profile1D operands through the existing `analyze` exporter. It adds no runner,
-native import, inference or numerical recomputation. No analysis snapshot, output
-table mapping or subsample count ships as a default.
+native import, inference or numerical recomputation. The engine holds no analysis
+snapshot or output table mapping; a mapping is always an input. The released CMS
+two-particle cumulant/flow routine ships as data in `src/ravel/data/native_cumulants`
+(source bundle, reference YODA and `mapping.json`);
+`ravel.physics.shipped_assets.cumulant_mapping(native_weight=...)` returns that mapping
+with pins to the bundled bytes.
 
 Supply a mapping and construct its complete population:
 

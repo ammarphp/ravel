@@ -72,10 +72,9 @@ def test_six_handbook_bindings_and_advisory_candidates():
     held_operations = mf.unreleased_operations(manifest)
     shipped = {path.name for path in hb.handbooks()}
     bindings = {
-        # The dataset-query operation is withheld from a release, so this handbook, which ships with
-        # every release, does not bind it.
         'columnar-analysis': {'columnar-analysis', 'authored-analysis', 'reco-ntuple-routine',
-                             'ntuple-inventory', 'mc-expected-construction', 'root-stream'},
+                             'ntuple-inventory', 'mc-expected-construction', 'root-stream',
+                             'dataset-query-quantities'},
         'cross-section-normalization': {'cross-section', 'simplified-spectrum', 'group-normalization'},
         'inference-engines': {'formula-grid', 'coupling-morphing', 'prescribed-statistic',
                              'search-statistics', 'differential-likelihood'},

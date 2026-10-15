@@ -41,7 +41,8 @@ def test_unreleased_groups_are_skipped_by_default_and_explicitly_selectable(tmp_
     # The source tree lists them as withheld; a released tree does not declare them at all.
     excluded = mf.held_groups(manifest, {'checkmate', 'madloop', 'magnus', 'jhugen-mela', 'tex', 'mcfm-amplitudes',
                                          'iris', 'nyx'})
-    assert {'checkmate', 'madloop', 'magnus', 'jhugen-mela', 'tex', 'mcfm-amplitudes', 'iris'} <= excluded
+    assert {'madloop', 'magnus', 'jhugen-mela', 'mcfm-amplitudes'} <= excluded
+    assert not {'checkmate', 'iris', 'tex'} & excluded, 'qualified on the reference Mac; part of the release'
     assert 'nyx' not in excluded, 'qualified on a Linux MPI site'
     tool = installer.Installer(ROOT, tmp_path / 'prefix', manifest=manifest, catalog=catalog,
                                platform_key='macos-arm64', environ={}, interactive=False)
@@ -72,7 +73,8 @@ def test_standard_groups_and_doctor_never_offer_optional_tools(tmp_path):
     manifest, catalog = mf.load(ROOT)
     selected = mf.profile_groups(manifest)
     assert {'agent-sources', 'sfitter', 'nyx', 'publication', 'ml', 'diagram-consumers'} <= set(selected)
-    assert not {'mcfm-amplitudes', 'iris'} & set(selected)
+    assert not {'mcfm-amplitudes'} & set(selected)
+    assert {'checkmate', 'iris', 'tex'} <= set(selected)
     forbidden = re.compile(r'optional|add-on|addon|if installed|when available', re.I)
     for group in manifest['groups']:
         assert 'optional' not in group
@@ -179,34 +181,49 @@ def test_root_cli_help_withholds_unreleased_tools():
 
 def test_old_mcfm_names_are_gone():
     old = re.compile(r'four-lepton-mcfm|mcfm-four-lepton|ravel_mcfm_four_lepton')
+    # The capability baselines record the group ids of the earlier releases; that is their purpose.
+    def recorded(path):
+        if path.suffix != '.json':
+            return False
+        try:
+            return str(json.loads(path.read_text()).get('kind', '')).startswith('capability-')
+        except (ValueError, AttributeError):
+            return False
     offenders = []
     for directory in ('addons', 'src', 'docs', 'scripts', 'native', 'tests'):
         for path in (ROOT / directory).rglob('*'):
             if path.is_file() and path != Path(__file__) and path.suffix in ('.py', '.sh', '.md', '.json', '.f90', '.cmake'):
-                if old.search(path.read_text(errors='replace')):
+                if old.search(path.read_text(errors='replace')) and not recorded(path):
                     offenders.append(str(path.relative_to(ROOT)))
     assert offenders == []
 
 
 def test_released_tools_stay_listed_when_their_notes_mention_a_withheld_tool(tmp_path):
+    """A tool is withheld by its own name or bindings, never by its notes. Each surface lists exactly the
+    tools the tree releases: the source withholds its display-term tools (MadLoop among them), and a
+    released tree, which carries no withheld list, lists every tool not bound to an undeclared group."""
     from ravel.workflow import tool_census
     from ravel.workflow.knowledge import load_atlas
     manifest, catalog = mf.load(ROOT)
     census = tool_census.load_census()
-    kept = {'census-delphes-3-5-1', 'census-root-6-40', 'census-spey-0-2-6',
+    qualification = json.loads((ROOT / 'src/ravel/data/knowledge/qualification.json').read_text())
+    kept = {'census-delphes-3-5-1', 'census-root-6-40', 'census-spey-0-2-6', 'census-hepmc2-2-06-11', 'census-pythia-8-244',
             'census-podman-5-8-2-macos-client-vfkit-0-6-3-gvproxy-0-8-9-podman-vm-ravel-rosetta-2'}
-    withheld = {'census-hepmc2-2-06-11', 'census-pythia-8-244', 'census-tex-live-or-mactex-with-pdflatex-bibtex-revtex'}
+    released = {row['id'] for row in census['tools'] if not mf.withheld_tool(manifest, row)}
+    assert kept <= released
+    if 'unreleased' in manifest:
+        assert 'census-madloop-with-cuttools-ninja-collier-inside-mg5' not in released
     titles = {row['id']: row['title'] for row in census['tools']}
     table = tool_census.render_status(census, manifest)
-    assert all('| ' + titles[i] + ' |' in table for i in kept)
-    assert not any('| ' + titles[i] + ' |' in table for i in withheld)
+    listed = {i for i, title in titles.items() if '| ' + tool_census._cell(title) + ' |' in table}
+    assert listed == released
     d = doctor.Doctor(ROOT, tmp_path / 'prefix', 'macos-arm64', manifest, catalog,
                       environ={}, which=lambda _: None, glob_paths=lambda _: [],
                       run_probe=lambda *a, **k: (127, 'synthetic missing tool'))
-    reported = {row['id'] for row in tool_census.doctor_report(d)}
-    assert kept <= reported and not withheld & reported
+    assert {row['id'] for row in tool_census.doctor_report(d)} == released
     atlas = {row['id'] for row in load_atlas()['entries']}
-    assert {'tool:' + i for i in kept} <= atlas and not {'tool:' + i for i in withheld} & atlas
+    for row in qualification['tools']:
+        assert ('tool:' + row['id'] in atlas) == (not mf.withheld_tool(manifest, row)), row['id']
 
 
 def test_every_offered_operation_declares_the_groups_it_needs():
@@ -230,7 +247,13 @@ def test_census_report_and_table_work_on_a_tree_that_declares_only_released_grou
     check of a group the tree does not declare."""
     from ravel.workflow import tool_census
     manifest, catalog = mf.load(ROOT)
-    census = tool_census.load_census()
+    census = copy.deepcopy(tool_census.load_census())
+    # No census row binds a released group together with a still-withheld one; bind Delphes to one so the
+    # mixed case this test is about stays exercised.
+    delphes = next(row for row in census['tools'] if row['id'] == 'census-delphes-3-5-1')
+    delphes['installer_groups'] = [*delphes['installer_groups'], 'madloop']
+    # Likewise no released analysis engine runs on a withheld tool any more; point one at a withheld-only tool.
+    census['backends'][0]['tool_id'] = 'census-madloop-with-cuttools-ninja-collier-inside-mg5'
     bound = {row['id']: set(row.get('installer_groups', [])) |
              {c['group'] for c in row['doctor_checks'] if c['kind'] == 'manifest'} for row in census['tools']}
     # Withheld in the source tree's list, or not declared by a released tree.

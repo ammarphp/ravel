@@ -105,7 +105,7 @@ class Context:
         elif type(value) is dict and 'path' in value:
             path = self.path(value['path'])
             if value.get('format') == 'hepdata':
-                out = hepdata_matrix(self._table(path), value.get('column', 0))
+                out = hepdata_matrix(self._table(path), value.get('column', 0), bin_edges=value.get('bin_edges'))
             elif value.get('format') == 'json':
                 doc = self.json(path)
                 data = doc if value.get('key') is None else doc[value['key']]
@@ -184,7 +184,7 @@ def hepdata_column(table, column=0):
     return np.array([_number(v.get('value'), 'HEPData value') for v in values])
 
 
-def hepdata_matrix(table, column=0):
+def hepdata_matrix(table, column=0, *, bin_edges=None):
     """A covariance-style table with two independent variables (bin i, bin j)."""
     ivs = table.get('independent_variables')
     if type(ivs) is not list or len(ivs) != 2:
@@ -196,18 +196,26 @@ def hepdata_matrix(table, column=0):
     rows = [key(v) for v in ivs[0]['values']]
     cols = [key(v) for v in ivs[1]['values']]
     labels = list(dict.fromkeys(rows))
+    if bin_edges is not None:
+        from ..amplitude_basis import edges_from
+        edges = edges_from(bin_edges)
+        labels = [('range', float(a), float(b)) for a, b in zip(edges[:-1], edges[1:])]
+        if set(rows) != set(labels) or set(cols) != set(labels):
+            raise ValueError('HEPData matrix intervals differ from the supplied measurement binning')
     if list(dict.fromkeys(cols)) != labels and set(cols) != set(labels):
         raise ValueError('HEPData matrix axes must list the same bins')
     index = {k: i for i, k in enumerate(labels)}
     values = hepdata_column(table, column)
     n = len(labels)
-    if len(values) != n * n or len(rows) != n * n:
+    if len(values) != n * n or len(rows) != n * n or len(cols) != n * n:
         raise ValueError('HEPData matrix table must list every (i, j) entry exactly once')
     out = np.full((n, n), np.nan)
     for r, c, v in zip(rows, cols, values):
         if not np.isnan(out[index[r], index[c]]):
             raise ValueError('HEPData matrix repeats an entry')
         out[index[r], index[c]] = v
+    if not np.isfinite(out).all():
+        raise ValueError('HEPData matrix has missing or nonfinite entries')
     return out
 
 

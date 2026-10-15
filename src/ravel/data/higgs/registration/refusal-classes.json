@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "refusal_classes": [
+    {
+      "id": "HG-01",
+      "title": "Precision fit container not qualified",
+      "refused": "HEPfit native execution",
+      "why": "The image has not passed source-bound platform qualification.",
+      "refused_by": "ravel.setup.qualification",
+      "groups": [
+        "hepfit"
+      ],
+      "would_make_it_possible": "Verified image digest and reference qualification under the existing admission guard."
+    },
+    {
+      "id": "HG-02",
+      "title": "Loop-induced scalar production runtime not qualified",
+      "refused": "Loop-induced scalar production",
+      "why": "The loop runtime requires platform qualification.",
+      "refused_by": "ravel.setup.qualification",
+      "groups": [
+        "madloop"
+      ],
+      "would_make_it_possible": "Qualify the supplied loop runtime and bind its receipt to the admitted method."
+    }
+  ]
+}

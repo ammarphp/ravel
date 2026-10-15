@@ -23,6 +23,7 @@ SAMPLER_OUTPUTS={
     'MCMC': ('ScanResult.txt','All_ScanResult.txt'),
     'EMCEE': ('ScanResult.txt','All_ScanResult.txt','EMCEEChain.txt'),
     'DYNESTY': ('ScanResult.txt','DynestySamples.txt'),
+    'MULTINEST': ('ScanResult.txt','stats.dat'),
 }
 
 

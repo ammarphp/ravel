@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "package": "supplied-document-builds",
+  "operation_signatures": {
+    "manuscript-slides-build": {
+      "summary": "A supplied slide layout rendered from an authenticated note build, its exact result text, figures and prompt totals.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "manuscript-build",
+        "module": "ravel.physics.manuscript_build"
+      },
+      "consumes": [
+        {"slot": "note_build", "kind": "document", "cardinality": "1"},
+        {"slot": "content", "kind": "source_pin", "cardinality": "1"}
+      ],
+      "produces": [{"slot": "document", "kind": "document"}],
+      "effects": ["executes_native"],
+      "stages": ["science"],
+      "tools": ["pdflatex", "pdfinfo"],
+      "review": {"checks": ["integrity", "conformance", "visual_review"]}
+    }
+  },
+  "dispatch": {
+    "existing_mode": "manuscript-build",
+    "config_kind": "manuscript-slides-build",
+    "implementation": "ravel.physics.manuscript_slides",
+    "review_scope": "manuscript_pdf_delivery",
+    "guard": "science.verify_worker and exact manuscript-build task/output binding before execute_native",
+    "launch_authority": false
+  },
+  "interfaces": {
+    "supplied_class": {"kind": "user-supplied-class", "redistributable": false, "files": "complete path/sha256/size census"},
+    "required_sentences": "Requester-supplied rule-pack field; each sentence produces a required_text conformance rule.",
+    "slide_content": "supplied-slide-content/v1 with supplied title, layout, exact JSON pointers, audit totals and theme provenance"
+  },
+  "workflow_instructions": ["docs/workflow/reference/supplied-document-builds.md"],
+  "workflow_bundle_handoff": {
+    "canonical": "docs/workflow/reference/supplied-document-builds.md",
+    "bundled": "src/ravel/data/workflow/docs/workflow/reference/supplied-document-builds.md",
+    "instruction_selector": "ravel.paths.WORKFLOW_INSTRUCTIONS",
+    "knowledge_refresh": "Regenerate the source-derived knowledge atlas after shared operation and instruction integration; source changes invalidate its prior source pins."
+  },
+  "handoff": "Merge this operation signature through the shared registration lane. The existing manuscript-build mode already dispatches the config kind; retain its ordinary method decision, admission, one-attempt delivery scope and workflow-manager rule. Do not change qualified installation groups or infer runtime qualification from this fragment.",
+  "change_registry_handoff": "Register supplied class custody, public export refusal and supervised slide specialization with the workflow reference. No native runtime or scientific qualification is supplied."
+}

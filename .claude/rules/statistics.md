@@ -45,7 +45,9 @@ exclusion result is not a discovery claim.
   bracket granularity) and `band_degenerate` (band spans <1.5× — quote as bound only).
   Regression: `pyhf_exclude.py selftest` for synthetic numerical invariants. Compare a
   selected source likelihood with `check_fit_reference` and supplied reference values;
-  see `docs/workflow/steps/07-exclude.md`. No source likelihood is installed as a default.
+  see `docs/workflow/steps/07-exclude.md`. The package ships a published three-lepton
+  workspace, one patch and a reference fit under `src/ravel/data/fixtures/susy-2018-06/`; a
+  comparison selects them explicitly and no likelihood is a default.
 
 ## Cross-section normalization and charge accounting
 - `ravel xsec lookup --request request.json` selects a pinned rate with explicit order, PDF and scale.

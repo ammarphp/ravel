@@ -145,7 +145,9 @@ def record_decision(run, kind, *, case_id=None, digest=None, finding_id=None, te
     raise ValueError(f"unknown decision {kind}")
 
 
-PROPOSER = {"actor_id": "proposer", "session_receipt": "session-proposer", "attestation": "self_attested"}
+# The proposer's session, as a role call named "proposer" would present it: one session never both proposes and reviews.
+PROPOSER = {"actor_id": "proposer", "session_receipt": "fixture-transport:proposer-session",
+            "attestation": "self_attested"}
 
 
 def node(identity, assertion, anchors=(), **extra):
@@ -160,6 +162,12 @@ EXECUTION_MODE = {"transport_attested": "transport_attested_cli", "host_attested
 def said(output, actor, *, session=None, attestation="transport_attested", family="family-a", **extra):
     return {"output": output, "actor": actor, "session": session or f"{actor}-session", "attestation": attestation,
             "family": family, **extra}
+
+
+def assigned(name, node_id, family="family-a"):
+    """The actor the worker dispatcher assigns to the role call ``name`` makes at ``node_id``:
+    sha256 over transport, model, worker session and attempt. A responder never states one."""
+    return rdj_custody.actor_record("fixture-transport", "m", "worker-session-" + name, node_id + "/1", family=family)
 
 
 def reviewer(overrides=None, name="edge-reviewer", log=None, **extra):
@@ -220,13 +228,15 @@ class Roles:
         workspace.mkdir(parents=True, exist_ok=True)
         final = canonical(said_["output"])
         (workspace / "final.json").write_bytes(final)
+        # The dispatcher's part: it assigns the actor of this worker session and registers it below.
+        actor = assigned(said_["actor"], node_id, said_["family"])
         receipt = {"schema_version": 1, "kind": "agent-worker-receipt", "node_id": node_id, "attempt": 1,
                    "role": {"id": request["agent_role"], "version": "1.0.0", "card_sha256": "0" * 64},
                    "review_point_id": None,
                    "transport": {"id": "fixture-transport", "transport_kind": "http-adapter",
                                  "declaration_sha256": "0" * 64, "probe_sha256": "0" * 64},
                    "model": {"requested": "m", "observed": "m", "family": said_["family"], "effort": "low"},
-                   "session_id": said_["session"], "actor_id": said_["actor"], "attestation": said_["attestation"],
+                   "session_id": said_["session"], "actor_id": actor["actor_id"], "attestation": said_["attestation"],
                    "execution_mode": said_.get("mode") or EXECUTION_MODE[said_["attestation"]],
                    "request_sha256": request["payload_sha256"],
                    "rdj": {"case_id": request["case_id"], "slot": request["slot"],
@@ -240,7 +250,7 @@ class Roles:
         rel = path.relative_to(rundir).as_posix()
         if self.register:  # The dispatcher records the label its transport re-verification established.
             label = said_.get("verified_label", said_["attestation"]) if self.verified else None
-            rdj_custody.register_worker_receipt(rundir, rel, verified_label=label)
+            rdj_custody.register_worker_receipt(rundir, rel, verified_label=label, actor=actor)
         return {"kind": "worker_receipt", "path": rel}
 
 

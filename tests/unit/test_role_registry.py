@@ -79,7 +79,10 @@ def test_registry_edit_changes_request_digest_and_every_host_file():
     for host in HOSTS:
         old, new = rr.render(host), rr.render(host, document=data)
         assert old.keys() == new.keys()
-        assert all(old[p] != new[p] for p in old)
+        # The site-tool declaration is host-only and independent of the role registry.
+        site = {p for p in old if p.startswith('.ravel/site-tools/')}
+        assert len(site) == 1 and all(old[p] == new[p] for p in site)
+        assert all(old[p] != new[p] for p in old if p not in site)
     assert rr.request_digest({'role': 'physics-critic'}) != rr.request_digest({'role': 'physics-critic'}, document=data)
 
 

@@ -64,6 +64,17 @@ def test_fixture_handbook_passes(tmp_path):
     assert check(make(tmp_path)) == ([], [])
 
 
+def test_snakemake_handbook_exists_and_passes_contract():
+    root = hb.handbook_root() / 'snakemake-workflows'
+    assert root.is_dir()
+    fields, operations = hb.load_operation_fields()
+    manifest = json.loads((REPO / 'native/setup/toolchain-manifest.json').read_text())
+    errors, _ = hb.check_handbook(root, modes=MODES, fields=fields, operations=operations,
+        manifest_pins_=hb.manifest_pins(manifest), python_pins_={},
+        tests_root=REPO / 'tests/skills')
+    assert errors == []
+
+
 def test_extra_top_level_key_fails(tmp_path):
     errors, _ = check(make(tmp_path, extra='when_to_use: always\n'))
     assert any('outside the closed set' in e and 'when_to_use' in e for e in errors)

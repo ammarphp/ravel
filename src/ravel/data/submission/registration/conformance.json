@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "kind": "conformance-registration",
+  "package": "supplied-conformance",
+  "command": {
+    "name": "conformance",
+    "module": "ravel.workflow.submission_conformance",
+    "subcommands": ["check"],
+    "required_inputs": ["git working tree", "requester-supplied rule pack", "report destination"],
+    "run_inputs": "Explicit run directories, supplied by the rule pack or repeated --rundir flags",
+    "launches_scientific_work": false,
+    "writes_inspected_trees": false
+  },
+  "schema": "src/ravel/data/submission/rule-pack.schema.json",
+  "consumer": {
+    "callable": "ravel.workflow.submission_conformance.check",
+    "arguments": ["repo", "rules", "rundirs"],
+    "rows": ["id", "status", "evidence", "fix_hint"],
+    "statuses": ["PASS", "FAIL", "NOT-CHECKABLE"],
+    "markdown": "ravel.workflow.submission_conformance.render_markdown"
+  },
+  "workflow_document": "docs/workflow/checklists/conformance.md",
+  "shared_followups": [
+    {
+      "target": "src/ravel/data/knowledge/atlas.json",
+      "action": "Regenerate after composing command and instruction seams",
+      "argv": ["python", "-m", "ravel.workflow.knowledge_atlas", "--write"]
+    },
+    {
+      "target": "native/setup/toolchain-manifest.json",
+      "action": "Register the read-only command using the shared registration lane"
+    }
+  ],
+  "handoff": "The registration lane may register this read-only command in the shared tool manifest and knowledge atlas. Consumers must retain NOT-CHECKABLE rows and declared evidence scope. No rule pack or qualification result ships."
+}

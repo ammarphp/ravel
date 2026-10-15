@@ -7,6 +7,7 @@ runtime qualification, or an actual author/model/review claim.
 import copy
 import hashlib
 import json
+from ravel.setup import manifest as mf
 from pathlib import Path
 import subprocess
 import pytest
@@ -193,16 +194,16 @@ def test_ending_changed_configuration_cannot_be_rebaselined(tmp_path, monkeypatc
 
 def test_setup_population_and_instruction_mirror_retained():
     root = Path(__file__).absolute().parents[2]
-    m = json.loads((root / 'native/setup/toolchain-manifest.json').read_text())
+    m = mf.view(root)
     g = next(g for g in m['groups'] if g['id'] == 'publication')
     assert {r['id'] for r in g['checks']} >= {'pdfinfo', 'pdftoppm', 'neato', 'rsvg-convert'}
     steps = {s['id']: s for s in g['steps']}
     assert 'librsvg' in steps['reports-env']['specs']
-    # The TeX recipe stays in development until it qualifies; the default install skips it. A source
-    # tree lists it as withheld; a released tree does not declare it.
-    assert 'tex' in mf.held_groups(m, {'tex'})
-    for tex in (g for g in m['groups'] if g['id'] == 'tex'):
-        assert {r['id'] for r in tex['checks']} >= {'pdflatex', 'publication-selected-assets'}
+    # The TeX group is qualified on the reference Mac and part of the default install.
+    assert 'tex' not in mf.held_groups(m, {'tex'}) and 'tex' in m['default']['groups']
+    tex = next(g for g in m['groups'] if g['id'] == 'tex')
+    assert {r['id'] for r in tex['checks']} >= {'pdflatex', 'revtex', 'publication-selected-assets'}
+    assert tex['qualification']['status'] == 'qualified'
     assert (root / 'docs/installation.md').read_bytes() == (root / 'src/ravel/data/workflow/docs/installation.md').read_bytes()
 
 

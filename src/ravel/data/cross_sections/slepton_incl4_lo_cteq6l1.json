@@ -1,0 +1,60 @@
+{
+ "description": "LO sigma(p p > chsl4 chsl4) versus slepton mass at 13 TeV, with chsl4 = el- el+ er- er+ mul- mul+ mur- mur+: the four mass-degenerate selectron and smuon states (two generations of left- and right-handed sleptons), 2->2 inclusive without an ISR jet. This is the inclusive-model denominator on that four-state basis.",
+ "process": "p p > chsl4 chsl4 / susystrong (MG5 generate; 4 charged-slepton states = 8 charge-signed particles; no staus).",
+ "model": "MSSM_SLHA2 with the shipped parameter template data/templates/slepton_bino_param_template.slha rendered per mass: all six charged-slepton masses = m (MSLEP) and the lightest neutralino MN1 = m-2; squarks, gluino, sneutrinos, charginos and heavier neutralinos at 4.5e9 GeV. The neutralino mass does not enter s-channel Drell-Yan production.",
+ "pdf": "cteq6l1 (MadGraph-internal LO set), the PDF of the LO slepton generation recipe. A ratio of a higher-order table to this table mixes order and PDF by construction; it is a correction between the same states, not a PDF-matched k-factor.",
+ "generator": "MG5_aMC 2.9.27 LO, 13 TeV pp; data/templates/madgraph_run_default_lo.dat keyed edits for nevents, iseed, ebeam1, ebeam2, pdlabel, ickkw and use_syst; nevents=2000, iseed=1, ebeam1=ebeam2=6500, pdlabel=cteq6l1, ickkw=0, use_syst=False",
+ "ecom_gev": 13000,
+ "generated": "2026-07-04 (one-off reference run; regenerate with the recorded recipe to extend the grid)",
+ "mc_unc_note": "MC integration errors ~0.15-0.25% (MadGraph 'Cross-section : x +- y pb').",
+ "data": {
+  "50": {
+   "xsec_pb": 8.743,
+   "unc_pb": 0.01279
+  },
+  "60": {
+   "xsec_pb": 3.755,
+   "unc_pb": 0.0076
+  },
+  "70": {
+   "xsec_pb": 2.08,
+   "unc_pb": 0.004178
+  },
+  "90": {
+   "xsec_pb": 0.8381,
+   "unc_pb": 0.001939
+  },
+  "100": {
+   "xsec_pb": 0.5773,
+   "unc_pb": 0.001255
+  },
+  "125": {
+   "xsec_pb": 0.2604,
+   "unc_pb": 0.0006641
+  },
+  "150": {
+   "xsec_pb": 0.1348,
+   "unc_pb": 0.000297
+  },
+  "175": {
+   "xsec_pb": 0.07651,
+   "unc_pb": 0.0001475
+  },
+  "200": {
+   "xsec_pb": 0.0463,
+   "unc_pb": 9.256e-05
+  },
+  "225": {
+   "xsec_pb": 0.02949,
+   "unc_pb": 5.93e-05
+  },
+  "250": {
+   "xsec_pb": 0.01958,
+   "unc_pb": 4.017e-05
+  },
+  "300": {
+   "xsec_pb": 0.009448,
+   "unc_pb": 1.989e-05
+  }
+ }
+}

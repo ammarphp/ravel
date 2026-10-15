@@ -103,3 +103,75 @@ def test_toolkit_kinematics_selection_normalisation_and_significance():
     assert toolkit.asimov_significance(5.0, 2.0, 1e-6) == pytest.approx(exact, rel=1e-6)
     assert toolkit.asimov_significance(5.0, 2.0, 1.0) < exact
     assert set(toolkit.FUNCTIONS) <= set(dir(toolkit))
+
+
+def _multipart_ntuple(path, suffix):
+    data = {}
+    # Nested complete prefixes must retain distinct collections; incomplete ones remain fields.
+    for prefix, mass_field in [('obj', 'e'), ('obj_truth', 'e'), ('obj_large', 'm')]:
+        for field, value in {'pt': 50., 'eta': 0., 'phi': 1., mass_field: 60.,
+                             'select_loose': 1, 'effsf_id_up': .98, 'trigmatched_chain_a': 1}.items():
+            data[f'{prefix}_{field}{suffix}'] = ak.Array([[value], []])
+    data[f'met_met{suffix}'] = np.array([30., 0.])
+    data[f'met_phi{suffix}'] = np.array([0., 1.])
+    with uproot.recreate(path) as root:
+        root.mktree('events', {name: value.type if isinstance(value, ak.Array) else value.dtype
+                              for name, value in data.items()})
+        root['events'].extend(data)
+    return path
+
+
+@pytest.mark.parametrize('suffix', ['_NOSYS', '_NOMINAL', ''])
+def test_draft_keeps_multipart_fields_and_proposes_energy_mass(tmp_path, suffix):
+    path = _multipart_ntuple(tmp_path / 'multipart.root', suffix)
+    report = root_schema.inspect(path)
+    draft = root_schema.draft_contract(report, nominal_suffix=suffix)
+    collections = draft['branch_contract']['collections']
+    assert set(collections) == {'obj', 'obj_truth', 'obj_large'}
+    for prefix, collection in collections.items():
+        fields = collection['fields']
+        for key in ('pt', 'eta', 'phi', 'select_loose', 'effsf_id_up', 'trigmatched_chain_a'):
+            assert fields[key] == f'{prefix}_{key}{suffix}'
+        if prefix == 'obj_large':
+            assert fields['mass'] == f'{prefix}_m{suffix}'
+        else:
+            assert fields['energy'] == f'{prefix}_e{suffix}'
+            assert fields['mass'] == {'from_energy': f'{prefix}_e{suffix}'}
+            assert any(prefix in choice and 'from_energy' in choice and 'confirm' in choice
+                       for choice in draft['unresolved'])
+    descriptor = formats.Descriptor(draft['branch_contract'])
+    assert descriptor.check_file(path)['entries'] == 2
+    chunk = next(descriptor.read(path, collections=list(collections), event_fields=[], step=2))
+    view = descriptor.view(chunk)
+    assert view.collections['obj_truth'].mass[0, 0] == pytest.approx(math.sqrt(60 ** 2 - 50 ** 2))
+    assert view.collections['obj_large'].mass[0, 0] == 60.
+
+
+def test_nominal_suffix_cli_parameter(tmp_path, capsys):
+    path = _multipart_ntuple(tmp_path / 'multipart.root', '_NOMINAL')
+    assert root_schema.main(['--input', str(path), '--draft', '--nominal-suffix', '_NOMINAL']) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output['draft']['branch_contract']['collections']['obj']['fields']['pt'] == 'obj_pt_NOMINAL'
+
+
+@pytest.mark.parametrize('suffix', [None, 42])
+def test_nominal_suffix_must_be_text(suffix):
+    with pytest.raises(ValueError, match='nominal_suffix'):
+        root_schema.draft_contract({'trees': []}, nominal_suffix=suffix)
+
+
+def test_draft_preserves_dotted_and_mixed_prefixes_and_colliding_fields(tmp_path):
+    path = tmp_path / 'dotted.root'
+    data = {}
+    for prefix, separator in [('Objects', '.'), ('truth.Objects', '_')]:
+        for key in ('pt', 'eta', 'phi', 'm', 'mass', 'select_loose', 'effsf_id_up', 'trigmatched_chain'):
+            data[f'{prefix}{separator}{key}'] = ak.Array([[1.], []])
+    with uproot.recreate(path) as root:
+        root.mktree('events', {name: value.type for name, value in data.items()})
+        root['events'].extend(data)
+    draft = root_schema.draft_contract(root_schema.inspect(path))
+    collections = draft['branch_contract']['collections']
+    assert set(collections) == {'objects', 'truth_objects'}
+    assert {branch for collection in collections.values() for branch in collection['fields'].values()} == set(data)
+    assert any('colliding field names' in choice for choice in draft['unresolved'])
+    formats.Descriptor(draft['branch_contract']).check_file(path)

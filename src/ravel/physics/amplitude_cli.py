@@ -40,8 +40,7 @@ EXAMPLES = {
         'coupling_scaling': {'parameter': 'kappa', 'power': 1, 'states': [1], 'mc_covariance_at': 1.0}},
     'amplitude-integration': {
         'schema_version': 1, 'kind': 'amplitude-integration', 'addon': 'mcfm-amplitudes', 'operation': 'blocks', 'store': 'store',
-        'backend': {'kind': 'oci-local', 'program': '/opt/mcfm/ravel_mcfm_amplitudes', 'workdir': '/work',
-                    'image': {'reference': '<registry/name@sha256:...>', 'platform': 'linux/arm64'},
+        'backend': {'kind': 'oci-local', 'workdir': '/work',
                     'resources': {'cpus': 1, 'memory_mib': 4096}},
         'cohorts': [{'id': 'mixed', 'channel': 1, 'card': {'path': 'mixed.ini', 'sha256': '<sha256>'},
                      'warmup': {'draws': 100000, 'seed': 11, 'max_seconds': 3600}}],

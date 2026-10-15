@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "open-question-fixture",
+  "id": "extended-scalar",
+  "synthetic": true,
+  "structure": "constraint question on an extended scalar sector: a parent research request whose deliverable is an allowed coupling interval from a supplied precision record",
+  "prompt": "Determine which couplings of an extended scalar multiplet in a non-minimal representation remain allowed by a supplied precision mass-shift record. Deliver a constraint table and an internal note; retain failed and inconclusive evidence.",
+  "expected_task_mode": "research",
+  "claim_kind": "finding",
+  "quantity": {"id": "allowed-coupling-interval", "unit": "1",
+               "meaning": "Synthetic allowed interval of a dimensionless coupling; supplied arithmetic, no physics calibration."},
+  "method": "def allowed_interval(shift, tolerance):\n    return [shift - tolerance, shift + tolerance]\n",
+  "hypotheses": {"citation_led": "The supplied shift bounds the coupling from both sides.",
+                 "speculative": "The supplied shift bounds the coupling from one side only."},
+  "answer": {"verdict": "constrained", "value": 0.42},
+  "grading": {"verdicts": ["constrained", "unconstrained"], "reference": {"verdict": "constrained", "value": 0.42},
+              "tolerance": {"absolute": 0.05}},
+  "figure_inputs": {"kind": "poi_contour", "axes": [{"name": "coupling", "unit": "1"}, {"name": "mass_ratio", "unit": "1"}],
+                    "grid": [[0.0, 0.5, 1.0], [0.0, 0.5, 1.0]],
+                    "values": [[0.2, 0.6, 1.4], [0.3, 0.9, 1.8], [0.5, 1.2, 2.4]], "level": 1.0}
+}

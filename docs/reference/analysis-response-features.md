@@ -2,7 +2,11 @@
 
 `analysis-response-features` prepares reversible source instrumentation and consumes
 retained native traces. Both operations require a selected instrumentation package;
-there is no built-in routine, classifier roster, score binning or study population.
+the engine holds no routine, classifier roster, score binning or study population. The
+released six-b routine's package ships as data in `src/ravel/data/analysis_assets/six-b`
+(source, six classifier models, reference YODA, support sources, `descriptor.json`,
+`contracts.json`); `ravel.physics.shipped_assets.six_b_prepare_input(directory)` writes the
+bound `prepare-input.json` and returns the `prepare-source` task.
 Native compilation and event processing use the existing approved `analyze`
 `routine-build` and `rivet-built` operations and their method-decision admission.
 This adapter performs neither launch nor inference.

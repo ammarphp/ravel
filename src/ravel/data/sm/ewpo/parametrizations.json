@@ -1,0 +1,1749 @@
+{
+  "schema_version": 1,
+  "kind": "cited-formula-shards",
+  "source_contract": "Repository source ids, pins, locators and excerpt hashes; no publication text or guessed domains. PDF hashes and domains are qualification inputs.",
+  "parametrizations": {
+    "m_W": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-mass",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/wdecays/mw.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-mass",
+            "line_start": 10,
+            "line_end": 36,
+            "excerpt_sha256": "d6d806ff2bd90f8c2d2ec2dfa3c089c468a23bb93be945472e4aa26dc1c34adc"
+          },
+          "upstream_file_sha256": "3ef7e579b9595ec7adc43bf8b1acc002ddc6eaea89cb2fbebd2452caf1f08e13",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "dH": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 100.0
+        },
+        "dh": {
+          "parameter": "m_H",
+          "transform": "ratio_squared",
+          "reference": 100.0
+        },
+        "dt": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 174.3
+        },
+        "dZ": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1875
+        },
+        "da": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.05907
+        },
+        "das": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.119
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 80.37773899999999,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.05427,
+          "powers": {
+            "dH": 1
+          }
+        },
+        {
+          "coefficient": -0.008931,
+          "powers": {
+            "dH": 2
+          }
+        },
+        {
+          "coefficient": 8.82e-05,
+          "powers": {
+            "dH": 4
+          }
+        },
+        {
+          "coefficient": 0.000161,
+          "powers": {
+            "dh": 1
+          }
+        },
+        {
+          "coefficient": -1.07,
+          "powers": {
+            "da": 1
+          }
+        },
+        {
+          "coefficient": 0.5237,
+          "powers": {
+            "dt": 1
+          }
+        },
+        {
+          "coefficient": -0.0679,
+          "powers": {
+            "dt": 2
+          }
+        },
+        {
+          "coefficient": -0.00179,
+          "powers": {
+            "dH": 1,
+            "dt": 1
+          }
+        },
+        {
+          "coefficient": 6.64e-05,
+          "powers": {
+            "dh": 1,
+            "dt": 1
+          }
+        },
+        {
+          "coefficient": -0.0795,
+          "powers": {
+            "das": 1
+          }
+        },
+        {
+          "coefficient": 114.9,
+          "powers": {
+            "dZ": 1
+          }
+        }
+      ]
+    },
+    "Gamma_e": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.083966,
+          "powers": {}
+        },
+        {
+          "coefficient": -4.7000000000000004e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.0008070000000000001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -9.5e-05,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -1e-05,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00025,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0011,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 0.28500000000000003,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_mu": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.083966,
+          "powers": {}
+        },
+        {
+          "coefficient": -4.7000000000000004e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.0008070000000000001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -9.5e-05,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -1e-05,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00025,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0011,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 0.28500000000000003,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_tau": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.083776,
+          "powers": {}
+        },
+        {
+          "coefficient": -4.7000000000000004e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.0008060000000000001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -9.5e-05,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -1e-05,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00025,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0011,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 0.28500000000000003,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_nu": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.16715700000000003,
+          "powers": {}
+        },
+        {
+          "coefficient": -5.5e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.00126,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.00019,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -2e-05,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00035999999999999997,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0001,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 0.503,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_u": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.299936,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.00034,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.004070000000000001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.01427,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": 0.0016,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.0018000000000000002,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0111,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 1.2530000000000001,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_c": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.29986,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.00034,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.004070000000000001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.01427,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": 0.0016,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.0018000000000000002,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0111,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 1.2530000000000001,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_d": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.38277,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.00034,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.00383,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.010199999999999999,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.0024,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00067,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0101,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 1.469,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_s": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.38277,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.00034,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.00383,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.010199999999999999,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.0024,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00067,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0101,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 1.469,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_b": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.375724,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.0003,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": -0.00228,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.01053,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.0024,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.0012,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.01,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 1.458,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "Gamma_Z": {
+      "kind": "polynomial",
+      "unit": "GeV",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 2.49424,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.002,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.0197,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.0586,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.004,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.008,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0559,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 9.267,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "R_l": {
+      "kind": "polynomial",
+      "unit": "1",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 20.7509,
+          "powers": {}
+        },
+        {
+          "coefficient": -0.0081,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": -0.039,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.7321000000000001,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.044,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.0055,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.358,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 11.702,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "R_b": {
+      "kind": "polynomial",
+      "unit": "1",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.21580000000000002,
+          "powers": {}
+        },
+        {
+          "coefficient": 3.1e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": -0.00298,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.00132,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": -0.00084,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 3.5000000000000004e-05,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.00073,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": -0.018000000000000002,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "R_c": {
+      "kind": "polynomial",
+      "unit": "1",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 0.17223,
+          "powers": {}
+        },
+        {
+          "coefficient": -2.9000000000000004e-05,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 0.001,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 0.0023,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": 0.0013000000000000002,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 0.00038,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -0.0012,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": 0.037,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "sigma0had_pb": {
+      "kind": "polynomial",
+      "unit": "pb",
+      "sources": [
+        {
+          "id": "ew-widths",
+          "citation": "Published polynomial referenced by the pinned upstream source; locator-only.",
+          "locator": "https://github.com/flav-io/flavio/blob/v2.7.1/flavio/physics/zdecays/gammazsm.py",
+          "version": "2.7.1",
+          "pin": {
+            "path": "../../eft_toolchain/upstream-api.json",
+            "sha256": "b3b6f8795f34bd88591f76b2ec272461a0fb44dbdcd08470f17e35e4b2585712",
+            "size": 59512
+          },
+          "evidence": {
+            "source": "ew-widths",
+            "line_start": 23,
+            "line_end": 76,
+            "excerpt_sha256": "98021c51b08f931d99d0ba50dd413bcd21fafb49f71adf42a54c0ea43b40e8ee"
+          },
+          "upstream_file_sha256": "03c68fd0c84c50e196b8f39664146b69ffda88d9b1ad6e2e3144f8186549246f",
+          "source_pdf": {
+            "sha256": null,
+            "status": "requires_supplied_source_pdf",
+            "content_policy": "locator-only"
+          },
+          "format": "text",
+          "parents": []
+        }
+      ],
+      "validity": null,
+      "validity_status": "source PDF domain must be supplied; upstream code imposes no domain",
+      "variables": {
+        "L_H": {
+          "parameter": "m_H",
+          "transform": "log_ratio",
+          "reference": 125.7
+        },
+        "D_t": {
+          "parameter": "m_t",
+          "transform": "ratio_squared_minus_one",
+          "reference": 173.2
+        },
+        "D_as": {
+          "parameter": "alpha_s",
+          "transform": "ratio_minus_one",
+          "reference": 0.1184
+        },
+        "D_a": {
+          "parameters": [
+            "delta_alpha_had",
+            "delta_alpha_lep"
+          ],
+          "transform": "ratio_minus_one",
+          "reference": 0.059
+        },
+        "D_Z": {
+          "parameter": "m_Z",
+          "transform": "ratio_minus_one",
+          "reference": 91.1876
+        }
+      },
+      "terms": [
+        {
+          "coefficient": 41488.4,
+          "powers": {}
+        },
+        {
+          "coefficient": 3.0,
+          "powers": {
+            "L_H": 1
+          }
+        },
+        {
+          "coefficient": 60.9,
+          "powers": {
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": -579.4,
+          "powers": {
+            "D_as": 1
+          }
+        },
+        {
+          "coefficient": 38.0,
+          "powers": {
+            "D_as": 2
+          }
+        },
+        {
+          "coefficient": 7.3,
+          "powers": {
+            "D_as": 1,
+            "D_t": 1
+          }
+        },
+        {
+          "coefficient": 85.0,
+          "powers": {
+            "D_a": 1
+          }
+        },
+        {
+          "coefficient": -86027.0,
+          "powers": {
+            "D_Z": 1
+          }
+        }
+      ]
+    },
+    "sin2theta_eff": {
+      "kind": "unavailable",
+      "unit": "1",
+      "sources": [],
+      "validity": null,
+      "variables": {},
+      "terms": [],
+      "status": "requires cited runtime polynomial; pinned upstream uses a supplied constant angle"
+    }
+  },
+  "oblique_convention": {
+    "reference_parameters": [
+      "m_H",
+      "m_t"
+    ],
+    "reference_policy": "Input and formula reference points agree exactly; the SM nuisance point is fixed.",
+    "source": {
+      "id": "ew-oblique",
+      "citation": "General electroweak vacuum-polarization review in the PDG reference collection; locator-only.",
+      "locator": "https://pdg.lbl.gov/reviews.html",
+      "source_pdf": {
+        "sha256": null,
+        "status": "requires supplied source PDF"
+      }
+    },
+    "equations": [
+      "delta_m_W = alpha_mZ*m_W/(2*(c2-s2)) * (-S/2+c2*T+(c2-s2)*U/(4*s2))",
+      "delta_sin2theta_eff = alpha_mZ/(c2-s2) * (S/4-s2*c2*T)",
+      "delta_Gamma_f/Gamma_f = alpha_mZ*T - 4*Q_f*gV_f/(gV_f^2+gA_f^2)*delta_sin2theta_eff",
+      "gV_f = T3_f - 2*Q_f*sin2theta_eff; gA_f = T3_f; c2=1-s2"
+    ],
+    "qualification_status": "Source and numerical qualification are separate from synthetic closure."
+  }
+}

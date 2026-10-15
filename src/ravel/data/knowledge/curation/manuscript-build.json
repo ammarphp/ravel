@@ -1,0 +1,25 @@
+{
+ "id": "op:manuscript-build",
+ "op": {
+  "do_not_use_when": [
+   "Producing the results themselves: use the science mode that computes them.",
+   "Scientific report delivery of a portfolio: use scientific-delivery."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/manuscript-build-example --spec specs/manuscript-build.json",
+    "phrase": "Build a PDF note from retained results with a pinned configuration.",
+    "spec": {
+     "mode": "manuscript-build",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Build a PDF manuscript or note from retained run results with pdflatex.",
+   "Figures and tables from a finished run must be typeset."
+  ]
+ }
+}

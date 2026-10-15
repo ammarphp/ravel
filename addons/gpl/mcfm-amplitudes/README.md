@@ -19,8 +19,11 @@ compact amplitude store and recombines it for any coupling and propagator choice
 
 The RAVEL installer fetches MCFM at the pinned commit, applies the patch, copies these
 files to `<mcfm>/ravel/`, appends `include(ravel/CMakeLists-ravel.cmake)` to the root
-`CMakeLists.txt` and builds with GNU compilers inside the Linux container recipe of the
-execution backend. The program needs one thread and no MPI.
+`CMakeLists.txt` and builds with GNU compilers: inside the Linux container recipe on
+macOS, on the host with the compiler-bootstrap toolchain on Linux x86_64. The program
+needs one thread and no MPI. MCFM's fixed-form include files `zcouple_cms.f` and
+`cpscheme.f` cannot be included in free-form source; the bridge and driver declare
+their common blocks, and `upstream-api.json` pins both files.
 
 ## How RAVEL finds it
 
@@ -31,9 +34,12 @@ RAVEL looks for `mcfm-amplitudes/addon.json` in, in order: the directories liste
 
 ## Program protocol
 
-The program runs in a directory holding `input.ini` (an MCFM card for process 131 at
-LO), `ravel-control.dat` (`operation draws seed channel`) and, depending on the
-operation, `ravel-points.dat` or `proposal-grid.bin`. It writes `amplitudes.dat`.
+The program is given the path of `input.ini` (an MCFM card for process 131 at LO) and
+works in that card's directory, which also holds `ravel-control.dat` (`operation draws
+seed channel`), MCFM's runtime files `process.DAT`, `br.sm1` and `br.sm2` and, depending
+on the operation, `ravel-points.dat` or `proposal-grid.bin`. A card path with a directory
+must be absolute. It writes `amplitudes.dat` (and the warm-up's `proposal-grid.bin`) to
+`RAVEL_OUTPUT_DIR` when that is set, otherwise to the card's directory.
 Operation 0 evaluates supplied points, 1 is the warm-up that writes
 `proposal-grid.bin`, and 2 integrates a block on that frozen grid. Channel 1, 2 and 3
 select the lepton-flavour configuration declared in the card (different flavours,

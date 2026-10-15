@@ -230,7 +230,9 @@ A declared output is credited only when an `ok` broker receipt of the same attem
 its current bytes. A file a native tool wrote, or a pinned file changed afterwards, is never credited.
 Gemini CLI cannot turn its native file tools off, so on that route only broker output pins would count.
 
-The workspace and every directory above it must hold no `CLAUDE.md`, `AGENTS.md` or `GEMINI.md`. The
+The workspace and every directory above it must hold no `CLAUDE.md`, `AGENTS.md` or `GEMINI.md`,
+with one exception: the run's declared project instruction document and files that only import it
+(see [Declared project instructions](#declared-project-instructions)). The
 complete prompt is written to worker custody with an audit record (argv, environment names,
 schema, toolbelt and MCP configuration digests) and reaches the CLI on standard input.
 
@@ -284,6 +286,131 @@ turns and cost, and the time. A new probe, a changed declaration or a replaced e
 Exit status 3 means refused before any process started; 4 means the run happened and named steps failed.
 Pass `--rundir` as a real path: on macOS `/tmp` is a symlink, so use `/private/tmp/...`. A path through a
 symlink is refused, and the refusal names the real path to use.
+
+## Declared project instructions
+
+A project can require that one instruction file reaches every agent on every prompt. A run declares
+that file once, when it starts:
+
+```
+ravel project-instructions pin --rundir <run> --path <project>/AGENTS.md
+```
+
+The command writes `inputs/project_instructions.json` (the document's real path, sha256 and byte
+count) and binds it in the run's custody ledger, outside the run tree. A pin file written or edited
+by hand pins nothing: the next launch is refused.
+
+From then on every session RAVEL starts for the run receives the document's text verbatim, ahead of
+RAVEL's own instructions:
+
+- **Workers.** The adapter puts the text at the top of the prompt it sends on standard input. The
+  worker receipt records it in `transport.project_instructions`: `sha256`, `bytes`, `path`,
+  `mechanism`, `flag`, `position` and `ambient`. The prompt audit holds the same record.
+- **One-shot reviewers and answers.** A session belongs to the run that owns its graph or request
+  file: the nearest directory above it that holds an `inputs` folder. The search stops at that
+  directory. `answer` and `answer-graph` resolve the run this way from the request file, and an
+  `agent-cli` host resolves it from the graph it executes and sends it to the launcher in the
+  request field `project_run`. A request prepared for an external answer carries the same field,
+  bound by the request digest, so a copy of the file answered elsewhere still receives the document.
+  Every prepared request is checked against its own digest before a session starts; a copy with a
+  field added, changed or removed is refused. Preparing a request is refused while the run's pin is
+  invalid (`project_instructions:pin-removed`, `pin-changed`, `pin-not-in-custody`): an invalid pin
+  is never read as a run that declares nothing. `ravel agent-cli serve|answer|answer-graph --rundir <run>` and the
+  host config key `"rundir"` name the run for a graph or request that lies in no run. A configured
+  run that differs from the graph's own run is refused. A run nested under another run's tree that
+  pins nothing is refused with `project_instructions:run-ambiguous` until `--rundir` or the host
+  config key `"rundir"` names it; the outer run's document never reaches it. A request prepared in
+  such a run carries the field `project_run_unresolved` with that run's directory, and it is
+  answered only when `--rundir` names the same run. The session receipt names the run the session
+  was started for in `configuration.project_run`, and the isolation block carries it as
+  `project_run`. The graph's receipt check uses that name the same way the dispatch did: it settles
+  the nested run only when it is the graph's nearest run. The session receipt records the delivery in
+  `configuration.project_instructions`, and the isolation block carries `project_instructions`
+  (`sha256`, `bytes`, `mechanism`) and says in `basis` that RAVEL supplied one declared document. The
+  document is declared project text. It is not user configuration, and `user_configuration_loaded`
+  keeps its meaning. The launcher reads the run's declaration again immediately before it creates
+  the CLI process: a pin resolved earlier, a document changed while the launch was assembled, or a
+  run pinned in the meantime refuses the launch and nothing starts.
+- **Host subagents.** RAVEL writes no prompt for a worker the host starts. The brief
+  (`inputs/host-brief.json`) carries the text in `project_instructions.text` with the line that
+  tells the subagent to read it first and to report the document's sha256 with the final record.
+  The worker receipt records the brief with the mechanism `work_packet` and the reported sha256 in
+  `host_acknowledged_sha256`. Writing the brief is not delivery: RAVEL starts no process and sees
+  no prompt. The host passes the report to `host_subagent.complete(..., instructions_sha256=...)`,
+  and the receipt shows delivery only when that sha256 is the pinned one. Without it the check
+  answers `project_instructions:unobserved` and the session is not credited.
+
+An HTTP model route and a command host other than the RAVEL `agent-cli` launcher cannot deliver the
+document. For a graph whose run pins a document, such a host refuses every model node before any
+request is sent. The RAVEL loop cannot deliver the document either: it reads the declaration before
+every model turn and sends nothing for a run that pins a document. Workers of such a run go through
+a CLI worker transport.
+
+**Mechanism.** `mechanism` is `prompt_first_block` for every shipped CLI route. A route whose
+`argv_template` carries the placeholder `{project_instructions_file}` behind a flag, and whose probe
+confirmed that flag, gets `system_prompt_append_flag` instead: the text is written to a read-only
+file and the flag names it. Without a pin, the flag and its value are dropped from the argv.
+
+**A run inside the project.** When the worker workspace sits under the folder that holds the
+declared file, the launch accepts two kinds of instruction file above the workspace: the declared
+document itself, with the pinned sha256, and a file whose whole content is one import of it (for
+example a `CLAUDE.md` that holds only `@AGENTS.md`). `ambient.ancestor_files` lists each accepted
+file with its relation (`declared` or `import`) and sha256. `ambient.cli_reported_loaded` is `true`
+or `false` when the CLI's own configuration report says whether it loaded an instruction file, and
+`null` when the CLI's output carries no such report. Every other instruction file, a companion file
+with any text besides the import, a symbolic link and every project configuration directory
+(`.claude`, `.codex`, `.gemini`, `.agents`) are refused as before.
+
+**A run that declares nothing.** Without a pin, an instruction file above the workspace is refused
+when it exists. A symbolic link that points to nothing supplies no text and is ignored, as before.
+Under a pin every instruction file above the workspace, a dangling link included, must be the
+declared document or an import of it.
+
+**The document is fixed for the run.** When the file's sha256 differs from the pin, the next launch
+is refused with `project_instructions:changed` and the message names the command that re-pins it:
+
+```
+ravel project-instructions repin --rundir <run> --approved-by <who approves> --statement "<why the text changed>"
+```
+
+Preparing a launch does not fix the document. The dispatcher reads the declaration again before it
+starts the supervisor, and the supervisor reads it once more immediately before the worker process
+starts. A document changed in between, a re-pin in between, or a prepared launch without the
+delivery record is refused (`transport_refused`, with the item in `failure.missing`) and no process
+starts. Both checks also read the instruction files above the workspace again and compare them with
+`ambient.ancestor_files`: a companion file edited after preparation, a new instruction file or a
+removed one refuses the launch with `project_instructions:ancestors-changed`. A session that never started has `transport.project_instructions` equal to
+`{"status": "not_started"}`: its receipt does not say the document was delivered.
+
+A re-pin needs both the approver and the statement. The approval and the sha256 it replaces are kept
+in the pin and in the custody ledger. `ravel project-instructions show --rundir <run>` prints the
+pin and whether the document still matches it.
+
+**Kept prompt and kept text.** A successful one-shot session keeps its exact prompt beside its
+receipt: `answer` and `answer-graph` write `<response name>.receipt.prompt.txt` next to
+`<response name>.receipt.json`, and an `agent-cli` host writes `<record name>.prompt.txt` next to the
+session record under `transport-receipts/`. The file is created once and holds the text that hashes
+to `content.prompt_sha256` of the receipt; a text with another digest is never written. Each pin
+also copies the document's bytes into the run's custody folder as
+`project-instructions.<sha256>.md`. A re-pin or an edited file therefore removes neither an earlier
+prompt nor an earlier document text; `project_instructions.retained_text(run, sha256)` returns the
+text of any document the run pinned.
+
+**Live qualification with a document.** `ravel transport qualify <id> --rundir <empty dir> --model
+<model> --project-instructions <document>` pins the document for the conformance run and adds the
+step `project_instructions_recorded`, which passes only when the worker receipt shows its delivery.
+
+**Credit.** A run that pins a document credits only sessions whose receipt shows the pinned sha256.
+The worker dispatcher adds the computed check `project_instructions` to the receipt outcome, and a
+receipt that fails it has no credited outputs. The review-credit check refuses such a receipt with
+`project_instructions`. `project_instructions.receipt_problem(receipt, pin)` gives the same answer
+for a worker receipt and for a one-shot session receipt. The same comparison runs on the two
+one-shot paths. The `agent-cli` host keeps the session record and fails the node when the
+launcher's receipt lacks the record or names another document. `agent_graph.role_receipt` and
+`model_receipt` refuse a completed review of a graph whose run pins a document when the session's
+isolation evidence does not name that document. A review answered before the pin, or under a pin
+that was replaced afterwards, therefore earns no receipt. A run without a pin has no such check,
+and its receipts keep their earlier bytes.
 
 ## User configuration and independence
 

@@ -43,5 +43,6 @@ parser.out
 /.ravel/*
 # Generated hookless role contracts are tracked; runtime state stays ignored.
 !/.ravel/roles/
+!/.ravel/site-tools/
 !/.ravel/gate-surface.json
 /.ravel-site/

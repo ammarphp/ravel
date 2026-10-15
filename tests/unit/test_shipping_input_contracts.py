@@ -1,6 +1,7 @@
 """Supplied input refusals and fictional numerical controls; no native tools."""
 import ast
 import json
+from ravel.setup import manifest as mf
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
@@ -116,7 +117,7 @@ def test_figure_hint_cli_consumes_supplied_metadata(tmp_path, monkeypatch, capsy
 
 def test_installation_manifest_does_not_grant_broad_qualification():
     root = Path(__file__).resolve().parents[2]
-    manifest = json.loads((root / 'native/setup/toolchain-manifest.json').read_text())
+    manifest = mf.view(root)
     for row in manifest['groups']:
         qualification = row.get('qualification')
         if qualification and qualification['status'] == 'qualified':

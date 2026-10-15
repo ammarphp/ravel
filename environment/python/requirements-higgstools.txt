@@ -1,0 +1,8 @@
+# Required isolated source-build environment; no imports in the RAVEL process.
+numpy==2.2.6
+scipy==1.15.3
+pybind11==2.13.6
+setuptools==80.9.0
+wheel==0.45.1
+cmake==3.31.6
+ninja==1.11.1.4

@@ -281,6 +281,9 @@ SCHEMA = {
             "solver_evaluations": _COUNT, "max_seconds": _POSITIVE},
             ("schema_version", "kind", "generated_events", "solver_evaluations", "max_seconds")),
         "cost_estimate": _COST,
+        # Optional delivery deadline; study_deadline checks the cross-field rules.
+        "deadline": _object({"utc": _TEXT, "budget_s": _POSITIVE, "start_utc": _TEXT, "margin_s": _NONNEG},
+                            ("margin_s",)),
         "blocking": _TEXTS,
         "escalate": _TEXTS,
         **{key: _TEXT for key in ("notes", "validation_oracle", "deliverable", "stat_mode_note")},
@@ -400,6 +403,9 @@ def validate(c, *, legacy=False):
     for boundary in ([] if legacy else request_reading.boundaries(c['prompt'], intake.actionable_text(c['prompt']))):
         if boundary['kind'] == 'full-simulation' and cp != 'none':
             errs.append(boundary['statement'])
+    if "deadline" in c:
+        from ravel.workflow.study_deadline import contract_errors
+        errs.extend(contract_errors(c["deadline"]))
     if "operation_resources" in c:
         resources = c["operation_resources"]
         if cp != "full" or "execution_plan" not in c:

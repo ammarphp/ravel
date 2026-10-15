@@ -46,6 +46,7 @@ the contract. The `task_mode` is derived from that reading; see
 | Request | Route | Next step |
 |---|---|---|
 | Whole scope works on supplied events, models, workspaces or measurements | Scientific-study route | Draft the typed specification from [scientific studies](reference/scientific-studies.md) and run `ravel plan --rundir <new-run> --spec study.json`; its CHECK-IN 1 is the intake. Skip `initiate`. |
+| A manuscript, note or paper from existing results | `manuscript-build` mode | Write with [staged manuscript authoring](../reference/staged-manuscript-authoring.md), then build the PDF in an ordinary `manuscript-build` study ([manuscript production](../reference/manuscript-production.md)). |
 | Feynman diagrams, diagram estimates or amplitudes for a model and process | `feyn-graph`, `diagram-analysis` or `feynarts-amplitude` mode | Check inputs with `ravel feyn-graph inspect`, then plan the study with `ravel plan` ([model-bound diagrams](../reference/model-bound-diagrams.md)). |
 | `open` route: a research parent that no rule recognises as one bounded shape (`next_route=open`) | Open parent | Read `inputs/reading.json`, the obligation census and `inputs/plan.json` when present. Compose the request from the operation catalogue: prepare each component as an ordinary study with `ravel plan --spec`, or run `ravel research-orchestrate` for open-ended research. Each child has its own CHECK-IN 1. Every obligation stays open until a child covers it or a boundary row bounds it. |
 | `research`, `method_study`, `anomaly_search` | Research orchestrator | `ravel research-orchestrate prepare` with the parent contract, then `run` ([research orchestration](reference/research-orchestration.md)). A `method_study` keeps `<run>/method_proposal.md` as an intermediate plan. |
@@ -137,9 +138,13 @@ working directory/session; an unrelated old contract elsewhere is not sufficient
 
 ## Dispatch production work (agent-layer epoch two)
 
-In an epoch-two run, production roles are the default executors of plan nodes.
-`src/ravel/data/roles/executors.json` maps each node operation to its role. The host
-plans, routes, dispatches, presents CHECK-INs and runs smoke rungs. It edits nothing under
+Every compute operation in an epoch-two plan has a production role in
+`src/ravel/data/roles/executors.json`; `host_operations` lists record-only commands and their reasons.
+A plan with an unroutable compute node is refused at CHECK-IN 1 before approval with
+`executor_role_missing`, naming the node, operation and required table mapping.
+`ravel drive` sends every compute node of the approved plan to its role's governed worker.
+
+The host plans, routes, dispatches, presents CHECK-INs and runs smoke rungs. It edits nothing under
 `stages/` at the full or scan rung.
 
 ```sh
@@ -215,6 +220,13 @@ only the eight planned environment variables before the normal approval or run
 checks. Use it for inherited environment drift; changed source or inputs still
 require their normal new plan and actual assent. Historical missing values are
 not reconstructed from hashes.
+
+For a source-bound DAOD columnar query or supplied native ROOT/Parquet return,
+use the [supplied columnar operation](../reference/dataset-query-quantities.md).
+It retains the complete supplied dataset/member/exposure and observable populations;
+source-only context preparation connects to the ordinary unapproved scientific
+plan. Credentials, native runtime, query/analysis source and subsequent review
+remain explicit inputs and workflow obligations.
 
 For a supplied EasyScan scan contract, sampler and ordered external programme chain, use [the native EasyScan operation](../reference/parameter-space-sampling.md). Supply a study identity, pinned request and INI, complete mappings and source/runtime/workspace manifests, finite resources and a selected JSON or CSV table export. Missing inputs are refused with a typed reason; context is source-only and the ordinary scientific plan remains unapproved.
 

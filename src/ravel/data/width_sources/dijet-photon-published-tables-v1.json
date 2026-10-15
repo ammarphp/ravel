@@ -1,0 +1,439 @@
+{
+ "schema_version": 1,
+ "kind": "width-source-descriptor",
+ "name": "dijet-photon-published-tables-v1",
+ "source": "Tables released with ATLAS EXOT-2022-33 (arXiv:2408.00049, a search for a dijet resonance produced in association with a photon), HEPData record 153849 version 1, DOI 10.17182/hepdata.153849.v1 (https://doi.org/10.17182/hepdata.153849.v1). The digests pin the exact bytes of version 1. Four reconstructed-mass regional distributions (published postfit references, never Poisson observations or an auxiliary law) and the coupling and cross-section-times-branching-times-acceptance limit tables. The model resonance identity and the generation convention are supplied by the request.",
+ "files": {
+  "submission.yaml": "ce5eb11cae0dd50c3e4c96c7954d853ff7a5bf03f5b7af02bb58578ac9883c8f",
+  "SR.yaml": "a4d1619aaedbc149bf47add20dc74a20e3795da3155ee9c6c6f861d4e8bc9bff",
+  "forward_CR.yaml": "0b607b4c1dd7627dd59f6b82574afce32d2bdc75bbe9247cc71b5f0c640d5276",
+  "central_inverted_CR.yaml": "ba4a3604e94a42d4ddf105a05fa668d84a296524f08aa2a4b441aa7acc5cf4b5",
+  "forward_inverted_CR.yaml": "c4056329948ecfaa087fbe06c68f202e9950d467e3a2ae31fa7aa7e1889be01b",
+  "coupling.yaml": "147dcdc61717d4206d92a0bb51ac4220384224a6330363daf7ac2dacac130e4e",
+  "xsec.yaml": "6f19335935aa8846bd6275b8a59f9026630d1d6539c470d472baa02c61310872"
+ },
+ "submission": "submission.yaml",
+ "tables": [
+  {
+   "id": "central_tagged",
+   "file": "SR.yaml",
+   "role": "region",
+   "axis_header": {
+    "name": "m_{J}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Data"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Non-resonant background"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+W$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+Z$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$t\\bar{t}$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 20) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 40) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 125) GeV \\times 5$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Background estimate uncertainty"
+     },
+     "qualifiers": []
+    }
+   ],
+   "quantity": null,
+   "unit": null,
+   "applicability": null
+  },
+  {
+   "id": "forward_tagged",
+   "file": "forward_CR.yaml",
+   "role": "region",
+   "axis_header": {
+    "name": "m_{J}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Data"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Non-resonant background"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+W$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+Z$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$t\\bar{t}$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 20) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 40) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 125) GeV \\times 5$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Background estimate uncertainty"
+     },
+     "qualifiers": []
+    }
+   ],
+   "quantity": null,
+   "unit": null,
+   "applicability": null
+  },
+  {
+   "id": "central_antitagged",
+   "file": "central_inverted_CR.yaml",
+   "role": "region",
+   "axis_header": {
+    "name": "m_{J}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Data"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Non-resonant background"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+W$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+Z$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$t\\bar{t}$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 20) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 40) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 125) GeV \\times 5$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Background estimate uncertainty"
+     },
+     "qualifiers": []
+    }
+   ],
+   "quantity": null,
+   "unit": null,
+   "applicability": null
+  },
+  {
+   "id": "forward_antitagged",
+   "file": "forward_inverted_CR.yaml",
+   "role": "region",
+   "axis_header": {
+    "name": "m_{J}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Data"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Non-resonant background"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+W$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma+Z$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$t\\bar{t}$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 20) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 40) GeV$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "$\\gamma + Z' (m_{Z'} = 125) GeV \\times 5$"
+     },
+     "qualifiers": []
+    },
+    {
+     "header": {
+      "name": "Background estimate uncertainty"
+     },
+     "qualifiers": []
+    }
+   ],
+   "quantity": null,
+   "unit": null,
+   "applicability": null
+  },
+  {
+   "id": "g_q",
+   "file": "coupling.yaml",
+   "role": "limit",
+   "axis_header": {
+    "name": "m_{Z'}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Observed"
+     },
+     "qualifiers": [
+      {
+       "name": "SQRT(s)",
+       "units": "GeV",
+       "value": 13000
+      },
+      {
+       "name": "LUMINOSITY",
+       "units": "fb$^{-1}$",
+       "value": 140
+      }
+     ]
+    },
+    {
+     "header": {
+      "name": "Expected"
+     },
+     "qualifiers": [
+      {
+       "name": "SQRT(s)",
+       "units": "GeV",
+       "value": 13000
+      },
+      {
+       "name": "LUMINOSITY",
+       "units": "fb$^{-1}$",
+       "value": 140
+      }
+     ]
+    }
+   ],
+   "quantity": "g_q",
+   "unit": "dimensionless",
+   "applicability": "original benchmark qq-only decays, neglected Z/SM interference; nominal source model only"
+  },
+  {
+   "id": "sigma_times_BR_qq_times_acceptance",
+   "file": "xsec.yaml",
+   "role": "limit",
+   "axis_header": {
+    "name": "m_{Z'}",
+    "units": "GeV"
+   },
+   "columns": [
+    {
+     "header": {
+      "name": "Observed"
+     },
+     "qualifiers": [
+      {
+       "name": "SQRT(s)",
+       "units": "GeV",
+       "value": 13000
+      },
+      {
+       "name": "LUMINOSITY",
+       "units": "fb$^{-1}$",
+       "value": 140
+      }
+     ]
+    },
+    {
+     "header": {
+      "name": "Expected"
+     },
+     "qualifiers": [
+      {
+       "name": "SQRT(s)",
+       "units": "GeV",
+       "value": 13000
+      },
+      {
+       "name": "LUMINOSITY",
+       "units": "fb$^{-1}$",
+       "value": 140
+      }
+     ]
+    }
+   ],
+   "quantity": "sigma_times_BR_qq_times_acceptance",
+   "unit": "unreported_in_table_headers",
+   "applicability": "original benchmark qq-only decays, neglected Z/SM interference; nominal source model only"
+  }
+ ],
+ "reference_metadata": {
+  "schema_version": 1,
+  "kind": "ATLAS_EXOT_2022_33_released_width_references",
+  "energy_tev": 13,
+  "lumi_fb": 140,
+  "uncertainty_law": "unknown; postfit marginal band is not an independent auxiliary covariance",
+  "source_discrepancies": [
+   "Submission descriptions label representative middle signal50GeV; literal table headers label40GeV. Both are retained; no reconciliation or physical reinterpretation.",
+   "125GeV signal column is explicitly scaled x5; its displayed samples are not an unscaled response."
+  ],
+  "observations_reconstructed": false,
+  "coupling_to_width_or_rate_map": null,
+  "source_origin_scope": "Exact bytes of the retained HEPData153849v1 source; no discovery/exhaustiveness claim."
+ },
+ "analysis": {
+  "id": "ATLAS_EXOT_2022_33",
+  "energy_tev": 13,
+  "lumi_fb": 140,
+  "observable": "TAR_mJ_GeV",
+  "region_ids": [
+   "central_tagged",
+   "forward_tagged",
+   "central_antitagged",
+   "forward_antitagged"
+  ],
+  "missing": [
+   "Actual integer counts and source-defined joint transfer/background/auxiliary law are missing; released noninteger postfit samples and marginal bands are not such a law."
+  ]
+ },
+ "analysis_inputs": [
+  "pdg",
+  "generation"
+ ],
+ "expect": {
+  "table_doi": {
+   "SR.yaml": "10.17182/hepdata.153849.v1/t1",
+   "forward_CR.yaml": "10.17182/hepdata.153849.v1/t2",
+   "central_inverted_CR.yaml": "10.17182/hepdata.153849.v1/t3",
+   "forward_inverted_CR.yaml": "10.17182/hepdata.153849.v1/t4",
+   "coupling.yaml": "10.17182/hepdata.153849.v1/t5",
+   "xsec.yaml": "10.17182/hepdata.153849.v1/t6"
+  },
+  "region_windows": {
+   "count": 43,
+   "first_low": "10",
+   "last_high": "290"
+  },
+  "limit_masses": {
+   "count": 13,
+   "first": 20,
+   "last": 200
+  }
+ }
+}

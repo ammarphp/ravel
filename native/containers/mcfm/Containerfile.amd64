@@ -1,0 +1,26 @@
+# MCFM build and run toolchain for x86-64 Linux (run under Rosetta on Apple silicon) (GNU C, C++ and Fortran, CMake).
+#
+# The image holds compilers and the RAVEL build/check scripts only. MCFM source,
+# the RAVEL overlay and the build directory stay on the host and are mounted at
+# identical paths by the container launcher, so the build receipt and the binary's
+# run path are the same inside and outside the container.
+#
+# This is the linux/amd64 variant of Containerfile: MCFM needs libquadmath, which Fedora aarch64 lacks, and MELA
+# ships x86-64 libraries only. The base must be pinned by digest. Record it once, after the owner approves the
+# pull, with:
+#   podman pull --platform linux/amd64 registry.fedoraproject.org/fedora:41
+#   podman image inspect --format '{{.Digest}}' registry.fedoraproject.org/fedora:41
+# then replace the placeholder below (and in base-image.json). `ravel backend
+# image-build` refuses to build until the FROM line carries a real digest.
+FROM --platform=linux/amd64 registry.fedoraproject.org/fedora@sha256:3fb969dd07e631c17d12f5955bcb6db2078a6997eb68be76b6492e7bd6052e88
+
+RUN dnf -y install gcc gcc-c++ gcc-gfortran cmake make git patch python3 file binutils \
+    && dnf clean all \
+    && mkdir -p /opt/ravel/bin
+
+COPY build-mcfm.sh check-mcfm.sh write_mcfm_receipt.py /opt/ravel/bin/
+RUN chmod 0755 /opt/ravel/bin/build-mcfm.sh /opt/ravel/bin/check-mcfm.sh \
+    && { gcc --version | head -1; g++ --version | head -1; gfortran --version | head -1; cmake --version | head -1; } \
+       > /opt/ravel/toolchain-versions.txt
+
+LABEL org.ravel.recipe="mcfm-toolchain" org.opencontainers.image.description="GNU toolchain for the RAVEL MCFM build"

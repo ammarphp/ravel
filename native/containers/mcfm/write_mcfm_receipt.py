@@ -1,8 +1,9 @@
 """Write the MCFM build receipt for RAVEL's MCFM amplitude program.
 
-Runs inside the toolchain container with the standard library only. Paths are
+Runs with the standard library only, inside the toolchain container (paths are
 host paths mounted at identical container paths, so every pin is valid on the
-host. Compilers and system libraries come from the image; their identity is
+host) or on the host of a native build. Compilers and system libraries come from
+the image or the native toolchain; their identity is
 recorded in toolchain.json and linked-libraries.json inside the build directory,
 which are the pinned toolchain and linked inputs (the image digest is recorded by
 the launcher that ran this build).
@@ -11,6 +12,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import os
 import platform
 import subprocess
 
@@ -36,6 +38,10 @@ def write(path, value):
     return pin(path)
 
 
+def provider():
+    return os.environ.get('RAVEL_TOOLCHAIN_PROVIDER', 'container image (digest in the launcher record)')
+
+
 def main():
     ap = argparse.ArgumentParser()
     for name in ('upstream', 'overlay', 'build', 'commit', 'command'):
@@ -54,7 +60,7 @@ def main():
         version = subprocess.run([tool, '--version'], capture_output=True, text=True).stdout.splitlines()[0]
         tools[tool] = {'path': real, 'sha256': sha(real), 'version': version}
     toolchain = write(build / 'toolchain.json', {'schema_version': 1, 'machine': platform.machine(), 'tools': tools,
-                                                 'provided_by': 'container image (digest in the launcher record)'})
+                                                 'provided_by': provider()})
     libraries = []
     for line in subprocess.run(['ldd', str(binary)], capture_output=True, text=True).stdout.splitlines():
         parts = line.split('=>')
@@ -62,7 +68,7 @@ def main():
         if target.startswith('/') and Path(target).is_file():
             libraries.append({'path': str(Path(target).resolve()), 'sha256': sha(Path(target).resolve())})
     linked = write(build / 'linked-libraries.json', {'schema_version': 1, 'binary': str(binary), 'libraries': libraries,
-                                                     'provided_by': 'container image (digest in the launcher record)'})
+                                                     'provided_by': provider()})
     built_libraries = sorted(p for p in (build / 'local/lib').rglob('*') if p.is_file()) if (build / 'local/lib').is_dir() else []
     receipt = {
         'schema_version': 1,

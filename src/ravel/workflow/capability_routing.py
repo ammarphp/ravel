@@ -50,6 +50,7 @@ def _literal(tree, name):
 
 
 DESCRIPTORS = 'data/mode_descriptors.json'
+CHAINS = 'data/routing/chains.json'
 DESCRIPTOR_FIELDS = ('summary', 'operations', 'tools', 'inputs', 'observables', 'outputs', 'context')
 APPLICABILITY_SCOPES = ('general', 'source-bound')
 
@@ -87,6 +88,39 @@ def predicate_terms(applicability, text):
             return None
         matched.append(hit.group(0))
     return matched
+
+
+def _chains(document, modes):
+    """Validate declared deliverable chains against the selected dispatcher."""
+    if (type(document) is not dict or set(document) != {'schema_version', 'chains'}
+            or document['schema_version'] != 1 or type(document['chains']) is not list):
+        raise ValueError('routing chains require schema_version 1 and a chains list')
+    seen = set()
+    for row in document['chains']:
+        if (type(row) is not dict or set(row) != {'id', 'requires', 'modes', 'task_fields', 'preconditions'}
+                or type(row['id']) is not str or not row['id'].strip() or row['id'] in seen):
+            raise ValueError('routing chains require distinct named rows')
+        seen.add(row['id'])
+        if (type(row['modes']) is not list or not row['modes']
+                or any(type(m) is not str or m not in modes for m in row['modes'])
+                or len(set(row['modes'])) != len(row['modes'])):
+            raise ValueError('routing chain modes must be distinct selected dispatcher modes')
+        required = row['requires']
+        if (type(required) is not dict
+                or set(required) != {'claim_kind', 'artifact', 'template_alternative', 'model_point', 'effect', 'routine'}
+                or required != {'claim_kind': 'prediction', 'artifact': 'binned_values',
+                                'template_alternative': True, 'model_point': True,
+                                'effect': 'generates-events', 'routine': 'not_selected'}):
+            raise ValueError('unsupported routing chain obligation requirements')
+        fields = row['task_fields']
+        if (type(fields) is not dict or set(fields) - set(row['modes'])
+                or any(type(v) is not list or not v or any(type(t) is not str or not t.strip() for t in v)
+                       for v in fields.values())):
+            raise ValueError('routing chain task fields must name declared modes and nonblank fields')
+        if (type(row['preconditions']) is not list or not row['preconditions']
+                or any(type(p) is not str or not p.strip() for p in row['preconditions'])):
+            raise ValueError('routing chain preconditions must be nonblank strings')
+    return document['chains']
 
 
 def _descriptors(document, modes):
@@ -291,13 +325,28 @@ def catalogue(source_root=None):
         descriptors = _descriptors(json.loads(descriptor_raw.decode('utf-8')), modes)
     for row in operations:
         row['descriptor'] = descriptors.get(row['mode'])
+    chains = []
+    planning_tools = []
+    if (package / CHAINS).exists():
+        chain_pin, chain_raw = _file(package / CHAINS)
+        source_pins[chain_pin['path']] = chain_pin
+        cli_pin, cli_tree = _parsed(package / 'cli.py')
+        source_pins[cli_pin['path']] = cli_pin
+        commands = _literal(cli_tree, 'FOCUSED_COMMANDS')
+        chains = _chains(json.loads(chain_raw.decode('utf-8')), set(modes) | set(commands))
+        tool_modes = dict.fromkeys(mode for chain in chains for mode in chain['modes'] if mode not in modes)
+        for mode in tool_modes:
+            module, summary = commands[mode]
+            planning_tools.append({'mode': mode, 'dispatch_source': cli_pin, 'dispatch_surface': 'focused-command',
+                                   'command': 'ravel ' + mode, 'summary': summary, **implementation(module)})
     for relative in ('workflow/intake.py', 'workflow/route_prompt.py', 'workflow/cost_preflight.py',
                      'validation/validate_task_contract.py', 'workflow/resource_census.py', 'workflow/routine_fetch.py',
                      'plotting/figure_target.py', 'plotting/figure_manifest.py',
                      'plotting/science_figures.py', 'analysis_catalog.py'):
         pin, _ = _file(package / relative); source_pins[pin['path']] = pin
     return {'schema_version': 1, 'kind': 'capability-source-catalogue', 'source_root': str(root),
-            'operations': operations, 'native_compatibility_registry': native,
+            'operations': operations, 'planning_tools': planning_tools, 'declared_chains': chains,
+            'native_compatibility_registry': native,
             'source_pins': sorted(source_pins.values(), key=lambda p: p['path']),
             'scope': 'Current source contracts only. Registration, file presence and catalogue counts do not establish runtime or scientific qualification.',
             'compute_authorized': False, 'physics_validated': False}
@@ -313,6 +362,70 @@ def _span(value, prompt):
 
 def _action(stage, tool, purpose):
     return {'stage': stage, 'tool': tool, 'purpose': purpose, 'compute_authorized': False}
+
+
+def _chain_candidates(contract, reading, catalog, by_mode, findings):
+    """Compose obligation-shaped candidates, never infer a reusable routine's absence.
+
+    Intake has no completed routine-search or generation-effect census. A model
+    point prediction without supplied events can therefore propose the whole
+    chain, but its generation and routine-reuse conditions remain unresolved for
+    host review. A declared generation stage resolves only the planning effect;
+    no candidate grants execution or scientific admission.
+    """
+    obligations = contract.get('task_requirements', {}).get('obligations', [])
+    criteria = [o.get('criteria', {}) for o in obligations]
+    # A single deliverable may be represented by the whole-request obligation.
+    outputs = [{'claim_kind': d.get('claim_kind'), 'artifact': d.get('artifact', {}).get('kind')}
+               for d in reading.get('deliverables', [])]
+    outputs += [c for c in criteria if 'claim_kind' in c]
+    constraints = reading.get('constraints', [])
+    template = any(c.get('constraint') == 'template' for c in criteria) or any(
+        c.get('type') == 'template' for c in constraints)
+    stages = {c.get('value', {}).get('stage') for c in constraints if c.get('type') == 'requested_stage'}
+    negated = {c.get('value', {}).get('stage') for c in constraints if c.get('type') == 'negated_stage'}
+    supplied = any(f.get('type') == 'supplied_input' and f.get('value', {}).get('artifact') in
+                   ('event_sample', 'events', 'lhe', 'hepmc', 'ntuples', 'reconstructed_events')
+                   for f in reading.get('facts', []))
+    point = bool(contract.get('targets', {}).get('masses_gev')) or any(
+        f.get('type') == 'mass' for f in reading.get('facts', []))
+    result = []
+    for chain in catalog.get('declared_chains', []):
+        required = chain['requires']
+        prediction = any(o.get('claim_kind') == required['claim_kind'] and
+                         (o.get('artifact') == required['artifact'] or template and required['template_alternative'])
+                         for o in outputs)
+        if (not prediction or not point or supplied or negated & {'generation', 'shower', 'detector'}
+                or any(o.get('claim_kind') in ('exclusion', 'finding', 'document') for o in outputs)):
+            continue
+        conditions = {'generation_effect': 'requested' if 'generation' in stages else 'unresolved_requires_host_review',
+                      'routine_reuse': 'reported_no_routine' if any(type(f) is dict and f.get('kind') == 'no-routine' for f in findings)
+                                      else 'unresolved_requires_resource_census'}
+        for index, mode in enumerate(chain['modes']):
+            result.append({'mode': mode, 'scope': 'component', 'chain': chain['id'], 'chain_step': index + 1,
+                           'selection': 'declared_chain_requires_host_review',
+                           'obligation_ids': [o['id'] for o in obligations if o.get('kind') == 'deliverable'],
+                           'conditions': dict(conditions), 'preconditions': list(chain['preconditions']),
+                           'required_task_fields': list(chain['task_fields'].get(mode, [])),
+                           'operation': by_mode[mode]})
+    return result
+
+
+def _retrieve_action(reading):
+    """Restrict bulk value/figure acquisition through the shared source-policy seam."""
+    from .source_policy import from_reading
+    restrictions = from_reading(reading)
+    if not restrictions:
+        return _action('retrieve', 'ravel.workflow.hepdata_fetch; ravel.plotting.fetch_figures',
+                       'Read public model, likelihood, response, cards, tables, figures and code; record missing or private inputs explicitly.')
+    action = _action('retrieve', 'ravel.workflow.source_policy.read_receipt; policy-screened source retrieval',
+                     'Check the declared restrictions before acquisition or value extraction. Public bibliographic metadata, '
+                     'source definitions, code and bin definitions remain candidates only where the policy allows them; '
+                     'restricted values cannot supply the requested prediction. Record missing or private inputs explicitly.')
+    action['source_restrictions'] = restrictions
+    action['restricted_tools'] = ['ravel.workflow.hepdata_fetch', 'ravel.plotting.fetch_figures']
+    action['public_metadata'] = 'Bibliographic identifiers and resource locations, subject to the same source policy.'
+    return action
 
 
 PARENT_ROUTES = {
@@ -347,6 +460,7 @@ def plan(prompt, *, contract=None, intents=(), findings=(), source_root=None, re
     findings, never assertions deduced from an absent file or empty search.
     """
     _text(prompt, 'original request')
+    findings = tuple(findings)
     if contract is None:
         from ravel.workflow.route_prompt import route
         contract = route(prompt)
@@ -354,6 +468,10 @@ def plan(prompt, *, contract=None, intents=(), findings=(), source_root=None, re
         raise ValueError('routing contract must preserve the exact original request')
     catalog = catalogue(source_root)
     by_mode = {row['mode']: row for row in catalog['operations']}
+    chain_by_mode = {**by_mode, **{row['mode']: row for row in catalog.get('planning_tools', [])}}
+    if reading is None:
+        from ravel.workflow.request_reading import document
+        reading = document(prompt)
     candidates = []
     for intent in intents:
         if type(intent) is not dict or set(intent) != {'mode', 'basis', 'scope'} or intent['scope'] not in ('component', 'whole_request'):
@@ -365,6 +483,13 @@ def plan(prompt, *, contract=None, intents=(), findings=(), source_root=None, re
     for intent in intents:
         candidates.append({'mode': intent['mode'], 'basis': intent['basis'], 'scope': intent['scope'],
                            'selection': 'grounded_host_candidate_not_admitted', 'operation': by_mode[intent['mode']]})
+    chain_candidates = _chain_candidates(contract, reading, catalog, chain_by_mode, findings)
+    for candidate in chain_candidates:
+        host = next((c for c in candidates if c['mode'] == candidate['mode']), None)
+        if host:
+            candidate['host_intent'] = {key: host[key] for key in ('basis', 'scope', 'selection')}
+    chain_modes = {c['mode'] for c in chain_candidates}
+    candidates = chain_candidates + [c for c in candidates if c['mode'] not in chain_modes]
     from ravel.workflow.intake import (actionable_text, routing_text, handoff_route, requests_discovery,
                                        prospective_significance_request)
     active = actionable_text(routing_text(prompt))
@@ -383,9 +508,6 @@ def plan(prompt, *, contract=None, intents=(), findings=(), source_root=None, re
                                'operation': by_mode[row['mode']]})
     prospective = prospective_significance_request(active)
     forbidden = requests_discovery(active)
-    if reading is None:
-        from ravel.workflow.request_reading import document
-        reading = document(prompt)
     held_by_boundary = contract.get('task_mode') == 'unsupported' and any(
         row['class'] in ('unsupportable_claim', 'inaccessible_input', 'contradiction') for row in reading['boundaries'])
     status = ('claim_boundary' if forbidden or held_by_boundary else
@@ -393,8 +515,7 @@ def plan(prompt, *, contract=None, intents=(), findings=(), source_root=None, re
               'open_parent' if handoff_route(contract, reading) == 'open' else 'draft_route_requires_admission')
     actions = [_action('discover', 'ravel analyses list/show; ravel.workflow.resource_census',
         'Search analysis identities, publication/source resources and tool catalogues across the whole requested scope; empty vocabulary results and outages are not absence.'),
-        _action('retrieve', 'ravel.workflow.hepdata_fetch; ravel.plotting.fetch_figures',
-        'Read public model, likelihood, response, cards, tables, figures and code; record missing or private inputs explicitly.'),
+        _retrieve_action(reading),
         _action('resolve', 'grounded intake --interpretation; current scientific adapter validate/inputs',
         'Resolve the original intent and inspect exact candidate contract/input semantics. A component route does not replace generation, reinterpretation, scan or parent delivery.'),
         _action('reuse-or-adapt', 'ravel analyses assess/adapt; analyze native-construction/routine-build; source-backed model/statistical adapters',

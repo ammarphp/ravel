@@ -1,5 +1,9 @@
 # Step 2 — Inputs  ·  [judgment]  ·  CHECK-IN
 
+Before sending inputs to a model, pin the run's
+[data classification and allowed transport accounts](../reference/provider-policy.md).
+Restricted input pins require an explicit restricted declaration at run start.
+
 Run commands from the repository root in Bash. First run `source native/scripts/paths.sh`;
 this selects the native build and binary paths, including an existing local toolchain.
 `CONDA=$RAVEL_NATIVE_BUILD/tools/miniforge3/bin/conda` — every `$CONDA` below. The metadata
@@ -53,6 +57,9 @@ Decide the analysis routine and the model. Requires physics judgement.
    Take the signal cross section from `ravel xsec` with its order, PDF and scale named, derive branching and
    filter factors with `ravel normalization factors`, and keep them in a normalization ledger
    (`ravel normalization-ledger`). See `docs/reference/models-and-normalization.md`.
+   For a neutral resonance, inspect `ravel lineshape table` for the channel's formula, selection rule
+   or free-width path. Use `ravel lineshape plan` to disclose the selected conventions and total-width
+   source at CHECK-IN 1; `free` declares a total width independent of the couplings.
 3. **Figure target ([judgment]).** Declare WHICH published figure this run reproduces — the figure
    contract (`docs/workflow/checklists/figure-contract.md`). If the requester named it ("reproduce Fig N of
    arXiv:…"), declare directly; else resolve candidates from the HEPData figure index and choose:

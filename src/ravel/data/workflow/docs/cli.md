@@ -36,10 +36,12 @@ another installation if that selected checkout is missing or changed.
 
 ## Discover public analysis routines
 
-These commands read a local routine catalogue: the file `RAVEL_ANALYSIS_CATALOG` names, the one
+These commands read a routine catalogue: the file `RAVEL_ANALYSIS_CATALOG` names, the one
 `ravel catalogue --rivet <checkout> --simpleanalysis <checkout>` builds in your cache from your
-own checkouts, or the one the installer built. Without a catalogue they refuse. They inspect
-metadata and adaptation requirements:
+own checkouts, the one the installer built, or else the snapshot the package ships (pinned Rivet and
+SimpleAnalysis revisions, with the public probability-model index associations). A catalogue named
+by `RAVEL_ANALYSIS_CATALOG` that is absent is refused. They inspect metadata and adaptation
+requirements:
 
 ```sh
 ravel analyses summary
@@ -294,6 +296,20 @@ through this command.
 
 ## Supplied-data scientific studies
 
+`plan --spec` also accepts every scientific-study mode listed in
+[scientific studies](workflow/reference/scientific-studies.md), such as `analyze`,
+`quantities`, `measurement`, `domain`, `eft-toolchain`, `cosmology-solver`, `feyn-graph`
+and `manuscript-build`. The `analyze` task can
+select the typed `analysis-ir` backend, source-bound `routine-build`, or evaluate
+an exactly verified plugin with `rivet-built`;
+the `domain` task can select the bounded fixed-phase-space `model-probe`.
+These use the explicit [scientific-study specification](workflow/reference/scientific-studies.md),
+not a reinterpreted generation or reproduction contract. `approve`, `run` and
+`status --write` share the bounded lifecycle; `run --resume` verifies completed
+outputs without relaunching computation. Requested inputs and code must still
+match their approved hashes. A successful study requires CHECK-IN 2 review before
+any follow-up and does not mark an analysis as physics-validated.
+
 New scientific execution capabilities require the prospective version 2 review
 envelope. The first successful worker remains `awaiting_review`; its computation
 can finish before delivery or reuse is admitted. `science-correct --rundir RUN
@@ -462,7 +478,11 @@ ravel agent-audit build --log .ravel/agent-audit/prompts.jsonl --out audit
 ravel agent-cli answer-graph --graph graph --prepare
 ravel export-submission --request submission-request.json --into ../submission-repo
 ravel export-submission verify --package ../submission-repo/submission --fresh-clone
+ravel conformance check --repo ../my-analysis --rules rules.json --out ../conformance-report.json
 ```
+
+The conformance rule pack is supplied by the requester; see the
+[conformance checklist](workflow/checklists/conformance.md).
 
 ## Diagnose a retained failed stage
 
@@ -507,6 +527,13 @@ requires that root's document and does not fall back to installed bytes.
 Research, skill and historical-evidence links outside this set require their
 original checkout. Instructions grant no approval or scientific acceptance.
 `ravel audit` continues to require a source checkout.
+
+`ravel dataset-query-quantities population --analysis analysis.json` displays the supplied
+analysis population. `ravel dataset-query-quantities context --task task.json --output fresh.json`
+inspects pinned dataset, query, observable and presentation requirements without
+service or scientific-runtime access. Execution uses an ordinary unapproved
+`dataset-query-quantities` specification, approval and the science worker. See
+[the supplied contract](reference/dataset-query-quantities.md).
 
 ## Reconstructed-event analysis
 
@@ -606,13 +633,16 @@ ravel backend handles --rundir RUN        # jobs of a run, with their state
 ravel backend recover --handle DIR        # adopt an interrupted job; never resubmits
 ravel partitions run --rundir RUN --stage parts --spec partitions.json --workdir W --merge  # supervised, approved stage only
 ravel site doctor --profile lxplus --eos-dir /eos/user/a/me/work
+ravel site study-job submit --rundir RUN --account A --partition P --cpus 16 --time 720 -- AGENT ...  # one study per Slurm job
 ravel ntuples resolve --declaration samples.json --out resolved.json
 ravel ntuples normalize --resolved resolved.json --out dataset.json \
   --xsec-db xsec.txt --xsec-descriptor xsec-columns.json --lumi lumi.json --bookkeeper bookkeeper.json
 ```
 
 Run a backend plan through `stage_supervisor --backend-plan`; machine, image and
-launch commands are dry runs until `--execute`. `backend launch --execute` and
+launch commands are dry runs until `--execute`. `ravel site study-job` runs a whole
+study, agent included, inside one Slurm allocation; heavy rungs need the run's
+approval ([batch allocations](reference/batch-allocations.md)). `backend launch --execute` and
 `partitions run` run only as supervised stages of an approved run. Science and
 scoped specifications place their stage with `execution.backend_plan`.
 
@@ -685,10 +715,13 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel feynarts-amplitude` | Prepare FeynArts and FeynCalc amplitude source |
 | `ravel root-stream` | Inspect a site ROOT sample, DSID and weight contract |
 | `ravel site-workflow` | Export prepared studies for a site analysis and WMS profile |
-| `ravel site` | Check Linux analysis-site readiness and print a no-root install plan |
+| `ravel wms adopt`, `adopt-run`, `adopt-status` | Pin an external Snakefile, plan its approved inspection and its supervised run, and show the state of an adoption |
+| `ravel site` | Check Linux analysis-site readiness, print a no-root install plan and run one study per Slurm allocation |
 | `ravel ntuples` | Resolve grid datasets into ROOT members and build MC normalization |
 | `ravel backend` | Inspect execution backends, prepare plans, and follow, recover or cancel backend jobs |
 | `ravel partitions` | Run a stage over a split input population and merge additive outputs |
+| `ravel dataset-query-quantities` | Inspect supplied columnar query requirements |
+| `ravel checkmate-events` | Prepare a CheckMATE study on supplied HepMC2 events |
 | `ravel tree-array-export` | Inspect supplied tree, column and array destination contracts |
 | `ravel parameter-space-sampling` | Inspect supplied EasyScan scan contracts |
 | `ravel sfitter-observed-events` | Acquire event and bin observations and sampling covariance for SFitter |
@@ -697,6 +730,7 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel review` | Open, critique, correct and recheck a physics decision |
 | `ravel judgment` | Dispatch scoped physics review roles and return repairs |
 | `ravel review-context` | Prepare and read role-specific evidence packets |
+| `ravel review-rubric` | Show a review rubric, select it for a run with a pinned overlay, and apply it to a review packet |
 | `ravel failed-review` | Record a failed stage's diagnostic premises |
 | `ravel diagnose` | Evaluate a frozen controlled-experiment contract |
 | `ravel decision-case` | Check an evidence-linked decision graph |
@@ -711,7 +745,11 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel agent-surface` | Install RAVEL's skills, hooks and rules into another project |
 | `ravel agent-cli` | Answer RAVEL model requests with a fresh Claude Code, Codex, Antigravity or Gemini CLI session |
 | `ravel transport` | List, show and probe the declared model transports (`list`, `show <id>`, `probe <id>` or `probe --all`) |
+| `ravel project-instructions` | Pin one project instruction document for a run (`pin`, `repin` by an explicit approval, `show`); every worker and reviewer session of the run receives it |
 | `ravel export-submission` | Write and verify a relocatable submission package of an accepted analysis |
+| `ravel deliver-workspace` | Copy an accepted study's artifacts into a requester-supplied layout with a provenance index, and verify it later (`verify --into WORKSPACE`) |
+| `ravel conformance` | Check a git working tree and declared run records against a requester-supplied rule pack, read-only |
+| `ravel manuscript` | Pin a supplied class bundle without redistribution rights (`bundle`) and prepare source-bound slides from an authenticated note build (`slides`); compilation runs through the supervised manuscript build |
 | `ravel gate` | Host-neutral gate verdict for a run and an action or tool call (hosts without hooks) |
 | `ravel go`, `ravel advance` | Record a native run's CHECK-IN 2 GO or advance its lifecycle stage |
 | `ravel lifecycle check` | Check a run against the lifecycle state machine and invariants |
@@ -724,6 +762,7 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel certify` | Certify acceptance times efficiency against published values |
 | `ravel procedure` | Export or verify a recorded procedure note, worker audit and Snakemake evidence workflow |
 | `ravel env` | Capture a content-addressed environment snapshot or report package/runtime differences |
+| `ravel wms` | Workflow-manager-first projects: `init`, `add` an approved run as a Snakemake rule before it runs, `launch` it through run-step, `status`, `revalidate` a task after a policy change |
 | `ravel knowledge` | Query and check the generated knowledge atlas |
 | `ravel modes` | List, show and retrieve examples for registered science modes |
 | `ravel work` | Seal production work orders (`seal`), show the next ready node (`next`), dispatch its role worker (`dispatch --node`), record a host waiver (`waive`, `host-authored`), pin CHECK-IN 1 work obligations (`pin-obligations`) and adopt exact nonempty role outputs (`adopt`) |

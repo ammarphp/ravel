@@ -51,6 +51,36 @@ per-oracle applicability, independent numerical failures and defined/undefined t
 withholding the producer's aggregate postcondition. Recipes expose executed settings and input hashes;
 the synthesizer can inspect the original frozen proposal and recipe.
 
+## Review rubric for a search analysis
+
+`ravel review-rubric show` prints the `search-analysis-review` rubric: what a review panel checks in a
+new search before it accepts the strategy, the background estimate, the validation, the multivariate
+method, the systematic uncertainties, the sensitivity and the note. Every item states the evidence
+that satisfies it and what counts as a blocking finding.
+
+The analysis declares a review packet (`kind: search-analysis-review-packet`) with one object per
+section: `strategy`, `backgrounds`, `validation`, `multivariate`, `systematics`, `sensitivity` and
+`note`. `ravel review-rubric check --packet PACKET.json` applies the computed items and exits 0 on a
+pass, 1 on a blocking finding and 3 when the result is inconclusive. A blocking item without its
+evidence is an `A` finding that names the item, for example a major background with neither a control
+region nor a cited method. An advisory item is reported and does not block. A packet that lacks a
+whole section is inconclusive, never a pass. Items without a rule are judgment items; the reviewer
+answers them with located evidence.
+
+A run selects its rubric with `ravel review-rubric select --rundir RUN [--overlay OVERLAY.json]`, which
+writes `inputs/review_rubric.json`. Every reviewer packet of that run then carries the merged rubric
+and, for each review subject that is a review packet, the ready check input
+`artifacts/rubric-check-<subject id>.json`. The plan critic, physics critic, skeptical verifier,
+physics decider and integrity auditor run it through the broker with
+`check run review.rubric` on that file. The receipt of the check is evidence a blocking finding cites.
+
+An overlay holds requirements that stay outside the repository. It is a JSON file
+(`kind: review-rubric-overlay`) kept with the requester's private inputs and pinned by the sha256 of
+its bytes; a changed file refuses the reviewer packet. An overlay has two lists. `add` holds new
+items. `tighten` raises an item to blocking, or adds a rule that must hold together with the item's
+own rule. An overlay cannot remove an item, replace a rule or lower a severity. Rules are data, so an
+added item is computed without a code change; `ravel.workflow.review_rubric` lists the rule forms.
+
 ## Prospective declaration
 
 Copy `src/ravel/data/templates/physics_review_policy.json` to `inputs/physics_review_policy.json`

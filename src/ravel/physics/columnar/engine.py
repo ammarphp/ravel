@@ -16,6 +16,7 @@ writes:
   efficiency-map counts and full provenance (input, recipe, descriptor and map hashes and
   the engine source hash);
 - ``event-record.jsonl`` when the recipe asks for one.
+- ``features.npz`` and ``features.json`` for a bounded nominal feature population.
 
 A partition is ``{"inputs": [{"path", "file_index", "entry_start", "entry_stop"}],
 "chunk_size": N}``; ``file_index`` identifies the file within the sample and keys the
@@ -24,6 +25,8 @@ reproducible random numbers used by efficiency selection.
 import hashlib
 import json
 import math
+import os
+import time
 import zlib
 from pathlib import Path
 
@@ -223,6 +226,9 @@ def _empty_variation(plan):
                                 'overflow': [0, 0.0, 0.0], 'outside': [0, 0.0, 0.0], 'undefined': [0, 0.0, 0.0]}
                        for h in plan.histograms},
         'efficiency': {},
+        'event_weights': {s['name']: {'rows': 0, 'axes': {
+            a['name']: {'below': 0, 'above': 0, 'clamped': 0, 'one': 0}
+            for a in plan.maps[s['map']].axes}} for s in plan.event_weights},
         'undefined_observables': {o.name: 0 for o in plan.observables},
     }
 
@@ -230,27 +236,131 @@ def _empty_variation(plan):
 def _weights_for(plan, view, variation_spec):
     w = plan.doc['weights']
     gen_field = w['generator']
-    factors = list(w['factors'])
+    factors = [e for e in plan.weight_entries if e['kind'] == 'event-field']
     if variation_spec is not None and variation_spec['kind'] == 'weight-factor':
-        factors = [variation_spec.get('replace', {}).get(f, f) for f in factors] + list(variation_spec.get('multiply', []))
+        factors = [{**e, 'field': variation_spec.get('replace', {}).get(e['field'], e['field'])} for e in factors]
+        factors += [{'kind': 'event-field', 'field': f} for f in variation_spec.get('multiply', [])]
         gen_field = variation_spec.get('generator', gen_field)
     n = len(view.entries)
     generator = np.ones(n) if gen_field is None else np.asarray(view.event[gen_field], float)
     if not np.all(np.isfinite(generator)):
         raise ValueError(f'event weight {gen_field!r} is missing or not finite in some events')
     product = generator.copy()
-    for f in factors:
+    for factor in factors:
+        f = factor['field']
+        active = _factor_mask(factor, view.event, n)
+        if f not in view.event and factor.get('optional_in_files'):
+            continue
         value = np.asarray(view.event[f], float)
-        if not np.all(np.isfinite(value)):
-            raise ValueError(f'weight factor {f!r} is not finite in some events')
-        product *= value
+        if not np.all(np.isfinite(value[active])):
+            raise ValueError(f'weight factor {f!r} is not finite in some active events')
+        product *= np.where(active, value, 1.0)
+    if not np.isfinite(product).all():
+        raise ValueError('event weight product is not finite')
     return generator, product
 
 
-def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, record):
+def _event_weight_factors(plan, ctx, entries, acc, variation_spec, file_index):
+    """Event-observable corrections, including enumerated reconstruction subsets.
+
+    Diagnostics count evaluated rows (subsets when enumerating); moments below still
+    sum the subsets of each original event before squaring. Generator exposure is
+    unchanged. The event application's policy overrides the map's object policy.
+    """
+    factor = np.ones(ctx.n)
+    for spec in plan.event_weights:
+        key = spec['map']
+        if (variation_spec is not None and variation_spec['kind'] == 'event-weight-map'
+                and variation_spec['weight'] == spec['name']):
+            key = variation_spec['map']
+        emap = plan.maps[key]
+        safe, use_one = [], np.zeros(ctx.n, bool)
+        counts = acc[spec['name']]
+        counts['rows'] += ctx.n
+        for observable, axis, edges in zip(spec['observables'], emap.axes, emap.edges):
+            x = np.broadcast_to(np.asarray(ctx.values[observable], float), (ctx.n,))
+            invalid = ~np.isfinite(x)
+            below, above = x < edges[0], x >= edges[-1]
+            outside = below | above
+            refused = invalid | (outside if spec['out_of_range'] == 'refuse' else False)
+            if refused.any():
+                row = int(np.flatnonzero(refused)[0])
+                raise ValueError(f'event weight {spec["name"]!r}: file_index {file_index}, '
+                                 f'event index {int(entries[row])}, observable {observable!r} '
+                                 f'is undefined or outside [{edges[0]}, {edges[-1]}); '
+                                 f'policy {spec["out_of_range"]}')
+            entry = counts['axes'][axis['name']]
+            entry['below'] += int(below.sum()); entry['above'] += int(above.sum())
+            if spec['out_of_range'] == 'clamp':
+                entry['clamped'] += int(outside.sum())
+            elif spec['out_of_range'] == 'one':
+                entry['one'] += int(outside.sum())
+                use_one |= outside
+            safe.append(np.clip(x, edges[0], np.nextafter(edges[-1], edges[0])))
+        values, _ = emap.lookup(safe)
+        factor *= np.where(use_one, 1.0, values)
+    if not np.isfinite(factor).all():
+        raise ValueError('event weight map product is not finite')
+    return factor
+
+
+def _factor_mask(factor, event, n):
+    condition = factor.get('applies_when')
+    if condition is None:
+        return np.ones(n, bool)
+    periods = np.asarray(event[condition['field']])
+    if not np.isfinite(periods).all():
+        raise ValueError(f'weight period field {condition["field"]!r} is not finite')
+    return np.isin(periods, condition['in'])
+
+
+def _object_weights(plan, view, objects, index):
+    """Evaluate typed collection factors after all object steps and subset replication."""
+    entries = np.asarray(view.entries) if index is None else np.asarray(view.entries)[index]
+    event = view.event if index is None else {k: np.asarray(v)[index] for k, v in view.event.items()}
+    product = np.ones(len(entries))
+    for factor in plan.weight_entries:
+        kind = factor['kind']
+        if kind == 'event-field':
+            continue
+        active = _factor_mask(factor, event, len(entries))
+        obj = objects[factor['objects']][active]
+        if kind == 'object_product':
+            value = obj[factor['field']]
+            bad = ak.to_numpy(ak.any(ak.fill_none(~np.isfinite(value), True), axis=1))
+            if bad.any():
+                raise ValueError(f'object_product: invalid weight at event index {entries[active][np.flatnonzero(bad)[0]]}')
+            factor_value = ak.to_numpy(ak.prod(value, axis=1))
+        elif kind == 'trigger_or_sf':
+            acceptances = []
+            for field in ('data_eff', 'mc_eff'):
+                value = obj[factor[field]]
+                invalid = ak.fill_none((~np.isfinite(value)) | (value < 0) | (value > 1), True)
+                bad = ak.to_numpy(ak.any(invalid, axis=1))
+                if bad.any():
+                    raise ValueError(f'trigger_or_sf: {field} must be in [0, 1] at event index '
+                                     f'{entries[active][np.flatnonzero(bad)[0]]}')
+                # log1p/expm1 preserve small nonzero acceptances that 1-prod rounds to zero.
+                with np.errstate(divide='ignore'):
+                    acceptances.append(-np.expm1(ak.to_numpy(ak.sum(np.log1p(-value), axis=1))))
+            data, mc = acceptances
+            if (mc == 0).any():
+                raise ValueError(f'trigger_or_sf: zero MC denominator at event index '
+                                 f'{entries[active][np.flatnonzero(mc == 0)[0]]}')
+            factor_value = data / mc
+        else:
+            raise ValueError(f'unsupported compiled weight entry kind {kind!r}')
+        product[active] *= factor_value
+    if not np.isfinite(product).all():
+        raise ValueError('object weight product is not finite')
+    return product
+
+
+def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, record,
+                raw_chunk=None, feature_collector=None):
     n = len(view.entries)
     if n == 0:
-        return
+        return {region: np.zeros(0, bool) for region in plan.regions}, np.zeros(0)
     generator, base = _weights_for(plan, view, variation_spec)
     weights = _Weights(n)
     objects = build_objects(plan, view, weights=weights, file_index=file_index, variation=variation_name,
@@ -266,9 +376,15 @@ def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, 
         # Enumerated subsets: counts become expected counts (sums of subset probabilities). The
         # squared weights of the subsets of one event are added as one correlated term below.
         base, met, met_phi = base[index], np.asarray(met)[index], np.asarray(met_phi)[index]
-    w = base * weights.factor
+    w = base * weights.factor * _object_weights(plan, view, objects, index)
+    if not np.isfinite(w).all():
+        raise ValueError('combined event weight is not finite')
     rows_n = len(w)
     ctx = Context(objects, met, met_phi)
+    if raw_chunk is not None:
+        from .features import event_columns
+        branch_variation = variation_spec['variation'] if variation_spec and variation_spec['kind'] == 'branch-variation' else None
+        ctx.event = event_columns(plan, raw_chunk, view, branch_variation)
 
     def count(mask=None):
         if probability is None:
@@ -285,6 +401,8 @@ def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, 
         values = evaluate(obs, ctx)
         undefined = np.isnan(values)
         acc['undefined_observables'][obs.name] += count(np.broadcast_to(undefined, (rows_n,)))
+    entries = view.entries if index is None else view.entries[index]
+    w *= _event_weight_factors(plan, ctx, entries, acc['event_weights'], variation_spec, file_index)
     masks = {}
     everything = np.ones(rows_n, bool)
     for region, cuts in plan.regions.items():
@@ -292,9 +410,14 @@ def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, 
         rows = acc['cutflows'][region]
         rows[0][0] += n; rows[0][1] += float(w.sum()); rows[0][2] += squares(everything)
         for k, (_, cut) in enumerate(cuts):
-            mask &= np.broadcast_to(np.asarray(cut.evaluate_cut(ctx.values), bool), (rows_n,))
+            namespace = ctx.values
+            if getattr(cut, 'uses_event_fields', False):
+                namespace = view.event if index is None else {k: np.asarray(v)[index] for k, v in view.event.items()}
+            mask &= np.broadcast_to(np.asarray(cut.evaluate_cut(namespace), bool), (rows_n,))
             rows[k + 1][0] += count(mask); rows[k + 1][1] += float(w[mask].sum()); rows[k + 1][2] += squares(mask)
         masks[region] = mask
+    if feature_collector is not None:
+        feature_collector.append(ctx.values, ctx.event, w, masks[plan.features['region']])
     for h in plan.histograms:
         _fill(h, acc['histograms'][h.name], [ctx.values[o] for o in h.observables], w, masks[h.region],
               probability=probability, index=index)
@@ -311,6 +434,7 @@ def _accumulate(plan, view, acc, *, file_index, variation_name, variation_spec, 
                 row[name] = None if math.isnan(value) else value
             row['regions'] = [r for r in spec.get('regions', plan.regions) if masks[r][i]]
             record.append(row)
+    return masks, w
 
 
 def _fill(h, store, values, w, mask, *, probability=None, index=None):
@@ -368,7 +492,29 @@ def _fill(h, store, values, w, mask, *, probability=None, index=None):
 
 
 # ---------------------------------------------------------------- public API
-def analyse(partition, plan):
+def analyse(partition, plan, *, skim_dir=None):
+    """Analyse a partition; a skim needs a new directory or RAVEL_OUTPUT_DIR."""
+    from . import skim
+    writer = None
+    if plan.skim is not None:
+        directory = skim_dir or os.environ.get('RAVEL_OUTPUT_DIR')
+        if directory is None:
+            raise ValueError('skim output needs skim_dir or RAVEL_OUTPUT_DIR')
+        writer = skim.Writer(Path(directory) / 'skim', plan)
+    started = time.perf_counter()
+    try:
+        result = _analyse(partition, plan, writer=writer)
+        if writer is not None:
+            result['skims'] = [writer.finish(result['inputs'])]
+        if 'throughput' in result:
+            result['throughput']['wall_seconds'] = time.perf_counter() - started
+        return result
+    finally:
+        if writer is not None:
+            writer.close()
+
+
+def _analyse(partition, plan, *, writer):
     """Additive sums for one partition (see the module docstring)."""
     if not isinstance(partition, dict) or set(partition) - {'inputs', 'chunk_size'} or 'inputs' not in partition:
         raise ValueError('a partition has inputs and chunk_size')
@@ -378,7 +524,10 @@ def analyse(partition, plan):
     variations = {NOMINAL: None, **{s['name']: s for s in plan.systematics}}
     accs = {name: _empty_variation(plan) for name in variations}
     record = [] if plan.record is not None else None
+    from .features import Collector
+    feature_collector = Collector(plan.features) if plan.features else None
     inputs = []
+    bytes_read, columns = 0, set()
     for item in partition['inputs']:
         if not isinstance(item, dict) or set(item) - {'path', 'file_index', 'entry_start', 'entry_stop', 'expected_entries', 'source_checksum'} or 'path' not in item:
             raise ValueError('each partition input has path, file_index and an optional entry range')
@@ -387,6 +536,43 @@ def analyse(partition, plan):
         file_index = item.get('file_index', 0)
         if type(file_index) is not int or file_index < 0:
             raise ValueError('file_index must be a non-negative integer')
+        if not remote and path.suffix.lower() == '.json':
+            from . import skim
+            if any(k in item for k in ('entry_start', 'entry_stop', 'expected_entries', 'source_checksum')):
+                raise ValueError('skim manifest inputs consume the complete pinned population; entry ranges are not supported')
+            source_hash = _sha256(path)
+            document = json.loads(path.read_bytes())
+            source_pins = (document['partitions'] if document.get('kind') == 'columnar-skim-manifest'
+                           else [{'path': str(path), 'sha256': source_hash}])
+            source_ranges = [r for pin in source_pins for i in json.loads(Path(pin['path']).read_bytes())['inputs']
+                             for r in i.get('source_ranges', [i])]
+            count = 0
+            from ravel.validation.event_accounting import moments
+            source_moments = moments([])
+            for chunk_data, entries, original_index in skim.read_manifest(path, plan, chunk):
+                view = plan.descriptor.view(chunk_data)
+                view.entries = entries
+                generator, _ = _weights_for(plan, view, None)
+                observed = moments(generator.tolist())
+                source_moments = {k: math.fsum([source_moments[k], observed[k]]) if k in ('sumw', 'sumw2')
+                                  else source_moments[k] + observed[k] for k in observed}
+                count += len(entries)
+                bytes_read += chunk_data.extra['decoded_bytes_read']
+                columns.update(chunk_data.extra['columns_read'])
+                for name, spec in variations.items():
+                    masks, weight = _accumulate(plan, view, accs[name], file_index=original_index,
+                                                variation_name=name, variation_spec=spec,
+                                                record=record if name == NOMINAL else None, raw_chunk=chunk_data,
+                                                feature_collector=feature_collector if name == NOMINAL else None)
+                    if name == NOMINAL and writer is not None:
+                        writer.append(chunk_data, view, masks[plan.skim['region']], weight, original_index)
+            if _sha256(path) != source_hash:
+                raise ValueError('skim manifest changed during the pass')
+            inputs.append({'path': str(path.resolve()), 'file_index': file_index, 'entry_start': 0,
+                           'entry_stop': count, 'entries_in_file': count, 'sha256': source_hash,
+                           'skim_manifest_sha256': source_hash, 'weight_moments': source_moments,
+                           'source_ranges': source_ranges})
+            continue
         report = plan.descriptor.check_file(path, variations=plan.variations, collections=plan.source_collections,
                                             event_fields=plan.event_fields)
         total = report['entries']
@@ -398,6 +584,8 @@ def analyse(partition, plan):
             raise ValueError(f'{path}: entry range {start}-{stop} is outside its {total} entries')
         entry = {'path': path if remote else str(path.resolve()), 'file_index': file_index, 'entry_start': start, 'entry_stop': stop,
                  'entries_in_file': total}
+        if 'optional_weights_missing' in report:
+            entry['optional_weights_missing'] = report['optional_weights_missing']
         if 'source_checksum' in item:
             checksum = item['source_checksum']; entry['source_checksum'] = checksum
             if not remote:
@@ -412,13 +600,25 @@ def analyse(partition, plan):
                 if value != checksum['value']:
                     raise ValueError('dataset member checksum differs from original membership')
             entry['checksum_verified'] = not remote
-        if start == 0 and not remote:
+        if (start == 0 or writer is not None or feature_collector is not None) and not remote:
             entry['sha256'] = _sha256(path)
+        if writer is not None and remote and not item.get('source_checksum'):
+            raise ValueError('remote skim input requires a declared source_checksum pin')
+        if feature_collector is not None and remote and not item.get('source_checksum'):
+            raise ValueError('remote feature input requires a declared source_checksum pin')
         from ravel.validation.event_accounting import moments
         entry['weight_moments'] = moments([])
         inputs.append(entry)
-        for chunk_data in plan.descriptor.read(path, collections=plan.source_collections, event_fields=plan.event_fields,
-                                                step=chunk, entry_start=start, entry_stop=stop, variations=plan.variations):
+        if writer is not None:
+            from .skim import source_chunks
+            chunks = source_chunks(path, plan, step=chunk, entry_start=start, entry_stop=stop)
+        else:
+            chunks = plan.descriptor.read(path, collections=plan.source_collections, event_fields=plan.event_fields,
+                                          step=chunk, entry_start=start, entry_stop=stop, variations=plan.variations)
+        for chunk_data in chunks:
+            if plan.descriptor.format == 'root':
+                bytes_read += sum(a.nbytes for a in chunk_data.arrays.values())
+                columns.update(chunk_data.arrays)
             for name, spec in variations.items():
                 branch_variation = spec['variation'] if spec is not None and spec['kind'] == 'branch-variation' else None
                 view = plan.descriptor.view(chunk_data, variation=branch_variation)
@@ -427,11 +627,23 @@ def analyse(partition, plan):
                     observed = moments(generator.tolist())
                     entry['weight_moments'] = {k: math.fsum([entry['weight_moments'][k], observed[k]])
                         if k in ('sumw', 'sumw2') else entry['weight_moments'][k] + observed[k] for k in observed}
-                _accumulate(plan, view, accs[name], file_index=file_index, variation_name=name, variation_spec=spec,
-                            record=record if name == NOMINAL else None)
-    return {'schema_version': SCHEMA, 'kind': 'columnar-partial', 'plan_identity': plan.identity,
+                masks, weight = _accumulate(plan, view, accs[name], file_index=file_index, variation_name=name,
+                                            variation_spec=spec, record=record if name == NOMINAL else None,
+                                            raw_chunk=chunk_data,
+                                            feature_collector=feature_collector if name == NOMINAL else None)
+                if name == NOMINAL and writer is not None:
+                    writer.append(chunk_data, view, masks[plan.skim['region']], weight, file_index)
+        if (writer is not None or feature_collector is not None) and not remote and _sha256(path) != entry['sha256']:
+            raise ValueError('columnar source checksum changed during the pass')
+    result = {'schema_version': SCHEMA, 'kind': 'columnar-partial', 'plan_identity': plan.identity,
             'recipe_sha256': plan.recipe_sha256, 'inputs': inputs, 'variations': accs,
             'event_record': record, 'event_record_limit': None if plan.record is None else plan.record['max_events']}
+    if feature_collector is not None:
+        result['features'] = feature_collector.partial()
+    if plan.descriptor.format == 'root':
+        result['throughput'] = {'entries': accs[NOMINAL]['events']['n'], 'bytes_read': bytes_read,
+                                'byte_basis': 'decoded-column-bytes', 'columns_read': sorted(columns)}
+    return result
 
 
 def _sum(a, b, label):
@@ -479,9 +691,27 @@ def merge(partials):
     if first.get('event_record') is not None:
         rows = sorted((r for p in partials for r in p['event_record']), key=lambda r: (r['file_index'], r['entry']))
         record = rows[:limit]
-    return {'schema_version': SCHEMA, 'kind': 'columnar-partial', 'plan_identity': first['plan_identity'],
+    result = {'schema_version': SCHEMA, 'kind': 'columnar-partial', 'plan_identity': first['plan_identity'],
             'recipe_sha256': first['recipe_sha256'], 'inputs': inputs, 'variations': variations, 'event_record': record,
             'event_record_limit': limit}
+    pins = [pin for p in partials for pin in p.get('skims', [])]
+    if any('features' in p for p in partials):
+        from .features import merge as merge_features
+        if not all('features' in p for p in partials):
+            raise ValueError('every feature partial must carry a population')
+        result['features'] = merge_features(p['features'] for p in partials)
+    if pins:
+        from .skim import merge as merge_skims, validate_partition
+        for p in partials:
+            if not p.get('skims'):
+                raise ValueError('every skim partial must carry partition custody pins')
+            custody_inputs = [i for pin in p['skims'] for i in validate_partition(pin)['inputs']]
+            key = lambda i: json.dumps(i, sort_keys=True)
+            if sorted(custody_inputs, key=key) != sorted(p['inputs'], key=key):
+                raise ValueError('skim custody inputs differ from partial inputs')
+        result['skim_manifest'] = merge_skims(pins)
+        result['skims'] = pins
+    return result
 
 
 # ---------------------------------------------------------------- normalisation
@@ -491,6 +721,11 @@ def _coverage(inputs):
         files.setdefault((item['path'], item['file_index']), {'entries': item['entries_in_file'], 'ranges': [], 'sha256': None})
         f = files[(item['path'], item['file_index'])]
         f['ranges'].append((item['entry_start'], item['entry_stop']))
+        if 'optional_weights_missing' in item:
+            missing = item['optional_weights_missing']
+            if 'optional_weights_missing' in f and f['optional_weights_missing'] != missing:
+                raise ValueError('optional weight availability differs between partitions of one file')
+            f['optional_weights_missing'] = missing
         if 'sha256' in item:
             f['sha256'] = item['sha256']
         if 'source_checksum' in item:
@@ -505,7 +740,7 @@ def _coverage(inputs):
         complete = covered == f['entries'] and ranges[0][0] == 0 and all(b1 == a2 for (_, b1), (a2, _) in zip(ranges, ranges[1:]))
         out.append({'path': path, 'file_index': index, 'entries_in_file': f['entries'], 'entries_read': covered,
                     'complete': complete, 'sha256': f['sha256'],
-                    **{key: f[key] for key in ('source_checksum', 'checksum_verified') if key in f}})
+                    **{key: f[key] for key in ('source_checksum', 'checksum_verified', 'optional_weights_missing') if key in f}})
     return out
 
 
@@ -617,6 +852,8 @@ def resolve_normalization(spec, merged, plan, *, input_files=None, base=None, va
            'factor': spec.get('factor'), 'coverage': coverage, 'unit': 'events'}
 
     def complete_or_refuse():
+        if any('skim_manifest_sha256' in item for item in merged['inputs']):
+            raise ValueError('normalization of skim inputs requires an explicit original-population denominator')
         missing = [c for c in coverage if not c['complete']]
         if missing:
             raise ValueError(f'normalisation by all input events needs every entry of every file; {missing[0]["path"]} '
@@ -790,6 +1027,15 @@ def finalize(merged, plan, normalization, *, out_dir, input_files=None, base=Non
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=False)
     files = []
+    if plan.features is not None:
+        from .features import write as write_features
+        if 'features' not in merged or merged['features']['spec'] != plan.features:
+            raise ValueError('feature partial does not match the compiled recipe')
+        for path in write_features(merged['features'], out_dir, inputs=merged['inputs'], recipe_sha256=plan.recipe_sha256):
+            files.append({'path': path.name, 'sha256': _sha256(path), 'size': path.stat().st_size})
+    if merged.get('skims'):
+        from .skim import merge as merge_skims
+        _write(out_dir / 'skim-manifest.json', merge_skims(merged['skims']), files, out_dir)
     norms = {}
     for name in merged['variations']:
         spec = next((s for s in plan.systematics if s['name'] == name), None)
@@ -846,6 +1092,7 @@ def finalize(merged, plan, normalization, *, out_dir, input_files=None, base=Non
         'events': merged['variations'][NOMINAL]['events'],
         'cutflows': regions_out, 'histograms': histograms,
         'efficiency': {k: v['efficiency'] for k, v in merged['variations'].items()},
+        'event_weights': {k: v['event_weights'] for k, v in merged['variations'].items()},
         'undefined_observables': merged['variations'][NOMINAL]['undefined_observables'],
         'systematics': plan.systematics, 'provenance': provenance, 'files': files,
         'physics_validated': False,

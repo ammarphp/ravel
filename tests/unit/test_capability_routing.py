@@ -337,3 +337,31 @@ def test_host_does_not_read_unpresented_finding_evidence(tmp_path):
     with pytest.raises(agent_host.HostFailure, match='explicit graph input'):
         agent_host.AgentHost().execute(node, request, control)
     assert not control.calls
+
+
+@pytest.mark.parametrize('policy_kind', ['forbidden-source', 'no-value-extraction', 'blinded', 'blinded-data'])
+def test_restricted_retrieval_uses_shared_source_policy(policy_kind):
+    from ravel.workflow.request_reading import document
+    from ravel.workflow.source_policy import from_reading
+    prompt = 'Predict binned signal yields for a 700 GeV chargino and fill the attached template.'
+    reading = document(prompt)
+    reading['source_restrictions'] = [{'kind': policy_kind, 'classes': ['tables'],
+                                      'statement': 'Synthetic source restriction.', 'evidence': []}]
+    result = cr.plan(prompt, reading=reading)
+    assert all('hepdata_fetch' not in a['tool'] and 'fetch_figures' not in a['tool']
+               for a in result['next_actions'])
+    action = next(a for a in result['next_actions'] if a['stage'] == 'retrieve')
+    assert action['source_restrictions'] == from_reading(reading)
+    assert action['restricted_tools'] == ['ravel.workflow.hepdata_fetch', 'ravel.plotting.fetch_figures']
+    assert 'metadata' in action['purpose'] and 'policy' in action['public_metadata']
+    assert not action['compute_authorized']
+
+
+def test_unrestricted_retrieval_is_unchanged():
+    result = cr.plan('Compute the supplied ratio.')
+    action = next(a for a in result['next_actions'] if a['stage'] == 'retrieve')
+    assert action == {
+        'stage': 'retrieve', 'tool': 'ravel.workflow.hepdata_fetch; ravel.plotting.fetch_figures',
+        'purpose': 'Read public model, likelihood, response, cards, tables, figures and code; record missing or private inputs explicitly.',
+        'compute_authorized': False,
+    }

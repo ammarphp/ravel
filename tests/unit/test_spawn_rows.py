@@ -83,7 +83,7 @@ def test_registered_provider_holds_candidate_launch(tmp_path):
 
 def test_data_catalogue_has_closed_row_identities():
     value = module().catalogue()
-    assert {row['row'] for row in value['rows']} == {'K1', 'K4', 'K5', 'K6', 'K7', 'K7S', 'K8', 'K10', 'K11'}
+    assert {row['row'] for row in value['rows']} == {'K1', 'K4', 'K5', 'K6', 'K7', 'K7S', 'K8', 'K10', 'K11', 'KH1', 'KH2', 'KH3'}
     assert len({row['row'] for row in value['rows']}) == len(value['rows'])
 
 
@@ -107,10 +107,14 @@ def test_candidate_receipts_require_multiple_families_and_custody(tmp_path):
                'sha256': hashlib.sha256(final.read_bytes()).hexdigest()},
                'execution_mode': 'transport_attested_cli',
                'review_subject': review_points.review_subject(facts, point)}
+        # The dispatcher assigns each worker session its actor at spawn and registers it with the receipt.
+        rec['actor_id'] = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + str(index), f'{index}/1')['actor_id']
         path = work / 'receipt.json'; path.write_text(json.dumps(rec))
     assert any(p['id'] == point['id'] for p in module().pending(tmp_path))
     for path in (tmp_path / 'agent-work').glob('*/*/receipt.json'):
-        rdj_custody.register_worker_receipt(tmp_path, path.relative_to(tmp_path).as_posix(), verified_label='transport_attested')
+        index = path.parent.parent.name
+        rdj_custody.register_worker_receipt(tmp_path, path.relative_to(tmp_path).as_posix(), verified_label='transport_attested',
+                                            actor=rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + index, f'{index}/1'))
     assert any(p['id'] == point['id'] for p in module().pending(tmp_path))
 
 

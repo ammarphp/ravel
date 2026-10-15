@@ -10,6 +10,9 @@ value (NaN); a cut that uses it fails and a histogram counts it as undefined.
 Operations:
 
 - ``count`` (collection), ``field`` (object, field), ``met``, ``met_phi``;
+- ``met_override`` (base: ``met`` or an earlier override, add_invisible: collections):
+  a named transverse vector; its scalar value is its magnitude. ``met``, ``met_phi``,
+  ``mt`` and ``min_delta_phi_met`` accept a ``met`` name; ``delta_phi`` accepts it as a/b;
 - ``scalar_sum`` and ``vector_sum_pt`` (collections, max_objects, include_met), which give
   H_T, S_T, m_eff and photon sums such as S_T^gamma and H_T^gamma;
 - ``mass`` (objects: references or ``{"collection", "max_objects", "min_objects"}``);
@@ -25,7 +28,9 @@ Operations:
 - ``modified_topness`` (lepton, candidates, max_objects, w_mass, top_mass, w_resolution,
   top_resolution, source, floor);
 - ``neutrino_pz`` (lepton, w_mass, source), ``aplanarity`` (collections, max_objects);
-- ``expr`` (an expression over earlier observables).
+- ``expr`` (an expression over earlier observables);
+- ``model_score`` (pinned frozen model, ordered earlier features, group_id and an
+  optional region observable), restricted to the model's held-out groups.
 """
 import re
 from dataclasses import dataclass
@@ -51,6 +56,7 @@ class Observable:
     label: object
     only_if: object
     expression: object = None
+    model: object = None
 
 
 def _keys(spec, required, optional, label):
@@ -92,12 +98,19 @@ def _mass_param(spec, key, label):
         raise ValueError(f'{label}: {key} must be a non-negative number')
 
 
-def compile_observable(spec, *, fields, previous, label):
+def compile_observable(spec, *, fields, previous, label, met_names=None, base=None, event_fields=()):
     if not isinstance(spec, dict) or not isinstance(spec.get('name'), str) or not NAME.match(spec['name']):
         raise ValueError(f'{label}: name must be letters, digits and _ (it is used in expressions)')
     label = f'{label} {spec["name"]!r}'
     op = spec.get('op')
     expression = None
+    met_names = {'met'} if met_names is None else met_names
+
+    def met_name(value):
+        if not isinstance(value, str) or value not in met_names:
+            raise ValueError(f'{label}: unknown missing momentum {value!r}; use met or an earlier met_override')
+
+    model = None
     if op == 'count':
         _keys(spec, ('collection',), (), label); _collection(spec['collection'], fields, label)
     elif op == 'field':
@@ -106,7 +119,19 @@ def compile_observable(spec, *, fields, previous, label):
         if spec['field'] not in fields[name]:
             raise ValueError(f'{label}: object {name!r} has no field {spec["field"]!r}')
     elif op in ('met', 'met_phi'):
-        _keys(spec, (), (), label)
+        _keys(spec, (), ('met',), label)
+        met_name(spec.get('met', 'met'))
+    elif op == 'met_override':
+        _keys(spec, ('base', 'add_invisible'), (), label)
+        if spec['name'] == 'met':
+            raise ValueError(f'{label}: met is reserved for the input missing momentum')
+        met_name(spec['base'])
+        if not isinstance(spec['add_invisible'], list) or not spec['add_invisible']:
+            raise ValueError(f'{label}: add_invisible must be a nonempty list of selected collections')
+        for name in spec['add_invisible']:
+            _collection(name, fields, label)
+        if len(set(spec['add_invisible'])) != len(spec['add_invisible']):
+            raise ValueError(f'{label}: add_invisible collections must be distinct')
     elif op in ('scalar_sum', 'vector_sum_pt'):
         _keys(spec, ('collections',), ('max_objects', 'include_met'), label)
         if not isinstance(spec['collections'], list) or not spec['collections']:
@@ -132,7 +157,8 @@ def compile_observable(spec, *, fields, previous, label):
             else:
                 _ref(item, fields, label)
     elif op == 'mt':
-        _keys(spec, (), ('object', 'objects', 'massless'), label)
+        _keys(spec, (), ('object', 'objects', 'massless', 'met'), label)
+        met_name(spec.get('met', 'met'))
         refs = [spec['object']] if 'object' in spec else spec.get('objects')
         if not isinstance(refs, list) or not refs or ('object' in spec and 'objects' in spec):
             raise ValueError(f'{label}: give object or objects')
@@ -143,11 +169,12 @@ def compile_observable(spec, *, fields, previous, label):
     elif op in ('delta_phi', 'delta_r', 'delta_eta'):
         _keys(spec, ('a', 'b'), (), label)
         for k in ('a', 'b'):
-            if spec[k] == 'met' and op == 'delta_phi':
+            if isinstance(spec[k], str) and spec[k] in met_names and op == 'delta_phi':
                 continue
             _ref(spec[k], fields, label)
     elif op == 'min_delta_phi_met':
-        _keys(spec, ('collection',), ('max_objects',), label); _collection(spec['collection'], fields, label)
+        _keys(spec, ('collection',), ('max_objects', 'met'), label); _collection(spec['collection'], fields, label)
+        met_name(spec.get('met', 'met'))
         if 'max_objects' in spec:
             _positive_int(spec['max_objects'], f'{label} max_objects')
     elif op in ('ossf_pair_mass', 'pair_mass'):
@@ -215,6 +242,17 @@ def compile_observable(spec, *, fields, previous, label):
             _collection(c, fields, label)
         if 'max_objects' in spec:
             _positive_int(spec['max_objects'], f'{label} max_objects')
+    elif op == 'model_score':
+        _keys(spec, ('model', 'features', 'group_id'), ('region',), label)
+        features = spec['features']
+        if not isinstance(features, list) or not features or any(not isinstance(n, str) or n not in previous for n in features) or len(set(features)) != len(features):
+            raise ValueError(f'{label}: model features must name unique earlier observables')
+        if not isinstance(spec['group_id'], str) or spec['group_id'] not in event_fields:
+            raise ValueError(f'{label}: group_id must name a declared event field')
+        if 'region' in spec and (not isinstance(spec['region'], str) or spec['region'] not in previous):
+            raise ValueError(f'{label}: region must name an earlier observable')
+        from .features import FrozenModel
+        model = FrozenModel(spec['model'], features, base)
     elif op == 'expr':
         _keys(spec, ('expr',), (), label)
         expression = compile_expression(spec['expr'], allowed=previous)
@@ -230,7 +268,7 @@ def compile_observable(spec, *, fields, previous, label):
     if lab is not None:
         from .recipe import natural_label
         natural_label(lab, f'{label} label')
-    return Observable(spec['name'], op, dict(spec), unit, lab, only_if, expression)
+    return Observable(spec['name'], op, dict(spec), unit, lab, only_if, expression, model)
 
 
 # ---------------------------------------------------------------- evaluation
@@ -241,6 +279,8 @@ class Context:
         self.objects, self.met, self.met_phi = objects, np.asarray(met, float), np.asarray(met_phi, float)
         self.n = len(self.met)
         self.values = {}
+        self.missing = {}
+        self.event = {}
 
     def padded(self, name, count, attribute):
         array = self.objects[name][attribute]
@@ -257,8 +297,16 @@ class Context:
         cols = [self.padded(name, count, f) for f in ('pt', 'eta', 'phi', 'mass')]
         return np.stack(kin.p4(*cols), axis=2)
 
-    def met_vector(self):
+    def met_vector(self, name='met'):
+        if name != 'met':
+            return self.missing[name]
         return np.stack([self.met * np.cos(self.met_phi), self.met * np.sin(self.met_phi)], axis=1)
+
+    def met_polar(self, name='met'):
+        if name == 'met':
+            return self.met, self.met_phi
+        vector = self.met_vector(name)
+        return np.hypot(vector[:, 0], vector[:, 1]), np.arctan2(vector[:, 1], vector[:, 0])
 
 
 def _parse(ref):
@@ -331,15 +379,26 @@ def pair_selection(ctx, name, *, rule, target=None, ossf=False, max_objects=None
 def compute(obs, ctx):
     s = obs.spec
     op = obs.op
+    if op == 'model_score':
+        return obs.model.predict(np.column_stack([ctx.values[n] for n in s['features']]),
+                                 ctx.event[s['group_id']], ctx.values.get(s.get('region')))
     if op == 'count':
         return ak.to_numpy(ak.num(ctx.objects[s['collection']], axis=1)).astype(float)
     if op == 'field':
         name, index = _parse(s['object'])
         return ctx.padded(name, index + 1, s['field'])[:, index]
     if op == 'met':
-        return ctx.met.copy()
+        return ctx.met_polar(s.get('met', 'met'))[0].copy()
     if op == 'met_phi':
-        return ctx.met_phi.copy()
+        return ctx.met_polar(s.get('met', 'met'))[1].copy()
+    if op == 'met_override':
+        vector = ctx.met_vector(s['base']).copy()
+        for name in s['add_invisible']:
+            obj = ctx.objects[name]
+            vector[:, 0] += ak.to_numpy(ak.sum(obj.pt * np.cos(obj.phi), axis=1))
+            vector[:, 1] += ak.to_numpy(ak.sum(obj.pt * np.sin(obj.phi), axis=1))
+        ctx.missing[obs.name] = vector
+        return np.hypot(vector[:, 0], vector[:, 1])
     if op in ('scalar_sum', 'vector_sum_pt'):
         k = s.get('max_objects')
         sx = np.zeros(ctx.n); sy = np.zeros(ctx.n); st = np.zeros(ctx.n)
@@ -370,11 +429,12 @@ def compute(obs, ctx):
         refs = [s['object']] if 'object' in s else s['objects']
         v = _group(ctx, refs)
         pt, _, phi, mass = kin.from_cartesian(*v.T)
-        return kin.mt(pt, phi, mass, ctx.met, ctx.met_phi, massless=s.get('massless', True))
+        met, met_phi = ctx.met_polar(s.get('met', 'met'))
+        return kin.mt(pt, phi, mass, met, met_phi, massless=s.get('massless', True))
     if op in ('delta_phi', 'delta_r', 'delta_eta'):
         def angles(ref):
-            if ref == 'met':
-                return np.full(ctx.n, np.nan), ctx.met_phi
+            if ref == 'met' or ref in ctx.missing:
+                return np.full(ctx.n, np.nan), ctx.met_polar(ref)[1]
             name, index = _parse(ref)
             return ctx.padded(name, index + 1, 'eta')[:, index], ctx.padded(name, index + 1, 'phi')[:, index]
         ea, pa = angles(s['a']); eb, pb = angles(s['b'])
@@ -387,7 +447,7 @@ def compute(obs, ctx):
         obj = ctx.objects[s['collection']]
         if 'max_objects' in s:
             obj = obj[:, :s['max_objects']]
-        d = kin.delta_phi(obj.phi, ctx.met_phi)
+        d = kin.delta_phi(obj.phi, ctx.met_polar(s.get('met', 'met'))[1])
         return ak.to_numpy(ak.fill_none(ak.min(d, axis=1), np.nan)).astype(float)
     if op in ('ossf_pair_mass', 'pair_mass'):
         _, _, mass = pair_selection(ctx, s['collection'], rule=s['choose'], target=s.get('target_mass'),
@@ -494,10 +554,16 @@ def evaluate(obs, ctx):
         keep = obs.only_if.evaluate_cut(ctx.values)
         keep = np.broadcast_to(np.asarray(keep, bool), (ctx.n,))
         values = np.full(ctx.n, np.nan)
+        if obs.op == 'met_override':
+            ctx.missing[obs.name] = np.full((ctx.n, 2), np.nan)
         if keep.any():
             sub = Context({k: v[keep] for k, v in ctx.objects.items()}, ctx.met[keep], ctx.met_phi[keep])
             sub.values = {k: v[keep] for k, v in ctx.values.items()}
+            sub.missing = {k: v[keep] for k, v in ctx.missing.items()}
+            sub.event = {k: v[keep] for k, v in ctx.event.items()}
             values[keep] = compute(obs, sub)
+            if obs.op == 'met_override':
+                ctx.missing[obs.name][keep] = sub.missing[obs.name]
     else:
         values = np.asarray(compute(obs, ctx), float)
     ctx.values[obs.name] = values

@@ -1,0 +1,29 @@
+{
+ "files": {
+  "analysis": "routine.cc",
+  "correlators": "Correlators-4.1.3.hh",
+  "reference": "reference.yoda.gz",
+  "writer": "WriterYODA.cc",
+  "scatter": "YODA-Scatter.h",
+  "point": "YODA-Point.h",
+  "profile": "YODA-Profile.h",
+  "dbn": "YODA-BinnedDbn.h",
+  "storage": "YODA-BinnedStorage.h",
+  "binning": "YODA-Binning.h",
+  "type_ids": "YODA-Utils-BinningUtils.h",
+  "correlator_projection": "Correlators-4.1.3.cc",
+  "analysis_booking": "Rivet-Analysis-4.1.3.hh",
+  "estimate_geometry": "YODA-BinnedEstimate.h",
+  "writer_precision": "YODA-Writer.h"
+ },
+ "origins": {
+  "analysis": "Released Rivet 4.1.4 routine source, byte-for-byte",
+  "reference": "Released Rivet 4.1.4 reference YODA, byte-for-byte",
+  "correlators": "Rivet git tag rivet-4.1.3: include/Rivet/Tools/Correlators.hh (equal to the installed 4.1.3 header)",
+  "correlator_projection": "Rivet git tag rivet-4.1.3: src/Tools/Correlators.cc",
+  "analysis_booking": "Rivet 4.1.3 installed include/Rivet/Analysis.hh",
+  "writer": "https://gitlab.com/hepcedar/yoda/-/raw/yoda-2.1.3/src/WriterYODA.cc",
+  "yoda_headers": "YODA 2.1.3 installed include/YODA"
+ },
+ "purpose": "Released primary source/format evidence, not a generated native output or runtime qualification."
+}

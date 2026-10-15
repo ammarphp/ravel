@@ -19,6 +19,66 @@ AUX_PREFIX = "__ravel_aux_"
 MAX_BINS, MAX_COMPONENTS, MAX_PARAMETERS = 64, 64, 24
 
 
+def abcd_estimate(spec):
+    """Independent-sideband B*C/D estimate with declared delta/lognormal treatment.
+
+    This is an external estimate, not a simultaneous four-region Poisson model.
+    Closure uses the phi correlation of two binary selections on unweighted MC.
+    """
+    import numpy as np
+    from scipy.stats import fisher_exact
+    if type(spec) is not dict or set(spec) != {'background', 'controls', 'independent', 'uncertainty_treatment', 'closure'}:
+        raise ValueError('abcd needs background, controls, independent, uncertainty_treatment and closure')
+    if type(spec['background']) is not str or not spec['background'].strip():
+        raise ValueError('abcd background must name a sample')
+    if spec['independent'] is not True or spec['uncertainty_treatment'] != 'independent-delta-lognormal':
+        raise ValueError('abcd requires independent sidebands and independent-delta-lognormal treatment')
+    controls = spec['controls']
+    if type(controls) is not dict or set(controls) != {'B', 'C', 'D'}:
+        raise ValueError('abcd controls must contain B, C and D')
+    yields, variances = {}, {}
+    identities = []
+    for name, row in controls.items():
+        if type(row) is not dict or set(row) != {'yield', 'sumw2', 'observation_id'}:
+            raise ValueError('abcd controls need yield, sumw2 and observation_id')
+        v, w = row['yield'], row['sumw2']
+        if type(v) not in (int, float) or not math.isfinite(v) or v <= 0:
+            raise ValueError('abcd sideband yields must be positive finite numbers')
+        if type(w) not in (int, float) or not math.isfinite(w) or w < 0:
+            raise ValueError('abcd sideband sumw2 must be finite and nonnegative')
+        _text(row['observation_id'], 'abcd observation identity')
+        identities.append(row['observation_id'])
+        yields[name], variances[name] = float(v), float(w)
+    if len(set(identities)) != 3:
+        raise ValueError('abcd sidebands must have distinct observation identities')
+    closure = spec['closure']
+    if type(closure) is not dict or set(closure) != {'x_pass', 'y_pass', 'max_abs_correlation'}:
+        raise ValueError('abcd closure needs x_pass, y_pass and max_abs_correlation')
+    x, y = closure['x_pass'], closure['y_pass']
+    if (type(x) is not list or type(y) is not list or len(x) != len(y) or len(x) < 4
+            or any(v not in (0, 1) or type(v) not in (bool, int, float) for v in x + y)):
+        raise ValueError('abcd closure needs paired unweighted binary simulated events')
+    threshold = closure['max_abs_correlation']
+    if type(threshold) not in (int, float) or not math.isfinite(threshold) or not 0 <= threshold < 1:
+        raise ValueError('abcd closure correlation threshold must be in [0, 1)')
+    x, y = np.asarray(x, int), np.asarray(y, int)
+    if np.std(x) == 0 or np.std(y) == 0:
+        raise ValueError('abcd closure has a constant selection; correlation is undefined')
+    counts = [[int(np.sum((x == i) & (y == j))) for j in (0, 1)] for i in (0, 1)]
+    rho = float(np.corrcoef(x, y)[0, 1])
+    prediction = yields['B'] * yields['C'] / yields['D']
+    relative_variance = sum(variances[k] / yields[k] ** 2 for k in yields)
+    if not math.isfinite(prediction) or not math.isfinite(relative_variance):
+        raise ValueError('abcd estimate overflow')
+    return {'background': spec['background'], 'prediction': prediction,
+            'relative_variance': relative_variance, 'sigma': prediction * math.sqrt(relative_variance),
+            'controls': deepcopy(controls), 'uncertainty_treatment': spec['uncertainty_treatment'],
+            'closure': {'data_description': 'simulated unweighted events', 'events': len(x),
+                        'quadrant_counts': counts, 'correlation': rho,
+                        'p_value': float(fisher_exact(counts).pvalue), 'max_abs_correlation': threshold,
+                        'status': 'flagged' if abs(rho) > threshold else 'passed'}}
+
+
 def _load_bytes(raw):
     from ravel.workflow.state_io import _unique as unique_json
     if len(raw) > 8 * 1024 * 1024:

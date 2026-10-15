@@ -1,0 +1,827 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "higgstools",
+      "title": "HiggsTools",
+      "installer_groups": [
+        "higgstools"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-python"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-prefix"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hbdataset"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hsdataset"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "hbdataset",
+      "title": "HBDataSet",
+      "installer_groups": [
+        "higgstools"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-python"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-prefix"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hbdataset"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hsdataset"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "hsdataset",
+      "title": "HSDataSet",
+      "installer_groups": [
+        "higgstools"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-python"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "higgstools-prefix"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hbdataset"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgstools",
+          "check": "hsdataset"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "lilith",
+      "title": "Lilith",
+      "installer_groups": [
+        "lilith"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "lilith",
+          "check": "lilith-python"
+        },
+        {
+          "kind": "manifest",
+          "group": "lilith",
+          "check": "lilith-database"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "hdecay",
+      "title": "HDECAY",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "ehdecay",
+      "title": "eHDECAY",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "2hdecay",
+      "title": "2HDECAY",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "shdecay",
+      "title": "sHDECAY",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "n2hdecay",
+      "title": "N2HDECAY",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "prophecy4f",
+      "title": "Prophecy4f",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "ehdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "shdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "n2hdecay"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "prophecy4f"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-decays",
+          "check": "2hdecay-driver"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "2hdmc",
+      "title": "2HDMC",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "2hdmc"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "scanners"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "gmcalc"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "scanners",
+      "title": "ScannerS",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "2hdmc"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "scanners"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "gmcalc"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "gmcalc",
+      "title": "GMCALC",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "2hdmc"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "scanners"
+        },
+        {
+          "kind": "manifest",
+          "group": "two-hdm",
+          "check": "gmcalc"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "sushi",
+      "title": "SusHi",
+      "installer_groups": [
+        "sushi"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "sushi",
+          "check": "sushi"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "two-doublet-nlo",
+      "title": "two-doublet-nlo",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "two-doublet-pseudoscalar",
+      "title": "two-doublet-pseudoscalar",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "custodial-triplet",
+      "title": "custodial-triplet",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "type-two-seesaw",
+      "title": "type-two-seesaw",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "real-triplet",
+      "title": "real-triplet",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "smeftsim",
+      "title": "smeftsim",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "smeft-nlo",
+      "title": "smeft-nlo",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-nlo"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-two-doublet-pseudoscalar"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-custodial-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-type-two-seesaw"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-real-triplet"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeftsim"
+        },
+        {
+          "kind": "manifest",
+          "group": "higgs-models",
+          "check": "ufo-smeft-nlo"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    },
+    {
+      "id": "hepfit",
+      "title": "HEPfit",
+      "installer_groups": [
+        "hepfit"
+      ],
+      "doctor_checks": [
+        {
+          "kind": "manifest",
+          "group": "hepfit",
+          "check": "hepfit-image"
+        }
+      ],
+      "qualification": "not-built",
+      "notes": "Pinned-source installation and reference qualification pending."
+    }
+  ]
+}

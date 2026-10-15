@@ -2,16 +2,20 @@
 
 The supplied ntuple format defines MeV units, aligned unsorted objects,
 baseline-only stored OR and best-effort SFs. A recipe is a declared analysis,
-not task closure. No container, period or branch table is built in: which
+not task closure. No container, period or branch table is built in code: which
 branches exist and what they mean come from the supplied branch schema and an
-optional supplied ``branch_roles`` descriptor (see :func:`branch_roles`).
+optional ``branch_roles`` descriptor (see :func:`branch_roles`), supplied inline or
+named from the packaged descriptor library (:func:`library_roles`).
 """
 from copy import deepcopy
+import json
 import math
+from pathlib import Path
 import re
 
 SELECTIONS = ('baseline', 'signal', 'stored')
-ROLE_KEYS = ('schema_version', 'kind', 'name', 'source', 'branches', 'families', 'periods', 'period_scoped_weights')
+LIBRARY = Path(__file__).resolve().parents[1] / 'data' / 'columnar' / 'branch_roles'
+ROLE_KEYS = ('schema_version', 'kind', 'name', 'source', 'branches', 'families', 'periods', 'period_scoped_weights', 'containers')
 
 
 def require(ok, message):
@@ -38,15 +42,43 @@ def interval(value):
             (value[1] is None or number(value[1]) > value[0]), 'half-open nonnegative interval required')
 
 
+def library_names():
+    """Identifiers of the packaged public-format descriptors."""
+    return sorted(p.stem for p in LIBRARY.glob('*.json'))
+
+
+def library_roles(name):
+    """One packaged descriptor by identifier; it is validated like a supplied one."""
+    require(type(name) is str and re.fullmatch('[a-z0-9][a-z0-9._-]{0,63}', name),
+            'descriptor library identifier required')
+    path = LIBRARY / (name + '.json')
+    require(path.is_file(), 'no packaged branch-role descriptor named ' + repr(name) +
+            '; available: ' + ', '.join(library_names()))
+    doc = json.loads(path.read_text())
+    require(type(doc) is dict and doc.get('name') == name, 'packaged descriptor name must equal its identifier')
+    return branch_roles(doc)
+
+
 def branch_roles(doc):
-    """Validate a supplied branch-role descriptor; the format's roles are data, never code.
+    """Validate a branch-role descriptor; the format's roles are data, never code.
+
+    ``doc`` is the descriptor itself or the identifier of a packaged one
+    (``ravel.physics.columnar_ntuple_recipe.library_names()``); a recipe then
+    carries the resolved descriptor, so its digest covers the exact roles used.
 
     ``{"schema_version": 1, "kind": "columnar-branch-roles", "name", "source",
     "branches": [{"name", "role", "shape", "unit"}], "families": [{"pattern", "role", "shape", "unit"}],
     "periods": [...], "period_scoped_weights": {"<scalar weight>": [<periods>]}}``. ``unit`` null
     means the format fixes no absolute unit and the bound branch schema must state one.
-    ``periods`` and ``period_scoped_weights`` are optional.
+    ``periods`` and ``period_scoped_weights`` are optional, as is ``containers``: rows
+    ``{"prefix", "selections", "overlap_selections", "overlap_removal", "tagger"}`` that, when
+    present, make the container list closed. ``selections`` are the stored-selection kinds the
+    container supports, ``overlap_selections`` those usable while stored overlap removal applies,
+    ``overlap_removal`` the recipe overlap-removal choices the container admits and ``tagger``
+    whether it carries a stored tagger, ``tagger_valid`` a pattern its calibrated-range flag
+    must match.
     """
+    if type(doc) is str: return library_roles(doc)
     require(type(doc) is dict and doc.get('schema_version') == 1 and doc.get('kind') == 'columnar-branch-roles' and
             set(doc) <= set(ROLE_KEYS) and {'name', 'source', 'branches', 'families'} <= set(doc),
             'supplied columnar-branch-roles descriptor (schema 1) required')
@@ -66,6 +98,26 @@ def branch_roles(doc):
         require(type(r['pattern']) is str and 0 < len(r['pattern']) <= 256, 'bounded family pattern required')
         try: re.compile(r['pattern'])
         except re.error: require(False, 'family pattern must be a regular expression')
+    if 'containers' in doc:
+        rows = doc['containers']
+        require(type(rows) is list and 1 <= len(rows) <= 64, 'bounded container rows required')
+        for r in rows:
+            require(type(r) is dict and {'prefix', 'selections'} <= set(r) <=
+                    {'prefix', 'selections', 'overlap_selections', 'overlap_removal', 'tagger', 'tagger_valid'} and
+                    type(r['prefix']) is str and re.fullmatch('[A-Za-z][A-Za-z0-9]*', r['prefix']),
+                    'closed container row with a literal prefix and selections required')
+            for key, allowed in (('selections', SELECTIONS), ('overlap_selections', SELECTIONS),
+                                 ('overlap_removal', ('none', 'standard', 'largeR'))):
+                if key in r:
+                    require(type(r[key]) is list and r[key] and len(set(r[key])) == len(r[key]) and
+                            set(r[key]) <= set(allowed), 'declared ' + key + ' must be distinct supported values')
+            require(type(r.get('tagger', False)) is bool, 'container tagger flag must be boolean')
+            if 'tagger_valid' in r:
+                require(type(r['tagger_valid']) is str and 0 < len(r['tagger_valid']) <= 256 and r.get('tagger'),
+                        'tagger_valid is a bounded pattern on a tagged container')
+                try: re.compile(r['tagger_valid'])
+                except re.error: require(False, 'tagger_valid must be a regular expression')
+        require(len({r['prefix'] for r in rows}) == len(rows), 'distinct container prefixes required')
     if 'periods' in doc:
         require(type(doc['periods']) is list and doc['periods'] and len(set(doc['periods'])) == len(doc['periods']) and
                 all(type(p) is str and re.fullmatch('[0-9]{4}', p) for p in doc['periods']), 'distinct declared period keys required')
@@ -85,6 +137,14 @@ def descriptor_role(roles, name):
     for r in roles['families']:
         if re.fullmatch(r['pattern'], name): return (r['role'], r['shape'], r['unit'])
     return None
+
+
+def container_rule(roles, prefix):
+    """The descriptor's row for a container, ``None`` when it declares no container list."""
+    if roles is None or 'containers' not in roles: return None
+    for r in roles['containers']:
+        if r['prefix'] == prefix: return r
+    require(False, 'container ' + repr(prefix) + ' is not in the supplied format descriptor')
 
 
 def validate_recipe(recipe):
@@ -113,7 +173,17 @@ def validate_recipe(recipe):
         require(number(obj['pt_min_GeV']) >= 0 and number(obj['abs_eta_max']) > 0, 'explicit object kinematic cuts required')
         # Whether a container stores these flags is a fact of the supplied branch schema.
         require(obj['selection'] in SELECTIONS, 'unsupported stored object selection')
-        if recipe['overlap_removal'] != 'none':
+        rule = container_rule(roles, obj['prefix'])
+        if rule is not None:
+            require(obj['selection'] in rule['selections'], 'unsupported stored object selection')
+            if recipe['overlap_removal'] != 'none':
+                require(obj['selection'] in rule.get('overlap_selections', rule['selections']),
+                        'stored overlap removal is baseline-only')
+            require(obj['tagger'] is None or rule.get('tagger', False), 'tagger requires a tagged container')
+            if obj['tagger'] is not None and 'tagger_valid' in rule:
+                require(re.fullmatch(rule['tagger_valid'], obj['tagger']['valid']),
+                        'explicit calibrated-range flag required')
+        elif recipe['overlap_removal'] != 'none':
             require(obj['selection'] != 'signal', 'stored overlap removal is baseline-only')
         require(type(obj['scale_factors']) is list and len(set(obj['scale_factors'])) == len(obj['scale_factors']), 'distinct object factors required')
         for sf in obj['scale_factors']:
@@ -188,7 +258,9 @@ def validate_recipe(recipe):
                 len(set(fitted['bins'])) == len(fitted['bins']) and
                 fitted['bins'] == [r['id'] for r in recipe['regions'] if r['role'] != 'validation'],
                 'complete ordered original SR/CR fitted categories required; VR stays outside the fit')
-    return deepcopy(recipe)
+    checked = deepcopy(recipe)
+    if roles is not None: checked['branch_roles'] = roles
+    return checked
 
 
 def required_branches(recipe):
@@ -200,6 +272,11 @@ def required_branches(recipe):
     branches.update(b for values in recipe['trigger_by_year'].values() for b in values)
     for obj in recipe['objects']:
         prefix = obj['prefix']; branches.update((prefix + '_pt_NOSYS', prefix + '_eta'))
+        rule = container_rule(recipe.get('branch_roles'), prefix)
+        if rule is not None:
+            admitted = rule.get('overlap_removal', ('none', 'standard', 'largeR'))
+            require(recipe['overlap_removal'] in admitted,
+                    prefix + ' containers admit only stored ' + '/'.join(admitted) + ' overlap removal')
         if obj['selection'] != 'stored': branches.add(prefix + '_select_' + obj['selection'] + '_NOSYS')
         if recipe['overlap_removal'] != 'none':
             branches.add(prefix + '_select_passesOR' + ('LargeR' if recipe['overlap_removal'] == 'largeR' else '') + '_NOSYS')

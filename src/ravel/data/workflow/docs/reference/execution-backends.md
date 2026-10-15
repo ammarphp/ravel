@@ -100,8 +100,15 @@ ceiling, and is then refused.
   `~/.local/state/ravel/machine/` resolved from the user database, not from
   `HOME` or `RAVEL_STATE_DIR` (`native-job.lock`, `native-job.json`,
   `native-job-fence.json`). A worktree, a test or a placement environment cannot
-  create a second lease. Other machine-wide stores use the same directory through
-  `machine_lease.machine_dir()` and `machine_lease.machine_lock(name)`. A test
+  create a second lease. User-wide stores (custody, the ML exposure ledger) use
+  that directory through `machine_lease.machine_state_root()`; machine locks use
+  the lease root, `machine_lease.machine_dir()` and `machine_lease.machine_lock(name)`.
+  On a cluster the lease root is scoped: inside a Slurm allocation (`SLURM_JOB_ID`
+  proven by the job's cgroup) it is `scopes/slurm-<cluster>-<job id>/`, and on a
+  Linux host whose home is on a network file system it is `scopes/host-<host>/`.
+  Each scope runs one native scientific job at a time, and every attempt under a
+  cluster scope records its `allocation`. See
+  [running studies in batch allocations](batch-allocations.md). A test
   lock domain (a directory carrying the `ravel-test-machine-domain` marker) is
   selected only inside the process of the test harness or a selftest; a child
   process reaches it only through `RAVEL_TEST_DOMAIN_GRANT`, which the issuing

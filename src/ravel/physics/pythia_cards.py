@@ -10,6 +10,9 @@ from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 import math
 import re
+from copy import deepcopy
+from importlib.resources import files
+import json
 
 from ravel.physics.model_event_weights import require
 
@@ -22,6 +25,63 @@ MAX_BR_LITERAL = 512
 PARTICLE_PROPERTIES = {'name','antiname','names','spintype','chargetype','coltype',
                        'm0','mwidth','mmin','mmax','tau0','taucalc','isresonance',
                        'maydecay','doexternaldecay','isvisible','doforcewidth','all','new'}
+
+
+def resolve_tune(name=None, *, catalog=None):
+    """Resolve a declared preset; native initialization remains a separate check."""
+    catalog = catalog or json.loads(files('ravel').joinpath('data/shower/tunes.json').read_text())
+    name = catalog['default'] if name is None else name
+    require(type(name) is str and name in catalog['presets'], 'unknown shower tune preset: ' + str(name))
+    preset = deepcopy(catalog['presets'][name])
+    require(bool(preset.get('source')) and bool(preset.get('pdf_requirement')), 'tune needs its source and PDF requirement')
+    if preset['kind'] == 'builtin':
+        require(type(preset.get('index')) is int and preset['index'] > 0, 'built-in tune needs a positive index')
+        commands = [f"Tune:pp = {preset['index']}"]
+    elif preset['kind'] == 'settings':
+        commands = preset.get('settings')
+        require(isinstance(commands, list) and commands, 'settings-list tune needs explicit settings')
+    else:
+        raise ValueError('tune kind must be builtin or settings')
+    parse('\n'.join(commands))
+    return {'name': name, **preset, 'commands': commands, 'physical_shower_qualified': False}
+
+
+def tune_commands(name, commands):
+    """Apply the tune first, retaining explicit overrides and their disclosure."""
+    preset = resolve_tune(name)
+    supplied = parse('\n'.join(commands))['settings']
+    defaults = parse('\n'.join(preset['commands']))['settings']
+    for key in ('tune:pp', 'tune:ee', 'pdf:pset', 'pdf:usehard', 'pdf:phardset'):
+        if key in supplied and (key not in defaults or supplied[key] != defaults[key]):
+            raise ValueError(f'{key} conflicts with the declared tune/PDF requirement; choose another preset')
+    # Explicit commands follow the preset. Avoid duplicate singleton settings,
+    # which the literal parser correctly refuses.
+    effective = [line for line in preset['commands'] if line.split('=', 1)[0].strip().lower() not in supplied] + list(commands)
+    parse('\n'.join(effective))
+    preset['overrides'] = sorted(k for k in supplied if k in defaults and supplied[k] != defaults[k])
+    if '# preset: ' + preset['name'] not in effective[0]:
+        effective[0] += ' # preset: ' + preset['name']
+    return effective, preset
+
+
+def shower_decay_commands(commands, slha, outside_model):
+    """Keep full SLHA decays and declare shower-only states stable and invisible."""
+    intended = {'SLHA:file': str(slha), 'SLHA:readFrom': '2', 'SLHA:useDecayTable': 'on'}
+    for pdg in outside_model:
+        intended[f'{pdg}:mayDecay'] = 'off'
+        intended[f'{pdg}:isVisible'] = 'off'
+    settings = parse('\n'.join(commands))['settings']
+    result = list(commands)
+    for key, value in intended.items():
+        current = settings.get(key.lower())
+        if current is not None:
+            same = current == value
+            if value in ('on', 'off'):
+                same = current.lower() in (('on', 'true', '1') if value == 'on' else ('off', 'false', '0'))
+            require(same, 'outside-model decay setting conflicts with full shower SLHA: ' + key)
+        else:
+            result.append(f'{key} = {value}')
+    return result
 
 
 def _int(token, label):

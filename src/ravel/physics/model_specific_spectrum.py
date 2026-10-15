@@ -155,7 +155,7 @@ def input_witness(raw,decays,library,profile_name=NAME):
     settings=[scalar(doc,{'block':'FlexibleDecay','codes':[n],'scale':None}) for n in range(10)]
     require(number(settings[0])==(1 if decays else 0),'decay request must match actual native input')
     require(not decays or library in ('collier','looptools'),'decays require an explicitly bound Collier or LoopTools runtime')
-    require(number(settings[7])==number(settings[8])==0,'HiggsTools/Lilith subprocess providers are excluded from this bounded route')
+    require(number(settings[7])==number(settings[8])==0,'FlexibleDecay settings 7 and 8 must stay 0; feed spectrum outputs to higgs-bounds and higgs-signals (or higgs-lilith) through separate workers')
     return {'profile':NAME,'parameters':rows,'all_input':doc,'explicit_decay_settings':settings,'loop_library':library,
         'basis':profile()['conventions'],'input_defaults_selected_by_adapter':False}
 

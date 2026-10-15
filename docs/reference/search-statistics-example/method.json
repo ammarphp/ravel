@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "request_digest": "bb7a485c934cb712a669c83472867410bcbc34e4fe02d40f02bc74446387517b",
+  "obligation_ids": [
+    "synthetic-output"
+  ],
+  "required_output": "Compute synthetic per-point CLs and Asimov significances, the irregular contour and control/validation fit figures.",
+  "sufficiency": {
+    "kind": "qualitative",
+    "value": null,
+    "unit": null,
+    "source_text": "Compute synthetic per-point CLs and Asimov significances, the irregular contour and control/validation fit figures."
+  },
+  "validity_domain": "Synthetic supplied yields and external independent sideband estimates only",
+  "allowed_approximations": [
+    "Asymptotic CLs and Asimov significance; independent delta-method lognormal ABCD constraint"
+  ],
+  "family": "fit_measurement",
+  "selected": {
+    "method": "analytic_or_bounded_fit",
+    "rung": 1,
+    "operation": "search-statistics"
+  },
+  "alternatives": [
+    {
+      "method": "supplied_result",
+      "rung": 0,
+      "status": "insufficient",
+      "reason": "The synthetic inputs contain no computed results.",
+      "evidence": [
+        "search.json"
+      ]
+    }
+  ],
+  "explicit_request": {
+    "requested": false,
+    "quote": null
+  },
+  "cost_forecast": {
+    "status": "uncalibrated",
+    "wall_hours": null,
+    "cpu_hours": null,
+    "disk_gb": null,
+    "events": 0,
+    "model_calls": 0,
+    "basis": "One bounded synthetic supplied-yield computation; no native events or model calls.",
+    "bounded_pilot": {
+      "max_wall_hours": 0.05,
+      "evidence": [
+        "search.json"
+      ]
+    }
+  },
+  "stopping_criterion": "One bounded synthetic attempt; retain its outputs or failure.",
+  "provenance": {
+    "author_role": "coordinator",
+    "transport": "inert",
+    "authority": "scripted_experiment",
+    "reviewed_by": []
+  }
+}

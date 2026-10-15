@@ -94,7 +94,7 @@ def test_low_disk_is_refused_with_alternatives(system):
     assert result.returncode == 4
     assert "--prefix" in result.stderr and "--adopt" in result.stderr
     assert run("--preflight-only", "--no-disk-check", prefix=tmp / "p").returncode == 0
-    assert run("--preflight-only", "--profile", "site", prefix=tmp / "p").returncode == 4
+    assert run("--preflight-only", "--profile", "site", "--lcg-view", "none", prefix=tmp / "p").returncode == 4
 
 
 def test_linux_and_unsupported_systems(system):
@@ -161,6 +161,21 @@ def test_existing_miniforge_hands_over_with_all_arguments(system):
     assert args[:3] == ["-I", "-B", str(ROOT / "scripts/setup/install.py")]
     assert args[3:] == ["--prefix", str(tmp / "p"), "--only", "madgraph", "--accept-licenses"]
     assert not (tmp / "home").exists() or not any((tmp / "home").iterdir())
+
+
+def test_macos_handover_keeps_the_system_temporary_directory(system):
+    # Container tooling on macOS keeps sockets under TMPDIR; a long prefix path exceeds the socket limit.
+    _, run, tmp = system
+    mf = tmp / "p/tools/miniforge3/bin"
+    mf.mkdir(parents=True)
+    record = tmp / "env.txt"
+    fake(mf, "conda", "exit 0")
+    fake(mf, "python", f"env > {record}")
+    result = run(prefix=tmp / "p", env={"TMPDIR": "/synthetic/tmp"})
+    assert result.returncode == 0, result.stderr
+    lines = record.read_text().splitlines()
+    assert "TMPDIR=/synthetic/tmp" in lines
+    assert f"APPTAINER_TMPDIR={tmp / 'p'}/tmp/apptainer" in lines
 
 
 def test_shim_never_edits_shell_or_conda_configuration():

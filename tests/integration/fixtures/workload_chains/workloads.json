@@ -1,0 +1,769 @@
+{
+  "schema_version": 1,
+  "kind": "workload-chain-fixtures",
+  "note": "Synthetic siblings of four workload shapes. Operations, claims and numbers are generic; no benchmark, paper, task, challenge or person identity. The design lists are the per-workload role counts of the agent-layer design, by role id; ids without a registered card are marked registered=false by the test.",
+  "workloads": [
+    {
+      "id": "W1",
+      "shape": "simulated-acceptance reproduction: generation, shower and detector, columnar selection, agreement with a declared reference yield",
+      "plan": {
+        "nodes": [
+          {
+            "id": "N1",
+            "operation": "model-events",
+            "rung": "smoke"
+          },
+          {
+            "id": "N2",
+            "operation": "event-production",
+            "rung": "full",
+            "tool": "pythia-delphes"
+          },
+          {
+            "id": "N3",
+            "operation": "columnar-analysis",
+            "rung": "full",
+            "tool": "columnar"
+          }
+        ],
+        "edges": [
+          {
+            "id": "E-N1-N2",
+            "from": {
+              "ref": "N1"
+            },
+            "to": {
+              "ref": "N2",
+              "slot": "in"
+            }
+          },
+          {
+            "id": "E-N2-N3",
+            "from": {
+              "ref": "N2"
+            },
+            "to": {
+              "ref": "N3",
+              "slot": "in"
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "C1",
+            "kind": "agreement",
+            "absolute_yield": true,
+            "basis_declared": [
+              "authored_code"
+            ]
+          }
+        ],
+        "trap_sweep": true
+      },
+      "scored_node": "N3",
+      "producer_result": {
+        "verdict": "consistent",
+        "quantity": "selected_fraction",
+        "value": 0.0131
+      },
+      "expect_dispatched": [
+        "analysis-author",
+        "coordinator",
+        "discrepancy-attributor",
+        "generator",
+        "normalization-auditor",
+        "object-selection-mapper",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "shower-detector",
+        "skeptical-verifier",
+        "trap-auditor"
+      ],
+      "design": [
+        {
+          "component": "coordinator",
+          "roles": [
+            "coordinator"
+          ]
+        },
+        {
+          "component": "plan critic",
+          "roles": [
+            "plan-critic"
+          ]
+        },
+        {
+          "component": "literature scout",
+          "roles": [
+            "literature-scout"
+          ]
+        },
+        {
+          "component": "consults on use",
+          "roles": [
+            "consult-madgraph",
+            "consult-pythia-delphes",
+            "consult-columnar",
+            "consult-normalization"
+          ]
+        },
+        {
+          "component": "producers",
+          "roles": [
+            "generator",
+            "shower-detector",
+            "analysis-author"
+          ]
+        },
+        {
+          "component": "re-derivers and comparative reviewer",
+          "roles": [
+            "re-deriver",
+            "comparative-reviewer"
+          ]
+        },
+        {
+          "component": "first-pass panel",
+          "roles": [
+            "physics-critic",
+            "object-selection-mapper",
+            "trap-auditor",
+            "normalization-auditor"
+          ]
+        },
+        {
+          "component": "verifier and decider",
+          "roles": [
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "decision-judgment calls",
+          "roles": [
+            "rdj-critic",
+            "rdj-verifier",
+            "rdj-edge-reviewer"
+          ]
+        },
+        {
+          "component": "root-cause analysis",
+          "roles": [
+            "rca-investigator",
+            "investigation-worker"
+          ]
+        },
+        {
+          "component": "assumption auditor",
+          "roles": [
+            "assumption-auditor"
+          ]
+        },
+        {
+          "component": "CHECK-IN 3 triad",
+          "roles": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "lesson distiller",
+          "roles": [
+            "lesson-distiller"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W2",
+      "shape": "new-model reinterpretation: model authoring, generation, columnar selection, a likelihood limit and its figure",
+      "plan": {
+        "nodes": [
+          {
+            "id": "N1",
+            "operation": "model-authoring",
+            "rung": "smoke"
+          },
+          {
+            "id": "N2",
+            "operation": "model-events",
+            "rung": "smoke"
+          },
+          {
+            "id": "N3",
+            "operation": "columnar-analysis",
+            "rung": "full",
+            "tool": "columnar"
+          },
+          {
+            "id": "N4",
+            "operation": "native-likelihood",
+            "rung": "full",
+            "tool": "inference"
+          }
+        ],
+        "edges": [
+          {
+            "id": "E-N1-N2",
+            "from": {
+              "ref": "N1"
+            },
+            "to": {
+              "ref": "N2",
+              "slot": "in"
+            }
+          },
+          {
+            "id": "E-N2-N3",
+            "from": {
+              "ref": "N2"
+            },
+            "to": {
+              "ref": "N3",
+              "slot": "in"
+            }
+          },
+          {
+            "id": "E-N3-N4",
+            "from": {
+              "ref": "N3"
+            },
+            "to": {
+              "ref": "N4",
+              "slot": "in"
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "C1",
+            "kind": "agreement",
+            "absolute_yield": true
+          },
+          {
+            "id": "C2",
+            "kind": "limit",
+            "deliverable": {
+              "artifact": "figure"
+            }
+          }
+        ],
+        "trap_sweep": false
+      },
+      "scored_node": "N4",
+      "producer_result": {
+        "verdict": "excluded",
+        "quantity": "coupling_upper_limit",
+        "value": 0.437
+      },
+      "expect_dispatched": [
+        "analysis-author",
+        "coordinator",
+        "discrepancy-attributor",
+        "generator",
+        "inference",
+        "model-builder",
+        "normalization-auditor",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "skeptical-verifier"
+      ],
+      "design": [
+        {
+          "component": "coordinator",
+          "roles": [
+            "coordinator"
+          ]
+        },
+        {
+          "component": "plan critic",
+          "roles": [
+            "plan-critic"
+          ]
+        },
+        {
+          "component": "literature scout",
+          "roles": [
+            "literature-scout"
+          ]
+        },
+        {
+          "component": "consults on use",
+          "roles": [
+            "consult-feynrules",
+            "consult-symbolic",
+            "consult-madgraph",
+            "consult-columnar",
+            "consult-inference"
+          ]
+        },
+        {
+          "component": "producers",
+          "roles": [
+            "model-builder",
+            "generator",
+            "analysis-author",
+            "inference"
+          ]
+        },
+        {
+          "component": "model critic and second method",
+          "roles": [
+            "model-critic",
+            "second-method-deriver"
+          ]
+        },
+        {
+          "component": "re-derivers and comparative reviewer",
+          "roles": [
+            "re-deriver",
+            "comparative-reviewer"
+          ]
+        },
+        {
+          "component": "first-pass panel",
+          "roles": [
+            "physics-critic",
+            "normalization-auditor",
+            "discrepancy-attributor"
+          ]
+        },
+        {
+          "component": "verifier and decider",
+          "roles": [
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "decision-judgment calls",
+          "roles": [
+            "rdj-critic",
+            "rdj-verifier",
+            "rdj-edge-reviewer"
+          ]
+        },
+        {
+          "component": "root-cause analysis",
+          "roles": [
+            "rca-investigator",
+            "investigation-worker"
+          ]
+        },
+        {
+          "component": "figure critic",
+          "roles": [
+            "figure-critic"
+          ]
+        },
+        {
+          "component": "assumption auditor",
+          "roles": [
+            "assumption-auditor"
+          ]
+        },
+        {
+          "component": "CHECK-IN 3 triad",
+          "roles": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "lesson distiller",
+          "roles": [
+            "lesson-distiller"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W3",
+      "shape": "calculation with a resonance branch and a method comparison: formula grid, model authoring, generation, a differential likelihood",
+      "plan": {
+        "nodes": [
+          {
+            "id": "N1",
+            "operation": "formula-grid",
+            "rung": "smoke"
+          },
+          {
+            "id": "N2",
+            "operation": "model-authoring",
+            "rung": "smoke"
+          },
+          {
+            "id": "N3",
+            "operation": "model-events",
+            "rung": "smoke"
+          },
+          {
+            "id": "N4",
+            "operation": "native-likelihood",
+            "rung": "full",
+            "tool": "inference"
+          }
+        ],
+        "edges": [
+          {
+            "id": "E-N1-N4",
+            "from": {
+              "ref": "N1"
+            },
+            "to": {
+              "ref": "N4",
+              "slot": "in"
+            }
+          },
+          {
+            "id": "E-N2-N3",
+            "from": {
+              "ref": "N2"
+            },
+            "to": {
+              "ref": "N3",
+              "slot": "in"
+            }
+          },
+          {
+            "id": "E-N3-N4",
+            "from": {
+              "ref": "N3"
+            },
+            "to": {
+              "ref": "N4",
+              "slot": "in"
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "C1",
+            "kind": "method_performance"
+          },
+          {
+            "id": "C2",
+            "kind": "agreement",
+            "deliverable": {
+              "artifact": "figure"
+            }
+          }
+        ],
+        "trap_sweep": false
+      },
+      "scored_node": "N4",
+      "producer_result": {
+        "verdict": "inconsistent",
+        "quantity": "interference_fraction",
+        "value": -0.081
+      },
+      "expect_dispatched": [
+        "calculation",
+        "coordinator",
+        "discrepancy-attributor",
+        "generator",
+        "inference",
+        "model-builder",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "skeptical-verifier"
+      ],
+      "design": [
+        {
+          "component": "coordinator",
+          "roles": [
+            "coordinator"
+          ]
+        },
+        {
+          "component": "plan critic",
+          "roles": [
+            "plan-critic"
+          ]
+        },
+        {
+          "component": "literature scout",
+          "roles": [
+            "literature-scout"
+          ]
+        },
+        {
+          "component": "consults on use",
+          "roles": [
+            "consult-symbolic",
+            "consult-rivet",
+            "consult-madgraph",
+            "consult-inference",
+            "consult-theory"
+          ]
+        },
+        {
+          "component": "producers",
+          "roles": [
+            "calculation",
+            "model-builder",
+            "generator",
+            "inference"
+          ]
+        },
+        {
+          "component": "model critic and second method",
+          "roles": [
+            "model-critic",
+            "second-method-deriver"
+          ]
+        },
+        {
+          "component": "re-derivers and comparative reviewer",
+          "roles": [
+            "re-deriver",
+            "comparative-reviewer"
+          ]
+        },
+        {
+          "component": "first-pass panel",
+          "roles": [
+            "physics-critic",
+            "discrepancy-attributor"
+          ]
+        },
+        {
+          "component": "verifier and decider",
+          "roles": [
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "decision-judgment calls",
+          "roles": [
+            "rdj-critic",
+            "rdj-verifier",
+            "rdj-edge-reviewer"
+          ]
+        },
+        {
+          "component": "root-cause analysis",
+          "roles": [
+            "rca-investigator",
+            "investigation-worker"
+          ]
+        },
+        {
+          "component": "figure critic",
+          "roles": [
+            "figure-critic"
+          ]
+        },
+        {
+          "component": "assumption auditor",
+          "roles": [
+            "assumption-auditor"
+          ]
+        },
+        {
+          "component": "CHECK-IN 3 triad",
+          "roles": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "research-loop roles",
+          "roles": [
+            "limitation-census",
+            "sufficiency-verifier",
+            "idea-proposer-a",
+            "idea-proposer-b",
+            "novelty-scout",
+            "screen-producer",
+            "ablation-critic",
+            "rebuttal-planner",
+            "research-meta-reviewer"
+          ]
+        },
+        {
+          "component": "lesson distiller",
+          "roles": [
+            "lesson-distiller"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W4",
+      "shape": "supplied-ntuple sensitivity note: columnar selection over supplied members, a native statistical construction, a procedure note",
+      "plan": {
+        "nodes": [
+          {
+            "id": "N1",
+            "operation": "columnar-analysis",
+            "rung": "smoke"
+          },
+          {
+            "id": "N2",
+            "operation": "native-likelihood",
+            "rung": "full",
+            "tool": "inference"
+          }
+        ],
+        "edges": [
+          {
+            "id": "E-N1-N2",
+            "from": {
+              "ref": "N1"
+            },
+            "to": {
+              "ref": "N2",
+              "slot": "in"
+            }
+          }
+        ],
+        "claims": [
+          {
+            "id": "C1",
+            "kind": "sensitivity",
+            "deliverable": {
+              "artifact": "binned_values"
+            }
+          },
+          {
+            "id": "C2",
+            "kind": "document",
+            "deliverable": {
+              "artifact": "figure"
+            }
+          }
+        ],
+        "trap_sweep": false
+      },
+      "scored_node": "N2",
+      "producer_result": {
+        "verdict": "not_excluded",
+        "quantity": "expected_significance",
+        "value": 1.62
+      },
+      "expect_dispatched": [
+        "analysis-author",
+        "coordinator",
+        "inference",
+        "normalization-auditor",
+        "physics-critic",
+        "physics-decider",
+        "plan-critic",
+        "skeptical-verifier"
+      ],
+      "design": [
+        {
+          "component": "coordinator",
+          "roles": [
+            "coordinator"
+          ]
+        },
+        {
+          "component": "plan critic",
+          "roles": [
+            "plan-critic"
+          ]
+        },
+        {
+          "component": "literature scout",
+          "roles": [
+            "literature-scout"
+          ]
+        },
+        {
+          "component": "consults on use",
+          "roles": [
+            "consult-columnar",
+            "consult-inference",
+            "consult-latex"
+          ]
+        },
+        {
+          "component": "producers",
+          "roles": [
+            "analysis-author",
+            "inference",
+            "manuscript-writer"
+          ]
+        },
+        {
+          "component": "re-derivers and comparative reviewer",
+          "roles": [
+            "re-deriver",
+            "comparative-reviewer"
+          ]
+        },
+        {
+          "component": "first-pass panel",
+          "roles": [
+            "physics-critic",
+            "normalization-auditor",
+            "integrity-auditor"
+          ]
+        },
+        {
+          "component": "verifier and decider",
+          "roles": [
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "decision-judgment calls",
+          "roles": [
+            "rdj-critic",
+            "rdj-verifier",
+            "rdj-edge-reviewer"
+          ]
+        },
+        {
+          "component": "root-cause analysis",
+          "roles": [
+            "rca-investigator",
+            "investigation-worker"
+          ]
+        },
+        {
+          "component": "figure critic",
+          "roles": [
+            "figure-critic"
+          ]
+        },
+        {
+          "component": "assumption auditor",
+          "roles": [
+            "assumption-auditor"
+          ]
+        },
+        {
+          "component": "CHECK-IN 3 triad",
+          "roles": [
+            "physics-critic",
+            "skeptical-verifier",
+            "physics-decider"
+          ]
+        },
+        {
+          "component": "research-loop roles",
+          "roles": [
+            "screen-producer"
+          ]
+        },
+        {
+          "component": "lesson distiller",
+          "roles": [
+            "lesson-distiller"
+          ]
+        }
+      ]
+    }
+  ]
+}

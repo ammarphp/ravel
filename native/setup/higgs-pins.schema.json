@@ -1,0 +1,396 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tools"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "tools": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tool",
+          "kind",
+          "url",
+          "version",
+          "licence_file",
+          "status",
+          "commit",
+          "sha256",
+          "size",
+          "revision",
+          "digest",
+          "licence_text_sha256",
+          "fetched_utc",
+          "licence"
+        ],
+        "properties": {
+          "tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "git",
+              "archive",
+              "svn",
+              "conda",
+              "image"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "licence_file": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+\\S$"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "filled"
+            ]
+          },
+          "commit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "digest": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "licence_text_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fetched_utc": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "licence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "spdx",
+              "redistribute",
+              "import_into_ravel",
+              "container_publish",
+              "evidence_status"
+            ],
+            "properties": {
+              "spdx": {
+                "type": "string",
+                "minLength": 1
+              },
+              "redistribute": {
+                "type": "boolean"
+              },
+              "import_into_ravel": {
+                "enum": [
+                  "never",
+                  "allowed"
+                ]
+              },
+              "container_publish": {
+                "enum": [
+                  "never",
+                  "allowed"
+                ]
+              },
+              "evidence_status": {
+                "enum": [
+                  "pending",
+                  "verified"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "redistribute": {
+                      "const": false
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "container_publish": {
+                      "const": "never"
+                    },
+                    "import_into_ravel": {
+                      "const": "never"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "spdx": {
+                      "pattern": "^(GPL|LGPL|AGPL|MPL|LicenseRef)"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "import_into_ravel": {
+                      "const": "never"
+                    },
+                    "container_publish": {
+                      "const": "never"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "selection_note": {
+            "type": "string",
+            "minLength": 1
+          },
+          "upstream_status": {
+            "enum": [
+              "candidate",
+              "base-recorded",
+              "authored"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                },
+                "kind": {
+                  "const": "git"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "commit": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                }
+              },
+              "required": [
+                "commit"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                },
+                "kind": {
+                  "const": "archive"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "sha256",
+                "size"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                },
+                "kind": {
+                  "const": "conda"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "sha256",
+                "size"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                },
+                "kind": {
+                  "const": "svn"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "revision": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "revision"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                },
+                "kind": {
+                  "const": "image"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "digest": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "digest"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "filled"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "licence_text_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "fetched_utc": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+                },
+                "licence": {
+                  "properties": {
+                    "evidence_status": {
+                      "const": "verified"
+                    }
+                  }
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^(?!.*(?:\\*|pending|matched|select|latest|\\{|[0-9]\\.?[xX]|or-newest)).+$"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "default": "effectful",
+  "hookless": "Explicit check before call and observation after call; no automatic host event registration",
+  "host": "governed-node",
+  "input": "host tool-call JSON on stdin; pass --project and optionally --rundir",
+  "kind": "site-tool-adapter",
+  "matcher": "mcp__.*",
+  "native_hooks": false,
+  "policy": "ravel/data/site_tools/policy.json",
+  "post_command": "python -m ravel.workflow.site_tools observe",
+  "pre_command": "python -m ravel.workflow.site_tools check",
+  "schema_version": 1,
+  "scope": "CHECK-IN 1 sections.site_tools: exact tool name, tool_input_sha256 and effects"
+}

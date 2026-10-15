@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "calls"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "calls": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tool_name",
+          "tool_input_sha256",
+          "effects"
+        ],
+        "properties": {
+          "tool_name": {
+            "type": "string",
+            "pattern": "^mcp__[^*?\\[\\]\\s]+__[^*?\\[\\]\\s]+$"
+          },
+          "tool_input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "effects": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "download",
+                "transfer",
+                "job-submit",
+                "job-cancel",
+                "notebook-execute",
+                "file-write",
+                "unknown"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "higgs-bounds": {
+    "summary": "Pinned external Higgs-sector selected direct-search limits.",
+    "implementation": {
+      "kind": "command",
+      "module": "ravel.physics.higgstools_bridge"
+    },
+    "consumes": [
+      {
+        "slot": "sector",
+        "kind": "higgs-sector-bundle"
+      }
+    ],
+    "produces": [
+      {
+        "slot": "result",
+        "kind": "higgs-bounds-result"
+      }
+    ],
+    "effects": [
+      "executes_native"
+    ],
+    "cost": {
+      "unit": "seconds",
+      "forecast": null,
+      "ceiling_pointer": "/max_seconds"
+    },
+    "critical_fields": [
+      "datasets",
+      "mass_assignment",
+      "provenance"
+    ],
+    "basis": {
+      "adds": [],
+      "passes": [
+        "sector"
+      ]
+    },
+    "tools": [
+      "higgstools-python",
+      "hbdataset",
+      "hsdataset"
+    ],
+    "stages": [
+      "science"
+    ],
+    "review": {
+      "checks": [
+        "higgs.hb_selection"
+      ]
+    },
+    "fidelity_rank": 1
+  },
+  "_integration": {
+    "owner": "H-19",
+    "adapter_module": "ravel.physics.higgstools_bridge",
+    "task_fields": [
+      "input"
+    ],
+    "schema": "higgs/schemas/higgs-sector-bundle.json",
+    "doctor_checks": [
+      "higgstools-python",
+      "hbdataset",
+      "hsdataset"
+    ],
+    "runtime": "{REPO}/.venv-higgstools/bin/python",
+    "qualification": "awaits H-16",
+    "claim_checks": {
+      "check:higgs.hb_selection": "ravel.physics.higgstools_bridge:check_hb_selection"
+    }
+  }
+}

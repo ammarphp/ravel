@@ -1,0 +1,924 @@
+{
+  "schema_version": 1,
+  "id": "conventions:sm-measurements",
+  "sources": [
+    {
+      "id": "authored-sm-conventions",
+      "pin": {
+        "path": "../../sm/registration/premises.json",
+        "size": 58299,
+        "sha256": "3c5e270a4164112fdb9d70c802d136858acf498c466dbe39af1073278f907b36"
+      },
+      "citation": "Authored measurement contract conventions; Apache-2.0. No external excerpts or reference values are supplied.",
+      "version": "1",
+      "format": "text",
+      "parents": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "conv:sm",
+      "kind": "convention",
+      "statement": "Measurement comparisons require supplied particle level, fiducial scope, normalization, covariance, source revision and uncertainty prescriptions. Contract consistency does not certify scientific applicability.",
+      "tags": [
+        "measurement",
+        "sm"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 793,
+          "line_end": 793,
+          "excerpt_sha256": "6af67bf1babe59ba8615e78344c229e5bd9f78d8d655d024d6bc40f99c2da76d",
+          "locator": "Authored convention conv:sm"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-levels",
+      "kind": "convention",
+      "statement": "Born, bare and photon-dressed lepton definitions differ. A dressed definition states its supplied photon radius; prompt-lepton and tau-feed-down rules and fiducial selections are part of the comparison frame.",
+      "tags": [
+        "measurement",
+        "sm-levels"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 837,
+          "line_end": 837,
+          "excerpt_sha256": "6ce8a5979f775aa81d8d9efb69bb522ed76f65f284a819082085dd287c38e7bf",
+          "locator": "Authored convention conv:sm-levels"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-levels",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-normalization",
+      "kind": "convention",
+      "statement": "Absolute, normalized and ratio quantities require different covariance accounting. A normalized distribution has a covariance null direction given by its bin-integration weights; declare the retained rank and either a dropped bin or a pseudoinverse.",
+      "tags": [
+        "measurement",
+        "sm-normalization"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 881,
+          "line_end": 881,
+          "excerpt_sha256": "19c7ce722a1e616b85a5e8357b99f37725b933f684ef6da13e5fc2b7e380321e",
+          "locator": "Authored convention conv:sm-normalization"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-normalization",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-asymmetric",
+      "kind": "convention",
+      "statement": "Asymmetric marginal errors need an explicit average, maximum or central-shift symmetrization rule. Retain the shift and bin correlations instead of silently discarding them.",
+      "tags": [
+        "measurement",
+        "sm-asymmetric"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 925,
+          "line_end": 925,
+          "excerpt_sha256": "9d917144be08cb470a38109831ac24b869f8c64e534ca51ee56357f2bcbe62e1",
+          "locator": "Authored convention conv:sm-asymmetric"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-asymmetric",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-theory",
+      "kind": "convention",
+      "statement": "Scale envelopes require their complete member census and a separately declared bin correlation and probability model when used as covariance. Retain PDF member ErrorType, confidence rescaling and matching matrix-element and PDF strong coupling. Apply nonperturbative corrections once and compare additive and multiplicative electroweak combinations.",
+      "tags": [
+        "measurement",
+        "sm-theory"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 969,
+          "line_end": 969,
+          "excerpt_sha256": "d5cba337afee957b45fc9958af98d29160b8847a800cf6efeaecf91265a14900",
+          "locator": "Authored convention conv:sm-theory"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-theory",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-scales",
+      "kind": "convention",
+      "statement": "A seven-point scale prescription includes the central, common and single-scale half or double variations while excluding opposite half/double pairs. A nine-point prescription retains all pairs. An independent prescription states the actual member population and correlations.",
+      "tags": [
+        "measurement",
+        "sm-scales"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1013,
+          "line_end": 1013,
+          "excerpt_sha256": "4fbe8e8f48015e8896ccee9b97f18cc2c49a7ec48700c50450ae703562f52538",
+          "locator": "Authored convention conv:sm-scales"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-scales",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-pdf",
+      "kind": "convention",
+      "statement": "Replica, symmetric Hessian and paired Hessian members use their respective uncertainty formulas. State source and target confidence levels and the rescaling model; retain combination prescription and matching strong-coupling variations. PDF impact requires a fitted-data overlap census, tolerance and effective replica accounting.",
+      "tags": [
+        "measurement",
+        "sm-pdf"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1057,
+          "line_end": 1057,
+          "excerpt_sha256": "a642a94e5a3f440efd372dd4017597761d4fca52f9658278e8616946f0d7803e",
+          "locator": "Authored convention conv:sm-pdf"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-pdf",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-ew",
+      "kind": "convention",
+      "statement": "Declare the electroweak input scheme, additive or multiplicative QCD combination, photon-induced contribution, fixed or running width definition, pole conversion, mixing-angle definition, top mass scheme and quoted mass. Oblique fits require the scalar and top reference masses and scheme.",
+      "tags": [
+        "measurement",
+        "sm-ew"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1101,
+          "line_end": 1101,
+          "excerpt_sha256": "ad727c52c2381096523509e9f7d10cf28daf14503741d7ce81454417411ce50a",
+          "locator": "Authored convention conv:sm-ew"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-ew",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-nonperturbative",
+      "kind": "convention",
+      "statement": "Hadronization and multiple-parton-interaction correction ratios require supplied numerator and denominator definitions and uncertainty scope. Record whether input tables already include them and apply each correction once.",
+      "tags": [
+        "measurement",
+        "sm-nonperturbative"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1145,
+          "line_end": 1145,
+          "excerpt_sha256": "09048539666a4c06c7bce846a5f5674d273c3272f8df3ae7ea32cf4bb4b5eabe",
+          "locator": "Authored convention conv:sm-nonperturbative"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-nonperturbative",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-tuning",
+      "kind": "convention",
+      "statement": "A tune requires supplied observable weights, tolerance or eigentune definition and a disjoint held-out observable population. An over-weighted observable can bias the fit; fitted observables do not establish held-out validation.",
+      "tags": [
+        "measurement",
+        "sm-tuning"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1189,
+          "line_end": 1189,
+          "excerpt_sha256": "655723c4afc4bedbf3eb672de1c266212d0fa286340eeea0b1ceb46a696e7d4e",
+          "locator": "Authored convention conv:sm-tuning"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-tuning",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-unfolding",
+      "kind": "convention",
+      "statement": "Regularization, nominal prior and prior variations must be stated. Response closure, distinct stress tests and interval coverage answer different questions; a successful nominal closure does not establish robustness or coverage.",
+      "tags": [
+        "measurement",
+        "sm-unfolding"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1233,
+          "line_end": 1233,
+          "excerpt_sha256": "d072e48dd4881217cbd2d7630bf086f2e43bb13a7b83d772d44dc8e15e4bc813",
+          "locator": "Authored convention conv:sm-unfolding"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-unfolding",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-combination",
+      "kind": "convention",
+      "statement": "Measurement combinations must census common datasets, luminosity and systematic sources, declare cross-covariances and state linear-combination assumptions. Zero correlation for shared inputs requires a located justification.",
+      "tags": [
+        "measurement",
+        "sm-combination"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 1277,
+          "line_end": 1277,
+          "excerpt_sha256": "100ef7cc4553186b071b368984dcdc81c476a920c10b7d15c04131ac6d72e784",
+          "locator": "Authored convention conv:sm-combination"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:sm-combination",
+          "description": "Inspect the supplied definitions and prescription records.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts1",
+      "kind": "convention",
+      "statement": "A normalized distribution covariance is singular along its normalization constraint; a full-rank inverse loses that constraint.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 9,
+          "line_end": 9,
+          "excerpt_sha256": "448cc8373b2541e5f1c1b3f02c50e99dcb89cd773d40e777f2bafacdbedc7c64",
+          "locator": "Authored convention conv:sm-trap-ts1"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS1",
+          "description": "Inspect the supplied records with check:sm.normalized_rule.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts2",
+      "kind": "convention",
+      "statement": "A prediction and data at different particle levels or fiducial definitions compare different quantities.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 55,
+          "line_end": 55,
+          "excerpt_sha256": "1b66d2e76e5e8f7782cb7521dc7786602557fb5931fe7be3770997bf5cdec026",
+          "locator": "Authored convention conv:sm-trap-ts2"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS2",
+          "description": "Inspect the supplied records with check:sm.frame_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts3",
+      "kind": "convention",
+      "statement": "Marginal errors alone omit supplied bin correlations and cannot replace their covariance.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 101,
+          "line_end": 101,
+          "excerpt_sha256": "4fbd630eb9f91d1eff273479e3675c4686edb4800666191fd85a66030400b72c",
+          "locator": "Authored convention conv:sm-trap-ts3"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS3",
+          "description": "Inspect the supplied records with check:sm.covariance_assembled.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts4",
+      "kind": "convention",
+      "statement": "Rescaling a lower-order shape to a different-order rate without a declaration hides the prediction convention.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 147,
+          "line_end": 147,
+          "excerpt_sha256": "9f95d8c0f6f040088a636c41bc9bf0a6ac496a0a269932a280ec58389dbf953a",
+          "locator": "Authored convention conv:sm-trap-ts4"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS4",
+          "description": "Inspect the supplied records with check:sm.prediction_convention.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts5",
+      "kind": "convention",
+      "statement": "A fixed-order prediction outside its supplied low-momentum validity domain need not describe the observable.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 193,
+          "line_end": 193,
+          "excerpt_sha256": "965eed389964036188d47b9be6e7aa32d1bb19e944fe9834ec6f7d32b8a03dfc",
+          "locator": "Authored convention conv:sm-trap-ts5"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS5",
+          "description": "Inspect the supplied records with check:sm.validity_range.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts6",
+      "kind": "convention",
+      "statement": "A routine reference and measurement bundle from different source revisions can disagree after a source correction.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 239,
+          "line_end": 239,
+          "excerpt_sha256": "ac75087dc2e51a60d3a9b11ba6b716132b4a4ee66b9bd006c3e3e9b01adae1b0",
+          "locator": "Authored convention conv:sm-trap-ts6"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS6",
+          "description": "Inspect the supplied records with check:sm.reference_version.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts7",
+      "kind": "convention",
+      "statement": "A matrix-element strong coupling different from the selected PDF coupling is an inconsistent input prescription.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 285,
+          "line_end": 285,
+          "excerpt_sha256": "1ef27f8ebad838204460f87339d804f0d7598ab751644768a435a4fbb9ba4276",
+          "locator": "Authored convention conv:sm-trap-ts7"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS7",
+          "description": "Inspect the supplied records with check:sm.alphas_consistent.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts8",
+      "kind": "convention",
+      "statement": "A scale envelope does not itself specify a Gaussian or a bin correlation model.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 331,
+          "line_end": 331,
+          "excerpt_sha256": "407e7e80185465db1da486e8c172406db94b1fb2a9cb30881ef11b39a8cbf70b",
+          "locator": "Authored convention conv:sm-trap-ts8"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS8",
+          "description": "Inspect the supplied records with check:sm.prescription_declared.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts9",
+      "kind": "convention",
+      "statement": "Replica and Hessian member populations require different uncertainty formulas and declared confidence rescaling.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 377,
+          "line_end": 377,
+          "excerpt_sha256": "d0783b83d20700705aafae2eb312b1d70e5723b84f8e10cc7b139d1abb6590b5",
+          "locator": "Authored convention conv:sm-trap-ts9"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS9",
+          "description": "Inspect the supplied records with check:sm.pdf_error_type.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts10",
+      "kind": "convention",
+      "statement": "Applying a nonperturbative correction to inputs that already include it counts the correction twice.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 423,
+          "line_end": 423,
+          "excerpt_sha256": "3a71c6864280fed37be48a8e3d1818d860c725ba206d2a6ab2ce9a2065bae131",
+          "locator": "Authored convention conv:sm-trap-ts10"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS10",
+          "description": "Inspect the supplied records with check:sm.np_once.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts11",
+      "kind": "convention",
+      "statement": "An electroweak correction combined with QCD without its additive and multiplicative comparison hides combination uncertainty.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 469,
+          "line_end": 469,
+          "excerpt_sha256": "ab046508780cee61f4b1510216cd8b76399faebdaa89fd84b4d94c8c5c3003ed",
+          "locator": "Authored convention conv:sm-trap-ts11"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS11",
+          "description": "Inspect the supplied records with check:sm.ew_combination.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts12",
+      "kind": "convention",
+      "statement": "A supplied prediction may omit required continuum, loop-induced or interference terms sharing its final state.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 515,
+          "line_end": 515,
+          "excerpt_sha256": "f3231720376df543247cd5a389cfec8c2242fc737c5a8e8080653241e0654e43",
+          "locator": "Authored convention conv:sm-trap-ts12"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS12",
+          "description": "Inspect the supplied records with check:sm.amplitude_complete.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts13",
+      "kind": "convention",
+      "statement": "Impact assessed using data already fitted by the selected PDF set is circular.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 561,
+          "line_end": 561,
+          "excerpt_sha256": "82b74e98ab630dbe5d7a1d1e2e5729683e3499248d0079a3b579f5d18536f960",
+          "locator": "Authored convention conv:sm-trap-ts13"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS13",
+          "description": "Inspect the supplied records with check:sm.pdf_not_circular.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts14",
+      "kind": "convention",
+      "statement": "Validation on observables used to select a tune is not held-out evidence.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 607,
+          "line_end": 607,
+          "excerpt_sha256": "4ee26bf46573be50e51b03e971b3229f0420899d9d7bc952d7430319a37528c6",
+          "locator": "Authored convention conv:sm-trap-ts14"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS14",
+          "description": "Inspect the supplied records with check:sm.tune_heldout.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    },
+    {
+      "id": "conv:sm-trap-ts15",
+      "kind": "convention",
+      "statement": "Combining measurements from a shared dataset or systematic source as independent double counts information.",
+      "tags": [
+        "measurement"
+      ],
+      "domain": [
+        "hep"
+      ],
+      "conventions": [
+        "sm"
+      ],
+      "applicability": "Review against the supplied observable, process, source revision and prescription; no result acceptance is conferred.",
+      "equations": [],
+      "evidence": [
+        {
+          "source": "authored-sm-conventions",
+          "line_start": 653,
+          "line_end": 653,
+          "excerpt_sha256": "8d40b158cf1e73d1fdfbe4a89b3b8cead3c57115e8a3b7cee3a92f9c316d9536",
+          "locator": "Authored convention conv:sm-trap-ts15"
+        }
+      ],
+      "obligations": [
+        {
+          "id": "obligation:conv-TS15",
+          "description": "Inspect the supplied records with check:sm.measurement_overlap.",
+          "resource_class": "source_inspection",
+          "check": null
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

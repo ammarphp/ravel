@@ -1,0 +1,112 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "production",
+  "id": "ew-fit-analyst",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator"
+    ],
+    "fresh_session": true,
+    "kind": "producer"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [
+      {
+        "role": "consult-inference",
+        "when": "on_use"
+      }
+    ],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "hb:ewpo-fit",
+      "conv:sm-ew"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:sm.ew_scheme",
+    "check:sm.parametrization_range"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "producer.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Prepare electroweak fits and indirect determinations in supplied input, width, mixing-angle and mass schemes with declared reference points.",
+    "State the supplied input scheme, pole or running width convention, mixing-angle definition, top mass scheme and quoted mass; retain sourced conversion direction for every mismatch.",
+    "For oblique fits state scalar and top reference masses and scheme. Check every supplied parameter point against its stated validity ranges before interpreting an indirect determination.",
+    "Give every finding a located record path and pointer, check ID or source locator and an evidence class. Computed supplied-record checks establish contract consistency; they do not authenticate inputs or grant physics certification.",
+    "Preserve missing inputs, conflicting sources and unresolved obligations. Request the cheapest discriminating test; never invent an efficiency, covariance, factor or uncertainty.",
+    "Any scientific execution must use the existing admitted method decision, approved plan and supervised launch guard. This card creates no direct native or remote launch path. Never accept your own work or widen approval."
+  ],
+  "purpose": "Prepare electroweak fits and indirect determinations in supplied input, width, mixing-angle and mass schemes with declared reference points.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": false,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-full"
+  },
+  "reviewed_by": [
+    "precision-theory-auditor"
+  ],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [],
+    "profile": "workspace"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 400,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 60,
+    "max_wall_seconds": 2700
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/",
+      "outputs/"
+    ],
+    "validators": [
+      "check:sm.ew_scheme",
+      "check:sm.parametrization_range"
+    ]
+  },
+  "version": "2.1.0"
+}

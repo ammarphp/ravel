@@ -336,10 +336,13 @@
     {
       "evidence_scope": "Reported historical census status; no current installation or physics certification inferred.",
       "id": "census-higgstools-lilith",
-      "installer_groups": [],
+      "installer_groups": [
+        "higgstools",
+        "lilith"
+      ],
       "source_locator": "tools-and-validation-census.md:284",
       "source_status": "X",
-      "status": "excluded",
+      "status": "not_installed",
       "summary": "Higgs constraints",
       "title": "HiggsTools, Lilith"
     },
@@ -1219,6 +1222,246 @@
       "status": "not_installed",
       "summary": "Agent-usable analysis libraries",
       "title": "pyarrow"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-hbdataset",
+      "installer_groups": [
+        "higgstools"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hbdataset",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "HBDataSet"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-hsdataset",
+      "installer_groups": [
+        "higgstools"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hsdataset",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "HSDataSet"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-hdecay",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hdecay",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "HDECAY"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-ehdecay",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#ehdecay",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "eHDECAY"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-2hdecay",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#2hdecay",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "2HDECAY"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-shdecay",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#shdecay",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "sHDECAY"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-n2hdecay",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#n2hdecay",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "N2HDECAY"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-prophecy4f",
+      "installer_groups": [
+        "higgs-decays"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#prophecy4f",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "Prophecy4f"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-2hdmc",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#2hdmc",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "2HDMC"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-scanners",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#scanners",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "ScannerS"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-gmcalc",
+      "installer_groups": [
+        "two-hdm"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#gmcalc",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "GMCALC"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-sushi",
+      "installer_groups": [
+        "sushi"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#sushi",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "SusHi"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-two-doublet-nlo",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#two-doublet-nlo",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "two-doublet-nlo"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-two-doublet-pseudoscalar",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#two-doublet-pseudoscalar",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "two-doublet-pseudoscalar"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-custodial-triplet",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#custodial-triplet",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "custodial-triplet"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-type-two-seesaw",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#type-two-seesaw",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "type-two-seesaw"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-real-triplet",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#real-triplet",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "real-triplet"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-smeftsim",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#smeftsim",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "smeftsim"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-smeft-nlo",
+      "installer_groups": [
+        "higgs-models"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#smeft-nlo",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "smeft-nlo"
+    },
+    {
+      "evidence_scope": "Registered from a source-owned registration fragment; installation and qualification are pending until a receipt exists.",
+      "id": "census-hepfit",
+      "installer_groups": [
+        "hepfit"
+      ],
+      "source_locator": "src/ravel/data/higgs/registration/census-rows.json#hepfit",
+      "source_status": "not-built",
+      "status": "not_installed",
+      "summary": "Pinned-source installation and reference qualification pending.",
+      "title": "HEPfit"
     }
   ]
 }

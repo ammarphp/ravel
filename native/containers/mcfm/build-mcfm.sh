@@ -1,5 +1,6 @@
 #!/bin/bash
-# Build ravel_mcfm_amplitudes inside the MCFM toolchain container.
+# Build ravel_mcfm_amplitudes with GNU compilers: inside the MCFM toolchain container, or on a
+# Linux x86_64 host with the compilers first on PATH (the installer's native route).
 #
 # Usage (paths are host paths mounted at identical container paths):
 #   build-mcfm.sh UPSTREAM_ROOT OVERLAY_ROOT BUILD_DIR
@@ -16,6 +17,9 @@ OVERLAY=$2
 BUILD=$3
 COMMIT=0adaa4ed4079de1b17c84417a0a428a468f57e69
 JOBS=${RAVEL_BUILD_JOBS:-1}
+HERE=$(cd "$(dirname "$0")" && pwd)
+# CMake 4 refuses the bundled QCDLoop's minimum version; CMake 3 ignores this variable.
+export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
 test "$(uname -s)" = Linux
 test -d "$UPSTREAM/.git" || { echo "upstream checkout has no .git directory" >&2; exit 2; }
@@ -29,7 +33,9 @@ COMPILE=(cmake --build "$BUILD" --target ravel_mcfm_amplitudes --parallel "$JOBS
 "${CONFIGURE[@]}"
 "${COMPILE[@]}"
 test -x "$BUILD/ravel_mcfm_amplitudes"
+# MCFM reads these from its working directory; every stage receives pinned copies of them.
+cp "$OVERLAY/Bin/process.DAT" "$OVERLAY/Bin/br.sm1" "$OVERLAY/Bin/br.sm2" "$BUILD/"
 
-python3 /opt/ravel/bin/write_mcfm_receipt.py --upstream "$UPSTREAM" --overlay "$OVERLAY" --build "$BUILD" \
+python3 "$HERE/write_mcfm_receipt.py" --upstream "$UPSTREAM" --overlay "$OVERLAY" --build "$BUILD" \
   --commit "$COMMIT" --command "$(printf '%q ' "${CONFIGURE[@]}") && $(printf '%q ' "${COMPILE[@]}")"
 echo "build receipt: $BUILD/build-receipt.json"

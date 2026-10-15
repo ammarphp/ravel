@@ -1,7 +1,7 @@
 """Adversarial discovery tests on a catalogue built from synthetic upstream checkouts.
 
-RAVEL ships no list of upstream analyses: the catalogue is built from the user's own checkouts.
-No simulator, model call or physics claim is involved.
+The shipped snapshot is covered by test_shipped_catalogue; here the catalogue is built from synthetic
+checkouts. No simulator, model call or physics claim is involved.
 """
 import synthetic_identifiers as syn
 import copy
@@ -30,17 +30,17 @@ def catalog(built):
     return copy.deepcopy(built[1])
 
 
-def test_no_catalogue_is_shipped_and_its_absence_is_explained(tmp_path, monkeypatch):
-    assert not (ROOT / 'src/ravel/data/analysis-catalog.json').exists()
+def test_a_named_catalogue_that_is_absent_is_explained(tmp_path, monkeypatch):
+    assert (ROOT / 'src/ravel/data/analysis-catalog.json').is_file()
     monkeypatch.setenv(ac.CATALOG_ENV, str(tmp_path / 'absent.json'))
     with pytest.raises(ac.CatalogUnavailable, match='ravel catalogue'):
         ac.load_catalog()
 
 
-def test_catalogue_path_defaults_to_the_user_cache(monkeypatch, tmp_path):
+def test_catalogue_builds_default_to_the_user_cache(monkeypatch, tmp_path):
     monkeypatch.delenv(ac.CATALOG_ENV, raising=False)
     monkeypatch.setenv('XDG_CACHE_HOME', str(tmp_path))
-    assert ac.catalog_path() == tmp_path / 'ravel' / 'analysis-catalog.json'
+    assert ac.user_catalog_path() == tmp_path / 'ravel' / 'analysis-catalog.json'
 
 
 def test_complete_defined_inventory(catalog):

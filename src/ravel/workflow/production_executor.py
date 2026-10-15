@@ -37,6 +37,7 @@ from .state_io import atomic_json, read_json
 
 PROVIDER = 'executor'
 DATA = Path(__file__).resolve().parents[1] / 'data' / 'roles' / 'executors.json'
+SIGNATURES = DATA.parent.parent / 'operation_signatures.json'
 ORDERS = 'inputs/work-orders'
 NODES = 'production/nodes'
 WAIVERS = 'production/waivers'
@@ -94,9 +95,90 @@ def role_for(node, table=None):
     return table['operations'].get(node.get('operation'))
 
 
+def requires_production(signature, table=None):
+    """Classify compute from implementation kinds and effects, using the table's rule."""
+    table = executors() if table is None else table
+    rule = table.get('completeness_rule') or executors()['completeness_rule']
+    return (signature.get('implementation', {}).get('kind') in rule['implementation_kinds']
+            or bool(set(signature.get('effects', [])) & set(rule['effects'])))
+
+
+def completeness_errors(*, signatures=None, table=None, cards=None):
+    """Offline census of signatures, host reasons, production identities and card/table agreement."""
+    from . import role_registry
+    signatures = read_json(SIGNATURES)['operations'] if signatures is None else signatures
+    table = executors() if table is None else table
+    cards = role_registry.all_cards() if cards is None else cards
+    mapped, hosts = table['operations'], table.get('host_operations', {})
+    errors = []
+    for operation, signature in sorted(signatures.items()):
+        if requires_production(signature, table) and operation not in mapped:
+            errors.append(f'{operation}: add a production role to executors.json')
+        elif operation not in mapped and operation not in hosts:
+            errors.append(f'{operation}: declare a production role or a host record reason')
+    for operation, reason in sorted(hosts.items()):
+        if operation not in signatures:
+            errors.append(f'{operation}: host record has no operation signature')
+        elif requires_production(signatures[operation], table):
+            errors.append(f'{operation}: compute cannot be a host record')
+        if not isinstance(reason, str) or not reason.strip() or len(reason.splitlines()) != 1:
+            errors.append(f'{operation}: host record needs a one-line reason')
+        if operation in mapped:
+            errors.append(f'{operation}: host and production classifications overlap')
+    production = {card['id']: card for card in cards if card['family'] == 'production'}
+    for operation, role in sorted(mapped.items()):
+        if role not in production:
+            errors.append(f'{operation}: {role} is not a registered production role')
+    for role, card in sorted(production.items()):
+        expected = {operation for operation, assigned in mapped.items() if assigned == role}
+        if set(card['operations']) != expected or len(card['operations']) != len(expected):
+            errors.append(f'{role}: card operations differ from executors.json')
+    return errors
+
+
+def plan_role_errors(facts, table=None):
+    """Reject unroutable nodes before any work order is written; unknown operations fail closed.
+
+    A node that names no operation and declares no stage (a coordinator envelope, a held
+    development request) has nothing to route and stays outside production.
+    """
+    table = executors() if table is None else table
+    signatures = read_json(SIGNATURES)['operations']
+    hosts = table.get('host_operations', {})
+    errors = []
+    for node in (facts.get('plan') or {}).get('nodes', []):
+        operation = node.get('operation')
+        signature = signatures.get(operation)
+        role = role_for(node, table)
+        if role:
+            from . import role_registry
+            try:
+                valid = role_registry.load(role)['family'] == 'production'
+            except ValueError:
+                valid = False
+            if not valid:
+                errors.append(GateError('executor_role_invalid', 'approve_plan', PROVIDER,
+                    f'plan node {node["id"]} operation {operation} names nonproduction role {role}',
+                    'choose a registered production role', ('inputs/request_plan.json',)))
+        elif operation is None:
+            if node.get('stage') is not None:
+                errors.append(GateError('executor_role_missing', 'approve_plan', PROVIDER,
+                    f'plan node {node["id"]} declares a stage but names no operation and no production role',
+                    'name the node\'s operation, or give the node a production role',
+                    ('inputs/request_plan.json',)))
+        elif signature is None or requires_production(signature, table) or operation not in hosts:
+            errors.append(GateError('executor_role_missing', 'approve_plan', PROVIDER,
+                f'plan node {node["id"]} operation {operation} has no production role',
+                f'add a production role for {operation} to executors.json', ('inputs/request_plan.json',)))
+    return errors
+
+
 def production_nodes(facts):
-    """Plan nodes that have an executor role, in a stable topological order (edges, then id)."""
+    """Routable production nodes in topological order; an unroutable compute node refuses the plan."""
     table = executors()
+    errors = plan_role_errors(facts, table)
+    if errors:
+        raise ExecutorRefused(errors)
     plan = facts.get('plan') or {}
     nodes = {n['id']: n for n in plan.get('nodes', []) if role_for(n, table)}
     parents = {nid: set() for nid in nodes}
@@ -230,11 +312,35 @@ def next_order(rundir):
 
 # ---------------------------------------------------------------- dispatch and adoption
 
+def producer_point(rundir, node_id, role):
+    """The producer review point this node's own production work satisfies, or None.
+
+    A plan node an author role produces carries a producer obligation: a review point in
+    ``producer`` mode for that node and role. The node's ordinary dispatch is that work, so
+    the dispatch names the point and its current subject and the dispatcher writes an
+    actor-bound review receipt for it. One receipt credits one point: a node with more than
+    one such obligation is refused here and nothing is dispatched twice.
+    """
+    from . import review_points
+    facts = _facts(rundir)
+    found = [p for p in review_points.derive(facts)
+             if p['mode'] == 'producer' and p.get('node_id') == node_id and any(r['role'] == role for r in p['roles'])]
+    if len(found) > 1:
+        raise ValueError(f'node {node_id} carries more than one producer obligation for {role} ('
+                         + ', '.join(p['id'] for p in found) + '); one receipt credits one producer review point, '
+                         'so the plan must name one before this node is dispatched')
+    if not found:
+        return None
+    return {'review_point_id': found[0]['id'], 'review_subject': review_points.review_subject(facts, found[0])}
+
+
 def worker_spec(rundir, node_id, attempt=1, *, transport_preference=None):
-    """The governed worker spec for a node's role, carrying its sealed work order."""
+    """The governed worker spec for a node's role, carrying its sealed work order and, where the
+    node has one, the producer review point its work satisfies."""
     from . import role_registry
     order = load_order(rundir, node_id)
     card = role_registry.load(order['role'])
+    point = producer_point(rundir, node_id, card['id']) or {'review_point_id': None}
     preference = transport_preference
     if preference is None:
         path = Path(rundir) / 'inputs/agent_preferences.json'
@@ -248,7 +354,7 @@ def worker_spec(rundir, node_id, attempt=1, *, transport_preference=None):
             'declared_outputs': [{k: row[k] for k in ('path', 'kind', 'required')} for row in order['declared_outputs']],
             'budgets': {k: budgets[k] for k in ('max_turns', 'max_wall_seconds', 'max_broker_calls', 'max_cost_usd')},
             'final_record_schema': 'producer.v1', 'work_order': _pin(rundir, f'{ORDERS}/{node_id}.json'),
-            'rdj_challenges': None, 'parent': {'review_point_id': None, 'map_id': 'production:' + node_id, 'rca_ticket': None}}
+            'rdj_challenges': None, 'parent': {**point, 'map_id': 'production:' + node_id, 'rca_ticket': None}}
 
 
 def dispatch(rundir, node_id, attempt=1, *, transport_preference=None, **options):

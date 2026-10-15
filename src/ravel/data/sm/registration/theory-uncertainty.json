@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "operation-registration-fragment",
+  "package": "prediction-uncertainty",
+  "operation_signatures": {
+    "theory-uncertainty": {
+      "module": "ravel.physics.sm.theory_uncertainty",
+      "applicability": {"scope": "general"},
+      "task_fields": ["input", "output"],
+      "entrypoints": ["validate", "inputs", "run"],
+      "native_launch": false
+    }
+  },
+  "mode_descriptors": {
+    "theory-uncertainty": {
+      "summary": "Assemble supplied prediction members, explicit uncertainty prescriptions and declared class covariance.",
+      "applicability": {"scope": "general"},
+      "requires": ["supplied prediction metadata and all members", "per-class prescriptions and correlation models", "source-bound isolated PDF worker result when PDF members are present"],
+      "input_contract": "docs/workflow/reference/theory-uncertainty.md"
+    }
+  },
+  "operations": [
+    {
+      "mode": "theory-uncertainty",
+      "operation": "op:theory-uncertainty",
+      "summary": "Prediction bands and declared theory covariance from supplied member tables or multiweight YODA text.",
+      "applicability": {"scope": "general"},
+      "required_inputs": ["input", "output"],
+      "applicability_predicate": "Explicit binning, program and order, PDF metadata, normalization, supplied members, prescriptions and correlation models",
+      "schema_notes": "prediction_bundle.v1; no physics validation is inferred; unknown streams are retained and completeness is computed"
+    }
+  ],
+  "instruction_declarations": ["docs/workflow/reference/theory-uncertainty.md"],
+  "schemas": {"prediction_bundle.v1": "src/ravel/data/sm/schema/prediction-bundle.schema.json"},
+  "interfaces": {
+    "band": "band(bundle, *, pdf_result=None) -> {minus, plus, by_class, combination, unclassified}",
+    "theory_covariance": "theory_covariance(bundle, model, *, pdf_result=None) -> {by_class, total, correlation_model, symmetrization, class_correlation, law}",
+    "pdf_worker_request": "pdf_worker_request(bundle) -> pdf-uncertainty-request JSON; no launch",
+    "isolated_worker": "rivet environment Python executes lhapdf_worker.py --request PATH --output PATH through existing method admission and supervised execution"
+  },
+  "checks": ["check:sm.alphas_consistent", "check:sm.prescription_declared", "check:sm.np_once"],
+  "handoff": "Registration lane applies this fragment to shared registries and science-worker dispatch, declares the workflow resource, then regenerates the instruction bundle and knowledge atlas. Downstream consumers pass supplied bundles and explicit correlation models. PDF set identity and member population are supplied through the PDF catalogue interface. No shared registry or orchestration file was rewritten."
+}

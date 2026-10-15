@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "package": "higgs-reference-data",
+  "installer_handoff": {
+    "default_required": true,
+    "step_provider": "ravel.validation.constants_manifest:higgs_reference_install_steps",
+    "source_input": "Reviewed supplied source registration with table URL, sha256, byte size and redistribution licence",
+    "destination": "{P}/share/ravel/higgs-tables-v2",
+    "environment": {
+      "RAVEL_CACHE_DIR": "{P}/share/ravel"
+    },
+    "step_kinds": [
+      "download",
+      "write_file"
+    ],
+    "readiness_provider": "ravel.workflow.recast_route:higgs_reference_readiness",
+    "table_loader": "ravel.validation.constants_manifest:load_higgs_tables",
+    "table_version": 2,
+    "licences": [
+      "CC-BY-4.0",
+      "CC0-1.0"
+    ],
+    "integration_status": "Requires supplied reviewed pins and installer-owner composition; no acquisition is performed by this fragment"
+  },
+  "workflow_handoff": {
+    "instruction_target": "docs/workflow/steps/01-environment.md",
+    "loader_call": "load_higgs_tables(version=2)",
+    "cache_contract": "RAVEL_CACHE_DIR/higgs-tables-v2/SOURCE.json plus the pinned table basename; explicit directory overrides the cache",
+    "assembly_contract": "scripts/maintenance/extract_higgs_tables_v2.py --base BASE --additions REVIEWED --output TABLE; all identifiers and row populations supplied",
+    "provenance_contract": "New rows require pdf_page, table, source_line and extraction_script_sha256 in locator. Inherited row and ratio canonical JSON digests are retained.",
+    "bin_contract": "Rectangular half-open intervals with null unbounded ends; axes and units must agree within each process and stage."
+  },
+  "directory_handoff": [
+    {
+      "path": "scripts/maintenance/extract_higgs_tables_v2.py",
+      "track": "software",
+      "purpose": "Assemble supplied reviewed reference records with inherited identity and extraction provenance"
+    },
+    {
+      "path": "src/ravel/data/higgs/registration/",
+      "track": "data",
+      "purpose": "Required data component and instruction integration handoff"
+    }
+  ]
+}

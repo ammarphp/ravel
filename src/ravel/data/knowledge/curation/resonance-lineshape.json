@@ -18,8 +18,8 @@
    }
   ],
   "use_when": [
-   "Leading-order partial widths of spin-0 and spin-1 resonances with fixed, running or complex-pole propagators.",
-   "The declared total width must be checked against the sum of partial widths."
+   "Complete neutral colour-singlet spin-0, spin-1 and spin-2 channel dispositions: declared leading-order formulas, selection rules or explicit free widths, with fixed, running or complex-pole propagators.",
+   "Compute the partial sum, check a declared total against available partial widths, or state in CHECK-IN 1 that the total width is a free parameter and is not derived from couplings."
   ]
  }
 }

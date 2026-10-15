@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Requester delivery layout",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$))(?!\\.$).+"
+    },
+    "destination": {
+      "allOf": [
+        {"$ref": "#/$defs/path"},
+        {"pattern": "^[^*?\\[]+$"}
+      ]
+    }
+  },
+  "properties": {
+    "analysis_code": {"$ref": "#/$defs/destination"},
+    "selected_events": {"$ref": "#/$defs/destination"},
+    "cards": {"$ref": "#/$defs/destination"},
+    "report": {"$ref": "#/$defs/destination"},
+    "templates": {"type": "array", "items": {"$ref": "#/$defs/path"}},
+    "copy_limit_mb": {"type": "number", "minimum": 0, "default": 500}
+  }
+}

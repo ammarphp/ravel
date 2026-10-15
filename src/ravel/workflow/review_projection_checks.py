@@ -15,6 +15,8 @@ gave it. Missing evidence is ``inconclusive``, never a pass.
 - ``impossible_spec``: an acceptance criterion outside the specification's declared
   bounds; the right answer is ``new_experiment_required``, and any pass is a gaming event.
 - ``lesson_screen``: the protected-path do-not-learn rule; a weakening lesson is refused.
+- ``rubric``: a review rubric (``review_rubric``) over the review packet an analysis
+  declares; a blocking item without its evidence is an ``A`` finding naming the item.
 - ``manuscript_audit``: the manuscript against the stored record (protocol, history,
   exposure ledger). Without the record the result is ``inconclusive`` with no finding,
   which is what a manuscript-only reviewer can establish.
@@ -284,6 +286,16 @@ def _divergence(doc, *, check_id='review.divergence'):
 
 
 CHECKS['review.divergence'] = _divergence
+from ravel.validation.higgs_checks import compose_document_checks
+allowlist = compose_document_checks(CHECKS, allowlist)
+
+
+def _rubric(doc, *, check_id='review.rubric'):
+    from . import review_rubric
+    return review_rubric.check(doc, check_id=check_id)
+
+
+CHECKS['review.rubric'] = _rubric
 
 
 def permitted(card, check_id):

@@ -1,0 +1,131 @@
+{
+  "escalation": [
+    "checkin_flag",
+    "stop",
+    "new_experiment_required",
+    "decision_block"
+  ],
+  "family": "specialist-review",
+  "id": "precision-theory-auditor",
+  "independence": {
+    "distinct_actor_from": [
+      "coordinator",
+      "producer"
+    ],
+    "fresh_session": true,
+    "kind": "specialist"
+  },
+  "kind": "role-card",
+  "knowledge": {
+    "budget_tokens": 24000,
+    "consult": [],
+    "derive": [
+      "handbooks_for_node",
+      "checks_judging_node",
+      "premises_firing",
+      "conventions:node_tags"
+    ],
+    "forbidden": [
+      "lessons",
+      "other_verdicts",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "may_query": [
+      "find",
+      "show",
+      "for_node",
+      "coverage"
+    ],
+    "must_read": [
+      "hb:theory-prescriptions",
+      "conv:sm-theory",
+      "trap:TS7",
+      "trap:TS8",
+      "trap:TS9",
+      "trap:TS10",
+      "trap:TS11",
+      "trap:TS12"
+    ]
+  },
+  "model": {
+    "distinct_family_from": [],
+    "effort": "high",
+    "tier": "judgment"
+  },
+  "must_check": [
+    "check:sm.prescription_declared",
+    "check:sm.alphas_consistent",
+    "check:sm.np_once",
+    "check:sm.pdf_error_type",
+    "check:sm.ew_combination",
+    "check:sm.amplitude_complete"
+  ],
+  "operations": [
+    "knowledge query",
+    "review-context read",
+    "check run"
+  ],
+  "output": {
+    "declared_outputs": [],
+    "schema": "findings.v1",
+    "sidecar": true
+  },
+  "protocol": [
+    "Independently audit scale, PDF, coupling, electroweak and nonperturbative prescriptions, correlation models and double counting.",
+    "Begin in a fresh session distinct from the producer. Read the raw bundle and member records without the producer_headline or other verdicts. Recompute the listed checks and reject the review packet on any prescription, coupling or double-counting fault.",
+    "Inspect the scale member population, covariance correlation and distribution model, PDF ErrorType and confidence rescaling, matching alpha_s, additive and multiplicative QCD/EW comparisons, photon-induced terms, nonperturbative corrections applied once and missing amplitude cross terms.",
+    "Use the same prescription census for all measurement domains: correlate common sources, retain supplied table and program uncertainty provenance, and refuse double counting. Report domain-specific applicability limits separately.",
+    "Give every finding a located record path and pointer, check ID or source locator and an evidence class. Computed supplied-record checks establish contract consistency; they do not authenticate inputs or grant physics certification.",
+    "Preserve missing inputs, conflicting sources and unresolved obligations. Request the cheapest discriminating test; never invent an efficiency, covariance, factor or uncertainty.",
+    "Any scientific execution must use the existing admitted method decision, approved plan and supervised launch guard. This card creates no direct native or remote launch path. Never accept your own work or widen approval."
+  ],
+  "purpose": "Independently audit scale, PDF, coupling, electroweak and nonperturbative prescriptions, correlation models and double counting.",
+  "requires": {
+    "attestation_min": "transport",
+    "blind": true,
+    "isolation_min": "ravel-sandbox",
+    "structured_output": true,
+    "tools": "broker-readonly"
+  },
+  "reviewed_by": [],
+  "schema_version": 2,
+  "sees": {
+    "forbidden_inputs": [
+      "lessons",
+      "other_verdicts",
+      "producer_headline",
+      "withheld_sources"
+    ],
+    "profile": "blind"
+  },
+  "stop": {
+    "evidence_budget": 0,
+    "max_broker_calls": 200,
+    "max_cost_usd": null,
+    "max_rounds": 2,
+    "max_turns": 40,
+    "max_wall_seconds": 1200
+  },
+  "tools": {
+    "exec_argv_prefixes": [],
+    "ravel_actions": [
+      "knowledge query",
+      "review-context read",
+      "check run"
+    ],
+    "read_paths": [
+      "inputs/",
+      "outputs/"
+    ],
+    "validators": [
+      "check:sm.prescription_declared",
+      "check:sm.alphas_consistent",
+      "check:sm.np_once",
+      "check:sm.pdf_error_type",
+      "check:sm.ew_combination",
+      "check:sm.amplitude_complete"
+    ]
+  },
+  "version": "2.1.0"
+}

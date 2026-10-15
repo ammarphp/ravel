@@ -211,3 +211,208 @@ def test_installed_record_fetch_asks_for_the_pinned_link_and_checks_the_digest_u
     swapped = {a: documents[b] for a, b in zip(documents, reversed(list(documents)))}
     with pytest.raises(cm.ConstantsError, match='does not match its pin'):
         cm.fetch_higgs_source(next(iter(expected)), tmp_path / 'other', directory=tmp_path, opener=swapped.__getitem__)
+V2_FIXTURE = FIXTURE.with_name('synthetic-tables-v2.json')
+
+
+def tables_v2():
+    return json.loads(V2_FIXTURE.read_text())
+
+
+def test_v2_unresolved_citation_names_key():
+    doc = tables_v2(); doc['rows'][3]['citation_key'] = 'synthetic-unknown'
+    assert any(f['field_path'] == 'rows[3].citation_key' and f['kind'] == 'citation'
+               for f in cm.check_higgs_tables(doc))
+
+
+def test_v2_coefficient_requires_locator():
+    doc = tables_v2(); del doc['rows'][4]['locator']
+    assert any(f['field_path'] == 'rows[4].locator' for f in cm.check_higgs_tables(doc))
+
+
+def test_v2_overlapping_bins_name_boundaries():
+    doc = tables_v2(); doc['rows'][7]['boundaries']['synthetic-axis']['lower'] = 0.5
+    assert any(f['field_path'] == 'rows[7].boundaries' and f['kind'] == 'overlap'
+               for f in cm.check_higgs_tables(doc))
+
+
+def extractor():
+    import runpy
+    path = Path(__file__).resolve().parents[2] / 'scripts/maintenance/extract_higgs_tables_v2.py'
+    return runpy.run_path(str(path))
+
+
+def test_v2_assembly_preserves_legacy_and_stamps_provenance():
+    base = tables(); fixture = tables_v2()
+    additions = {'citations': {}, 'rows': fixture['rows'][3:], 'ratios': []}
+    doc = extractor()['assemble'](base, additions)
+    assert not cm.check_higgs_tables(doc)
+    assert doc['rows'][:3] == base['rows'] and doc['ratios'] == base['ratios']
+    script = Path(extractor()['__file__'])
+    assert all(r['locator']['extraction_script_sha256'] == sha256(script.read_bytes()).hexdigest()
+               for r in doc['rows'][3:])
+
+
+def test_v2_assembly_refuses_replacement_of_legacy_citation():
+    additions = {'citations': {'synthetic-source': {'title': 'changed'}}, 'rows': [], 'ratios': []}
+    with pytest.raises(cm.ConstantsError, match='citation'):
+        extractor()['assemble'](tables(), additions)
+
+
+def test_v2_install_steps_require_reviewed_table_pin(tmp_path):
+    source = installed_fixture(tmp_path)
+    source['table'].update(url='https://example.invalid/tables',
+                           sha256='a' * 64, bytes=5, licence='CC0-1.0')
+    steps = cm.higgs_reference_install_steps(source, '/supplied/cache')
+    assert steps[0]['kind'] == 'download' and steps[0]['sha256'] == 'a' * 64
+    source['table']['sha256'] = 'not-a-digest'
+    with pytest.raises(cm.ConstantsError, match='pin'):
+        cm.higgs_reference_install_steps(source, '/supplied/cache')
+
+
+def test_v2_install_refuses_unreviewed_redistribution_licence():
+    source = {'table': {'path': 'tables.json', 'url': 'https://example.invalid/tables',
+                        'sha256': 'a' * 64, 'bytes': 5, 'licence': 'unknown'}}
+    with pytest.raises(cm.ConstantsError, match='licence'):
+        cm.higgs_reference_install_steps(source, '/supplied/cache')
+
+
+def test_v2_fixture_covers_all_kinds_and_recomputes_ratios():
+    doc = tables_v2()
+    assert not cm.check_higgs_tables(doc)
+    assert {'total_width', 'kappa_coefficient', 'c1_coefficient', 'stxs_bin'} <= {
+        row['quantity'] for row in doc['rows']}
+    computed = cm.recompute_higgs_ratios(doc)
+    assert abs(computed['synthetic-width-ratio'] - 1.5) <= 1e-9
+    assert abs(computed['synthetic-energy-ratio'] - 2) <= 1e-9
+
+
+def test_v2_preserves_every_installed_v1_row_and_doctor_readiness():
+    from ravel.workflow.recast_route import higgs_reference_readiness
+    base = cm.load_higgs_tables(version=1)
+    doc = extractor()['assemble'](base, {'citations': {}, 'rows': [], 'ratios': []})
+    for section in ('rows', 'ratios'):
+        assert json.dumps(doc[section], sort_keys=True).encode() == json.dumps(base[section], sort_keys=True).encode()
+    assert higgs_reference_readiness()['readiness'] == 'ready'
+
+
+def test_v2_loader_uses_installed_cache_and_refuses_wrong_version(tmp_path, monkeypatch):
+    root = tmp_path / 'higgs-tables-v2'; root.mkdir()
+    source = installed_fixture(root)
+    raw = V2_FIXTURE.read_bytes(); (root / 'tables.json').write_bytes(raw)
+    source['table']['sha256'] = sha256(raw).hexdigest()
+    (root / 'SOURCE.json').write_text(json.dumps(source))
+    monkeypatch.setenv('RAVEL_CACHE_DIR', str(tmp_path))
+    assert cm.load_higgs_tables(version=2, allow_synthetic=True)['schema_version'] == 2
+    with pytest.raises(cm.ConstantsError, match='version'):
+        cm.load_higgs_tables(root, version=1, allow_synthetic=True)
+    with pytest.raises(cm.ConstantsError, match='synthetic'):
+        cm.load_higgs_tables(root, version=2)
+
+
+@pytest.mark.parametrize('section', ['rows', 'ratios'])
+def test_v2_legacy_digest_refuses_mutation_and_deletion(section):
+    doc = tables_v2(); doc[section][0]['value'] += 0.1
+    assert any(f['kind'] == 'identity' for f in cm.check_higgs_tables(doc))
+    doc = tables_v2(); del doc[section][0]
+    assert any(f['kind'] == 'identity' for f in cm.check_higgs_tables(doc))
+
+
+@pytest.mark.parametrize('mutation', ['inverted', 'axis', 'unit', 'duplicate', 'nonfinite', 'empty'])
+def test_v2_malformed_bins_are_refused(mutation):
+    doc = tables_v2(); row = doc['rows'][7]; bounds = row['boundaries']['synthetic-axis']
+    if mutation == 'inverted': bounds['lower'] = 2
+    elif mutation == 'axis': row['boundaries'] = {'synthetic-other-axis': bounds}
+    elif mutation == 'unit': bounds['unit'] = '1'
+    elif mutation == 'duplicate': row['bin_id'] = doc['rows'][6]['bin_id']
+    elif mutation == 'nonfinite': bounds['upper'] = float('inf')
+    else: row['boundaries'] = {}
+    assert cm.check_higgs_tables(doc)
+
+
+def test_v2_bin_overlap_requires_intersection_in_every_axis():
+    doc = tables_v2()
+    for row in doc['rows'][6:8]:
+        row['boundaries']['synthetic-axis'] = {'lower': None, 'upper': None, 'unit': '1'}
+    doc['rows'][6]['boundaries']['synthetic-second-axis'] = {'lower': None, 'upper': 2, 'unit': '1'}
+    doc['rows'][7]['boundaries']['synthetic-second-axis'] = {'lower': 2, 'upper': None, 'unit': '1'}
+    assert not cm.check_higgs_tables(doc)
+    doc['rows'][7]['boundaries']['synthetic-second-axis']['lower'] = 1
+    assert any(f['kind'] == 'overlap' for f in cm.check_higgs_tables(doc))
+
+
+@pytest.mark.parametrize('field', ['pdf_page', 'table', 'source_line', 'extraction_script_sha256'])
+def test_v2_new_row_requires_complete_locator(field):
+    doc = tables_v2(); del doc['rows'][4]['locator'][field]
+    assert cm.check_higgs_tables(doc)
+
+
+def test_v2_extractor_cli_keeps_existing_output(tmp_path, capsys):
+    additions = tmp_path / 'additions.json'
+    additions.write_text(json.dumps({'citations': {}, 'rows': [], 'ratios': []}))
+    output = tmp_path / 'tables.json'
+    args = ['--base', str(FIXTURE), '--additions', str(additions), '--output', str(output)]
+    assert extractor()['main'](args) == 0
+    assert json.loads(capsys.readouterr().out)['sha256'] == sha256(output.read_bytes()).hexdigest()
+    with pytest.raises(FileExistsError):
+        extractor()['main'](args)
+
+
+def test_v2_install_steps_use_existing_installer_with_fake_fetcher(tmp_path):
+    from types import SimpleNamespace
+    from ravel.setup.steps import run_step
+    from ravel.setup.manifest import _check_step
+    raw = V2_FIXTURE.read_bytes()
+    cache = tmp_path / 'download.json'; cache.write_bytes(raw)
+    destination = tmp_path / 'installed'; destination.mkdir()
+    source = installed_fixture(destination)
+    source['table'].update(url='https://example.invalid/tables', bytes=len(raw),
+                           sha256=sha256(raw).hexdigest(), licence='CC0-1.0')
+    (destination / 'tables.json').unlink()
+    calls = []
+
+    def fetch(url, pin):
+        calls.append((url, pin))
+        assert sha256(cache.read_bytes()).hexdigest() == pin['sha256']
+        return cache
+
+    context = SimpleNamespace(values={}, fetcher=SimpleNamespace(fetch=fetch), adopt=False)
+    step_ids = set()
+    for step in cm.higgs_reference_install_steps(source, destination):
+        _check_step('synthetic-data', step, step_ids)
+        run_step(step, context)
+    assert len(calls) == 1
+    assert cm.load_higgs_tables(destination, version=2, allow_synthetic=True) == tables_v2()
+
+
+def test_v2_installer_refuses_incomplete_source_registration():
+    source = {'table': {'path': 'tables.json', 'url': 'https://example.invalid/tables',
+                        'sha256': 'a' * 64, 'bytes': 5, 'licence': 'CC0-1.0'}}
+    with pytest.raises(cm.ConstantsError, match='registration'):
+        cm.higgs_reference_install_steps(source, '/supplied/cache')
+
+
+def test_v2_physics_tables_must_inherit_exactly_the_installed_v1_population(tmp_path):
+    base = cm.load_higgs_tables(version=1)
+    source = cm.load_higgs_source()
+
+    def install(document, name):
+        root = tmp_path / name; root.mkdir()
+        raw = json.dumps(document).encode(); (root / 'tables.json').write_bytes(raw)
+        pin = {'path': 'tables.json', 'sha256': sha256(raw).hexdigest(), 'bytes': len(raw)}
+        (root / 'SOURCE.json').write_text(json.dumps({**source, 'table': pin}))
+        return root
+
+    doc = extractor()['assemble'](base, {'citations': {}, 'rows': [], 'ratios': []})
+    assert cm.load_higgs_tables(install(doc, 'whole'), version=2) == doc
+    dropped = json.loads(json.dumps(doc))
+    used = {r[side] for r in dropped['ratios'] for side in ('numerator', 'denominator')}
+    gone = next(r for r in dropped['rows'] if r['id'] not in used)
+    dropped['rows'].remove(gone); del dropped['legacy_rows_sha256'][gone['id']]
+    assert not cm.check_higgs_tables(dropped)  # self-consistent, yet not the installed population
+    with pytest.raises(cm.ConstantsError, match='inherit'):
+        cm.load_higgs_tables(install(dropped, 'dropped'), version=2)
+    added = json.loads(json.dumps(doc)); new = dict(added['rows'][0], id='unlocated-row')
+    added['rows'].append(new)
+    added['legacy_rows_sha256'][new['id']] = cm._higgs_row_digest(new)
+    with pytest.raises(cm.ConstantsError, match='inherit'):
+        cm.load_higgs_tables(install(added, 'added'), version=2)

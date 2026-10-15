@@ -2,34 +2,60 @@
 \usepackage{ravel-figures}
 \begin{document}
 \begin{tikzpicture}[x=1mm,y=1mm]
-\ravelheader{How RAVEL works}{From a question to a reviewed result, with you steering.}
-\tikzset{big/.style={box=48mm, minimum height=17mm, font=\ravelLabelFont}}
-% Row 1, left to right.
-\node[big, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (q) at (5,-24)
-  {\nodetitle{Your question}\nodesub{in plain words}};
-\node[big, draw=rvpeopleline, fill=rvpeoplefill, anchor=north west] (p) at (61,-24)
-  {\nodetitle{Plan and CHECK-IN 1}\nodesub{you approve scope and budget}};
-\node[big, draw=rvagentline, fill=rvagentfill, anchor=north west] (a) at (117,-24)
-  {\nodetitle{Agent team}\nodesub{plans, builds and runs}};
-% Row 2, right to left.
-\node[big, draw=rvhepline, fill=rvhepfill, anchor=north west] (t) at (117,-54)
-  {\nodetitle{Physics toolchain}\nodesub{generators, analyses, fits}};
-\node[big, draw=rvguardline, fill=rvguardfill, anchor=north west] (r) at (61,-54)
-  {\nodetitle{Independent review}\nodesub{critic, verifier, synthesis}};
-\node[big, draw=rvravelline, fill=rvravelfill, anchor=north west] (o) at (5,-54)
-  {\nodetitle{Reviewed result}\nodesub{numbers, figures, report}};
-\draw[flow] (q) -- (p);
-\draw[flow] (p) -- (a);
-\draw[flow] (a) -- (t);
-\draw[flow] (t) -- (r);
-\draw[flow] (r) -- (o);
-\draw[loop] (r.north) -- ++(0,6.5) -| node[flowlabel, pos=0.25] {objections return work} ([xshift=-12mm]a.south);
-% Two bands that run under every step.
-\node[box=160mm, draw=rvpeopleline, fill=rvpeoplefill, minimum height=11mm, anchor=north west] (s) at (5,-79)
-  {\nodetitle{You steer throughout}\hspace{2.2mm}{\color{rvmuted}approvals, budgets, questions and stop}};
-\node[box=160mm, draw=rvrecordsline, fill=rvrecordsfill, minimum height=11mm, anchor=north west] (k) at (5,-93)
-  {\nodetitle{Every step is recorded}\hspace{2.2mm}{\color{rvmuted}inputs, tool versions, receipts and results}};
-\ravellegend{-109}{people/You, agent/Agents, hep/Physics tools, guard/Review, ravel/Result, records/Records}
+\ravelheader{How RAVEL works}{A question becomes a reviewed result; agents build, independent reviewers judge, you approve.}
+\tikzset{
+  stlabel/.style={align=center, text width=#1, inner sep=0pt},
+  stlabel/.default=30mm,
+  cell/.style={chip=#1, minimum height=9.4mm, font=\ravelSmallFont, inner xsep=1.6mm},
+  lane/.style={rounded corners=2.4mm, line width=0.6pt, draw=rv#1line, fill=rv#1fill},
+  guide/.style={draw=rvpeopleline, line width=0.8pt, dash pattern=on 2pt off 1.6pt},
+}
+% ---- The study timeline: stations at x = 12 + 20.6 (i - 1).
+\def\ly{-42}
+\draw[metro] (12,\ly) -- (156.2,\ly);
+\draw[metro, -{Stealth[length=3mm, width=2.6mm]}] (156.2,\ly) -- (165,\ly);
+\foreach \x in {12,32.6,73.8,115,135.6} \node[station] at (\x,\ly) {};
+\foreach \x in {53.2,94.4,156.2} \node[stationgate] at (\x,\ly) {};
+% Labels alternate above and below the line.
+\node[stlabel, anchor=north west, align=left] at (5,-23) {\nodetitle{Request}\nodesub{your question, in plain words}};
+\node[stlabel, anchor=north] at (53.2,-23) {\nodetitle{CHECK-IN 1}\nodesub{you approve plan, scope and budget}};
+\node[stlabel, anchor=north] at (94.4,-23) {\nodetitle{CHECK-IN 2}\nodesub{early result beside the published one}};
+\node[stlabel, anchor=north] at (135.6,-23) {\nodetitle{Delivery}\nodesub{figures, report, record audit}};
+\node[stlabel, anchor=north] at (32.6,\ly-6) {\nodetitle{Plan}\nodesub{method, sources, budget, waypoint}};
+\node[stlabel, anchor=north] at (73.8,\ly-6) {\nodetitle{Build and run}\nodesub{models, events, analyses, fits}};
+\node[stlabel, anchor=north] at (115,\ly-6) {\nodetitle{Research loop}\nodesub{staged experiments, when asked}};
+\node[stlabel=26mm, anchor=north east, align=right] at (165,\ly-6) {\nodetitle{CHECK-IN 3}\nodesub{final review, then the result}};
+% ---- Lanes: who acts at each point of the study.
+\def\la{-66}\def\lb{-85}\def\lc{-101}
+\begin{scope}[on background layer]
+  \draw[lane=agent] (5,\la) rectangle (165,\la-17);
+  \draw[lane=hep] (5,\lb) rectangle (165,\lb-14);
+  \draw[lane=guard] (5,\lc) rectangle (165,\lc-18);
+  \foreach \x in {53.2,94.4,156.2} \draw[guide] (\x,\la) -- (\x,\lc-18);
+\end{scope}
+\node[bandlabel] at (7,\la-1.4) {AGENTS};
+\node[bandlabel] at (7,\lb-1.4) {PHYSICS TOOLS};
+\node[bandlabel] at (7,\lc-1.4) {INDEPENDENT REVIEW};
+\node[cell=agent, anchor=north west, minimum width=37mm, text width=33.8mm] at (6.5,\la-6) {driver reads the request and plans};
+\node[cell=agent, anchor=north west, minimum width=56mm, text width=52.8mm] at (46,\la-6) {producers and tool consultants build and run the approved work};
+\node[cell=agent, anchor=north west, minimum width=19mm, text width=15.8mm] at (105.5,\la-6) {research team};
+\node[cell=agent, anchor=north west, minimum width=38mm, text width=34.8mm] at (126,\la-6) {driver and writer deliver the result};
+\node[cell=hep, anchor=north west, minimum width=99mm, text width=95.8mm, minimum height=7.6mm] at (46,\lb-5.4)
+  {MadGraph5\_aMC@NLO, Pythia 8, Delphes, Rivet, SimpleAnalysis, pyhf and more};
+\node[cell=guard, anchor=north west, minimum width=19mm, text width=15.8mm] at (23.1,\lc-6) {plan critic};
+\node[cell=guard, anchor=north west, minimum width=19mm, text width=15.8mm] at (84.9,\lc-6) {voting panel};
+\node[cell=guard, anchor=north west, minimum width=19mm, text width=15.8mm] at (105.5,\lc-6) {research reviewers};
+\node[cell=guard, anchor=north west, minimum width=19mm, text width=15.8mm] at (126,\lc-6) {record audits};
+\node[cell=guard, anchor=north west, minimum width=17mm, text width=13.8mm] at (146.6,\lc-6) {voting panel};
+% ---- Running through every step.
+\tikzset{base/.style={box=51.3mm, minimum height=19mm, anchor=north west}}
+\node[base, draw=rvpeopleline, fill=rvpeoplefill] at (5,-122)
+  {\nodetitle{You steer}\nodesub{note, redirect, pause or veto at any time, within approved budgets}};
+\node[base, draw=rvravelline, fill=rvravelfill] at (59.35,-122)
+  {\nodetitle{Decision justification}\nodesub{every consequential action justified to verified evidence}};
+\node[base, draw=rvrecordsline, fill=rvrecordsfill] at (113.7,-122)
+  {\nodetitle{Custody}\nodesub{hash-chained record of inputs, approvals and decisions}};
+\ravellegend{-146}{people/You, agent/Agents, hep/Physics tools, guard/Review, ravel/RAVEL, records/Records}
 \ravelcanvasfit
 \end{tikzpicture}
 \end{document}

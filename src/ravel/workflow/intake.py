@@ -406,7 +406,10 @@ def proposal(prompt, interpretation=None):
         return None
     if requests_discovery(prompt):
         return None
-    kind = None if prospective_significance_request(prompt) else infer_kind(prompt)
+    # A complete new search on supplied samples stays a research parent; its expected significance is one output.
+    from .request_reading import supplied_sample_search
+    kind = (None if prospective_significance_request(prompt)
+            and not supplied_sample_search(actionable_text(routing_text(prompt))) else infer_kind(prompt))
     base = {"schema_version": 1, "prompt_sha256": prompt_hash(prompt), "objective": prompt.strip(),
             "source": "local-parser", "review_status": "draft",
             "evidence": [{"start": 0, "end": len(prompt), "text": prompt}]}

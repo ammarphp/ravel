@@ -94,3 +94,20 @@ def test_cli_launcher_record_and_launch(tmp_path, podman, monkeypatch, capsys):
                                       poll=0.1, grace=3.0, inputs=[str(out)], required_plan='smoke')
     assert code == 0, (root / 'logs/container.log').read_text()
     assert (work / 'marker').read_text().strip() == 'built'
+
+
+def test_cli_launcher_accepts_a_foreign_platform_only_with_declared_emulation(tmp_path, podman, monkeypatch, capsys):
+    foreign = 'linux/amd64' if oci_local.host_platform() != 'linux/amd64' else 'linux/arm64'
+    refused = tmp_path / 'refused.json'
+    assert eb.main(['launcher', '--image-reference', DIGEST, '--platform', foreign, '--out', str(refused)]) == 2
+    assert 'emulation' in capsys.readouterr().err and not refused.exists()
+    out = tmp_path / 'launcher.json'
+    assert eb.main(['launcher', '--image-reference', DIGEST, '--platform', foreign, '--emulation', '--out', str(out)]) == 0
+    image = json.loads(out.read_text())['image']
+    assert image == {'platform': foreign, 'reference': DIGEST, 'emulation': True}
+    work = tmp_path / 'work'
+    work.mkdir()
+    capsys.readouterr()
+    assert eb.main(['launch', '--launcher', str(out), '--workdir', str(work), '--writable', str(work), '--', 'true']) == 0
+    argv = json.loads(capsys.readouterr().out)['argv']
+    assert argv[argv.index('--platform') + 1] == foreign

@@ -73,6 +73,8 @@ def conversational_reply(prompt):
 # --------------------------------------------------------------------------- #
 
 GATE_MODULES = ("workflow/host_gate.py", "workflow/host_governance.py", "workflow/active_run.py",
+                "workflow/site_tools.py", "data/site_tools/*.json", "data/agent_surface/hooks.json",
+                "data/checkin/sections.json", "workflow/science.py", "validation/validate_checkin.py",
                 "workflow/launch_authorization.py", "workflow/workflow_state.py",
                 "workflow/stop_dispatch.py", "workflow/decision_gate.py", "workflow/raw_launch.py",
                 "workflow/transport_receipt.py", "workflow/transport_registry.py", "workflow/cli_agent_host.py",

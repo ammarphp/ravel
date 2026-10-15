@@ -8,6 +8,12 @@ owner-action, remote or unsupported) and a recorded `qualification` (qualified, 
 not-built). Installed is not qualified; a qualification names an executed study, and the group's
 `qualification_basis` says which.
 
+For toolchain development, groups may also live in `native/setup/groups/<group-id>.json`.
+Read `ravel.setup.manifest.view(root)` for the merged tree document or `load(root)`
+for catalogue validation. The [fragment contract](../../native/setup/groups/README.md)
+describes default membership, dependency order, release holds, the schema, the split
+helper and `python -m ravel.setup.manifest view --canonical-sha256`.
+
 ## Python environments (the checkout)
 
 | Environment | Contents | Pins |
@@ -26,7 +32,7 @@ pyarrow) are provided by the analysis site's LCG view and are not pinned by RAVE
 |---|---|---|
 | `madgraph` | `mg5`, `mg5-3` | MadGraph5_aMC@NLO 2.9.27 (`eb76cab7`) and 3.7.0 (`adf3d62d`), LHAPDF 6.5.6 |
 | `rivet-shower` | `rivet` | Rivet 4.1.3, YODA 2.1.3, Pythia 8.312, HepMC3 3.3.1 |
-| `recast-base`, `ma5` | `recast` | ROOT 6.40.00, FastJet 3.5.2, Delphes 3.5.1, MadAnalysis 5 1.11.1 |
+| `recast-base`, `ma5`, `checkmate` | `recast`, `pythia82`, `checkmate` | ROOT 6.40.00, FastJet 3.5.2, Delphes 3.5.1, MadAnalysis 5 1.11.1, CheckMATE 2 (`bacf9d17`) with Pythia 8.244 |
 | `container-runtime`, `simpleanalysis`, `root-combine` | Podman 5.8.2 client, vfkit, gvproxy | SimpleAnalysis and CMS Combine images by digest |
 | `smodels` | `.venv-smodels`, `smodels311` | database `official321.pcl` (Zenodo 10.5281/zenodo.23067688) with 3.1.1 and `official311.pcl` still installed; coverage statements cite the database version in `config/smodels.json` |
 | `contur` | `herwig` | Contur 3.1.5 with `[spey]`, Herwig 7.3.0, ThePEG 2.3.0 |

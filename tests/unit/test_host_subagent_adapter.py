@@ -111,3 +111,84 @@ def test_host_broker_refuses_a_brief_whose_toolbelt_changed(run):
         with host_subagent.serve_broker(run, s, widened):
             pass
     assert refused.value.missing == ['toolbelt:changed']
+
+
+def test_a_run_that_pins_a_project_document_puts_it_in_the_brief_and_the_receipt(run, tmp_path):
+    from ravel.workflow import project_instructions
+    text = 'Project rule 1: cite every number.\n'
+    (tmp_path / 'project').mkdir()
+    (tmp_path / 'project/AGENTS.md').write_text(text)
+    pinned = project_instructions.declare(run, tmp_path / 'project/AGENTS.md')
+    s = spec()
+    ws = worker.materialize(run, s)
+    packet = host_subagent.brief(run, s, ws, transport_id='host-subagent-claude')
+    declared = packet['project_instructions']
+    assert declared['text'] == text and declared['record']['sha256'] == pinned['sha256']
+    assert declared['record']['mechanism'] == 'work_packet' and 'before anything else' in declared['read_first']
+    assert 'sha256' in declared['read_first'] and declared['record']['host_acknowledged_sha256'] is None
+    assert json.loads((ws / 'inputs/host-brief.json').read_text())['project_instructions'] == declared
+
+    def completed(attempt, **reported):
+        one = spec(attempt=attempt)
+        brief = packet if attempt == 1 else host_subagent.brief(run, one, worker.materialize(run, one),
+                                                                transport_id='host-subagent-claude')
+        with host_subagent.serve_broker(run, one, brief):
+            broker.socket_call(brief['broker_socket'], {'call_id': 'c1', 'action': 'write',
+                                                        'args': {'path': 'outputs/result.txt', 'content': 'x'}})
+        # The host hands back a packet without the record: the receipt takes it from custody.
+        returned = {k: v for k, v in brief.items() if k != 'project_instructions'}
+        return host_subagent.complete(run, one, returned, final={'completed': True, 'summary': 'host reported'},
+                                      **reported)
+    current = project_instructions.for_run(run)
+    # Writing the brief is not delivery: with no word from the host that the subagent read the document,
+    # the receipt keeps the record and earns no credit.
+    silent = completed(1)
+    assert silent['transport']['project_instructions']['host_acknowledged_sha256'] is None
+    assert silent['outcome']['computed_checks']['project_instructions'] is False
+    assert silent['status'] == 'failed' and silent['credited_outputs'] == []
+    assert project_instructions.receipt_problem(silent, current) == 'project_instructions:unobserved'
+    other = completed(2, instructions_sha256='f' * 64)
+    assert project_instructions.receipt_problem(other, current) == 'project_instructions:unobserved'
+    assert other['status'] == 'failed'
+    # The host reports the sha256 of the document its subagent read: the pinned one.
+    receipt = completed(3, instructions_sha256=pinned['sha256'])
+    assert receipt['status'] == 'ok' and receipt['outcome']['computed_checks']['project_instructions'] is True
+    assert receipt['transport']['project_instructions']['host_acknowledged_sha256'] == pinned['sha256']
+    assert project_instructions.receipt_problem(receipt, current) is None
+    # A document changed after the pin refuses the next brief with the re-pin command.
+    (tmp_path / 'project/AGENTS.md').write_text(text + 'Project rule 2: slipped in.\n')
+    two = spec(attempt=4)
+    with pytest.raises(host_subagent.LaunchRefused) as refused:
+        host_subagent.brief(run, two, worker.materialize(run, two), transport_id='host-subagent-claude')
+    assert refused.value.missing == ['project_instructions:changed'] and 'repin' in str(refused.value)
+
+
+def test_a_run_without_a_pin_keeps_the_brief_and_receipt_unchanged(run):
+    s = spec()
+    ws = worker.materialize(run, s)
+    packet = host_subagent.brief(run, s, ws, transport_id='host-subagent-claude')
+    assert 'project_instructions' not in packet
+    with host_subagent.serve_broker(run, s, packet):
+        broker.socket_call(packet['broker_socket'], {'call_id': 'c1', 'action': 'write',
+                                                     'args': {'path': 'outputs/result.txt', 'content': 'x'}})
+    receipt = host_subagent.complete(run, s, packet, final={'completed': True, 'summary': 'host reported'})
+    assert receipt['status'] == 'ok' and 'project_instructions' not in receipt['transport']
+    assert 'project_instructions' not in receipt['outcome']['computed_checks']
+
+
+def test_a_returned_packet_with_a_changed_instruction_record_has_no_admitted_start(run, tmp_path):
+    from ravel.workflow import project_instructions
+    (tmp_path / 'project').mkdir()
+    (tmp_path / 'project/AGENTS.md').write_text('Project rule 1: cite every number.\n')
+    pinned = project_instructions.declare(run, tmp_path / 'project/AGENTS.md')
+    s = spec()
+    packet = host_subagent.brief(run, s, worker.materialize(run, s), transport_id='host-subagent-claude')
+    with host_subagent.serve_broker(run, s, packet):
+        broker.socket_call(packet['broker_socket'], {'call_id': 'c1', 'action': 'write',
+                                                     'args': {'path': 'outputs/result.txt', 'content': 'x'}})
+    # Only a missing record is restored from custody; an edited one no longer matches the admitted brief.
+    edited = dict(packet, project_instructions=dict(packet['project_instructions'], text='Another rule.\n'))
+    with pytest.raises(host_subagent.LaunchRefused) as refused:
+        host_subagent.complete(run, s, edited, final={'completed': True, 'summary': 'host reported'},
+                               instructions_sha256=pinned['sha256'])
+    assert refused.value.missing == ['steering']

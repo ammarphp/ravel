@@ -1,0 +1,23 @@
+#!@HOST_PYTHON@
+# owned by the RAVEL installer
+# SPDX-License-Identifier: Apache-2.0
+"""Check the natively built amplitude program with the toolchain that built it."""
+import json
+import os
+import subprocess
+import sys
+
+env = dict(os.environ)
+env['PATH'] = '@TOOLCHAIN@' + os.pathsep + env.get('PATH', os.defpath)
+try:
+    proc = subprocess.run(['/bin/bash', '@CHECK@', '@BUILD@'], capture_output=True, text=True, timeout=120,
+                          check=False, env=env)
+    output = proc.stdout.strip()
+    passed = proc.returncode == 0 and json.loads(output).get('status') == 'passed'
+    print(output)
+    if not passed:
+        print(proc.stderr, file=sys.stderr)
+    sys.exit(0 if passed else 1)
+except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+    print(str(error), file=sys.stderr)
+    sys.exit(1)

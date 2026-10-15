@@ -30,7 +30,11 @@
   Codex with a read-only sandbox, so a native write is refused; Gemini cannot turn its
   native tools off, and nothing it writes natively is credited (only broker output pins are);
 - the prompt is written to worker custody with a complete audit record and reaches the
-  CLI on standard input (never in argv).
+  CLI on standard input (never in argv);
+- a run that pins a project instruction document (``project_instructions``) gets its text
+  verbatim ahead of the RAVEL prompt, and the descriptor records its sha256, byte count and
+  mechanism; an instruction file above the workspace is accepted only when it is that pinned
+  document or a file whose whole content imports it.
 
 ``observe`` parses the CLI's own JSON output after the child exits, from the copy the
 supervisor captured through a pipe into custody (never a file in the worker's workspace):
@@ -53,7 +57,7 @@ import sys
 import time
 import uuid
 
-from .. import broker, sandbox, transport_registry as tr
+from .. import broker, project_instructions, sandbox, transport_registry as tr
 from ..state_io import atomic_json, read_json
 
 DESCRIPTOR_KEYS = ('argv', 'transport', 'model', 'pass_env_names', 'read_paths', 'allowed_actions', 'forbidden_sources')
@@ -191,17 +195,30 @@ def current_probe(document, run=None):
 
 # ---------------------------------------------------------------- workspace, home and files
 
-def _no_instruction_files(ws):
-    """The CLI starts in an empty workspace: no instruction or project configuration file above it."""
+def _no_instruction_files(ws, pinned=None):
+    """The CLI starts in an empty workspace: no instruction or project configuration file above it.
+
+    With a pinned project document, an instruction file above the workspace is accepted when it is
+    that document with the pinned sha256, or a file whose whole content is one import of it. The
+    accepted files are returned for the receipt. Every other instruction file and every project
+    configuration directory is refused.
+    """
     account = broker.ordinary(Path.home())
+    accepted = []
     for folder in [ws, *ws.parents]:
         for name in INSTRUCTION_FILES:
-            if (folder / name).exists():
-                _refuse('workspace:instruction-file', str(folder / name))
+            found = folder / name
+            # A link to nothing supplies no text. It is refused only under a pin, where every
+            # instruction file above the workspace must be the declared document or an import of it.
+            if found.exists() or (pinned is not None and found.is_symlink()):
+                if folder == ws or project_instructions.classify(found, pinned) is None:
+                    _refuse('workspace:instruction-file', str(found))
+                accepted.append(project_instructions.ancestor_row(found, pinned))
         if folder != account and not account.is_relative_to(folder):
             for name in PROJECT_CONFIG_DIRS:
                 if (folder / name).exists():
                     _refuse('workspace:project-configuration', str(folder / name))
+    return accepted
 
 
 def _write_once(path, data):
@@ -395,8 +412,10 @@ def _gemini_settings(config_dir):
 
 # ---------------------------------------------------------------- toolbelt and prompt
 
-def toolbelt_for(card, document, blind, *, atlas=None):
-    """The card's toolbelt at the route's tool policy (reviewers run full-tool); blind roles keep workspace tools only."""
+def toolbelt_for(card, document, blind, *, atlas=None, blind_actions=None):
+    """The card's toolbelt at the route's tool policy (reviewers run full-tool). A graph-blind role
+    keeps workspace tools only; a card-blind role keeps the tools of ``blind_actions``, the
+    workspace actions and the actions its own card names (``agent_worker.blind_actions``)."""
     from .. import toolbelt
     effective = deepcopy(card)
     route = document['capabilities']['tools']
@@ -409,8 +428,9 @@ def toolbelt_for(card, document, blind, *, atlas=None):
             [*effective['must_check'], *role_registry.self_checks(effective['id'])])
         executable += (toolbelt.CHECK_ACTION,)
     belt = toolbelt.build(effective, atlas=atlas, executable=executable)
-    if blind:
-        kept = [t for t in belt['tools'] if t['executes_through']['action'] in (None, 'read', 'write')]
+    limit = ('read', 'write') if blind else blind_actions
+    if limit is not None:
+        kept = [t for t in belt['tools'] if t['executes_through']['action'] in (None, *limit)]
         belt['omitted'] += [{'name': t['name'], 'atlas_id': t['atlas_id'], 'reason': 'blind_role',
                              'reachable_through': None} for t in belt['tools'] if t not in kept]
         belt['tools'] = kept
@@ -422,7 +442,7 @@ def build_prompt(card, spec, ws, belt, *, agent, structured):
     """The complete worker prompt: role, protocol, workspace, tools, outputs, budgets and final record."""
     inputs =sorted(p.relative_to(ws).as_posix() for p in (ws / 'inputs').rglob('*')
                     if p.is_file() and not p.is_symlink() and p.parent.name != 'mcp'
-                    and p.name not in ('toolbelt.json', 'final-schema.json'))
+                    and p.name not in ('toolbelt.json', 'final-schema.json', project_instructions.CARRIER_NAME))
     tools = [t for t in belt['tools'] if t['executes_through']['action'] is not None]
     protocol = card.get('protocol') or []
     lines = [f"You are the RAVEL role `{card['id']}` (version {spec['role']['version']}).",
@@ -463,6 +483,12 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
     card = _card(spec, card)
     selected = deepcopy(selection) if selection is not None else _select(run, spec, card)
     document = tr.load(selected['transport_id'])
+    from .. import provider_policy
+    try:
+        admission = provider_policy.admission(run, document, provider_policy.account_class(document),
+                                             input_pins=spec['inputs'])
+    except provider_policy.PolicyRefused as exc:
+        raise LaunchRefused(str(exc), ['provider_policy']) from None
     if document['transport_kind'] != 'cli-worker':
         _refuse('transport_kind:' + document['transport_kind'], 'a CLI worker never falls back to another route')
     problem = tr.executor_problem(document)
@@ -482,11 +508,21 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
         _refuse('cost_budget', 'an API-billed worker needs max_cost_usd')
     if usd is not None and agent != 'claude':
         _refuse('cost_unenforceable', f'{agent} reports no cost; use a null cost budget on a subscription route')
-    _no_instruction_files(ws)
+    try:
+        # A document that no longer matches its pin refuses here, with the re-pin command, before
+        # any ancestor file is judged against it.
+        pinned = project_instructions.for_run(run)
+        if pinned is not None:
+            project_instructions.text_of(pinned)
+    except project_instructions.ProjectInstructionsError as exc:
+        raise LaunchRefused(str(exc), exc.missing) from None
+    ancestors = _no_instruction_files(ws, pinned)
     blind = spec['role']['id'] in agent_worker.blind_roles()
+    card_blind = not blind and (card.get('requires') or {}).get('blind') is True
     from .. import toolbelt
     try:
-        belt = toolbelt_for(card, document, blind, atlas=atlas)
+        belt = toolbelt_for(card, document, blind, atlas=atlas,
+                            blind_actions=agent_worker.blind_actions(card) if card_blind else None)
     except toolbelt.ToolbeltError as exc:
         raise LaunchRefused(f'cli worker refused: toolbelt:{exc}', ['toolbelt']) from None
     home, owned, launch_env, verified, config_dir = _cli_home(agent, document, ws)
@@ -521,7 +557,14 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
         launch_env['HOME'] = str(user_home)
     tools = [t['name'] for t in belt['tools'] if t['executes_through']['action'] is not None]
     structured = surface['structured_output'] == 'enforced'
-    prompt = build_prompt(card, spec, ws, belt, agent=agent, structured=structured)
+    try:
+        # The pinned project document, verbatim, ahead of the RAVEL prompt (or behind the route's confirmed flag).
+        instruction_values, prefix, instruction_record = project_instructions.deliver(
+            pinned, agent, probe, declaration=document, ancestor_files=ancestors,
+            carrier=ws / 'inputs' / project_instructions.CARRIER_NAME)
+    except project_instructions.ProjectInstructionsError as exc:
+        raise LaunchRefused(str(exc), exc.missing) from None
+    prompt = prefix + build_prompt(card, spec, ws, belt, agent=agent, structured=structured)
     key = agent_worker._key(spec['node_id'], spec['attempt'])
     custody = broker.custody(run)
     prompt_path = custody / (key + '.prompt.txt')
@@ -532,7 +575,7 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
               'usd': (f'{usd:.4f}' if usd is not None else None), 'workspace': str(ws),
               # A whole-token config value, dropped with its flag when the card sets no effort.
               'effort_config': (f'model_reasoning_effort="{effort}"' if effort is not None else None),
-              'prompt_hint': PROMPT_HINT}
+              'prompt_hint': PROMPT_HINT, **instruction_values}
     try:
         argv = tr.render_argv(document, values, executable=executable) + list(mcp['argv'])
     except KeyError as exc:
@@ -540,6 +583,9 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
     if agent == 'claude' and '--tools' in argv:
         # No built-in tools; the allowlist names only the broker MCP tools.
         argv[argv.index('--tools') + 1] = ''
+    from .. import execution_guard
+    if (shell := execution_guard.worker_shell_refusal(belt, argv, agent, run)) is not None:
+        _refuse('shell', shell)  # a strict workflow policy: workflow-manager tools only, no general shell
     names = set(document['pass_env']) | set(document['auth']['env_names'])
     pass_env = sorted({n for n in names if n not in agent_worker.RESERVED_ENV}
                       | (set(agent_worker.ACCOUNT_ENV) if agent == 'claude' else set()))
@@ -547,6 +593,7 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
     allowed = sorted({t['executes_through']['action'] for t in belt['tools'] if t['executes_through']['action']})
     declared_loaded = agent in DECLARED_CONFIGURATION_LOADED
     audit = {'schema_version': 1, 'kind': 'cli-worker-prompt-audit', 'node_id': spec['node_id'],
+             'provider_policy': admission,
              'attempt': spec['attempt'], 'role': spec['role'], 'transport_id': document['id'],
              'declaration_sha256': tr.declaration_sha256(document), 'probe_sha256': tr.digest(probe),
              'executable_path': executable, 'executable_sha256': executable_sha,
@@ -559,9 +606,12 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                      'sha256': broker.sha(Path(mcp['path'])) if mcp['path'] else None,
                      'servers': [MCP_SERVER]},
              'tools': tools, 'blind': blind, 'model': model, 'effort': effort, 'created_utc': broker.utc()}
+    if instruction_record is not None:
+        audit['project_instructions'] = instruction_record
     audit_path = custody / (key + '.prompt-audit.json')
     atomic_json(audit_path, audit)
     transport = {'id': document['id'], 'transport_kind': 'cli-worker', 'agent': agent,
+                 'provider_policy': admission,
                  'declaration_sha256': tr.declaration_sha256(document), 'declaration_origin': tr.origin(document),
                  'declared_attestation': document['capabilities']['attestation'],
                  'probe_sha256': tr.digest(probe), 'cli_version': probe['cli_version'],
@@ -575,6 +625,8 @@ def prepare_launch(rundir, spec, workspace, *, selection=None, card=None, atlas=
                  'user_configuration_declared_loaded': declared_loaded,
                  'limits': {'max_turns': spec['budgets']['max_turns'], 'max_cost_usd': usd},
                  'receipt': None}
+    if instruction_record is not None:
+        transport['project_instructions'] = instruction_record
     descriptor = {'argv': argv, 'transport': transport,
                   'model': {'requested': model, 'observed': None, 'family': selected.get('family')
                             or tr.family_of(document, model), 'effort': effort},
@@ -684,6 +736,14 @@ def observe(rundir, descriptor, ws, spec, execution):
         reasons.append('isolation_unconfirmed')
     if transport['declared_attestation'] != 'transport':
         reasons.append('declared_attestation')
+    if transport.get('project_instructions') is not None:
+        # Whether the CLI itself reported loading an instruction file: True or False from its own
+        # configuration report, None when this output format carries no such report.
+        reported = None
+        if parsed is not None and str(parsed.get('config_basis', '')).startswith('stream-json init event'):
+            reported = any('memory_paths' in (event.get('names') or []) for event in config_events)
+        transport['project_instructions'] = project_instructions.with_cli_report(
+            transport['project_instructions'], reported)
     transport['observation'] = {'envelope_error': error, 'limits': checks, 'config_events': config_events,
                                 'stdout_sha256': broker.sha(stdout) if stdout.is_file() else None,
                                 'attestation_reasons': reasons}
@@ -774,11 +834,13 @@ def _surface(ws):
             'ravel': ravel}
 
 
-def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None):
+def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None, instructions=None):
     """Run the conformance task live through ``prepare_launch`` in the sandbox; write the record only if every step passed.
 
     Returns the qualification record. Raises ``LaunchRefused`` (nothing started) or
     ``QualificationFailed`` (the run happened; the failed steps are named; no record).
+    ``instructions`` names a project instruction document: the conformance run pins it, and the
+    added step ``project_instructions_recorded`` passes only when the receipt shows its delivery.
     """
     from .. import agent_worker
     document = tr.load(transport_id)
@@ -794,6 +856,13 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None):
     # The qualification run is created here, empty; its worker launch needs the journal record.
     gate_wiring.initialize_steering(run, route='transport-qualification')
     probe, executable, executable_sha = current_probe(document, run)
+    pinned = None
+    if instructions is not None:
+        try:
+            project_instructions.declare(run, instructions)
+            pinned = project_instructions.for_run(run)
+        except project_instructions.ProjectInstructionsError as exc:
+            raise LaunchRefused(str(exc), exc.missing) from None
     nonce = uuid.uuid4().hex
     source = run / CONFORMANCE_INPUT
     source.parent.mkdir(parents=True, exist_ok=True)
@@ -829,6 +898,8 @@ def qualify(transport_id, *, rundir, model, effort=None, max_cost_usd=None):
         ('executable_unchanged', tr.resolve_executable(document)[1] == executable_sha),
         ('surface_ravel_only', bool(surface['ravel']) and surface['unexpected'] == []),
     ]
+    if pinned is not None:
+        steps.append(('project_instructions_recorded', project_instructions.receipt_problem(receipt, pinned) is None))
     failed = [name for name, ok in steps if not ok]
     if failed:
         raise QualificationFailed(f'transport {transport_id} did not qualify: ' + ', '.join(failed), failed, receipt)
@@ -863,10 +934,12 @@ def main(argv=None):
     parser.add_argument('--model', required=True)
     parser.add_argument('--effort')
     parser.add_argument('--max-cost-usd', type=float)
+    parser.add_argument('--project-instructions', type=Path,
+                        help='a project instruction document to pin for the conformance run; the receipt must record it')
     args = parser.parse_args(argv)
     try:
         record = qualify(args.transport_id, rundir=args.rundir, model=args.model, effort=args.effort,
-                         max_cost_usd=args.max_cost_usd)
+                         max_cost_usd=args.max_cost_usd, instructions=args.project_instructions)
     except LaunchRefused as exc:
         print(json.dumps({'status': 'refused', 'missing': exc.missing, 'detail': str(exc)}, indent=2))
         return 3

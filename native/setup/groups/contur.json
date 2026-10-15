@@ -1,0 +1,118 @@
+{
+ "group": {
+   "id": "contur",
+   "title": "Contur 3.1.5 with its data and Herwig 7.3.0",
+   "depends_on": [
+    "rivet-shower",
+    "lhapdf-sets"
+   ],
+   "size_gb": 2.6,
+   "minutes": 45,
+   "licenses": [
+    {
+     "component": "Contur",
+     "spdx": "GPL-3.0-or-later",
+     "source": "PyPI"
+    },
+    {
+     "component": "Herwig and ThePEG",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "contur",
+     "kind": "pip",
+     "python": "{ENVS}/rivet/bin/python",
+     "requirements": [
+      "contur[spey]==3.1.5"
+     ]
+    },
+    {
+     "id": "contur-data",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-contur-data.sh",
+      "--env",
+      "{ENVS}/rivet",
+      "--user-dir",
+      "{SHARE}/contur"
+     ],
+     "outputs": [
+      "{SHARE}/contur/.ravel-contur-data-built"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-contur-data.sh"
+     ]
+    },
+    {
+     "id": "herwig-env",
+     "kind": "conda_env",
+     "name": "herwig",
+     "specs": [
+      "herwig=7.3.0",
+      "thepeg=2.3.0",
+      "lhapdf=6.5.6",
+      "readline"
+     ]
+    },
+    {
+     "id": "link-pdf-sets",
+     "kind": "link_children",
+     "source": "{LHAPDF_DATA}",
+     "dest": "{ENVS}/herwig/share/LHAPDF"
+    }
+   ],
+   "checks": [
+    {
+     "id": "contur",
+     "kind": "executable",
+     "path": "{ENVS}/rivet/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import importlib.metadata as m; print(m.version('contur'))"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "3.1.5"
+     }
+    },
+    {
+     "id": "contur-data",
+     "kind": "file",
+     "path": "{SHARE}/contur/.ravel-contur-data-built"
+    },
+    {
+     "id": "herwig",
+     "kind": "executable",
+     "path": "{ENVS}/herwig/bin/Herwig",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "(\\d+\\.\\d+\\.\\d+)",
+      "expect": "7.3.0"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "contur",
+     "version": {
+      "contur": "3.1.5",
+      "herwig": "7.3.0"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  }
+}

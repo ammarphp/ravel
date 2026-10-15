@@ -66,8 +66,9 @@ def _ordinary(path):
     return path
 
 
-def _check_pin(pin, *, deep=False):
-    path = _ordinary(pin['path'])
+def _check_pin(pin, *, deep=False, base=None):
+    path = Path(pin["path"])
+    path = _ordinary(path if path.is_absolute() or base is None else Path(base) / path)
     if not path.is_file() or path.stat().st_size != pin['size']:
         raise ValueError('procedure source changed: ' + str(path))
     if deep:
@@ -299,7 +300,7 @@ def build(rundir, *, status=None, _include_campaign=True):
             'limitations': [*(['Per-stage runtime snapshot interface unavailable; no historical environment inferred.']
                                if not callable(getattr(env_snapshot, 'runtime_snapshots', None)) else []),
                             'Model and token fields retain reported provenance; unknown values remain audit gaps.',
-                            'Original source references must remain available for evidence verification.',
+                            'Standalone exports retain absolute source pins and describe the original machine; original sources must remain available.',
                             'Scheduler profiles are configuration templates without native qualification.']}
 
 
@@ -347,7 +348,7 @@ def snakefile(document, expected):
     # No top-level subprocess: a Snakemake dry-run never invokes RAVEL or native tools.
     for i, node in enumerate(document['nodes']):
         deps = [f'completed/node_{ids[d]}.json' for d in node['depends_on']]
-        argv = [sys.executable, '-m', 'ravel.workflow.procedure_export', 'verify-node', '--package', '.',
+        argv = ['ravel', 'procedure', 'verify-node', '--package', '.',
                 '--node', str(i), '--expected-sha256', expected, '--out', f'completed/node_{i}.json']
         command = shlex.join(argv).replace('{', '{{').replace('}', '}}')
         lines += ['', f'rule node_{i}:', '    input: ' + repr(['procedure.json', 'closure.json', *deps]),
@@ -456,9 +457,20 @@ def verify(package, *, deep=False, expected_sha256=None):
     actual_members = {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and not p.relative_to(root).as_posix().startswith(('completed/', '.snakemake/'))}
     if actual_members != members | {'closure.json'}: raise ValueError('procedure member roster changed')
     document = json.loads(path.read_text())
+    embedded = document.get('path_basis') == 'package-relative'
+    if embedded:
+        references = [pin['path'] for pin in document['source_pins']] + document.get('run_dirs', [document['run']])
+        references += [pin['path'] for node in document['nodes'] for pin in node['source_pins']]
+        for value in references:
+            relative = Path(value)
+            if relative.is_absolute() or not (root / relative).resolve().is_relative_to(root.parent.resolve()):
+                raise ValueError('embedded procedure reference escaped package')
     for pin in document['source_pins']:
-        _check_pin(pin, deep=deep)
-    roster = sorted({p for run in document.get('run_dirs', [document['run']]) for p in _roster(Path(run))})
+        _check_pin(pin, deep=deep, base=root)
+    roster = sorted({p for run in document.get('run_dirs', [document['run']])
+                     for p in _roster(Path(run) if Path(run).is_absolute() else root / run)})
+    if document.get('path_basis') == 'package-relative':
+        roster = sorted(Path(os.path.relpath(p, root)).as_posix() for p in roster)
     if roster != document['record_roster']: raise ValueError('worker/research record roster changed')
     env_snapshot.diff(document['environment'], document['environment'])
     validate_snakefile((root / 'Snakefile').read_text(), len(document['nodes']))
@@ -471,7 +483,7 @@ def verify_node(package, node, expected_sha256, output):
     record = document['nodes'][node]
     node_paths = {pin['path'] for row in document['nodes'] for pin in row['source_pins']}
     shared = [pin for pin in document['source_pins'] if pin['path'] not in node_paths]
-    for pin in [*shared, *record['source_pins']]: _check_pin(pin, deep=True)
+    for pin in [*shared, *record['source_pins']]: _check_pin(pin, deep=True, base=Path(package))
     if record['missing_artifacts'] or record.get('unresolved_parents'):
         raise ValueError('recorded node has unresolved evidence')
     out = Path(output)

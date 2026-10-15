@@ -6,12 +6,16 @@ from at most ``max_entries`` entries, the fraction of finite and of zero values 
 value range. Branches whose name contains ``weight`` get their sum, sum of squares and
 negative fraction over the entries read. Nothing is written.
 
-``draft_contract(report, tree)`` turns the report into a draft format descriptor for the
+``draft_contract(report, tree, nominal_suffix="_NOSYS")`` turns the report into a draft format descriptor for the
 columnar engine (the branch contract) and a weight contract. A draft is a proposal for
 CHECK-IN 1: it groups jagged branches by prefix into collections, maps recognisable
 kinematic suffixes to fields, and lists every choice it could not make (a missing mass,
 an undetermined energy unit, an ambiguous weight) under ``unresolved``. It never fills a
-value it cannot read from the file.
+value it cannot read from the file. Complete pt/eta/phi prefixes identify collections;
+each per-object branch belongs to its longest matching collection prefix, retaining
+multi-part field names. An energy-only collection proposes mass from energy and lists
+that choice for confirmation. ``--nominal-suffix`` selects a different literal suffix
+to strip while drafting (an empty string strips nothing).
 """
 import argparse
 import hashlib
@@ -104,57 +108,88 @@ def inspect(path, *, max_entries=10_000, trees=None):
     return report
 
 
-def _split(name):
+def _split(name, nominal_suffix='_NOSYS'):
     """('prefix', 'suffix') for names such as el_pt, Electron.PT or jet_pt_NOSYS."""
-    base = re.sub(r'_NOSYS$', '', name)
-    for sep in ('.', '_'):
-        if sep in base:
-            prefix, _, suffix = base.rpartition(sep)
-            if prefix:
-                return prefix, suffix.lower()
+    base = name.removesuffix(nominal_suffix) if nominal_suffix else name
+    position = max(base.rfind('.'), base.rfind('_'))
+    if position > 0:
+        return base[:position], base[position + 1:].lower()
     return None, base.lower()
 
 
-def draft_contract(report, tree=None):
+def draft_contract(report, tree=None, nominal_suffix='_NOSYS'):
     """A draft format descriptor and weight contract; unresolved choices are listed."""
+    if not isinstance(nominal_suffix, str):
+        raise ValueError('nominal_suffix must be text (empty means no suffix)')
     trees = report['trees'] if tree is None else [t for t in report['trees'] if t['name'] == tree]
     if len(trees) != 1:
         raise ValueError('name one tree with --tree; the file has ' + ', '.join(t['name'] for t in report['trees']))
     t = trees[0]
     unresolved = []
-    groups = {}
+    kinematics = {}
+    jagged = []
     flat = {}
     for b in t['branches']:
         if not b.get('readable') or not b.get('numeric'):
             continue
-        prefix, suffix = _split(b['name'])
+        prefix, suffix = _split(b['name'], nominal_suffix)
         if b.get('jagged') and prefix:
-            groups.setdefault(prefix, {})[suffix] = b
+            jagged.append(b)
+            kinematics.setdefault(prefix, set()).add(SUFFIXES.get(suffix, suffix))
         elif not b.get('jagged'):
             flat[b['name']] = b
+    prefixes = sorted((p for p, keys in kinematics.items() if {'pt', 'eta', 'phi'} <= keys),
+                      key=lambda p: (-len(p), p))
+    groups = {}
+    for b in jagged:
+        base = b['name'].removesuffix(nominal_suffix) if nominal_suffix else b['name']
+        prefix = next((p for p in prefixes if any(base.startswith(p + sep) for sep in ('.', '_'))), None)
+        if prefix is not None:
+            suffix = base[len(prefix) + 1:].lower()
+            groups.setdefault(prefix, []).append((suffix, b))
     collections = {}
     for prefix, members in sorted(groups.items()):
         fields = {}
-        for suffix, b in sorted(members.items()):
+        for suffix, b in sorted(members, key=lambda item: item[0]):
             key = SUFFIXES.get(suffix, re.sub(r'[^a-z0-9_]', '_', suffix.lower()))
-            if not re.fullmatch(r'[a-z][a-z0-9_]{0,63}', key) or key in fields:
-                continue
+            if not key or not key[0].isalpha():
+                key = 'field_' + key
+            if len(key) > 64:
+                key = key[:55] + '_' + hashlib.sha256(suffix.encode()).hexdigest()[:8]
+            original_key, counter = key, 2
+            while key in fields:
+                key = original_key[:60] + f'_{counter}'
+                counter += 1
+            if key != original_key:
+                unresolved.append(f'collection {prefix!r}: branch {b["name"]!r} uses field {key!r}; '
+                                  'confirm the colliding field names')
             fields[key] = b['name']
         if not {'pt', 'eta', 'phi'} <= set(fields):
             continue
         name = re.sub(r'[^a-z0-9_]', '_', prefix.lower())
+        original_name, counter = name, 2
+        while name in collections:
+            name = f'{original_name}_{counter}'
+            counter += 1
+        if name != original_name:
+            unresolved.append(f'collection prefix {prefix!r}: confirm distinct collection name {name!r}')
         collections[name] = {'fields': fields}
         if 'mass' not in fields:
-            unresolved.append(f'collection {name!r}: no mass branch; declare a fixed mass with its source or a branch')
-        pt = next((b for s, b in members.items() if SUFFIXES.get(s) == 'pt'), None)
+            if 'energy' in fields:
+                fields['mass'] = {'from_energy': fields['energy']}
+                unresolved.append(f'collection {name!r}: no mass branch; confirm proposed from_energy '
+                                  f'using {fields["energy"]!r}, its units and any relative tolerance')
+            else:
+                unresolved.append(f'collection {name!r}: no mass branch; declare a fixed mass with its source or a branch')
+        pt = next((b for s, b in members if SUFFIXES.get(s) == 'pt'), None)
         if pt and pt.get('median') is not None and pt['median'] > 1000:
             unresolved.append(f'collection {name!r}: median transverse momentum {pt["median"]:.4g}; '
                               'if the file stores MeV, declare scale 0.001 for every energy field')
     met = None
     for name in sorted(flat):
-        prefix, suffix = _split(name)
+        prefix, suffix = _split(name, nominal_suffix)
         if prefix and 'met' in prefix.lower() and suffix in ('met', 'et', 'pt'):
-            phi = next((n for n in flat if _split(n) == (prefix, 'phi')), None)
+            phi = next((n for n in flat if _split(n, nominal_suffix) == (prefix, 'phi')), None)
             if phi:
                 met = {'magnitude': name, 'phi': phi}
                 break
@@ -190,12 +225,14 @@ def main(argv=None):
     parser.add_argument('--tree', action='append', help='inspect only this tree (repeatable)')
     parser.add_argument('--max-entries', type=int, default=10_000)
     parser.add_argument('--draft', action='store_true', help='also print a draft branch and weight contract')
+    parser.add_argument('--nominal-suffix', default='_NOSYS', help='literal nominal suffix to strip when drafting')
     args = parser.parse_args(argv)
     try:
         report = inspect(args.input, max_entries=args.max_entries, trees=args.tree)
         out = {'report': report}
         if args.draft:
-            out['draft'] = draft_contract(report, args.tree[0] if args.tree and len(args.tree) == 1 else None)
+            out['draft'] = draft_contract(report, args.tree[0] if args.tree and len(args.tree) == 1 else None,
+                                          nominal_suffix=args.nominal_suffix)
         print(json.dumps(out, indent=2, allow_nan=False, default=lambda x: None if isinstance(x, float) and math.isnan(x) else x))
     except (OSError, ValueError) as exc:
         parser.exit(1, f'root-schema refused: {exc}\n')

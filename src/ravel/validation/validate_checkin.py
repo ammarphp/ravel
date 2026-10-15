@@ -29,6 +29,7 @@ from copy import deepcopy
 from importlib import import_module
 from importlib.resources import files
 from ravel.workflow.state_io import read_json
+from ravel.validation import checkin_withheld
 
 CHECKIN_KINDS = ("checkin1", "checkin2", "deck")
 CHECKIN1_SECTIONS = ("i", "i-b", "ii", "iii", "iv", "v", "vi")
@@ -37,6 +38,7 @@ CHECKIN1_CORE = ("i", "iv", "v", "vi")
 # The task-specific sections each variant adds to the core.
 CHECKIN1_VARIANTS = {
     "reproduction": ("i-b", "ii", "iii"),
+    "reference_withheld": ("i-b", "withheld_waypoints"),
     "calculation": ("formula", "conventions", "inputs", "precision", "check_value"),
     "method_study": ("dataset", "splits", "baselines", "calibration"),
     "survey": ("census_table", "coverage_gaps"),
@@ -47,9 +49,9 @@ CHECKIN1_VARIANTS = {
 # Variants a contract admits, keyed by intake kind or task_mode. A single entry is
 # selected automatically; a broader task declares its variant in the check-in.
 VARIANTS_BY_TASK = {
-    "reproduce": ("reproduction",), "reinterpret": ("reproduction",),
-    "projection": ("reproduction",), "scan": ("reproduction",),
-    "no_routine": ("reproduction", "new_search"),
+    "reproduce": ("reproduction", "reference_withheld"), "reinterpret": ("reproduction", "reference_withheld"),
+    "projection": ("reproduction", "reference_withheld"), "scan": ("reproduction", "reference_withheld"),
+    "no_routine": ("reproduction", "reference_withheld", "new_search"),
     "calculation": ("calculation",), "likelihood": ("calculation",),
     "generate": ("generate",),
     "survey": ("survey",), "summary_plot": ("survey",),
@@ -274,6 +276,8 @@ def checkin1_variant(c, contract=None):
     if all(secs.get(k) for k in CHECKIN1_SECTIONS):
         return "reproduction"
     allowed = checkin_variant(contract)["allowed"]
+    if allowed == ("reproduction", "reference_withheld"):
+        return "reproduction"
     if allowed and len(allowed) == 1:
         return allowed[0]
     if allowed:
@@ -491,6 +495,12 @@ def validate(c, base_dir=None):
         secs = {}
 
     if kind == "checkin1":
+        if "site_tools" in secs:
+            try:
+                from ravel.workflow.site_tools import _validate
+                _validate(secs["site_tools"], "scope")
+            except Exception:
+                errs.append("CHECK-IN 1 site_tools must validate against the site-tool scope schema")
         contract = _sibling_contract(base_dir) if base_dir is not None else None
         shape = checkin_variant(contract)
         allowed = shape["allowed"]
@@ -516,6 +526,7 @@ def validate(c, base_dir=None):
                 variant_errs.append(f"task_mode {task_mode} uses the {' or '.join(allowed)} variant: "
                                     "set top-level variant and write its sections instead")
             errs.extend(variant_errs)
+        errs.extend(checkin_withheld.checkin_errors(c, contract, variant, base_dir=base_dir))
         flags = secs.get("v")
         if isinstance(flags, list):
             if not flags:

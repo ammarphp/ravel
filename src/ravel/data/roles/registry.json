@@ -8,6 +8,7 @@
     "consult-Breit-Wigner": "consult-theory",
     "consult-CAMB": "consult-cosmology",
     "consult-CLASS": "consult-cosmology",
+    "consult-CheckMATE": "consult-recast",
     "consult-Cobaya": "consult-cosmology",
     "consult-Combine": "consult-inference",
     "consult-Contur": "consult-rivet",
@@ -93,6 +94,7 @@
     "consult-mcfm": "consult-theory",
     "consult-mg5": "consult-madgraph",
     "consult-mg5_amc": "consult-madgraph",
+    "consult-pdflatex": "consult-latex",
     "consult-pySecDec": "consult-symbolic",
     "consult-pyhf": "consult-inference",
     "consult-pythia": "consult-pythia-delphes",
@@ -375,8 +377,35 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
+          "analysis-lifecycle",
+          "analysis-response-features",
+          "analyze",
+          "authored-analysis",
+          "checkmate-events",
+          "classifier-inputs",
           "columnar-analysis",
-          "authored-analysis"
+          "contrast",
+          "dataset-query-quantities",
+          "external-workflow",
+          "figure-comparison",
+          "group-composition",
+          "group-normalization",
+          "lifecycle-routine-recast",
+          "ma5-pad",
+          "ma5-saf",
+          "manuscript-build",
+          "native-group-acquisition",
+          "ntuple-inventory",
+          "published-classifier",
+          "quantities",
+          "reco-ntuple-routine",
+          "research-comparison",
+          "root-stream",
+          "scientific-delivery",
+          "source-tables",
+          "stau-events",
+          "task-completion-context",
+          "tree-array-export"
         ],
         "output": {
           "declared_outputs": [],
@@ -690,7 +719,32 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
-          "formula-grid"
+          "amplitude-crosscheck",
+          "amplitude-integration",
+          "amplitude-predictions",
+          "chargino-decay-table",
+          "cosmic-evolution",
+          "cosmology-solver",
+          "coupling-morphing",
+          "cross-section",
+          "derived-quantities",
+          "domain",
+          "eft-functions",
+          "eft-toolchain",
+          "feynarts-amplitude",
+          "finite-integrals",
+          "formula-grid",
+          "generated-spectrum",
+          "literal-calculation",
+          "mssm-observable-map",
+          "nmssm-yukawa-map",
+          "numerical-reference-check",
+          "pdf-variations",
+          "quantitative-predictive",
+          "resonance-lineshape",
+          "resonance-width",
+          "simplified-spectrum",
+          "symbolic-evaluation"
         ],
         "output": {
           "declared_outputs": [],
@@ -2603,8 +2657,13 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
+          "generate",
+          "generation-reconciliation",
+          "lhe-transform",
+          "llp-plane-recipe",
           "model-events",
-          "event-production"
+          "svj-recipe",
+          "weighted-events"
         ],
         "output": {
           "declared_outputs": [],
@@ -2900,8 +2959,51 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
+          "asimov-sensitivity",
+          "background-discrete-profile",
+          "continuous-fit",
+          "contur-companion",
+          "contur-import",
+          "contur-yoda",
+          "cr-signal-qualification",
+          "differential-likelihood",
+          "finite-mc",
+          "full-auxiliary-calibration",
+          "hs3-likelihood",
           "inference",
-          "native-likelihood"
+          "joint-fit",
+          "joint-qualification",
+          "joint-score",
+          "lifecycle-scan-aggregation",
+          "lifecycle-shape-fit",
+          "lifecycle-summary-overlay",
+          "lifecycle-workspace-limit",
+          "likelihood",
+          "likelihood-candidate-check",
+          "likelihood-parity",
+          "likelihood-profile-probe",
+          "likelihood-step-refinement",
+          "mass-width-grid",
+          "mc-closure",
+          "mc-expected-construction",
+          "measurement",
+          "model-portfolio",
+          "native-likelihood",
+          "native-statistical-construction",
+          "normalized-measurement",
+          "parameter-space-sampling",
+          "prescribed-statistic",
+          "published-model",
+          "published-summary",
+          "ratio-measurement",
+          "search-statistics",
+          "sfitter-native-fit",
+          "sfitter-observed-events",
+          "sfitter-scan-extraction",
+          "signal-template",
+          "statistical-model",
+          "width-inputs",
+          "workspace-combination-study"
         ],
         "output": {
           "declared_outputs": [],
@@ -4273,8 +4375,17 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
+          "diagram-analysis",
+          "diagrammatica-code",
+          "eft-convention-transport",
+          "feyn-graph",
           "model-authoring",
-          "model-inputs"
+          "model-derivation-bridge",
+          "model-inputs",
+          "model-provider-bridge",
+          "model-sources",
+          "model-tool-bridge",
+          "model-ward"
         ],
         "output": {
           "declared_outputs": [],
@@ -5031,10 +5142,7 @@
         "must_check": [
           "check:validation.validate_task_contract.validate"
         ],
-        "operations": [
-          "knowledge query",
-          "check run"
-        ],
+        "operations": [],
         "output": {
           "declared_outputs": [],
           "schema": "producer.v1",
@@ -7973,7 +8081,12 @@
           "check:validation.validate_task_contract.validate"
         ],
         "operations": [
-          "event-production"
+          "event-production",
+          "initialized-settings-qualification",
+          "initialized-settings-retained",
+          "mpi-observer",
+          "mpi-paired-effect",
+          "retained-shower"
         ],
         "output": {
           "declared_outputs": [],

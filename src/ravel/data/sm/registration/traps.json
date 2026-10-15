@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "kind": "interpretation-traps-fragment",
+  "traps": [
+    {
+      "id": "TS1",
+      "statement": "A normalized distribution covariance is singular along its normalization constraint; a full-rank inverse loses that constraint.",
+      "check": "Inspect the supplied records with check:sm.normalized_rule.",
+      "checks": [
+        "check:sm.normalized_rule"
+      ]
+    },
+    {
+      "id": "TS2",
+      "statement": "A prediction and data at different particle levels or fiducial definitions compare different quantities.",
+      "check": "Inspect the supplied records with check:sm.frame_declared.",
+      "checks": [
+        "check:sm.frame_declared"
+      ]
+    },
+    {
+      "id": "TS3",
+      "statement": "Marginal errors alone omit supplied bin correlations and cannot replace their covariance.",
+      "check": "Inspect the supplied records with check:sm.covariance_assembled.",
+      "checks": [
+        "check:sm.covariance_assembled"
+      ]
+    },
+    {
+      "id": "TS4",
+      "statement": "Rescaling a lower-order shape to a different-order rate without a declaration hides the prediction convention.",
+      "check": "Inspect the supplied records with check:sm.prediction_convention.",
+      "checks": [
+        "check:sm.prediction_convention"
+      ]
+    },
+    {
+      "id": "TS5",
+      "statement": "A fixed-order prediction outside its supplied low-momentum validity domain need not describe the observable.",
+      "check": "Inspect the supplied records with check:sm.validity_range.",
+      "checks": [
+        "check:sm.validity_range"
+      ]
+    },
+    {
+      "id": "TS6",
+      "statement": "A routine reference and measurement bundle from different source revisions can disagree after a source correction.",
+      "check": "Inspect the supplied records with check:sm.reference_version.",
+      "checks": [
+        "check:sm.reference_version"
+      ]
+    },
+    {
+      "id": "TS7",
+      "statement": "A matrix-element strong coupling different from the selected PDF coupling is an inconsistent input prescription.",
+      "check": "Inspect the supplied records with check:sm.alphas_consistent.",
+      "checks": [
+        "check:sm.alphas_consistent"
+      ]
+    },
+    {
+      "id": "TS8",
+      "statement": "A scale envelope does not itself specify a Gaussian or a bin correlation model.",
+      "check": "Inspect the supplied records with check:sm.prescription_declared.",
+      "checks": [
+        "check:sm.prescription_declared"
+      ]
+    },
+    {
+      "id": "TS9",
+      "statement": "Replica and Hessian member populations require different uncertainty formulas and declared confidence rescaling.",
+      "check": "Inspect the supplied records with check:sm.pdf_error_type.",
+      "checks": [
+        "check:sm.pdf_error_type"
+      ]
+    },
+    {
+      "id": "TS10",
+      "statement": "Applying a nonperturbative correction to inputs that already include it counts the correction twice.",
+      "check": "Inspect the supplied records with check:sm.np_once.",
+      "checks": [
+        "check:sm.np_once"
+      ]
+    },
+    {
+      "id": "TS11",
+      "statement": "An electroweak correction combined with QCD without its additive and multiplicative comparison hides combination uncertainty.",
+      "check": "Inspect the supplied records with check:sm.ew_combination.",
+      "checks": [
+        "check:sm.ew_combination"
+      ]
+    },
+    {
+      "id": "TS12",
+      "statement": "A supplied prediction may omit required continuum, loop-induced or interference terms sharing its final state.",
+      "check": "Inspect the supplied records with check:sm.amplitude_complete.",
+      "checks": [
+        "check:sm.amplitude_complete"
+      ]
+    },
+    {
+      "id": "TS13",
+      "statement": "Impact assessed using data already fitted by the selected PDF set is circular.",
+      "check": "Inspect the supplied records with check:sm.pdf_not_circular.",
+      "checks": [
+        "check:sm.pdf_not_circular"
+      ]
+    },
+    {
+      "id": "TS14",
+      "statement": "Validation on observables used to select a tune is not held-out evidence.",
+      "check": "Inspect the supplied records with check:sm.tune_heldout.",
+      "checks": [
+        "check:sm.tune_heldout"
+      ]
+    },
+    {
+      "id": "TS15",
+      "statement": "Combining measurements from a shared dataset or systematic source as independent double counts information.",
+      "check": "Inspect the supplied records with check:sm.measurement_overlap.",
+      "checks": [
+        "check:sm.measurement_overlap"
+      ]
+    }
+  ],
+  "handoff": "Append mechanisms to the interpretation trap registry, not the legacy fixed trap-sweep population. Merge corresponding premise and convention rows and regenerate knowledge together."
+}

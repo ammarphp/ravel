@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "kind": "operation-registration-fragment",
+  "package": "higgs-decays",
+  "operation_signatures": {
+    "higgs-decays": {
+      "summary": "Source-pinned explicit decay cards and supplied output transport; native execution awaits admitted stage integration.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "higgs-decays",
+        "module": "ravel.physics.higgs_decays"
+      },
+      "consumes": [
+        {
+          "slot": "model_point",
+          "kind": "document"
+        },
+        {
+          "slot": "program_format",
+          "kind": "document"
+        },
+        {
+          "slot": "format_source",
+          "kind": "document"
+        },
+        {
+          "slot": "program_outputs",
+          "kind": "table"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "native_card",
+          "kind": "document"
+        },
+        {
+          "slot": "decay_table",
+          "kind": "table"
+        },
+        {
+          "slot": "decay_slha",
+          "kind": "document"
+        },
+        {
+          "slot": "native_job",
+          "kind": "document"
+        }
+      ],
+      "effects": [],
+      "cost": {
+        "unit": "task",
+        "forecast": null,
+        "ceiling_pointer": null
+      },
+      "critical_fields": [
+        "request"
+      ],
+      "basis": {
+        "adds": [],
+        "passes": [
+          "model_point",
+          "program_format",
+          "format_source",
+          "program_outputs"
+        ]
+      },
+      "tools": [
+        "HDECAY",
+        "eHDECAY",
+        "2HDECAY",
+        "sHDECAY",
+        "N2HDECAY",
+        "Prophecy4f",
+        "2HDMC",
+        "FeynHiggs"
+      ],
+      "stages": [],
+      "review": {
+        "checks": [
+          "explicit_physics_inputs",
+          "single_program_branching_set",
+          "exclusive_width_conservation",
+          "source_layout_qualification",
+          "cited_reference_comparison"
+        ]
+      },
+      "fidelity_rank": 1,
+      "task_fields": [
+        "request"
+      ]
+    }
+  },
+  "mode_descriptors": {
+    "higgs-decays": {
+      "summary": "Explicit Higgs decay cards, one-program branching sets and source-bound output transport.",
+      "operations": [
+        "higgs-decays"
+      ],
+      "tools": [
+        "HDECAY",
+        "eHDECAY",
+        "2HDECAY",
+        "sHDECAY",
+        "N2HDECAY",
+        "Prophecy4f",
+        "2HDMC",
+        "FeynHiggs"
+      ],
+      "inputs": [
+        "model point",
+        "complete pinned native card schema",
+        "pinned native output layout"
+      ],
+      "observables": [
+        "partial width",
+        "branching ratio",
+        "total width"
+      ],
+      "outputs": [
+        "SLHA DECAY blocks",
+        "decay JSON",
+        "native job specification"
+      ],
+      "context": [
+        "scalar decay",
+        "electroweak scheme"
+      ],
+      "applicability": {
+        "scope": "general"
+      },
+      "input_contract": "docs/workflow/reference/higgs-decay-programs.md"
+    }
+  },
+  "manifest_operations": [
+    {
+      "mode": "higgs-decays",
+      "groups": [
+        "python-host",
+        "higgs-decays",
+        "two-hdm",
+        "scope-tools"
+      ]
+    }
+  ],
+  "curation": {
+    "id": "op:higgs-decays",
+    "op": {
+      "use_when": [
+        "A supplied model point and version-matched source descriptions define every native card field and output quantity."
+      ],
+      "do_not_use_when": [
+        "A complete width is requested but only a four-fermion sector is available.",
+        "A source description, binary version pin or real native layout qualification is missing."
+      ],
+      "examples": [
+        {
+          "phrase": "Prepare a decay card for the supplied scalar population and parse its source-pinned outputs.",
+          "command": "python -B -m ravel.physics.higgs_decays transport --request \"$REQUEST\" --base \"$INPUT_ROOT\" --output \"$FRESH_OUTPUT\"",
+          "spec": {
+            "mode": "higgs-decays",
+            "task": {
+              "request": "inputs/decays.json"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "workflow_instructions": [
+    "docs/workflow/reference/higgs-decay-programs.md"
+  ],
+  "implementation_state": "Card preparation and supplied-output parsing implemented; native execution and source-layout qualification remain pending.",
+  "integration_seams": {
+    "scientific_dispatch": "Import ravel.physics.higgs_decays in science.adapter and admit its request field through the scientific mode registry. The current module does not launch native work.",
+    "native_execution": "Bind native_job command/card/expected outputs to an existing supervised stage with method decision and admission; no direct launch path.",
+    "binary_provider": "Supply regular path/hash pins and version-matched manuals for every engine.",
+    "model_point_provider": "Translate supplied scalar model bundles into schema-one explicit point fields; source completeness remains reviewed.",
+    "reference_provider": "Supply cited branching rows and total_width/GeV rows at the requested mass.",
+    "scope_tools": "Provide the FeynHiggs separate-program job interface; no upstream Python import."
+  },
+  "handoff": "Apply shared descriptors, signatures, manifest operation/groups, curation and workflow bundle declaration through the registration owner. Qualification jobs use supplied primary references; no past outputs or physics qualification are included.",
+  "change_registry_handoff": {
+    "what": "Explicit decay cards and source-bound output grammars",
+    "why": "Preserve physics inputs, one-program branching sets, width conservation and native admission boundaries.",
+    "where_embedded": "docs/workflow/reference/higgs-decay-programs.md",
+    "status": "software transport implemented; native formats/execution await qualification"
+  }
+}

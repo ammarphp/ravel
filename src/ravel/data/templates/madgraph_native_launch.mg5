@@ -1,0 +1,14 @@
+{{PROCESS}}
+output output/PROC_madgraph
+
+set run_mode 2
+set nb_core 4
+launch output/PROC_madgraph
+madspin=OFF
+shower=OFF
+reweight=OFF
+done
+{{PARAM_CARD}}
+{{RUN_CARD}}
+set iseed {{SEED}}
+done

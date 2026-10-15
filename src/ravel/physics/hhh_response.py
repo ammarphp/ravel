@@ -138,6 +138,7 @@ def inspect_event(rows,source_event,contracts,value=None):
     require(len(matched)==1,'one complete supplied event phase path required');path=matched[0]
     phases={}
     for row in rows:phases.setdefault(row['phase'],[]).append(row['data'])
+    for phase in path['phases']:phases.setdefault(phase['phase'],[])  # a declared phase with no rows is an empty population
     require(len(phases.get(value['identity_phase'],[]))==1 and phases[value['identity_phase']][0]==source_event['native_identity'],'native event/complete weight identity differs from original census')
     context={'phases':phases,'source_event':source_event,'outputs':{}}
     for check in path['checks']:require(evaluate(check,context) is True,'supplied source interpretation check failed')

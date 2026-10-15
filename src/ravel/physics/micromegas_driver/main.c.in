@@ -1,0 +1,65 @@
+/* SPDX-License-Identifier: Apache-2.0
+ * RAVEL-authored JSON transport. Compile with the supplied version-bound
+ * micrOMEGAs binding and driver.h; no upstream code is redistributed here.
+ */
+#include "driver.h"
+#include <math.h>
+#include <stdio.h>
+
+static int string(FILE *out, const char *value) {
+    const unsigned char *p = (const unsigned char *)value;
+    if (!p) return 1;
+    if (fputc('"', out) == EOF) return 1;
+    for (; *p; ++p) {
+        if (*p == '"' || *p == '\\') fputc('\\', out);
+        if (*p < 32) fprintf(out, "\\u%04x", (unsigned)*p);
+        else fputc(*p, out);
+    }
+    return fputc('"', out) == EOF;
+}
+static int finite_nonnegative(double v) { return isfinite(v) && v >= 0.; }
+int main(int argc, char **argv) {
+    struct ravel_dm_result r = {0};
+    FILE *out;
+    size_t i;
+    double sum;
+    if (argc != 3 || ravel_dm_evaluate(argv[1], &r)) return 2;
+    if (!r.candidate || !finite_nonnegative(r.mass_gev) || r.mass_gev == 0. ||
+        !finite_nonnegative(r.omega_h2) || !finite_nonnegative(r.xf) || r.xf == 0. ||
+        !finite_nonnegative(r.sigma_si_p_cm2) || !finite_nonnegative(r.sigma_si_n_cm2) ||
+        !finite_nonnegative(r.sigma_sd_p_cm2) || !finite_nonnegative(r.sigma_sd_n_cm2) ||
+        !finite_nonnegative(r.sigma_v_today_cm3_s) ||
+        !finite_nonnegative(r.channel_fraction_remainder) || r.channel_fraction_remainder > 1. ||
+        !r.channels || r.channel_count == 0 || r.channel_count > 10000) return 3;
+    sum = r.channel_fraction_remainder;
+    for (i = 0; i < r.channel_count; ++i) {
+        const struct ravel_dm_channel *c = &r.channels[i];
+        if (!finite_nonnegative(c->fraction) || c->fraction > 1. ||
+            !c->incoming[0] || !c->incoming[1] || !c->outgoing[0] || !c->outgoing[1]) return 3;
+        sum += c->fraction;
+    }
+    if (fabs(sum - 1.) > 1e-9) return 3;
+    /* Python supplies a fresh output path inside the admitted native directory. */
+    out = fopen(argv[2], "wx");
+    if (!out) return 4;
+    fprintf(out, "{\"schema_version\":1,\"status\":\"ok\",\"candidate\":");
+    string(out, r.candidate);
+    fprintf(out, ",\"mass_gev\":%.17g,\"omega_h2\":%.17g,\"xf\":%.17g,"
+            "\"sigma_si_p_cm2\":%.17g,\"sigma_si_n_cm2\":%.17g,"
+            "\"sigma_sd_p_cm2\":%.17g,\"sigma_sd_n_cm2\":%.17g,"
+            "\"sigma_v_today_cm3_s\":%.17g,\"channel_fraction_remainder\":%.17g,\"channels\":[",
+            r.mass_gev, r.omega_h2, r.xf, r.sigma_si_p_cm2, r.sigma_si_n_cm2,
+            r.sigma_sd_p_cm2, r.sigma_sd_n_cm2, r.sigma_v_today_cm3_s, r.channel_fraction_remainder);
+    for (i = 0; i < r.channel_count; ++i) {
+        const struct ravel_dm_channel *c = &r.channels[i];
+        fprintf(out, "%s{\"fraction\":%.17g,\"incoming\":[", i ? "," : "", c->fraction);
+        string(out, c->incoming[0]); fputc(',', out); string(out, c->incoming[1]);
+        fprintf(out, "],\"outgoing\":[");
+        string(out, c->outgoing[0]); fputc(',', out); string(out, c->outgoing[1]);
+        fprintf(out, "]}");
+    }
+    fprintf(out, "]}\n");
+    i = ferror(out);
+    if (fclose(out)) return 5;
+    return i ? 5 : 0;
+}

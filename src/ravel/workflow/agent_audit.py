@@ -111,6 +111,11 @@ def _finish(record, models, tools):
     record['models'] = sorted(models)
     record['model'] = record['models'][0] if len(record['models']) == 1 else (
         max(models, key=models.get) if models else None)
+    from .prompt_log import exact_model
+    record['model_requested'] = record.get('model_requested')
+    record['model_reported'] = record['model']
+    record['model_build_exact'] = exact_model(record['model'])
+    record['prompt_sha256'] = hashlib.sha256(record['prompt'].encode('utf-8')).hexdigest()
     record['tool_calls'] = dict(sorted(tools.items()))
     if not record['usage_reported']:
         record['usage'] = {key: None for key in USAGE_KEYS}

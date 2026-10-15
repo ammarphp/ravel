@@ -339,3 +339,45 @@ def test_loop_route_serves_blind_roles_only_through_registry_admission():
     for document in loops:
         qualified = document['qualification']['status'] == 'live_qualified' and registry.sandbox_available()
         assert registry.blind_admissible(document) is (qualified and document['capabilities']['blind_capable'])
+
+
+def _pin_document(run, project):
+    from ravel.workflow import project_instructions
+    (run / 'inputs').mkdir(parents=True, exist_ok=True)
+    project.mkdir(exist_ok=True)
+    (project / 'AGENTS.md').write_text('Project rule 1: cite every number.\n')
+    return project_instructions.declare(run, project / 'AGENTS.md')
+
+
+def test_a_run_that_pins_a_project_document_gets_no_loop_turn(tmp_path, monkeypatch):
+    """The loop cannot put the declared document ahead of its request or record its delivery, so it sends nothing."""
+    from ravel.workflow.langchain_guard import GuardError
+    script = [wire('chat_completions', 'submit_final', {'answer': 7})]
+    loop, sender, effects, broker = setup(tmp_path, monkeypatch, script)
+    _pin_document(tmp_path / 'scope', tmp_path / 'project')  # the loop's scope is this run
+    with pytest.raises(GuardError, match='pins a project instruction document'):
+        loop.run('perform synthetic work')
+    assert sender.calls == [] and not list((tmp_path / 'scope').glob('calls/*.json'))
+
+
+def test_a_run_pinned_between_two_turns_gets_no_further_loop_turn(tmp_path, monkeypatch):
+    """Every dispatch reads the declaration again: a document pinned after the first turn stops the second."""
+    script = [wire('chat_completions', 'echo', {'n': 1}), wire('chat_completions', 'submit_final', {'answer': 7}, 2)]
+    loop, sender, effects, broker = setup(tmp_path, monkeypatch, script)
+    (tmp_path / 'scope/inputs').mkdir(parents=True)
+
+    class PinsAfterSending(Sender):
+        def __call__(self, body, *, timeout, max_cost_usd):
+            delivery = Sender.__call__(self, body, timeout=timeout, max_cost_usd=max_cost_usd)
+            _pin_document(tmp_path / 'scope', tmp_path / 'project')
+            return delivery
+    sender.__class__ = PinsAfterSending
+    result = loop.run('perform synthetic work')
+    assert len(sender.calls) == 1 and result['final'] is None and result['status'] == 'refused'
+
+
+def test_a_run_without_a_pinned_document_keeps_its_loop_turns(tmp_path, monkeypatch):
+    script = [wire('chat_completions', 'submit_final', {'answer': 7})]
+    loop, sender, effects, broker = setup(tmp_path, monkeypatch, script)
+    (tmp_path / 'scope/inputs').mkdir(parents=True)
+    assert loop.run('perform synthetic work')['final'] == {'answer': 7} and len(sender.calls) == 1

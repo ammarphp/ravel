@@ -1,11 +1,11 @@
 ---
 name: delphes-cards
-description: Use when choosing, editing or auditing a Delphes detector card - which particles reach the calorimeters, how missing transverse momentum is built, which new stable particles a stock card treats as visible (for example a gravitino or sneutrino) - before running Delphes on showered events for RAVEL's analyze or ma5-pad modes.
+description: Use when choosing, editing or auditing a Delphes detector card - which particles reach the calorimeters, how missing transverse momentum is built, which new stable particles a stock card treats as visible (for example a gravitino or sneutrino) - before running Delphes on showered events for RAVEL's analyze, ma5-pad or checkmate-events modes.
 license: Apache-2.0
 compatibility: Delphes 3.5.1 from RAVEL's recast-base toolchain group; TCL card syntax of that version.
 allowed-tools: Bash Read
 metadata:
-  ravel-requires-modes: "analyze ma5-pad"
+  ravel-requires-modes: "analyze ma5-pad checkmate-events"
   upstream-version: "recast-base:delphes=3.5.1"
   last-reviewed: "2026-10-11"
 ---

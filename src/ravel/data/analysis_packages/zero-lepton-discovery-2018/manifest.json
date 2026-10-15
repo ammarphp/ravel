@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "kind": "analysis-package",
+  "package_id": "ZeroLeptonDiscovery2018",
+  "package_version": "1.0",
+  "analysis_ids": [
+    "ZeroLeptonDiscovery2018",
+    "ATLAS-SUSY-2018-22"
+  ],
+  "compatibility": {
+    "models": [
+      "squark-neutralino",
+      "gluino-neutralino"
+    ],
+    "preparations": [
+      "explicit-cards"
+    ],
+    "detectors": [
+      "simpleanalysis-delphes"
+    ],
+    "statistics": [
+      "yields"
+    ]
+  },
+  "routine": {
+    "path": "selection.py.txt",
+    "sha256": "125118095e6a0baa54a6a20f48ebca4c9184d472fccc51ff4556ebe10368df77",
+    "kind": "counting",
+    "regions": [
+      "SR2j_1600_SR",
+      "SR2j_2200_SR",
+      "SR2j_2800_SR",
+      "SR4j_1000_SR",
+      "SR4j_2200_SR",
+      "SR4j_3400_SR",
+      "SR5j_1600_SR",
+      "SR6j_1000_SR",
+      "SR6j_2200_SR",
+      "SR6j_3400_SR"
+    ],
+    "flavour_flags": [
+      "is0L",
+      "is1SigL"
+    ],
+    "accepts_parameters": false,
+    "helper_outputs": [],
+    "arguments": []
+  },
+  "qualification": {
+    "status": "pending",
+    "evidence": []
+  }
+}

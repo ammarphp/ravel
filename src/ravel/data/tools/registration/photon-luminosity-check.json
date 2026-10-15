@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "tool-qualification-registration",
+  "package": "photon-luminosity-check",
+  "target": "src/ravel/data/backends/census.json",
+  "selector": {"id": "census-madgraph-3-7-0-adf3d62d"},
+  "receipt_comparator": {
+    "callable": "ravel.physics.photon_luminosity.compare",
+    "required_scope": ["generator version and source", "platform", "photon-only charged-lepton-pair process", "beam identities and energy", "PDF set and member", "scale rule", "mass and coupling", "cuts"],
+    "required_inputs": ["ordinary admitted completed generation receipt", "recorded effective generator setup and cross section with statistical uncertainty", "supplied analytic Born convolution and numerical error", "supplied tolerance", "independently refined density-grid comparison", "error-member convolutions and prescription when PDF uncertainty is requested"],
+    "required_record": {"kind": "photon-luminosity-comparison", "status": "pass", "agreement": true, "quadrature_resolved": true},
+    "grants_launch_authority": false,
+    "grants_scientific_acceptance": false
+  },
+  "qualification_job": {
+    "operation": "ordinary admitted photon-initiated charged-lepton-pair generation followed by a supplied Born convolution and comparator",
+    "inputs": "Process, energy, PDF, scale, mass, coupling, cuts, numerical precision and tolerance are supplied at run time.",
+    "reference": "analytic massive unpolarized Born cross section",
+    "scope": "Only the recorded photon-channel conditions; no charged-lepton-parton qualification is implied.",
+    "requires_current_native_evidence": true
+  },
+  "input_contract": "docs/reference/photon-luminosity-check.md",
+  "handoff": "The registration lane binds comparator bytes to the native receipt, records the exact qualification scope and preserves the installation status until current admitted evidence exists. Include the checker, standalone worker and reference page in the distribution inventory; register the instruction page together with its bundled copy if promoted to operational instructions. No generator launch path or qualification evidence is supplied."
+}

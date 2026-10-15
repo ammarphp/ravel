@@ -1,0 +1,682 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "prediction-bundle"
+    },
+    "program": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "receipt": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "receipt"
+      ],
+      "additionalProperties": false
+    },
+    "order": {
+      "type": "object",
+      "properties": {
+        "qcd": {
+          "enum": [
+            "LO",
+            "NLO",
+            "NNLO",
+            "N3LO"
+          ]
+        },
+        "ew": {
+          "enum": [
+            "LO",
+            "NLO"
+          ]
+        },
+        "resummation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matching": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "qcd",
+        "ew",
+        "resummation",
+        "matching"
+      ],
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "pdf": {
+          "type": "object",
+          "properties": {
+            "set": {
+              "type": "string",
+              "minLength": 1
+            },
+            "lhaid": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "error_type": {
+              "enum": [
+                "hessian",
+                "symmhessian",
+                "replicas",
+                "hessian+as",
+                "symmhessian+as",
+                "replicas+as"
+              ]
+            },
+            "info": {
+              "type": "object",
+              "properties": {
+                "error_type": {
+                  "enum": [
+                    "hessian",
+                    "symmhessian",
+                    "replicas",
+                    "hessian+as",
+                    "symmhessian+as",
+                    "replicas+as"
+                  ]
+                },
+                "num_members": {
+                  "type": "integer",
+                  "minimum": 2
+                },
+                "confidence_level_percent": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "alpha_s_mz": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "error_type",
+                "num_members",
+                "confidence_level_percent",
+                "alpha_s_mz",
+                "sha256",
+                "text"
+              ],
+              "additionalProperties": false
+            },
+            "alpha_s_mz": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "set",
+            "lhaid",
+            "error_type"
+          ],
+          "additionalProperties": false
+        },
+        "alpha_s_mz": {
+          "type": "number"
+        },
+        "ew_scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "masses": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "scales": {
+          "type": "object",
+          "properties": {
+            "muR": {
+              "type": "string",
+              "minLength": 1
+            },
+            "muF": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "muR",
+            "muF"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "pdf",
+        "alpha_s_mz",
+        "ew_scheme",
+        "masses",
+        "scales"
+      ],
+      "additionalProperties": false
+    },
+    "binning": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "lo": {
+            "type": "number"
+          },
+          "hi": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lo",
+          "hi"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "level": {
+      "enum": [
+        "born",
+        "dressed",
+        "bare",
+        "parton",
+        "particle",
+        "detector"
+      ]
+    },
+    "normalization": {
+      "enum": [
+        "absolute",
+        "normalized",
+        "ratio"
+      ]
+    },
+    "central": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "enum": [
+              "scale",
+              "pdf",
+              "alphas",
+              "ew",
+              "np",
+              "shower",
+              "mpi",
+              "tune",
+              "mtop",
+              "mcstat",
+              "unclassified"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1
+          },
+          "mu_r": {
+            "type": "number"
+          },
+          "mu_f": {
+            "type": "number"
+          },
+          "pdf_member": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pdf_lhaid": {
+            "type": "number"
+          },
+          "alpha_s_mz": {
+            "type": "number"
+          },
+          "pdf_alpha_s_mz": {
+            "type": "number"
+          },
+          "dyn_scale": {
+            "type": "number"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "enum": [
+              "absolute",
+              "ratio"
+            ]
+          },
+          "classification_reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "weight_header": {
+            "type": "object",
+            "required": [
+              "id",
+              "attributes",
+              "description",
+              "canonical_header_xml"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "canonical_header_xml": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "class",
+          "id",
+          "values"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "prescriptions": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "scale",
+          "pdf",
+          "alphas",
+          "ew",
+          "np",
+          "shower",
+          "mpi",
+          "tune",
+          "mtop",
+          "mcstat"
+        ]
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "properties": {
+              "method": {
+                "type": "string",
+                "minLength": 1
+              },
+              "error_type": {
+                "enum": [
+                  "hessian",
+                  "symmhessian",
+                  "replicas",
+                  "hessian+as",
+                  "symmhessian+as",
+                  "replicas+as"
+                ]
+              },
+              "confidence_level_percent": {
+                "type": "number"
+              },
+              "delta": {
+                "type": "number"
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "pdf",
+                    "alphas"
+                  ]
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            },
+            "required": [
+              "method"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "normalization_order": {
+      "enum": [
+        "LO",
+        "NLO",
+        "NNLO",
+        "N3LO"
+      ]
+    },
+    "normalization_declaration": {
+      "type": "object",
+      "properties": {
+        "shape_order": {
+          "enum": [
+            "LO",
+            "NLO",
+            "NNLO",
+            "N3LO"
+          ]
+        },
+        "cross_section_order": {
+          "enum": [
+            "LO",
+            "NLO",
+            "NNLO",
+            "N3LO"
+          ]
+        },
+        "factor": {
+          "type": "number"
+        },
+        "applied_to": {
+          "const": "all-central-and-members"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "shape_order",
+        "cross_section_order",
+        "factor",
+        "applied_to",
+        "source",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "np_already_applied": {
+      "type": "boolean"
+    },
+    "band": {
+      "type": "object",
+      "required": [
+        "minus",
+        "plus",
+        "by_class",
+        "combination",
+        "unclassified"
+      ],
+      "properties": {
+        "minus": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1
+        },
+        "plus": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1
+        },
+        "by_class": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "minus",
+              "plus"
+            ],
+            "properties": {
+              "minus": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "plus": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "combination": {
+          "const": "independent-classes-quadrature"
+        },
+        "unclassified": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "theory_covariance": {
+      "type": "object",
+      "required": [
+        "by_class",
+        "total",
+        "correlation_model",
+        "symmetrization",
+        "class_correlation",
+        "law"
+      ],
+      "properties": {
+        "by_class": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "total": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "correlation_model": {
+          "type": "object"
+        },
+        "symmetrization": {
+          "const": "max"
+        },
+        "class_correlation": {
+          "const": "independent"
+        },
+        "law": {
+          "const": "declared-second-moment-proxy"
+        },
+        "component_groups": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "object"
+    },
+    "unclassified": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "physics_validated": {
+      "const": false
+    },
+    "weight_name_map": {
+      "type": "object",
+      "properties": {
+        "generator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "generator",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "yoda-text"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "observable_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nominal_weight": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "enum": [
+            "integral",
+            "density",
+            "estimate"
+          ]
+        },
+        "common_factor": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "format",
+        "sha256",
+        "observable_path",
+        "nominal_weight",
+        "quantity",
+        "common_factor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "program",
+    "order",
+    "inputs",
+    "binning",
+    "level",
+    "normalization",
+    "central",
+    "members",
+    "prescriptions"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ravel:prediction_bundle.v1",
+  "title": "prediction_bundle.v1",
+  "description": "Supplied predictions and all members, declared uncertainty prescriptions and correlation models. Vectors align with binning. Normalization factors describe supplied values already normalized together."
+}

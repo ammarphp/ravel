@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "kind": "higgs-decay-programs",
+  "inputs_policy": "Every physics input, model parameter, native flag, scalar mass and EW scheme is supplied and consumed by a pinned card schema; no physics defaults.",
+  "programs": [
+    {
+      "program": "HDECAY",
+      "version_pin_key": "hdecay",
+      "model_families": [
+        "SM"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "eHDECAY",
+      "version_pin_key": "ehdecay",
+      "model_families": [
+        "EFT"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "2HDECAY",
+      "version_pin_key": "2hdecay",
+      "model_families": [
+        "2HDM"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "sHDECAY",
+      "version_pin_key": "shdecay",
+      "model_families": [
+        "singlet"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "N2HDECAY",
+      "version_pin_key": "n2hdecay",
+      "model_families": [
+        "N2HDM"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "Prophecy4f",
+      "version_pin_key": "prophecy4f",
+      "model_families": [
+        "four_fermion"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "2HDMC",
+      "version_pin_key": "2hdmc",
+      "model_families": [
+        "2HDM"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "supplied pinned binary"
+    },
+    {
+      "program": "FeynHiggs",
+      "version_pin_key": "feynhiggs",
+      "model_families": [
+        "MSSM"
+      ],
+      "inputs": [
+        "alpha_s_mz",
+        "mb_mb_GeV",
+        "mc_GeV",
+        "mt_pole_GeV",
+        "gamma_w_GeV",
+        "gamma_z_GeV",
+        "ew_scheme",
+        "complete program-specific source schema"
+      ],
+      "order": "explicit version-matched input; no inferred perturbative order",
+      "format_status": "awaits pinned manual and native layout qualification",
+      "launch": "existing supervised launch guard after method decision and admission",
+      "interface": "scope-tools"
+    }
+  ]
+}

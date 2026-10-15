@@ -393,7 +393,9 @@ def authorized_popen(root, required_plan, command, *, context, **kwargs):
     command = list(map(str, command))
     if not command or not isinstance(context, dict):
         raise ValueError("launch needs a command and context object")
-    from . import physics_review as review
+    from . import physics_review as review, wms_policy
+    # A governed run launches only from its workflow-manager step or a worker in that step's custody.
+    wms_policy.require_custody(root)
     # Serialize a review transition against the final check and spawn. This is a
     # local ordering guarantee; it does not authenticate actors or external tools.
     from . import gate_wiring

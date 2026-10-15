@@ -132,6 +132,12 @@ and `patch` file paths, `expected` rules for `mu_hat` and `twice_nll` (each with
 the supplied study identity, grid and datasets into the result. Missing inputs raise
 `MissingReferenceInput` with reason `missing_reference_input`. A comparison preserves
 failed values and input hashes; it grants no scientific acceptance or launch authority.
+The package ships one published workspace, its patch and a reference file for this comparison
+(`src/ravel/data/fixtures/susy-2018-06/`: `BkgOnly.json`, `patch_ERJR_300p0_100p0.json`,
+`reference_fit.json`, whose `background` and `patch` names are relative to its directory).
+Published workspaces and the channel maps that join native yields to them are listed in
+`src/ravel/data/likelihoods/registry.json`; `sa2json_native --shipped-channel-map <id>`
+selects one, and a workspace whose channel set no shipped map covers needs a supplied map.
 
 ## Reading the honesty flags in `exclusion.json`
 - `at_poi_cap` — the doubling bracket reached the µ cap (often mere **granularity**: the +2σ band
@@ -232,3 +238,19 @@ run's `RESULT.md` — which is the **human narrative GENERATED-FROM / cross-chec
 (no step-8 scan follows), the final check-in is the **RESULTS DECK** (`docs/workflow/checklists/check-ins.md`),
 sent only after the step-9 verification panel (`docs/workflow/steps/09-verify.md`) with its verdict + findings
 appended verbatim. If a scan follows, report the point briefly and continue to `docs/workflow/steps/08-scan.md`.
+
+### Conditional profiles from retained amplitude events
+
+For a prescribed cached differential objective, supply an ordinary
+`differential-likelihood` task whose input document declares
+`operation: cached-profile`. Follow the [continuous cached-fit contract](../../reference/amplitude-reweighting.md#continuous-fits-on-retained-blocks)
+for source binning, fiducial definitions, continuous hypothesis bindings,
+experimental and MC covariance policy, auxiliaries, independent starts and
+resource bounds. Obtain the usual CHECK-IN approval before execution. Set
+`retain_pairings: true` when producing a cache that must replay a
+hypothesis-dependent pairing estimator. A Gram-only cache cannot reconstruct
+those amplitudes. Use the separate polynomial handoff for Rivet-selected terms.
+Inspect all failed/unissued fits and retained cross-state covariance before
+interpreting profiles. Conditional objective differences alone do not establish
+an exclusion limit or a calibrated interval. The optional RooFit bridge needs
+its supplied native runtime and separate execution qualification.

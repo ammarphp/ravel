@@ -1,0 +1,387 @@
+{
+ "schema_version": 1,
+ "kind": "columnar-branch-roles",
+ "name": "atlas-cp-nominal-ntuple",
+ "source": "Naming convention of ATLAS CP-algorithms flat ntuples written by TopCPToolkit-style analysis configs: <container>_<decoration>[_<systematic>] with the nominal systematic written NOSYS, selection flags written <container>_select_<name>, particle-level containers prefixed PL_, kinematics in MeV. Public documentation: https://topcptoolkit.docs.cern.ch/latest/settings/ntupling/ (container prefix, selection-flag prefix and systematics-suffix options). Structural roles only: whether a branch exists in a given production is a fact of the supplied branch schema. Container rows: lepton, photon and tau containers store baseline and signal flags, jets and large-R jets only the stored selection, large-R jets admit only the large-R overlap-removal flag.",
+ "branches": [
+  {
+   "name": "runNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "eventNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "mcChannelNumber",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "year",
+   "role": "event_identifier",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "actualInteractionsPerCrossing",
+   "role": "event_pileup",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "averageInteractionsPerCrossing",
+   "role": "event_pileup",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "correctedScaledInteractionsPerCrossing",
+   "role": "event_pileup",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "weight_mc_NOSYS",
+   "role": "generator_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "weight_pileup_NOSYS",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "name": "weight_beamspot",
+   "role": "scale_weight",
+   "shape": "scalar",
+   "unit": "1"
+  }
+ ],
+ "families": [
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_pt_NOSYS",
+   "role": "object_pt",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_eta",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_phi",
+   "role": "object_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_e_NOSYS",
+   "role": "object_energy",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_m_NOSYS",
+   "role": "object_mass",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet|largeRjet)_charge",
+   "role": "object_charge",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(el|ph)_caloEta2",
+   "role": "object_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(el|mu)_(d0|z0|z0sintheta)_NOSYS",
+   "role": "object_impact_parameter",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "(el|mu)_(d0sig|z0sinthetasig)_NOSYS",
+   "role": "object_impact_significance",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "(el|ph)_caloClusterEnergyReso",
+   "role": "object_auxiliary",
+   "shape": "jagged",
+   "unit": null
+  },
+  {
+   "pattern": "(el|mu|ph|tau|jet)_(IFFClass|truth_type|truth_origin|HadronConeExclTruthLabelID|PartonTruthLabelID)",
+   "role": "object_truth_classification",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_select_passesOR(LargeR)?_NOSYS",
+   "role": "baseline_or",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_trigEff(SF)?_[A-Za-z0-9_]+_NOSYS",
+   "role": "object_trigger_response",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_(is_bad|pass|TES)[A-Za-z0-9_]*",
+   "role": "object_selection",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "tau_(nTracksCharged|NNDecayMode)",
+   "role": "object_count",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_[A-Za-z0-9_]*_quantile",
+   "role": "object_quantile",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_select_[A-Za-z0-9_]+",
+   "role": "object_selection",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_[A-Za-z0-9_]*(SF|[Ee]ff|Efficiency)[A-Za-z0-9_]*_NOSYS",
+   "role": "object_scale_weight",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_[A-Za-z0-9_]*_(tagged|passMass)_NOSYS",
+   "role": "object_tagger",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_[A-Za-z0-9_]*_(Tagged|select)",
+   "role": "object_tagger",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_[A-Za-z0-9_]*_score_NOSYS",
+   "role": "object_score",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_[A-Za-z0-9_]*ConstScore",
+   "role": "object_score",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "largeRjet_[A-Za-z0-9_]*_(validKinRange_NOSYS|ValidKinRange)",
+   "role": "object_validity",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "trigPassed_[A-Za-z0-9_]+",
+   "role": "trigger_decision",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "pattern": "[A-Za-z0-9]+_trigMatched_[A-Za-z0-9_]+",
+   "role": "object_trigger_match",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "met(Baseline|Signal)_(met|sumet)_NOSYS",
+   "role": "stored_met",
+   "shape": "scalar",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "met(Baseline|Signal)_phi_NOSYS",
+   "role": "stored_met",
+   "shape": "scalar",
+   "unit": "rad"
+  },
+  {
+   "pattern": "met(Baseline|Signal)_significance_NOSYS",
+   "role": "stored_met_significance",
+   "shape": "scalar",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_(el|mu|ph|tau|jet|bsm)_pt",
+   "role": "truth_pt",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "PL_(el|mu|ph|tau|jet|bsm)_eta",
+   "role": "truth_eta",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_(el|mu|ph|tau|jet|bsm)_phi",
+   "role": "truth_phi",
+   "shape": "jagged",
+   "unit": "rad"
+  },
+  {
+   "pattern": "PL_(el|mu|ph|tau|jet)_e",
+   "role": "truth_energy",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "PL_bsm_m",
+   "role": "truth_mass",
+   "shape": "jagged",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "PL_[A-Za-z]+_(type|origin)",
+   "role": "truth_classification",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_[A-Za-z]+_charge",
+   "role": "truth_charge",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_met_met",
+   "role": "truth_met",
+   "shape": "scalar",
+   "unit": "MeV"
+  },
+  {
+   "pattern": "PL_met_phi",
+   "role": "truth_met",
+   "shape": "scalar",
+   "unit": "rad"
+  },
+  {
+   "pattern": "PL_[A-Za-z]+_(pdgId|status)",
+   "role": "truth_identity",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_tau_numCharged",
+   "role": "truth_count",
+   "shape": "jagged",
+   "unit": "1"
+  },
+  {
+   "pattern": "PL_tau_IsHadronicTau",
+   "role": "truth_selection",
+   "shape": "jagged",
+   "unit": "1"
+  }
+ ],
+ "periods": [
+  "2015",
+  "2016",
+  "2017",
+  "2018",
+  "2022",
+  "2023",
+  "2024",
+  "2025"
+ ],
+ "period_scoped_weights": {
+  "weight_beamspot": [
+   "2015",
+   "2016",
+   "2017",
+   "2018"
+  ]
+ },
+ "containers": [
+  {
+   "prefix": "el",
+   "selections": [
+    "baseline",
+    "signal"
+   ],
+   "overlap_selections": [
+    "baseline"
+   ]
+  },
+  {
+   "prefix": "mu",
+   "selections": [
+    "baseline",
+    "signal"
+   ],
+   "overlap_selections": [
+    "baseline"
+   ]
+  },
+  {
+   "prefix": "ph",
+   "selections": [
+    "baseline",
+    "signal"
+   ],
+   "overlap_selections": [
+    "baseline"
+   ]
+  },
+  {
+   "prefix": "tau",
+   "selections": [
+    "baseline",
+    "signal"
+   ],
+   "overlap_selections": [
+    "baseline"
+   ]
+  },
+  {
+   "prefix": "jet",
+   "selections": [
+    "stored"
+   ]
+  },
+  {
+   "prefix": "largeRjet",
+   "selections": [
+    "stored"
+   ],
+   "overlap_removal": [
+    "largeR"
+   ],
+   "tagger": true,
+   "tagger_valid": "[A-Za-z0-9_]*(ValidKinRange|_validKinRange_NOSYS)"
+  }
+ ]
+}

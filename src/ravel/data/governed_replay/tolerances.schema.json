@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RAVEL replay comparison tolerances",
+  "description": "Tolerances for `ravel replay compare`. Integer counts always compare exactly. Floating-point values compare within default_relative. A statistical bound applies only when both seeds are recorded and differ; equal seeds use the deterministic rule. A missing seed makes the quantity not comparable. Ignore pointers must be non-empty. A statistical quantity pointer may be the root pointer. A seed pointer must be non-empty and must not cover a sampled quantity of its document. A statistical row takes effect only when its quantity pointer resolves in both runs and its seed pointer names one integer or one string; otherwise the values under the seed pointer are compared and the row is reported as not comparable. Pointers are JSON pointers into the named output document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "default_relative": {
+      "description": "Relative tolerance for deterministic floating-point values.",
+      "type": "number", "minimum": 0, "exclusiveMaximum": 1, "default": 1e-09
+    },
+    "ignore": {
+      "description": "Additional values that are record metadata rather than quantities.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pointer"],
+        "properties": {
+          "document": {"type": "string"},
+          "pointer": {"$ref": "#/$defs/pointer", "minLength": 1},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "statistical": {
+      "description": "Sampled quantities and their declared statistical tolerance.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/statistical"}
+    }
+  },
+  "$defs": {
+    "pointer": {"type": "string", "pattern": "^(/.*)?$"},
+    "statistical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document", "pointer", "seed_pointer"],
+      "oneOf": [
+        {"required": ["absolute"], "not": {"anyOf": [{"required": ["relative"]}, {"required": ["n_sigma"]}, {"required": ["uncertainty_pointer"]}]}},
+        {"required": ["relative"], "not": {"anyOf": [{"required": ["absolute"]}, {"required": ["n_sigma"]}, {"required": ["uncertainty_pointer"]}]}},
+        {"required": ["n_sigma", "uncertainty_pointer"], "not": {"anyOf": [{"required": ["absolute"]}, {"required": ["relative"]}]}}
+      ],
+      "properties": {
+        "document": {"description": "Output document path relative to the attempt output directory.", "type": "string"},
+        "pointer": {"$ref": "#/$defs/pointer"},
+        "seed_pointer": {"description": "Where each run records its seed; never a pointer that covers a sampled quantity.", "$ref": "#/$defs/pointer", "minLength": 1},
+        "absolute": {"type": "number", "exclusiveMinimum": 0},
+        "relative": {"type": "number", "exclusiveMinimum": 0},
+        "n_sigma": {"type": "number", "exclusiveMinimum": 0},
+        "uncertainty_pointer": {"description": "Per-run uncertainty at the same position as the value; the bound is n_sigma times their quadrature sum.", "$ref": "#/$defs/pointer"}
+      }
+    }
+  }
+}

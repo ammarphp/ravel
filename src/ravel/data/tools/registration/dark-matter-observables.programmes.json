@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "package": "dark-matter-observables",
+  "programme_rows": {
+    "micromegas": {
+      "groups": ["dark-matter"],
+      "parser": "ravel.physics.dark_matter.parse_driver_output",
+      "following_programmes": ["phasetracer"],
+      "input_format": "supplied model, parameter and convention JSON",
+      "output_format": "ravel-dark-matter-json-v1",
+      "status": "native",
+      "native_execution": "existing admitted parameter-space-sampling lifecycle",
+      "grid": "supplied scan contract and INI; no installed grid"
+    }
+  },
+  "target": "ravel.physics.parameter_space_sampling_core.PROGRAMME_TABLE",
+  "handoff": "Append this interface row once the scan-contract programme table lands. Keep every other programme unchanged; configuration validation already accepts complete ordered native mappings."
+}

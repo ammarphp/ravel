@@ -1,6 +1,6 @@
 # Documentation figures
 
-This folder holds the README figures: the overview in "How it works" and one figure for each part of the README's architecture appendix. It also holds the TikZ figures for the detailed event-generation/recasting tutorial. The [architecture pages](../architecture/README.md) and the check-in, guardrail, record, backend and verification pages use editable Mermaid. Every TikZ figure shares one style file for typeface, sizes, colours, shapes and spacing.
+This folder holds the README figures: the overview in "How it works" and one figure for each part of the README's architecture appendix. It also holds one figure for each [methodology page](../methodology/README.md). It also holds the TikZ figures for the detailed event-generation/recasting tutorial. The [architecture pages](../architecture/README.md) and the check-in, guardrail, record, backend and verification pages use editable Mermaid. Every TikZ figure shares one style file for typeface, sizes, colours, shapes and spacing.
 
 ## Layout
 
@@ -14,6 +14,8 @@ This folder holds the README figures: the overview in "How it works" and one fig
 | `manifest.json` | The digest of each source and of each built file |
 
 ## Rebuilding
+
+You need TeX Live 2024 or later (LuaLaTeX, TikZ, fontspec, the Inter font and dvisvgm) and Ghostscript.
 
 ```bash
 python scripts/build_figures.py            # build every figure
@@ -68,7 +70,10 @@ contains live text, or when a figure breaks one of the rules below.
 
 | Figure | Used in |
 |---|---|
-| `readme-overview` | README, How it works |
+| `readme-overview` | README, How it works; methodology index |
+| `methodology-agent-roles` | [Agent architecture](../methodology/agent-architecture.md) |
+| `methodology-research-loop` | [The research loop](../methodology/research-loop.md) |
+| `methodology-decision-justification` | [Recursive Decision Justification](../methodology/decision-justification.md) |
 | `arch-agent-team`, `arch-study-life`, `arch-steering`, `arch-toolchain`, `arch-statistics`, `arch-models-hosts`, `arch-provenance`, `arch-engines` | README, Appendix A, one figure per part |
 | `overview` | Historical event-generation/recasting overview |
 | `lifecycle` | Original nine-step event-generation/recasting tutorial |

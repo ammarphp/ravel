@@ -10,6 +10,7 @@ These statuses report the pinned historical census. They do not inspect this mac
 | AnalysisBase 21.2 (inside the SA image) | qualified | required for profile | simpleanalysis/simpleanalysis-image | Reported historical census status; no current installation or physics certification inferred. |
 | ATLAS SimpleAnalysis (image `sha256:3156f065…`, source `5a33033d`) | qualified | required for profile | simpleanalysis/simpleanalysis-image; simpleanalysis/simpleanalysis-wrapper | Reported historical census status; no current installation or physics certification inferred. |
 | CAMB 1.6.5, CLASS (classy) 3.4.1.0, Cobaya 3.6.2 | built but unqualified | required for profile | cosmology/cosmology-python | Reported historical census status; no current installation or physics certification inferred. |
+| CheckMATE 2 (`bacf9d17`) with ONNX Runtime C++ 1.30.0 | built but unqualified | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python | Reported historical census status; no current installation or physics certification inferred. |
 | CMS Combine 9.2.1 on ROOT 6.22 (image `sha256:5da96967…`) | qualified | required for profile | root-combine/combine-image; root-combine/combine; root-combine/text2workspace; root-combine/combine-root-config | Reported historical census status; no current installation or physics certification inferred. |
 | coffea, cabinetry, vector, boost-histogram, pyarrow | not installed | required for profile | site-root-wms/site-analysis-python | Reported historical census status; no current installation or physics certification inferred. |
 | Collier or LoopTools | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
@@ -30,11 +31,11 @@ These statuses report the pinned historical census. They do not inspect this mac
 | Geant4 / GDML | excluded | excluded | excluded: Full simulation; GRACE detector design | Reported historical census status; no current installation or physics certification inferred. |
 | GM2Calc 2.3.1, PhaseTracer (`a68b2fd2`) | not installed | required for profile | easyscan/easyscan-source; easyscan/easyscan-engines-manifest; easyscan/gm2calc | Reported historical census status; no current installation or physics certification inferred. |
 | HEPData (API and `hepdata-cli` 0.3.1), INSPIRE, arXiv, Zenodo, CERN GitLab | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
+| HepMC2 2.06.11 | built but unqualified | required for profile | checkmate/checkmate; checkmate/pythia82-config; checkmate/checkmate-python | Reported historical census status; no current installation or physics certification inferred. |
 | HepMC3 3.3.1 | qualified | required for profile | rivet-shower/hepmc3-config | Reported historical census status; no current installation or physics certification inferred. |
 | HEPTAPOD v2.1.0 (`705b03cc`) and EDA epoch (`cb771f8c`): NDA and Diagrammatica EDA | not installed | required for profile | diagram-consumers/heptapod-nda; diagram-consumers/heptapod-eda; wolfram/wolfram-kernel; wolfram/feynrules; wolfram/sarah; wolfram/feyncalc; wolfram/feynarts-original; wolfram/feynarts-patched; wolfram/heptapod | Reported historical census status; no current installation or physics certification inferred. |
 | Herwig 7.3.0, ThePEG 2.3.0 | not installed | required for profile | contur/herwig | Reported historical census status; no current installation or physics certification inferred. |
 | hi_class | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
-| HiggsTools, Lilith | excluded | excluded | excluded: Higgs constraints | Reported historical census status; no current installation or physics certification inferred. |
 | HTCondor, SLURM | not installed | required for profile | nyx/nyx; nyx/srun; nyx/scontrol; nyx/scancel; site-access/cvmfs; site-access/grid-proxy; site-access/kerberos; site-access/htcondor; site-access/apptainer; site-access/agent-cli | Reported historical census status; no current installation or physics certification inferred. |
 | iminuit 2.32.0 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
 | JAX 0.4.35 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
@@ -60,6 +61,7 @@ These statuses report the pinned historical census. They do not inspect this mac
 | pypdfium2 5.14.0 / PDFium, pypdf, Pillow | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
 | pySecDec 1.6.6 with bundled FORM | built but unqualified | required for profile | finite-integrals/integral-python; finite-integrals/integrals-make; finite-integrals/form | Reported historical census status; no current installation or physics certification inferred. |
 | PySLHA 3.3.2, `particle` 0.26.2 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
+| Pythia 8.244 | built but unqualified | required for profile | checkmate/pythia82-config | Reported historical census status; no current installation or physics certification inferred. |
 | Pythia 8.312 | qualified | required for profile | rivet-shower/pythia83-config; rivet-shower/shower; rivet-shower/shower-merged | Reported historical census status; no current installation or physics certification inferred. |
 | Python numerical core | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
 | QGRAF model format | not installed | required for profile | source: src/ravel/physics/feyn_graph.py | Reported historical census status; no current installation or physics certification inferred. |
@@ -68,6 +70,7 @@ These statuses report the pinned historical census. They do not inspect this mac
 | RooFit / XRooFit (ROOT ≥6.32.14 for HS3) | built but unqualified | required for profile | recast-base/recast-root-config | Reported historical census status; no current installation or physics certification inferred. |
 | ROOT 6.40 | qualified | required for profile | recast-base/recast-root-config | Reported historical census status; no current installation or physics certification inferred. |
 | SARAH 4.15.4 | not installed | required for profile | wolfram/wolfram-kernel; wolfram/sarah | Reported historical census status; no current installation or physics certification inferred. |
+| ServiceX 3.3.1, func-adl-servicex-xaodr25 | built but unqualified | required for profile | iris/servicex | Reported historical census status; no current installation or physics certification inferred. |
 | SFitterAgents/SFitter (`6072a79e`) + PyTorch 2.14.0 | not installed | required for profile | sfitter/sfitter-venv; sfitter/sfitter-source | Reported historical census status; no current installation or physics certification inferred. |
 | Sherpa | excluded | excluded | excluded: Only recognised in intake and refused as a shower stage | Reported historical census status; no current installation or physics certification inferred. |
 | SModelS 3.1.1 + database `official311.pcl` (Zenodo 18478920) | qualified | required for profile | smodels/smodels-311-version; smodels/smodels-311-database | Reported historical census status; no current installation or physics certification inferred. |
@@ -77,6 +80,7 @@ These statuses report the pinned historical census. They do not inspect this mac
 | SPheno 4.0.5 | not installed | required for profile | spectrum/spheno | Reported historical census status; no current installation or physics certification inferred. |
 | Supplied tree-to-array column layout | not installed | required for profile | source: src/ravel/physics/tree_array_export.py | Reported historical census status; no current installation or physics certification inferred. |
 | SUSY cross-section tables (LHC SUSY XS WG: NNLL-fast, Resummino) via HEPi JSON | qualified | required for profile | source: src/ravel/physics/cross_sections.py | Reported historical census status; no current installation or physics certification inferred. |
+| TeX Live or MacTeX with `pdflatex`, BibTeX, REVTeX | built but unqualified | required for profile | tex/pdflatex; tex/revtex | Reported historical census status; no current installation or physics certification inferred. |
 | TMVA | not installed | required for profile | unprovided: The source census names this tool but declares no supported installer/provider contract. A same-named executable cannot establish readiness. | Reported historical census status; no current installation or physics certification inferred. |
 | uproot 5.3.12, awkward 2.6.7, hist 2.8.0, pandas 2.2.3 | qualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
 | WCxf / wilson 2.5.2, flavio 2.7.1, smelli 2.4.3 | built but unqualified | required for profile | python-host/host-python | Reported historical census status; no current installation or physics certification inferred. |
@@ -102,10 +106,11 @@ These statuses report the pinned historical census. They do not inspect this mac
 
 | Engine | Metadata/source mapping entries | Executed scientific entries |
 |---|---|---|
+| checkmate | unmeasured | unmeasured |
 | contur | unmeasured | unmeasured |
 | ma5 | unmeasured | unmeasured |
-| rivet | unmeasured | unmeasured |
-| simpleanalysis | unmeasured | unmeasured |
+| rivet | 554 | unmeasured |
+| simpleanalysis | 79 | unmeasured |
 | smodels | unmeasured | unmeasured |
 
 Mapping denotes catalogued metadata/source entries, not complete recasting implementations. Execution coverage is unmeasured; no percentage is inferred from historical tool status.

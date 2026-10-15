@@ -2,7 +2,8 @@
  "id": "op:reco-ntuple-routine",
  "op": {
   "do_not_use_when": [
-   "Recipe-based analysis: use columnar-analysis."
+   "Recipe-based analysis: use columnar-analysis.",
+   "Remote ServiceX queries: use dataset-query-quantities."
   ],
   "examples": [
    {

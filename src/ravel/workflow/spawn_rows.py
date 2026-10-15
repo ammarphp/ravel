@@ -21,7 +21,8 @@ def catalogue():
     value = json.loads(package_data_path('knowledge', 'spawn_rows.json').read_text())
     if value.get('schema_version') != 1 or value.get('kind') != 'spawn-row-catalogue':
         raise ValueError('unsupported spawn row catalogue')
-    return value
+    from .higgs_registration import compose
+    return compose(value, package_data_path('knowledge', 'spawn_rows.json'))
 
 
 def review_metadata(node):
@@ -117,6 +118,10 @@ def derive(facts):
             add('K6', 'panel:' + panel['id'], panel_id=panel['id'])
     from .spawn_rows_roles import derive_roles
     derive_roles(plan, nodes, bases, rows, points, add, review_metadata)
+    from .higgs_registration import derive_higgs
+    derive_higgs(nodes, rows, add, review_metadata)
+    from ravel.validation.sm_checks import derive_review_points
+    points.extend(derive_review_points(facts))
     return sorted(points, key=lambda p: (p['row'], p['id']))
 
 
@@ -127,14 +132,18 @@ def pending(rundir):
     facts = reviews._facts(root)
     points = derive(facts)
     by_id = {p['id']: p for p in points}
-    receipts = []
+    receipts = []; every = []
     for path in sorted((root / 'agent-work').glob('*/*/receipt.json')):
         raw = path.read_bytes()
         sha = hashlib.sha256(raw).hexdigest()
         relative = path.relative_to(root).as_posix()
-        if not rdj_custody.worker_registered(root, relative, sha):
-            continue
         rec = json.loads(raw)
+        every.append(rec)
+        registration = rdj_custody.worker_row(root, relative, sha)
+        # A producer is known only from verified custody: the registered actor, never a stated one.
+        rec['_actor'] = reviews.registered_actor(rec, registration) if registration is not None else None
+        if registration is None:
+            continue
         point = by_id.get(rec.get('review_point_id'))
         if not point or reviews.credit_refusal(rec, facts, point) is not None:
             continue
@@ -144,11 +153,11 @@ def pending(rundir):
             continue
         if hashlib.sha256(target.read_bytes()).hexdigest() != final.get('sha256'):
             continue
-        registration = rdj_custody.worker_row(root, relative, sha)
         rec['_label'] = reviews.worker_label(rec, registration.get('verified_label'))
         rec['findings'] = json.loads(target.read_bytes()).get('findings', [])
         receipts.append(rec)
-    missing = reviews._missing(points, receipts)
+    missing = reviews._missing(points, receipts,
+                               reviews.producer_sessions(every, [*reviews.derive(facts), *points], facts))
     result = []
     for point in points:
         findings = [f for rec in receipts if rec.get('review_point_id') == point['id'] for f in rec['findings']
@@ -157,7 +166,7 @@ def pending(rundir):
                     if r.get('review_point_id') == point['id'] and r.get('status') == 'ok'
                     and r.get('run_tree', {}).get('modified') is False
                     and r.get('final_record', {}).get('valid') is True
-                    and r.get('session_id') and r.get('actor_id')
+                    and r.get('session_id') and r.get('_actor')
                     and reviews.independent(r['_label'])}
         family_pending = len(families - {None, ''}) < point.get('min_model_families', 0)
         if missing[point['id']] or findings or family_pending:

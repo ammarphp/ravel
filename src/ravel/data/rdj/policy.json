@@ -74,7 +74,8 @@
     "validate_cutflow": "ravel.validation.validate_cutflow",
     "numerical_witness": "ravel.validation.numerical_witness",
     "analysis_witness": "ravel.validation.analysis_witness",
-    "statistical_model_witness": "ravel.validation.statistical_model_witness"
+    "statistical_model_witness": "ravel.validation.statistical_model_witness",
+    "normalization_ledger": "ravel.physics.normalization_ledger"
   },
   "tool_producers": {
     "python_module_prefixes": ["ravel.physics.", "ravel.validation.", "ravel.plotting.", "ravel.toolkit.",

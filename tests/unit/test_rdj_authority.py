@@ -12,7 +12,7 @@ from ravel.workflow import decision_case as dc
 from ravel.workflow import evidence_queue, rdj_anchor, rdj_custody
 from ravel.workflow import rdj_loop as rdj
 
-from rdj_fixtures import (PROMPT, PROPOSER, TOOL, Roles, Run, add, challenge, critic, critic_once, node, reviewer,
+from rdj_fixtures import (PROMPT, PROPOSER, assigned, TOOL, Roles, Run, add, challenge, critic, critic_once, node, reviewer,
                           said, sha, two_level_r2, verifier)
 
 
@@ -137,7 +137,12 @@ def test_session_identity_and_attestation_are_read_from_the_receipt(tmp_path):
     case_id = full_r2(run)
     edge = run.case(case_id)["edges"][0]
     reviewer_ = edge["review"]["reviewer"]
-    assert reviewer_["actor_id"] == "edge-reviewer" and reviewer_["attestation"] == "transport_attested"
+    # The identity is the actor the dispatcher assigned and registered, never a name the receipt states.
+    node_id = reviewer_["session_receipt"] and next(
+        p.parent.parent.name for p in (run.root / "agent-work").glob("*/1/receipt.json")
+        if json.loads(p.read_text())["actor_id"] == reviewer_["actor_id"])
+    assert reviewer_["actor_id"] == assigned("edge-reviewer", node_id)["actor_id"]
+    assert reviewer_["attestation"] == "transport_attested"
     assert reviewer_["session_receipt"].startswith("fixture-transport:")
 
 

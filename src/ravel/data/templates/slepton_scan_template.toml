@@ -1,0 +1,110 @@
+# Slepton-bino scan template for the model-recipe library entry "slepton-bino-isrslep"
+# (model_recipes.json). The two scan axes are the masses under [madgraph.masses]; bind them in
+# a scan contract through subst, for example
+#   "madgraph.masses.MSLEP": "<axis>", "madgraph.masses.MN1": "<axis>".
+# The [madgraph.run.options] block carries the jet cuts of the reference sample and is applied
+# by the card renderer; [ravel.native] selects the library recipe. The detector and shower
+# cards, the analysis package and the statistics are supplied by the study.
+[base]
+path = "{{PWD}}"
+output = "output"
+logs = "logs"
+engine = "podman"
+data_path = "{{MAPYDE_DATA}}"
+cards_path = "{{MAPYDE_CARDS}}"
+scripts_path = "{{MAPYDE_SCRIPTS}}"
+process_path = "{{MAPYDE_CARDS}}/process/"
+param_path = "{{MAPYDE_CARDS}}/param/"
+run_path = "{{MAPYDE_CARDS}}/run/"
+pythia_path = "{{MAPYDE_CARDS}}/pythia/"
+delphes_path = "{{MAPYDE_CARDS}}/delphes/"
+madspin_path = "{{MAPYDE_CARDS}}/madspin/"
+likelihoods_path = "{{MAPYDE_LIKELIHOODS}}"
+
+[madgraph]
+skip = false
+params = "SleptonBino"
+cores = 1
+version = "madgraph:2.9.3"
+batch = false
+paramcard = "{{madgraph['params']}}.slha"
+output = "run.mg5"
+
+[madgraph.masses]
+MSLEP = 150
+MN1 = 140
+
+[madgraph.run]
+card = "default_LO.dat"
+ecms = 13000
+nevents = 20000
+seed = 0
+
+[madgraph.run.options]
+mmjj = 0
+mmjjmax = -1
+deltaeta = 0
+ktdurham = -1
+xqcut = -1
+ptj = 20
+ptj1min = 50
+
+[madgraph.proc]
+name = "isrslep"
+card = "{{madgraph['proc']['name']}}"
+
+[madspin]
+skip = true
+card = ''
+
+[pythia]
+skip = false
+card = "pythia8_card.dat"
+additional_opts = ""
+
+[delphes]
+skip = false
+additional_opts = ""
+card = "delphes_card_ATLAS_lowptleptons_sleptons_notrackineffic.tcl"
+version = "delphes"
+output = "delphes/delphes.root"
+
+[analysis]
+script = "Delphes2SA.py"
+XSoverride = -1
+kfactor = 1.18
+output = "analysis/Delphes2SA.root"
+lumi = 139000
+
+[simpleanalysis]
+skip = false
+additional_opts = ""
+name = "SUPPLIED_BY_THE_STUDY"
+outputtag = ""
+input = ""
+
+[sa2json]
+inputs = "{{simpleanalysis['name']}}{{simpleanalysis['outputtag']}}.root"
+image = "pyplotting:latest"
+output = "{{simpleanalysis['name']}}{{simpleanalysis['outputtag']}}_patch.json"
+options = "-c"
+
+[pyhf]
+skip = false
+likelihood = "Slepton_bkgonly.json"
+image = "pyplotting:latest"
+gpu-options = "-c -B jax"
+other-options = ""
+
+[ravel.native]
+model = "slepton-bino"
+preparation = "slepton-bino"
+detector = "simpleanalysis-delphes"
+library = "slepton-bino-isrslep"
+# pdf = "cteq6l1"            # explicit PDF choice (cteq6l1, nn23nlo or nnpdf30), or pass --pdf
+# statistics = "..."         # supplied by the study
+# analysis_package = "..."   # supplied by the study
+
+[ravel.native.inputs]
+# delphes_card = "..."       # supplied detector card
+# pythia_card = "..."        # default: the library's shower interface card

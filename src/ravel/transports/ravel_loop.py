@@ -2,6 +2,8 @@
 
 Model and broker calls have independent domain effects. A checkpoint gap reuses
 their committed outcomes; an unreceipted started call is held for reconciliation.
+A run that pins a project instruction document gets no loop turn: the loop sends its
+own provider request and cannot put the document ahead of it or record its delivery.
 ``build`` can be embedded as a subgraph; ``run`` supplies the standalone substrate
 lifecycle for transport qualification. Neither confers scientific authority.
 """
@@ -86,15 +88,33 @@ class RavelLoop:
         if ledger.digest(self.identity) != self._identity:
             raise GuardError('loop binding changed')
 
+    def _undeclared(self):
+        """Refuse a model turn in a run that pins a project instruction document; nothing is sent.
+
+        Every session of such a run receives the document ahead of its instructions and records the
+        delivery. The loop has neither step, so the declaration is read before each dispatch and a
+        pinned run is refused. Workers of that run go through a CLI worker transport.
+        """
+        from ravel.workflow import project_instructions
+        try:
+            pinned = project_instructions.for_path(self.scope_root)
+        except project_instructions.ProjectInstructionsError as exc:
+            if not project_instructions.unsettled(exc):
+                raise GuardError(str(exc)) from None
+            pinned = True  # a directory above this scope pins a document
+        if pinned is not None:
+            raise GuardError('this run pins a project instruction document and the agent loop cannot deliver it; '
+                             'no model request was sent. Run the worker through a CLI worker transport')
+
     def _path(self, turn, kind):
         return ledger.extend(self.prefix, {'turn': turn}) + '/' + kind
 
-    def _call(self, turn, kind, identity, function, *, effect_kind):
+    def _call(self, turn, kind, identity, function, *, effect_kind, provisioning=None):
         self._current()
         request = {'loop_binding': self._identity, **identity}
         if effect_kind == 'check': request['implementation_sha256'] = file_hash(__file__)
         return ledger.call(self.scope_root, graph={'id': 'ravel-loop', 'version': self.version},
-            path=self._path(turn, kind), kind=effect_kind, identity=request, provisioning={},
+            path=self._path(turn, kind), kind=effect_kind, identity=request, provisioning=provisioning or {},
             function=function, revalidate=lambda receipt: self._current())
 
     def _pin(self, turn, kind):
@@ -154,6 +174,7 @@ class RavelLoop:
         return 'go'
 
     def _model(self, state):
+        self._undeclared()
         envelope = self._envelope(state)
         from ravel.workflow.provider_tools import render
         wire_body = render(self.model.adapter, envelope, model=self.model.model,
@@ -163,9 +184,14 @@ class RavelLoop:
         # Deadline is provisioning: checkpoint replay must not change turn equality.
         cap = self.budgets['max_cost_usd']
         spent = sum(r['usage'].get('cost_usd') or 0 for r in state['turn_receipts'])
+        # The exact serialized request is kept with the effect before anything is sent, so a turn whose
+        # sender fails after dispatch still has its prompt. It is recorded, never compared.
+        kept = {'wire_request': json.dumps(wire_body, sort_keys=True, separators=(',', ':'), ensure_ascii=False,
+                                           allow_nan=False)}
         delivery = self._call(state['turn'], 'model', {'envelope': envelope, 'wire_request_sha256': ledger.digest(wire_body)},
             lambda: self.model.turn(envelope, timeout=max(.001, remaining),
-                max_cost_usd=None if cap is None else min(cap - spent, self.model.max_cost_per_turn_usd)), effect_kind='model')
+                max_cost_usd=None if cap is None else min(cap - spent, self.model.max_cost_per_turn_usd)), effect_kind='model',
+            provisioning=kept)
         return {'delivery': delivery, 'turn_receipts': state['turn_receipts'] + [deepcopy(delivery)]}
 
     def _action(self, state):
@@ -238,6 +264,7 @@ class RavelLoop:
         """Standalone invocation; repeated calls consume the same ledger/checkpoint."""
         local_context()  # refuse ambient tracing before substrate.environment resets it
         self._current()
+        self._undeclared()
         binding = ledger.digest({'loop': self._identity, 'prompt': prompt})
         with substrate.scope_runner(self.scope_root, 'ravel-loop', binding), substrate.saver(self.scope_root) as saver:
             ledger.recover(self.scope_root)

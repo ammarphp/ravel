@@ -1,0 +1,14 @@
+{
+ "CRlow_cuts": {
+  "region": "CRlow"
+ },
+ "CRISR_cuts": {
+  "region": "CRISR"
+ },
+ "SRlow_cuts": {
+  "region": "SRlow"
+ },
+ "SRISR_cuts": {
+  "region": "SRISR"
+ }
+}

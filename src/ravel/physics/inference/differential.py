@@ -308,3 +308,126 @@ class Model:
         return {'method': method, 'n_toys': n, 'seed': seed, 'points': rows,
                 'statistic': 'profile likelihood ratio minimised over the scan grid',
                 'grid_minimisation': 'toy best fit taken over the scan grid points'}
+
+
+def admit_covariance(matrix, max_condition):
+    """Strict finite symmetric SPD admission, without editing any entry."""
+    matrix = np.asarray(matrix, float)
+    diagnostic = {'status': 'unchecked', 'entries_repaired': False}
+    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1] or not matrix.size:
+        return {**diagnostic, 'status': 'invalid_shape'}, None
+    if not np.isfinite(matrix).all():
+        return {**diagnostic, 'status': 'nonfinite'}, None
+    if not np.array_equal(matrix, matrix.T):
+        return {**diagnostic, 'status': 'asymmetric'}, None
+    try:
+        eigen = np.linalg.eigvalsh(matrix)
+        diagnostic.update(minimum_eigenvalue=float(eigen[0]), maximum_eigenvalue=float(eigen[-1]))
+        if eigen[0] <= 0:
+            return {**diagnostic, 'status': 'not_positive_definite'}, None
+        condition = float(eigen[-1] / eigen[0])
+        diagnostic['condition_number'] = condition
+        if not math.isfinite(condition) or condition > max_condition:
+            return {**diagnostic, 'status': 'condition_exceeded'}, None
+        chol = np.linalg.cholesky(matrix)
+    except np.linalg.LinAlgError:
+        return {**diagnostic, 'status': 'factorization_failed'}, None
+    return {**diagnostic, 'status': 'accepted'}, chol
+
+
+class CachedModel(Model):
+    """Continuous amplitude response with explicitly fitted Gaussian auxiliaries.
+
+    The nuisance-shifted prediction enters the covariance response. Thus nuisance
+    fitting is numerical; the fixed-covariance analytic profile is not reused.
+    Experimental SPD admission always precedes optional independent MC addition.
+    """
+
+    def __init__(self, *, response, measured, reference, components, parameters,
+                 mc_policy, auxiliary=None, objective='chi2', max_condition=1e12):
+        super().__init__(measured=measured, reference=reference, terms=[], components=components,
+                         parameters=parameters, objective=objective, max_condition=max_condition)
+        if mc_policy not in ('retained_only', 'independent_gaussian_sum'):
+            raise ValueError('explicit MC policy required')
+        if not math.isfinite(self.max_condition) or self.max_condition < 1:
+            raise ValueError('finite condition ceiling at least one required')
+        self.response, self.mc_policy = response, mc_policy
+        if len(response.divide) != self.bins:
+            raise ValueError('response and measurement bin populations differ')
+        self.auxiliary = auxiliary
+        self.aux_chol = None
+        if auxiliary is not None:
+            required = {'parameters', 'response', 'observed', 'offset', 'matrix', 'covariance'}
+            if type(auxiliary) is not dict or set(auxiliary) != required:
+                raise ValueError('complete auxiliary law required')
+            names = auxiliary['parameters']
+            if not names or len(set(names)) != len(names) or set(names) - set(parameters):
+                raise ValueError('unique declared auxiliary parameters required')
+            j = len(names)
+            for key, shape in [('response', (self.bins, j)), ('observed', (j,)), ('offset', (j,)),
+                               ('matrix', (j, j)), ('covariance', (j, j))]:
+                if _finite(auxiliary[key], key).shape != shape:
+                    raise ValueError('auxiliary ' + key + ' dimensions differ')
+            diagnostic, self.aux_chol = admit_covariance(auxiliary['covariance'], self.max_condition)
+            if diagnostic['status'] != 'accepted':
+                raise ValueError('auxiliary covariance: ' + diagnostic['status'])
+        self.component_diagnostics = []
+        for component in self.components:
+            matrix = component['matrix']
+            if not np.array_equal(matrix, matrix.T):
+                raise ValueError('cached covariance coefficients must be exactly symmetric')
+            self.component_diagnostics.append({'name': component['name'], 'role': 'composite-coefficient',
+                                               'minimum_eigenvalue': float(np.linalg.eigvalsh(matrix)[0]),
+                                               'component_sampling_supported': False, 'entries_repaired': False})
+
+    def difference(self, point):
+        return self.response.evaluate(point)['difference']
+
+    def evaluate(self, point):
+        if set(point) != set(self.parameters) or not all(math.isfinite(float(v)) for v in point.values()):
+            raise ValueError('complete finite fit state required')
+        response = self.response.evaluate(point)
+        prediction = self.reference + response['difference']
+        auxq = auxld = 0.
+        if self.auxiliary is not None:
+            a = self.auxiliary
+            eta = np.array([point[p] for p in a['parameters']])
+            prediction += np.asarray(a['response']) @ eta
+            residual = np.asarray(a['observed']) - (np.asarray(a['offset']) + np.asarray(a['matrix']) @ eta)
+            z = np.linalg.solve(self.aux_chol, residual)
+            auxq = float(z @ z)
+            auxld = float(2*np.log(np.diag(self.aux_chol)).sum())
+        evidence = {'twice_nll': None, 'prediction': prediction.tolist(), 'difference': response['difference'].tolist(),
+                    'mc_covariance': response['mc_covariance'].tolist(), 'auxiliary_quadratic': auxq,
+                    'auxiliary_log_determinant': auxld}
+        if not np.isfinite(prediction).all():
+            return {**evidence, 'status': 'nonfinite_prediction'}
+        ratio = prediction / self.reference if any(c['law'] != 'fixed' for c in self.components) else np.ones(self.bins)
+        if not np.isfinite(ratio).all() or np.any(ratio <= 0):
+            return {**evidence, 'status': 'nonpositive_prediction_ratio'}
+        experimental = np.zeros((self.bins, self.bins))
+        for component in self.components:
+            scale = np.ones(self.bins) if component['law'] == 'fixed' else ratio if component['law'] == 'ratio' else np.sqrt(ratio)
+            experimental += np.outer(scale, scale) * component['matrix']
+        exp_diagnostic, _ = admit_covariance(experimental, self.max_condition)
+        evidence.update(experimental_covariance=experimental.tolist(), experimental_admission=exp_diagnostic)
+        if exp_diagnostic['status'] != 'accepted':
+            return {**evidence, 'status': 'experimental_' + exp_diagnostic['status']}
+        mc = response['mc_covariance']
+        scale = max(float(np.abs(mc).max()), 1e-300)
+        if not np.isfinite(mc).all() or not np.array_equal(mc, mc.T) or np.linalg.eigvalsh(mc)[0] < -1e-12*scale:
+            return {**evidence, 'status': 'invalid_mc_covariance'}
+        total = experimental + (mc if self.mc_policy == 'independent_gaussian_sum' else 0.)
+        score_diagnostic, chol = admit_covariance(total, self.max_condition)
+        evidence.update(score_covariance=total.tolist(), score_admission=score_diagnostic)
+        if score_diagnostic['status'] != 'accepted':
+            return {**evidence, 'status': 'score_' + score_diagnostic['status']}
+        z = np.linalg.solve(chol, prediction-self.y)
+        quadratic, logdet = float(z @ z), float(2*np.log(np.diag(chol)).sum())
+        # Preserve the absolute normalized Gaussian NLL, including auxiliaries.
+        constant = (self.bins + (len(self.auxiliary['parameters']) if self.auxiliary else 0))*math.log(2*math.pi)
+        twice = quadratic + auxq + (logdet + auxld + constant if self.objective == 'gaussian' else 0.)
+        if not math.isfinite(twice):
+            return {**evidence, 'status': 'nonfinite_objective'}
+        return {**evidence, 'status': 'accepted', 'twice_nll': twice, 'quadratic': quadratic,
+                'log_determinant': logdet, 'condition_number': score_diagnostic['condition_number']}

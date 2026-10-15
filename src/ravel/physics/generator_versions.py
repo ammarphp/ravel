@@ -23,7 +23,7 @@ def installed_madgraph(prefix=None, *, document=None, repo=None):
     if not str(prefix):
         raise ValueError("RAVEL_NATIVE_BUILD is not set; the generator toolchain location is unknown")
     if document is None:
-        document = manifest.read_json(manifest.manifest_path(repo))
+        document = manifest.view(repo)
     platform_key = manifest.detect_platform()
     values = manifest.variables(prefix, repo or manifest.repo_root(), platform_key)
     group = next((g for g in document["groups"] if g["id"] == "madgraph"), None)

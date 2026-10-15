@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "description": "Pinned LHC SUSY Cross Section Working Group tables (NNLL-fast and Resummino). Values are the published numbers; cite the working group and the tools.",
+ "description": "Pinned cross-section tables: the LHC SUSY Cross Section Working Group tables (NNLL-fast and Resummino; values are the published numbers, cite the working group and the tools) and three locally computed MG5 leading-order slepton denominators with source_kind \"mg5-computed\" (recorded generator, run card and masses; no download URL).",
  "source": {
   "repository": "https://github.com/fuenfundachtzig/xsec",
   "commit": "bb41b85201d9d87761c0d4bb73e3a97392ab8901",
@@ -2182,6 +2182,162 @@
    "process_latex": "$\\tilde{\\tau}_{1}^{-}\\tilde{\\tau}_{1}^{+}$",
    "comment": null,
    "note": null
+  },
+  {
+   "id": "mg5-lo-slepton-l-pair-cteq6l1",
+   "file": "slepton_selL_lo_cteq6l1.json",
+   "sha256": "68f8eeff961dd93a48100cef0f83c134e493ab07df51401bed613bd3f1d7651e",
+   "source_url": null,
+   "source_kind": "mg5-computed",
+   "generator": {
+    "program": "MG5_aMC 2.9.27",
+    "model": "MSSM_SLHA2",
+    "order": "LO",
+    "pdf": "cteq6l1",
+    "nevents": 2000,
+    "iseed": 1,
+    "generated": "2026-07-04",
+    "process_card": "src/ravel/data/templates/slepton_isrslep_generate.mg5",
+    "param_template": "src/ravel/data/templates/slepton_bino_param_template.slha",
+    "run_template": "src/ravel/data/templates/madgraph_run_default_lo.dat",
+    "process": "p p > el- el+ (left-handed selectron pair, PDG 1000011 x -1000011), 2->2 inclusive with no ISR-jet requirement: one generation and one chirality, the same state as the working group single-generation slepton_L_pair tables.",
+    "masses": "MSSM_SLHA2 with the shipped parameter template data/templates/slepton_bino_param_template.slha rendered per mass: all six charged-slepton masses = m (MSLEP) and the lightest neutralino MN1 = m-2; squarks, gluino, sneutrinos, charginos and heavier neutralinos at 4.5e9 GeV. The neutralino mass does not enter s-channel Drell-Yan production.",
+    "integration_error": "MC integration errors ~0.25% (from the MadGraph 'Cross-section : x +- y pb' lines), negligible vs the ~few-% scale/PDF uncertainty of the NNLL numerator."
+   },
+   "basis": "slepton_L_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "LO",
+    "order_as_published": "LO",
+    "pdf": "cteq6l1",
+    "pdf_as_published": "cteq6l1",
+    "pdf_source": "table",
+    "scale": "MadGraph LO dynamical scale: dynamical_scale_choice=-1, scalefact=1.0, fixed_ren_scale=False, fixed_fac_scale=False (run card data/templates/madgraph_run_default_lo.dat)"
+   },
+   "charge": null,
+   "state_count": 1,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate flavours.",
+   "decoupling": "squarks, gluino, sneutrinos, charginos and heavier neutralinos decoupled at 4.5e9 GeV",
+   "tool": "MG5_aMC 2.9.27 (MSSM_SLHA2)",
+   "citation": {
+    "working_group": null,
+    "twiki": null,
+    "reference": null,
+    "contact": "locally computed with the recorded recipe; the numbers are not a working-group publication"
+   },
+   "process_latex": "$\\tilde e_L^{-}\\tilde e_L^{+}$",
+   "comment": "LO sigma(p p > el- el+) versus slepton mass at 13 TeV: the like-for-like LO denominator for a higher-order correction on the single-generation left-handed slepton pair basis (slepton_L_pair).",
+   "note": "One generation, one chirality (p p > el- el+)."
+  },
+  {
+   "id": "mg5-lo-slepton-lr-pair-2gen-cteq6l1",
+   "file": "slepton_incl4_lo_cteq6l1.json",
+   "sha256": "f9abee6d8fe8f388dd05d0d4a47baf3775c99e53d18348a1ad9b0f8152d88284",
+   "source_url": null,
+   "source_kind": "mg5-computed",
+   "generator": {
+    "program": "MG5_aMC 2.9.27",
+    "model": "MSSM_SLHA2",
+    "order": "LO",
+    "pdf": "cteq6l1",
+    "nevents": 2000,
+    "iseed": 1,
+    "generated": "2026-07-04",
+    "process_card": "src/ravel/data/templates/slepton_isrslep_generate.mg5",
+    "param_template": "src/ravel/data/templates/slepton_bino_param_template.slha",
+    "run_template": "src/ravel/data/templates/madgraph_run_default_lo.dat",
+    "process": "p p > chsl4 chsl4 / susystrong (MG5 generate; 4 charged-slepton states = 8 charge-signed particles; no staus).",
+    "masses": "MSSM_SLHA2 with the shipped parameter template data/templates/slepton_bino_param_template.slha rendered per mass: all six charged-slepton masses = m (MSLEP) and the lightest neutralino MN1 = m-2; squarks, gluino, sneutrinos, charginos and heavier neutralinos at 4.5e9 GeV. The neutralino mass does not enter s-channel Drell-Yan production.",
+    "integration_error": "MC integration errors ~0.15-0.25% (MadGraph 'Cross-section : x +- y pb')."
+   },
+   "basis": "slepton_LR_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "LO",
+    "order_as_published": "LO",
+    "pdf": "cteq6l1",
+    "pdf_as_published": "cteq6l1",
+    "pdf_source": "table",
+    "scale": "MadGraph LO dynamical scale: dynamical_scale_choice=-1, scalefact=1.0, fixed_ren_scale=False, fixed_fac_scale=False (run card data/templates/madgraph_run_default_lo.dat)"
+   },
+   "charge": null,
+   "state_count": 2,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate generations (each contributes its left- and right-handed pair). Leading order, so the rescaling is exact for equal masses.",
+   "decoupling": "squarks, gluino, sneutrinos, charginos and heavier neutralinos decoupled at 4.5e9 GeV",
+   "tool": "MG5_aMC 2.9.27 (MSSM_SLHA2)",
+   "citation": {
+    "working_group": null,
+    "twiki": null,
+    "reference": null,
+    "contact": "locally computed with the recorded recipe; the numbers are not a working-group publication"
+   },
+   "process_latex": "$\\tilde\\ell_{L,R}\\tilde\\ell_{L,R}$ ($\\ell=e,\\mu$)",
+   "comment": "LO sigma(p p > chsl4 chsl4) versus slepton mass at 13 TeV, with chsl4 = el- el+ er- er+ mul- mul+ mur- mur+: the four mass-degenerate selectron and smuon states (two generations of left- and right-handed sleptons), 2->2 inclusive without an ISR jet. This is the inclusive-model denominator on that four-state basis.",
+   "note": "Two degenerate generations (e, mu) of left- and right-handed sleptons; the working group slepton_LR_pair tables are one generation, so this table counts state_count 2."
+  },
+  {
+   "id": "mg5-lo-slepton-lr-pair-with-stau-cteq6l1",
+   "file": "slepton_incl6_lo_cteq6l1.json",
+   "sha256": "f3244ad8f878d5792e19e3269dbd40b46185b0414d0fa4e2fd1cbf1261dfbafd",
+   "source_url": null,
+   "source_kind": "mg5-computed",
+   "generator": {
+    "program": "MG5_aMC 2.9.27",
+    "model": "MSSM_SLHA2",
+    "order": "LO",
+    "pdf": "cteq6l1",
+    "nevents": 2000,
+    "iseed": 1,
+    "generated": "2026-07-04",
+    "process_card": "src/ravel/data/templates/slepton_isrslep_generate.mg5",
+    "param_template": "src/ravel/data/templates/slepton_bino_param_template.slha",
+    "run_template": "src/ravel/data/templates/madgraph_run_default_lo.dat",
+    "process": "p p > chsleptons chsleptons / susystrong (6 species x both charges, no ISR jet).",
+    "masses": "MSSM_SLHA2 with the shipped parameter template data/templates/slepton_bino_param_template.slha rendered per mass: all six charged-slepton masses = m (MSLEP) and the lightest neutralino MN1 = m-2; squarks, gluino, sneutrinos, charginos and heavier neutralinos at 4.5e9 GeV. The neutralino mass does not enter s-channel Drell-Yan production.",
+    "integration_error": "MC integration errors ~0.15-0.25%."
+   },
+   "basis": "slepton_LR_pair_with_stau",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "LO",
+    "order_as_published": "LO",
+    "pdf": "cteq6l1",
+    "pdf_as_published": "cteq6l1",
+    "pdf_source": "table",
+    "scale": "MadGraph LO dynamical scale: dynamical_scale_choice=-1, scalefact=1.0, fixed_ren_scale=False, fixed_fac_scale=False (run card data/templates/madgraph_run_default_lo.dat)"
+   },
+   "charge": null,
+   "state_count": 3,
+   "state_rescaling": "Drell-Yan production is flavour universal for mass-degenerate states; the cross section scales with the number of degenerate generations (each contributes its left- and right-handed pair). Leading order, so the rescaling is exact for equal masses.",
+   "decoupling": "squarks, gluino, sneutrinos, charginos and heavier neutralinos decoupled at 4.5e9 GeV",
+   "tool": "MG5_aMC 2.9.27 (MSSM_SLHA2)",
+   "citation": {
+    "working_group": null,
+    "twiki": null,
+    "reference": null,
+    "contact": "locally computed with the recorded recipe; the numbers are not a working-group publication"
+   },
+   "process_latex": "$\\tilde\\ell_{L,R}\\tilde\\ell_{L,R}$ ($\\ell=e,\\mu,\\tau$)",
+   "comment": "LO sigma(p p > chsleptons chsleptons) versus slepton mass at 13 TeV, with chsleptons = el er mul mur ta1 ta2 (both charges each): the untagged inclusive cross section of the six-state content that the generation recipe produces. The four-state table divided by this one is 2/3, because ta1 and ta2 together make one more generation of left- and right-handed sleptons for degenerate masses.",
+   "note": "Three degenerate generations including the mixed stau mass eigenstates ta1 and ta2."
   }
  ],
  "aliases": [
@@ -2266,7 +2422,7 @@
    "basis": "*",
    "sqrt_s_GeV": "*",
    "order": "LO",
-   "reason": "The working group does not publish LO tables; use an MG5-computed cross section as a separate source."
+   "reason": "The working group does not publish LO tables. The registered LO tables are MG5-computed slepton denominators (source_kind \"mg5-computed\"); for any other basis use an MG5-computed cross section as a separate source (mg5_record)."
   }
  ]
 }

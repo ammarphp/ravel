@@ -206,7 +206,7 @@ def stream(ds,a,c,bundle,*,reader=None,progress=None):
                         original_rows.append(row)
                     table,entries=admitted(table,entries,sample,blind,a)
                     rows=[original_rows[int(entry)-start] for entry in entries]
-                    public={'id':sample['id'],'kind':sample['kind'],'dsid':sample['dsid'],'process':sample['process']}
+                    public={'id':sample['id'],'kind':sample['kind'],**core.sample_identity(sample),'process':sample['process']}
                     if 'derived_factor' in a['weight_contract']:
                         # Capture SFs before analyze can mutate the table; raw
                         # generator/scalar weights retain their original values.

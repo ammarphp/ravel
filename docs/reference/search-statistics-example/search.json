@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "kind": "search-statistics",
+  "statistic": {
+    "origin": "default"
+  },
+  "description": "Synthetic control, validation and signal regions with an external ABCD estimate and five irregular points.",
+  "regions": [
+    {
+      "name": "target",
+      "role": "abcd",
+      "observed": null,
+      "bins": 1,
+      "abcd": {
+        "background": "alpha",
+        "independent": true,
+        "uncertainty_treatment": "independent-delta-lognormal",
+        "controls": {
+          "B": {
+            "yield": 200.0,
+            "sumw2": 200.0,
+            "observation_id": "sideband_B"
+          },
+          "C": {
+            "yield": 100.0,
+            "sumw2": 100.0,
+            "observation_id": "sideband_C"
+          },
+          "D": {
+            "yield": 1000.0,
+            "sumw2": 1000.0,
+            "observation_id": "sideband_D"
+          }
+        },
+        "closure": {
+          "x_pass": {
+            "path": "closure.json",
+            "format": "json",
+            "key": "x_pass"
+          },
+          "y_pass": {
+            "path": "closure.json",
+            "format": "json",
+            "key": "y_pass"
+          },
+          "max_abs_correlation": 0.1
+        }
+      }
+    },
+    {
+      "name": "control_a",
+      "role": "CR",
+      "observed": null
+    },
+    {
+      "name": "control_b",
+      "role": "CR",
+      "observed": null
+    },
+    {
+      "name": "validation",
+      "role": "VR",
+      "observed": null
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "alpha",
+      "normfactor": "scale_alpha",
+      "yields": {
+        "control_a": {
+          "values": [
+            200.0
+          ]
+        },
+        "control_b": {
+          "values": [
+            10.0
+          ]
+        },
+        "validation": {
+          "values": [
+            40.0
+          ]
+        }
+      }
+    },
+    {
+      "name": "beta",
+      "normfactor": "scale_beta",
+      "yields": {
+        "target": {
+          "values": [
+            10.0
+          ]
+        },
+        "control_a": {
+          "values": [
+            10.0
+          ]
+        },
+        "control_b": {
+          "values": [
+            150.0
+          ]
+        },
+        "validation": {
+          "values": [
+            30.0
+          ]
+        }
+      }
+    }
+  ],
+  "signal_points": [
+    {
+      "id": "point_0",
+      "coordinates": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "yields": {
+        "target": {
+          "values": [
+            3.0
+          ]
+        }
+      }
+    },
+    {
+      "id": "point_1",
+      "coordinates": {
+        "x": 2.4,
+        "y": 0.2
+      },
+      "yields": {
+        "target": {
+          "values": [
+            4.0
+          ]
+        }
+      }
+    },
+    {
+      "id": "point_2",
+      "coordinates": {
+        "x": 0.2,
+        "y": 2.2
+      },
+      "yields": {
+        "target": {
+          "values": [
+            3.0
+          ]
+        }
+      }
+    },
+    {
+      "id": "point_3",
+      "coordinates": {
+        "x": 0.9,
+        "y": 0.9
+      },
+      "yields": {
+        "target": {
+          "values": [
+            25.0
+          ]
+        }
+      }
+    },
+    {
+      "id": "point_4",
+      "coordinates": {
+        "x": 1.3,
+        "y": 0.6
+      },
+      "yields": {
+        "target": {
+          "values": [
+            18.0
+          ]
+        }
+      }
+    }
+  ],
+  "mc_statistics": "none",
+  "systematics": null,
+  "data": {
+    "mode": "mc-pseudo-data",
+    "injections": {}
+  },
+  "computations": {
+    "discovery": true,
+    "cls_at_nominal": true,
+    "cls_limits": false,
+    "background_only_fit": true
+  },
+  "asimov_source": "background-only-fit",
+  "cls_level": 0.05,
+  "mc_adequacy": {
+    "max_relative_uncertainty": 0.5,
+    "min_effective_entries": 1
+  },
+  "contours": {
+    "x": "x",
+    "y": "y",
+    "levels": {
+      "expected_cls_at_nominal": 0.05
+    },
+    "interpolation": {
+      "method": "delaunay-linear",
+      "coordinates": [
+        "x",
+        "y"
+      ]
+    }
+  },
+  "reference_contour": {
+    "path": "reference.json",
+    "sha256": "263d48d89f4e2121094c3ac2f6f5931a2ba74555eccc8b318159fae524ca24a5"
+  }
+}

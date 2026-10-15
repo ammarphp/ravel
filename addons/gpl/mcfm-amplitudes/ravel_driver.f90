@@ -17,13 +17,17 @@ program ravel_mcfm_amplitudes
   implicit none
   include 'mpicommon.f'
   include 'nf.f'
+  include 'constants.f'
   include 'mxpart.f'
   include 'vegas_common.f'
   include 'plabel.f'
   include 'interference.f'
   include 'masses.f'
   include 'anom_higgs.f'
-  include 'cpscheme.f'
+  ! src/Inc/cpscheme.f has fixed-form comment lines and cannot be included in free form. Its common
+  ! block is declared here; upstream-api.json pins that file's bytes.
+  logical::CPscheme
+  common/CPscheme/CPscheme
   include 'ipsgen.f'
   include 'taucut.f'
   include 'kpart.f'
@@ -33,6 +37,7 @@ program ravel_mcfm_amplitudes
   integer::control,op,seed,flavour,actual_seed,nproc_,npoints,pointunit,i,j,status,gridunit,pairbranch
   integer(int64)::calls
   character(len=32)::part
+  character(len=4096)::card,indir,outdir
   logical::sobol,pdfvar,scalevar,bin
   common/bin/bin
   real(dp)::p(mxpart,4),ref(fn:nf,fn:nf),start_time,end_time,dummy
@@ -40,6 +45,21 @@ program ravel_mcfm_amplitudes
   call omp_set_num_threads(1)
   world_size=1;rank=0
   call start_times()
+  ! The program runs in the directory of the card named on the command line: its control, points
+  ! and grid files and MCFM's own runtime files (process.DAT, br.sm1, br.sm2) are read there.
+  ! Outputs go to RAVEL_OUTPUT_DIR when the execution backend sets it, otherwise to that directory.
+  call get_command_argument(1,card)
+  indir=card(1:index(card,'/',back=.true.))
+  if(len_trim(indir)>0) then
+     call chdir(trim(indir),status)
+     if(status/=0) error stop 'cannot enter the card directory'
+  endif
+  call get_environment_variable('RAVEL_OUTPUT_DIR',outdir,status=status)
+  if(status/=0.or.len_trim(outdir)==0) then
+     outdir=''
+  else
+     outdir=trim(outdir)//'/'
+  endif
   call mcfm_init()
   open(newunit=control,file='ravel-control.dat',status='old',action='read')
   read(control,*,iostat=status)op,calls,seed,flavour
@@ -61,7 +81,7 @@ program ravel_mcfm_amplitudes
   abovecut=.false.;usescet=.false.;kpart=klord
   doMultitaucut=.false.
   bin=.false.;wanted=int(calls);active=.true.
-  open(newunit=stream,file='amplitudes.dat',status='new',action='write')
+  open(newunit=stream,file=trim(outdir)//'amplitudes.dat',status='new',action='write')
   write(stream,*) 'RAVEL_MCFM_2',op,calls,seed,flavour
   write(stream,*) 'DOMAIN',wsqmin,wsqmax,bbsqmin,bbsqmax,m3456min,m3456max,pt34min,cutoff
   call cpu_time(start_time)
@@ -103,7 +123,7 @@ program ravel_mcfm_amplitudes
         call integrate(weighted,1,1,ndim,info)
      else
         call integrate(weighted,0,1,ndim,info)
-        open(newunit=gridunit,file='proposal-grid.bin',status='new',access='stream',form='unformatted',action='write')
+        open(newunit=gridunit,file=trim(outdir)//'proposal-grid.bin',status='new',access='stream',form='unformatted',action='write')
         call info%serialize(gridunit);close(gridunit)
      endif
   endif

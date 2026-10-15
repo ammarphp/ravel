@@ -189,6 +189,35 @@ def write_packets(root, items):
     return written
 
 
+def authentic_packet(root, rel, document):
+    """Whether run file ``rel`` is the item packet this graph computes now for the item it names.
+
+    The file name is the digest of the item key, the fields are exactly the packet's own, the
+    subject is the point's current subject and the dependency findings are the ones the
+    registered receipts carry. A hand-written file for the same role and point is none of that.
+    """
+    from .. import review_points
+    fields = {'schema_version', 'kind', 'point_id', 'role', 'n', 'round', 'at', 'subject_sha256', 'claim_id',
+              'node_id', 'gate', 'findings'}
+    if (type(document) is not dict or set(document) != fields or document['kind'] != 'review-item-packet'
+            or type(document['n']) is not int or type(document['round']) is not int):
+        return False
+    key = f"r{document['round']}:{document['point_id']}:{document['role']}:{document['n']}"
+    if rel != packet_path({'key': key}):
+        return False
+    facts = review_points._facts(root)
+    point = next((p for p in review_points.derive(facts) if p['id'] == document['point_id']), None)
+    entry = next((r for r in (point or {}).get('roles', []) if r['role'] == document['role']), None)
+    if entry is None or not 1 <= document['n'] <= entry['count']:
+        return False
+    evidence = _receipt_findings(root, facts, set(point['depends_on'])) if point['depends_on'] else {}
+    return document == {'schema_version': 1, 'kind': 'review-item-packet', 'point_id': point['id'],
+                        'role': entry['role'], 'n': document['n'], 'round': document['round'],
+                        'at': point['when']['at'], 'subject_sha256': review_points.subject_digest(facts, point),
+                        'claim_id': point.get('claim_id'), 'node_id': point.get('node_id'), 'gate': point['gate'],
+                        'findings': evidence}
+
+
 def worker_spec(root, item):
     """The governed reviewer worker for one item; credit is checked by review_points, not here."""
     from .. import review_points, role_registry

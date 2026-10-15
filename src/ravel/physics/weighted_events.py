@@ -31,6 +31,7 @@ import re
 import numpy as np
 
 from . import amplitude_basis as ab
+from . import amplitude_polynomial as polynomial
 from . import amplitude_store as store
 
 UNITS_PER_PB = {'fb': 1e3, 'pb': 1.0, 'nb': 1e-3}
@@ -60,7 +61,7 @@ def passes(names, reference, max_streams=150):
     return [[reference, *others[i:i + size]] for i in range(0, max(len(others), 1), size)]
 
 
-def stream_weights(gram, s, basis, hypotheses, reference):
+def stream_weights(gram, s, basis, hypotheses, reference, *, document=None):
     """Per-point Re(c^dagger G c) for every hypothesis and difference (before the factor)."""
     values = {}
     for doc in hypotheses:
@@ -69,6 +70,9 @@ def stream_weights(gram, s, basis, hypotheses, reference):
     for doc in hypotheses:
         if doc['id'] != reference:
             out[f'{doc["id"]}-minus-{reference}'] = values[doc['id']] - values[reference]
+    if document is not None:
+        for _, name, fn in polynomial.definitions(document, basis, hypotheses):
+            out[name] = fn(gram, s)
     return out
 
 
@@ -209,7 +213,8 @@ def read_hepmc3(path):
 
 
 # ---------------------------------------------------------------- export of a store
-def block_events(path, basis, hypotheses, reference, *, s_observable, scale_observable, names, chunk_points=65536):
+def block_events(path, basis, hypotheses, reference, *, s_observable, scale_observable, names, chunk_points=65536,
+                 document=None):
     """Yield (momenta, scale, weights in pb) for every point of one completed block."""
     header = store.read_header(path)
     observables = header['observables']
@@ -220,7 +225,7 @@ def block_events(path, basis, hypotheses, reference, *, s_observable, scale_obse
     attempted = _attempted(path)
     i_s, i_q = observables.index(s_observable), observables.index(scale_observable)
     for chunk in store.iter_chunks(path, chunk_points):
-        values = stream_weights(chunk['gram'], chunk['observables'][:, i_s], basis, hypotheses, reference)
+        values = stream_weights(chunk['gram'], chunk['observables'][:, i_s], basis, hypotheses, reference, document=document)
         factor = chunk['factor'] * to_pb * attempted
         for j in range(len(factor)):
             yield (chunk['momenta'][j].tolist(), float(chunk['observables'][j, i_q]),
@@ -329,7 +334,7 @@ def load(task, base):
     doc = json.loads(path.read_text())
     required = {'schema_version', 'kind', 'operation', 'store', 'hypotheses', 'reference', 'reference_description',
                 'invariant', 'scale', 'beams', 'max_streams', 'format', 'unit'}
-    optional = {'shower', 'rivet', 'backend', 'description'}
+    optional = {'shower', 'rivet', 'backend', 'description', 'coupling_scaling', 'coupling_polynomial'}
     ab.require(type(doc) is dict and required <= set(doc) <= required | optional, 'document needs ' + ', '.join(sorted(required)))
     ab.require(doc['schema_version'] == 1 and doc['kind'] == MODE, f'schema_version 1 and kind {MODE} required')
     ab.require(doc['operation'] in ('export', 'rivet'), 'operation must be export or rivet')
@@ -343,6 +348,9 @@ def load(task, base):
     basis = ab.Basis.from_document(manifest['header']['basis'])
     hyps = [ab.hypothesis(h, basis) for h in doc['hypotheses']]
     names = stream_names([h['id'] for h in hyps], doc['reference'])
+    names += [t['weight'] for terms in polynomial.terms(doc, hyps).values() for t in terms]
+    ab.require(len(set(names)) == len(names) and all(_NAME.fullmatch(n) for n in names),
+               'distinct portable weight names of at most 64 characters required')
     groups = passes(names, doc['reference'], doc['max_streams'])
     if doc['operation'] == 'rivet':
         ab.require('rivet' in doc and 'backend' in doc, 'the rivet operation needs rivet and backend')
@@ -381,7 +389,7 @@ def export(ctx, out):
         attempted = block['summary']['attempted']
         for k, group in enumerate(ctx['passes']):
             events = list(block_events(path, ctx['basis'], ctx['hypotheses'], doc['reference'], s_observable=doc['invariant'],
-                                       scale_observable=doc['scale'], names=group))
+                                       scale_observable=doc['scale'], names=group, document=doc))
             target = out / 'events' / block['id'] / (f'pass-{k}.hepmc' if doc['format'] == 'hepmc3' else f'pass-{k}.lhe')
             target.parent.mkdir(parents=True, exist_ok=True)
             if doc['format'] == 'hepmc3':
@@ -444,17 +452,27 @@ def predictions(ctx, results):
     doc = ctx['doc']
     out = {}
     for spec in doc['rivet']['histograms']:
-        cohorts, edges = {}, None
+        cohorts, edges, census = {}, None, []
+        expected_rows = {(b['id'], k) for b in ctx['manifest']['blocks'] for k in range(len(ctx['passes']))}
+        ab.require(len(results) == len(expected_rows) and {(r['block'], r['pass']) for r in results} == expected_rows,
+                   'RAW block/pass exposure roster differs')
         for block in ctx['manifest']['blocks']:
+            ab.require(block['summary']['failed'] == 0, 'RAW block contains failed draws')
             vector = []
             for k, group in enumerate(ctx['passes']):
                 row = next(x for x in results if x['block'] == block['id'] and x['pass'] == k)
+                ab.require(row['attempted'] == block['summary']['attempted'] and row['cohort'] == block['cohort']
+                           and row['streams'] == group and row['events'] == block['points'],
+                           'RAW attempted-draw exposure or stream pass differs')
                 streams = [s for s in group if k == 0 or s != doc['reference']]
                 norm = normalize_raw(row['histograms'], histogram=spec['path'], streams=streams, nominal=doc['reference'],
                                      attempted=row['attempted'], unit=doc['unit'])
+                ab.require(edges is None or edges == norm['edges'], 'RAW bin edges differ across blocks or passes')
                 edges = norm['edges']
                 vector.append(block_vector(norm, streams))
             cohorts.setdefault(block['cohort'], []).append(np.concatenate(vector))
+            census.append({'id': block['id'], 'cohort': block['cohort'], 'attempted': block['summary']['attempted'],
+                           'events': block['points']})
         joint = ab.centered_blocks(cohorts)
         nb = len(edges) - 1
         divide = np.diff(edges) if spec['representation'] == 'differential' else np.ones(nb)
@@ -465,7 +483,13 @@ def predictions(ctx, results):
             mean = joint['mean'][sl]
             streams[name] = {'values': (mean[:nb] / divide).tolist(), 'underflow': float(mean[nb]), 'overflow': float(mean[nb + 1]),
                              'mc_covariance': cov.tolist(), 'uncertainty': np.sqrt(np.clip(np.diag(cov), 0, None)).tolist()}
-        out[spec['path']] = {'edges': edges, 'streams': streams, 'joint_covariance': joint['covariance'].tolist(), 'spec': spec}
+        out[spec['path']] = {'edges': edges, 'streams': streams, 'joint_covariance': joint['covariance'].tolist(), 'spec': spec,
+                            'joint_layout': {'streams': ctx['names'], 'per_stream': 'bins, underflow, overflow',
+                                             'units': 'integrated (not divided by bin width)'},
+                            'covariance_semantics': joint['semantics'], 'blocks': census,
+                            'provenance': {'stage': 'rivet-selected', 'showered': 'shower' in doc, 'histogram': spec['path'],
+                                           'normalization': 'RAW/attempted-draws', 'weight_unit': 'pb',
+                                           'unit': doc['unit'], 'representation': spec['representation']}}
     return out
 
 
@@ -507,6 +531,10 @@ def run(task, base, output, *, backend=None):
                             for h in ctx['hypotheses'] if h['id'] != doc['reference']],
                         'reference_prediction': {'values': pred['streams'][doc['reference']]['values'],
                                                  'description': doc['reference_description']}}
+            if doc.get('coupling_scaling') or doc.get('coupling_polynomial'):
+                from . import rivet_fit
+                selected = rivet_fit.selected_prediction(doc, ctx['hypotheses'], pred)
+                fragment = rivet_fit.likelihood_input(doc, ctx['hypotheses'], selected)
             (folder / 'differential-likelihood-input.json').write_text(json.dumps(fragment, indent=2) + '\n')
         (out / 'predictions.json').write_text(json.dumps({p: {k: v for k, v in x.items() if k != 'spec'} for p, x in preds.items()},
                                                          indent=2) + '\n')

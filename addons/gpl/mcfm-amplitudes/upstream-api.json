@@ -44,7 +44,9 @@
     "src/Inc/limits.f": "f2cdf87d75833c37821192598c563e6f787095d8a2aba47df9362e24a34b375f",
     "src/Mods/mod_SCET.f90": "5821d395176e9760dbd0122eb73920e7a1cdbd5e1fdbb7678aac371fb8d65bed",
     "src/Need/includedipole.f": "e90b7b8782ca9f6d119a0d7b6302a6ae8921258ea1d7f2da0d3901df1f91ed07",
-    "src/Need/masscuts.f": "6522d22a4f08201f97fe114f4d50b09e46330fe0a16c3f2c9d93ea3516e82fde"
+    "src/Need/masscuts.f": "6522d22a4f08201f97fe114f4d50b09e46330fe0a16c3f2c9d93ea3516e82fde",
+    "src/Inc/zcouple_cms.f": "722e81493cfd2216f762d6e588e5dce63a7a715503c2a944e73c900fbf3790b7",
+    "src/Inc/cpscheme.f": "78c764c98568dac82a116111da8c135b4bb3b574167b0ce9d917d8bb426ab400"
   },
   "overlay_lowint_sha256": "ec6445fc0a2c34033e4c88ef65f1efbcef5277c13f4bd9ab959deadd5a1e3f24",
   "rng_coordinates": "12 uniform draws,10 mapped dimensions; original pairing branch separately retained",

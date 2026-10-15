@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "generator": "sherpa3",
+  "fields": {
+    "MUR": "mu_r",
+    "MUF": "mu_f",
+    "PDF": "pdf_lhaid",
+    "MEMBER": "pdf_member",
+    "DYN_SCALE": "dyn_scale",
+    "ALPHAS": "alpha_s_mz"
+  },
+  "rules": [
+    {
+      "pattern": "MUR(?P<MUR>[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)_MUF(?P<MUF>[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)(?:_PDF(?P<PDF>\\d+))?(?:_DYN_SCALE(?P<DYN_SCALE>[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?))?"
+    },
+    {
+      "pattern": "PDF_MEMBER(?P<MEMBER>\\d+)"
+    },
+    {
+      "pattern": "ALPHAS(?P<ALPHAS>[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][-+]?\\d+)?)"
+    }
+  ],
+  "scope": "Explicit named grammars only; numeric ids require retained headers. Installed-generator naming and physics interpretation require separate source qualification. Unknown streams are preserved as unclassified.",
+  "header_contract": "Retained id/attributes/description/canonical_header_xml from model_event_weights; never infer a variation from numeric id."
+}

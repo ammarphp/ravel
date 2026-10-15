@@ -48,7 +48,9 @@ def main_args(argv=None):
     return main(arguments)
 
 
-main = main_args
+def main(argv=None):
+    """Command-line entry point; the same refusal and delegation as ``main_args``."""
+    return main_args(argv)
 
 if __name__ == '__main__':
     raise SystemExit(main())

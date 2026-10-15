@@ -1,0 +1,28 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Generated electroweak inputs",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema_version", "kind", "edition", "symmetrization", "inputs", "m_w_variants"],
+ "properties": {
+  "schema_version": {"const": 1},
+  "kind": {"const": "ravel-ew-inputs"},
+  "edition": {"type": "string", "minLength": 1},
+  "symmetrization": {"description": "How uncertainty is formed from the two database errors: max is the larger of the two.", "enum": ["max"]},
+  "inputs": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/quantity"}},
+  "m_w_variants": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/quantity"}}
+ },
+ "$defs": {
+  "quantity": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["pdgid", "value", "uncertainty", "unit"],
+   "properties": {
+    "pdgid": {"type": "string", "minLength": 1},
+    "value": {"type": "number"},
+    "uncertainty": {"type": "number", "minimum": 0},
+    "unit": {"description": "The database unit text; empty for a dimensionless quantity.", "type": "string"}
+   }
+  }
+ }
+}

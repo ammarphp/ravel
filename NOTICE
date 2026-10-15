@@ -48,6 +48,16 @@ LHCHWG-2024-001, arXiv:2402.09955. Both are licensed CC BY 4.0. The extracted va
 are copied from the printed tables; table locators, byte sizes and sha256 checksums are in
 SOURCE.json. Cite the Yellow Report together with the 13.6 TeV note when using 13.6 TeV values.
 
+NLL-fast 13 TeV NLO+NLL grids (acquired on first use, not distributed)
+----------------------------------------------------------------------
+src/ravel/data/cross_sections/acquired-tables.json pins the NLL-fast 3.1 archive for
+13 TeV published by the program's authors at
+https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/. The download page, the start
+page and the archive state no licence or redistribution terms (read 2026-10-14), so
+RAVEL does not ship these numbers: it records the archive and member sha256 checksums
+and installs the grids into the user's cache at first use. Cite NLL-fast 3.1 and the
+papers each registry row lists whenever its values are used.
+
 MCFM amplitude add-on (separately licensed)
 -------------------------------------------
 The Fortran driver, capture module, lowint patch and CMake adaptation in

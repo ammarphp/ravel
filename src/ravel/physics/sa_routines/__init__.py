@@ -1,4 +1,4 @@
-"""Supplied routine discovery; no installed selection population."""
+"""Routine discovery over the shipped and supplied analysis packages."""
 from ..analysis_packages import discover, load_routine
 
 class RoutineUnavailable(ValueError):

@@ -1,0 +1,111 @@
+{
+  "aliases": {
+    "consult-Snakemake": {
+      "replaces": "consult-recast",
+      "role": "consult-workflow-manager"
+    }
+  },
+  "roles": {
+    "consult-workflow-manager": {
+      "card": {
+        "escalation": [
+          "checkin_flag",
+          "stop",
+          "new_experiment_required",
+          "decision_block"
+        ],
+        "family": "consult",
+        "id": "consult-workflow-manager",
+        "independence": {
+          "distinct_actor_from": [
+            "coordinator"
+          ],
+          "fresh_session": true,
+          "kind": "advisory"
+        },
+        "kind": "role-card",
+        "knowledge": {
+          "budget_tokens": 24000,
+          "consult": [],
+          "derive": [
+            "handbooks_for_node",
+            "checks_judging_node",
+            "premises_firing",
+            "conventions:node_tags"
+          ],
+          "forbidden": [],
+          "may_query": [
+            "find",
+            "show",
+            "for_node",
+            "coverage"
+          ],
+          "must_read": [
+            "hb:snakemake-workflows"
+          ]
+        },
+        "model": {
+          "distinct_family_from": [],
+          "effort": "high",
+          "tier": "agent"
+        },
+        "must_check": [
+          "check:validation.validate_task_contract.validate"
+        ],
+        "operations": [
+          "knowledge query",
+          "check run"
+        ],
+        "output": {
+          "declared_outputs": [],
+          "schema": "producer.v1",
+          "sidecar": true
+        },
+        "protocol": [
+          "Read the supplied project policy, task index, source-pinned rules, profile and original admission records before advising on its DAG.",
+          "Check dependency edges, complete task populations, rule inputs and outputs, resource declarations and profile scope. Study identities, parameter grids, datasets and output formats are supplied inputs.",
+          "Inspect the dry-run with the ravel-snakemake shim before launch. Parsing and a schedulable DAG do not qualify native software or scientific results.",
+          "Route approved tasks through ravel wms add and ravel wms launch. Plan and approve retain their check-ins; never approve through the workflow manager.",
+          "Use ravel wms retry for a bounded recorded retry. Inspect original failure receipts and logs, preserve failed attempts and unknown outcomes, and return failure triage with located evidence. A scheduler restart cannot grant fresh admission.",
+          "Distinguish replay of retained evidence, exported procedure verification, native execution and physics qualification. Escalate missing interfaces or stale admission rather than inferring support."
+        ],
+        "purpose": "Advise on workflow-manager DAG design, profiles, dry-run inspection, RAVEL retries and failure triage without granting approval.",
+        "requires": {
+          "attestation_min": "transport",
+          "blind": false,
+          "isolation_min": "ravel-sandbox",
+          "structured_output": true,
+          "tools": "broker-readonly"
+        },
+        "reviewed_by": [],
+        "schema_version": 2,
+        "sees": {
+          "forbidden_inputs": [],
+          "profile": "workspace"
+        },
+        "stop": {
+          "evidence_budget": 0,
+          "max_broker_calls": 400,
+          "max_cost_usd": null,
+          "max_rounds": 2,
+          "max_turns": 60,
+          "max_wall_seconds": 2700
+        },
+        "tools": {
+          "exec_argv_prefixes": [],
+          "ravel_actions": [
+            "knowledge query",
+            "check run"
+          ],
+          "read_paths": [
+            "inputs/"
+          ],
+          "validators": []
+        },
+        "version": "2.0.0"
+      },
+      "override": "cards/consult-workflow-manager.json"
+    }
+  },
+  "schema_version": 1
+}

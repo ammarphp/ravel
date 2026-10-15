@@ -11,6 +11,15 @@ result into that form. It never interpolates, extrapolates or changes an edge:
 - units must agree wherever the template states them;
 - the result must be captured by a current accepted review of the named scope.
 
+A provisional fill is the one exception, and only at a declared study deadline
+(``study_deadline``): inside the delivery margin it fills from an output that a
+valid stage receipt pins and that an open, unresolved review is examining. The
+filled file and its provenance say ``provisional: true`` and name the open review.
+A later reviewed fill supersedes it in place through ``deliver_into`` with
+``supersedes``; the provisional record is never rewritten, a sidecar links both.
+No accepted result, claim, CHECK-IN 3 record or submission export takes a
+provisional pin (``provisional_errors``).
+
 The filled template is written next to a provenance record holding the template,
 result and output hashes, the acceptance scope, units, conventions and the
 per-bin mapping. Any doubt refuses; nothing is filled from a guess.
@@ -35,6 +44,8 @@ FLOW_PHRASES = {
                             r'\b(?:inclusive|includes\s+all|and\s+below|less\s+than)\b', re.I),
 }
 MAX_BYTES = 2_000_000
+PROVISIONAL_MARK = '# RAVEL PROVISIONAL FILL'
+SUPERSEDED_SUFFIX = '.superseded.json'
 
 
 def _pin(path, raw):
@@ -271,15 +282,23 @@ class Template:
         dv['values'] = out
         return documents
 
-    def dump(self, documents):
+    def dump(self, documents, provisional=None):
+        """Serialize; a provisional notice is a YAML comment header or a top-level JSON key."""
         if self.format == 'hepdata-yaml':
             import yaml
-            return yaml.safe_dump_all(documents, sort_keys=False, allow_unicode=True).encode()
-        return (json.dumps(documents[0], indent=2, allow_nan=False) + '\n').encode()
+            text = yaml.safe_dump_all(documents, sort_keys=False, allow_unicode=True)
+            if provisional is not None:
+                text = ''.join(f'# {line}\n' for line in [PROVISIONAL_MARK[2:], *_notice_lines(provisional)]) + text
+            return text.encode()
+        document = documents[0] if provisional is None else {**documents[0], 'provisional': provisional}
+        return (json.dumps(document, indent=2, allow_nan=False) + '\n').encode()
 
-    def unchanged_except_values(self, documents):
+    def unchanged_except_values(self, documents, provisional=False):
         """Everything but the filled value column must survive byte-for-byte in meaning."""
         before, after = deepcopy(self.original), deepcopy(documents)
+        if provisional and self.format != 'hepdata-yaml':
+            if not isinstance(after[0], dict) or not isinstance(after[0].pop('provisional', None), dict):
+                return False
         if self.format == 'table-json':
             for b in after[0]['bins']:
                 b['value'] = None
@@ -287,6 +306,14 @@ class Template:
             before[self.document_index]['dependent_variables'][self.column].pop('values', None)
             after[self.document_index]['dependent_variables'][self.column].pop('values', None)
         return before == after
+
+
+def _notice_lines(notice):
+    review = notice['open_review']
+    return ['provisional: true',
+            f"values come from an unreviewed result; open review {review['state']} cycle {review['cycle_id']}",
+            f"claim scope under review: {notice['claim_scope']}",
+            'a reviewed fill supersedes these values; do not use them for a claim or submission']
 
 
 # ---------------------------------------------------------------- results
@@ -517,13 +544,39 @@ def _values(template, result, rows):
 
 
 # ---------------------------------------------------------------- acceptance
+def delivery_gate_errors(rundir):
+    """Epoch-two delivery gate for a filled template; an older contract keeps its review acceptance.
+
+    A delegated run passes the whole wired ``delivery`` gate, exactly as result packaging
+    does. A run without delegation delivers under its human approvals, so no machine decision
+    case is asked of it; every refusal of the review-point provider still stands for it:
+    pending points, standing findings, changed obligations, an action outside the plan, an
+    unsafe fan-out, a required decision receipt and a requirement no accepted output maps to.
+    """
+    from . import gate_wiring, review_points
+    rd = Path(rundir).resolve()
+    action = gate_wiring.delivery_action(rd)
+    errors = list(gate_wiring.delegated_errors(rd, 'delivery', action))
+    # The wired gate of a delegated run already holds the review-point provider.
+    if not errors and gate_wiring.epoch_two(rd) and not review_points._facts(rd)['delegated']:
+        errors = list(review_points.gate_errors(rd, 'delivery', action))
+    return errors
+
+
 def accepted(result_path, *, rundir, claim_scope, base_dir):
-    """Capture the result inside a current accepted review of `claim_scope`."""
+    """Capture the result inside a current accepted review of `claim_scope`, past the delivery gate."""
     from . import task_completion as tc
     inputs = tc._Inputs(Path(base_dir).resolve())
     try:
         pin = inputs.capture(Path(result_path).resolve())
+        refused = provisional_errors([pin['path']])
+        if refused:
+            raise ValueError(refused[0])
         rd, cycle = tc._accepted_review(str(Path(rundir).resolve()), claim_scope, inputs)
+        gated = delivery_gate_errors(rd)
+        if gated:
+            raise ValueError('decision gate refuses delivery: '
+                             + '; '.join(f'{e.provider}:{e.code}: {e.message}' for e in gated))
         if not tc._in_cycle(pin, rd, cycle):
             raise ValueError('the accepted review did not capture this result artifact')
         raw, _ = inputs.file(pin)
@@ -533,16 +586,117 @@ def accepted(result_path, *, rundir, claim_scope, base_dir):
     return raw, pin, {'rundir': str(rd), 'claim_scope': claim_scope, 'review_sequence': cycle['sequence'], 'accepted': True}
 
 
+def captured(result_path, *, rundir, claim_scope, base_dir):
+    """Capture an unreviewed output that a valid stage receipt pins and an open review examines."""
+    from . import execution, physics_review, study_deadline
+    from . import task_completion as tc
+    inputs = tc._Inputs(Path(base_dir).resolve())
+    try:
+        pin = inputs.capture(Path(result_path).resolve())
+        refused = provisional_errors([pin['path']])
+        if refused:
+            raise ValueError(refused[0])
+        rd = Path(rundir).resolve()
+        session = inputs.review_session(rd)
+        state = execution.load_execution(rd)
+        receipts = [name for name, record in sorted(state['stages'].items())
+                    if isinstance(record, dict) and record.get('status') == 'succeeded'
+                    and _receipt_pins(record, pin)]
+        receipts = [name for name in receipts if not execution.stage_errors(rd, name, state, _session=session)]
+        if not receipts:
+            raise ValueError('no valid stage receipt pins this output; a provisional fill takes only a captured result')
+        view = physics_review.status(rd, _session=session)
+        if view.get('state') == 'accepted':
+            raise ValueError('the review has accepted; fill from the accepted result without --provisional')
+        if view.get('state') not in study_deadline.OPEN_REVIEW:
+            raise ValueError(f"a provisional fill needs an open, unresolved review; review state is {view.get('state')!r}")
+        reg, events = physics_review._read(rd, _session=session)
+        cycle = physics_review._view(reg, events)['cycle']
+        if not tc._in_cycle(pin, rd, cycle):
+            raise ValueError('the open review is not examining this result artifact')
+        raw, _ = inputs.file(pin)
+        inputs.finish()
+    finally:
+        inputs.close()
+    record = state['stages'][receipts[0]]
+    return raw, pin, {'rundir': str(rd), 'claim_scope': claim_scope, 'accepted': False,
+                      'receipt': {'stage': receipts[0], 'attempt_id': record.get('attempt_id'),
+                                  'receipt_sha256': record.get('receipt_sha256')},
+                      'open_review': {'state': view['state'], 'cycle_id': view.get('cycle_id'),
+                                      'review_sequence': cycle['sequence'], 'attestation': view.get('attestation')}}
+
+
+def _receipt_pins(record, pin):
+    """True when a stage's committed output snapshot holds these exact bytes at this path."""
+    target = Path(pin['path'])
+    for key, entry in (record.get('output_snapshot') or {}).items():
+        root = Path(key)
+        if target != root and not target.is_relative_to(root):
+            continue
+        name = '.' if target == root else target.relative_to(root).as_posix()
+        if any(f.get('name') == name and f.get('sha256') == pin['sha256'] and f.get('size') == pin['size']
+               for f in entry.get('files', [])):
+            return True
+    return False
+
+
+def provisional_errors(paths):
+    """Errors for every path that is a provisional fill or its record; [] when none is.
+
+    Claims, CHECK-IN 3 records, submission exports and accepted fills call this so a
+    provisional delivery can never stand in for reviewed evidence.
+    """
+    errors = []
+    for value in paths:
+        path = Path(value)
+        sidecar = path.with_name(path.name + '.provenance.json')
+        for candidate in (path, sidecar):
+            if candidate.is_symlink() or not candidate.is_file() or candidate.stat().st_size > MAX_BYTES:
+                continue
+            raw = candidate.read_bytes()
+            if raw.startswith(PROVISIONAL_MARK.encode()) or _provisional_document(raw):
+                errors.append(f'{path} is a provisional fill; a claim, CHECK-IN 3 record or export '
+                              'requires the accepted, reviewed result')
+                break
+    return errors
+
+
+def _provisional_document(raw):
+    try:
+        document = json.loads(raw)
+    except (ValueError, UnicodeError, RecursionError):
+        return False
+    if not isinstance(document, dict):
+        return False
+    return (isinstance(document.get('provisional'), dict) and document['provisional'].get('provisional') is True
+            or document.get('kind') in ('filled-result-template', 'provisional-fill-supersession')
+            and document.get('provisional') is True)
+
+
 # ---------------------------------------------------------------- public entry
 def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=None, column=None,
          weight=None, rebinning=None, uncertainty_label=None, overflow=None, underflow=None,
-         flow_evidence=None, deliver_into=None, require_nonnegative=False):
+         flow_evidence=None, deliver_into=None, require_nonnegative=False, provisional=False,
+         supersedes=None):
     """Write a filled copy of `template` and its provenance; return the provenance record.
 
     `rebinning` is an optional declared merge document (dict). `uncertainty_label`
     writes each bin's propagated standard deviation as a symmetric HEPData error
-    with that label; without it only values are written.
+    with that label; without it only values are written. `provisional` fills from a
+    receipt-pinned output under an open review, only inside a declared deadline
+    margin. `supersedes` names the provenance record of a provisional fill that
+    this reviewed fill replaces in `deliver_into`.
     """
+    if type(provisional) is not bool:
+        raise ValueError('provisional must be explicit')
+    if provisional and supersedes is not None:
+        raise ValueError('a provisional fill never supersedes; only a reviewed fill does')
+    if supersedes is not None and deliver_into is None:
+        raise ValueError('superseding a provisional fill replaces its requester file; give deliver-into')
+    deadline = None
+    if provisional:
+        from . import study_deadline
+        deadline = study_deadline.require_margin(rundir)
     out = Path(out)
     provenance_path = out.with_name(out.name + '.provenance.json')
     for p in (out, provenance_path):
@@ -551,16 +705,23 @@ def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=Non
     template_raw = _read(template)
     template_hash = hashlib.sha256(template_raw).hexdigest()
     target = None if deliver_into is None else Path(deliver_into)
+    superseded, before_hash = None, template_hash
     if target is not None:
         if target.resolve() in (out.resolve(), provenance_path.resolve()):
             raise ValueError('deliver-into must differ from --out and its provenance path')
-        _delivery_pin(target, template_hash)
+        if supersedes is not None:
+            superseded = _superseded(Path(supersedes), target, template_hash)
+            before_hash = superseded['delivered_sha256']
+        _delivery_pin(target, before_hash)
     shape = Template(template, template_raw, table=table, column=column,
                      overflow=overflow, underflow=underflow, flow_evidence=flow_evidence)
     if uncertainty_label is not None and (shape.format == 'table-json' or not _text(uncertainty_label)):
         raise ValueError('an uncertainty label applies to HEPData templates and must be nonempty')
     base = Path(base_dir if base_dir is not None else Path(result).resolve().parent)
-    result_raw, result_pin, acceptance = accepted(result, rundir=rundir, claim_scope=claim_scope, base_dir=base)
+    if provisional and shape.format != 'hepdata-yaml' and 'provisional' in shape.original[0]:
+        raise ValueError('the template already uses the provisional key; it cannot carry a provisional notice')
+    capture = captured if provisional else accepted
+    result_raw, result_pin, acceptance = capture(result, rundir=rundir, claim_scope=claim_scope, base_dir=base)
     data = Result(result_raw, weight=weight)
     rows, used, units = _bind(shape, data, rebinning)
     template_total, result_total = _values(shape, data, rows)
@@ -575,7 +736,9 @@ def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=Non
     documents = shape.filled(values, sigmas, uncertainty_label)
     if not shape.unchanged_except_values(documents):
         raise ValueError('internal check failed: filling changed template content other than values')
-    payload = shape.dump(documents)
+    notice = None if not provisional else {'provisional': True, 'claim_scope': claim_scope,
+                                           'open_review': {k: acceptance['open_review'][k] for k in ('state', 'cycle_id')}}
+    payload = shape.dump(documents, notice)
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open('xb') as stream:
         stream.write(payload)
@@ -596,7 +759,11 @@ def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=Non
         'uncertainty_label': uncertainty_label,
         'edges_unchanged': True, 'values_from_result_only': True,
         'physics_validated': False,
+        'provisional': provisional,
     }
+    if provisional:
+        record.update(open_review=acceptance['open_review'], notice=notice,
+                      deadline={k: deadline[k] for k in ('deadline_utc', 'margin_s', 'source', 'now_utc', 'seconds_left')})
     excluded = {name: {'value': value, 'declaration': 'excluded', **shape.convention_provenance}
                 for name, value in (('overflow', data.overflow), ('underflow', data.underflow))
                 if value is not None and shape.conventions[name] == 'excluded'}
@@ -605,11 +772,42 @@ def fill(template, result, out, *, rundir, claim_scope, base_dir=None, table=Non
     with provenance_path.open('x') as stream:
         stream.write(json.dumps(record, indent=2, sort_keys=True, allow_nan=False) + '\n')
     if target is not None:
-        _deliver_into(target, template_hash, payload, shape)
-        record['delivered_into'] = {'path': str(target.resolve()), 'sha256_before': template_hash,
+        _deliver_into(target, before_hash, payload, shape, provisional)
+        record['delivered_into'] = {'path': str(target.resolve()), 'sha256_before': before_hash,
                                     'sha256_after': hashlib.sha256(payload).hexdigest()}
-        _replace_bytes(provenance_path, (json.dumps(record, indent=2, sort_keys=True, allow_nan=False) + '\n').encode())
+        if superseded is not None:
+            record['supersedes'] = {'provisional_record': superseded['pin'],
+                                    'sidecar': str(superseded['sidecar'])}
+        final = (json.dumps(record, indent=2, sort_keys=True, allow_nan=False) + '\n').encode()
+        _replace_bytes(provenance_path, final)
+        if superseded is not None:
+            link = {'schema_version': 1, 'kind': 'provisional-fill-supersession', 'provisional': True,
+                    'provisional_record': superseded['pin'],
+                    'superseded_by': _pin(provenance_path.resolve(), final),
+                    'requester_file': record['delivered_into'],
+                    'reviewed_acceptance': acceptance}
+            with superseded['sidecar'].open('x') as stream:
+                stream.write(json.dumps(link, indent=2, sort_keys=True, allow_nan=False) + '\n')
     return record
+
+
+def _superseded(record_path, target, template_hash):
+    """Check that `target` still holds exactly what the named provisional fill delivered."""
+    raw = _read(record_path)
+    record = _json(raw, 'provisional record')
+    if not isinstance(record, dict) or record.get('kind') != 'filled-result-template' or record.get('provisional') is not True:
+        raise ValueError('supersedes must name the provenance record of a provisional fill')
+    sidecar = record_path.with_name(record_path.name + SUPERSEDED_SUFFIX)
+    if sidecar.exists() or sidecar.is_symlink():
+        raise ValueError('this provisional fill has already been superseded')
+    if (record.get('template') or {}).get('sha256') != template_hash:
+        raise ValueError('the provisional fill used a different template')
+    delivered = record.get('delivered_into') or {}
+    if delivered.get('path') != str(target.resolve()):
+        raise ValueError('the provisional fill was not delivered into this requester file')
+    if hashlib.sha256(_read(target)).hexdigest() != delivered.get('sha256_after'):
+        raise ValueError('the requester file changed since the provisional fill delivered into it')
+    return {'pin': _pin(record_path.resolve(), raw), 'sidecar': sidecar, 'delivered_sha256': delivered['sha256_after']}
 
 
 def _delivery_pin(path, template_hash):
@@ -634,7 +832,7 @@ def _replace_bytes(path, payload, before_replace=None):
         staged.unlink(missing_ok=True)
 
 
-def _deliver_into(path, template_hash, payload, shape):
+def _deliver_into(path, template_hash, payload, shape, provisional=False):
     def check(staged):
         raw = staged.read_bytes()
         if shape.format == 'hepdata-yaml':
@@ -642,7 +840,7 @@ def _deliver_into(path, template_hash, payload, shape):
             documents = list(yaml.safe_load_all(raw.decode('utf8')))
         else:
             documents = [_json(raw, 'delivered template')]
-        if not shape.unchanged_except_values(documents):
+        if not shape.unchanged_except_values(documents, provisional):
             raise ValueError('delivery changed template content other than values')
         _delivery_pin(path, template_hash)
     _replace_bytes(path, payload, check)
@@ -673,6 +871,9 @@ def main(argv=None):
     parser.add_argument('--flow-evidence', help='verbatim template text supporting the flow declaration')
     parser.add_argument('--deliver-into', type=Path, help='atomically replace an unchanged copy of the pinned template')
     parser.add_argument('--require-nonnegative', action='store_true', help='refuse negative filled values for event yields')
+    parser.add_argument('--provisional', action='store_true',
+                        help='inside a declared deadline margin, fill from a receipt-pinned output under open review, labelled provisional')
+    parser.add_argument('--supersedes', type=Path, help='provenance record of the provisional fill this reviewed fill replaces')
     args = parser.parse_args(argv)
     try:
         column = int(args.column) if args.column is not None and args.column.isdigit() else args.column
@@ -681,11 +882,12 @@ def main(argv=None):
                       base_dir=args.base, table=args.table, column=column, weight=args.weight,
                       rebinning=rebinning, uncertainty_label=args.uncertainty_label, overflow=args.overflow,
                       underflow=args.underflow, flow_evidence=args.flow_evidence,
-                      deliver_into=args.deliver_into, require_nonnegative=args.require_nonnegative)
+                      deliver_into=args.deliver_into, require_nonnegative=args.require_nonnegative,
+                      provisional=args.provisional, supersedes=args.supersedes)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError) as exc:
         parser.exit(1, f'fill-template refused: {exc}\n')
-    print(json.dumps({'output': record['output'], 'bins': len(record['bins']), 'acceptance': record['acceptance']},
-                     indent=2, sort_keys=True))
+    print(json.dumps({'output': record['output'], 'bins': len(record['bins']), 'acceptance': record['acceptance'],
+                      'provisional': record['provisional']}, indent=2, sort_keys=True))
     return 0
 
 

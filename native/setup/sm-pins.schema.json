@@ -1,0 +1,28 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Acquired Standard-Model PDF set pins",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema_version", "kind", "sets"],
+ "properties": {
+  "schema_version": {"const": 1},
+  "kind": {"const": "ravel-sm-pdf-pins"},
+  "sets": {
+   "type": "array",
+   "minItems": 10,
+   "maxItems": 10,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "lhaid", "size", "sha256", "used_for"],
+    "properties": {
+     "name": {"type": "string", "pattern": "^[A-Za-z0-9_.+-]+$"},
+     "lhaid": {"type": "integer", "minimum": 1},
+     "size": {"type": "integer", "minimum": 1},
+     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+     "used_for": {"type": "string", "minLength": 1}
+    }
+   }
+  }
+ }
+}

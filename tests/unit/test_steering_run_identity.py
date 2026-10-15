@@ -251,7 +251,7 @@ def create(tmp_path, monkeypatch, machine_rules):
             from ravel.workflow import agent_graph
             monkeypatch.setattr(agent_graph, 'validate', lambda spec: spec)
             monkeypatch.setattr(agent_graph, 'status', lambda root: {})
-            agent_graph.create(root, {'graph_id': 'synthetic', 'nodes': [{'id': 'only'}]})
+            agent_graph.create(root, {'graph_id': 'synthetic', 'nodes': [{'id': 'only', 'inputs': []}]})
         else:
             from ravel.workflow import graph_substrate as gs
 

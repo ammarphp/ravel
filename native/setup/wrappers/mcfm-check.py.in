@@ -1,0 +1,30 @@
+#!@HOST_PYTHON@
+# owned by the RAVEL installer
+# SPDX-License-Identifier: Apache-2.0
+"""Check the installed amplitude program in its pinned toolchain image."""
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import uuid
+
+sys.path.insert(0, str(Path('@REPO@') / 'src'))
+os.environ['RAVEL_CONTAINER_HOME'] = str(Path('@PREFIX@') / 'containers')
+from ravel.workflow.backends import oci_local
+
+launcher = json.loads(Path('@LAUNCHER@').read_text())
+build = Path('@BUILD@')
+try:
+    argv = oci_local.launcher_command(launcher, ['/opt/ravel/bin/check-mcfm.sh', str(build)],
+                                    workdir=build, readonly=(build,), name='ravel-install-check-' + uuid.uuid4().hex)
+    proc = subprocess.run(argv, capture_output=True, text=True, timeout=120, check=False)
+    output = proc.stdout.strip()
+    passed = proc.returncode == 0 and json.loads(output).get('status') == 'passed'
+    print(output)
+    if not passed:
+        print(proc.stderr, file=sys.stderr)
+    sys.exit(0 if passed else 1)
+except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+    print(str(error), file=sys.stderr)
+    sys.exit(1)

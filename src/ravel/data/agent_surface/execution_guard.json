@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "ravel-execution-guard-policy",
+  "note": "What the strict execution guard allows an agent's shell tool to run. A program is allowed only if it is listed here, its arguments pass its rule, and (for classes that require one) a software skill file for it is installed in the project.",
+  "log": ".ravel/agent-audit/execution-guard.jsonl",
+  "classes": {
+    "workflow-manager": {"requires_skill": true},
+    "workflow-tool": {"requires_skill": true},
+    "version-control": {"requires_skill": true},
+    "inspection": {"requires_skill": false}
+  },
+  "programs": {
+    "snakemake": {"class": "workflow-manager", "skill": "software-snakemake"},
+    "ravel": {"class": "workflow-tool", "skill": "software-ravel"},
+    "git": {"class": "version-control", "skill": "software-git"},
+    "ls": {"class": "inspection"},
+    "cat": {"class": "inspection"},
+    "head": {"class": "inspection"},
+    "tail": {"class": "inspection", "refuse_flags": ["-f", "-F", "--follow"]},
+    "wc": {"class": "inspection"},
+    "pwd": {"class": "inspection"},
+    "file": {"class": "inspection"},
+    "stat": {"class": "inspection"},
+    "diff": {"class": "inspection"},
+    "echo": {"class": "inspection"},
+    "which": {"class": "inspection"},
+    "grep": {"class": "inspection"},
+    "rg": {"class": "inspection", "refuse_flags": ["--pre", "--pre-glob", "-z", "--search-zip"]}
+  },
+  "ravel_subcommands": {
+    "status": null,
+    "validate": null,
+    "audit": null,
+    "initiate": null,
+    "plan": null,
+    "approve": null,
+    "gate": null,
+    "conformance": null,
+    "agent-audit": null,
+    "agent-surface": ["check", "profiles"],
+    "wms": ["init", "add", "launch", "status"]
+  },
+  "ravel_refused_with_route": ["run", "go", "advance", "drive", "work", "research-cycle", "science-correct"],
+  "git_subcommands": {
+    "status": null, "log": null, "diff": null, "show": null, "ls-files": null, "rev-parse": null,
+    "blame": null, "describe": null, "add": null, "commit": null,
+    "branch": ["--list", "-l", "-a", "-r", "-v", "-vv", "--show-current"]
+  },
+  "git_refused_flags": ["--output", "--ext-diff", "--textconv", "--open-files-in-pager", "-O", "--exec-path", "--upload-pack"],
+  "snakemake_flags": {
+    "switch": ["-n", "--dry-run", "--dryrun", "-p", "--printshellcmds", "-q", "--quiet", "--dag", "--rulegraph",
+               "--filegraph", "--summary", "-S", "--detailed-summary", "--list", "-l", "--list-rules",
+               "--list-target-rules", "--lint", "--list-untracked", "-r", "--reason", "-k", "--keep-going",
+               "--rerun-incomplete", "--ri", "-F", "--forceall", "--version", "-h", "--help"],
+    "valued": ["-s", "--snakefile", "-j", "--cores", "--jobs", "--until", "-U", "-R", "--forcerun", "--resources", "--res"]
+  },
+  "snakefile_candidates": ["Snakefile", "snakefile", "workflow/Snakefile", "workflow/snakefile"]
+}

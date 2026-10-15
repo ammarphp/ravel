@@ -1,0 +1,1057 @@
+{
+ "schema_version": 1,
+ "description": "Acquired cross-section tables: published 13 TeV NLO+NLL tables whose redistribution is not confirmed. A row carries no numbers; it pins the public archive, the member and their sha256, and the numbers are installed into the cache at first use (ravel xsec acquire). Rows have the registry row schema.",
+ "licence_terms": {
+  "status": "unconfirmed",
+  "licence": "LicenseRef-no-licence-granted",
+  "finding": "The NLL-fast grids are published by the code authors for download. No licence or redistribution terms appear on the download page, on the start page of the same site, or in the archive, so redistribution is not confirmed and the grids are acquired from the authors' site rather than shipped. Cite the program version and the papers each row lists.",
+  "evidence_read": [
+   {
+    "url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "retrieved": "2026-10-14",
+    "bytes": 46827,
+    "sha256": "602efd273143e815e48b07c1a1ecb2a3d951b3699cb2cd2f7309e9e838e3f291",
+    "finding": "Download page of the NLL-fast programs; lists version 3.1 (13 TeV) with grids for MSTW2008NLO, CTEQ6.6M and NNPDF3.0NLO and the papers to cite; states no licence."
+   },
+   {
+    "url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/",
+    "retrieved": "2026-10-14",
+    "bytes": 47893,
+    "sha256": "dcaf1bf330ebc6ef24a43b299a51002bdc39161e21a42925c51fbfce12ec1240",
+    "finding": "Start page of NNLL-fast, the successor, at 13.6 TeV; states no licence and points to NLL-fast for NLO+NLL predictions with previous PDF generations."
+   },
+   {
+    "url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "retrieved": "2026-10-14",
+    "bytes": 347670,
+    "sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "finding": "Archive nllfast-3.1-13tev.tar.bz2 (Last-Modified 2022-10-13): the program source and 27 grid files; no licence or copying notice in any member."
+   },
+   {
+    "url": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVgluglu",
+    "retrieved": "2026-10-14",
+    "bytes": 228092,
+    "sha256": "c32219cbca5303f10f48bd351c10c53fd743ece24a137e280ef8988f1388cfbb",
+    "finding": "Working-group page (revision r10): the table is NNLO approx+NNLL with PDF4LHC21; the only NLO+NLL item is an attached comparison plot, so the working group page holds no NLO+NLL table."
+   },
+   {
+    "url": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVsquarkantisquark",
+    "retrieved": "2026-10-14",
+    "bytes": 229581,
+    "sha256": "add32a1e31f802318985ad54e2d4247432443fb11454fc42a5e9431b02c6936b",
+    "finding": "Working-group page: NNLO approx+NNLL, ten-fold squark degeneracy, decoupled gluinos; no NLO+NLL table."
+   },
+   {
+    "url": "https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom",
+    "retrieved": "2026-10-14",
+    "bytes": 228635,
+    "sha256": "2e30ced860e096cd43895a27a9ab0405b8ffd5e4d54f045152da55b5d03bf51c",
+    "finding": "Working-group page: NNLO approx+NNLL for stop and sbottom; no NLO+NLL table."
+   }
+  ]
+ },
+ "tables": [
+  {
+   "id": "pp13-gluino-nlo-nll-mstw2008",
+   "file": "nllfast-3.1-13tev/gdcpl_nllnlo_mstw2008_13TeV.grid",
+   "sha256": "ba1b071fbc5e9ab5ff7446e4df09562fad1c5ed3efc276968f736fdbbf185355",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "MSTW2008NLO",
+    "pdf_as_published": "MSTW2008NLO (MSTW2008LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "squarks decoupled",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "NLO and NLL+NLO gluino-pair production in the limit of large squark masses (the grid lists the squark mass as the placeholder 1e10 GeV). Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for gluino masses near 200 GeV; this registry interpolates log-log linearly between the nodes and reports its own estimate.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "gdcpl_nllnlo_mstw2008_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "gg",
+    "mass_column": "mg",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-gluino-nlo-nll-cteq66",
+   "file": "nllfast-3.1-13tev/gdcpl_nllnlo_cteq66_13TeV.grid",
+   "sha256": "dbbfc70d1018f76c204a0726c487f3ea086fe54167280a194b01a8866ffb74aa",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "CTEQ6.6M",
+    "pdf_as_published": "CTEQ6.6M (CTEQ6L1 for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "squarks decoupled",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "NLO and NLL+NLO gluino-pair production in the limit of large squark masses (the grid lists the squark mass as the placeholder 1e10 GeV). Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for gluino masses near 200 GeV; this registry interpolates log-log linearly between the nodes and reports its own estimate.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "gdcpl_nllnlo_cteq66_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "gg",
+    "mass_column": "mg",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-gluino-nlo-nll-nnpdf30",
+   "file": "nllfast-3.1-13tev/gdcpl_nllnlo_nnpdf30_13TeV.grid",
+   "sha256": "2940c884719045527cc3e0adb580b2967a411a2edd122c91aa4848231395910b",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "gluino_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "NNPDF3.0NLO",
+    "pdf_as_published": "NNPDF3.0NLO (NNPDF3.0LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "squarks decoupled",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde g\\tilde g$",
+   "comment": "NLO and NLL+NLO gluino-pair production in the limit of large squark masses (the grid lists the squark mass as the placeholder 1e10 GeV). Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for gluino masses near 200 GeV; this registry interpolates log-log linearly between the nodes and reports its own estimate.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "gdcpl_nllnlo_nnpdf30_13TeV.grid",
+    "layout": "nllfast-grid-pdfas-combined",
+    "process_label": "gdcpl",
+    "mass_column": "mg",
+    "pct_basis": "nll",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-squark-nlo-nll-mstw2008",
+   "file": "nllfast-3.1-13tev/sdcpl_nllnlo_mstw2008_13TeV.grid",
+   "sha256": "ea91c32cdb784a0d7a82c78ef601b23a05d4ff2d5fb89cff332b823479bf2b51",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "MSTW2008NLO",
+    "pdf_as_published": "MSTW2008NLO (MSTW2008LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": 10,
+   "state_rescaling": "With the gluino decoupled, squark-antisquark production proceeds through flavour-blind s-channel gluon exchange and gluon fusion; the cross section scales with the number of mass-degenerate squark states.",
+   "decoupling": "gluino decoupled; five mass-degenerate squark flavours (stops not among them)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "NLO and NLL+NLO squark-antisquark production in the limit of large gluino masses (the grid lists the gluino mass as the placeholder 1e10 GeV); five mass-degenerate squark flavours, sbottoms treated as a light flavour, i.e. ten states. Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "With a decoupled gluino only squark-antisquark production contributes at this order. NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for squark masses near 200 GeV.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "sdcpl_nllnlo_mstw2008_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "sb",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   },
+   "declared_state_counts": {
+    "10": "u, d, s, c and b squarks, each in its left- and right-handed state, mass degenerate (ten states; the tabulated basis, sbottom treated as a light flavour); gluino decoupled; stops not included",
+    "8": "u, d, s and c squarks, each in its left- and right-handed state, mass degenerate (eight states); sbottoms and stops not included; obtained from the tabulated ten-state basis by the factor 8/10 of the recorded state_rescaling rule"
+   }
+  },
+  {
+   "id": "pp13-squark-nlo-nll-cteq66",
+   "file": "nllfast-3.1-13tev/sdcpl_nllnlo_cteq66_13TeV.grid",
+   "sha256": "c94145a16cd7fa0dbb7646d295ead69c3b6c66b618296e5113b666dc9bfbb5d2",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "CTEQ6.6M",
+    "pdf_as_published": "CTEQ6.6M (CTEQ6L1 for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": 10,
+   "state_rescaling": "With the gluino decoupled, squark-antisquark production proceeds through flavour-blind s-channel gluon exchange and gluon fusion; the cross section scales with the number of mass-degenerate squark states.",
+   "decoupling": "gluino decoupled; five mass-degenerate squark flavours (stops not among them)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "NLO and NLL+NLO squark-antisquark production in the limit of large gluino masses (the grid lists the gluino mass as the placeholder 1e10 GeV); five mass-degenerate squark flavours, sbottoms treated as a light flavour, i.e. ten states. Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "With a decoupled gluino only squark-antisquark production contributes at this order. NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for squark masses near 200 GeV.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "sdcpl_nllnlo_cteq66_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "sb",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   },
+   "declared_state_counts": {
+    "10": "u, d, s, c and b squarks, each in its left- and right-handed state, mass degenerate (ten states; the tabulated basis, sbottom treated as a light flavour); gluino decoupled; stops not included",
+    "8": "u, d, s and c squarks, each in its left- and right-handed state, mass degenerate (eight states); sbottoms and stops not included; obtained from the tabulated ten-state basis by the factor 8/10 of the recorded state_rescaling rule"
+   }
+  },
+  {
+   "id": "pp13-squark-nlo-nll-nnpdf30",
+   "file": "nllfast-3.1-13tev/sdcpl_nllnlo_nnpdf30_13TeV.grid",
+   "sha256": "929aa0165dc567c8bd5bccaebd5024cc3f23d246ac164c465e89af6cc657bdbe",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "squark_antisquark",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "NNPDF3.0NLO",
+    "pdf_as_published": "NNPDF3.0NLO (NNPDF3.0LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": 10,
+   "state_rescaling": "With the gluino decoupled, squark-antisquark production proceeds through flavour-blind s-channel gluon exchange and gluon fusion; the cross section scales with the number of mass-degenerate squark states.",
+   "decoupling": "gluino decoupled; five mass-degenerate squark flavours (stops not among them)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9610490",
+      "role": "NLO squark and gluino production (Prospino results the grids use)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0807.2405",
+      "role": "threshold resummation, squark-antisquark and gluino pair production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0905.4749",
+      "role": "soft-gluon resummation, gluino pair and squark-antisquark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:0909.4418",
+      "role": "soft-gluon resummation for squark and gluino hadroproduction",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde q\\tilde q^*$",
+   "comment": "NLO and NLL+NLO squark-antisquark production in the limit of large gluino masses (the grid lists the gluino mass as the placeholder 1e10 GeV); five mass-degenerate squark flavours, sbottoms treated as a light flavour, i.e. ten states. Published at 200 to 3000 GeV in steps of 100 GeV. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "With a decoupled gluino only squark-antisquark production contributes at this order. NLL-fast states an interpolation error below 1 percent, up to 2 to 3 percent for squark masses near 200 GeV.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "sdcpl_nllnlo_nnpdf30_13TeV.grid",
+    "layout": "nllfast-grid-pdfas-combined",
+    "process_label": "sdcpl",
+    "mass_column": "ms",
+    "pct_basis": "nll",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   },
+   "declared_state_counts": {
+    "10": "u, d, s, c and b squarks, each in its left- and right-handed state, mass degenerate (ten states; the tabulated basis, sbottom treated as a light flavour); gluino decoupled; stops not included",
+    "8": "u, d, s and c squarks, each in its left- and right-handed state, mass degenerate (eight states); sbottoms and stops not included; obtained from the tabulated ten-state basis by the factor 8/10 of the recorded state_rescaling rule"
+   }
+  },
+  {
+   "id": "pp13-stop-nlo-nll-mstw2008",
+   "file": "nllfast-3.1-13tev/st_nllnlo_mstw2008_13TeV.grid",
+   "sha256": "d66c3c98983c408124d673f5037857b9c3d73e088f29ae437bd6af969aeb47ed",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "stop_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "MSTW2008NLO",
+    "pdf_as_published": "MSTW2008NLO (MSTW2008LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (stop mixing angle, gluino and light-squark masses); stop mass below gluino mass",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde t\\tilde t^*$",
+   "comment": "NLO and NLL+NLO stop-antistop production. The program documentation states that the other SUSY parameters correspond to CMSSM benchmark point 40.2.5; the gluino-mass column of the grid is labelled dummy. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states that varying the mixing angle, gluino mass and light-squark mass away from the benchmark values changes the cross section by up to 4 percent when the gluino is heavier than the lighter stop.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_mstw2008_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-stop-nlo-nll-cteq66",
+   "file": "nllfast-3.1-13tev/st_nllnlo_cteq66_13TeV.grid",
+   "sha256": "566e97562077f58ed88f198f3b4f20a67d02586dcc6ca9ec51b602a19d97517f",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "stop_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "CTEQ6.6M",
+    "pdf_as_published": "CTEQ6.6M (CTEQ6L1 for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (stop mixing angle, gluino and light-squark masses); stop mass below gluino mass",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde t\\tilde t^*$",
+   "comment": "NLO and NLL+NLO stop-antistop production. The program documentation states that the other SUSY parameters correspond to CMSSM benchmark point 40.2.5; the gluino-mass column of the grid is labelled dummy. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states that varying the mixing angle, gluino mass and light-squark mass away from the benchmark values changes the cross section by up to 4 percent when the gluino is heavier than the lighter stop.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_cteq66_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-stop-nlo-nll-nnpdf30",
+   "file": "nllfast-3.1-13tev/st_nllnlo_nnpdf30_13TeV.grid",
+   "sha256": "473e3c9604f0e4b30979d05f0b7be415ab47ca1c67e5fa28a0e80f46835f707d",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "stop_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "NNPDF3.0NLO",
+    "pdf_as_published": "NNPDF3.0NLO (NNPDF3.0LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (stop mixing angle, gluino and light-squark masses); stop mass below gluino mass",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde t\\tilde t^*$",
+   "comment": "NLO and NLL+NLO stop-antistop production. The program documentation states that the other SUSY parameters correspond to CMSSM benchmark point 40.2.5; the gluino-mass column of the grid is labelled dummy. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "NLL-fast states that varying the mixing angle, gluino mass and light-squark mass away from the benchmark values changes the cross section by up to 4 percent when the gluino is heavier than the lighter stop.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_nnpdf30_13TeV.grid",
+    "layout": "nllfast-grid-pdfas-combined",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nll",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-sbottom-nlo-nll-mstw2008",
+   "file": "nllfast-3.1-13tev/st_nllnlo_mstw2008_13TeV.grid",
+   "sha256": "d66c3c98983c408124d673f5037857b9c3d73e088f29ae437bd6af969aeb47ed",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "sbottom_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "MSTW2008NLO",
+    "pdf_as_published": "MSTW2008NLO (MSTW2008LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (as the stop grid)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde b\\tilde b^*$",
+   "comment": "NLO and NLL+NLO sbottom-antisbottom production. The program documentation directs the stop grid to be used with the sbottom mass in place of the stop mass; contributions from initial-state bottom quarks are stated to be numerically negligible. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "Same grid file as the stop pair; the documented sbottom rule is the only difference.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_mstw2008_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-sbottom-nlo-nll-cteq66",
+   "file": "nllfast-3.1-13tev/st_nllnlo_cteq66_13TeV.grid",
+   "sha256": "566e97562077f58ed88f198f3b4f20a67d02586dcc6ca9ec51b602a19d97517f",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "sbottom_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "CTEQ6.6M",
+    "pdf_as_published": "CTEQ6.6M (CTEQ6L1 for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (as the stop grid)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde b\\tilde b^*$",
+   "comment": "NLO and NLL+NLO sbottom-antisbottom production. The program documentation directs the stop grid to be used with the sbottom mass in place of the stop mass; contributions from initial-state bottom quarks are stated to be numerically negligible. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "Same grid file as the stop pair; the documented sbottom rule is the only difference.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_cteq66_13TeV.grid",
+    "layout": "nllfast-grid-pdf-and-alphas",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nlo",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  },
+  {
+   "id": "pp13-sbottom-nlo-nll-nnpdf30",
+   "file": "nllfast-3.1-13tev/st_nllnlo_nnpdf30_13TeV.grid",
+   "sha256": "473e3c9604f0e4b30979d05f0b7be415ab47ca1c67e5fa28a0e80f46835f707d",
+   "source_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+   "basis": "sbottom_pair",
+   "sqrt_s_GeV": 13000,
+   "parameters": [
+    {
+     "name": "mass",
+     "key_level": 0
+    }
+   ],
+   "convention": {
+    "order": "NLO+NLL",
+    "order_as_published": "NLO+NLL (NLL+NLO)",
+    "pdf": "NNPDF3.0NLO",
+    "pdf_as_published": "NNPDF3.0NLO (NNPDF3.0LO for LO)",
+    "pdf_source": "NLL-fast 3.1 program header",
+    "scale": "mu = m"
+   },
+   "charge": null,
+   "state_count": null,
+   "state_rescaling": null,
+   "decoupling": "other SUSY parameters at CMSSM benchmark point 40.2.5 (as the stop grid)",
+   "tool": "NLL-fast 3.1",
+   "citation": {
+    "working_group": "NLL-fast authors; no LHC SUSY Cross Section Working Group release of this order for this basis",
+    "twiki": null,
+    "page": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast",
+    "reference": "arXiv:1510.00375",
+    "contact": null,
+    "references": [
+     {
+      "arxiv": "arXiv:1510.00375",
+      "role": "NLL-fast 3.1: NLO+NLL squark and gluino production with threshold-improved parton distributions (the version the 13 TeV grids belong to)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:hep-ph/9710451",
+      "role": "NLO stop production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1006.4771",
+      "role": "resummed top and bottom squark production",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1105.1110",
+      "role": "squark and gluino hadroproduction (review of the resummed results)",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     },
+     {
+      "arxiv": "arXiv:1109.3859",
+      "role": "definition of the CMSSM benchmark point 40.2.5 whose stop parameters the grid uses",
+      "provenance": "listed on the NLL-fast page for this program version (retrieved 2026-10-14); id and title as printed there"
+     }
+    ]
+   },
+   "process_latex": "$\\tilde b\\tilde b^*$",
+   "comment": "NLO and NLL+NLO sbottom-antisbottom production. The program documentation directs the stop grid to be used with the sbottom mass in place of the stop mass; contributions from initial-state bottom quarks are stated to be numerically negligible. Scale uncertainty from mu between m/2 and 2m, m being the average mass of the produced pair; the central scale is mu = m.",
+   "note": "Same grid file as the stop pair; the documented sbottom rule is the only difference.",
+   "licence": "LicenseRef-no-licence-granted",
+   "licence_evidence": "Read 2026-10-14: neither the NLL-fast page (https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/doku.php?id=nllfast) nor the NNLL-fast start page states a licence or terms of redistribution, and the archive holds the program source and the grid files with no licence or copying notice. No licence is granted, so redistribution is unconfirmed and the numbers are not bundled. Details in licence_terms.evidence_read.",
+   "redistribution": "unconfirmed",
+   "bundled": false,
+   "acquisition": {
+    "archive_url": "https://www.uni-muenster.de/Physik.TP/~akule_01/nnllfast/lib/exe/fetch.php?media=nllfast-3.1-13tev.tar.bz2",
+    "archive_sha256": "30415727b25c770b03661014f903c7504fb4a989707ad85fa1e47df2665aab1d",
+    "archive_bytes": 347670,
+    "member": "st_nllnlo_nnpdf30_13TeV.grid",
+    "layout": "nllfast-grid-pdfas-combined",
+    "process_label": "st",
+    "mass_column": "ms",
+    "pct_basis": "nll",
+    "retrieved": "2026-10-14",
+    "rule": "On first use the archive is downloaded from archive_url, its sha256 is checked, the member is read in memory, its sha256 is checked against this row, and only then is it written to the cache."
+   }
+  }
+ ]
+}

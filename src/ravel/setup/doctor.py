@@ -48,7 +48,7 @@ AGENT_CLI_HOST = "src/ravel/data/transports/hosts/agent-cli.json"
 # result looks like. Each text is one line: the manifest's tester-qualification record carries the same
 # words and the release check looks for them here.
 TESTER_PROCEDURES = {
-    "site-root-wms": "On the Linux analysis facility, in the RAVEL checkout, run `bash scripts/setup/install.sh --profile site --prefix /path/to/work/area/ravel-tools` and then `.venv/bin/ravel doctor --group site-root-wms`. It passes when the doctor reports site-analysis-python, site-wms-python and site-snakemake ready, prints `Everything selected is ready.` and exits with status 0.",
+    "site-root-wms": "On the Linux analysis facility, in the RAVEL checkout, run `bash scripts/setup/install.sh --profile site --prefix /path/to/work/area/ravel-tools --lcg-view /absolute/lcg/view` (`--lcg-view none` on a site without CVMFS) and then `.venv/bin/ravel doctor --group site-root-wms`. It passes when the doctor reports site-analysis-python, site-wms-python, site-snakemake and site-wms-lock-plugin-view-caches ready, prints `Everything selected is ready.` and exits with status 0.",
     "site-access": "On the Linux analysis facility, in the RAVEL checkout, obtain your own grid proxy and Kerberos ticket, then run `.venv/bin/ravel doctor --group site-access`. It passes when the doctor reports cvmfs, grid-proxy, kerberos, htcondor, apptainer and agent-cli ready, prints `Everything selected is ready.` and exits with status 0.",
 }
 
@@ -360,10 +360,32 @@ class Doctor:
 
     def _site_check(self, check):
         name = check["site"]
+        if name == 'site-install':
+            from ravel.workflow.site_doctor import runtime_checks,location_check,site_disk_gb
+            doctor = self
+            class HostAdapter:
+                which = staticmethod(doctor.which)
+                exists = staticmethod(lambda path: Path(path).exists())
+                run = staticmethod(lambda argv: doctor._probe(argv))
+            host=HostAdapter()
+            rows = runtime_checks(self.prefix,host=host,environ=self.environ)
+            rows.append(location_check('prefix',self.prefix,host=host,threshold_gb=site_disk_gb(),home=self.environ.get('HOME')))
+            failed = [row for row in rows if row['status']=='fail']
+            return {'status':'missing' if failed else 'ready',
+                    'detail':'; '.join(row['name']+': '+row['detail'] for row in (failed or rows)),
+                    'warnings':[row['name']+': '+row['detail']+((' -> '+row['fix']) if row.get('fix') else '')
+                                for row in rows if row['status']=='warn'],
+                    **({'fix':failed[0]['fix']} if failed else {})}
         if name == "cvmfs":
-            ok = Path("/cvmfs/sft.cern.ch/lcg/views").is_dir()
+            record=self.prefix/'.ravel-site/lcg-view.json'
+            try:
+                view=json.loads(record.read_text())
+                if view.get('choice')=='none' and view.get('path') is None:
+                    return {'status':'ready','detail':'Explicit no-CVMFS site choice recorded'}
+                ok = bool(view.get('path')) and (Path(view['path'])/'setup.sh').is_file()
+            except (OSError,ValueError,TypeError,AttributeError):ok=False
             return {"status": "ready" if ok else "missing",
-                    "detail": None if ok else "CVMFS (sft.cern.ch) is not mounted on this machine"}
+                    "detail": None if ok else "Recorded LCG view is missing; restore it or install into a new campaign prefix"}
         if name == "x509-proxy":
             proxy = self.environ.get("X509_USER_PROXY") or f"/tmp/x509up_u{os.getuid()}"
             if not Path(proxy).is_file():
@@ -404,7 +426,19 @@ class Doctor:
 
     def evaluate_check(self, group, check):
         kind = check["kind"]
-        if kind in ("file", "directory", "executable"):
+        if kind == "probe" and "json_status" in check["probe"]:
+            argv = mf.expand(check["probe"]["argv"], self.values)
+            code, output = self._probe(argv, timeout=check["probe"].get("timeout", 120))
+            try:
+                passed = code == 0 and json.loads(output).get("status") == check["probe"]["json_status"]
+            except (ValueError, AttributeError):
+                passed = False
+            result = {"status": "ready" if passed else "missing", "detail": None if passed else output[:500]}
+            if not passed:
+                stopped = any(word in output.lower() for word in ("cannot connect", "connection refused", "not running", "machine is stopped"))
+                result["fix"] = ("ravel-podman machine start ravel; then ravel doctor --group " + group["id"]
+                                 if stopped else self.fix_command(group["id"]) + " --jobs 4 --accept-licenses")
+        elif kind in ("file", "directory", "executable"):
             result = self._path_check(check)
         elif kind == "probe":
             result = self._run_probe_check(check)
@@ -511,6 +545,11 @@ def group_label(group, status, rows):
             fixes.append(row["fix"])
     from .qualification import installation_label
     entry = installation_label(group, status, label)
+    if (group.get('qualification') or {}).get('status') == 'tester-qualification':
+        entry['qualification_command'] = (
+            'ravel site doctor --profile generic --prefix <work-prefix> --runs-dir <work-runs> '
+            '--transcripts-dir <work-transcripts>; then run the synthetic site-qualification procedure '
+            'in docs/reference/site-workflows.md on the facility as its user')
     if label != "ready" and label != "remote" and fixes:
         entry["fix"] = fixes[0] if len(fixes) == 1 else fixes
     return entry
@@ -540,9 +579,15 @@ def format_report(report):
                 all(c["status"] == "missing" for c in failing) and len(fixes) == 1:
             lines.append(f"{group['group']:<{width}}not installed")
             lines.append(f"{'':<{width}}  fix: {fixes.pop()}")
+            if group.get('qualification_command'):
+                lines.append(f"{'':<{width}}  qualification: {group['qualification_command']}")
             continue
         lines.append(f"{group['group']:<{width}}{group['status']}")
+        if group.get('qualification_command'):
+            lines.append(f"{'':<{width}}  qualification: {group['qualification_command']}")
         for check in group["checks"]:
+            for warning in check.get('warnings',[]):
+                lines.append(f"{'':<{width}}  warn: {warning}")
             if check["status"] in OK_STATUSES and check["status"] != "remote_route":
                 continue
             detail = check.get("detail") or ""

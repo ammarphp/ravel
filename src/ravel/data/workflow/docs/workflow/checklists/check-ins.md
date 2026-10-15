@@ -100,6 +100,7 @@ field of `inputs/checkin1.json`.
 | variant | task_mode | added sections (keys in `sections`) |
 |---|---|---|
 | `reproduction` | reproduce, reinterpret, projection, scan, no_routine | (i-b) resource census, (ii) published-figure gallery, (iii) figure target and waypoint |
+| `reference_withheld` | every task admitting reproduction, including research and unsupported | (i-b) allowed resource census, `withheld_waypoints`; replaces (ii) and (iii) |
 | `calculation` | calculation, likelihood | `formula`, `conventions`, `inputs`, `precision`, `check_value` |
 | `method_study` | method-study intake | `dataset`, `splits`, `baselines`, `calibration` |
 | `survey` | survey, summary_plot | `census_table` (one row per source, naming it), `coverage_gaps` (a list; `[]` when none) |
@@ -195,6 +196,56 @@ not from HEPData table names.
   sample. PROPOSE it here: "at CHECK-IN 2 you will see this element side-by-side with the published
   one, so we both know the pipeline is not catastrophically wrong before the expensive part." There
   is no formula for the choice — it is judged by what is (a) reachable early and (b) diagnostic.
+
+### Reference-withheld predictions
+
+Declare `variant: "reference_withheld"` when a `blinded`, `blinded-data` or
+`no-value-extraction` rule matches the comparison target. The validator applies
+`source_policy.matches` to the identities supplied in `contract.targets`
+(`analysis`, `arxiv`, `inspire`, `hepdata`), published-value classes and numeric
+quantity kinds. It also checks paths in the record's comparison and figure target
+descriptors, resolving the `inputs/` prefix and absolute filesystem aliases
+against the input root. Selector-free
+blinding rules cover every target; an unrelated identity or quantity restriction
+does not select this variant. A restricted ordinary `reproduction` record is
+refused with the name of the variant to use.
+
+Keep core sections (i), (iv), (v), (vi), the allowed resource census (i-b), and the
+`sources` census. Replace (ii) and (iii) with `withheld_waypoints`, a non-empty
+list of checkable records. These are consistency checks independent of a
+published comparison value, not physics certification:
+
+| `kind` | Required fields and check |
+|---|---|
+| `generator-closure` | `generator_sigma_pb`, positive `table_sigma_pb`, `order_difference` (declared perturbative order difference), nonnegative `relative_tolerance`; relative cross-section difference must be within the tolerance. The table is an independently supplied normalization input, declared as `source` with an input-root-relative `path` or `identifiers`; a source that is a contract target or matches a governing restriction is refused. |
+| `sigma-br-lumi` | Nonnegative `sigma_pb`, `br` between zero and one, `lumi_fb`, `expected_events`; before-cut events equal `sigma_pb * br * lumi_fb * 1000`. |
+| `cutflow-monotone` | `counts`, at least two finite nonnegative counts in nonincreasing order. |
+| `mc-precision` | Non-empty finite nonnegative `relative_errors`, one per bin, and positive `target`; each relative statistical error is at most the declared target. |
+| `invisible-census` | Distinct integer `detector_particles` and `spectrum_particles` lists; the two sets must agree. |
+
+Any waypoint that declares a `source` is checked the same way. A withheld record
+refuses a published-figure gallery, figure target or comparison with published
+values, including nested fields. A `gallery` that lists only run-relative files
+under `outputs/` and a `comparison` between the run's own numbers that names no
+external `source`, `reference`, `path` or identifier are the run's own diagnostics
+and are accepted. A later comparison uses the separate top-level
+`post_sealing_comparison` record only after delivery. It must state
+`result_sealed_first: true`, `phase: "after-delivery"` and
+`label: "after-sealing"`, and carries the compared values only, never a gallery or
+figure target. These declarations label the comparison; they do not establish
+custody or grant permission to read a still-restricted source.
+A restricted comparison target is found from the contract `targets`, and from
+every `identifiers` object or `path` in the record's comparison and figure targets
+and section (iii). Identifiers match in every equivalent spelling.
+
+For qualitative inspection of an allowed supplied document, use
+`python -m ravel.plotting.fetch_figures --pdf inputs/fictional-note.pdf --out outputs/gallery`.
+Its `figure_manifest.json` says `usage: "qualitative"`, lists page figures and
+pins the source document. A `no-value-extraction` rule permits this qualitative
+view and document text; `digitize` follows the gallery provenance and refuses
+numeric extraction from its pages. A `forbidden-source` rule naming the document
+refuses even qualitative inspection. Do not include this gallery in a withheld
+CHECK-IN record.
 
 ### (iv) PLAN
 The concrete plan, skimmable: samples to generate (process, parameters, event counts), observables /
@@ -434,10 +485,48 @@ The contract's `forbidden_sources` must equal the pinned reading's rows; routing
 them into the contract from the reading. Under restrictions, CHECK-IN 1 must carry a
 nonempty `sources` census listing every source descriptor the run reads. A run that reads
 no external source lists the single row `{"none": "<reason>"}`.
-Broker read-time enforcement awaits the knowledge broker.
+The knowledge broker checks source descriptors before opening bytes. These direct
+entry points call `restriction_guard.require(tool, source, rundir=..., output=...)`
+before any network request, source read or output write:
+
+- `hepdata_fetch`: `main`, `_open`, `get_json`, `fetch_tables_via_record_data`,
+  `_tables_via_hepdata_cli` and `fetch_offline_fixture`, which also admits every
+  fixture member (`record.json`, tables, `likelihoods.json`, models) by its own path.
+- `fetch_figures`: `main`, `_open`, `arxiv_from_inspire`, `extract_figure_files`,
+  `_read_tex_members`, `build_figure_map`, `pdf_page_route`, `resolve_figure` and
+  the `--pdf` gallery.
+- `digitize`: `run_spec`, `inventory`, `parse_pdf_page`, `load_series` and
+  `sha256_file`, and through them the `figure_comparison` command line.
+
+Other modules that read published tables, likelihoods, reference curves or
+documents do not call this guard; inside a governed run, read sources through
+the knowledge broker or one of the entry points above.
+The restriction is a property of a run. Discovery anchors are an explicit run
+directory, the output path and the current directory: each anchor and its
+ancestors, before and after symlink resolution, are checked for
+`inputs/task_contract.json`, and every discovered run binds with its own contract,
+even when two runs share one contract file. A source path inside a run does not
+by itself discover that run: with the current directory and output outside the
+run and no explicit run directory, nothing binds. An unreadable or invalid
+contract is a refusal. No environment setting or tool flag lifts it. Numeric
+retrieval from an opaque cached source whose identity cannot be established under
+an identity restriction is refused before reading source bytes. A record's own
+identities are kept alongside any identity the caller supplies. Identity matching
+treats an arXiv version suffix and a zero-padded record number as the same
+source. Path rules match input-root-relative paths only; a file outside the run
+is matched through the provenance of every qualitative gallery manifest that
+lists it, never by its basename. Public text, cards and object definitions stay
+readable unless a governing rule names them; `no-value-extraction` distinguishes
+metadata and qualitative viewing from numeric extraction, and a numeric
+extraction whose quantities are not declared in advance is bound by every
+quantity a rule scopes. A record lookup without `--tables` or
+`--download-likelihood` reads metadata only; figure retrieval carries the figure
+classes and its record identity into the cached files it reads.
 `source_policy.require_read` refuses prohibited sources with a receipt naming each
-rule; brokers use `read_receipt` before opening bytes, and `inventory` excludes
-withheld descriptors while retaining receipts. A CHECK-IN `sources` census uses
+rule. Direct refusals retain write-new numbered JSON receipts under
+`logs/source-receipts/` and name their paths in the exception. Brokers retain
+receipts in their existing call ledger, and `inventory` excludes withheld
+descriptors while retaining receipts. A CHECK-IN `sources` census uses
 the same refusal. Resolve filesystem aliases against input roots before matching.
 Quantity scopes permit definitions outside the banned quantities, while a matching
 path remains prohibited. Patterns come from request evidence or harness rows.

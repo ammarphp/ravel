@@ -1,0 +1,15 @@
+{
+  "kind": "synthetic-limit",
+  "limits": [
+    {
+      "id": "selected-limit",
+      "expected_pb": 1.0,
+      "observed_pb": 2.0
+    },
+    {
+      "id": "other-limit",
+      "expected_pb": 4.0,
+      "observed_pb": 0.1
+    }
+  ]
+}

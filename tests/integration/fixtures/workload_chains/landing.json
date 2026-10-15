@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "kind": "workload-chain-landing",
+  "note": "Where each role a chain does not dispatch lands: the build-plan package that adds its dispatch, or the owner a handoff names. Roles take precedence over components; derived points that the lifecycle does not route are keyed by the kind of their 'at'.",
+  "slots": [
+    "literature tier", "consults on use", "derivation review", "staffing rows", "lesson distillation", "failure investigation", "research loop", "manuscript graph",
+    "delegated gate wiring", "production executor handoff: production.node has no review step",
+    "production executor handoff: lifecycle.drive has no delivery stop"
+  ],
+  "roles": {
+    "literature-scout": "literature tier",
+    "re-deriver": "derivation review",
+    "comparative-reviewer": "derivation review",
+    "model-critic": "staffing rows",
+    "second-method-deriver": "staffing rows",
+    "assumption-auditor": "staffing rows",
+    "lesson-distiller": "lesson distillation",
+    "rdj-critic": "delegated gate wiring",
+    "rdj-verifier": "delegated gate wiring",
+    "rdj-edge-reviewer": "delegated gate wiring",
+    "rca-investigator": "failure investigation",
+    "investigation-worker": "failure investigation",
+    "manuscript-writer": "manuscript graph",
+    "figure-critic": "production executor handoff: lifecycle.drive has no delivery stop",
+    "integrity-auditor": "production executor handoff: lifecycle.drive has no delivery stop"
+  },
+  "components": {
+    "consults on use": "consults on use",
+    "research-loop roles": "research loop"
+  },
+  "ats": {
+    "node": "production executor handoff: production.node has no review step",
+    "delivery": "production executor handoff: lifecycle.drive has no delivery stop",
+    "on_decision": "delegated gate wiring",
+    "on_failure": "consults on use",
+    "protocol": "research loop"
+  }
+}

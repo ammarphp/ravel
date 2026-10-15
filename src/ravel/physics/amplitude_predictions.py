@@ -43,6 +43,7 @@ from pathlib import Path
 import numpy as np
 
 from . import amplitude_basis as ab
+from . import amplitude_polynomial as polynomial
 from . import amplitude_store as store
 
 MODE = 'amplitude-predictions'
@@ -99,7 +100,7 @@ def load(task, base):
     root = path.parent
     required = {'schema_version', 'kind', 'store', 'hypotheses', 'reference', 'reference_description', 'observable',
                 'binning', 'selection', 'normalization'}
-    ab.require(type(doc) is dict and required <= set(doc) <= required | {'coupling_scaling', 'description'},
+    ab.require(type(doc) is dict and required <= set(doc) <= required | {'coupling_scaling', 'coupling_polynomial', 'description'},
                'document needs ' + ', '.join(sorted(required)) + ' (optional coupling_scaling, description)')
     ab.require(doc['schema_version'] == 1 and doc['kind'] == MODE, f'schema_version 1 and kind {MODE} required')
     store_dir = _regular(doc['store'], root)
@@ -137,6 +138,7 @@ def load(task, base):
         ab.real(f['value'], 'normalization factor')
         ab.text(f['source'], 'normalization factor source')
     scaling = doc.get('coupling_scaling')
+    polynomial.contract(doc, hyps)
     if scaling is not None:
         ab.require(type(scaling) is dict and set(scaling) == {'parameter', 'power', 'states', 'mc_covariance_at'},
                    'coupling_scaling needs parameter, power, states and mc_covariance_at')
@@ -184,19 +186,7 @@ def streams(ctx):
     rows += [(h['id'], 'prediction', quad(h)) for h in hyps]
     rows += [(f'{h["id"]}-minus-{reference["id"]}', 'difference',
               (lambda h: lambda G, s: quad(h)(G, s) - quad(reference)(G, s))(h)) for h in hyps if h is not reference]
-    scaling = doc.get('coupling_scaling')
-    if scaling is not None:
-        for h in hyps:
-            if h is reference or not any(i < len(h['states']) for i in scaling['states']):
-                continue
-            fixed, scaled = _split(h, scaling['states'])
-
-            def interference(G, s, fixed=fixed, scaled=scaled):
-                c0, c1 = ab.coefficients(fixed, basis, s), ab.coefficients(scaled, basis, s)
-                return 2.0 * np.einsum('nk,nkl,nl->n', np.conj(c0), G, c1).real
-            rows.append((f'{h["id"]}:constant', 'term', (lambda f: lambda G, s: quad(f)(G, s) - quad(reference)(G, s))(fixed)))
-            rows.append((f'{h["id"]}:interference', 'term', interference))
-            rows.append((f'{h["id"]}:pure-signal', 'term', (lambda sc: lambda G, s: quad(sc)(G, s) if sc['states'] else 0 * s)(scaled)))
+    rows += [(name, 'term', fn) for name, _, fn in polynomial.definitions(doc, basis, hyps)]
     return rows
 
 
@@ -271,6 +261,9 @@ def binned_values(ctx, name, stream):
 
 def likelihood_input(ctx, prediction):
     doc = ctx['doc']
+    if doc.get('coupling_polynomial'):
+        from . import rivet_fit
+        return rivet_fit.likelihood_input(doc, ctx['hypotheses'], {**prediction, 'provenance': {'stage': 'Born', 'showered': False}})
     ref = doc['reference']
     scaling = doc.get('coupling_scaling')
     rows = []
@@ -295,6 +288,7 @@ def likelihood_input(ctx, prediction):
         signal['parameters'] = [{'name': scaling['parameter'], 'unit': '', 'label': 'Coupling scale factor'}]
     return {'schema_version': 1, 'kind': 'differential-likelihood-input', 'signal': signal, 'hypotheses': rows,
             'reference_prediction': {'values': prediction['streams'][ref]['values'], 'description': doc['reference_description']},
+            'provenance': {'stage': 'Born', 'showered': False},
             'note': 'MC covariance of each difference; with coupling scaling it is evaluated at mc_covariance_at.'}
 
 
@@ -338,6 +332,7 @@ def run(task, base, output):
     joint = prediction['joint']
     record = {'schema_version': 1, 'mode': MODE, 'status': 'passed', 'status_scope': SCOPE, 'physics_validated': False,
               'edges': ctx['edges'].tolist(), 'observable': ctx['doc']['observable'],
+              'provenance': {'stage': 'Born', 'showered': False},
               'normalization': ctx['doc']['normalization'], 'selection': ctx['doc']['selection'],
               'streams': {n: {k: v for k, v in s.items() if k != 'mc_covariance'} for n, s in prediction['streams'].items()},
               'joint_layout': {'streams': [n for n, _ in prediction['definitions']], 'per_stream': 'bins, underflow, overflow',

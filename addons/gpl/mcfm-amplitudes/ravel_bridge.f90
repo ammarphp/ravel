@@ -41,8 +41,12 @@ contains
     include 'constants.f'
     include 'masses.f'
     include 'qcdcouple.f'
-    include 'zcouple_cms.f'
     include 'interference.f'
+    ! src/Inc/zcouple_cms.f is fixed-form source and cannot be included in free form. Its common
+    ! block is declared here with the same layout; upstream-api.json pins that file's bytes.
+    real(dp)::zaemmz,zesq,rq1,rq2
+    complex(dp)::zxw,zl(nf),zr(nf),zle,zln,zre,zrn,zsin2w,zl1,zr1,zl2,zr2
+    common/zcouple_cms/zaemmz,zesq,rq1,rq2,zxw,zl,zr,zle,zln,zre,zrn,zsin2w,zl1,zr1,zl2,zr2
     complex(dp)::a(2,2,2,2,6,2),prop,higgsprop
     real(dp)::swp(mxpart,4),msq(fn:nf,fn:nf),full,hpi,box,norm,ss,pttwo
     integer::i,j,k,l,ch,pair,iv

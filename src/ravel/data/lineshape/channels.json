@@ -1,0 +1,659 @@
+{
+  "schema_version": 1,
+  "scope": "Colour-singlet, electrically neutral s-channel resonance; on-shell two-body decays.",
+  "kinematics": "M is the parent mass; x=m_daughter^2/M^2; beta=sqrt(1-4x); closed channels have zero width.",
+  "rows": [
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "photons",
+      "disposition": "formula",
+      "function": "width_scalar_to_photons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "gluons",
+      "disposition": "formula",
+      "function": "width_scalar_to_gluons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "CP-even",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "photons",
+      "disposition": "formula",
+      "function": "width_scalar_to_photons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "gluons",
+      "disposition": "formula",
+      "function": "width_scalar_to_gluons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "CP-odd",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_scalar_to_fermions_mixed",
+      "lagrangian": "L = -phi fbar (y_s + i y_p gamma5) f; y_s and y_p are real dimensionless couplings. CP-even sets y_p=0; CP-odd sets y_s=0; mixed admits both. The legacy kappa input means y=kappa m_f/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = Nc M/(8 pi) (y_s^2 beta^3 + y_p^2 beta)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_scalar_to_vv_effective",
+      "lagrangian": "L = (a/2) phi Z_mu Z^mu - (g_e/4) phi Z_mn Z^mn - (g_o/4) phi Z_mn Ztilde^mn for ZZ; for W+W- replace 1/2,1/4,1/4 by 1,1/2,1/2 and use charged conjugate fields. a is real in GeV; g_e and g_o are real in GeV^-1; Vtilde^mn = epsilon^mnrs V_rs/2. Metric +---. The vertex is a e1.e2 + g_e [(q1.q2)(e1.e2)-(q1.e2)(q2.e1)] + g_o epsilon(e1,e2,q1,q2). CP-even sets g_o=0; CP-odd sets a=g_e=0. The optional tree convention is a=2 kappa m_V^2/v, v=(sqrt(2) GF)^(-1/2).",
+      "formula": "Gamma = S beta/(16 pi M) [2(a+g_e d)^2 + (a d/m_V^2+g_e m_V^2)^2 + g_o^2 M^4 beta^2/2], d=M^2/2-m_V^2; S=1 (WW), 1/2 (ZZ)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "photons",
+      "disposition": "formula",
+      "function": "width_scalar_to_photons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "gluons",
+      "disposition": "formula",
+      "function": "width_scalar_to_gluons_effective",
+      "lagrangian": "L = -(phi/4) [g_e F_mn F^mn + g_o F_mn Ftilde^mn]; real g_e,g_o in GeV^-1. For gluons replace F by G^a and sum eight colour states. CP-even sets g_o=0; CP-odd sets g_e=0; mixed admits both. The CP-even loop kinds match this on-shell vertex: g_e=alpha/(2 pi v) [sum Nc Q^2 kappa_f A_1/2(tau_f) + kappa_W A_1(tau_W)] for photons; g_e=alpha_s/(3 pi v) [3/4 sum kappa_q A_1/2(tau_q)] for gluons; v=(sqrt(2) GF)^(-1/2), tau_i=M^2/(4 m_i^2). Each kappa scales the corresponding SM-like coupling. Loop form factors can be complex; use |g_e|^2 for their squared amplitude.",
+      "formula": "Gamma = N (g_e^2+g_o^2) M^3/(64 pi), N=1 (photons), 8 (gluons)"
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 0,
+      "parity": "mixed",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_vector_to_ww",
+      "lagrangian": "L = -i g [X_mn W+^m W-^n + X^m (W-_mn W+^n - W+_mn W-^n)]; real dimensionless g; V_mn=partial_m V_n-partial_n V_m. Vertex: g [(eX.(q1-q2))(e1.e2)+2(q2.e1)(eX.e2)-2(q1.e2)(eX.e1)]. Vector, axial-vector and mixed chiral labels specify fermion currents. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) this operator conserves CP for every spin-1 coupling class; with an axial-vector parent it violates P and C separately.",
+      "formula": "Gamma = g^2 M/(192 pi x^2) beta^3 (1+20x+12x^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_vector_to_identical_vv",
+      "lagrangian": "L = g4 X_mu Z_nu partial^nu Z^mu + g5 epsilon^munurs X_mu Z_nu partial_r Z_s; g4,g5 are real dimensionless couplings. Metric +---, epsilon convention fixed by vertex g4 [(P.e1)(eX.e2)+(P.e2)(eX.e1)] + g5 epsilon(eX,e1,e2,q1-q2), P=q1+q2. Both tensors are Bose symmetric. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) and Z_mu(t,x) -> -Z^mu(t,-x), g4 violates CP and g5 conserves CP for every spin-1 coupling class. Vector/axial labels specify fermion currents, not a restriction to CP-conserving bosonic couplings. Includes the ZZ factor 1/2 and initial polarization average 1/3; no off-shell or massless extrapolation.",
+      "formula": "Gamma = M^3/(96 pi m_V^2) beta^3 (g4^2 + g5^2 beta^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "photons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "gluons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "vector",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_vector_to_ww",
+      "lagrangian": "L = -i g [X_mn W+^m W-^n + X^m (W-_mn W+^n - W+_mn W-^n)]; real dimensionless g; V_mn=partial_m V_n-partial_n V_m. Vertex: g [(eX.(q1-q2))(e1.e2)+2(q2.e1)(eX.e2)-2(q1.e2)(eX.e1)]. Vector, axial-vector and mixed chiral labels specify fermion currents. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) this operator conserves CP for every spin-1 coupling class; with an axial-vector parent it violates P and C separately.",
+      "formula": "Gamma = g^2 M/(192 pi x^2) beta^3 (1+20x+12x^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_vector_to_identical_vv",
+      "lagrangian": "L = g4 X_mu Z_nu partial^nu Z^mu + g5 epsilon^munurs X_mu Z_nu partial_r Z_s; g4,g5 are real dimensionless couplings. Metric +---, epsilon convention fixed by vertex g4 [(P.e1)(eX.e2)+(P.e2)(eX.e1)] + g5 epsilon(eX,e1,e2,q1-q2), P=q1+q2. Both tensors are Bose symmetric. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) and Z_mu(t,x) -> -Z^mu(t,-x), g4 violates CP and g5 conserves CP for every spin-1 coupling class. Vector/axial labels specify fermion currents, not a restriction to CP-conserving bosonic couplings. Includes the ZZ factor 1/2 and initial polarization average 1/3; no off-shell or massless extrapolation.",
+      "formula": "Gamma = M^3/(96 pi m_V^2) beta^3 (g4^2 + g5^2 beta^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "photons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "gluons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "axial-vector",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "ff_massless_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "ff_massless_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "ff_massive_colour_1",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "ff_massive_colour_3",
+      "disposition": "formula",
+      "function": "width_vector_to_fermions",
+      "lagrangian": "L = X_mu fbar gamma^mu (g_V - g_A gamma5) f; real dimensionless couplings. Vector sets g_A=0; axial-vector sets g_V=0; mixed chiral admits both.",
+      "formula": "Gamma = Nc M beta/(12 pi) [g_V^2 (1+2x) + g_A^2 (1-4x)]"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "ww",
+      "disposition": "formula",
+      "function": "width_vector_to_ww",
+      "lagrangian": "L = -i g [X_mn W+^m W-^n + X^m (W-_mn W+^n - W+_mn W-^n)]; real dimensionless g; V_mn=partial_m V_n-partial_n V_m. Vertex: g [(eX.(q1-q2))(e1.e2)+2(q2.e1)(eX.e2)-2(q1.e2)(eX.e1)]. Vector, axial-vector and mixed chiral labels specify fermion currents. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) this operator conserves CP for every spin-1 coupling class; with an axial-vector parent it violates P and C separately.",
+      "formula": "Gamma = g^2 M/(192 pi x^2) beta^3 (1+20x+12x^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "zz",
+      "disposition": "formula",
+      "function": "width_vector_to_identical_vv",
+      "lagrangian": "L = g4 X_mu Z_nu partial^nu Z^mu + g5 epsilon^munurs X_mu Z_nu partial_r Z_s; g4,g5 are real dimensionless couplings. Metric +---, epsilon convention fixed by vertex g4 [(P.e1)(eX.e2)+(P.e2)(eX.e1)] + g5 epsilon(eX,e1,e2,q1-q2), P=q1+q2. Both tensors are Bose symmetric. In the neutral-current CP convention X_mu(t,x) -> -X^mu(t,-x) and Z_mu(t,x) -> -Z^mu(t,-x), g4 violates CP and g5 conserves CP for every spin-1 coupling class. Vector/axial labels specify fermion currents, not a restriction to CP-conserving bosonic couplings. Includes the ZZ factor 1/2 and initial polarization average 1/3; no off-shell or massless extrapolation.",
+      "formula": "Gamma = M^3/(96 pi m_V^2) beta^3 (g4^2 + g5^2 beta^2)"
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No zgamma partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "photons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "gluons",
+      "disposition": "forbidden",
+      "selection_rule": "A colour-singlet spin-1 state cannot decay to two identical on-shell massless vectors (Landau-Yang theorem)."
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No vector_scalar partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 1,
+      "parity": "mixed chiral",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No scalar_pair partial-width formula or coupling convention is implemented here.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "ff_massless_colour_1",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "ff_massless_colour_3",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "ff_massive_colour_1",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "ff_massive_colour_3",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "ww",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "zz",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "zgamma",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "photons",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "gluons",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "vector_scalar",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    },
+    {
+      "spin": 2,
+      "parity": "even",
+      "channel": "scalar_pair",
+      "disposition": "free",
+      "free_reason": "No spin-2 partial-width formula is implemented here, including for minimal universal couplings to the energy-momentum tensor.",
+      "checkin_sentence": "The total width is a free parameter of this study and is not derived from couplings."
+    }
+  ]
+}

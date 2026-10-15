@@ -110,6 +110,21 @@ expansions to two million edges. Variable-node or variable-topology graphs requi
 a separate backend extension. All selected implementations refuse when their
 libraries are absent; schema/dispatch tests do not qualify their numerical runtime.
 
+For the required torch and torch-geometric runtimes, use
+`ml_runtime.available(details=True)` to inspect the manifest-bound ML interpreter,
+versions and installation command. The `ml_backends` binding seam sends fit and
+predict calls through that interpreter inside the admitted science worker. Fit
+accepts training arrays and a complete validation triplet only; prediction accepts
+unlabeled features after the executor's exposure decision. Array names do not prove
+population provenance. A complete probe response is retained per interpreter file;
+an absent, partial or failed installation is probed again.
+
+The executor does not yet pin the runtime and worker sources at approval or record
+the bound interpreter's package versions in its receipt. Until it does, do not admit
+a study with torch or torch-geometric arms: receipt construction reads the host's
+package metadata, which fails after the test split has been read when the host lacks
+these packages. Standalone receipt replay cannot run these arms.
+
 ## Production card: ml-trainer
 
 Family: `production`. Operation: `ml-training`. Inputs: an approved immutable

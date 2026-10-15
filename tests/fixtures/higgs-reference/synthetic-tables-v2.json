@@ -1,0 +1,281 @@
+{
+  "kind": "higgs-reference-tables",
+  "schema_version": 2,
+  "synthetic": true,
+  "citations": {
+    "synthetic-source": {
+      "title": "Synthetic arithmetic fixture; no physics values",
+      "locator": "synthetic://reference/source",
+      "source_file": "synthetic-source.txt"
+    }
+  },
+  "rows": [
+    {
+      "id": "synthetic-rate-a",
+      "quantity": "cross_section",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "energy_tev": 3,
+      "order": "synthetic-order",
+      "pdf": "synthetic-pdf",
+      "value": 12,
+      "reference_value": 12,
+      "unit": "pb",
+      "uncertainty": {
+        "minus": 1,
+        "plus": 2,
+        "definition": "Synthetic absolute envelope"
+      },
+      "citation_key": "synthetic-source"
+    },
+    {
+      "id": "synthetic-rate-b",
+      "quantity": "cross_section",
+      "process": "synthetic-b",
+      "mass_gev": 7,
+      "energy_tev": 3,
+      "order": "synthetic-order",
+      "pdf": "synthetic-pdf",
+      "value": 4,
+      "reference_value": 4,
+      "unit": "pb",
+      "uncertainty": {
+        "minus": 0.5,
+        "plus": 0.5,
+        "definition": "Synthetic absolute envelope"
+      },
+      "citation_key": "synthetic-source"
+    },
+    {
+      "id": "synthetic-decay",
+      "quantity": "branching_ratio",
+      "process": "synthetic-decay",
+      "mass_gev": 7,
+      "value": 0.25,
+      "reference_value": 0.25,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0.01,
+        "plus": 0.02,
+        "definition": "Synthetic absolute envelope"
+      },
+      "citation_key": "synthetic-source"
+    },
+    {
+      "id": "synthetic-total_width",
+      "quantity": "total_width",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "value": 2,
+      "reference_value": 2,
+      "unit": "GeV",
+      "uncertainty": {
+        "minus": 0,
+        "plus": 0,
+        "definition": "Synthetic exact value"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    },
+    {
+      "id": "synthetic-kappa_coefficient",
+      "quantity": "kappa_coefficient",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "value": -0.3,
+      "reference_value": -0.3,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0,
+        "plus": 0,
+        "definition": "Synthetic exact value"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      },
+      "term": [
+        "synthetic-coupling-a",
+        "synthetic-coupling-b"
+      ]
+    },
+    {
+      "id": "synthetic-c1_coefficient",
+      "quantity": "c1_coefficient",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "value": -0.02,
+      "reference_value": -0.02,
+      "unit": "1",
+      "uncertainty": {
+        "minus": 0,
+        "plus": 0,
+        "definition": "Synthetic exact value"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      },
+      "term": [
+        "synthetic-coupling-a",
+        "synthetic-coupling-b"
+      ]
+    },
+    {
+      "id": "synthetic-bin-0",
+      "quantity": "stxs_bin",
+      "process": "synthetic-a",
+      "bin_id": "0",
+      "stage": "synthetic-stage",
+      "boundaries": {
+        "synthetic-axis": {
+          "lower": 0,
+          "upper": 1,
+          "unit": "GeV"
+        }
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    },
+    {
+      "id": "synthetic-bin-1",
+      "quantity": "stxs_bin",
+      "process": "synthetic-a",
+      "bin_id": "1",
+      "stage": "synthetic-stage",
+      "boundaries": {
+        "synthetic-axis": {
+          "lower": 1,
+          "upper": 2,
+          "unit": "GeV"
+        }
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    },
+    {
+      "id": "synthetic-width-next",
+      "quantity": "total_width",
+      "process": "synthetic-a",
+      "mass_gev": 8,
+      "value": 3,
+      "reference_value": 3,
+      "unit": "GeV",
+      "uncertainty": {
+        "minus": 0,
+        "plus": 0,
+        "definition": "Synthetic exact value"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    },
+    {
+      "id": "synthetic-production-0",
+      "quantity": "cross_section",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "energy_tev": 4,
+      "order": "synthetic-order",
+      "pdf": "synthetic-pdf",
+      "value": 5,
+      "reference_value": 5,
+      "unit": "pb",
+      "uncertainty": {
+        "minus": 1,
+        "plus": 2,
+        "definition": "Synthetic absolute envelope"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    },
+    {
+      "id": "synthetic-production-1",
+      "quantity": "cross_section",
+      "process": "synthetic-a",
+      "mass_gev": 7,
+      "energy_tev": 5,
+      "order": "synthetic-order",
+      "pdf": "synthetic-pdf",
+      "value": 10,
+      "reference_value": 10,
+      "unit": "pb",
+      "uncertainty": {
+        "minus": 1,
+        "plus": 2,
+        "definition": "Synthetic absolute envelope"
+      },
+      "citation_key": "synthetic-source",
+      "locator": {
+        "pdf_page": 2,
+        "table": "Table 1",
+        "source_line": "Fictional printed row",
+        "extraction_script_sha256": "64370d437e63d6e64079928279f64ae23f02cbb8ac287f4b0af0e6fd648cf45f"
+      }
+    }
+  ],
+  "ratios": [
+    {
+      "id": "synthetic-ratio",
+      "numerator": "synthetic-rate-a",
+      "denominator": "synthetic-rate-b",
+      "value": 3,
+      "absolute_tolerance": 1e-06,
+      "citation_key": "synthetic-source"
+    },
+    {
+      "id": "synthetic-width-ratio",
+      "numerator": "synthetic-width-next",
+      "denominator": "synthetic-total_width",
+      "value": 1.5,
+      "absolute_tolerance": 1e-09,
+      "citation_key": "synthetic-source"
+    },
+    {
+      "id": "synthetic-energy-ratio",
+      "numerator": "synthetic-production-1",
+      "denominator": "synthetic-production-0",
+      "value": 2,
+      "absolute_tolerance": 1e-09,
+      "citation_key": "synthetic-source"
+    }
+  ],
+  "legacy_rows_sha256": {
+    "synthetic-rate-a": "8479cf3b90536613a5e3f420e8ebdd25f4be667c53d764895efa8f6c9aa769f2",
+    "synthetic-rate-b": "c263099b0f0e3d6c80c21ce8fd5275a75d005b87e8b23b09b8d9118b619a8a9f",
+    "synthetic-decay": "162ed07e3e48f6d8eaca057f98aa01bfdf2bf30bf07fe883e7f528fbcef3dc19"
+  },
+  "legacy_ratios_sha256": {
+    "synthetic-ratio": "8e5249b4c1aea1ccff801b8dc825c65b7e0a19f390ea99abbf4b1a2425f4d58c"
+  }
+}

@@ -131,7 +131,10 @@ def derive(root, reviewed=None):
             return {'branch': 'review', 'at': 'checkin1', 'why': 'plan review points before CHECK-IN 1'}
         return {'branch': 'checkin1', 'why': 'CHECK-IN 1 has no verified approval record'}
     rungs = executor.executors()['worker_rungs']
-    rows = executor.pending(root, facts)
+    try:
+        rows = executor.pending(root, facts)
+    except executor.ExecutorRefused as exc:
+        raise nodes.RecoveryHold(exc.errors[0].code, str(exc)) from exc
     early = [r for r in rows if r['rung'] not in rungs]
     late = [r for r in rows if r['rung'] in rungs]
     for group in (early,):
@@ -241,7 +244,10 @@ def human_gate(gate_name, schema_id):
 def _seal(state, identity):
     from .. import work_dispatch
     root = _root(state)
-    sealed = executor.seal_orders(root)
+    try:
+        sealed = executor.seal_orders(root)
+    except executor.ExecutorRefused as exc:
+        raise nodes.RecoveryHold(exc.errors[0].code, str(exc)) from exc
     pinned = None
     if sealed and (root / 'inputs/checkin1.json').is_file() and not (root / 'inputs/work-obligations.json').exists():
         pinned = work_dispatch.pin_obligations(root)

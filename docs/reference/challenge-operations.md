@@ -57,6 +57,56 @@ Existing files are never overwritten. A file the installer wrote earlier is repl
 is unchanged since. Running the installer again updates its own sections and leaves the project's
 text alone. `ravel agent-surface skills --out DIR` writes only the software skills.
 
+### Software skills
+
+Each software skill (`.claude/skills/software-<name>/SKILL.md`, mirrored to `.agents/skills/`) states
+what the tool is for in the project, its exact installed version, the import names and entry points
+it exposes, the commands the workflow reaches it through, its licence and its upstream documentation
+link. A field the distribution metadata does not carry says so. `software-ravel/dependencies.md`
+lists RAVEL's required-dependency closure with version, licence and documentation link. The text
+has no paths or times, so regenerating it in an unchanged environment is byte-identical and a
+version change shows as exactly that line. A tool that is not installed has no skill. A project can
+add tools through the `software` key of `workflow/policy.json`
+(`{"software": {"python_packages": [...], "executables": [...]}}`).
+
+### Strict execution guard (Claude Code)
+
+```bash
+ravel agent-surface install --project ../my-analysis --wms-guard
+```
+
+adds one `PreToolUse` hook for the Bash tool. It does nothing until the project's
+`workflow/policy.json` selects it with `"execution_guard": "strict"`. The effective mode is the
+stricter of the working-tree policy and the committed one, so an uncommitted edit cannot relax it.
+In strict mode a command runs only if every statement of it is
+
+- `snakemake` with listed options on a Snakefile (and its `include:` files and `rules/*.smk`) that is
+  tracked in git and unmodified: dry runs and targets;
+- `ravel` (or `python -m ravel`) with `status`, `validate`, `audit`, `initiate`, `plan`, `approve`,
+  `gate`, `conformance`, `agent-audit`, `agent-surface check|profiles` or `wms init|add|launch|status`;
+  `ravel run` is refused with the workflow-manager route;
+- `git` reads, `add` and `commit`;
+- a short list of read-only inspection programs;
+
+and every program of the first three kinds has its software skill installed in the project.
+Redirections, subshells, command substitution, background jobs, `cd`, environment prefixes and
+wrappers (`bash -c`, `env`, `xargs`) are refused. Every decision is appended to
+`.ravel/agent-audit/execution-guard.jsonl` (command hash, allowed or refused, rule matched, mode);
+`python -m ravel.workflow.execution_guard summary --project .` summarises it for the conformance check.
+
+What this enforces: the shell tool of an agent session that loads the project's
+`.claude/settings.json`. What it cannot: a person at a terminal, a session started without the
+project settings, an agent host that does not route its shell tool through this hook, or file
+writes. An allowed program still runs its own configured helpers (git hooks, a configured external
+diff). It is discipline with a record, not a security boundary. Under the same declaration a RAVEL
+worker's toolbelt offers no general shell (read, write, knowledge, check and workflow-manager
+actions only) and a launch that would give one is refused.
+
+Codex has no per-project execution-policy file that RAVEL can install and verify from its bundled
+help: its rules mechanism is user-scoped (`CODEX_HOME`). In a project with a strict policy, run Codex
+with its shell tool disabled, or as a RAVEL worker whose toolbelt has no shell. RAVEL does not
+generate Codex rules.
+
 ## 2. Log agent sessions
 
 After installation, Claude Code appends one line per prompt and per finished turn to

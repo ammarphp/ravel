@@ -637,6 +637,83 @@
    },
    "fidelity_rank": 2
   },
+  "checkmate-events": {
+   "summary": "CheckMATE signal-region tables from supplied showered events.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "checkmate-events",
+    "module": "ravel.physics.checkmate_events"
+   },
+   "consumes": [
+    {
+     "slot": "events",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": [
+       "hepmc"
+      ]
+     }
+    }
+   ],
+   "produces": [
+    {
+     "slot": "regions",
+     "kind": "table"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    },
+    {
+     "slot": "result",
+     "kind": "inference"
+    }
+   ],
+   "effects": [
+    "simulates_detector",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin": "reimplemented",
+      "level": "detector"
+     },
+     {
+      "element": "published_results",
+      "form": "table"
+     }
+    ],
+    "passes": [
+     "events"
+    ]
+   },
+   "tools": [
+    "CheckMATE",
+    "Delphes"
+   ],
+   "stages": [
+    "detector",
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "routine_validation",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
   "classifier-inputs": {
    "summary": "Bounded static census of an ONNX classifier; never runs the model.",
    "implementation": {
@@ -1934,6 +2011,50 @@
    },
    "fidelity_rank": 2
   },
+  "external-workflow": {
+   "summary": "An adopted external Snakemake workflow: `ravel wms adopt` pins it and plans a supervised inspection of its rules and shell commands, then one supervised run with its outputs pinned.",
+   "implementation": {
+    "kind": "command",
+    "module": "ravel.workflow.wms_adopt"
+   },
+   "consumes": [
+    {
+     "slot": "adoption",
+     "kind": "document",
+     "task_pointer": "/task/adoption"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "receipt",
+     "kind": "document"
+    }
+   ],
+   "effects": [
+    "executes_native",
+    "runs_authored_code"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": []
+   },
+   "tools": [
+    "Snakemake"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
   "feyn-graph": {
    "summary": "Complete model-bound Feynman-diagram enumeration and rendering.",
    "implementation": {
@@ -2886,6 +3007,81 @@
     ]
    },
    "fidelity_rank": 1
+  },
+  "dataset-query-quantities": {
+   "summary": "Columnar analysis of derived-format datasets through a delivery service.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "dataset-query-quantities",
+    "module": "ravel.physics.dataset_query_quantities"
+   },
+   "consumes": [
+    {
+     "slot": "datasets",
+     "kind": "event_sample",
+     "cardinality": "1..*",
+     "task_pointer": "/task/config",
+     "require": {
+      "format": [
+       "physlite",
+       "root"
+      ]
+     }
+    },
+    {
+     "slot": "recipe",
+     "kind": "selection",
+     "task_pointer": "/task/config"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "histograms",
+     "kind": "binned_values"
+    },
+    {
+     "slot": "cutflow",
+     "kind": "cutflow"
+    }
+   ],
+   "effects": [
+    "executes_native",
+    "reads_restricted_inputs"
+   ],
+   "cost": {
+    "unit": "events",
+    "forecast": null,
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [
+     {
+      "element": "simulated_acceptance",
+      "origin_from": "recipe.origin",
+      "level": "reconstructed"
+     }
+    ],
+    "passes": [
+     "datasets",
+     "recipe"
+    ]
+   },
+   "tools": [
+    "ServiceX",
+    "coffea",
+    "func_adl"
+   ],
+   "stages": [
+    "analysis"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
   },
   "joint-fit": {
    "summary": "Profile study joining a published workspace with finite simulated auxiliaries.",
@@ -3998,6 +4194,69 @@
    "review": {
     "checks": [
      "io_contract"
+    ]
+   },
+   "fidelity_rank": 1
+  },
+  "manuscript-build": {
+   "summary": "A PDF manuscript or note built from retained run results with pdflatex.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "manuscript-build",
+    "module": "ravel.physics.manuscript_build"
+   },
+   "consumes": [
+    {
+     "slot": "sources",
+     "kind": "document",
+     "cardinality": "1..*"
+    },
+    {
+     "slot": "figures",
+     "kind": "figure",
+     "cardinality": "0..*",
+     "optional": true
+    },
+    {
+     "slot": "tables",
+     "kind": "table",
+     "cardinality": "0..*",
+     "optional": true
+    }
+   ],
+   "produces": [
+    {
+     "slot": "document",
+     "kind": "document"
+    }
+   ],
+   "effects": [
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "task",
+    "forecast": null,
+    "ceiling_pointer": null
+   },
+   "critical_fields": [],
+   "basis": {
+    "adds": [],
+    "passes": [
+     "sources",
+     "figures",
+     "tables"
+    ]
+   },
+   "tools": [
+    "LaTeX",
+    "pdflatex",
+    "BibTeX"
+   ],
+   "stages": [],
+   "review": {
+    "checks": [
+     "io_contract",
+     "prose"
     ]
    },
    "fidelity_rank": 1

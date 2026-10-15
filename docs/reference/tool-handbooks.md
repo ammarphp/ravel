@@ -78,3 +78,11 @@ Write it from the upstream manual and RAVEL's code; copy no third-party text.
 State versions, cite the manual or paper for each upstream fact, and link to
 `docs/reference/failure-modes.md` instead of repeating a failure story. Keep
 one fact in one place.
+
+## Snakemake workflow handbook
+
+`snakemake-workflows` covers supplied DAGs, profiles, dry-run reading, failure
+triage and retries through RAVEL. Its executable example only inspects synthetic
+policy and shell-command strings. The version is pinned to the required site
+workflow environment; local presence and scientific qualification remain
+separate evidence. See [approved stages](../guides/approved-workflow-stages.md).

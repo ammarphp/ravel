@@ -294,7 +294,8 @@ def external_usage_report(report, response, *, base_dir):
 
 ISOLATION_KEYS = {"transport_id", "declaration_sha256", "argv_sha256", "cli_version", "config",
                   "config_overriding_arguments", "env_names", "effort_transmitted", "user_configuration_loaded", "basis"}
-ISOLATION_OPTIONAL = {"cli_session_id", "executable_sha256", "session_receipt_sha256"}
+ISOLATION_OPTIONAL = {"cli_session_id", "executable_sha256", "session_receipt_sha256", "project_instructions",
+                      "project_run"}
 
 
 def _transport_isolation(evidence):
@@ -320,6 +321,16 @@ def _transport_isolation(evidence):
     session = evidence.get("cli_session_id")
     if session is not None:
         _text(session, "cli_session_id", 256)
+    supplied = evidence.get("project_instructions")
+    if "project_instructions" in evidence and (
+            type(supplied) is not dict or set(supplied) != {"sha256", "bytes", "mechanism"}
+            or type(supplied["sha256"]) is not str or not re.fullmatch(r"[0-9a-f]{64}", supplied["sha256"])
+            or type(supplied["bytes"]) is not int or supplied["bytes"] < 1
+            or type(supplied["mechanism"]) is not str or len(supplied["mechanism"]) > 64):
+        raise HostFailure("transport isolation project_instructions holds the document sha256, bytes and mechanism")
+    named = evidence.get("project_run")
+    if "project_run" in evidence and (type(named) is not str or not 0 < len(named) <= 4096 or not os.path.isabs(named)):
+        raise HostFailure("transport isolation project_run is the absolute run directory the session was started for")
     for key in ("executable_sha256", "session_receipt_sha256"):
         if key in evidence and (type(evidence[key]) is not str or not re.fullmatch(r"[0-9a-f]{64}", evidence[key])):
             raise HostFailure("transport isolation digests must be sha256 hex")
@@ -739,6 +750,8 @@ class AgentHost:
         sources['finite-integrals.native-child'] = file_hash(Path(finite_integrals.__file__).with_name('finite_integrals_worker.py'))
         sources[__name__] = file_hash(__file__)
         sources[provider_transport.__name__] = file_hash(provider_transport.__file__)
+        from . import provider_policy
+        sources[provider_policy.__name__] = file_hash(provider_policy.__file__)
         from ravel.physics import ma5_pad, ma5_family, ma5_bookings, ma5_saf, ma5_saf_reader
         for module in (backend_portfolio, backend_portfolio.science, backend_portfolio.physics_review,
                        backend_portfolio.science.execution, ma5_pad, ma5_family, ma5_bookings, ma5_saf, ma5_saf_reader):
@@ -933,7 +946,7 @@ class AgentHost:
                 raise HostFailure('original PDF operational custody refused: '+str(exc)) from None
         result = {}
         for pin in pins:
-            _keys(pin, {"id", "path", "sha256"}, "input pin")
+            _keys(pin, {"id", "path", "sha256", *({'restricted'} if 'restricted' in pin else set())}, "input pin")
             if pin not in node["inputs"] or pin["id"] in result:
                 raise HostFailure("host input pin mismatch")
             path = _safe_path(pin["path"])
@@ -1128,6 +1141,17 @@ class AgentHost:
             return self._tool(node, request, control, pins)
         if node["kind"] != "model" or node["action"] not in {self.adapter, "model"}:
             raise HostFailure("model node action differs from configured executable adapter")
+        declared_run, declared = self._declared_instructions(control)
+        if declared is not None and self.wrapper_agent is None:
+            # Only the RAVEL agent-cli launcher delivers the document and records it; nothing is sent otherwise.
+            raise HostFailure("this run pins a project instruction document and this host adapter cannot deliver it; "
+                              "no request was sent. Run the node through an agent-cli host")
+        from . import provider_policy
+        try:
+            admission = provider_transport.admit(self, getattr(control, 'root', None), request.get('input_artifacts', []))
+        except provider_policy.PolicyRefused as exc:
+            raise HostFailure(str(exc)) from None
+        request = {**request, 'provider_policy_admission': admission}
         prepared = self.prepare_model_context(node, request)
         parameters = prepared["parameters"]
         maximum = parameters["max_output_tokens"]
@@ -1140,6 +1164,7 @@ class AgentHost:
                 self.vision, parameters["model"], bound_roots=self.bound_roots)
         except (visual_presentation.VisualFailure, OSError) as exc:
             raise HostFailure(str(exc)) from None
+        control = provider_transport.audit_control(control, node)
         if self.adapter == "responses":
             body = {"model": parameters["model"], "reasoning": {"effort": parameters["reasoning_effort"]},
                     "instructions": "Return only public JSON claims, evidence and concise public rationales. Do not return private reasoning traces.\n" + parameters["instructions"],
@@ -1175,9 +1200,15 @@ class AgentHost:
                 lambda: self._visual_result(self._responses(data, parameters, request, control, path=path), context, visuals, body, node, request),
                 output_tokens=maximum)
         else:
-            body = {"schema_version": 1, "request_id": request["request_id"], "parameters": parameters, "context": context}
+            # The command wrapper alone needs the run location; it strips it before any prompt.
+            carried = ({**context, 'provider_policy_run': str(provider_policy.find_run(control.root))}
+                       if admission['declared'] and getattr(control, 'root', None) is not None else context)
+            body = {"schema_version": 1, "request_id": request["request_id"], "parameters": parameters, "context": carried}
             if "role_requires" in request:
                 body["role_requires"] = request["role_requires"]
+            if declared is not None:
+                # The launcher reads the run from the request; the request digest in its receipt binds it.
+                body["project_run"] = str(declared_run)
             data = _json_bytes(body)
             if len(data) > self.max_request:
                 raise HostFailure("command request exceeds host byte bound")
@@ -1185,6 +1216,33 @@ class AgentHost:
                                   lambda: self._presented_result(self._command(data, parameters, request, control), context), output_tokens=maximum)
         self._cancel(control, sent=True)
         return result
+
+    def _declared_instructions(self, control):
+        """``(run, pin)`` of the project instruction document this graph's model sessions receive, else ``(None, None)``.
+
+        The run is the one that owns the graph (``project_instructions.owning_run``). An agent-cli host
+        configured with ``rundir`` names the run: it supplies the run for a graph that lies in no run and
+        settles a graph whose own run pins nothing under a tree that pins a document. A configured run
+        that differs from the graph's own run is refused.
+        """
+        from . import project_instructions
+        root = getattr(control, "root", None)
+        configured = None
+        if self.wrapper_agent is not None and "--rundir" in self.command:
+            configured = os.path.realpath(self.command[self.command.index("--rundir") + 1])
+        try:
+            if configured is not None:
+                run = project_instructions.nearest_run(root) if root is not None else None
+                if run is not None and str(run) != configured:
+                    raise HostFailure(f"this host is configured for run {configured} and the graph belongs to run {run}; "
+                                      "one session receives one run's project instruction document")
+                run = Path(configured)
+            else:
+                run = project_instructions.owning_run(root) if root is not None else None
+            pinned = project_instructions.for_run(run) if run is not None else None
+        except project_instructions.ProjectInstructionsError as exc:
+            raise HostFailure(str(exc)) from None
+        return (run, pinned) if pinned is not None else (None, None)
 
     def _visual_result(self, result, context, visuals, body, node, request):
         try:
@@ -1221,6 +1279,7 @@ class AgentHost:
             raise HostFailure("provider output token usage exceeds declared bound")
         return {"kind": "model_result", "value": value, "usage": usage,
                 "transport": {"adapter": self.adapter, "request_id": request["request_id"],
+                    **({'provider_policy': request['provider_policy_admission']} if 'provider_policy_admission' in request else {}),
                     "requested_model": parameters["model"], "observed_model": observed_model,
                     "reasoning_effort": parameters["reasoning_effort"], "response_id": response_id,
                     "endpoint_origin": f"{self.endpoint.scheme}://{self.endpoint.netloc}" if self.adapter in provider_transport.HTTP_ADAPTERS else None,
@@ -1516,6 +1575,24 @@ class AgentHost:
                   "launcher_receipt": receipt, "verification": verification,
                   "attestation": label, "attestation_reasons": reasons}
         pin = transport_receipt.write(root, request["request_id"], attempt or "unbound", record) if root is not None else None
+        from . import project_instructions
+        declared = self._declared_instructions(control)[1]
+        if pin is not None:
+            # The exact prompt stays beside the session record: rebuilt from this request and kept only
+            # when it hashes to the prompt digest in the launcher's receipt.
+            # A request this host did not shape as {parameters, context} has no prompt to rebuild.
+            try:
+                body = _loads(bytes(data))
+                prompt = cli_agent_host.session_prompt(receipt, body["parameters"], body["context"], declared)
+            except (KeyError, TypeError, ValueError):
+                prompt = None
+            if prompt is not None:
+                transport_receipt.write_prompt(Path(root) / pin["path"], prompt, receipt)
+        problem = project_instructions.receipt_problem(receipt, declared)
+        if problem is not None:
+            # The session record stays on file; a session that was not shown the pinned document earns no credit.
+            raise HostFailure("launcher receipt does not show the run's pinned project instruction document "
+                              f"({problem}); the session is not credited")
         configuration = receipt["configuration"]
         loaded = configuration["user_configuration_loaded"]
         result["transport"].update(attestation=label, session_receipt=record, session_receipt_pin=pin,

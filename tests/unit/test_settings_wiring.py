@@ -27,8 +27,11 @@ def test_observer_matcher_not_narrowed_and_no_duplicate_blocks():
     # observer matcher nor duplicate any block (the merge is idempotent).
     cfg = json.loads(SETTINGS.read_text())
     h = cfg["hooks"]
-    obs = [blk for blk in h["PostToolUse"] if "posttooluse-observer.sh" in json.dumps(blk)]
+    # The MCP site-tool observer is its own block with the exact mcp__.* matcher; it is counted separately.
+    obs = [blk for blk in h["PostToolUse"] if "posttooluse-observer.sh" in json.dumps(blk) and blk.get("matcher") != "mcp__.*"]
     assert len(obs) == 1, "observer block missing or duplicated"
+    mcp = [blk for blk in h["PostToolUse"] if "posttooluse-observer.sh" in json.dumps(blk) and blk.get("matcher") == "mcp__.*"]
+    assert len(mcp) == 1, "MCP site-tool observer block missing or duplicated"
     for tok in ("Bash", "Edit", "Write", "MultiEdit", "NotebookEdit", "Skill", "Agent", "Task"):
         assert tok in obs[0]["matcher"], f"observer matcher lost {tok} (must stay the full set)"
     for event, cmd in (("Stop", "stop-dispatcher.sh"),

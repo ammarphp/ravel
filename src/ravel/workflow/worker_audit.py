@@ -64,7 +64,37 @@ def _inside(root, path):
     return path.absolute()
 
 
-def build(rundir):
+# What no census of recorded sessions can show. Every coverage report carries this row.
+COVERAGE_LIMIT = {'scope': 'coverage',
+                  'reason': 'one-shot failures are not yet recorded; started/finalized launcher records are pending'}
+
+
+def _custody_folder(rundir):
+    """This run's custody folder (``$RAVEL_STATE_DIR/workers/<run digest>/``); nothing is created."""
+    import os
+    from . import broker
+    run = Path(os.path.realpath(rundir))
+    state = Path(os.path.realpath(os.environ.get('RAVEL_STATE_DIR') or Path.home() / '.local/state/ravel'))
+    return state / 'workers' / broker.digest(str(run))
+
+
+def _custody_file(rundir, path):
+    """A worker prompt file a receipt names: a regular file directly inside this run's custody folder.
+
+    The launch adapter keeps a worker's standard-input prompt in custody
+    (``$RAVEL_STATE_DIR/workers/<run digest>/``), outside the run tree. That one folder is
+    the only place outside the run this census reads, and it creates nothing there.
+    """
+    import os
+    folder = _custody_folder(rundir)
+    path = Path(path)
+    if (not path.is_absolute() or path.is_symlink() or path.parent != folder
+            or Path(os.path.realpath(path)).parent != folder or not path.is_file()):
+        raise ValueError('worker prompt is not a file in this run\'s custody folder')
+    return path
+
+
+def _build_worker_sessions(rundir):
     from . import agent_audit as aa
     root = Path(rundir).absolute(); sessions = []; sources = []; gaps = []; valid_transcripts = []
     receipts = sorted(root.glob('**/agent-work/*/*/receipt.json'))
@@ -77,7 +107,7 @@ def build(rundir):
         try:
             path = _inside(root, path); session['receipt'] = aa.pin(path); sources.append(session['receipt'])
             receipt = json.loads(path.read_text())
-            if receipt.get('kind') != 'agent-worker-receipt' or receipt.get('schema_version') not in (1, 2):
+            if receipt.get('kind') != 'agent-worker-receipt' or receipt.get('schema_version') not in (1, 2, 3):
                 raise ValueError('agent-worker-receipt schema required')
             session.update(node_id=receipt['node_id'], attempt=receipt['attempt'], role_id=receipt['role']['id'],
                            session_id=receipt.get('session_id'), model_build=receipt.get('model', {}).get('observed'),
@@ -161,9 +191,93 @@ def build(rundir):
                            'graph': {'id': state.get('graph_id'), 'version': state.get('graph_revision'), 'thread_id': None},
                            'status': saved.get('status', call.get('status', 'unknown')), 'transcript': None}
                 sessions.append(session)
-                gaps.append({'node_id': session['node_id'], 'reason': 'legacy graph call lacks transport-neutral worker transcript; unknown fields retained'})
+                gaps.append({'path': str(path), 'node_id': session['node_id'], 'reason': 'legacy graph call lacks transport-neutral worker transcript; unknown fields retained'})
         except (OSError, ValueError, KeyError, TypeError) as exc:
             gaps.append({'path': str(state_path), 'reason': 'graph session census unreadable: ' + str(exc)})
     return {'schema_version': 1, 'kind': 'worker-session-audit', 'sessions': sessions, 'sources': sources,
             'transcripts': sorted(set(valid_transcripts)), 'gaps': gaps, 'complete': not gaps,
             'scope': 'All recorded agent-work sessions, without role filtering; accounting is reported evidence, not physics qualification.'}
+
+
+def build(rundir):
+    """Worker, one-shot and provider census; each retained prompt is hash checked."""
+    from . import agent_audit as aa, prompt_log
+    audit = _build_worker_sessions(rundir)
+    records = []
+    for path in audit['transcripts']:
+        parsed = parse_transcript(path)
+        session = next((s for s in audit['sessions'] if (s.get('transcript') or {}).get('path') == path), None)
+        for record in parsed['records']:
+            record = dict(record)
+            if session:
+                receipt = json.loads(Path(session['receipt']['path']).read_text()) if session.get('receipt') else {}
+                stdin_pin = receipt.get('transport', {}).get('stdin')
+                if stdin_pin and record['prompt_index'] == 1:
+                    try:
+                        target = _custody_file(rundir, stdin_pin['path'])
+                        if target.stat().st_size > prompt_log.MAX_PROMPT_BYTES or aa.pin(target)['sha256'] != stdin_pin['sha256']:
+                            raise ValueError('worker full prompt hash or size differs')
+                        record['prompt'] = target.read_bytes().decode('utf-8')
+                        record['prompt_sha256'] = stdin_pin['sha256']
+                    except (OSError, ValueError, KeyError, UnicodeError) as exc:
+                        record['prompt'] = None
+                        audit['gaps'].append({'path': str(path), 'reason': str(exc)})
+                record['model_requested'] = receipt.get('model', {}).get('requested')
+                record['receipt_source'] = session.get('receipt')
+                record['elapsed_seconds'] = None
+                if record['prompt_index'] == 1 and receipt.get('started_utc') and receipt.get('finished_utc'):
+                    try:
+                        elapsed = (datetime.fromisoformat(receipt['finished_utc'].replace('Z', '+00:00')) -
+                                   datetime.fromisoformat(receipt['started_utc'].replace('Z', '+00:00'))).total_seconds()
+                        if elapsed >= 0:
+                            record['elapsed_seconds'] = elapsed
+                            record['wall_scope'] = 'worker session, counted once'
+                    except (ValueError, TypeError):
+                        pass
+                delivered, flags = prompt_log.delivery_fields(receipt)
+                record.update(delivered)
+                if flags:
+                    record['flags'] = list(record.get('flags', [])) + flags
+                if not record.get('models') and record.get('model') is None:
+                    # The worker's own transcript row names no model: the receipt's observed model is the report.
+                    observed = receipt.get('model', {}).get('observed')
+                    record['model'] = record['model_reported'] = observed
+                    record['model_build_exact'] = prompt_log.exact_model(observed)
+                if record.get('cli_version') is None:
+                    record['cli_version'] = receipt.get('cli_version')
+            records.append(record)
+    extra, gaps = prompt_log.receipt_records(rundir)
+    known = {s['session_id'] for s in audit['sessions'] if s.get('transcript') and s.get('session_id')}
+    extra = [r for r in extra if r.get('session_id') not in known]
+    # Replace legacy summary rows when their underlying receipt is collected.
+    extra_paths = {r['source']['path'] for r in extra}
+    extra_paths.update(str(Path(r['source']['path']).parent.parent / 'calls' / (r['call_id'] + '.json')) for r in extra if r.get('call_id') and r.get('stream') in ('provider', 'dispatcher'))
+    audit['gaps'] = [g for g in audit['gaps'] if g.get('path') not in extra_paths]
+    audit['sessions'] = [s for s in audit['sessions'] if not s.get('receipt') or s['receipt']['path'] not in extra_paths]
+    for record in extra:
+        audit['sessions'].append({'receipt': record['source'], 'node_id': record.get('node_id'),
+            'attempt': None, 'role_id': record.get('role'), 'session_id': record.get('session_id'),
+            'model_build': record.get('model_reported'), 'timestamp': record.get('timestamp'),
+            'tokens': {k: (record.get('usage') or {}).get(k) for k in aa.USAGE_KEYS},
+            'graph': None, 'status': record.get('status', 'recorded'), 'transcript': None})
+        audit['sources'].append(record['source'])
+    audit['records'] = records + extra
+    covered = {(r.get('receipt_source') or r.get('source') or {}).get('path') for r in audit['records']}
+    for session in audit['sessions']:
+        receipt = session.get('receipt')
+        transcript = session.get('transcript')
+        if (receipt and receipt['path'] in covered) or (transcript and transcript['path'] in covered):
+            continue
+        audit['records'].append({'prompt': None, 'timestamp': session.get('timestamp'),
+            'model_reported': session.get('model_build'), 'usage': session['tokens'],
+            'session_id': session.get('session_id'), 'role': session.get('role_id'),
+            'node_id': session.get('node_id'), 'source': receipt or transcript,
+            'stream': 'unavailable', 'prompt_index': 1})
+    audit['gaps'].extend(gaps)
+    audit['gaps'].extend({'source': r['source'], 'reason': flag} for r in extra for flag in r['flags'])
+    # A one-shot that failed wrote no receipt, so this census cannot see it and does not claim it.
+    audit['gaps'].append(dict(COVERAGE_LIMIT))
+    audit['complete'] = not audit['gaps']
+    audit['scope'] = ('All recorded worker, one-shot and provider sessions; incomplete evidence remains visible. '
+                      'One-shot failures are not yet recorded.')
+    return audit

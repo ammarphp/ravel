@@ -225,6 +225,22 @@ def test_complete_runtime_and_source_intake_and_context_no_optional_import(tmp_p
     with pytest.raises(ValueError,match='membership'):adapter.inputs(task,tmp_path)
 
 
+@pytest.mark.parametrize('operation',['query_and_analyze','observe_existing_remote_request'])
+@pytest.mark.parametrize('service',[None,{'endpoint':'','credential_reference':None,'codegen':'atlasr25','result_format':'root','cancel_if_failed':False}])
+def test_dispatching_operation_without_an_endpoint_is_refused_by_name(tmp_path,operation,service):
+    _,cfg,_=configuration(tmp_path)
+    cfg.update(operation=operation,service=service,returned=None,
+        remote_request=None if operation=='query_and_analyze' else {'id':'r','intent':cfg['dataset'],'cancel':False})
+    with pytest.raises(c.MissingServiceEndpoint,match='service.endpoint') as raised:c.config(cfg)
+    assert 'servicex.yaml' in str(raised.value) and 'analyze_returned_native_files' in str(raised.value)
+    assert isinstance(raised.value,c.MissingColumnarInput)
+
+
+def test_returned_file_analysis_needs_no_endpoint(tmp_path):
+    _,cfg,_=configuration(tmp_path)
+    assert cfg['service'] is None and c.config(cfg)['operation']=='analyze_returned_native_files'
+
+
 def test_foreign_cwd_public_cli_context_has_same_source_meaning(tmp_path,monkeypatch):
     task,cfg,rows=configuration(tmp_path)
     document=tmp_path/'task.json';document.write_text(json.dumps(task))

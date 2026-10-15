@@ -99,12 +99,22 @@ def test_architecture_index_links_every_page_and_explains_tutorial_scope():
     assert "current Step 9" in text and "editable Mermaid" in text
 
 
-SECTIONS = ["Install", "Start a study", "What RAVEL does", "Toolchain", "How it works", "Documentation",
-            "Licence and citation", "Appendix A: Architecture", "Appendix B: Citing upstream dependencies"]
-ARCH_PARTS = {"The research loop and agent team": "arch-agent-team", "A study's life": "arch-study-life",
-              "Physicist steering and compute": "arch-steering", "The physics toolchain": "arch-toolchain",
+SECTIONS = ["Install", "A first study", "How it works", "What RAVEL covers", "Toolchain", "Documentation",
+            "Citing RAVEL", "Licence", "Appendix A: Architecture", "Appendix B: Citing upstream tools",
+            "Appendix C: Glossary"]
+# "How it works" has one part per concept, each with one figure and a methodology page.
+HOW_PARTS = {"Studies and check-ins": ("readme-overview", None),
+             "Agents and roles": ("methodology-agent-roles", "docs/methodology/agent-architecture.md"),
+             "The research loop": ("methodology-research-loop", "docs/methodology/research-loop.md"),
+             "Recursive Decision Justification": ("methodology-decision-justification",
+                                                  "docs/methodology/decision-justification.md")}
+ARCH_PARTS = {"Physicist steering and compute": "arch-steering", "The physics toolchain": "arch-toolchain",
               "Statistics and inference": "arch-statistics", "Models and hosts": "arch-models-hosts",
               "Provenance and receipts": "arch-provenance", "Workflow engines": "arch-engines"}
+GLOSSARY = ["Ablation", "Anchor", "Approval scope", "CHECK-IN 1, 2 and 3", "Custody", "Deviation", "Driver agent", "Hypothesis board", "Mode",
+            "Operation", "Qualification", "Receipt", "Recursive Decision Justification (RDJ)", "Research loop", "Reviewer",
+            "Run directory", "Stage", "Study", "Supervisor", "Transport", "Withheld confirmation", "Worker"]
+DETAILS = re.compile(r"<details>.*?</details>", re.S)
 HEDGES = re.compile(r"\b(?:may|might|should be able|attempts? to|experimental|limited|only|not yet)\b", re.I)
 
 
@@ -117,7 +127,7 @@ def _prose(text: str) -> str:
 
 
 def _without_citation_table(text: str) -> str:
-    """The README without its verified Appendix B table, the generality gate's one citation exemption."""
+    """The README without its verified Appendix B reference list, the generality gate's one citation exemption."""
     import importlib.util
     import json
     spec = importlib.util.spec_from_file_location("render_citations", ROOT / "scripts/maintenance/render_citations.py")
@@ -125,20 +135,30 @@ def _without_citation_table(text: str) -> str:
     spec.loader.exec_module(renderer)
     rows = json.loads((ROOT / "src/ravel/data/citations/upstream.json").read_text())["tools"]
     assert renderer.render_readme(text, rows) == text, "Appendix B differs from its renderer"
-    table = "\n".join(renderer.HEADER + [renderer.render_row(row) for row in rows])
+    table = renderer.render_block(rows)
     start = text.index(renderer.HEADING)
     assert text[start:].count(table) == 1
     return text[:start] + text[start:].replace(table, "", 1)
+def _pruned_regions(tmp_path: Path) -> dict:
+    import importlib
+    import shutil
+    import sys
+    sys.path.insert(0, str(ROOT / "scripts/release"))
+    try:
+        checks, regions = importlib.import_module("checks"), importlib.import_module("readme_regions")
+    finally:
+        sys.path.remove(str(ROOT / "scripts/release"))
+    for relative in ("native/setup/toolchain-manifest.json", "src/ravel/data/operation_signatures.json"):
+        (tmp_path / relative).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / relative, tmp_path / relative)
+    shutil.copytree(ROOT / "native/setup/groups", tmp_path / "native/setup/groups")
+    checks.prune_unreleased(tmp_path)
+    return regions.render(tmp_path)
 
 
 def _section(text: str, name: str) -> str:
     body = text.split(f"\n## {name}\n", 1)[1]
     return re.split(r"^## ", body, maxsplit=1, flags=re.M)[0]
-
-
-def _table_first_cells(section: str) -> list[str]:
-    rows = [line for line in section.splitlines() if line.startswith("| ") and not line.startswith("|--")]
-    return [row.split("|")[1].strip() for row in rows[1:] if not set(row.split("|")[1].strip()) <= set("-: ")]
 
 
 def test_readme_sections_in_order():
@@ -149,9 +169,12 @@ def test_readme_sections_in_order():
 def test_readme_is_short_plain_and_anonymous():
     text = README.read_text(encoding="utf-8")
     assert text.startswith("# RAVEL\n")
-    assert len(_prose(text).splitlines()) <= 360
-    prose = re.sub(r"```.*?```", "", _prose(text), flags=re.S)
-    assert len(re.findall(r"\S+", prose)) <= 4000
+    # The reader's README: everything outside the generated regions and the collapsed appendices.
+    main = DETAILS.sub("", _prose(text))
+    assert len(main.splitlines()) <= 220
+    assert len(re.findall(r"\S+", re.sub(r"```.*?```", "", main, flags=re.S))) <= 2000
+    # Hedges are checked in all of RAVEL's own prose; upstream reference titles are quotations.
+    prose = re.sub(r"```.*?```", "", _prose(_without_citation_table(text)), flags=re.S)
     banned = ["R" + "RR", "e" + "RJR", "C" + "R-", "Claude" + " Code", "Co" + "dex", "case" + " study",
               "flag" + "ship", "[" + "Opus]", codecs.decode("FpvragvfgGjb", "rot13"), codecs.decode("PZONtrag", "rot13"), codecs.decode("Qranevb", "rot13"),
               codecs.decode("orapuznex", "rot13"), codecs.decode("PbyyvqreOrapu", "rot13"),
@@ -210,30 +233,60 @@ def test_toolchain_section_offers_no_optional_tool():
 
 def test_every_toolchain_tool_has_a_citation_row():
     text = README.read_text(encoding="utf-8")
-    cited = " ".join(_table_first_cells(_section(text, "Appendix B: Citing upstream dependencies")))
+    # A tool's entry opens with its bold linked name; a versioned or capitalised entry name covers its tool.
+    cited = " ".join(re.findall(r"^\*\*\[([^\]]+)\]\(", _section(text, "Appendix B: Citing upstream tools"), re.M)).casefold()
     for row in _section(text, "Toolchain").splitlines():
         if not row.startswith("| ") or row.startswith(("| Area", "| Toolchain | Tools |")):  # table headers
             continue
         for tool in re.split(r",\s*| and ", re.sub(r"\([^)]*\)", "", row.split("|")[2])):
             tool = tool.strip()
             if tool:
-                assert tool in cited, f"{tool} has no citation row"
+                assert tool.casefold() in cited, f"{tool} has no citation row"
 
 
-def test_overview_and_appendix_figures():
+def test_how_it_works_parts_and_collapsible_appendix_figures():
     text = README.read_text(encoding="utf-8")
     how = _section(text, "How it works")
-    pictures = PICTURE.findall(how)
-    assert len(pictures) == 1 and _check_picture(pictures[0], ROOT) == "readme-overview"
-    assert "#appendix-a-architecture" in how
-    appendix = _section(text, "Appendix A: Architecture")
-    parts = re.findall(r"^### (.+)$", appendix, re.M)
-    assert parts == list(ARCH_PARTS)
-    for part, figure in ARCH_PARTS.items():
-        body = appendix.split(f"### {part}\n", 1)[1].split("\n### ", 1)[0]
+    assert re.findall(r"^### (.+)$", how, re.M) == list(HOW_PARTS)
+    assert "docs/methodology/README.md" in how
+    for part, (figure, page) in HOW_PARTS.items():
+        body = how.split(f"### {part}\n", 1)[1].split("\n### ", 1)[0]
         pictures = PICTURE.findall(body)
         assert len(pictures) == 1 and _check_picture(pictures[0], ROOT) == figure, part
-        assert "**In:**" in body and "**Out:**" in body, part
+        assert page is None or f"]({page})" in body, part
+    appendix = _section(text, "Appendix A: Architecture")
+    blocks = DETAILS.findall(appendix)
+    assert [re.search(r"<summary><b>(.+?)</b></summary>", b).group(1) for b in blocks] == list(ARCH_PARTS)
+    for block, figure in zip(blocks, ARCH_PARTS.values()):
+        pictures = PICTURE.findall(block)
+        assert len(pictures) == 1 and _check_picture(pictures[0], ROOT) == figure, figure
+        assert "**In:**" in block and "**Out:**" in block, figure
+
+
+def test_every_appendix_is_collapsible():
+    text = README.read_text(encoding="utf-8")
+    for name in SECTIONS:
+        if name.startswith("Appendix"):
+            section = _section(text, name)
+            assert "<details>" in section and "<summary>" in section and section.count("<details>") == section.count("</details>"), name
+    assert "<details>" not in text.split("\n## Appendix A", 1)[0]
+
+
+def test_terms_are_defined_at_first_use_and_in_the_glossary():
+    text = README.read_text(encoding="utf-8")
+    main = DETAILS.sub("", text.split("\n## Appendix A", 1)[0])
+    glossary = _section(text, "Appendix C: Glossary")
+    page = (ROOT / "docs/reference/glossary.md").read_text(encoding="utf-8")
+    assert re.findall(r"^- \*\*(.+?)\.\*\* ", glossary, re.M) == sorted(re.findall(r"^- \*\*(.+?)\.\*\* ", glossary, re.M), key=str.lower)
+    for term in GLOSSARY:
+        assert f"- **{term}.** " in glossary, term
+        assert re.search(rf"^## {re.escape(term)}$", page, re.M), term
+    # Each defined term is introduced in bold in the reader's README before the appendices.
+    for term in ("study", "run directory", "operations", "mode", "stages", "supervisor", "receipt", "CHECK-IN 1",
+                 "CHECK-IN 2", "CHECK-IN 3", "approval scope", "driver agent", "plan critic", "Workers", "Reviewers",
+                 "transport", "qualification", "research loop", "hypothesis board", "ablation", "Withheld confirmation",
+                 "Recursive Decision Justification", "anchor", "custody"):
+        assert re.search(rf"\*\*{re.escape(term)}\.?\*\*", main), term
 
 
 def test_contributor_default_and_locked_environment_are_distinct():
@@ -272,7 +325,7 @@ def test_required_symbolic_setup_preserves_declared_alternative():
 
 
 def test_study_commands_are_prospective_and_approval_is_explicit():
-    section = _section(README.read_text(encoding="utf-8"), "Start a study")
+    section = _section(README.read_text(encoding="utf-8"), "A first study")
     commands = [section.index(c) for c in ("ravel initiate", "ravel status", "ravel approve", "ravel run")]
     assert commands == sorted(commands)
     assert "CHECK-IN 1" in section and "--quote" in section
@@ -344,10 +397,12 @@ def test_claims_and_hooks_have_explicit_scope():
 
 
 def test_diagrams_have_readable_responsibility_and_scope_text():
-    section = _section(README.read_text(encoding="utf-8"), "What RAVEL does")
-    for area in ("Collider studies and reinterpretation", "Higgs and Standard Model measurements",
-                 "Models and theory calculations", "Statistics", "Cosmology", "Open-ended research"):
-        assert f"**{area}.**" in section, area
+    section = _section(README.read_text(encoding="utf-8"), "What RAVEL covers")
+    # The generated region is a compact family table, never a list of every operation.
+    region = section.split("<!-- ravel:capabilities:start -->", 1)[1].split("<!-- ravel:capabilities:end -->", 1)[0]
+    rows = [line for line in region.strip().splitlines() if line]
+    assert rows[0] == "| Family | Operations | Examples |" and len(rows) <= 12
+    assert not [line for line in rows if line.startswith("- ")]
     index = (ARCH / "README.md").read_text(encoding="utf-8")
     assert "Boxes name implemented operations" in index
     assert re.search(r"^\| Layer \| Implemented interface \| Purpose \|$", index, re.M)
@@ -376,7 +431,7 @@ def test_local_document_and_asset_links_resolve(path: Path):
 def test_third_party_notices_list_licence_copyright_and_files_for_each_copied_set():
     notices = (ROOT / "THIRD-PARTY-NOTICES.md").read_text(encoding="utf-8")
     readme = README.read_text(encoding="utf-8")
-    assert "THIRD-PARTY-NOTICES.md" in readme and "## Appendix B: Citing upstream dependencies" in readme
+    assert "THIRD-PARTY-NOTICES.md" in readme and "## Appendix B: Citing upstream tools" in readme
     rows = [line for line in notices.splitlines() if line.startswith("| ") and not line.startswith("| Copied")
             and not line.startswith("|---")]
     assert rows

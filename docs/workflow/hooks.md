@@ -125,3 +125,18 @@ only as the separate declared fields, never credited as enforcement evidence. A 
 run's records alone and compares its next work item with `current_state.json`, byte for byte. A
 difference means the packet is stale: refresh it with `ravel status --rundir <run> --write`
 before resuming.
+
+## MCP site calls
+
+Site tools are governed through the [site-tool policy and exact call scope](../reference/host-enforcement.md#site-tool-servers).
+Before a download, transfer, batch submission/cancellation, notebook execution or
+file write, present its complete arguments and cost in CHECK-IN 1 and bind it in
+`sections.site_tools`. Reuse approval only for the exact approved call and effects.
+Claude's `mcp__.*` PreToolUse group calls `pretooluse-mcp.sh`; the matching
+PostToolUse group calls the observer. Hookless hosts follow their generated
+`.ravel/site-tools/<host>.json` declaration: invoke
+`python -m ravel.workflow.site_tools check` before the call and `observe` afterward
+with the host JSON on stdin. Unknown MCP tools are effectful. Observations in
+`logs/site-tools.jsonl` do not substitute for governed acquisition records,
+supervised launch receipts or remote completion evidence. Humans perform the
+facility's browser and grid-identity setup; agents never handle credentials.

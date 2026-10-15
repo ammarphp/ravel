@@ -1,0 +1,262 @@
+{
+ "schema_version": 1,
+ "kind": "defect-registry",
+ "review": {
+  "status": "reviewed",
+  "reviewer": "software translation of the 2026-10-10 development-line repair code; physicist review of each correction is pending",
+  "evidence": [
+   {
+    "path": "review-note.md",
+    "sha256": "062950bf7437618eb0c5c586a760d98a171f98b0559bc3954cce4ad444cb26c4"
+   }
+  ]
+ },
+ "sources": {
+  "card": {
+   "path": "sfitter/data/Higgs_Full.json",
+   "sha256": "8ae0a8bad6d38e570efe158b3a10717bce514909a2dd57d3e96dfd5229f756d0"
+  },
+  "evaluator_datacard": {
+   "path": "sfitter/sfitter/likelihood/datacard.py",
+   "sha256": "a713917945b980afd4759ef7d637d7c9aa891e28cec6fdc7612e52d36544d6fa"
+  },
+  "evaluator_predictions": {
+   "path": "sfitter/sfitter/likelihood/predictions.py",
+   "sha256": "5f5b332a7595d4fda86ab09a4c379a2e3aba3c93d07e4ca71ce0696aba5bde23"
+  },
+  "evaluator_full_likelihood": {
+   "path": "sfitter/sfitter/likelihood/full_likelihood.py",
+   "sha256": "c4f34730c45ee03de503b0dd1d343717ce1343500c59ecdd05ae56cbdfc62d65"
+  },
+  "evaluator_sm": {
+   "path": "sfitter/sfitter/likelihood/sm.py",
+   "sha256": "d6c0d8899c1101ce662374633ea852ba5f94aef4529a0111599e35f7744a20fa"
+  }
+ },
+ "context": {
+  "source_commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+  "source_license": "MIT",
+  "card_output": "derived-card.json",
+  "output_format": "json",
+  "scope": "Higgs_Full.json released card and its explicit repair derivation"
+ },
+ "coverage": [
+  {
+   "input_fingerprint": "a88b2ac9b962a1876d4f64aef0d1eaf447b7788441be691e99dea55d1ff2beba",
+   "assumptions": [
+    {
+     "id": "SFITTER-TTH-PRODUCTION-UNIT",
+     "kind": "ttH_production_ratio_fixed_one",
+     "source_label": "evaluator_predictions",
+     "function": "Predictions.compute",
+     "line_start": 490,
+     "line_end": 490,
+     "expression": "cstthdelta = torch.ones_like(csgdelta)",
+     "production_ratio": 1.0,
+     "production_order": [
+      "ggF",
+      "ttH",
+      "VBF",
+      "WH",
+      "ZH"
+     ],
+     "branching_ratios_and_total_width": "remain parameter-dependent in native source",
+     "general_ttH_EFT_response_qualified": false,
+     "physical_applicability": "unqualified",
+     "physics_validated": false
+    }
+   ],
+   "support": {
+    "generic_backend_algorithm": "supported_source_contract",
+    "supplied_law_fidelity": "unqualified",
+    "physical_response_qualified": false,
+    "native_production_scaling": {
+     "source_label": "evaluator_sm",
+     "weights": {
+      "csgf": 34016.6,
+      "csvbf": 4320.54827,
+      "cswh": 1604.63665,
+      "cszh": 859.749204,
+      "cstth": 401.220588,
+      "csTEVgf": 949.3,
+      "csTEVvbf": 65.328,
+      "csTEVwh": 129.5,
+      "csTEVzh": 78.5,
+      "csTEVtth": 0.0,
+      "cs7gf": 15310,
+      "cs7vbf": 1211,
+      "cs7wh": 572.9,
+      "cs7zh": 315.8,
+      "cs7tth": 86.34,
+      "cs8gf": 19520.0,
+      "cs8vbf": 1559.0,
+      "cs8wh": 696.6,
+      "cs8zh": 394.3,
+      "cs8tth": 130.2,
+      "cs13gf": 48580,
+      "cs13vbf": 3782,
+      "cs13wh": 1373,
+      "cs13zh": 883.9,
+      "cs13tth": 507.1,
+      "cs13bbh": 552.9,
+      "cs14gf": 49470,
+      "cs14vbf": 4233,
+      "cs14wh": 1522,
+      "cs14zh": 969.0,
+      "cs14tth": 611.3,
+      "cs14bbh": 552.9,
+      "cs27gf": 140310.5161716833,
+      "cs27vbf": 12347.09907111596,
+      "cs27wh": 3594.562875215168,
+      "cs27zh": 2341.994481533261,
+      "cs27tth": 3182.348140702267,
+      "cssiggf": 1.0,
+      "cssigvbf": 1.0,
+      "cssigwh": 1.0,
+      "cssigzh": 1.0,
+      "cssigtth": 1.0
+     },
+     "expression": "smeft_ind = (sm_values[:, None] * smeft) * luminosity",
+     "active_block": "Exactly one complete five-production block is nonzero after native SM/luminosity scaling."
+    },
+    "published_full_card_support": {
+     "Higgs_Full.json": {
+      "original_rows": 288,
+      "status": "held_unresolved_physical_response",
+      "hold_id": "SFITTER-HIGGS5019-RESPONSE",
+      "source_card": {
+       "path": "sfitter/data/Higgs_Full.json",
+       "sha256": "8ae0a8bad6d38e570efe158b3a10717bce514909a2dd57d3e96dfd5229f756d0"
+      },
+      "source_original_row": 197
+     },
+     "Higgs_Full_with_CtG.json": {
+      "original_rows": 289,
+      "status": "held_unresolved_physical_response",
+      "hold_id": "SFITTER-HIGGS5019-RESPONSE",
+      "source_card": {
+       "path": "sfitter/data/Higgs_Full_with_CtG.json",
+       "sha256": "60d0fbd5ca396512d7921737e63254c21e6084b53ee5599c4d9d4f4cf28980b8"
+      },
+      "source_original_row": 197
+     }
+    },
+    "input_disposition_note": "The 5019 response stays held by the defect record until an authenticated resolution is supplied."
+   }
+  },
+  {
+   "input_fingerprint": "30af8c6b05e4b505e3ea70bbd33fd90896c265d62ad88a60843745f5e32391ee",
+   "assumptions": [
+    {
+     "id": "SFITTER-TTH-PRODUCTION-UNIT",
+     "kind": "ttH_production_ratio_fixed_one",
+     "source_label": "evaluator_predictions",
+     "function": "Predictions.compute",
+     "line_start": 490,
+     "line_end": 490,
+     "expression": "cstthdelta = torch.ones_like(csgdelta)",
+     "production_ratio": 1.0,
+     "production_order": [
+      "ggF",
+      "ttH",
+      "VBF",
+      "WH",
+      "ZH"
+     ],
+     "branching_ratios_and_total_width": "remain parameter-dependent in native source",
+     "general_ttH_EFT_response_qualified": false,
+     "physical_applicability": "unqualified",
+     "physics_validated": false
+    }
+   ],
+   "support": {
+    "generic_backend_algorithm": "supported_source_contract",
+    "supplied_law_fidelity": "unqualified",
+    "physical_response_qualified": false,
+    "native_production_scaling": {
+     "source_label": "evaluator_sm",
+     "weights": {
+      "csgf": 34016.6,
+      "csvbf": 4320.54827,
+      "cswh": 1604.63665,
+      "cszh": 859.749204,
+      "cstth": 401.220588,
+      "csTEVgf": 949.3,
+      "csTEVvbf": 65.328,
+      "csTEVwh": 129.5,
+      "csTEVzh": 78.5,
+      "csTEVtth": 0.0,
+      "cs7gf": 15310,
+      "cs7vbf": 1211,
+      "cs7wh": 572.9,
+      "cs7zh": 315.8,
+      "cs7tth": 86.34,
+      "cs8gf": 19520.0,
+      "cs8vbf": 1559.0,
+      "cs8wh": 696.6,
+      "cs8zh": 394.3,
+      "cs8tth": 130.2,
+      "cs13gf": 48580,
+      "cs13vbf": 3782,
+      "cs13wh": 1373,
+      "cs13zh": 883.9,
+      "cs13tth": 507.1,
+      "cs13bbh": 552.9,
+      "cs14gf": 49470,
+      "cs14vbf": 4233,
+      "cs14wh": 1522,
+      "cs14zh": 969.0,
+      "cs14tth": 611.3,
+      "cs14bbh": 552.9,
+      "cs27gf": 140310.5161716833,
+      "cs27vbf": 12347.09907111596,
+      "cs27wh": 3594.562875215168,
+      "cs27zh": 2341.994481533261,
+      "cs27tth": 3182.348140702267,
+      "cssiggf": 1.0,
+      "cssigvbf": 1.0,
+      "cssigwh": 1.0,
+      "cssigzh": 1.0,
+      "cssigtth": 1.0
+     },
+     "expression": "smeft_ind = (sm_values[:, None] * smeft) * luminosity",
+     "active_block": "Exactly one complete five-production block is nonzero after native SM/luminosity scaling."
+    },
+    "published_full_card_support": {
+     "Higgs_Full.json": {
+      "original_rows": 288,
+      "status": "held_unresolved_physical_response",
+      "hold_id": "SFITTER-HIGGS5019-RESPONSE",
+      "source_card": {
+       "path": "sfitter/data/Higgs_Full.json",
+       "sha256": "8ae0a8bad6d38e570efe158b3a10717bce514909a2dd57d3e96dfd5229f756d0"
+      },
+      "source_original_row": 197
+     },
+     "Higgs_Full_with_CtG.json": {
+      "original_rows": 289,
+      "status": "held_unresolved_physical_response",
+      "hold_id": "SFITTER-HIGGS5019-RESPONSE",
+      "source_card": {
+       "path": "sfitter/data/Higgs_Full_with_CtG.json",
+       "sha256": "60d0fbd5ca396512d7921737e63254c21e6084b53ee5599c4d9d4f4cf28980b8"
+      },
+      "source_original_row": 197
+     }
+    },
+    "input_disposition_note": "The 5019 response stays held by the defect record until an authenticated resolution is supplied."
+   }
+  }
+ ],
+ "defects": [
+  {
+   "id": "SFITTER-HIGGS5019-RESPONSE",
+   "source": "card",
+   "observation_pointer": "/observations/197",
+   "prediction_pointer": "/predictions/197",
+   "reason": "Original row 197 / ID 5019 pairs measurement MuATLAS13tthLep1l2tau (decays brw,brz,brtau) with prediction MuATLAS13tthLep2lOS1tau; the physical response of the pair is unresolved and the adjacent 5018 response needs review. Names, purpose or IDs cannot resolve it.",
+   "resolution_required": "Authenticated response derivation/correction with channel, production/decay acceptance, total-width convention and uncertainty treatment; renaming, normalization or software success cannot clear this hold."
+  }
+ ],
+ "resolutions": []
+}

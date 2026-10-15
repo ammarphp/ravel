@@ -7,10 +7,13 @@ into ordered, fully expanded step lists for one platform and prefix.
 from __future__ import annotations
 
 import json
+import hashlib
+import copy
 import os
 from pathlib import Path
 import platform as _platform
 import re
+from copy import deepcopy
 
 SCHEMA_VERSION = 2
 MAX_JSON_BYTES = 4 * 1024 * 1024
@@ -19,7 +22,7 @@ ROUTES = ("native", "container", "remote", "manual", "unsupported")
 STEP_KINDS = {
     "manual", "miniforge", "conda_env", "pip", "git", "archive", "download", "pdf_sets", "command",
     "container_pull", "container_build", "wrapper", "options_file", "link_children", "write_file",
-    "verify_file",
+    "verify_file", "container_run", "native_compile",
 }
 # Group qualification labels (tools-and-validation census 2.2): E qualified, S/I built but unqualified,
 # E- failed, P not built.
@@ -29,7 +32,7 @@ CHECK_KINDS = {"file", "directory", "executable", "probe", "provider", "wolfram"
 # Variables the engine defines for every step. Anything else in braces is an error.
 ENGINE_VARIABLES = ("P", "REPO", "SUBDIR", "PLATFORM", "JOBS", "CONDA", "ENVS", "TOOLS", "BIN", "SHARE",
                     "LHAPDF_DATA", "DOWNLOADS", "CONFIG", "CONTAINERS", "HOST_PYTHON", "INSTALLER_PYTHON",
-                    "CONTAINER_ENGINE", "OCI_PLATFORM")
+                    "CONTAINER_ENGINE", "OCI_PLATFORM", "LCG_VIEW")
 CONDA_SUBDIRS = {"macos-arm64": "osx-arm64", "macos-x86_64": "osx-64",
                  "linux-x86_64": "linux-64", "linux-aarch64": "linux-aarch64"}
 OCI_PLATFORMS = {"macos-arm64": "linux/arm64", "macos-x86_64": "linux/amd64",
@@ -39,6 +42,11 @@ _SHELL_VARIABLE = re.compile(r"\$\{?[A-Za-z_][A-Za-z0-9_]*")
 _HEX40 = re.compile(r"^[0-9a-f]{40}$")
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _HEX32 = re.compile(r"^[0-9a-f]{32}$")
+SM_PDF_SET_NAMES = (
+    "PDF4LHC21_40_pdfas", "NNPDF40_nnlo_as_01180", "NNPDF40_nnlo_pdfas",
+    "NNPDF40_nnlo_as_01160", "NNPDF40_nnlo_as_01200", "MSHT20nnlo_as118",
+    "CT18ZNNLO", "NNPDF31_nnlo_as_0118", "ATLASpdf21_T3", "ABMP16_5_nnlo",
+)
 
 
 class ManifestError(ValueError):
@@ -80,12 +88,181 @@ def manifest_path(repo=None):
     return Path(repo or repo_root()) / "native/setup/toolchain-manifest.json"
 
 
+def _fragment_files(repo):
+    directory = Path(repo) / "native/setup/groups"
+    _require(not directory.is_symlink(), str(directory) + ": symlink directory refused")
+    if not directory.exists():
+        return []
+    _require(directory.is_dir(), str(directory) + ": directory required")
+    files = []
+    for path in sorted(directory.iterdir()):
+        _require(not path.is_symlink(), str(path) + ": symlink refused")
+        _require(path.is_file(), str(path) + ": regular file required")
+        if path.name in ("README.md", "group.schema.json"):
+            continue
+        _require(path.suffix == ".json", str(path) + ": regular .json fragment required")
+        files.append(path)
+    return files
+
+
+def _read_fragment(path):
+    try:
+        return read_json(path)
+    except (ValueError, UnicodeError) as exc:
+        raise ManifestError(str(path) + ": " + str(exc)) from exc
+
+
+def _fragment_group(path, wrapper):
+    where = str(path)
+    _require(isinstance(wrapper, dict), where + ": fragment wrapper must be an object")
+    _require(set(wrapper) <= {"group", "unreleased"},
+             where + ": unknown wrapper key(s): " + ", ".join(sorted(set(wrapper) - {"group", "unreleased"})))
+    group = wrapper.get("group")
+    _require(isinstance(group, dict) and isinstance(group.get("id"), str) and group["id"],
+             where + ": exactly one group object with an id required")
+    gid = group["id"]
+    if "unreleased" in wrapper:
+        rows = wrapper["unreleased"]
+        _require(isinstance(rows, dict) and set(rows) == {"groups", "operations"},
+                 where + ": unreleased needs only groups and operations")
+        _require(isinstance(rows["groups"], list) and len(rows["groups"]) == 1,
+                 where + ": unreleased needs one own-group row for " + gid)
+        row = rows["groups"][0]
+        _require(isinstance(row, dict) and row.get("id") == gid,
+                 where + ": unreleased row must name " + gid + ", got " + repr(row))
+        _require(all(isinstance(row.get(k), str) and row[k] for k in ("check", "reason")),
+                 where + ": unreleased check and reason required for " + gid)
+        _require("display_terms" not in row or (isinstance(row["display_terms"], list)
+                 and all(isinstance(t, str) for t in row["display_terms"])),
+                 where + ": display_terms must be strings for " + gid)
+        _require(set(row) <= {"id", "check", "reason", "display_terms"},
+                 where + ": unknown unreleased group field for " + gid)
+        _require(isinstance(rows["operations"], list), where + ": unreleased operations list required")
+        for row in rows["operations"]:
+            _require(isinstance(row, dict) and set(row) == {"mode", "groups"}
+                     and isinstance(row.get("mode"), str) and row["mode"] and row.get("groups") == [gid],
+                     where + ": unreleased operation must name only " + gid + ", got " + repr(row))
+    return group
+
+
+def _assemble(main, main_path, fragments):
+    """Pure assembler, also used to verify a proposed structural split before writes."""
+    document = copy.deepcopy(main)
+    order = document.pop("group_order", None)
+    # Old staged trees can be partial documents; with no fragments no expansion is needed.
+    if not fragments and order is None:
+        return document, {}
+    inline = document.get("groups")
+    _require(isinstance(inline, list), str(main_path) + ": groups list required")
+    groups, sources = {}, {}
+
+    def add(group, path):
+        _require(isinstance(group, dict) and isinstance(group.get("id"), str), str(path) + ": group id required")
+        gid = group["id"]
+        _require(gid not in groups, f"duplicate group {gid}: {sources.get(gid)} and {path}")
+        groups[gid], sources[gid] = group, Path(path)
+
+    for group in inline:
+        add(group, main_path)
+    pending = []
+    for path, wrapper in fragments:
+        group = _fragment_group(path, wrapper)
+        add(copy.deepcopy(group), path)
+        pending.append((path, wrapper, group["id"]))
+    for path, wrapper, gid in pending:
+        _require(path.stem == gid, f"{path}: filename stem differs from group id {gid}")
+        if "unreleased" in wrapper:
+            held = document.setdefault("unreleased", {"groups": [], "operations": []})
+            for key in ("groups", "operations"):
+                for row in wrapper["unreleased"][key]:
+                    identity = "id" if key == "groups" else "mode"
+                    _require(not any(r.get(identity) == row.get(identity) for r in held.setdefault(key, [])),
+                             f"{main_path} and {path}: duplicate unreleased {row.get(identity)} for {gid}")
+                    held[key].append(copy.deepcopy(row))
+    positioned = order if order is not None else [g["id"] for g in inline]
+    _require(isinstance(positioned, list) and all(isinstance(g, str) for g in positioned)
+             and len(set(positioned)) == len(positioned), str(main_path) + ": group_order must contain unique ids")
+    _require(set(positioned) <= groups.keys(), str(main_path) + ": group_order names missing id(s): "
+             + ", ".join(sorted(set(positioned) - groups.keys())))
+    priority = positioned + [gid for _, _, gid in pending if gid not in positioned]
+    priority += [gid for gid in groups if gid not in priority]
+    for gid, group in groups.items():
+        deps = group.get("depends_on", [])
+        _require(isinstance(deps, list) and all(isinstance(d, str) for d in deps),
+                 f"{sources[gid]}: {gid}: dependencies list required")
+        missing = set(deps) - groups.keys()
+        _require(not missing, f"{sources[gid]}: {gid}: unknown dependencies: " + ", ".join(sorted(missing)))
+    ordered, remaining = [], list(priority)
+    while remaining:
+        ready = next((gid for gid in remaining if set(groups[gid].get("depends_on", [])) <= set(ordered)), None)
+        _require(ready is not None, "dependency cycle: " + ", ".join(f"{gid} ({sources[gid]})" for gid in remaining))
+        ordered.append(ready)
+        remaining.remove(ready)
+    document["groups"] = [groups[gid] for gid in ordered]
+    checks = {}
+    for gid in ordered:
+        for check in groups[gid].get("checks", []):
+            _require(isinstance(check, dict) and isinstance(check.get("id"), str) and check["id"],
+                     f"{sources[gid]}: {gid}: check id required")
+            cid = check["id"]
+            _require(cid not in checks, f"duplicate check id {cid}: {checks.get(cid)} and {sources[gid]} ({gid})")
+            checks[cid] = sources[gid]
+    held = unreleased_groups(document)
+    default = document.get("default")
+    if pending:
+        _require(isinstance(default, dict) and isinstance(default.get("groups"), list),
+                 str(main_path) + ": default groups required for fragment expansion")
+        additions = [gid for gid in ordered if gid in {g for _, _, g in pending}
+                     and gid not in default["groups"] and gid not in held]
+        default["groups"].extend(additions)
+        if additions:
+            from decimal import Decimal
+            for gid in additions:
+                _require(isinstance(groups[gid].get("size_gb"), (int, float)),
+                         f"{sources[gid]}: {gid}: size_gb required")
+            default["disk_gb"] = float(Decimal(str(default["disk_gb"]))
+                                      + sum(Decimal(str(groups[g]["size_gb"])) for g in additions))
+    return document, sources
+
+
+def _tree_view(repo):
+    path = manifest_path(repo)
+    from ravel.setup.pin_sources import resolve
+    document, sources = _assemble(read_json(path), path, [(p, _read_fragment(p)) for p in _fragment_files(repo)])
+    return resolve(document, repo), sources
+
+
+def view(root=None):
+    """Merge one tree's main manifest and fragments without catalogue/full validation.
+
+    Wrapper, source collision and dependency checks apply here; ``load`` additionally
+    applies the complete schema, licence policy and PDF-set catalogue validator.
+    Structural ``group_order`` metadata is consumed, never included in the result.
+    """
+    return _tree_view(Path(root or repo_root()))[0]
+
+
+def canonical_sha256(document):
+    """Digest the merged document with sorted keys and compact JSON separators."""
+    return hashlib.sha256(json.dumps(document, sort_keys=True, separators=(",", ":"),
+                                     allow_nan=False).encode()).hexdigest()
+
+
 def load(repo=None):
-    """Read and validate the manifest plus its PDF-set catalogue."""
+    """Read and validate the merged manifest plus its PDF-set catalogue."""
     repo = Path(repo or repo_root())
-    document = read_json(manifest_path(repo))
+    document, sources = _tree_view(repo)
     catalog = read_json(repo / document.get("pdf_sets", "native/setup/pdf-sets.json"))
-    validate(document, catalog)
+    try:
+        validate(document, catalog)
+    except ManifestError as exc:
+        paths = {str(path) for gid, path in sources.items()
+                 if re.search(r"(?<![a-zA-Z0-9_-])" + re.escape(gid) + r"(?![a-zA-Z0-9_-])", str(exc))}
+        if not paths:
+            # Some existing cross-group validators emit no group id in their message.
+            paths = {f"{gid} ({path})" for gid, path in sources.items() if path != manifest_path(repo)}
+            paths.add(str(manifest_path(repo)))
+        raise ManifestError(str(exc) + " [source: " + ", ".join(sorted(paths)) + "]") from exc
     return document, catalog
 
 
@@ -202,6 +379,7 @@ def variables(prefix, repo, platform_key, *, jobs=None, container_engine=None, i
         "CONFIG": str(prefix / "config"), "CONTAINERS": str(prefix / "containers"),
         "HOST_PYTHON": str(repo / ".venv/bin/python"),
         "INSTALLER_PYTHON": installer_python or str(tools / "miniforge3/bin/python"),
+        "LCG_VIEW": "",
         "CONTAINER_ENGINE": container_engine or str(prefix / "bin/ravel-podman"),
         "OCI_PLATFORM": OCI_PLATFORMS[platform_key],
     }
@@ -286,6 +464,25 @@ def _check_step(group_id, step, step_ids):
                  where + ": image digest sha256:<64 hex> required")
         _require("@" not in str(step.get("image", "")) and ":" not in str(step.get("image", "")).split("/")[-1],
                  where + ": image must be named without tag or digest; the digest field pins it")
+    elif kind == "container_build":
+        for field in ("containerfile", "context", "platform", "tag", "receipt"):
+            _require(isinstance(step.get(field), str) and step[field], where + ": " + field + " required")
+    elif kind == "container_run":
+        for field in ("source", "overlay", "build", "image_receipt", "launcher", "installation", "program"):
+            _require(isinstance(step.get(field), str) and step[field], where + ": " + field + " required")
+        _require(step.get("argv") == ["/opt/ravel/bin/build-mcfm.sh", step["source"], step["overlay"], step["build"]],
+                 where + ": argv must be the declared MCFM build command")
+        _require(re.fullmatch(r"[A-Za-z0-9_.-]+", step["program"]) is not None, where + ": plain program name required")
+        _require(bool(step.get("outputs")), where + ": declared outputs required")
+    elif kind == "native_compile":
+        for field in ("source", "overlay", "build", "toolchain", "installation", "program"):
+            _require(isinstance(step.get(field), str) and step[field], where + ": " + field + " required")
+        _require(step.get("argv") == ["{REPO}/native/containers/mcfm/build-mcfm.sh", step["source"], step["overlay"],
+                                      step["build"]], where + ": argv must be the declared MCFM build command")
+        _require(re.fullmatch(r"[A-Za-z0-9_.-]+", step["program"]) is not None, where + ": plain program name required")
+        _require(bool(step.get("outputs")), where + ": declared outputs required")
+        _require(set(step.get("platforms", ())) <= {"linux-x86_64"} and step.get("platforms"),
+                 where + ": a native compile is declared for linux-x86_64 only")
     elif kind == "command":
         _require(isinstance(step.get("argv"), list) and step["argv"], where + ": argv required")
         _require(step["argv"][0] not in ("sh", "bash", "zsh") or step["argv"][1:2] != ["-c"],
@@ -319,10 +516,22 @@ def _check_check(group, check, check_ids):
         _require(isinstance(probe.get("argv"), list) and probe["argv"], where + ": probe argv required")
         if "regex" in probe:
             re.compile(probe["regex"])
+        _require(isinstance(probe.get("json_status", ""), str), where + ": probe json_status must be a string")
     for text in _strings(check):
         _require(not _SHELL_VARIABLE.search(text), where + ": shell variable in " + repr(text))
         for name in _VARIABLE.findall(text):
             _require(name in ENGINE_VARIABLES or name == "path", where + ": undefined variable {" + name + "}")
+
+
+def _ancestors(groups, gid):
+    byid = {g.get("id"): g for g in groups if isinstance(g, dict)}
+    seen, pending = set(), list(byid[gid].get("depends_on") or [])
+    while pending:
+        item = pending.pop()
+        if item not in seen and item in byid:
+            seen.add(item)
+            pending += list(byid[item].get("depends_on") or [])
+    return seen
 
 
 def validate(document, catalog=None):
@@ -335,6 +544,11 @@ def validate(document, catalog=None):
     for group in groups:
         _require(isinstance(group, dict) and isinstance(group.get("id"), str), "group id required")
         gid = group["id"]
+        _require("optional" not in group, gid + ": optional field refused")
+        for key in ("title", "description", "notes"):
+            _require(not re.search(r"\b(?:optional|add-on|addon|extra|if installed|when available)\b",
+                                   json.dumps(group.get(key, "")), re.I),
+                     gid + ": tool label refused: " + str(group.get(key, "")))
         _require(gid not in seen, "duplicate group " + gid)
         _require(isinstance(group.get("title"), str) and group["title"], gid + ": title required")
         depends = group.get("depends_on")
@@ -369,6 +583,9 @@ def validate(document, catalog=None):
             _require(all(isinstance(group["hold"].get(k), str) and group["hold"][k] for k in ("reason", "status"))
                      and isinstance(group["hold"].get("request_classes"), list) and group["hold"]["request_classes"],
                      gid + ": hold needs reason, status and request_classes")
+        if gid != "python-host" and "{HOST_PYTHON}" in json.dumps(group.get("steps", [])):
+            _require("python-host" in _ancestors(groups, gid),
+                     gid + ": a step that runs {HOST_PYTHON} needs the python-host group among its dependencies")
         step_ids = set()
         _require(isinstance(group.get("steps"), list), gid + ": steps list required")
         for step in group["steps"]:
@@ -406,7 +623,7 @@ def validate(document, catalog=None):
              "container_build entry (module, argv) required")
     for text in entry["argv"]:
         for name in _VARIABLE.findall(text):
-            _require(name in ENGINE_VARIABLES or name == "RECIPE", "container_build: undefined variable {" + name + "}")
+            _require(name in ENGINE_VARIABLES or name in ("RECIPE", "CONTAINERFILE", "BUILD_CONTEXT", "IMAGE_TAG", "IMAGE_PLATFORM", "BUILD_RECEIPT"), "container_build: undefined variable {" + name + "}")
     for row in document.get("refusal_classes", []):
         _require(all(isinstance(row.get(k), str) and row[k] for k in
                      ("id", "title", "refused", "why", "refused_by", "would_make_it_possible"))
@@ -420,10 +637,43 @@ def validate(document, catalog=None):
         validate_pdf_sets(catalog)
     from ravel.setup.licence_policy import validate as validate_licence_policy
     validate_licence_policy(document)
+    from ravel.setup.gpl_isolation import validate as validate_gpl_isolation
+    validate_gpl_isolation(document)
     return document
 
 
-def validate_pdf_sets(catalog):
+def validate_sm_pdf_pins(pins):
+    """Validate the acquired source facts before they enter the PDF catalogue."""
+    _require(isinstance(pins, dict) and pins.get("schema_version") == 1
+             and pins.get("kind") == "ravel-sm-pdf-pins", "SM PDF pins schema 1 expected")
+    rows = pins.get("sets")
+    _require(isinstance(rows, list) and all(isinstance(row, dict) for row in rows),
+             "SM PDF pins require a list of set rows")
+    names = [row.get("name") for row in rows]
+    _require(tuple(names) == SM_PDF_SET_NAMES, "SM PDF pins must preserve the declared set order")
+    for row in rows:
+        name = row["name"]
+        _require(isinstance(row.get("lhaid"), int) and row["lhaid"] > 0, name + ": LHAID required")
+        _require(isinstance(row.get("size"), int) and row["size"] > 0, name + ": size required")
+        _require(isinstance(row.get("sha256"), str) and _HEX64.fullmatch(row["sha256"]) is not None,
+                 name + ": sha256 required")
+        _require(isinstance(row.get("used_for"), str) and row["used_for"].strip(), name + ": used_for required")
+    return pins
+
+
+def append_sm_pdf_sets(catalog, pins):
+    """Append acquired SM set facts without rewriting established catalogue rows."""
+    validate_sm_pdf_pins(pins)
+    result = deepcopy(catalog)
+    names = {row.get("name") for row in result.get("sets", [])}
+    collisions = names & set(SM_PDF_SET_NAMES)
+    _require(not collisions, "SM PDF set already present: " + ", ".join(sorted(collisions)))
+    result.setdefault("sets", []).extend({**row, "digest_status": "single-download"} for row in pins["sets"])
+    validate_pdf_sets(result, sm_pins=pins)
+    return result
+
+
+def validate_pdf_sets(catalog, *, sm_pins=None):
     _require(isinstance(catalog, dict) and catalog.get("schema_version") == 1
              and catalog.get("kind") == "ravel-lhapdf-sets", "PDF-set catalogue schema 1 expected")
     _require(str(catalog.get("base_url", "")).startswith("https://"), "PDF-set base_url must be https")
@@ -438,6 +688,16 @@ def validate_pdf_sets(catalog):
         _require(isinstance(row.get("size"), int) and row["size"] > 0, name + ": size required")
         _check_digest("PDF set " + name, row)
     _require(names, "at least one PDF set required")
+    if sm_pins is not None:
+        validate_sm_pdf_pins(sm_pins)
+        expected = {row["name"]: row for row in sm_pins["sets"]}
+        actual = {row["name"]: row for row in catalog["sets"]}
+        for name, pin in expected.items():
+            _require(name in actual, name + ": missing pinned PDF set")
+            for field in ("lhaid", "size", "sha256", "used_for"):
+                _require(actual[name].get(field) == pin[field], name + ": " + field + " must match sm-pins")
+            _require(actual[name].get("digest_status") == "single-download",
+                     name + ": digest status must remain single-download until independently verified")
     return catalog
 
 
@@ -448,3 +708,23 @@ def lint_unknown_variables(document):
         for text in _strings(group.get("steps", [])):
             found.update(_VARIABLE.findall(text))
     return found
+
+
+def main(argv=None):
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="command", required=True)
+    command = sub.add_parser("view", help="Read the merged toolchain document")
+    command.add_argument("--root", type=Path)
+    command.add_argument("--canonical-sha256", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        document = view(args.root)
+        print(canonical_sha256(document) if args.canonical_sha256 else json.dumps(document, indent=2))
+        return 0
+    except (OSError, ValueError) as exc:
+        parser.exit(1, str(exc) + "\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

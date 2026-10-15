@@ -1,0 +1,25 @@
+{
+  "groups": [
+    {
+      "group": "higgstools",
+      "status": "ready",
+      "checks": [
+        {
+          "id": "higgstools-python",
+          "status": "ready",
+          "found": "synthetic-version"
+        },
+        {
+          "id": "hbdataset",
+          "status": "ready",
+          "found": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "id": "hsdataset",
+          "status": "ready",
+          "found": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    }
+  ]
+}

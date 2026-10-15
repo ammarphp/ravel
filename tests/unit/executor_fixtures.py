@@ -70,21 +70,24 @@ def no_self_checks(monkeypatch):
     monkeypatch.setattr(role_registry, 'self_checks', lambda role, **k: [])
 
 
-def reviewed(rundir, spec, ws, findings):
-    """Close a review attempt as a transport adapter would: the output through the broker, and an
-    execution record with a transport attestation and a distinct session and actor. The dispatcher
-    writes the version-2 receipt and registers it; that receipt is the review credit."""
+TRANSPORT = 'synthetic-cli'
+
+
+def reviewed(rundir, spec, ws, findings, **options):
+    """Close a review attempt as the dispatcher and a CLI transport adapter do: the output through
+    the broker, then a supervised launch whose adapter observes a transport attestation and a
+    distinct session. The dispatcher assigns the actor at spawn, writes the version-3 receipt and
+    registers it with that actor; that receipt is the review credit."""
     from ravel.workflow import broker
+    from worker_supervision import descriptor, supervised
+    role = spec['role']['id']
     tool = broker.Broker(rundir, ws, node_id=spec['node_id'], attempt=spec['attempt'], allowed_actions=['write'],
                          max_calls=100)
     reply = tool.call({'call_id': 'put-' + spec['node_id'], 'action': 'write',
                        'args': {'path': 'outputs/review.json', 'content': json.dumps({'findings': findings})}})
     assert reply['status'] == 'ok', reply
-    role = spec['role']['id']
-    execution = {'exit_status': 0, 'attestation': 'transport_attested', 'session_id': spec['node_id'],
-                 'actor_id': spec['node_id'], 'model': {'requested': None, 'observed': None, 'family': role, 'effort': None}}
-    return agent_worker.finish(rundir, spec, execution=execution,
-                               final={'completed': True, 'disposition': 'supported', 'findings': findings})
+    return supervised(rundir, spec, session=spec['node_id'], launch_spec=descriptor(transport_id=TRANSPORT, family=role),
+                      final={'completed': True, 'disposition': 'supported', 'findings': findings}, **options)
 
 
 class Workers:
@@ -106,7 +109,7 @@ class Workers:
             self.fail.discard(role)
             return agent_worker.finish(rundir, spec, final=None, execution={'exit_status': 1})
         if spec['parent']['map_id'].startswith('review:'):
-            return self._review(rundir, spec, ws, role)
+            return self._review(rundir, spec, ws, role, options)
         order_path = ws / 'inputs/work-order.json'
         if order_path.exists():
             order = json.loads(order_path.read_text())
@@ -116,9 +119,9 @@ class Workers:
                 put(rundir, ws, output['path'], json.dumps(sidecar))
         return agent_worker.finish(rundir, spec, execution={'exit_status': 0}, final={'completed': True})
 
-    def _review(self, rundir, spec, ws, role):
+    def _review(self, rundir, spec, ws, role, options):
         packet = json.loads((ws / 'inputs/review-packet.json').read_text())
-        worker = reviewed(rundir, spec, ws, [])
+        worker = reviewed(rundir, spec, ws, [], **options)
         assert worker['review_subject']['sha256'] == packet['subject_sha256']
         return worker
 

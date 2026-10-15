@@ -76,3 +76,40 @@ def test_receipt_writer_matches_adapter_contract(tmp_path, monkeypatch):
         assert set(pin) == {'path', 'sha256'} and Path(pin['path']).is_relative_to(build)
     linked = json.loads((build / 'linked-libraries.json').read_text())
     assert linked['libraries'][0]['path'] == str(lib.resolve())
+
+
+@pytest.mark.parametrize('recipe', ['mcfm', 'jhugen-mela'])
+def test_amd64_containerfile_pins_the_amd64_base_by_digest(recipe):
+    root = RECIPE.parent / recipe
+    text = (root / 'Containerfile.amd64').read_text()
+    base = json.loads((root / 'base-image.json').read_text())['base_amd64']
+    assert base['platform'] == 'linux/amd64' and base['digest'].startswith('sha256:') and len(base['digest']) == 71
+    assert 'FROM --platform=linux/amd64 ' in text
+    assert oci_local.containerfile_bases(text) == [f"registry.fedoraproject.org/fedora@{base['digest']}"]
+    arm = json.loads((root / 'base-image.json').read_text())['base']
+    assert base['digest'] != arm['digest']
+
+
+def test_wget_stand_in_serves_only_prefetched_files(tmp_path):
+    shim = RECIPE.parent / 'jhugen-mela/wget-from-cache.sh'
+    cache = tmp_path / 'cache'
+    cache.mkdir()
+    (cache / 'collier-1.2.0.tar.gz').write_bytes(b'archive')
+    work = tmp_path / 'work'
+    work.mkdir()
+    env = {'PATH': '/usr/bin:/bin', 'RAVEL_FETCH_CACHE': str(cache)}
+    ok = subprocess.run(['bash', str(shim), '--no-check-certificate', '-q', 'https://host.example/dir/collier-1.2.0.tar.gz'],
+                        cwd=work, env=env)
+    assert ok.returncode == 0 and (work / 'collier-1.2.0.tar.gz').read_bytes() == b'archive'
+    renamed = subprocess.run(['bash', str(shim), '-O', 'x.tgz', 'https://host.example/collier-1.2.0.tar.gz'], cwd=work, env=env)
+    assert renamed.returncode == 0 and (work / 'x.tgz').read_bytes() == b'archive'
+    missing = subprocess.run(['bash', str(shim), 'https://host.example/other.so'], cwd=work, env=env, capture_output=True)
+    assert missing.returncode == 8 and not (work / 'other.so').exists()
+    unset = subprocess.run(['bash', str(shim), 'https://host.example/collier-1.2.0.tar.gz'], cwd=work,
+                           env={'PATH': '/usr/bin:/bin'}, capture_output=True)
+    assert unset.returncode != 0
+
+
+def test_jhugen_mela_amd64_image_carries_tcsh_and_the_fetch_stand_in():
+    text = (RECIPE.parent / 'jhugen-mela/Containerfile.amd64').read_text()
+    assert ' tcsh ' in text and 'wget-from-cache.sh' in text

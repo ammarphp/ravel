@@ -28,7 +28,7 @@ def load_census(path=None, catalog='local'):
 def catalog_provenance(catalog):
     """Where routine coverage came from: the local catalogue's path and digest, or its absence."""
     if catalog is None:
-        return {'status': 'not_built', 'detail': 'build one with `ravel catalogue` to map routine coverage'}
+        return {'status': 'not_built', 'detail': 'no catalogue available; build one with `ravel catalogue` to map routine coverage'}
     return {'status': 'local', 'entries': len(catalog['entries']), 'retrieved_at_utc': catalog['retrieved_at_utc'],
             'sources': sorted(catalog['sources'])}
 
@@ -43,7 +43,7 @@ def _local_catalog():
 
 def _decode(raw, catalog='local'):
     """The census with each catalogue-backed engine's routine entries taken from ``catalog``
-    (the locally built catalogue by default, None for none). Shipped data lists no routine."""
+    (the catalogue `load_catalog()` selects by default, None for none). This census lists no routine itself."""
     data = json.loads(raw)
     if data.get('schema_version') != 1 or data.get('kind') != 'ravel-backend-census':
         raise ValueError('backend census schema1 required')
@@ -241,13 +241,27 @@ def main(argv=None):
     parser.add_argument('--root', type=Path, default=Path.cwd())
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args(argv)
-    expected = render_status(load_census(args.root / 'src/ravel/data/backends/census.json', catalog=None), mf_manifest(args.root))
+    expected = render_tree(args.root)
     target = args.root / STATUS_TABLE
     if args.check:
         return 0 if target.is_file() and target.read_text() == expected else 1
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(expected)
     return 0
+
+
+def render_tree(root):
+    """The table the tree at ``root`` ships, from its own census, catalogue snapshot and manifest."""
+    root = Path(root)
+    return render_status(load_census(root / 'src/ravel/data/backends/census.json', catalog=shipped_catalog(root)),
+                         mf_manifest(root))
+
+
+def shipped_catalog(root):
+    """The snapshot the tree at ``root`` ships, so the generated table never depends on this machine."""
+    from ravel.analysis_catalog import load_catalog
+    path = Path(root) / 'src/ravel/data/analysis-catalog.json'
+    return load_catalog(path) if path.is_file() else None
 
 
 def mf_manifest(root):

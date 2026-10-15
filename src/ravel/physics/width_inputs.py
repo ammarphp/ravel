@@ -14,6 +14,9 @@ from ravel.physics.ma5_saf import Capture, _json, _keys
 from ravel.workflow import task_completion, science
 
 SCOPE = 'supplied_source_width_input_materialization'
+LIBRARY = Path(__file__).resolve().parents[1] / 'data' / 'width_sources'
+DESCRIPTOR_KEYS = ('schema_version', 'kind', 'name', 'source', 'files', 'submission', 'tables', 'reference_metadata',
+                   'analysis', 'analysis_inputs', 'expect')
 
 
 def require(ok, message):
@@ -32,6 +35,88 @@ def number(token): return Fraction(source_tables.number(token))
 def exact(token): return str(number(token))
 
 
+def descriptor_names():
+    """Identifiers of the packaged published-table descriptors."""
+    return sorted(p.stem for p in LIBRARY.glob('*.json'))
+
+
+def load_descriptor(value):
+    """A packaged descriptor by identifier, or an inline descriptor with the same closed shape."""
+    import re
+    if type(value) is str:
+        require(re.fullmatch('[a-z0-9][a-z0-9._-]{0,95}', value), 'descriptor library identifier required')
+        path = LIBRARY / (value + '.json')
+        require(path.is_file(), 'no packaged width source descriptor named ' + repr(value) +
+                '; available: ' + ', '.join(descriptor_names()))
+        value = _json(path.read_bytes())
+        require(value.get('name') == path.stem, 'packaged descriptor name must equal its identifier')
+    _keys(value, DESCRIPTOR_KEYS, 'width source descriptor')
+    require(value['schema_version'] == 1 and value['kind'] == 'width-source-descriptor', 'width source descriptor schema1 required')
+    for key in ('name', 'source'): require(type(value[key]) is str and value[key].strip(), 'descriptor ' + key + ' required')
+    files = value['files']
+    require(type(files) is dict and 2 <= len(files) <= 65 and all(type(k) is str and re.fullmatch('[A-Za-z0-9._-]+', k) and
+            type(v) is str and re.fullmatch('[0-9a-f]{64}', v) for k, v in files.items()),
+            'complete literal source file digests required')
+    require(value['submission'] in files, 'descriptor submission file must be a listed source')
+    require(type(value['analysis_inputs']) is list and set(value['analysis_inputs']) <= {'pdg', 'generation'},
+            'descriptor request inputs must be pdg and generation')
+    contracts.fields(value['analysis'], ('region_ids',))
+    return deepcopy(value)
+
+
+def descriptor_package(selection, base):
+    """Source package for a descriptor selection ``{descriptor, directory, analysis}``.
+
+    ``directory`` holds the descriptor's files under their published names; every digest comes
+    from the descriptor, so a changed byte refuses. The request supplies only what the tables
+    cannot: the resonance PDG identity and the generation convention, plus optional references.
+    """
+    _keys(selection, ('descriptor', 'directory', 'analysis'), 'width source descriptor selection')
+    descriptor = load_descriptor(selection['descriptor'])
+    require(type(selection['directory']) is str and selection['directory'].strip(), 'source directory required')
+    directory = Path(selection['directory'])
+    directory = (directory if directory.is_absolute() else Path(base) / directory).absolute()
+    supplied = selection['analysis']
+    require(type(supplied) is dict and set(descriptor['analysis_inputs']) <= set(supplied) <= set(descriptor['analysis_inputs']) | {'references'},
+            'request must supply exactly ' + ', '.join(descriptor['analysis_inputs']) + ' (and optional references)')
+    analysis = deepcopy(descriptor['analysis']); analysis.update(deepcopy(supplied)); analysis.setdefault('references', [])
+    package = {'schema_version': 1,
+               'sources': {name: {'path': str(directory / name), 'sha256': sha} for name, sha in descriptor['files'].items()},
+               'submission': descriptor['submission'], 'tables': deepcopy(descriptor['tables']),
+               'reference_metadata': deepcopy(descriptor['reference_metadata']), 'analysis': analysis}
+    return package, descriptor['expect']
+
+
+def check_expectations(expect, reference):
+    """Published-record facts the descriptor pins beyond the digests."""
+    _keys(expect, ('table_doi', 'region_windows', 'limit_masses'), 'descriptor expectations')
+    for row in reference['regions']:
+        name = Path(row['source']['path']).name
+        require(row['metadata'].get('table_doi') == expect['table_doi'].get(name), 'published table DOI differs: ' + name)
+    for quantity, row in reference['limits'].items():
+        name = Path(row['source']['path']).name
+        require(row['metadata'].get('table_doi') == expect['table_doi'].get(name), 'published table DOI differs: ' + name)
+    w, m = expect['region_windows'], expect['limit_masses']
+    windows = reference['windows_GeV']
+    require(len(windows) == w['count'] and windows[0][0] == w['first_low'] and windows[-1][1] == w['last_high'],
+            'published region window population differs from the descriptor')
+    for row in reference['limits'].values():
+        masses = row['mass_GeV']
+        require(len(masses) == m['count'] and masses[0] == m['first'] and masses[-1] == m['last'],
+                'published limit mass population differs from the descriptor')
+
+
+def same_qualifiers(actual, declared):
+    """Exact node equality, except a declared plain number matches by numeric value."""
+    if type(actual) is not list or len(actual) != len(declared): return False
+    for a, d in zip(actual, declared):
+        if type(d) is dict and set(d) == {'name', 'units', 'value'} and type(d['value']) in (int, float):
+            if not (type(a) is dict and set(a) == set(d) and a['name'] == d['name'] and a['units'] == d['units']
+                    and number(a['value']) == Fraction(str(d['value']))): return False
+        elif a != d: return False
+    return True
+
+
 def table(raw, pin, mapping):
     """Retain the complete source table; mapping declares exact column metadata."""
     contracts.fields(mapping, ('axis_header', 'columns', 'role'))
@@ -44,7 +129,7 @@ def table(raw, pin, mapping):
     require(type(mapping['columns']) is list and len(columns) == len(mapping['columns']), 'complete ordered supplied column mapping required')
     for col, declared in zip(columns, mapping['columns']):
         _keys(declared, ('header', 'qualifiers'), 'source column mapping')
-        require(col['header'] == declared['header'] and col.get('qualifiers', []) == declared['qualifiers'],
+        require(col['header'] == declared['header'] and same_qualifiers(col.get('qualifiers', []), declared['qualifiers']),
                 'source column differs from supplied header/qualifier mapping')
         for value in col['values']:
             require(set(value) == {'value'} and number(value['value']) >= 0, 'finite nonnegative reference sample required')
@@ -133,7 +218,11 @@ def _load(task, base):
     base = path.parent
     projection = task_completion.binding_projection(d['goal_binding'], base_dir=base)
     for pin in projection['input_pins']: mass_width_grid.read(c, pin, base, document=False)
-    packagepath, package = mass_width_grid.read(c, d['source_package'], base)
+    expect = None
+    if type(d['source_package']) is dict and 'descriptor' in d['source_package']:
+        packagepath = path; package, expect = descriptor_package(d['source_package'], base)
+    else:
+        packagepath, package = mass_width_grid.read(c, d['source_package'], base)
     contracts.fields(package, ('sources', 'analysis', 'tables'))
     require(type(package['sources']) is dict and 2 <= len(package['sources']) <= 65, 'bounded complete supplied source inventory required')
     payloads, pins = {}, {}
@@ -141,6 +230,7 @@ def _load(task, base):
         p, payloads[name] = mass_width_grid.read(c, pin, packagepath.parent, document=False)
         pins[name] = {'path': str(p), 'sha256': hashlib.sha256(payloads[name]).hexdigest(), 'size': len(payloads[name])}
     reference = parse_package(package, payloads, pins)
+    if expect is not None: check_expectations(expect, reference)
     from ravel.workflow.scan_orchestrator import enumerate_axes
     grid = enumerate_axes(d['axes'], maximum=128)
     require(type(d['point_inputs']) is list and len(d['point_inputs']) <= len(grid), 'bounded supplied attachment census required')

@@ -1,0 +1,178 @@
+{
+ "schema_version": 1,
+ "kind": "published-likelihood-registry",
+ "purpose": "Published HistFactory workspaces that ship with the package and the explicit channel maps that join native SimpleAnalysis yield files to them. A map is a complete assignment of every workspace channel to a named native region (with an optional flavour mask) or to null, a declared zero signal. sa2json_native refuses a workspace whose channel set no selected map covers exactly; a map never substitutes for an acceptance validation.",
+ "likelihoods": [
+  {
+   "id": "susy-2018-06-three-lepton",
+   "publication": {
+    "experiment": "ATLAS",
+    "analysis_id": "ATLAS-SUSY-2018-06",
+    "title": "Search for chargino-neutralino production with mass splittings near the electroweak scale in three-lepton final states in sqrt(s)=13 TeV pp collisions with the ATLAS detector",
+    "hepdata_record": "ins1771533",
+    "hepdata_url": "https://www.hepdata.net/record/ins1771533?version=2"
+   },
+   "workspace": {
+    "file": "fixtures/susy-2018-06/BkgOnly.json",
+    "compression": null,
+    "sha256": "c681d290db8e7ef972130ecf578d96e0fff973811ce1dbc0ac8e928854eba2a9",
+    "bytes": 45451,
+    "poi": "mu_SIG",
+    "channels": [
+     "CRlow_cuts",
+     "CRISR_cuts",
+     "SRlow_cuts",
+     "SRISR_cuts"
+    ],
+    "acquisition": "HEPData resources tab, Likelihoods archive, fetched 2026-08-28",
+    "license": "CC BY 4.0"
+   },
+   "signal_patches": [
+    {
+     "file": "fixtures/susy-2018-06/patch_ERJR_300p0_100p0.json",
+     "sha256": "8555e7f04f0bd1fa7682b79a27fe83f2bcb1e24c0ca8dfe48a2ab6897e526fb3",
+     "name": "ERJR_300p0_100p0",
+     "point": {
+      "m_C1N2": 300,
+      "m_N1": 100
+     },
+     "note": "one of 64 patches of the published patch set"
+    }
+   ],
+   "reference_fit": {
+    "file": "fixtures/susy-2018-06/reference_fit.json",
+    "sha256": "2a463c21fbeec992f06628c0080792b03dbc747de6009e10c02566ae6826e437"
+   },
+   "channel_maps": [
+    {
+     "id": "susy-2018-06-three-lepton",
+     "file": "likelihoods/channel_maps/susy-2018-06-three-lepton.json",
+     "sha256": "f120bd30e1266ff9cafc61b35d1f78a1351646a0faa0bb6c6dac65fbb03851bd",
+     "signal_model": "full",
+     "coverage": "all four workspace channels: the low-mass and ISR signal regions and their control regions",
+     "region_source": "Native output regions carry the publication region names SRlow, SRISR, CRlow and CRISR; each workspace channel joins the region of the same name without its _cuts suffix.",
+     "omissions": [],
+     "acceptance_validated": false,
+     "notes": [
+      "A naming join of the publication regions; it does not validate the native acceptance or the control-region yields."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "susy-2018-16-compressed",
+   "publication": {
+    "experiment": "ATLAS",
+    "analysis_id": "ATLAS-SUSY-2018-16",
+    "arxiv": "1911.12606",
+    "title": "Searches for electroweak production of supersymmetric particles with compressed mass spectra in sqrt(s)=13 TeV pp collisions with the ATLAS detector",
+    "hepdata_record": "ins1767649",
+    "hepdata_url": "https://www.hepdata.net/record/ins1767649"
+   },
+   "workspace": {
+    "file": "fixtures/susy-2018-16/BkgOnly.json.gz",
+    "compression": "gzip",
+    "sha256": "f609ddbe3a6f43f01f3ec2725c8244009a750fba349f3698e292a1deaa73b282",
+    "bytes": 1988103,
+    "compressed_sha256": "c251c38af3994a413b1497d0d1d815541691761801e978e1621835061e694142",
+    "poi": "mu_SIG",
+    "channels": [
+     "CRVV_MT2_hghmet_cuts",
+     "CRVV_MT2_lowmet_cuts",
+     "CRtau_MT2_hghmet_cuts",
+     "CRtau_MT2_lowmet_cuts",
+     "CRtop_MT2_hghmet_cuts",
+     "CRtop_MT2_lowmet_cuts",
+     "SRee_eMT2a_hghmet_cuts",
+     "SRee_eMT2a_lowmet_V2_cuts",
+     "SRee_eMT2b_hghmet_cuts",
+     "SRee_eMT2b_lowmet_V2_cuts",
+     "SRee_eMT2c_hghmet_cuts",
+     "SRee_eMT2c_lowmet_V2_cuts",
+     "SRee_eMT2d_hghmet_cuts",
+     "SRee_eMT2d_lowmet_V2_cuts",
+     "SRee_eMT2e_hghmet_cuts",
+     "SRee_eMT2e_lowmet_V2_cuts",
+     "SRee_eMT2f_hghmet_cuts",
+     "SRee_eMT2f_lowmet_V2_cuts",
+     "SRee_eMT2g_hghmet_cuts",
+     "SRee_eMT2g_lowmet_V2_cuts",
+     "SRee_eMT2h_hghmet_cuts",
+     "SRee_eMT2h_lowmet_V2_cuts",
+     "SRmm_eMT2a_hghmet_cuts",
+     "SRmm_eMT2a_lowmet_V2_cuts",
+     "SRmm_eMT2b_hghmet_cuts",
+     "SRmm_eMT2b_lowmet_V2_cuts",
+     "SRmm_eMT2c_hghmet_cuts",
+     "SRmm_eMT2c_lowmet_V2_cuts",
+     "SRmm_eMT2d_hghmet_cuts",
+     "SRmm_eMT2d_lowmet_V2_cuts",
+     "SRmm_eMT2e_hghmet_cuts",
+     "SRmm_eMT2e_lowmet_V2_cuts",
+     "SRmm_eMT2f_hghmet_cuts",
+     "SRmm_eMT2f_lowmet_V2_cuts",
+     "SRmm_eMT2g_hghmet_cuts",
+     "SRmm_eMT2g_lowmet_V2_cuts",
+     "SRmm_eMT2h_hghmet_cuts",
+     "SRmm_eMT2h_lowmet_V2_cuts"
+    ],
+    "acquisition": "HEPData resources tab, Likelihoods archive",
+    "license": "CC BY 4.0"
+   },
+   "signal_patches": [],
+   "reference_fit": null,
+   "channel_maps": [
+    {
+     "id": "susy-2018-16-compressed-full",
+     "file": "likelihoods/channel_maps/susy-2018-16-compressed-full.json",
+     "sha256": "2d7a63de3300ed52965e48df11f6edd4c050e8ca3c7b193608beed04a5fbda09",
+     "signal_model": "full",
+     "coverage": "32 slepton signal regions (ee and mm flavour masks, eight MT2 bins, high and low MET band) and the six control regions (VV, tau, top; high and low MET band)",
+     "region_source": "Signal channels SR{ee|mm}_eMT2{a-h}_{hghmet|lowmet}[_V2]_cuts join native regions SR_S_{high|low}_eMT2{a-h} with the flavour mask is{ee|mm}; control channels CR{VV|tau|top}_MT2_{hghmet|lowmet}_cuts join CR_S_{VV|tau|top}_{high|low} and carry no flavour mask (the ee, mm, e-mu and mu-e events are combined).",
+     "omissions": [],
+     "control_region_definition": {
+      "source": "https://arxiv.org/abs/1911.12606v2",
+      "tables": [
+       2,
+       5,
+       8
+      ],
+      "acceptance_validated": false,
+      "interval_policy": "strict/open, matching the native signal-region convention",
+      "different_flavour_mass_floor": "none supplied by Table 2; no additional floor invented"
+     },
+     "acceptance_validated": false,
+     "notes": [
+      "A missing control-region branch in a yield file is an error, never a zero."
+     ]
+    },
+    {
+     "id": "susy-2018-16-compressed-sr-only-diagnostic",
+     "file": "likelihoods/channel_maps/susy-2018-16-compressed-sr-only-diagnostic.json",
+     "sha256": "06d6cc623ebcd12fe080a021e98903f557f28e9b9c32754430fc0d2eb0ec415b",
+     "signal_model": "sr-only-diagnostic",
+     "coverage": "the 32 slepton signal regions; the six control regions are declared zero signal",
+     "region_source": "as susy-2018-16-compressed-full for the signal regions",
+     "omissions": [
+      "signal contamination of the six control regions"
+     ],
+     "control_region_definition": {
+      "source": "https://arxiv.org/abs/1911.12606v2",
+      "tables": [
+       2,
+       5,
+       8
+      ],
+      "acceptance_validated": false,
+      "interval_policy": "strict/open, matching the native signal-region convention",
+      "different_flavour_mass_floor": "none supplied by Table 2; no additional floor invented"
+     },
+     "acceptance_validated": false,
+     "notes": [
+      "DIAGNOSTIC ONLY: it omits control-region signal and is not the published signal model."
+     ]
+    }
+   ]
+  }
+ ]
+}

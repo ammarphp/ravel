@@ -1,8 +1,11 @@
 #!/usr/bin/env python
-"""Render supplied model/process recipes without executing a scientific tool.
+"""Render model/process recipes without executing a scientific tool.
 
-The module name is retained for callers. No model, point, PDF, process population,
-cut, or native input path is selected by this renderer. Use --recipe and --rundir.
+The module name is retained for callers. The renderer selects no model, point, PDF,
+process population, cut or native input path on its own: a supplied recipe (--recipe)
+or a named entry of the shipped model-recipe library (--library, see
+data/templates/model_recipes.json) states each choice, and the masses, PDF and run
+controls are bound explicitly. Use --rundir for the destination.
 """
 if not __package__:
     import sys as _sys
@@ -187,11 +190,78 @@ def render_recipe(recipe, *, base, rundir):
             'run_card.dat': render_run(paths['run_template'].read_text(), controls), 'run.mg5': mg5}
 
 
+LIBRARY_CONTROLS_FROM_PLAN = ('nevents', 'iseed', 'ebeam1', 'ebeam2')
+
+
+def _template_path(*parts):
+    from ..paths import package_data_path
+    return package_data_path('templates', *parts)
+
+
+def library_entry(name):
+    """One entry of the shipped model-recipe library, with its recipe document."""
+    index = json.loads(_template_path('model_recipes.json').read_text())
+    entry = index['recipes'].get(name)
+    if entry is None:
+        raise ValueError(f'unknown model recipe {name!r}; the library holds: {", ".join(sorted(index["recipes"]))}')
+    return entry, json.loads(_template_path(entry['recipe']).read_text())
+
+
+def library_paths(name):
+    """Absolute paths of the shipped templates a library recipe renders from."""
+    entry, recipe = library_entry(name)
+    paths = {key: str(_template_path(recipe[key]))
+             for key in ('param_template', 'run_template', 'process_card', 'launch_template')}
+    if 'shower_card' in entry:
+        paths['pythia_card'] = str(_template_path(entry['shower_card']))
+    return paths
+
+
+def library_rendering(name, *, masses, pdf):
+    """Bind the caller's masses and PDF to a library recipe; every other choice is the recipe's own.
+
+    Returns the rendering fields of a version-1 recipe (parameters, bindings, run controls and
+    the masses the rendered card must carry). nevents, iseed and the beam energies come from
+    the plan or the command line, never from the library.
+    """
+    entry, recipe = library_entry(name)
+    names = set(recipe['parameters'])
+    if not isinstance(masses, dict) or set(masses) != names:
+        raise MissingInputError('masses (' + ', '.join(sorted(names)) + ')')
+    if pdf is None:
+        raise MissingInputError('pdf')
+    choice = entry['pdf_choices'].get(pdf)
+    if choice is None:
+        raise ValueError(f'unknown PDF {pdf!r} for recipe {name}; choices: {", ".join(sorted(entry["pdf_choices"]))}')
+    parameters = {key: masses[key] for key in sorted(names)}
+    for value in parameters.values():
+        finite(value)
+    controls = {key: value for key, value in recipe['run_controls'].items()
+                if key not in LIBRARY_CONTROLS_FROM_PLAN and key != 'pdlabel'}
+    controls.update(choice)
+    expected = {str(pdg): parameters[key] for key, meta in entry['parameters'].items() for pdg in meta['pdg']}
+    return {'parameters': parameters, 'bindings': json.loads(json.dumps(recipe['bindings'])),
+            'run_controls': controls, 'expected_masses': expected}
+
+
 def prepare_for_plan(cfg, *, rundir, input_file, nevents, seed, ecms, pdf=None, model=None):
-    """Native adapter seam: supplied rendering rules with original custody and shower checks."""
+    """Native adapter seam: rendering rules with original custody and shower checks.
+
+    The rules are either a supplied ``rendering`` recipe or a named ``library`` entry
+    (``[ravel.native] library = ...``) bound to ``[madgraph.masses]`` and an explicit PDF.
+    """
     from . import native_effective_config as effective
     native = cfg.get('ravel', {}).get('native', {})
-    recipe = required(native, 'rendering')
+    library = native.get('library')
+    defaults = {}
+    if library is not None:
+        if 'rendering' in native:
+            raise ValueError('a library selection and an explicit rendering recipe are exclusive')
+        recipe = {'schema_version': 1, **library_rendering(
+            library, masses=cfg.get('madgraph', {}).get('masses', {}), pdf=pdf or native.get('pdf'))}
+        defaults = library_paths(library)
+    else:
+        recipe = required(native, 'rendering')
     if required(recipe, 'schema_version') != 1:
         raise ValueError('version-1 native rendering recipe required')
     from ..paths import package_data_path
@@ -212,15 +282,17 @@ def prepare_for_plan(cfg, *, rundir, input_file, nevents, seed, ecms, pdf=None, 
             raise ValueError(f'rendering {key} conflicts with declared generation control')
         controls[key] = value
     selected_pdf = pdf or native.get('pdf')
-    if selected_pdf is not None and controls.get('pdlabel') != selected_pdf:
+    expected_label = 'lhapdf' if selected_pdf == 'nnpdf30' else selected_pdf
+    if selected_pdf is not None and controls.get('pdlabel') != expected_label:
         raise ValueError('PDF conflicts with explicit rendering control')
     for key, value in cfg.get('madgraph', {}).get('run', {}).get('options', {}).items():
         if key in authoritative or key in ('pdlabel', 'lhaid', 'ickkw', 'use_syst'):
             raise ValueError(f'run option {key} conflicts with declared native generation controls')
-        if key in controls and not effective.equivalent(controls[key], value):
+        if key in controls and not effective.equivalent(controls[key], value) and library is None:
             raise ValueError(f'run option {key} conflicts with rendering control')
         controls[key] = value
-    selected = {key: str(input_file(key)) for key in ('param_template', 'run_template', 'process_card', 'launch_template')}
+    selected = {key: str(input_file(key, defaults.get(key)))
+                for key in ('param_template', 'run_template', 'process_card', 'launch_template')}
     request = {**recipe, **selected, 'schema_version': 1, 'parameters': parameters,
                'bindings': bindings, 'run_controls': controls}
     rendered = render_recipe(request, base=rundir, rundir=rundir)
@@ -230,7 +302,7 @@ def prepare_for_plan(cfg, *, rundir, input_file, nevents, seed, ecms, pdf=None, 
     for key in ('ktdurham', 'ptlund', 'xqcut'):
         if float(actual.get(key, -1)) > 0:
             raise ValueError(f'active matching/merging control {key} requires a different native adapter')
-    shower = input_file('pythia_card')
+    shower = input_file('pythia_card', defaults.get('pythia_card'))
     rendered['shower.cfg'], translation = effective.translate_shower(cfg, shower,
         lhe=Path(rundir)/'output/madgraph/unweighted_events.lhe', nevents=nevents)
     expected = required(recipe, 'expected_masses')
@@ -255,7 +327,7 @@ def prepare_for_plan(cfg, *, rundir, input_file, nevents, seed, ecms, pdf=None, 
         if str(child) in expected and any(str(p) in expected and abs(float(expected[str(p)])) <= abs(float(expected[str(child)])) for p in parents):
             raise ValueError('declared parent must be heavier than the LSP')
     # The pipeline's own process/model admission still checks scientific compatibility.
-    return rendered, translation, controls, expected, selected_pdf, {'selection': 'supplied rendering recipe',
+    return rendered, translation, controls, expected, selected_pdf, {'selection': f'model-recipe library entry {library}' if library is not None else 'supplied rendering recipe',
         'disposition': 'explicit native.inputs.process_card is authoritative'}
 
 
@@ -274,14 +346,48 @@ def write_shower_cfg(rundir, out, *, cfg, source, nevents, seed=None):
     return translation
 
 
+def _library_request(args):
+    """A full version-1 recipe from a library entry and the command-line bindings."""
+    masses = {}
+    for item in args.parameter or []:
+        name, sep, value = item.partition('=')
+        if not sep:
+            raise ValueError('--parameter expects NAME=VALUE')
+        masses[name] = float(value)
+    for key in ('nevents', 'seed', 'pdf'):
+        if getattr(args, key) is None:
+            raise MissingInputError(key)
+    entry, recipe = library_entry(args.library)
+    request = {'schema_version': 1, **library_paths(args.library),
+               **library_rendering(args.library, masses=masses, pdf=args.pdf)}
+    request.pop('pythia_card', None)
+    ecms = args.ecms if args.ecms is not None else 2*recipe['run_controls']['ebeam1']
+    request['run_controls'].update({'nevents': args.nevents, 'iseed': args.seed,
+                                    'ebeam1': ecms/2, 'ebeam2': ecms/2})
+    return request, _template_path(entry['recipe'])
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--recipe', required=True, help='supplied version-1 JSON rendering recipe')
+    parser.add_argument('--recipe', help='supplied version-1 JSON rendering recipe')
+    parser.add_argument('--library', help='entry of the shipped model-recipe library (data/templates/model_recipes.json)')
+    parser.add_argument('--parameter', action='append', metavar='NAME=VALUE',
+                        help='library recipe parameter, for example a mass in GeV (repeatable)')
+    parser.add_argument('--nevents', type=int, help='library recipe event count')
+    parser.add_argument('--seed', type=int, help='library recipe generator seed')
+    parser.add_argument('--ecms', type=float, help='library recipe collision energy in GeV (default: the recipe)')
+    parser.add_argument('--pdf', help='library recipe PDF choice, as named by the library entry')
     parser.add_argument('--rundir', required=True, help='destination run directory; no tools launched')
     args = parser.parse_args(argv)
-    path = Path(args.recipe).resolve()
-    recipe = json.loads(path.read_text())
-    rendered = render_recipe(recipe, base=path.parent, rundir=args.rundir)
+    if (args.recipe is None) == (args.library is None):
+        parser.error('exactly one of --recipe and --library is required')
+    if args.library is not None:
+        recipe, path = _library_request(args)
+        rendered = render_recipe(recipe, base=path.parent, rundir=args.rundir)
+    else:
+        path = Path(args.recipe).resolve()
+        recipe = json.loads(path.read_text())
+        rendered = render_recipe(recipe, base=path.parent, rundir=args.rundir)
     out = Path(args.rundir)/'output'; out.mkdir(parents=True, exist_ok=True)
     for name, text in rendered.items():
         (out/name).write_text(text)
@@ -291,7 +397,7 @@ def main(argv=None):
         'sources': [fingerprint(source_path(recipe[k], path.parent)) for k in ('param_template', 'run_template', 'process_card', 'launch_template')],
         'cards': {name: fingerprint(out/name) for name in rendered},
         'runtime_consumption': 'unverified; rendering does not authorize or execute a tool'})
-    print(f'prepared supplied recipe -> {out}')
+    print(f'prepared recipe -> {out}')
 
 
 if __name__ == '__main__':

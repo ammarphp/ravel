@@ -108,8 +108,9 @@ all phase/source pins and the complete original slot denominator. It materialize
 through [manuscript_production.py](../../src/ravel/workflow/manuscript_production.py);
 it never forges a single-call receipt representing several calls.
 
-Use the existing source-bound integrity roles on that package, followed by
-fresh visual/CI3 review and `task_completion.require_final`. Failed fits, unscorable quantities, missing
+Use the existing source-bound integrity roles and ordinary manuscript-build
+preparation on that package, followed by fresh compiled visual/CI3 review and
+`task_completion.require_final`. Failed fits, unscorable quantities, missing
 proofs, acquisition failures and unsupported claims remain in the delivered
 record. A format-only edit cannot renew scientific evidence or prior review.
 

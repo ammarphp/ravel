@@ -1,0 +1,38 @@
+{
+ "schema_version": 1,
+ "kind": "sfitter-published-records",
+ "source_commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+ "license": "MIT",
+ "cards": {
+  "Top_Full.json": {
+   "card": {
+    "path": "sfitter/data/Top_Full.json",
+    "sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8"
+   },
+   "repair_manifest": "top-full.repair-manifest.json",
+   "defect_registry": "top-full.defect-registry.json",
+   "original_fingerprint": "c24427a94623b517293497f157bbf1b4431c5066c173aa272c41b6e703e6d0aa",
+   "derived_fingerprint": "23093876790452bd7d53ed6fbe2338644c4dcac6faeb5e3ccae7b32f3480adc5"
+  },
+  "Higgs_Full.json": {
+   "card": {
+    "path": "sfitter/data/Higgs_Full.json",
+    "sha256": "8ae0a8bad6d38e570efe158b3a10717bce514909a2dd57d3e96dfd5229f756d0"
+   },
+   "repair_manifest": "higgs-full.repair-manifest.json",
+   "defect_registry": "higgs-full.defect-registry.json",
+   "original_fingerprint": "a88b2ac9b962a1876d4f64aef0d1eaf447b7788441be691e99dea55d1ff2beba",
+   "derived_fingerprint": "30af8c6b05e4b505e3ea70bbd33fd90896c265d62ad88a60843745f5e32391ee"
+  },
+  "Higgs_Full_with_CtG.json": {
+   "card": {
+    "path": "sfitter/data/Higgs_Full_with_CtG.json",
+    "sha256": "60d0fbd5ca396512d7921737e63254c21e6084b53ee5599c4d9d4f4cf28980b8"
+   },
+   "repair_manifest": "higgs-full-with-ctg.repair-manifest.json",
+   "defect_registry": "higgs-full-with-ctg.defect-registry.json",
+   "original_fingerprint": "db84bc0eeef78a927e4b61ec385814b68965540a6087677aee8db4cf8fd6594c",
+   "derived_fingerprint": "98b5a179fb6bc7af2311327c8a806dca4a9179515be1e499f50db4f48ab8ae1f"
+  }
+ }
+}

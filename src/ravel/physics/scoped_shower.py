@@ -12,12 +12,12 @@ import subprocess
 import sys
 
 RESERVED = re.compile(r'^\s*(Beams|Random|Main|Next|Init):', re.I)
-SETTING = re.compile(r'^[A-Za-z][A-Za-z0-9:_]*\s*=\s*[A-Za-z0-9_.+\-]+$')
+SETTING = re.compile(r'^[A-Za-z0-9][A-Za-z0-9:_]*\s*=\s*[A-Za-z0-9_.+\-]+$')
 
 
 def check(shower):
     """Errors for a shower declaration (engine, python, seed, settings)."""
-    if not isinstance(shower, dict) or set(shower) != {'engine', 'python', 'seed', 'settings'}:
+    if not isinstance(shower, dict) or not {'engine', 'python', 'seed', 'settings'} <= set(shower) <= {'engine', 'python', 'seed', 'settings', 'tune'}:
         return ['shower requires exactly engine, python, seed and settings']
     errors = []
     if shower['engine'] != 'pythia8':
@@ -31,8 +31,15 @@ def check(shower):
         errors.append('shower settings must be a list of at most 64 Key = value strings')
     else:
         for line in settings:
-            if not isinstance(line, str) or not SETTING.match(line) or RESERVED.match(line):
+            slha = isinstance(line, str) and re.fullmatch(r'SLHA:file\s*=\s*[^\s#;!\x00]+', line, re.I)
+            if not isinstance(line, str) or (not SETTING.match(line.split('#', 1)[0].strip()) and not slha) or RESERVED.match(line):
                 errors.append('invalid or reserved shower setting: %r' % (line,))
+    if 'tune' in shower and isinstance(settings, list) and not errors:
+        from ravel.physics.pythia_cards import tune_commands
+        try:
+            tune_commands(shower['tune'], settings)
+        except ValueError as exc:
+            errors.append(str(exc))
     return errors
 
 
@@ -57,8 +64,12 @@ def run_shower(lhe_path, shower, observables, out_dir):
     from ravel.validation.lhe_check import check_science
     check_science(lhe_path, output=out / 'shower-input.lhe_check.json')
     request = out / 'shower-request.json'
+    settings = shower['settings']
+    if 'tune' in shower:
+        from ravel.physics.pythia_cards import tune_commands
+        settings, _ = tune_commands(shower['tune'], settings)
     request.write_text(json.dumps({'lhe': str(Path(lhe_path).absolute()), 'seed': shower['seed'],
-                                   'settings': shower['settings'], 'observables': observables,
+                                   'settings': settings, 'observables': observables,
                                    'output': str(out / 'shower-result.json')}))
     env = {k: v for k, v in os.environ.items() if k in ('PATH', 'HOME', 'TMPDIR', 'LANG')}
     env.update(OMP_NUM_THREADS='1')

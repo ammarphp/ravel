@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "registry-registration",
+  "target": "role-knowledge-bindings",
+  "append": {
+    "roles": {
+      "consult-higgs": {
+        "include": [
+          "conv:higgs"
+        ],
+        "premise_tags": [
+          "higgs",
+          "extended-scalar"
+        ]
+      },
+      "higgs-coupling-analyst": {
+        "include": [
+          "conv:higgs",
+          "trap:TH1",
+          "trap:TH2",
+          "trap:TH3",
+          "trap:TH4",
+          "trap:TH5",
+          "trap:TH6"
+        ],
+        "premise_tags": [
+          "higgs",
+          "extended-scalar"
+        ]
+      },
+      "extended-scalar-modeler": {
+        "include": [
+          "conv:higgs-scalar-basis",
+          "trap:TH7",
+          "trap:TH8",
+          "trap:TH9"
+        ],
+        "premise_tags": [
+          "higgs",
+          "extended-scalar"
+        ]
+      },
+      "higgs-combination-reviewer": {
+        "include": [
+          "conv:higgs",
+          "proto:P2",
+          "trap:TH1",
+          "trap:TH2",
+          "trap:TH3",
+          "trap:TH4",
+          "trap:TH5",
+          "trap:TH6",
+          "trap:TH7",
+          "trap:TH8",
+          "trap:TH9",
+          "trap:TH10",
+          "trap:TH11",
+          "trap:TH12"
+        ],
+        "premise_tags": [
+          "higgs",
+          "extended-scalar"
+        ]
+      },
+      "higgs-theory-uncertainty-auditor": {
+        "include": [
+          "conv:higgs-theory-uncertainty"
+        ],
+        "premise_tags": [
+          "higgs",
+          "extended-scalar"
+        ]
+      }
+    }
+  }
+}

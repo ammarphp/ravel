@@ -110,7 +110,8 @@ def test_required_profiles_exist_and_close_over_dependencies():
         ordered = mf.profile_groups(MANIFEST, name)
         for index, gid in enumerate(ordered):
             assert set(BYID[gid]['depends_on']) <= set(ordered[:index]), (name, gid)
-    assert {'python-host', 'site-root-wms', 'site-access', 'root-combine'} <= set(mf.profile_groups(MANIFEST, 'site'))
+    assert {'python-host', 'site-root-wms', 'site-access', 'publication'} <= set(mf.profile_groups(MANIFEST, 'site'))
+    assert not {'root-combine','tex'} & set(mf.profile_groups(MANIFEST, 'site'))
 
 
 def test_every_group_has_a_check_on_every_platform_it_installs_on():
@@ -178,7 +179,9 @@ def test_container_runtime_stays_inside_the_prefix():
     for variable in ("XDG_CONFIG_HOME", "XDG_DATA_HOME", "CONTAINERS_CONF"):
         assert variable + '="@CONTAINERS@' in template
     assert "rosetta" in steps and steps["rosetta"]["platforms"] == ["macos-arm64"]
-    assert MANIFEST["container_build"]["module"] == "ravel.execution_backend"
+    assert MANIFEST["container_build"]["module"] == "ravel.workflow.execution_backend"
+    assert "image-build" in MANIFEST["container_build"]["argv"]
+    assert "--execute" in MANIFEST["container_build"]["argv"]
 
 
 def test_podman_wrapper_keeps_the_machine_socket_path_short():
@@ -249,6 +252,19 @@ def test_recipes_and_wrappers_referenced_by_steps_exist():
             assert (ROOT / "native/setup/wrappers" / step["template"]).is_file()
         for relative in step.get("inputs", []):
             assert (ROOT / relative).is_file(), relative
+
+
+def test_the_repository_ships_the_hashed_site_wms_lock():
+    # The installer reads the real lock; installer tests that need a lock use the fixture lock in
+    # their own temporary roots (site_install_fixture), never in place of this file.
+    lock = ROOT / 'requirements-site-wms.lock'
+    assert lock.is_file() and (ROOT / 'requirements-site-wms.in').is_file()
+    assert (ROOT / 'scripts/setup/lock_site_wms.sh').is_file()
+    text = lock.read_text()
+    pins = re.findall(r'^([A-Za-z0-9_.-]+)==\S+(?: ;[^\n]*)? \\$', text, re.M)
+    assert pins and 'snakemake' in pins
+    entries = re.split(r'^(?=[A-Za-z0-9_.-]+==)', text, flags=re.M)[1:]
+    assert len(entries) == len(pins) and all('--hash=sha256:' in entry for entry in entries)
 
 
 def test_simpleanalysis_source_fetches_its_restframes_submodule():
@@ -451,3 +467,25 @@ def test_nyx_group_waits_for_the_site_mpi_and_builds_with_the_installed_cmake():
     assert "MPI" in mpi["instruction"] and "rerun the installer" in mpi["instruction"]
     assert build["argv"][build["argv"].index("--env") + 1] == "{ENVS}/host-build"
     assert "compiler-bootstrap" in BYID["nyx"]["depends_on"]
+def test_checkmate_env_has_the_python_modules_its_front_end_imports():
+    step = next(s for s in BYID["checkmate"]["steps"] if s["id"] == "checkmate-env")
+    assert {"future", "matplotlib-base", "jax", "jaxlib"} <= set(step["specs"])
+
+
+def test_default_disk_figure_is_the_sum_of_its_groups():
+    """The preflight and the README read default.disk_gb; the plan sums the groups, so they must agree."""
+    groups = mf.by_id(MANIFEST)
+    total = sum(groups[g]["size_gb"] for g in MANIFEST["default"]["groups"])
+    assert round(total, 1) == MANIFEST["default"]["disk_gb"]
+
+
+def test_the_preflight_figure_in_the_main_file_is_the_merged_default_figure():
+    """The installer preflight reads the main file without Python; no fragment may change the default figure.
+
+    A fragment group that joins the default install adds its size in the merged view only, so a
+    group with a size joins the default install only once it is qualified and its size is in the main file."""
+    main = json.loads((ROOT / "native/setup/toolchain-manifest.json").read_text())
+    assert MANIFEST["default"]["disk_gb"] == main["default"]["disk_gb"]
+    for gid in MANIFEST["default"]["groups"]:
+        if gid not in main["default"]["groups"]:
+            assert BYID[gid]["size_gb"] == 0, gid

@@ -21,6 +21,17 @@ REPO="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}
 HOOK_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/src"
 [ -d "$REPO/src/ravel" ] && HOOK_SRC="$REPO/src"
 [ -d "$HOOK_SRC/ravel" ] && export PYTHONPATH="$HOOK_SRC${PYTHONPATH:+:$PYTHONPATH}"
+# MCP has its own content-free observation ledger, also when no run exists.
+case "$input" in
+  *mcp__*)
+    if printf '%s' "$input" | "${RAVEL_PYTHON:-python3}" -c 'import json,sys; sys.exit(0 if str(json.load(sys.stdin).get("tool_name", "")).startswith("mcp__") else 1)' 2>/dev/null; then
+      if ! printf '%s' "$input" | "${RAVEL_PYTHON:-python3}" -m ravel.workflow.site_tools observe --project "$REPO" >/dev/null 2>&1; then
+        echo "RAVEL hook unavailable: site-tool observation failed" >&2
+        mkdir -p "$REPO/logs" && printf '%s\n' "site-tool observation unavailable" >> "$REPO/logs/hook-failures.log"
+      fi
+      exit 0
+    fi ;;
+esac
 "${RAVEL_PYTHON:-python3}" -c 'import ravel.workflow.workflow_state' >/dev/null 2>&1 || {
   echo "RAVEL hook unavailable: posttooluse-observer cannot import ravel" >&2
   mkdir -p "$REPO/logs" && printf '%s\n' "posttooluse-observer unavailable: ravel import failed" >> "$REPO/logs/hook-failures.log"

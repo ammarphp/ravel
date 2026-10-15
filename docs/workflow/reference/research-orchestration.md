@@ -34,13 +34,31 @@ traps and the signed definition `2 Re(A_fixed* A_scaled)` before integration.
 
 The instance lists conventions, amplitude integration, weighted-event RAW analysis,
 binned predictions, sign/size verification, measurement inference, an interference
-ablation and delivery. RAW and stored-point quantities must have the same hypotheses,
-units, representation, bins and fiducial selection. The measurement supplies its
+ablation and delivery. RAW and stored-point documents must have the same hypotheses,
+coupling polynomial, units, representation and bins. Supply the same
+`coupling_scaling` in both documents so every signed term reaches Rivet as a
+named weight. The fitted reference, terms and their complete joint block
+covariance come from the Rivet-selected RAW output, including when the event
+document declares a shower. Selection or shower migrations may differ from
+the stored-point selection. The measurement supplies its
 statistic, covariance, scan and domain; its input kind is
 `interference-measurement-input`. The comparison has kind `interference-comparator`
 and supplies `statistic`, `quantity`, `unit`, `source` and `values`; its statistic
 must match the measurement. The likelihood retains the covariance of all stacked
 polynomial terms and their cross-covariances, including in the ablation arm.
+
+An optional request `born_comparison` declares `rtol`, `atol`,
+`covariance_rtol` and `covariance_atol`, all finite and nonnegative. Defaults are
+respectively `1e-8`, `1e-15`, `1e-7` and `1e-20`, recorded as defaults in the
+diagnostic. The prediction stage pins `born-rivet-diagnostic.json` and
+`rivet-likelihood-input.json`. Residuals outside tolerance are retained with
+`gate: false`; they do not block a selected-stage study. RAW stream, bin,
+exposure, normalization and covariance integrity still refuse malformed input.
+Delivery records `fitted_prediction`, `fitted_terms` and `fitted_stage` separately
+from the Born `prediction` and stored-amplitude sign witness. Its selected-stage
+provenance records the declared shower state and attempted-draw normalization.
+See the [polynomial handoff](../../reference/amplitude-reweighting.md#coupling-polynomials)
+for several-coupling fragments and the existing scan adapter's scope.
 
 `amplitude_chain.run(parent_pin, runners=ordinary_study_runners)` requires runners
 for its integration and `weighted-events` stages. Each runner takes

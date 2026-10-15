@@ -1,0 +1,25 @@
+{
+ "id": "op:checkmate-events",
+ "op": {
+  "do_not_use_when": [
+   "MadAnalysis 5 delivery: use ma5-pad or ma5-saf.",
+   "Rivet or SimpleAnalysis routines: use analyze."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/checkmate-events-example --spec specs/checkmate-events.json",
+    "phrase": "Run supplied HepMC2 events through a source-bound CheckMATE configuration.",
+    "spec": {
+     "mode": "checkmate-events",
+     "task": {
+      "config": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Supplied HepMC2 events must be run through CheckMATE to obtain signal-region tables.",
+   "A CheckMATE-implemented search is the reinterpretation target."
+  ]
+ }
+}

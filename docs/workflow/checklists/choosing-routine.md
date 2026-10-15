@@ -19,8 +19,8 @@ Inspect the actual routine, metadata, paper and installed runtime. A paper can
 have several routine variants. Catalogue membership, upstream `VALIDATED` status
 and matching source bytes are useful evidence; they establish neither local
 compilation nor applicability to the proposed signal, response or likelihood.
-The local catalogue that `ravel catalogue` builds is a discovery snapshot of the
-checkouts it read, not a restriction to previously exercised examples.
+The catalogue (the shipped snapshot, or the one `ravel catalogue` builds from your checkouts) is a
+discovery snapshot of the checkouts it read, not a restriction to previously exercised examples.
 
 Reuse compatible upstream native source unchanged when it supplies the required
 objects, selection and outputs. For catalogue Rivet source, the ordinary

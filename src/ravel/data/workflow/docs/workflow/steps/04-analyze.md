@@ -71,8 +71,9 @@ published pyhf likelihood.
 â†’ **Native backend:** select a supplied analysis package with a compatible routine interface
 and current qualification evidence. Follow `docs/workflow/reference/native-pipeline.md`;
 `native_simpleanalysis.py --analysis-package <manifest> --execution-plan <approved-plan>` is
-one supervised frontend for counting and two-pass selections. No selection is an installed
-default. Inspect the selected package's source, cuts, overlaps, normalization conventions and
+one supervised frontend for counting and two-pass selections. The shipped packages are
+discovered by default and are qualification-pending; none is admitted without a bound report.
+Inspect the selected package's source, cuts, overlaps, normalization conventions and
 qualification scope before admitting yields or inference.
 
 A declarative `native_sa_generic.py` contract supplies object selections, regions and luminosity.
@@ -96,7 +97,10 @@ status (`validate_checkin` FAILs otherwise), and the upgrade path is per-SR accÃ
 certification against the analysis's published anchors (trap T10; `certify` skill).
 
 Write the custom selection as a declared recipe and run it with the `columnar-analysis` science
-mode (`docs/reference/columnar-analysis.md`). It reads Delphes, ntuple and LHE files, applies
+mode (`docs/reference/columnar-analysis.md`). Select the `nanoaod` descriptor for flat Events
+trees or `delphes` for detector trees including declared FatJet substructure; public datasets
+can supply record identities with source-bound normalization (see the descriptor and record
+contracts in that reference). It reads Delphes, ntuple and LHE files, applies
 published object efficiencies before the selection, and delivers histograms, cutflows and
 provenance that step 7 and `ravel fill-template` read. Record the paper's definitions first in a
 typed analysis specification; planning then refuses open ambiguities that move yields and checks

@@ -49,12 +49,21 @@ padding and constant NaNs in per-column counts. Raw signed weights and any
 normalization branches remain separate source columns. No rescaling, sorting,
 selection, physics calculation, preprocessing or training is inferred.
 
-Migration requires an explicitly selected layout with the prior branch order,
-positional indices, corresponding groups, padding and constant columns, plus
-explicit dataset destinations and consumer associations. Source-unit, ordering
-and weight conventions must accompany the supplied source commitments. The
-same exporter handles a different population, grid, layout and format without
-editing product code.
+`layout` is either the inline object above or the identifier of a packaged layout template
+(`ravel.physics.tree_array_export.layout_names()`); the request then carries the resolved
+layout. Two templates ship, both over the public ATLAS Open Data 13 TeV ntuple branches:
+
+| Template | Columns |
+|---|---|
+| `atlas-opendata-13tev-diphoton-raw46` | 46 columns in the earlier producer's order: first two photons, two leptons and six jets as (pt, eta, phi) in stored order and NaN padded; `met_et`, `met_phi`, `mcWeight`, `SumWeights`, `XSection`; the two leading-photon tight-ID flags; the seven scale factors; two constant-NaN reserved columns |
+| `atlas-opendata-13tev-lepton-jet-large-r-raw` | 39 columns: two leptons and four jets as (pt, eta, phi, E), the leading large-R jet as (pt, eta, phi, E, m), then missing momentum, weights and scale factors |
+
+Both use `padding: null` (NaN) and `overflow: truncate`, and mark dimensionful columns as
+source units because the public format page states none. A different population needs
+only another layout, inline or packaged, plus explicit dataset destinations and
+consumer associations; source-unit, ordering and weight conventions still accompany the
+supplied source commitments. The same exporter handles a different population, grid,
+layout and format without editing product code.
 
 Delivery records the request, full dataset census, columns, shapes, NaN counts,
 source premises, inputs and artifact pins. The canonical `completion.json`

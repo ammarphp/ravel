@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ravel.validation import validate_run_state, validate_task_contract
 from ravel.paths import workflow_instruction
-from . import execution, workflow_state
+from . import execution, study_deadline, workflow_state
 from .state_io import atomic_json
 
 
@@ -107,6 +107,9 @@ def build_packet(rundir):
                       "stages": {name: {"status": r["status"], "attempt": r["attempt_id"],
                                         "receipt_sha256": r.get("receipt_sha256")}
                                  for name, r in stage_records.items()}},
+        # Declared delivery deadline: time left, margin warning and the one action that delivers.
+        "study_deadline": study_deadline.packet_block(root, contract=contract, review=review,
+                                                      execution_errors=execution_errors),
         "next_required": blocked[0] if blocked else None, "blockers": blocked,
         "next_instruction": (workflow_instruction("docs/reference/intake-and-challenges.md")
                              if blocked and contract["task_mode"] == "calculation"

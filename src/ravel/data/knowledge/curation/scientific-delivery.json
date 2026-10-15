@@ -2,7 +2,7 @@
  "id": "op:scientific-delivery",
  "op": {
   "do_not_use_when": [
-   "Typesetting a manuscript: this operation delivers a report from captured resources and does not typeset one.",
+   "Typesetting a manuscript: use manuscript-build.",
    "Producing the results: use the science mode that computes them."
   ],
   "examples": [

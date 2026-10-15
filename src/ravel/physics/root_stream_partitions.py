@@ -20,6 +20,33 @@ def sources():
     return result
 
 
+# A master without a fan-out block keeps the original one-core, one-attempt authority.
+LEGACY_FANOUT={'max_attempts':1,'wms':{'profile':'local','cores':1,'jobs':1,'remote_ceiling':1}}
+PROFILES=('local','htcondor','slurm')
+
+
+def fanout(value):
+    """Approved fan-out: RAVEL-level partition attempts and the workflow-manager profile.
+
+    Snakemake-level retries stay 0 (a Snakemake retry would re-run a spent run-step);
+    a failed partition is retried only as a fresh attempt run dir, up to max_attempts.
+    """
+    c.keys(value,('max_attempts','wms'),'partition fan-out')
+    c.integer(value['max_attempts'],1,5,'partition attempts')
+    w=value['wms'];c.keys(w,('profile','cores','jobs','remote_ceiling'),'partition fan-out workflow-manager profile')
+    c.require(w['profile'] in PROFILES,'fan-out profile must be one of '+'|'.join(PROFILES))
+    for name in ('cores','jobs','remote_ceiling'):c.integer(w[name],1,1024,'fan-out '+name)
+    if w['profile']=='local':c.require(w['jobs']<=w['cores'],'local fan-out jobs cannot exceed cores')
+    else:c.require(w['jobs']<=w['remote_ceiling'],'remote fan-out jobs cannot exceed the owner-set remote ceiling')
+    return deepcopy(value)
+
+
+def master_fanout(m):return deepcopy(m.get('fanout',LEGACY_FANOUT))
+
+
+def attempt_capacity(m):return len(m['partitions'])*master_fanout(m)['max_attempts']+1
+
+
 def config(value):
     c.keys(value,('schema_version','dataset','analysis','bundle','runtime','site','limits','partitioning'),'partitioned ROOT config')
     old=deepcopy(value);p=old.pop('partitioning');old['schema_version']=1;c.config(old)
@@ -95,7 +122,8 @@ def partition_population(ds,grouping,group_document,entries,max_parts):
 def read_master(declaration,base,cap=None):
     owned=cap is None;cap=c.Capture() if owned else cap
     _,raw=cap.read(declaration,base,MAX_MASTER);m=c.strict(raw)
-    c.keys(m,('schema_version','kind','base_spec','base_config','dataset_sha256','analysis_sha256','source_contract','grouping','groups','partition_entries','max_partitions','partitions','budget','owner','inputs'),'original partition master')
+    c.keys(m,('schema_version','kind','base_spec','base_config','dataset_sha256','analysis_sha256','source_contract','grouping','groups','partition_entries','max_partitions','partitions','budget','owner','inputs')+(('fanout',) if type(m) is dict and 'fanout' in m else ()),'original partition master')
+    if 'fanout' in m:fanout(m['fanout'])
     c.require(type(m['schema_version']) is int and m['schema_version']==1 and m['kind']=='root-stream-partition-master' and m['source_contract']==sources(),'original master/source/schema/selection changed')
     c.pin(m['base_spec']);c.pin(m['base_config']);c.require(type(m['inputs']) is list,'full original master input pins required')
     for p in m['inputs']:cap.read(p,base,max(8*1024**2,p['size']))
@@ -122,7 +150,8 @@ def bound_master(value,ds,a,base,cap):
     c.require(parts==m['partitions'] and groups==m['groups'],'original complete group/partition population differs')
     budget=m['budget'];c.keys(budget,('partition_seconds','merge_seconds','max_total_seconds'),'original aggregate budget')
     for v in budget.values():c.integer(v,1,86400,'finite original seconds')
-    c.require(len(parts)*budget['partition_seconds']+budget['merge_seconds']<=budget['max_total_seconds']<=total,'partitioning cannot multiply original approved resource ceiling')
+    attempts=master_fanout(m)['max_attempts']
+    c.require(len(parts)*attempts*budget['partition_seconds']+budget['merge_seconds']<=budget['max_total_seconds']<=total,'partitioning cannot multiply original approved resource ceiling')
     p=value['partitioning']
     if p['operation']=='partition':
         c.require(seconds==budget['partition_seconds'] and any(x['id']==p['partition_id'] for x in parts),'exact original partition/budget required')
@@ -133,7 +162,13 @@ def bound_master(value,ds,a,base,cap):
 def prepare(request,base,output):
     from ravel.physics import root_stream as s
     from ravel.workflow import science
-    c.keys(request,('schema_version','specification','partition_entries','max_partitions','grouping','budget','owner'),'partition preparation request')
+    c.keys(request,('schema_version','specification','partition_entries','max_partitions','grouping','budget','owner')+(('fanout',) if type(request) is dict and 'fanout' in request else ()),'partition preparation request')
+    plan_fanout=fanout(request['fanout']) if 'fanout' in request else None
+    if plan_fanout is not None and plan_fanout['wms']['profile']!='local':
+        from ravel.workflow import execution_backend
+        c.require(plan_fanout['wms']['remote_ceiling']<=execution_backend.remote_ceiling(),
+            'fan-out remote ceiling exceeds the owner-set remote job ceiling (RAVEL_REMOTE_JOB_CEILING)')
+    attempts=(plan_fanout or LEGACY_FANOUT)['max_attempts']
     c.require(type(request['schema_version']) is int and request['schema_version']==1,'partition planner schema1 required')
     cap=c.Capture();spec_path,spec_raw=cap.read(request['specification'],base);spec=c.strict(spec_raw);science.validate(spec)
     c.require(spec['schema_version']==2 and spec['mode']=='root-stream','actual ordinary root-stream scientific specification required')
@@ -146,15 +181,16 @@ def prepare(request,base,output):
     parts,groups=partition_population(ds,grouping,doc,request['partition_entries'],request['max_partitions'])
     budget=request['budget'];c.keys(budget,('partition_seconds','merge_seconds','max_total_seconds'),'original partition budget')
     for v in budget.values():c.integer(v,1,86400,'original seconds')
-    c.require(len(parts)*budget['partition_seconds']+budget['merge_seconds']<=budget['max_total_seconds']<=config0['limits']['max_seconds']<=spec['max_seconds'],'full partition/merge resources must fit original source plan')
+    c.require(len(parts)*attempts*budget['partition_seconds']+budget['merge_seconds']<=budget['max_total_seconds']<=config0['limits']['max_seconds']<=spec['max_seconds'],'full partition/merge resources, every bounded attempt included, must fit original source plan')
     owner=owner_binding(request['owner'],base)
     owner['attempt_journal']={'directory':str(Path(owner['cycle'])/'root-stream-attempts'/request['specification']['sha256']),
-        'capacity':len(parts)+1}
+        'capacity':len(parts)*attempts+1}
     out=Path(output).absolute();c.require(not out.exists(),'fresh immutable master required');s.custody._ordinary(out.parent,base,directory=True);out.mkdir()
     m={'schema_version':1,'kind':'root-stream-partition-master','base_spec':{**request['specification'],'path':str(spec_path)},
        'base_config':{**spec['task']['config'],'path':str(p)},'dataset_sha256':c.digest(ds),'analysis_sha256':c.digest(a),'source_contract':sources(),
        'grouping':deepcopy(grouping),'groups':groups,'partition_entries':request['partition_entries'],'max_partitions':request['max_partitions'],
        'partitions':parts,'budget':deepcopy(budget),'owner':owner,'inputs':list(cap.rows.values())}
+    if plan_fanout is not None:m['fanout']=plan_fanout
     c.require(len(s.encoded(m))<=MAX_MASTER,'complete master exceeds declared metadata allocation')
     master=s.write_new(out/'master.json',m);reserve_master({**m,'master_pin':master});publications=[master];tasks=[]
     for part in parts:
@@ -184,7 +220,7 @@ def reservation_id(master):return 'root-stream-master:'+master['base_spec']['sha
 
 def reservation(master):
     return {'id':reservation_id(master),'ceiling':{'calls':0,'output_tokens':0,
-        'wall_seconds':master['budget']['max_total_seconds'],'native_attempts':len(master['partitions'])+1},
+        'wall_seconds':master['budget']['max_total_seconds'],'native_attempts':attempt_capacity(master)},
         'basis':deepcopy(master['master_pin'])}
 
 
@@ -212,7 +248,7 @@ def owner_state(master):
     cycle._check_pin(master['master_pin'],root);owner_phase_guard(state)
     journal=owner['attempt_journal'];c.keys(journal,('directory','capacity'),'typed master attempt capacity')
     c.require(journal['directory']==str(root/'root-stream-attempts'/master['base_spec']['sha256']) and
-        journal['capacity']==len(master['partitions'])+1 and 2<=journal['capacity']<=10001,
+        journal['capacity']==attempt_capacity(master) and 2<=journal['capacity']<=50001,
         'complete canonical typed attempt journal required')
     return root,state
 
@@ -287,15 +323,17 @@ def attempt_history(master,state):
 def master_claims(master,state):
     _,_,history=attempt_history(master,state);rows=[deepcopy(e['claim']) for e in history[1:]]
     expected={x['id']:master['budget']['partition_seconds'] for x in master['partitions']}
-    expected['merge']=master['budget']['merge_seconds'];seen=set();rundirs=set()
+    expected['merge']=master['budget']['merge_seconds'];seen={};rundirs=set()
+    attempts=master_fanout(master)['max_attempts']
     for row in rows:
         c.keys(row,('master','task_id','rundir','attempt_id','fingerprint','seconds','started_epoch','deadline_epoch'),'retained attempt claim')
-        c.require(row['master']==master['master_pin'] and row['task_id'] in expected and row['task_id'] not in seen and row['rundir'] not in rundirs and
+        c.require(row['master']==master['master_pin'] and row['task_id'] in expected and
+            seen.get(row['task_id'],0)<(1 if row['task_id']=='merge' else attempts) and row['rundir'] not in rundirs and
             row['seconds']==expected[row['task_id']],'canonical partition/merge attempt allocation changed')
         c.require(row['deadline_epoch']==rows[0]['deadline_epoch'] and
             row['deadline_epoch']==rows[0]['started_epoch']+master['budget']['max_total_seconds'],
             'original master deadline cannot be renewed')
-        seen.add(row['task_id']);rundirs.add(row['rundir'])
+        seen[row['task_id']]=seen.get(row['task_id'],0)+1;rundirs.add(row['rundir'])
     c.require(sum(x['seconds'] for x in rows)<=master['budget']['max_total_seconds'],'retained failed/unknown spend exceeds master')
     return rows
 
@@ -365,8 +403,8 @@ def claim_dispatch(value,ds,a,base,rundir):
         c.require(spec['mode']=='root-stream','actual ordinary ROOT mode required');cap_config(value,rd)
         c.require(record['status']=='running' and record['fingerprint']==selected['stage_binding']['fingerprint'],
             'current approved registered ordinary attempt required')
-        c.require(task_id not in {x['task_id'] for x in rows} and str(rd) not in {x['rundir'] for x in rows},
-            'original partition/merge claim already charged; failed/unknown attempts cannot renew through another run')
+        c.require(str(rd) not in {x['rundir'] for x in rows},'original partition/merge claim already charged for this run')
+        require_retry_admissible(master,rows,task_id)
         now=time.time();deadline=rows[0]['deadline_epoch'] if rows else now+master['budget']['max_total_seconds']
         seconds=value['limits']['max_seconds']
         c.require(seconds<=deadline-now,'original master deadline cannot fit the declared branch')
@@ -403,9 +441,9 @@ def dispatch_current(value,ds,a,base,rundir):
     cap=c.Capture();master=bound_master(value,ds,a,base,cap);_,state=owner_state(master)
     campaign_attempt(master,state,rundir)
     task_id=value['partitioning']['partition_id'] if value['partitioning']['operation']=='partition' else 'merge'
-    rows=[x for x in master_claims(master,state) if x['task_id']==task_id]
+    rows=[x for x in master_claims(master,state) if x['task_id']==task_id and x['rundir']==str(science.root(rundir))]
     record=execution.load_execution(rundir)['stages']['science']
-    c.require(len(rows)==1 and rows[0]['rundir']==str(science.root(rundir)) and
+    c.require(len(rows)==1 and
         rows[0]['attempt_id']==record['attempt_id'] and rows[0]['fingerprint']==record['fingerprint'] and
         record['status']=='running','actual original charged running partition/merge required')
     cap.finish();now=time.time();seconds=value['limits']['max_seconds']
@@ -438,24 +476,144 @@ def cap_config(value,rundir):
     c.require(c.strict(raw)==value,'actual selected source configuration differs');cap.finish();return path
 
 
+def attempt_state(rundir):
+    """Delivery requires the ordinary receipt; unknown process custody blocks retry.
+
+    Hostless historical records need a terminal failure receipt. A local PID
+    observation cannot resolve an interruption recorded on another host.
+    """
+    import socket
+    from ravel.workflow import execution
+    from ravel.physics import root_stream as s
+    try:record=execution.load_execution(rundir)['stages']['science']
+    except (OSError,ValueError,KeyError,TypeError):return 'unresolved'
+    if type(record) is not dict:return 'unresolved'
+    status=record.get('status')
+    if status=='succeeded':
+        try:s.ordinary_delivery(rundir)
+        except (OSError,ValueError,KeyError,TypeError):return 'ran but did not deliver'
+        return 'succeeded'
+    if status not in ('failed','interrupted'):return 'unresolved'
+    if type(record.get('cleanup',{})) is not dict or record.get('cleanup',{}).get('requires_recovery'):return 'unresolved'
+    pid,identity=record.get('child_pid'),record.get('child_identity')
+    host=record.get('child_identity_host')
+    # finish_attempt writes these terminal fields for negative exits. Interrupted
+    # records never establish terminal custody merely by having a timestamp.
+    terminal=(status=='failed' and type(record.get('exit_code')) is int and
+              record['exit_code']!=0 and bool(record.get('finished_utc')))
+    if terminal:
+        if type(pid) is int and identity is not None:
+            # A matching start identity on this host is a live child, whatever host the record names.
+            if execution.process_identity(pid)==identity:return 'unresolved'
+            if host==socket.gethostname() and not child_ended(pid,identity):return 'unresolved'
+        return 'failed'
+    if host!=socket.gethostname() or type(pid) is not int or identity is None:return 'unresolved'
+    if not child_ended(pid,identity):return 'unresolved'
+    return 'failed'
+
+
+def child_ended(pid,identity):
+    """Positive local absence or a different start identity; unreadable is unknown."""
+    import os
+    from ravel.workflow import execution
+    observed=execution.process_identity(pid)
+    if observed is not None:return observed!=identity
+    try:os.kill(pid,0)
+    except ProcessLookupError:return True
+    except OSError:return False
+    return False
+
+
+def recovery_command(rundir):
+    """Existing supervised recovery, run on the recording host; never an override."""
+    import shlex
+    return 'ravel run --rundir '+shlex.quote(str(rundir))+' --resume'
+
+
+def recovery_held(rundir):
+    """Supervised recovery already ran and left a hold that no command lifts.
+
+    A lost supervisor whose leader and recorded group are absent is finalized as failed
+    with descendant containment not established. That is no terminal custody.
+    """
+    from ravel.workflow import execution
+    try:record=execution.load_execution(rundir)['stages']['science']
+    except (OSError,ValueError,KeyError,TypeError):return False
+    if type(record) is not dict:return False
+    return any(type(row) is dict and row.get('descendant_containment')=='not_established'
+               for row in (record.get('interrupted_finalization'),record.get('cleanup')))
+
+
+def recovery_refused(rundir):
+    """A workflow-manager project governs the run dir: `ravel run` refuses it before supervised recovery starts."""
+    from ravel.workflow import wms_policy
+    try:return wms_policy.required(rundir)
+    except ValueError:return True
+
+
+def unresolved_detail(task_id,rundir):
+    """What an unresolved attempt needs: supervised recovery, or nothing more when recovery holds it."""
+    if recovery_held(rundir):
+        return (f'partition {task_id} attempt {rundir} is held: its supervisor was lost, and `{recovery_command(rundir)}` '
+                'recorded the failure without establishing that its descendants ended; that command does not make this '
+                'attempt retryable, the attempt stays charged, and this partition is neither retried nor merged under this master')
+    if recovery_refused(rundir):
+        return (f'partition {task_id} attempt {rundir} is unresolved and held: its run directory is governed by a '
+                f'workflow-manager project, which refuses `{recovery_command(rundir)}` before supervised recovery starts, '
+                'and no workflow-manager command runs that recovery; the attempt stays charged, and this partition is '
+                'neither retried nor merged under this master')
+    return f'{task_id} is unresolved; run `{recovery_command(rundir)}` on the recording host'
+
+
+def retry_admission(master,rows,task_id):
+    """Why a new attempt for task_id is refused, or None when it is admissible."""
+    attempts=1 if task_id=='merge' else master_fanout(master)['max_attempts']
+    prior=[x for x in rows if x['task_id']==task_id]
+    if not prior:return None
+    states=[(row,attempt_state(row['rundir'])) for row in prior]
+    for row,state in states:
+        if state=='succeeded':return f'partition {task_id} already delivered in {row["rundir"]}'
+    for row,state in states:
+        if state=='unresolved':
+            if recovery_held(row['rundir']) or recovery_refused(row['rundir']):return unresolved_detail(task_id,row['rundir'])
+            return (f'partition {task_id} attempt {row["rundir"]} is unresolved (no terminal failure receipt); '
+                    f'run `{recovery_command(row["rundir"])}` on the recording host before a retry')
+    if len(prior)>=attempts:
+        detail='; ran but did not deliver' if any(state=='ran but did not deliver' for _,state in states) else ''
+        return (f'partition {task_id} has used all {attempts} approved attempt(s); failed/unknown attempts stay charged '
+                'and cannot renew through another run'+detail)
+    return None
+
+
+def require_retry_admissible(master,rows,task_id):
+    reason=retry_admission(master,rows,task_id);c.require(reason is None,reason or '')
+
+
 def require_claim(master,rundir,task_id,receipt):
     from ravel.workflow import execution
     _,state=owner_state(master);rows=master_claims(master,state)
     record=execution.load_execution(rundir)['stages']['science']
-    selected=[x for x in rows if x['task_id']==task_id]
-    c.require(len(selected)==1 and selected[0]['rundir']==str(Path(rundir).absolute()) and
+    selected=[x for x in rows if x['task_id']==task_id and x['rundir']==str(Path(rundir).absolute())]
+    c.require(len(selected)==1 and
         selected[0]['attempt_id']==record['attempt_id'] and selected[0]['fingerprint']==receipt['fingerprint'] and
         record['status']=='succeeded','original master charged successful ordinary attempt required')
     return selected[0]
 
 
-def dispatch_identity(task,base,cap):
+def dispatch_master(task,base,cap):
+    """(master, partition id or 'merge') of a partition/merge branch; None for a full stream."""
     from ravel.physics import root_stream as s
     _,value,ds,a=s._load(task,base,cap)
     if value['schema_version']==1:return None
     master=bound_master(value,ds,a,base,cap)
-    return (master['owner']['cycle'],reservation_id(master),
-        value['partitioning']['partition_id'] if value['partitioning']['operation']=='partition' else 'merge')
+    return master,(value['partitioning']['partition_id'] if value['partitioning']['operation']=='partition' else 'merge')
+
+
+def dispatch_identity(task,base,cap):
+    selected=dispatch_master(task,base,cap)
+    if selected is None:return None
+    master,task_id=selected
+    return (master['owner']['cycle'],reservation_id(master),task_id)
 
 
 def validate_partial(value,m,part,ds,a,limits):
@@ -516,7 +674,7 @@ def public_partial(value,m,part,ds,a,limits):
             quantities={}
             for q in a['quantities']:
                 quantities[q['id']]=pc.restore_moments(row['quantities'][q['id']],q['contract']).result(1.)
-            rows.append({'id':sample['id'],'kind':sample['kind'],'dsid':sample['dsid'],'raw_quantities':quantities,'normalization_applied':False})
+            rows.append({'id':sample['id'],'kind':sample['kind'],**c.sample_identity(sample),'raw_quantities':quantities,'normalization_applied':False})
     return {'schema_version':1,'kind':'root-stream-public-partition','master_sha256':m['master_sha256'],'partition_id':part['id'],'samples':rows,
             'complete_original_study':False,'normalization_applied':False,'physics_validated':False}
 
@@ -573,7 +731,10 @@ def resume(master_pin,records,base):
     cap.finish()
     for rd,receipt in origins:c.require(s.ordinary_delivery(rd)==receipt,'ending persisted completion authority differs')
     cap.finish()
+    open_ids=[x['id'] for x in m['partitions'] if x['id'] not in seen and x['id'] in claimed]
     return {'master_sha256':master_pin['sha256'],'complete_partition_ids':[x['id'] for x in m['partitions'] if x['id'] in seen],
+            'retry_admissible_partition_ids':[x for x in open_ids if retry_admission(m,claims,x) is None],
+            'max_attempts':master_fanout(m)['max_attempts'],
             'pending_partition_ids':[x['id'] for x in m['partitions'] if x['id'] not in seen and x['id'] not in claimed],
             'blocked_claimed_partition_ids':[x['id'] for x in m['partitions'] if x['id'] not in seen and x['id'] in claimed],
             'retained_attempt_claims':deepcopy(claims),'reserved_master_seconds':m['budget']['max_total_seconds'],
@@ -626,6 +787,69 @@ def merge_specification(master_pin,records,base,output):
     return {'specification':sp,'closure':closure,'machine_private':True,'execution_authorized':False,'scientific_acceptance_inferred':False}
 
 
+def delivered_attempts(master,state):
+    """The one delivered attempt of each partition (None while it has none).
+
+    Failed attempts stay charged in the journal and are never consumed.
+    """
+    rows=master_claims(master,state);chosen={}
+    for part in master['partitions']:
+        done=[r for r in rows if r['task_id']==part['id'] and attempt_state(r['rundir'])=='succeeded']
+        c.require(len(done)<=1,'partition '+part['id']+' has more than one delivered attempt; preserve both and decide')
+        chosen[part['id']]=deepcopy(done[0]) if done else None
+    return chosen
+
+
+def fanin(master_pin,base,output):
+    """Record exactly one delivered attempt per partition, then write the merge draft.
+
+    Called by the workflow-manager merge rule after every partition rule. The draft
+    still needs its own ordinary plan and approval; nothing here approves or runs it.
+    """
+    import hashlib
+    from ravel.physics import root_stream as s
+    m=read_master(master_pin,base);_,state=owner_state(m);chosen=delivered_attempts(m,state)
+    missing=[k for k,v in chosen.items() if v is None]
+    unresolved=[(r['task_id'],r['rundir']) for r in master_claims(m,state)
+                if r['task_id'] in missing and attempt_state(r['rundir'])=='unresolved']
+    detail='; '.join(unresolved_detail(pid,rd) for pid,rd in unresolved)
+    c.require(not missing,'every partition needs one delivered attempt before the merge; missing: '+', '.join(missing)+
+              '; use `ravel wms retry`'+('; '+detail if detail else ''))
+    folder=Path(master_pin['path']).parent/'completed';records=[]
+    for pid,claim in chosen.items():
+        path=folder/(pid+'.json')
+        if path.exists():
+            raw=path.read_bytes();c.require(c.strict(raw)['rundir']==claim['rundir'],'recorded completion is not the delivered attempt of '+pid)
+            records.append({'path':str(path),'sha256':hashlib.sha256(raw).hexdigest(),'size':len(raw)})
+        else:records.append(record(master_pin,pid,claim['rundir'],path))
+    value=merge_specification(master_pin,records,base,output)
+    return {**value,'completions':records,'consumed_attempts':{pid:claim['rundir'] for pid,claim in chosen.items()}}
+
+
+def checkin_section(context):
+    """CHECK-IN 1 fan-out of a partition or merge branch, bound through its master pin.
+
+    Partitions, profile, cores, jobs, remote ceiling and the RAVEL attempt bound are
+    all in the master, so changing any of them changes every branch's plan digest.
+    """
+    import hashlib
+    spec=context.get('spec')
+    if type(spec) is not dict or spec.get('mode')!='root-stream' or type(spec.get('task')) is not dict:return None
+    declaration=spec['task'].get('config')
+    if type(declaration) is not dict or type(declaration.get('path')) is not str:return None
+    path=Path(declaration['path'])
+    if not path.is_absolute():path=Path(context.get('base_dir') or '.')/path
+    value=c.strict(path.read_bytes())
+    if type(value) is not dict or value.get('schema_version')!=2:return None
+    p=value['partitioning'];raw=Path(p['master']['path']).read_bytes()
+    c.require(hashlib.sha256(raw).hexdigest()==p['master']['sha256'],'partition master differs from its pin')
+    m=c.strict(raw);plan=master_fanout(m)
+    return {'operation':p['operation'],'partition_id':p['partition_id'],'partitions':len(m['partitions']),
+            'max_attempts':plan['max_attempts'],**plan['wms'],'workflow_manager_retries':0,
+            'retry_route':'ravel wms retry (fresh attempt run dir; failed attempts stay charged)',
+            'master_sha256':p['master']['sha256']}
+
+
 def _aggregate(m,records,ds,a,limits):
     """Internal exact raw-moment reduction; no execution-origin authority."""
     c.require(c.digest(ds)==m['dataset_sha256'] and c.digest(a)==m['analysis_sha256'],'original complete population/selection/normalization/weight identity required')
@@ -660,7 +884,7 @@ def _aggregate(m,records,ds,a,limits):
         if grouped and raw is not None:
             raw['record_sumw2']=generator[sample['id']]['record_sumw2'].value()
             raw['scope']='complete declared physical groups; record_sumw2 retains original entry squares; full denominator is separate'
-        samples.append({'id':sample['id'],'kind':sample['kind'],'dsid':sample['dsid'],'normalization':deepcopy(sample['normalization']),
+        samples.append({'id':sample['id'],'kind':sample['kind'],**c.sample_identity(sample),'normalization':deepcopy(sample['normalization']),
             'raw_mc_weights':raw,'weight_contract':deepcopy(a['weight_contract']),'quantities':quantities})
     delivery={'schema_version':1,'kind':'root-stream-moments','samples':samples,'coverage':coverage,'coverage_sha256':c.digest(coverage),
         'sampling_law':pc.GROUP_LAW if grouped else pc.ENTRY_LAW,

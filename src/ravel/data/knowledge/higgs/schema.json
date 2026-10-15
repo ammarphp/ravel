@@ -1,224 +1,719 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "kind",
-    "synthetic",
-    "citations",
-    "rows",
-    "ratios"
-  ],
-  "properties": {
-    "schema_version": {
-      "const": 1
-    },
-    "kind": {
-      "const": "higgs-reference-tables"
-    },
-    "synthetic": {
-      "type": "boolean"
-    },
-    "citations": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "title",
-          "locator",
-          "source_file"
-        ],
+  "allOf": [
+    {
+      "if": {
         "properties": {
-          "title": {
-            "type": "string",
-            "minLength": 1
-          },
-          "locator": {
-            "type": "string",
-            "minLength": 1
-          },
-          "source_file": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      }
-    },
-    "rows": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "quantity",
-          "process",
-          "mass_gev",
-          "value",
-          "reference_value",
-          "unit",
-          "uncertainty",
-          "citation_key"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "process": {
-            "type": "string",
-            "minLength": 1
-          },
-          "order": {
-            "type": "string",
-            "minLength": 1
-          },
-          "pdf": {
-            "type": "string",
-            "minLength": 1
-          },
-          "citation_key": {
-            "type": "string",
-            "minLength": 1
-          },
-          "quantity": {
-            "enum": [
-              "cross_section",
-              "branching_ratio"
-            ]
-          },
-          "mass_gev": {
-            "type": "number",
-            "exclusiveMinimum": 0
-          },
-          "energy_tev": {
-            "type": "number",
-            "exclusiveMinimum": 0
-          },
-          "value": {
-            "type": "number",
-            "minimum": 0
-          },
-          "reference_value": {
-            "type": "number",
-            "minimum": 0
-          },
-          "unit": {
-            "enum": [
-              "pb",
-              "fb",
-              "1"
-            ]
-          },
-          "uncertainty": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "minus",
-              "plus",
-              "definition"
-            ],
-            "properties": {
-              "minus": {
-                "type": "number",
-                "minimum": 0
-              },
-              "plus": {
-                "type": "number",
-                "minimum": 0
-              },
-              "definition": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
+          "schema_version": {
+            "const": 2
           }
         },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "quantity": {
-                  "const": "cross_section"
-                }
-              }
-            },
-            "then": {
+        "required": [
+          "schema_version"
+        ]
+      },
+      "then": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "kind",
+          "synthetic",
+          "citations",
+          "rows",
+          "ratios",
+          "legacy_rows_sha256",
+          "legacy_ratios_sha256"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": 2
+          },
+          "kind": {
+            "const": "higgs-reference-tables"
+          },
+          "synthetic": {
+            "type": "boolean"
+          },
+          "citations": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
               "required": [
-                "energy_tev",
-                "order",
-                "pdf"
+                "title",
+                "locator",
+                "source_file"
               ],
               "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_file": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "rows": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "quantity",
+                "process",
+                "citation_key"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "process": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "order": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pdf": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "citation_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quantity": {
+                  "enum": [
+                    "cross_section",
+                    "branching_ratio",
+                    "total_width",
+                    "kappa_coefficient",
+                    "c1_coefficient",
+                    "stxs_bin"
+                  ]
+                },
+                "mass_gev": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "energy_tev": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "value": {
+                  "type": "number"
+                },
+                "reference_value": {
+                  "type": "number"
+                },
                 "unit": {
                   "enum": [
                     "pb",
-                    "fb"
+                    "fb",
+                    "1",
+                    "GeV",
+                    "MeV"
                   ]
+                },
+                "uncertainty": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "minus",
+                    "plus",
+                    "definition"
+                  ],
+                  "properties": {
+                    "minus": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "plus": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "definition": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "locator": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pdf_page",
+                    "table",
+                    "source_line",
+                    "extraction_script_sha256"
+                  ],
+                  "properties": {
+                    "pdf_page": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "table": {
+                      "type": "string",
+                      "pattern": "\\S"
+                    },
+                    "source_line": {
+                      "type": "string",
+                      "pattern": "\\S"
+                    },
+                    "extraction_script_sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    }
+                  }
+                },
+                "term": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "pattern": "\\S"
+                  }
+                },
+                "bin_id": {
+                  "type": "string",
+                  "pattern": "\\S"
+                },
+                "stage": {
+                  "type": "string",
+                  "pattern": "\\S"
+                },
+                "boundaries": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "lower",
+                      "upper",
+                      "unit"
+                    ],
+                    "properties": {
+                      "lower": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "upper": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "unit": {
+                        "type": "string",
+                        "pattern": "\\S"
+                      }
+                    }
+                  }
                 }
-              }
-            },
-            "else": {
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "stxs_bin"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "bin_id",
+                      "stage",
+                      "boundaries",
+                      "locator"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "value"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "reference_value"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "uncertainty"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "unit"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "term"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "else": {
+                    "required": [
+                      "mass_gev",
+                      "value",
+                      "reference_value",
+                      "unit",
+                      "uncertainty"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "bin_id"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "stage"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "boundaries"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "cross_section"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "pb",
+                          "fb"
+                        ]
+                      },
+                      "value": {
+                        "minimum": 0
+                      },
+                      "reference_value": {
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "energy_tev",
+                      "order",
+                      "pdf"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "branching_ratio"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "1"
+                        ]
+                      },
+                      "value": {
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "reference_value": {
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "total_width"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "GeV",
+                          "MeV"
+                        ]
+                      },
+                      "value": {
+                        "minimum": 0
+                      },
+                      "reference_value": {
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "locator"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "kappa_coefficient"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "1"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "term",
+                      "locator"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "c1_coefficient"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "1"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "term",
+                      "locator"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "ratios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "numerator",
+                "denominator",
+                "value",
+                "absolute_tolerance",
+                "citation_key"
+              ],
               "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "numerator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "denominator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "citation_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
                 "value": {
-                  "maximum": 1
+                  "type": "number",
+                  "minimum": 0
                 },
-                "reference_value": {
-                  "maximum": 1
-                },
-                "unit": {
-                  "const": "1"
+                "absolute_tolerance": {
+                  "type": "number",
+                  "minimum": 0
                 }
               }
             }
+          },
+          "legacy_rows_sha256": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "legacy_ratios_sha256": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
           }
-        ]
-      }
-    },
-    "ratios": {
-      "type": "array",
-      "items": {
+        }
+      },
+      "else": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "id",
-          "numerator",
-          "denominator",
-          "value",
-          "absolute_tolerance",
-          "citation_key"
+          "schema_version",
+          "kind",
+          "synthetic",
+          "citations",
+          "rows",
+          "ratios"
         ],
         "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
+          "schema_version": {
+            "const": 1
           },
-          "numerator": {
-            "type": "string",
-            "minLength": 1
+          "kind": {
+            "const": "higgs-reference-tables"
           },
-          "denominator": {
-            "type": "string",
-            "minLength": 1
+          "synthetic": {
+            "type": "boolean"
           },
-          "citation_key": {
-            "type": "string",
-            "minLength": 1
+          "citations": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "locator",
+                "source_file"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_file": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
           },
-          "value": {
-            "type": "number",
-            "minimum": 0
+          "rows": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "quantity",
+                "process",
+                "mass_gev",
+                "value",
+                "reference_value",
+                "unit",
+                "uncertainty",
+                "citation_key"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "process": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "order": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "pdf": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "citation_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quantity": {
+                  "enum": [
+                    "cross_section",
+                    "branching_ratio"
+                  ]
+                },
+                "mass_gev": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "energy_tev": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "reference_value": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "unit": {
+                  "enum": [
+                    "pb",
+                    "fb",
+                    "1"
+                  ]
+                },
+                "uncertainty": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "minus",
+                    "plus",
+                    "definition"
+                  ],
+                  "properties": {
+                    "minus": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "plus": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "definition": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "quantity": {
+                        "const": "cross_section"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "energy_tev",
+                      "order",
+                      "pdf"
+                    ],
+                    "properties": {
+                      "unit": {
+                        "enum": [
+                          "pb",
+                          "fb"
+                        ]
+                      }
+                    }
+                  },
+                  "else": {
+                    "properties": {
+                      "value": {
+                        "maximum": 1
+                      },
+                      "reference_value": {
+                        "maximum": 1
+                      },
+                      "unit": {
+                        "const": "1"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           },
-          "absolute_tolerance": {
-            "type": "number",
-            "minimum": 0
+          "ratios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "numerator",
+                "denominator",
+                "value",
+                "absolute_tolerance",
+                "citation_key"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "numerator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "denominator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "citation_key": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "absolute_tolerance": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
           }
         }
       }
     }
-  }
+  ]
 }

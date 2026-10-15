@@ -9,6 +9,8 @@ from upstream at recorded commits and built on your machine; RAVEL does not redi
 | `Containerfile` | Fedora 41 arm64 with GNU compilers, ROOT and Python; refuses to build until the base digest is recorded |
 | `base-image.json` | The base digest and the JHUGen and MELA commits, all unrecorded until the first approved fetch |
 | `build-jhugen-mela.sh` | Fetches both sources at the recorded commits, builds, writes the launcher and a build receipt |
+| `Containerfile.amd64` | The `linux/amd64` variant (MELA ships x86-64 libraries); adds `tcsh` and the fetch stand-in |
+| `wget-from-cache.sh` | Serves the files the host pre-fetched (COLLIER, MELA's precompiled MCFM and MadGraph libraries, the NNPDF grid) to MELA's setup scripts, because the build container has no network |
 | `check-jhugen-mela.sh` | Launcher, receipt and `import Mela` check behind `ravel doctor` |
 
 ## State

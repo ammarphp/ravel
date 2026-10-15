@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "package": "published-likelihood-parameterization",
+  "mode_descriptors": {
+    "higgs-published-likelihood": {
+      "summary": "Profile supplied full likelihoods in declared coupling or cross-section parameters.",
+      "operations": [],
+      "tools": [
+        "pyhf",
+        "HS3",
+        "Combine"
+      ],
+      "inputs": [
+        "full likelihood",
+        "published likelihood",
+        "sample to production and decay map",
+        "rate formulas"
+      ],
+      "observables": [
+        "coupling modifier",
+        "kappa",
+        "STXS",
+        "likelihood scan",
+        "profile likelihood"
+      ],
+      "outputs": [
+        "profile scan",
+        "best fit"
+      ],
+      "context": [
+        "production and decay",
+        "signal sample multiplier"
+      ],
+      "applicability": {
+        "scope": "general"
+      }
+    }
+  },
+  "adapter": {
+    "module": "ravel.physics.higgs_published_likelihood",
+    "task_fields": [
+      "input"
+    ],
+    "requires": [
+      "pinned supplied likelihood",
+      "complete signal sample assignments",
+      "supplied parameter formulas and domains",
+      "scientific admission"
+    ]
+  },
+  "operation_signatures": {
+    "higgs-published-likelihood": {
+      "summary": "Supplied full-likelihood parameterization, conditional nuisance profiling and scans.",
+      "implementation": {
+        "kind": "science-mode",
+        "mode": "higgs-published-likelihood",
+        "module": "ravel.physics.higgs_published_likelihood"
+      },
+      "consumes": [
+        {
+          "slot": "likelihood",
+          "kind": "document"
+        },
+        {
+          "slot": "parameterization",
+          "kind": "document"
+        }
+      ],
+      "produces": [
+        {
+          "slot": "profile",
+          "kind": "inference"
+        }
+      ],
+      "effects": [
+        "patches_published_model",
+        "executes_native"
+      ],
+      "cost": {
+        "unit": "task",
+        "forecast": null,
+        "ceiling_pointer": "/max_seconds"
+      },
+      "critical_fields": [
+        "/task/input"
+      ],
+      "basis": {
+        "adds": [
+          {
+            "element": "published_statistical_model"
+          }
+        ],
+        "passes": [
+          "likelihood",
+          "parameterization"
+        ]
+      },
+      "tools": [
+        "pyhf",
+        "Combine",
+        "HS3",
+        "RooFit"
+      ],
+      "stages": [
+        "statistic"
+      ],
+      "review": {
+        "checks": [
+          "io_contract",
+          "fit_alarms",
+          "statistic_matches_claim",
+          "numerical_reference"
+        ]
+      },
+      "fidelity_rank": 4
+    }
+  },
+  "manifest_operations": [
+    {
+      "mode": "higgs-published-likelihood",
+      "groups": [
+        "python-host",
+        "root-combine"
+      ]
+    }
+  ],
+  "curation": {
+    "summary": "Supplied rate formulas replace source signal normfactors; source nuisance laws are retained.",
+    "refuses": [
+      "unmapped signal samples",
+      "negative or nonfinite rate",
+      "changed input bytes",
+      "unadmitted native model or release",
+      "native dispatch without supervised authority"
+    ],
+    "limitations": [
+      "No global optimizer or coverage qualification",
+      "Combine admission awaits pinned module source inventory",
+      "HS3 awaits repaired formula-function interface"
+    ]
+  },
+  "consult_bindings": {
+    "higgs-published-likelihood": [
+      "consult-inference",
+      "consult-theory"
+    ]
+  },
+  "acquire_published_configuration": {
+    "resource_detection": {
+      "formats": [
+        "combine",
+        "pyhf",
+        "hs3"
+      ],
+      "combine": [
+        "combine",
+        "datacard",
+        "workspace",
+        ".root"
+      ],
+      "pyhf": [
+        "pyhf",
+        "histfactory",
+        "statistical model"
+      ],
+      "hs3": [
+        "hs3",
+        "roofit",
+        "histfactory statistical serialization"
+      ]
+    },
+    "record_population": "supplied at request time",
+    "fetch_policy": "only on explicit request through admitted acquisition"
+  },
+  "workflow_instructions": [
+    "Supply a configuration JSON as task.input; its kind is higgs-published-likelihood and its engine is pyhf, combine or hs3.",
+    "All configurations require output with a safe filename and format json or json-compact. Study identity, record population, point population, formulas and output representation are supplied inputs.",
+    "For pyhf supply likelihood as a path/sha256 pin, measurement, signal_modifier, sample_map, parameterization, points, fit_tolerance and max_seconds. The integer max_seconds ceiling is admitted before approval and checked before each profile evaluation; a scan that reaches it is retained as failed. Every sample carrying signal_modifier must be mapped; additional signal normfactors require a separately declared source interpretation.",
+    "Parameterization declares framework kappa or stxs; parameters with name, bounds, initial, unit and label; a formula Program with attributed constants, definitions and outputs; and production/decay/output rate rows. A bundle field instead delegates conversion to the parameterization owner interface.",
+    "For combine supply native_configuration as a path/sha256 pin and physics_model with id, combine_release, pois and exact ordered options. No production model is currently admitted without the pinned release module inventory.",
+    "For hs3 supply native_configuration as a path/sha256 pin, parameterization, formula_bindings with function/production/decay and points. Repaired HS3 dispatch must preserve source constraints, globals and formula dependencies.",
+    "Plan, approve and run through the ordinary scientific lifecycle after registration composition. Read-only recipes and acquisition configurations grant no execution authority. Native dispatch repeats the existing supervised-stage authority check.",
+    "Interpret Delta(-2 ln L) against the continuous bounded best fit as a local fit diagnostic. Retain failed fits; no coverage, globality or physics acceptance follows from finite output."
+  ],
+  "handoffs": {
+    "registration_owner": "Compose this fragment into shared mode/signature/manifest/curation/consult registries; add the science._adapter dispatcher and scope handling seams, method family and effect/cost classification. No direct CLI launch path.",
+    "native_owner": "Provide inputs_with_physics_model(task, base, *, physics_model) and run_with_physics_model(task, base, out, *, physics_model). Bind the admitted registry row and pinned release/image; reuse commands, probes, source custody and supervised execution. Saved ROOT workspace input requires its own admitted source loader; the current recipe covers datacards only.",
+    "parameterization_owner": "Provide published_likelihood_program(bundle) returning the declared framework/parameters/program/rates contract. No inferred default rates or width law.",
+    "hs3_owner": "Provide inputs_with_formula_functions(task, base, *, reparameterization) and run_with_formula_functions(task, base, out, *, reparameterization), preserving full graph semantics and profiling declared points. The request carries model, parameterization, formula_functions, points and physics_validated=false.",
+    "acquisition_owner": "Consume acquire_published_configuration resource detection with supplied record identifiers; acquisition_configuration constructs requests only. Reuse existing launch admission for every fetch; do not add an unaudited fetch path.",
+    "instruction_owner": "Embed workflow_instructions in the inference step and reference docs at composition; regenerate the instruction bundle. Reconcile DIRECTORY.md with directory_rows and log the new declarative admission data. No environment or pristine scientific card changed."
+  },
+  "directory_rows": [
+    {
+      "path": "src/ravel/physics/higgs_published_likelihood.py",
+      "track": "software",
+      "purpose": "Supplied full likelihood point patches, profiles and guarded native interfaces"
+    },
+    {
+      "path": "src/ravel/data/higgs/combine-physics-models.json",
+      "track": "data",
+      "purpose": "Pinned release model admission contract; empty pending source inventory"
+    },
+    {
+      "path": "src/ravel/data/higgs/registration/higgs-published-likelihood.json",
+      "track": "data",
+      "purpose": "Operation, acquisition and workflow composition fragment"
+    },
+    {
+      "path": "tests/unit/test_higgs_published_likelihood.py",
+      "track": "software",
+      "purpose": "Synthetic admission, mapping, analytic profile and fake native transport controls"
+    }
+  ],
+  "engine_contracts": {
+    "pyhf": {
+      "effects": [
+        "patches_published_model"
+      ],
+      "native_launch": false,
+      "time_ceiling": "max_seconds in the supplied configuration, within the outer scientific specification",
+      "support": "supplied shared signal normfactor, declared formula rates and full source nuisance profiling"
+    },
+    "combine": {
+      "effects": [
+        "executes_native"
+      ],
+      "native_launch": "existing supervised-stage authority",
+      "support": "datacard recipe and parsed scan; execution awaits owner seam and model admission inventory"
+    },
+    "hs3": {
+      "effects": [
+        "executes_native"
+      ],
+      "native_launch": "existing supervised-stage authority",
+      "support": "formula request and source pin interface; numerical execution awaits repaired owner seam"
+    }
+  }
+}

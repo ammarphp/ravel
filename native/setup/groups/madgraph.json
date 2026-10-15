@@ -1,0 +1,195 @@
+{
+ "group": {
+   "id": "madgraph",
+   "title": "MadGraph5_aMC@NLO 2.9.27 and 3.7.0 with LHAPDF 6.5.6",
+   "depends_on": [
+    "compiler-bootstrap"
+   ],
+   "size_gb": 2.4,
+   "minutes": 20,
+   "licenses": [
+    {
+     "component": "MadGraph5_aMC@NLO",
+     "spdx": "LicenseRef-MG5aMC",
+     "source": "https://github.com/mg5amcnlo/mg5amcnlo"
+    },
+    {
+     "component": "LHAPDF",
+     "spdx": "GPL-3.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "notes": "3.7.0 sits beside 2.9.27: lepton and photon parton densities need MadGraph 3.",
+   "steps": [
+    {
+     "id": "mg5-env",
+     "kind": "conda_env",
+     "name": "mg5",
+     "specs": [
+      "python=3.10",
+      "gfortran=13.*",
+      "cxx-compiler",
+      "make",
+      "six",
+      "numpy",
+      "lhapdf=6.5.6"
+     ]
+    },
+    {
+     "id": "mg5-source",
+     "kind": "git",
+     "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+     "commit": "eb76cab72b8d44aac7162ac7221ac08a4384a169",
+     "dest": "{TOOLS}/mg5amcnlo",
+     "tag": "v2.9.27"
+    },
+    {
+     "id": "mg5-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo/input/mg5_configuration.txt",
+     "template_from": "{TOOLS}/mg5amcnlo/input/.mg5_configuration_default.txt",
+     "values": {
+      "automatic_html_opening": "False",
+      "auto_update": "0",
+      "run_mode": "0",
+      "nb_core": "{JOBS}",
+      "fortran_compiler": "gfortran",
+      "lhapdf_py3": "{ENVS}/mg5/bin/lhapdf-config"
+     }
+    },
+    {
+     "id": "mg5-3-env",
+     "kind": "conda_env",
+     "name": "mg5-3",
+     "specs": [
+      "python=3.11",
+      "gfortran=13.*",
+      "cxx-compiler",
+      "make",
+      "six",
+      "numpy",
+      "lhapdf=6.5.6"
+     ]
+    },
+    {
+     "id": "mg5-3-source",
+     "kind": "git",
+     "url": "https://github.com/mg5amcnlo/mg5amcnlo",
+     "commit": "adf3d62d096abc1f1512c2101b40218f7c529d4f",
+     "dest": "{TOOLS}/mg5amcnlo-3.7.0",
+     "tag": "v3.7.0"
+    },
+    {
+     "id": "mg5-3-options",
+     "kind": "options_file",
+     "path": "{TOOLS}/mg5amcnlo-3.7.0/input/mg5_configuration.txt",
+     "template_from": "{TOOLS}/mg5amcnlo-3.7.0/input/.mg5_configuration_default.txt",
+     "values": {
+      "automatic_html_opening": "False",
+      "auto_update": "0",
+      "run_mode": "0",
+      "nb_core": "{JOBS}",
+      "fortran_compiler": "gfortran",
+      "lhapdf_py3": "{ENVS}/mg5-3/bin/lhapdf-config"
+     }
+    }
+   ],
+   "checks": [
+    {
+     "id": "mg-python",
+     "kind": "executable",
+     "path": "{ENVS}/mg5/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import sys; print('%d.%d' % sys.version_info[:2])"
+      ],
+      "regex": "(\\d+\\.\\d+)",
+      "expect": "3.10"
+     }
+    },
+    {
+     "id": "mg5",
+     "kind": "directory",
+     "path": "{TOOLS}/mg5amcnlo",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/mg5amcnlo",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "eb76cab72b8d44aac7162ac7221ac08a4384a169"
+     }
+    },
+    {
+     "id": "mg5-lhapdf-config",
+     "kind": "executable",
+     "path": "{ENVS}/mg5/bin/lhapdf-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "6.5.6"
+     }
+    },
+    {
+     "id": "mg5-options",
+     "kind": "file",
+     "path": "{TOOLS}/mg5amcnlo/input/mg5_configuration.txt"
+    },
+    {
+     "id": "mg5-3",
+     "kind": "directory",
+     "path": "{TOOLS}/mg5amcnlo-3.7.0",
+     "probe": {
+      "argv": [
+       "git",
+       "-C",
+       "{TOOLS}/mg5amcnlo-3.7.0",
+       "rev-parse",
+       "HEAD"
+      ],
+      "regex": "([0-9a-f]{40})",
+      "expect": "adf3d62d096abc1f1512c2101b40218f7c529d4f"
+     }
+    },
+    {
+     "id": "mg5-3-lhapdf-config",
+     "kind": "executable",
+     "path": "{ENVS}/mg5-3/bin/lhapdf-config",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "^(\\S+)$",
+      "expect": "6.5.6"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "madgraph",
+     "version": {
+      "mg-python": "3.10",
+      "mg5": "eb76cab72b8d44aac7162ac7221ac08a4384a169",
+      "mg5-lhapdf-config": "6.5.6",
+      "mg5-3": "adf3d62d096abc1f1512c2101b40218f7c529d4f",
+      "mg5-3-lhapdf-config": "6.5.6"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "bd7398c03b97fcb27170e1f4c56ab364ea7dc48a4304d5ec892811a36c5422c1"
+    }
+   }
+  }
+}

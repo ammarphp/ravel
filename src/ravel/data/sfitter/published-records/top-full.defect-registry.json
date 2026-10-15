@@ -1,0 +1,182 @@
+{
+ "schema_version": 1,
+ "kind": "defect-registry",
+ "review": {
+  "status": "reviewed",
+  "reviewer": "software translation of the 2026-10-10 development-line repair code; physicist review of each correction is pending",
+  "evidence": [
+   {
+    "path": "review-note.md",
+    "sha256": "062950bf7437618eb0c5c586a760d98a171f98b0559bc3954cce4ad444cb26c4"
+   }
+  ]
+ },
+ "sources": {
+  "card": {
+   "path": "sfitter/data/Top_Full.json",
+   "sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8"
+  },
+  "evaluator_datacard": {
+   "path": "sfitter/sfitter/likelihood/datacard.py",
+   "sha256": "a713917945b980afd4759ef7d637d7c9aa891e28cec6fdc7612e52d36544d6fa"
+  },
+  "evaluator_predictions": {
+   "path": "sfitter/sfitter/likelihood/predictions.py",
+   "sha256": "5f5b332a7595d4fda86ab09a4c379a2e3aba3c93d07e4ca71ce0696aba5bde23"
+  },
+  "evaluator_full_likelihood": {
+   "path": "sfitter/sfitter/likelihood/full_likelihood.py",
+   "sha256": "c4f34730c45ee03de503b0dd1d343717ce1343500c59ecdd05ae56cbdfc62d65"
+  }
+ },
+ "context": {
+  "source_commit": "6072a79e0f132d61a927f11ed482a401b34f6e3f",
+  "source_license": "MIT",
+  "card_output": "derived-card.json",
+  "output_format": "json",
+  "scope": "Top_Full.json released card and its explicit repair derivation"
+ },
+ "coverage": [
+  {
+   "input_fingerprint": "c24427a94623b517293497f157bbf1b4431c5066c173aa272c41b6e703e6d0aa",
+   "assumptions": [
+    {
+     "kind": "unresolved_released_top_coefficient_intent",
+     "original_prediction_indices": [
+      13,
+      27
+     ],
+     "monomial": "D6qt1xD6qt1",
+     "shadowed_coefficient": [
+      0.140410314677
+     ],
+     "native_effective_coefficient": [
+      0.0
+     ],
+     "intended_physical_coefficient": null,
+     "source_card_sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8",
+     "evidence": [
+      "evaluator_datacard",
+      "evaluator_predictions",
+      "evaluator_full_likelihood"
+     ],
+     "native_law": "Exact-name last-value dictionary (ReadDataCard._get_data/WC_data), sorted coordinate vector (_get_wilsons), tensor assignment (ProfileLikelihood); no aggregation.",
+     "resolution_required": "Independent response/source-author evidence and an explicit revised physical protocol; software success cannot clear this issue.",
+     "physics_validated": false
+    },
+    {
+     "kind": "unresolved_released_top_uncertainty_placement_intent",
+     "original_observation_index": 15,
+     "original_ID": "2120212_0",
+     "name": "SingleT_tch_t_8",
+     "location": "Meas.modifiers",
+     "original_modifier_index": 7,
+     "original_modifier": {
+      "name": "hatPDFNLO",
+      "energy": "8TeV",
+      "label": "Theo",
+      "type": "theo",
+      "data": [
+       2.607
+      ]
+     },
+     "native_nuisance_key": "theoTheo8TeVhatPDFNLO",
+     "included_in_native_theory_uncertainty": false,
+     "intended_physical_uncertainty_role": null,
+     "source_card_sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8",
+     "evidence": [
+      "evaluator_datacard"
+     ],
+     "resolution_required": "Independent source-author/uncertainty evidence and an explicit revised physical protocol; retaining the released unused entry does not qualify its intended uncertainty law.",
+     "physics_validated": false
+    }
+   ],
+   "support": {
+    "scope": "released Top_Full.json before repair"
+   }
+  },
+  {
+   "input_fingerprint": "23093876790452bd7d53ed6fbe2338644c4dcac6faeb5e3ccae7b32f3480adc5",
+   "assumptions": [
+    {
+     "kind": "unresolved_released_top_coefficient_intent",
+     "original_prediction_indices": [
+      13,
+      27
+     ],
+     "monomial": "D6qt1xD6qt1",
+     "shadowed_coefficient": [
+      0.140410314677
+     ],
+     "native_effective_coefficient": [
+      0.0
+     ],
+     "intended_physical_coefficient": null,
+     "source_card_sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8",
+     "evidence": [
+      "evaluator_datacard",
+      "evaluator_predictions",
+      "evaluator_full_likelihood"
+     ],
+     "native_law": "Exact-name last-value dictionary (ReadDataCard._get_data/WC_data), sorted coordinate vector (_get_wilsons), tensor assignment (ProfileLikelihood); no aggregation.",
+     "resolution_required": "Independent response/source-author evidence and an explicit revised physical protocol; software success cannot clear this issue.",
+     "physics_validated": false
+    },
+    {
+     "kind": "unresolved_released_top_uncertainty_placement_intent",
+     "original_observation_index": 15,
+     "original_ID": "2120212_0",
+     "name": "SingleT_tch_t_8",
+     "location": "Meas.modifiers",
+     "original_modifier_index": 7,
+     "original_modifier": {
+      "name": "hatPDFNLO",
+      "energy": "8TeV",
+      "label": "Theo",
+      "type": "theo",
+      "data": [
+       2.607
+      ]
+     },
+     "native_nuisance_key": "theoTheo8TeVhatPDFNLO",
+     "included_in_native_theory_uncertainty": false,
+     "intended_physical_uncertainty_role": null,
+     "source_card_sha256": "472449dcee7e1aaedfa3daeb7fb0431c6b5eabf39d4121c391b145c9b0fb0cd8",
+     "evidence": [
+      "evaluator_datacard"
+     ],
+     "resolution_required": "Independent source-author/uncertainty evidence and an explicit revised physical protocol; retaining the released unused entry does not qualify its intended uncertainty law.",
+     "physics_validated": false
+    }
+   ],
+   "support": {
+    "scope": "derived Top_Full card after the explicit repair manifest",
+    "nuisance_placements": [
+     {
+      "path": "/observations/15/Meas/modifiers/7",
+      "expected": {
+       "name": "hatPDFNLO",
+       "energy": "8TeV",
+       "label": "Theo",
+       "type": "theo",
+       "data": [
+        2.607
+       ]
+      },
+      "native_disposition": "retained_unused",
+      "evidence": [
+       "evaluator_datacard"
+      ],
+      "native_nuisance_key": "theoTheo8TeVhatPDFNLO",
+      "native_systematic_coordinate": 0.0,
+      "included_in_native_theory_uncertainty": false,
+      "reading": "ReadDataCard keeps the entry in the measurement nuisance roster; only outer observation modifiers feed theo_unc and the syst/stat/pois selectors ignore the theo type, so this coordinate is zero.",
+      "intended_physical_uncertainty_role": null
+     }
+    ]
+   }
+  }
+ ],
+ "defects": [],
+ "resolutions": []
+}

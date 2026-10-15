@@ -27,6 +27,8 @@ README demonstrations write to ignored `local-runs/`; these local outputs are no
 | `requirements-full.txt` | Full Python host requirements (declarations in `pyproject.toml`) |
 | `requirements-replay.lock` | Hashed, pinned replay and test dependencies |
 | `requirements-replay.txt` | Replay and test requirements (installs the lock file) |
+| `requirements-site-wms.in` | Inputs of the workflow-management profile, resolved into its hash lock |
+| `requirements-site-wms.lock` | Hashed lock of the workflow-management profile |
 | `requirements-site-wms.txt` | Separate Linux workflow-management profile |
 | `requirements-site.txt` | Linux ROOT and site analysis profile |
 

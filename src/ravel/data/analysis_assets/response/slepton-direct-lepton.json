@@ -1,0 +1,121 @@
+{
+ "schema_version": 1,
+ "study_id": "slepton-direct-lepton-response",
+ "parameter_grid": [],
+ "datasets": [
+  "supplied-events"
+ ],
+ "output_format": "jsonl.gz",
+ "pt_edges": [
+  0,
+  2,
+  3,
+  4,
+  5,
+  7,
+  10,
+  15,
+  20,
+  30,
+  50,
+  100,
+  null
+ ],
+ "abs_eta_edges": [
+  0,
+  0.8,
+  1.37,
+  1.52,
+  2.0,
+  2.47,
+  2.5,
+  null
+ ],
+ "flavours": [
+  {
+   "pid": 11,
+   "label": "electron",
+   "branch": "Electron"
+  },
+  {
+   "pid": 13,
+   "label": "muon",
+   "branch": "Muon"
+  }
+ ],
+ "parent_relations": [
+  {
+   "parent_pid": 1000011,
+   "child_pid": 11,
+   "same_sign": true
+  },
+  {
+   "parent_pid": 2000011,
+   "child_pid": 11,
+   "same_sign": true
+  },
+  {
+   "parent_pid": 1000013,
+   "child_pid": 13,
+   "same_sign": true
+  },
+  {
+   "parent_pid": 2000013,
+   "child_pid": 13,
+   "same_sign": true
+  },
+  {
+   "parent_pid": 1000015,
+   "child_pid": 11,
+   "same_sign": true
+  },
+  {
+   "parent_pid": 2000015,
+   "child_pid": 11,
+   "same_sign": true
+  }
+ ],
+ "ancestor_categories": [
+  {
+   "id": "tau_ancestor",
+   "pids": [
+    15
+   ]
+  }
+ ],
+ "origin_labels": {
+  "direct": "direct_slepton",
+  "descendant": "other_slepton_descendant",
+  "other": "other_origin"
+ },
+ "stable_pids": [
+  1000022
+ ],
+ "topology": [
+  {
+   "kind": "allowed_roots",
+   "value": [
+    1000011,
+    2000011,
+    1000013,
+    2000013
+   ]
+  },
+  {
+   "kind": "root_count",
+   "value": 2
+  },
+  {
+   "kind": "opposite_signed_pair",
+   "value": true
+  },
+  {
+   "kind": "stable_count",
+   "value": 2
+  },
+  {
+   "kind": "direct_count",
+   "value": 2
+  }
+ ]
+}

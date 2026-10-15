@@ -261,6 +261,78 @@ def test_module_origin_outside_ravel_is_not_recorded():
         executor().module_origin([sys.executable, '-m', 'ravel.no_such_module_here'])
 
 
+@pytest.mark.parametrize('operation, role', sorted(executor().executors()['operations'].items()))
+def test_every_operation_seals_and_requires_its_role_receipt(root, monkeypatch, operation, role):
+    """All table rows use the same governed-worker receipt boundary; no native stage runs."""
+    node = {'id': 'F-fictional', 'operation': operation, 'rung': 'full',
+            'stage': {'name': 'fictional', 'argv': ['inert-worker'], 'events': 0}}
+    plan(root, nodes=[node])
+    no_self_checks(monkeypatch)
+    executor().seal_orders(root)
+    assert executor().load_order(root, node['id'])['role'] == role
+    action = full_action(node['id'])
+    assert [e.code for e in executor().gate_errors(root, 'launch', action)] == ['executor_receipt_missing']
+    workers = Workers(root)
+    monkeypatch.setattr(agent_worker, 'dispatch', workers)
+    receipt = executor().dispatch(root, node['id'])
+    assert receipt['status'] == 'ok' and receipt['role']['id'] == role
+    assert executor().gate_errors(root, 'launch', action) == []
+
+
+def test_unmapped_compute_sealing_refuses_without_partial_orders(root, tmp_path, monkeypatch):
+    signatures = json.loads((executor().DATA.parent.parent / 'operation_signatures.json').read_text())
+    signatures['operations']['fictional-unrouted'] = {
+        'implementation': {'kind': 'science-mode'}, 'effects': [], 'stages': [], 'tools': []}
+    path = tmp_path / 'signatures.json'
+    path.write_text(json.dumps(signatures))
+    monkeypatch.setattr(executor(), 'SIGNATURES', path, raising=False)
+    plan(root, nodes=[N1, {'id': 'U-unknown', 'operation': 'fictional-unrouted', 'rung': 'full'}])
+    with pytest.raises(executor().ExecutorRefused) as refused:
+        executor().seal_orders(root)
+    error, = refused.value.errors
+    assert error.code == 'executor_role_missing'
+    assert 'U-unknown' in error.message and 'fictional-unrouted' in error.message
+    assert error.fix == 'add a production role for fictional-unrouted to executors.json'
+    assert not (root / 'inputs/work-orders').exists()
+
+
+def test_declared_host_records_stay_outside_production(root):
+    nodes = [{'id': f'F-{i}', 'operation': op} for i, op in enumerate(executor().executors()['host_operations'])]
+    plan(root, nodes=nodes)
+    assert executor().production_nodes(executor()._facts(root)) == []
+    assert executor().seal_orders(root) == []
+
+
+def test_node_that_names_no_operation_stays_outside_production(root):
+    """A coordinator envelope names no operation; the plan around it still seals."""
+    envelope = {'id': 'F-envelope', 'kind': 'envelope', 'operation': None, 'rung': 'none'}
+    plan(root, nodes=[envelope, N1])
+    assert [n['id'] for n in executor().production_nodes(executor()._facts(root))] == ['N1']
+    assert [row['node_id'] for row in executor().seal_orders(root)] == ['N1']
+
+
+def test_stage_without_an_operation_or_role_is_refused(root):
+    plan(root, nodes=[N1, {'id': 'F-anonymous', 'operation': None, 'rung': 'full',
+                           'stage': {'name': 'fictional', 'argv': ['inert-worker'], 'events': 0}}])
+    with pytest.raises(executor().ExecutorRefused) as refused:
+        executor().seal_orders(root)
+    error, = refused.value.errors
+    assert error.code == 'executor_role_missing' and 'F-anonymous' in error.message
+    assert 'None' not in error.message + error.fix
+    assert not (root / 'inputs/work-orders').exists()
+
+
+def test_explicit_production_role_override_can_route_an_unmapped_compute_node(root, tmp_path, monkeypatch):
+    table = executor().executors()
+    del table['operations']['formula-grid']
+    path = tmp_path / 'executors.json'
+    path.write_text(json.dumps(table))
+    monkeypatch.setattr(executor(), 'DATA', path)
+    plan(root, nodes=[{'id': 'F-override', 'operation': 'formula-grid', 'role': 'calculation', 'rung': 'full'}])
+    executor().seal_orders(root)
+    assert executor().load_order(root, 'F-override')['role'] == 'calculation'
+
+
 HOLD = ('import sys,time\n'
         'from ravel.workflow import machine_lease as m\n'
         'with m.held("earlier native job"):\n'

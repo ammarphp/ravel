@@ -10,6 +10,7 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+from ravel.physics import manuscript_assets
 import re
 from . import agent_graph, candidate_experiments as ce, report_integrity as integrity
 from . import scientific_report, state_io, manuscript_format
@@ -1178,11 +1179,12 @@ def _materialize(binding,loaded,receipt,saved,checkpoint,calls,out,*,write,consu
                 else:body+=r'\zlabel{'+identity+'-start}'
         if any(u['rendered_section'] is not None and u['start']<marker_at+len('%RAVEL_BODY%') and u['end']>marker_at for u in value['template_units']):raise ValueError('visible template unit must not straddle the generated body slot')
     latex=emit(root/'note.tex',native_template.replace('%RAVEL_BODY%',front_tex+'\n'+body).encode())
-    template_assets=[]
-    for pin in loaded['formatting']['template_assets']:
-        source=integrity._artifact_path(pin,base);target=root/source.name
-        if write and target.exists():raise ValueError('duplicate template/figure basename')
-        template_assets.append(emit(target,integrity._raw(pin,base,{})))
+    def emit_template(target,raw):
+        if write:
+            if target.exists():raise ValueError('duplicate template/figure destination')
+            target.parent.mkdir(parents=True,exist_ok=True)
+        return emit(target,raw)
+    template_assets=manuscript_assets.materialize(loaded['formatting']['template_assets'],base,root,emit_template)
     formatpin=emit_json(root/'formatting-assessment.json',formatting)
     ir={'schema_version':1,'document_type':'manuscript','applicability':request['profile'],'author_id':request['author_id'],
         'manuscript':manuscript,'units':units,'claims':claims,'methods':methods,'citations':citations,
@@ -1328,7 +1330,7 @@ def verified_products(package_pin,bindings,policy,*,base_dir):
         raise ValueError('actual independent original-policy manuscript integrity review remains unresolved')
     products=[package_pin,package['manuscript'],package['latex'],package['integrity_request'],package['formatting_assessment_pin'],
         package['model_provenance'],package['author_binding'],package['production_request'],binding['presentation'],
-        *package['figures'],*package['template_assets'],*[r['pin'] for r in calls]]
+        *package['figures'],*manuscript_assets.pins(package['template_assets']),*[r['pin'] for r in calls]]
     if binding.get('stages') is not None:
         from . import manuscript_workflow
         products.extend(manuscript_workflow.transcript_pins(binding['stages'],loaded,binding['campaign']))
@@ -1372,7 +1374,7 @@ def finalize(package_pin,bindings,build_binding,final_manifest,completion_reques
     root=Path(rundir).resolve(strict=True)
     population={str((root/row['path']).resolve() if not Path(row['path']).is_absolute() else Path(row['path']).resolve()):row for row in manifest['artifacts']}
     required=[package_pin,package['manuscript'],package['latex'],package['integrity_request'],package['model_provenance'],
-        package['formatting_assessment_pin'],package['author_binding'],build_binding['result'],result['pdf'],*package['figures'],*package['template_assets']]
+        package['formatting_assessment_pin'],package['author_binding'],build_binding['result'],result['pdf'],*package['figures'],*manuscript_assets.pins(package['template_assets'])]
     for pin in required:
         path=integrity._artifact_path(pin,base_dir);row=population.get(str(path))
         if row is None or row['sha256']!=pin['sha256']:raise ValueError('CI3 omitted or changed a manuscript/PDF/figure/method/prompt/format artifact')

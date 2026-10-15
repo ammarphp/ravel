@@ -70,6 +70,9 @@ def write_regions(path, names, sumw, sumw2, *, provenance):
 def write_stream(delivery, output):
     """MC convenience projections only; retain the existing blinded DATA roster."""
     pins = []
+    if delivery is None or delivery.get('kind') == 'root-stream-public-partition':
+        # A refused result has no delivery; one partition's raw partials are not a completed study.
+        return pins
     for i, sample in enumerate(delivery['samples']):
         if sample['kind'] == 'data':
             continue
@@ -98,16 +101,7 @@ def load_dataset(pin, base):
         n = sample['normalization']
         original = capture.document(n['original_population'], base)
         source = capture.document(n['source'], base)
-        if original.get('sample_id') != sample['id'] or original.get('dsid') != sample['dsid']:
-            raise ValueError('normalization population sample identity differs')
-        original_rows = {m['guid']: m for m in original['members']}
-        for member in sample['members']:
-            if original_rows.get(member['guid']) != {k: member[k] for k in ('guid', 'did', 'entries')}:
-                raise ValueError('dataset member differs from original normalization population')
-        if (source.get('sample_id') != sample['id'] or source.get('dsid') != sample['dsid'] or
-                source.get('original_population_sha256') != n['original_population']['sha256'] or
-                any(source.get(k) != n[k] for k in ('sum_weights', 'luminosity_fb_inverse', 'cross_section_pb', 'filter_efficiency', 'k_factor'))):
-            raise ValueError('dataset normalization differs from original source')
+        core.normalization_records(sample, original, source, closed=False)
         files += [Path(n['original_population']['path']), Path(n['source']['path'])]
         for member in sample['members']:
             capture.document(member['checksum']['authority'], base)

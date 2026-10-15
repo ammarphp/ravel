@@ -624,6 +624,11 @@ def invisible_census(model, base=None):
         raise ValueError(f'states declared both invisible and visible: {sorted(invisible_set & visible_set)}')
     evidence = {'declared_invisible': sorted(invisible_set), 'declared_visible_stable': sorted(visible_set)}
     errors = []
+    membership = None
+    if model.get('ufo'):
+        from ravel.physics.simplified_spectrum import ufo_particle_pdgs
+        ufo = Path(model['ufo'])
+        membership = set(ufo_particle_pdgs(ufo if ufo.is_absolute() else base / ufo))
     if model.get('slha'):
         path = Path(model['slha'])
         path = path if path.is_absolute() else base / path
@@ -660,6 +665,16 @@ def invisible_census(model, base=None):
                           + ', '.join(map(str, undeclared)))
         evidence['slha'] = {'path': str(path.resolve()), 'sha256': sha256(path), 'stable_bsm': sorted(stable),
                             'census_from': 'decay chains of the produced states' if produced else 'every BSM state in MASS'}
+        if membership is not None:
+            from ravel.physics.simplified_spectrum import check_card
+            closure = check_card(doc, invisible=invisible, stable=visible, produced=produced,
+                                 sm_masses={}, model_pdgs=membership)
+            errors += [f['message'] for f in closure['findings'] if f['severity'] == 'error']
+            evidence['outside_model'] = closure['outside_model']
+    elif membership is not None:
+        evidence['outside_model'] = sorted((invisible_set | visible_set) - membership)
+        if evidence['outside_model']:
+            errors.append('outside-model states require the full model.slha decay and stable declarations')
     if model.get('closure_report'):
         path = Path(model['closure_report'])
         path = path if path.is_absolute() else base / path
@@ -679,7 +694,8 @@ def invisible_census(model, base=None):
                                       'invisible_census': sorted(census), 'stable_census': sorted(stable)}
     if errors:
         raise ValueError('invisible-state census refused: ' + '; '.join(errors))
-    return {'invisible': sorted(invisible_set), 'visible_stable': sorted(visible_set), 'evidence': evidence}
+    return {'invisible': sorted(invisible_set), 'visible_stable': sorted(visible_set), 'evidence': evidence,
+            **({'outside_model': evidence['outside_model']} if 'outside_model' in evidence else {})}
 
 
 def hepmc_census(path, *, max_events=None, bsm_pdgs=()):

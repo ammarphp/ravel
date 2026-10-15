@@ -1,0 +1,88 @@
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage{ravel-figures}
+\begin{document}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\ravelheader{The research loop}{Staged experiments, judged by a rule fixed in advance; code computes when to stop.}
+\tikzset{
+  stage/.style={chip=#1, fill=rvbackground, minimum height=13mm, font=\ravelLabelFont, align=center},
+  step/.style={box=#1, minimum height=14mm, anchor=north west},
+  tick/.style={draw=rvmuted, line width=0.6pt, dash pattern=on 1.5pt off 1.5pt},
+  bar/.style={line width=2.4pt, draw=rv#1line, {Bar[width=3mm, line width=1pt]}-{Bar[width=3mm, line width=1pt]}},
+  small/.style={font=\ravelSmallFont, text=rvmuted, inner sep=1pt},
+}
+% ---- Before experiments.
+\node[step=50mm, draw=rvagentline, fill=rvagentfill] (lc) at (5,-22)
+  {\nodetitle{Limitation census}\nodesub{flaws of the reference method}};
+\node[step=50mm, draw=rvagentline, fill=rvagentfill] (id) at (60,-22)
+  {\nodetitle{Two sealed idea streams}\nodesub{committed, then revealed}};
+\node[step=50mm, draw=rvravelline, fill=rvravelfill] (pr) at (115,-22)
+  {\nodetitle{Preregistration}\nodesub{evaluators, comparison rule, stop rule}};
+\draw[flow] (lc) -- (id); \draw[flow] (id) -- (pr);
+% ---- Staged experiments.
+\begin{scope}[on background layer]
+  \draw[band=ravel] (5,-43) rectangle (165,-102);
+\end{scope}
+\node[bandlabel] at (7.5,-44.4) {STAGED EXPERIMENTS};
+\draw[flow] (pr.south) -- (140,-43);
+\tikzset{st/.style={stage=ravel, minimum width=27mm, text width=24mm, anchor=north west}}
+\node[st] (b) at (8,-51) {\nodetitle{Baseline}\nodesub{the reference}};
+\node[st] (s) at (39.5,-51) {\nodetitle{Screen}\nodesub{promote or discard}};
+\node[st] (f) at (71,-51) {\nodetitle{Full}\nodesub{rounds of candidates}};
+\node[st] (k) at (102.5,-51) {\nodetitle{Select}\nodesub{commit k of N trials}};
+\node[st] (c) at (134,-51) {\nodetitle{Confirm}\nodesub{once, fresh seeds}};
+\foreach \u/\v in {b/s, s/f, f/k, k/c} \draw[flow] (\u) -- (\v);
+\draw[loop] (f.north east) ++(-4,0) -- ++(0,3.4) -| node[flowlabel, pos=0.25] {next generation} ([xshift=4mm]f.north west);
+% Data cells and their exposures.
+\tikzset{data/.style={rectangle, rounded corners=1.4mm, line width=0.8pt, draw=rvhepline, fill=rvhepfill,
+  minimum height=8.4mm, font=\ravelSmallFont, align=center, anchor=north west}}
+\node[data, minimum width=27mm, text width=24mm] (ds) at (39.5,-71) {adaptive screen};
+\node[data, minimum width=89.5mm, text width=86mm] (df) at (8,-83) {adaptive full};
+\node[data, minimum width=27mm, text width=24mm, draw=rvguardline, dash pattern=on 3pt off 1.6pt] (dw) at (134,-71) {withheld, sealed until selection};
+\draw[flow] (s.south) -- (ds.north);
+\draw[flow] (b.south) -- (b.south |- df.north);
+\draw[flow] (f.south) -- (f.south |- df.north);
+\draw[flow] (c.south) -- (dw.north);
+\node[small, anchor=north west, text width=89mm] at (8,-93.4) {confirmation never shares population, seeds or generation with selection};
+\node[stage=ravel, minimum width=27mm, text width=24mm, anchor=north west, minimum height=11mm] (ab) at (102.5,-86)
+  {\nodetitle{Ablation}\nodesub{one component}};
+\node[stage=ravel, minimum width=27mm, text width=24mm, anchor=north west, minimum height=11mm] (ob) at (134,-86)
+  {\nodetitle{Objection test}\nodesub{one concern}};
+% ---- Decision rule.
+\begin{scope}[on background layer]
+  \draw[band=records] (5,-108) rectangle (100,-157);
+\end{scope}
+\node[bandlabel] at (7.5,-109.4) {DECISION PER CELL: GAIN INTERVAL [a, b]};
+\def\ax{-148}
+\draw[flow] (46,\ax) -- (97,\ax);
+\node[small, anchor=north east] at (97,\ax-1) {gain};
+\foreach \x/\lab in {56/{−t}, 64/{0}, 72/{+t}, 82/{g + t}} {
+  \draw[tick] (\x,\ax) -- (\x,-115);
+  \node[small, anchor=north] at (\x,\ax-1) {\lab};
+}
+\tikzset{rule/.style={small, text=rvtext, anchor=west}}
+\draw[bar=hep] (85,-119) -- (95,-119);    \node[rule] at (8,-119) {\textbf{better}\quad a > g + t};
+\draw[bar=records] (59,-126) -- (69,-126); \node[rule] at (8,-126) {\textbf{equivalent}\quad |a|, |b| ≤ t};
+\draw[bar=guard] (46,-133) -- (53,-133);  \node[rule] at (8,-133) {\textbf{worse}\quad b < −t};
+\draw[bar=people] (67,-140) -- (79,-140); \node[rule] at (8,-140) {\textbf{unknown}\quad otherwise};
+% ---- Stop rule.
+\begin{scope}[on background layer]
+  \draw[band=guard] (104,-108) rectangle (165,-157);
+\end{scope}
+\node[bandlabel] at (106.5,-109.4) {CODE STOPS THE LOOP};
+\tikzset{stop/.style={chip=guard, minimum width=57mm, text width=53mm, anchor=north west, font=\ravelSmallFont, align=left}}
+\node[stop] (s1) at (106,-115) {\textbf{1}\quad successes and coverage met};
+\node[stop, below=1.6mm of s1] (s2) {\textbf{2}\quad round limit, all observed};
+\node[stop, below=1.6mm of s2] (s3) {\textbf{3}\quad budget spent};
+\node[small, anchor=north west, text width=56mm] at ([yshift=-1.4mm]s3.south west) {coverage unmet: reported as a null funnel};
+% ---- Review stages.
+\tikzset{rv/.style={chip=guard, fill=rvguardfill, minimum width=36.5mm, text width=33.5mm, minimum height=11mm, anchor=north west}}
+\node[rv] (r1) at (5,-164) {\nodetitle{Critique}\nodesub{one experiment per concern}};
+\node[rv] (r2) at (46.1,-164) {\nodetitle{Acceptance}\nodesub{gains attributed by ablation}};
+\node[rv] (r3) at (87.2,-164) {\nodetitle{Meta-review}\nodesub{every claim and failure}};
+\node[rv] (r4) at (128.3,-164) {\nodetitle{Integrity}\nodesub{fresh re-execution}};
+\foreach \u/\v in {r1/r2, r2/r3, r3/r4} \draw[flow] (\u) -- (\v);
+\draw[loop, draw=rvpeopleline] (r3.south) -- ++(0,-4) -| node[flowlabel, pos=0.25] {objections return to experiments} (2.5,-75) -- (5,-75);
+\ravellegend{-190}{agent/Agents, ravel/RAVEL, hep/Data, guard/Checks and review, records/Rule}
+\ravelcanvasfit
+\end{tikzpicture}
+\end{document}

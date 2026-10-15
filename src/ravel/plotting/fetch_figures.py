@@ -37,20 +37,29 @@ if not __package__:  # Direct file execution uses the same package implementatio
     __package__ = "ravel.plotting"
 
 import argparse, json, os, re, ssl, subprocess, sys, tarfile, urllib.request, urllib.error
+from pathlib import Path
 
 from ravel.workflow import discovery_http
+from ravel.workflow.restriction_guard import require
 
 GS = "/usr/local/bin/gs"
 FIGURE_EXTENSIONS = (".pdf", ".png", ".jpg", ".jpeg", ".eps")
 
 
+def _identity(arxiv):
+    """The requested record identity, carried into admission of its cached files."""
+    return {'identifiers': {'arxiv': [arxiv]}} if arxiv else {}
+
+
 def _open(url, timeout=60):
     """Plain-client request with verified TLS (see ravel.workflow.discovery_http)."""
+    require('fetch_figures', {'url': url})
     return discovery_http.open_url(url, accept="*/*", timeout=timeout)
 
 
 def arxiv_from_inspire(inspire):
     """Pull the arXiv id from the HEPData record's bibtex eprint."""
+    require('fetch_figures', {'identifiers': {'inspire': [inspire if str(inspire).startswith('ins') else 'ins' + str(inspire)]}, 'classes': ['public-metadata'], 'quantities': ['text']})
     try:
         rec = discovery_http.fetch_hepdata_record(inspire).get("record")
     except Exception:
@@ -62,7 +71,7 @@ def arxiv_from_inspire(inspire):
     return m.group(1) if m else None
 
 
-def extract_figure_files(tarpath, figdir):
+def extract_figure_files(tarpath, figdir, arxiv=None):
     """Extract the source archive's figure files into `figdir`, flattened to basenames.
 
     Only regular members with a figure extension are written; links, devices and other
@@ -70,6 +79,7 @@ def extract_figure_files(tarpath, figdir):
     paths, no setuid or world-writable modes). A basename collision is suffixed __2, __3, ...
     and never overwritten. Returns {extracted basename: original member path}.
     """
+    require('fetch_figures', {'path': str(tarpath), **_identity(arxiv)}, output=figdir)
     os.makedirs(figdir, exist_ok=True)
     extracted = {}
     with tarfile.open(tarpath) as tf:
@@ -99,6 +109,7 @@ def _strip_tex_comments(tex):
 
 
 def _read_tex_members(tarpath):
+    require('fetch_figures', {'path': str(tarpath), 'quantities': ['text']})
     texs = {}
     with tarfile.open(tarpath) as tf:
         for m in tf.getmembers():
@@ -206,6 +217,7 @@ def build_figure_map(tarpath, extracted, arxiv):
     """Walk the paper's figure environments in document order -> {fig_no: {caption, graphics}}.
     Returns the map dict, or None (with a WARN) on any structural inconsistency -- the caller
     falls through to the pdf-page route."""
+    require('fetch_figures', {'path': str(tarpath), 'identifiers': {'arxiv': [arxiv]}}, output=Path(tarpath).parent)
     try:
         texs = _read_tex_members(tarpath)
     except (tarfile.ReadError, OSError) as e:
@@ -251,9 +263,10 @@ def _parse_figure_id(fid):
     return m.group(1), m.group(2).lower()
 
 
-def pdf_page_route(pdfpath, num, out):
+def pdf_page_route(pdfpath, num, out, arxiv=None):
     """pypdf text scan for the 'Figure N:'/'Figure N.' caption -> rasterize that page via gs.
     Returns a result dict, or None when the caption is not found in the PDF text."""
+    require('fetch_figures', {'path': str(pdfpath), **_identity(arxiv)}, output=out)
     try:
         from pypdf import PdfReader
         reader = PdfReader(pdfpath)
@@ -283,6 +296,7 @@ def pdf_page_route(pdfpath, num, out):
 
 def resolve_figure(fid, figure_map, figdir, pdfpath, out, arxiv):
     """The extraction ladder for one requested figure id: tex map -> pdf page -> textual ref."""
+    require('fetch_figures', {'path': str(pdfpath) if pdfpath else str(figdir), 'identifiers': {'arxiv': [arxiv]} if arxiv else {}}, output=out)
     num, letter = _parse_figure_id(fid)
     caption = None
     # route i: the tex map
@@ -302,7 +316,7 @@ def resolve_figure(fid, figure_map, figdir, pdfpath, out, arxiv):
                   file=sys.stderr)
     # route ii: the PDF page
     if pdfpath and os.path.isfile(pdfpath):
-        r = pdf_page_route(pdfpath, num, out)
+        r = pdf_page_route(pdfpath, num, out, arxiv)
         if r:
             r.update({"figure_id": f"Figure {num}{letter}", "caption": caption, "arxiv": arxiv})
             return r
@@ -311,16 +325,51 @@ def resolve_figure(fid, figure_map, figdir, pdfpath, out, arxiv):
             "path": None, "caption": caption, "arxiv": arxiv}
 
 
-def main():
+def _local_pdf_gallery(pdfpath, out):
+    """Split a supplied document into qualitative page figures with source provenance."""
+    require('fetch_figures', {'path': str(pdfpath), 'quantities': ['qualitative']}, output=out)
+    from pypdf import PdfReader, PdfWriter
+    from ravel.workflow.state_io import atomic_json
+    from ravel.plotting.figure_io import read_bytes, sha256_bytes
+    import io
+    raw = read_bytes(pdfpath)
+    reader = PdfReader(io.BytesIO(raw))
+    folder = Path(out)
+    figures = []
+    for number, page in enumerate(reader.pages, 1):
+        dest = folder / 'figures' / f'page{number}.pdf'
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        writer = PdfWriter()
+        writer.add_page(page)
+        with dest.open('xb') as stream:
+            writer.write(stream)
+        figures.append({'path': dest.relative_to(folder).as_posix(), 'page': number, 'usage': 'qualitative'})
+    manifest = {'schema_version': 1, 'usage': 'qualitative',
+                'source': {'path': str(Path(pdfpath).resolve()), 'sha256': sha256_bytes(raw)},
+                'figures': figures}
+    atomic_json(folder / 'figure_manifest.json', manifest)
+    return manifest
+
+
+def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--routine"); g.add_argument("--inspire"); g.add_argument("--arxiv")
+    g.add_argument("--routine"); g.add_argument("--inspire"); g.add_argument("--arxiv"); g.add_argument("--pdf", help="supplied local document for a qualitative page gallery")
     ap.add_argument("--out", required=True)
     ap.add_argument("--figure", action="append",
                     help="figure id to resolve through the extraction ladder (repeatable), e.g. 16a")
     ap.add_argument("--map-captions", action="store_true",
                     help="write <out>/figure_map.json (figure -> files + captions) from the tex source")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+    if args.pdf:
+        require('fetch_figures', {'path': args.pdf, 'quantities': ['qualitative']}, output=args.out)
+        return _local_pdf_gallery(args.pdf, args.out)
+    inspire = args.inspire
+    if not inspire and args.routine:
+        match = re.search(r'_I(\d+)$', args.routine)
+        inspire = 'ins' + match[1] if match else None
+    identifiers = {'arxiv': [args.arxiv]} if args.arxiv else {'inspire': [inspire if str(inspire).startswith('ins') else 'ins' + str(inspire)]}
+    require('fetch_figures', {'identifiers': identifiers}, output=args.out)
     os.makedirs(args.out, exist_ok=True)
 
     arxiv = args.arxiv
@@ -333,6 +382,7 @@ def main():
             arxiv = arxiv_from_inspire(inspire)
     if not arxiv:
         sys.exit("could not resolve an arXiv id; pass --arxiv explicitly")
+    require('fetch_figures', {'identifiers': {'arxiv': [arxiv]}}, output=args.out)
     print(f"arXiv: {arxiv}")
 
     # route 1: source tarball -> figure files. Basenames are FLATTENED into figures/; a name
@@ -354,7 +404,7 @@ def main():
             print(f"arXiv source fetch failed: {e!r}")
     if os.path.isfile(tarpath) and os.path.getsize(tarpath) > 0:
         try:
-            extracted = extract_figure_files(tarpath, figdir)
+            extracted = extract_figure_files(tarpath, figdir, arxiv)
             print(f"extracted {len(extracted)} figure files -> {figdir}")
         except tarfile.ReadError:
             print("source is not a tarball (single-file submission); keeping the raw download")

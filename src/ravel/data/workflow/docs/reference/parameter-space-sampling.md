@@ -1,7 +1,7 @@
 # Supplied EasyScan scan contracts
 
 `parameter-space-sampling` wraps the source-bound EasyScan CLI through the ordinary scientific-study
-lifecycle. The required toolchain includes the framework, samplers and selected physics
+lifecycle. The required toolchain includes the framework, EasyScan and selected physics
 programmes. Cold context and planning import no native engine and perform no installation.
 A delivery retains raw source outputs; it does not qualify convergence, posterior coverage,
 engine accuracy or scientific interpretation.

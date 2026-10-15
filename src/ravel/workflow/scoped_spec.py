@@ -30,6 +30,14 @@ GENERATION = _object({
     "definitions": _object({}, additional={"type": "string", "pattern": r"^[A-Za-z0-9_+~\- ]+$"}),
     "process": {"type": "string", "pattern": r"^[A-Za-z0-9_+~>,/@=(). \-]+$"},
     "parameter_card": _TEXT,
+    "nb_core": {"type": "integer", "minimum": 1, "maximum": 512},
+    "pdf_set": _TEXT,
+    "pdf_install_record": _TEXT,
+    "decay_states": _object({
+        "invisible": _array({"type": "integer"}),
+        "stable": _array({"type": "integer"}),
+        "produced": _array({"type": "integer"}),
+    }, ("invisible", "stable", "produced")),
     "events": {"type": "integer", "minimum": 1, "maximum": 1000000},
     "seed": {"type": "integer", "minimum": 1, "maximum": 30081},
     "beam_pdg": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
@@ -112,6 +120,15 @@ def validate(spec):
             errors.append("poi_cap exceeds the bounded adapter range (1e6)")
         return errors
     g = spec[section]
+    from ravel.physics.scoped import generation_resources, declared_pdf
+    try:
+        grant = spec.get("execution", {}).get("backend_plan", {}).get("resources", {}).get("cpus", 1)
+        generation_resources(g, grant)
+        declared_pdf(g)
+    except ValueError as exc:
+        errors.append(str(exc))
+    if "decay_states" in g and "parameter_card" not in g:
+        errors.append("decay_states requires parameter_card")
     settings = g["run_settings"]
     required = {"ebeam1", "ebeam2", "lpp1", "lpp2", "pdlabel", "lhaid",
                 "fixed_ren_scale", "fixed_fac_scale", "dynamical_scale_choice", "scalefact"}

@@ -37,7 +37,8 @@ def test_each_worker_family_is_listed_and_ingested(tmp_path, role):
     from ravel.workflow import worker_audit as wa, agent_audit as aa
     worker(tmp_path, role)
     audit = wa.build(tmp_path)
-    assert audit['complete'] and len(audit['sessions']) == 1
+    # Every recorded session is whole; the one gap is the coverage row for what a census cannot see.
+    assert audit['gaps'] == [wa.COVERAGE_LIMIT] and not audit['complete'] and len(audit['sessions']) == 1
     session = audit['sessions'][0]
     assert session['role_id'] == role and session['model_build'] == 'synthetic-build'
     assert session['timestamp'] == '2026-10-11T00:00:00Z' and session['tokens']['total_tokens'] == 11

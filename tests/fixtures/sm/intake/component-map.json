@@ -1,0 +1,57 @@
+{
+  "source": {
+    "hepdata": "ANA-0001",
+    "version": 2,
+    "tables": [
+      "Table A"
+    ],
+    "doi": "synthetic",
+    "sha256": {
+      "record": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "distribution": "Table A",
+  "column": 0,
+  "observable": {
+    "name": "x",
+    "unit": "fb",
+    "level": "dressed"
+  },
+  "normalization": "absolute",
+  "fiducial": {
+    "text": "Supplied synthetic interval"
+  },
+  "total_error_label": "total",
+  "components": [
+    {
+      "name": "stat",
+      "kind": "stat",
+      "error_label": "stat",
+      "correlation": "diagonal"
+    },
+    {
+      "name": "shape",
+      "kind": "syst",
+      "error_label": "shape",
+      "correlation": "full"
+    },
+    {
+      "name": "scale",
+      "kind": "syst",
+      "error_label": "scale",
+      "correlation": "full"
+    },
+    {
+      "name": "local",
+      "kind": "syst",
+      "error_label": "local",
+      "correlation": "diagonal"
+    },
+    {
+      "name": "lumi",
+      "kind": "lumi",
+      "error_label": "lumi",
+      "correlation": "full"
+    }
+  ]
+}

@@ -8,7 +8,10 @@ EOS path), copies them there without overwriting. The submission description
 carries the resource ceilings and the RAVEL tag, so an interrupted submission can
 be found again by tag. Scheduler commands are looked up on PATH and pinned by
 path and sha256 in the plan. Credentials (Kerberos, grid proxies) stay with the
-site; RAVEL only reports whether they are present (see ``ravel site doctor``).
+site; proxies are handed off by an explicitly declared owned file path only.
+The site's ``job_length_classes`` maps class names to maximum wall seconds;
+``job_flavour`` selects one, or the shortest fitting class is chosen. Explicit
+``environment`` values and stage ``env`` require ``environment_allowlist`` names.
 """
 from __future__ import annotations
 
@@ -18,6 +21,7 @@ from pathlib import Path
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 
 from ravel.workflow import execution_backend as eb
@@ -30,6 +34,92 @@ SLURM_STATES = {'PENDING': 'pending', 'CONFIGURING': 'pending', 'REQUEUED': 'pen
                 'FAILED': 'failed', 'TIMEOUT': 'failed', 'OUT_OF_MEMORY': 'failed', 'NODE_FAIL': 'failed',
                 'BOOT_FAIL': 'failed', 'DEADLINE': 'failed', 'PREEMPTED': 'failed', 'CANCELLED': 'cancelled'}
 _OPTION = re.compile(r'^[A-Za-z+][A-Za-z0-9_.+-]{0,63}$')
+_CLASS = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$')
+LONG_JOB_KEYS = ('job_length_classes', 'job_flavour', 'proxy_path', 'environment_allowlist', 'environment')
+
+
+def validate_proxy_path(value):
+    """Validate a literal owned file by metadata only; never open a proxy."""
+    if not isinstance(value, str) or not value or any(c in value for c in '\n\r\x00"$'):
+        raise ValueError('proxy_path must be a literal single-line absolute path')
+    path = Path(value)
+    if not path.is_absolute():
+        raise ValueError('proxy_path must be an absolute path')
+    try:
+        info = path.lstat()
+    except OSError as exc:
+        raise ValueError('proxy_path must exist') from exc
+    if not stat.S_ISREG(info.st_mode):
+        raise ValueError('proxy_path must be an ordinary file, not a symlink')
+    if info.st_uid != os.getuid():
+        raise ValueError('proxy_path must be owned by the submitting user')
+    return str(path)
+
+
+def long_job_settings(site, wall_seconds, env=None):
+    """Shared site-record contract for backend and profile consumers.
+
+    ``job_length_classes`` maps site-defined class names to maximum wall seconds.
+    No class names or inherited environment values are supplied by RAVEL.
+    This validation is repeated at rendering/submission, including proxy ownership.
+    """
+    if type(wall_seconds) is not int or wall_seconds <= 0:
+        raise ValueError('positive integer wall time required')
+    classes = site.get('job_length_classes', {})
+    if not isinstance(classes, dict) or any(
+            not isinstance(k, str) or not _CLASS.fullmatch(k) or type(v) is not int or v <= 0
+            for k, v in classes.items()):
+        raise ValueError('job_length_classes must map literal class names to positive wall seconds')
+    if 'job_length_classes' in site and not classes:
+        raise ValueError('job_length_classes must not be empty')
+    flavour = site.get('job_flavour')
+    if 'job_flavour' in site and (not isinstance(flavour, str) or flavour not in classes):
+        raise ValueError('job_flavour must be a class declared in job_length_classes')
+    if classes:
+        if flavour is None:
+            candidates = sorted((limit, name) for name, limit in classes.items() if limit >= wall_seconds)
+            if not candidates:
+                raise ValueError('wall time exceeds every declared job-length class')
+            flavour = candidates[0][1]
+        if wall_seconds > classes[flavour]:
+            raise ValueError('wall time exceeds the selected job-length class')
+    proxy = validate_proxy_path(site['proxy_path']) if 'proxy_path' in site else None
+    if site['scheduler'] != 'htcondor' and (classes or proxy or 'job_flavour' in site):
+        raise ValueError('job_flavour and proxy_path hand-off are supported only for htcondor')
+    allowlist = site.get('environment_allowlist', [])
+    if not isinstance(allowlist, list) or any(not isinstance(n, str) for n in allowlist):
+        raise ValueError('environment_allowlist must be a list of declared names')
+    if len(set(allowlist)) != len(allowlist):
+        raise ValueError('environment_allowlist names must be unique')
+    for name in allowlist:
+        eb._env_name(name)
+        if name in ('RAVEL_OUTPUT_DIR', 'OMP_NUM_THREADS'):
+            raise ValueError('environment_allowlist cannot replace RAVEL-controlled environment names')
+    environment = site.get('environment', {})
+    if not isinstance(environment, dict) or not isinstance(env or {}, dict):
+        raise ValueError('environment must be an explicit name/value mapping')
+    environment = dict(environment)
+    for name, value in (env or {}).items():
+        if name in environment and value != environment[name]:
+            raise ValueError('site environment and stage env must agree')
+        environment[name] = value
+    for name, value in environment.items():
+        if name not in allowlist:
+            raise ValueError('environment names must be declared in environment_allowlist')
+        eb._env_name(name)
+        if not isinstance(value, str) or any(c in value for c in '\n\r\x00') or '$' in value:
+            raise ValueError('environment values must be literal single-line strings without submit macros')
+    return {'job_flavour': flavour, 'proxy_path': proxy, 'environment': environment}
+
+
+def _condor_environment(environment):
+    entries = []
+    for name, value in sorted(environment.items()):
+        # HTCondor's new environment syntax: doubled quotes, single-quoted whitespace.
+        if not value or any(c.isspace() or c == "'" for c in value):
+            value = "'" + value.replace("'", "''") + "'"
+        entries.append(name + '=' + value.replace('"', '""'))
+    return '"' + ' '.join(entries) + '"'
 
 
 def _tool(name):
@@ -49,7 +139,8 @@ def _copy_command(source, uri):
 
 def wrapper(plan):
     spec = plan['spec']
-    env_lines = [f'export {name}={shlex.quote(value)}' for name, value in sorted(spec.get('env', {}).items())]
+    settings = long_job_settings(spec['site'], spec['resources']['wall_seconds'], spec.get('env'))
+    env_lines = [f'export {name}={shlex.quote(value)}' for name, value in sorted(settings['environment'].items())]
     for fact in plan['readonly_trees']:
         if 'env' in fact:
             env_lines.append(f"export {fact['env']}={shlex.quote(fact['path'])}")
@@ -71,6 +162,8 @@ def wrapper(plan):
 def render(plan, job_dir, tag):
     """Submission description for the plan's scheduler."""
     spec, site = plan['spec'], plan['spec']['site']
+    SiteBackend().validate(spec)
+    settings = long_job_settings(site, spec['resources']['wall_seconds'], spec.get('env'))
     job_dir = Path(job_dir).resolve()
     resources = spec['resources']
     options = site.get('options', {})
@@ -83,6 +176,11 @@ def render(plan, job_dir, tag):
                  'getenv = False']
         if 'disk_mib' in resources:
             lines.append(f'request_disk = {resources["disk_mib"] * 1024}')
+        if settings['job_flavour'] is not None:
+            lines.append(f'+JobFlavour = "{settings["job_flavour"]}"')
+        if settings['proxy_path'] is not None:
+            lines.extend(['use_x509userproxy = True', f'x509userproxy = "{settings["proxy_path"]}"'])
+        lines.append('environment = ' + _condor_environment(settings['environment']))
         for key, value in sorted(options.items()):
             lines.append(f'{key} = {value}')
         lines.append('queue 1')
@@ -92,11 +190,11 @@ def render(plan, job_dir, tag):
     lines = ['#!/bin/sh', f'#SBATCH --job-name={tag}', f'#SBATCH --cpus-per-task={resources["cpus"]}',
              f'#SBATCH --mem={resources["memory_mib"]}M', f'#SBATCH --time={hours:d}:{minutes:02d}:{seconds:02d}',
              f'#SBATCH --output={job_dir / "scheduler.out"}', f'#SBATCH --error={job_dir / "scheduler.err"}',
-             f'#SBATCH --chdir={job_dir}']
+             f'#SBATCH --chdir={job_dir}', '#SBATCH --export=NIL']
     if 'disk_mib' in resources:
         lines.append(f'#SBATCH --tmp={resources["disk_mib"]}M')
     for key, value in sorted(options.items()):
-        lines.append(f'#SBATCH --{key}={value}')
+        lines.append(f'#SBATCH --{key}={shlex.quote(str(value))}')
     lines += [f'exec /bin/sh {shlex.quote(str(job_dir / "job.sh"))}', '']
     return '\n'.join(lines)
 
@@ -109,16 +207,32 @@ class SiteBackend(eb.Backend):
         site = spec.get('site')
         if not isinstance(site, dict):
             raise ValueError('site backend needs a site block with the scheduler')
-        eb._keys(site, ('scheduler',), ('options', 'site_id', 'shared_filesystem'), 'site')
+        eb._keys(site, ('scheduler',), ('options', 'site_id', 'shared_filesystem', *LONG_JOB_KEYS), 'site')
         if site['scheduler'] not in COMMANDS:
             raise ValueError('site scheduler must be htcondor or slurm')
         options = site.get('options', {})
-        if not isinstance(options, dict) or any(not _OPTION.fullmatch(k) or not isinstance(v, (str, int))
-                                                or '\n' in str(v) for k, v in options.items()):
+        if not isinstance(options, dict) or any(not isinstance(k, str) or not _OPTION.fullmatch(k)
+                                                or type(v) not in (str, int)
+                                                or any(c in str(v) for c in '\n\r\x00') for k, v in options.items()):
             raise ValueError('site options must be plain scheduler keys with single-line values')
-        reserved = {'executable', 'initialdir', 'queue', 'output', 'error', 'log', 'job-name', 'chdir', 'batch_name', '+RavelTag'}
-        if reserved & set(options):
+        reserved = {'executable', 'arguments', 'initialdir', 'queue', 'output', 'error', 'log', 'job-name',
+                    'chdir', 'batch_name', '+raveltag', '+jobflavour', 'jobflavour', '+maxruntime',
+                    'maxruntime', 'getenv', 'environment', 'environment2', 'x509userproxy', 'use_x509userproxy',
+                    'request_cpus', 'request_memory', 'request_disk', 'cpus-per-task', 'mem', 'mem-per-cpu',
+                    'time', 'time-min', 'tmp', 'export', 'export-file', 'get-user-env', 'universe', 'should_transfer_files',
+                    'requestcpus', 'requestmemory', 'requestdisk', 'jobflavour', 'raveltag'}
+        normalized = {k.lower().lstrip('+') for k in options}
+        if {k.lstrip('+') for k in reserved} & normalized:
             raise ValueError('site options cannot replace RAVEL-controlled submission fields')
+        if site['scheduler'] == 'slurm' and any(
+                protected.startswith(key) for key in normalized
+                for protected in ('time', 'time-min', 'export', 'export-file', 'get-user-env', 'cpus-per-task',
+                                  'mem', 'mem-per-cpu', 'tmp', 'job-name', 'chdir', 'output', 'error')):
+            raise ValueError('site options cannot abbreviate RAVEL-controlled submission fields')
+        long_job_settings(site, spec['resources']['wall_seconds'], spec.get('env'))
+        for tree in spec.get('readonly_trees', []):
+            if 'env' in tree and tree['env'] not in site.get('environment_allowlist', []):
+                raise ValueError('readonly tree environment names must be declared in environment_allowlist')
         if 'image' in spec:
             raise ValueError('the site backend runs the site environment; run containers through the site setup instead')
         return spec
@@ -168,7 +282,8 @@ class SiteBackend(eb.Backend):
             if not match:
                 raise ValueError('condor_submit did not report a cluster id')
             return {'scheduler': 'htcondor', 'job_id': match.group(1)}
-        proc = self._call(plan, handle, 'sbatch', ['--parsable', str(description)])
+        # Command-line export takes precedence over an ambient SBATCH_EXPORT.
+        proc = self._call(plan, handle, 'sbatch', ['--parsable', '--export=NIL', str(description)])
         match = re.match(r'\s*(\d+)', proc.stdout)
         if not match:
             raise ValueError('sbatch did not report a job id')

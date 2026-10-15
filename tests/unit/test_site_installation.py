@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import types
 import pytest
+from site_install_fixture import lock_text, VERSIONS
 
 
 SOURCE=Path(__file__).parents[2]
@@ -17,6 +18,15 @@ def fixture(tmp_path):
     root=tmp_path/'checkout';(root/'src/ravel').mkdir(parents=True);(root/'src/ravel/__init__.py').write_text('# synthetic\n')
     for name in ('requirements-full.txt','requirements-site.txt','requirements-site-wms.txt','environment/site-profiles.json','pyproject.toml','scripts/setup/site_installation.py'):
         q=root/name;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(SOURCE/name,q)
+    (root/'requirements-site-wms.lock').write_text(lock_text())
+    helper.release_id=lambda root:'synthetic-release-a'
+    class Host:
+        def which(self,name):return None
+        def exists(self,path):return Path(path).exists()
+        def run(self,argv):return 0,'Filesystem 1024-blocks Used Available Capacity Mounted on\nsynthetic 40000000 1 20000000 1% /work\n'
+    helper.Host=Host
+    original_views=helper.lcg_views
+    helper.lcg_views=lambda base=None,**kwargs:original_views(base if base is not None else tmp_path/'absent-views',**kwargs)
     return helper,root
 
 
@@ -28,7 +38,7 @@ def test_required_linux_profiles_and_explicit_mac_remote_plan(tmp_path,monkeypat
     with pytest.raises(ValueError):h.plan(root)
     p=h.plan(root,linux_root='/supplied/linux/ravel')
     assert p['remote_site_required'] and p['local_install_argv'] is None
-    assert p['remote_install_argv']==['python3.12','/supplied/linux/ravel/scripts/setup/site_installation.py','--install']
+    assert p['remote_install_argv']==['python3.12','/supplied/linux/ravel/scripts/setup/site_installation.py','--install','--prefix','/supplied/linux/ravel','--lcg-view','none']
     assert p['runtime_or_site_data_qualified'] is False
 
 
@@ -40,20 +50,22 @@ def test_idempotent_owned_profiles_keep_interpreter_copies_and_separate_wms(tmp_
         if 'venv' in argv:
             assert '--copies' in argv
             path=Path(argv[-1]);(path/'bin').mkdir(parents=True);(path/'bin/python').write_text('synthetic never executed')
-        if '-I' in argv:
+        if '-c' in argv and 'sys.base_prefix' in argv[-1]:
             path=Path(argv[0]).parents[1]
             return types.SimpleNamespace(stdout=json.dumps([str(path),'/synthetic/base',[3,12],'Linux','CPython']))
+        if '-c' in argv:return types.SimpleNamespace(stdout=json.dumps(VERSIONS))
+        if argv[-1]=='--version':return types.SimpleNamespace(stdout='9.27.0\n')
         return types.SimpleNamespace(stdout='synthetic==1\n')
     monkeypatch.setattr(h.subprocess,'run',run)
-    assert h.install(root)['installed_profiles']==['site-analysis','site-wms']
-    first=list(calls);h.install(root)
+    assert h.install(root,lcg_view='none')['installed_profiles']==['site-analysis','site-wms']
+    first=list(calls);h.install(root,lcg_view='none')
     assert sum('venv' in x for x in calls)==2
     pip=[x for x in first if 'install' in x]
     assert any('requirements-full.txt' in item for item in pip[0])
     assert not any('requirements-full.txt' in item for item in pip[1])
     assert all((root/'.ravel-site'/p/'ravel-site-installed.json').is_file() for p in h.PROFILES)
     assert [json.loads((root/'.ravel-site'/p/'ravel-site-installed.json').read_text())['profile'] for p in h.PROFILES]==['site-analysis','site-wms']
-    assert sum('-I' in x for x in calls)==12  # Before install/check/freeze in both profiles, twice.
+    assert sum('-I' in x and '-c' in x and 'sys.base_prefix' in x[-1] for x in calls)==12
     (root/'requirements-site.txt').write_text('changed-original\n')
     with pytest.raises(ValueError):h.install(root)
 
@@ -74,7 +86,7 @@ def test_replaced_interpreter_refuses_before_any_pip(tmp_path,monkeypatch,bad):
         calls.append(argv)
         if 'venv' in argv:
             path=Path(argv[-1]);(path/'bin').mkdir(parents=True);(path/'bin/python').write_text('synthetic never executed')
-        if '-I' in argv:
+        if '-c' in argv and 'sys.base_prefix' in argv[-1]:
             target=Path(argv[0]).parents[1]
             value=[str(target),'/synthetic/base',[3,12],'Linux','CPython']
             if replaced:
@@ -84,10 +96,12 @@ def test_replaced_interpreter_refuses_before_any_pip(tmp_path,monkeypatch,bad):
                 elif bad=='wrong-implementation':value[4]='PyPy'
                 else:value[1]=str(target)
             return types.SimpleNamespace(stdout=json.dumps(value))
+        if '-c' in argv:return types.SimpleNamespace(stdout=json.dumps(VERSIONS))
+        if argv[-1]=='--version':return types.SimpleNamespace(stdout='9.27.0\n')
         return types.SimpleNamespace(stdout='')
     monkeypatch.setattr(h.subprocess,'run',run)
-    h.install(root);calls.clear();replaced=True
-    with pytest.raises(ValueError,match='declared Linux CPython3.12'):h.install(root)
+    h.install(root,lcg_view='none');calls.clear();replaced=True
+    with pytest.raises(ValueError,match='declared Linux CPython3.12'):h.install(root,lcg_view='none')
     assert not any('pip' in argv for argv in calls)
 
 

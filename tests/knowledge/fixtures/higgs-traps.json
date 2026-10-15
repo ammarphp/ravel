@@ -1,0 +1,339 @@
+{
+  "TH1": {
+    "clean": {
+      "measurements": [
+        {
+          "id": "ANA-0001",
+          "event_set": "EV-001",
+          "representation": "inclusive"
+        },
+        {
+          "id": "ANA-0002",
+          "event_set": "EV-002",
+          "representation": "stxs"
+        }
+      ],
+      "joint_likelihoods": []
+    },
+    "planted": {
+      "measurements": [
+        {
+          "id": "ANA-0001",
+          "event_set": "EV-001",
+          "representation": "inclusive"
+        },
+        {
+          "id": "ANA-0002",
+          "event_set": "EV-001",
+          "representation": "stxs"
+        }
+      ],
+      "joint_likelihoods": []
+    }
+  },
+  "TH2": {
+    "clean": {
+      "experiments": [
+        "EXP-A",
+        "EXP-B"
+      ],
+      "theory_components": [
+        {
+          "id": "NU-001",
+          "process": "P-001",
+          "source": "SRC-001",
+          "experiments": [
+            "EXP-A",
+            "EXP-B"
+          ],
+          "definitions": [
+            "scale:seven-point",
+            "scale:seven-point"
+          ],
+          "correlation": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "origins": [
+            "table"
+          ],
+          "decorrelation_evidence": null
+        }
+      ]
+    },
+    "planted": {
+      "experiments": [
+        "EXP-A",
+        "EXP-B"
+      ],
+      "theory_components": [
+        {
+          "id": "NU-001",
+          "process": "P-001",
+          "source": "SRC-001",
+          "experiments": [
+            "EXP-A",
+            "EXP-B"
+          ],
+          "definitions": [
+            "scale:seven-point",
+            "scale:seven-point"
+          ],
+          "correlation": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "origins": [
+            "table"
+          ],
+          "decorrelation_evidence": null
+        }
+      ]
+    }
+  },
+  "TH3": {
+    "clean": {
+      "prediction_mass_gev": 100.0,
+      "measurement_mass_gev": 100.0,
+      "mass_translation": null
+    },
+    "planted": {
+      "prediction_mass_gev": 101.0,
+      "measurement_mass_gev": 100.0,
+      "mass_translation": null
+    }
+  },
+  "TH4": {
+    "clean": {
+      "prediction_loop_mode": {
+        "gg": "effective",
+        "gamma": "resolved"
+      },
+      "measurement_loop_mode": {
+        "gg": "effective",
+        "gamma": "resolved"
+      }
+    },
+    "planted": {
+      "prediction_loop_mode": {
+        "gg": "resolved",
+        "gamma": "resolved"
+      },
+      "measurement_loop_mode": {
+        "gg": "effective",
+        "gamma": "resolved"
+      }
+    }
+  },
+  "TH5": {
+    "clean": {
+      "parameterization": {
+        "free": [
+          "br_bsm",
+          "kappa_v"
+        ],
+        "width_constraint": null,
+        "kappa_v_upper_bound": 1.0
+      }
+    },
+    "planted": {
+      "parameterization": {
+        "free": [
+          "br_bsm",
+          "kappa_v"
+        ],
+        "width_constraint": null,
+        "kappa_v_upper_bound": null
+      }
+    }
+  },
+  "TH6": {
+    "clean": {
+      "likelihood": {
+        "errors": {
+          "down": 0.4,
+          "up": 0.8
+        },
+        "distance_to_boundary": 0.2,
+        "approximation": "asymmetric"
+      }
+    },
+    "planted": {
+      "likelihood": {
+        "errors": {
+          "down": 0.4,
+          "up": 0.8
+        },
+        "distance_to_boundary": 0.2,
+        "approximation": "symmetric-gaussian"
+      }
+    }
+  },
+  "TH7": {
+    "clean": {
+      "scalar_conventions": {
+        "source_cos_ba_sign": 1,
+        "target_cos_ba_sign": -1,
+        "available_branches": [
+          "right-sign",
+          "wrong-sign"
+        ],
+        "retained_branches": [
+          "right-sign",
+          "wrong-sign"
+        ],
+        "branch_restriction_evidence": null
+      }
+    },
+    "planted": {
+      "scalar_conventions": {
+        "source_cos_ba_sign": 1,
+        "target_cos_ba_sign": -1,
+        "available_branches": [
+          "right-sign",
+          "wrong-sign"
+        ],
+        "retained_branches": [
+          "right-sign"
+        ],
+        "branch_restriction_evidence": null
+      }
+    }
+  },
+  "TH8": {
+    "clean": {
+      "basis": {
+        "tan_beta_basis": "generic",
+        "prediction_basis": "generic",
+        "transport": null
+      }
+    },
+    "planted": {
+      "basis": {
+        "tan_beta_basis": "generic",
+        "prediction_basis": "higgs",
+        "transport": null
+      }
+    }
+  },
+  "TH9": {
+    "clean": {
+      "exclusion": {
+        "method": "expected-channel-selection",
+        "ratio": 1.2,
+        "interpretation": "selected-channel-95cl"
+      }
+    },
+    "planted": {
+      "exclusion": {
+        "method": "expected-channel-selection",
+        "ratio": 1.2,
+        "interpretation": "combined-95cl"
+      }
+    }
+  },
+  "TH10": {
+    "clean": {
+      "gof": {
+        "statistic": "delta_chi2",
+        "dof": 2,
+        "parameters_of_interest": 2,
+        "purpose": "confidence-region",
+        "p_value": 0.1
+      }
+    },
+    "planted": {
+      "gof": {
+        "statistic": "delta_chi2",
+        "dof": 4,
+        "parameters_of_interest": 2,
+        "purpose": "confidence-region",
+        "p_value": 0.1
+      }
+    }
+  },
+  "TH11": {
+    "clean": {
+      "dataset_release": {
+        "used": "REL-001",
+        "required": "REL-001",
+        "required_source": "SRC-002",
+        "claim": "current"
+      }
+    },
+    "planted": {
+      "dataset_release": {
+        "used": "REL-000",
+        "required": "REL-001",
+        "required_source": "SRC-002",
+        "claim": "current"
+      }
+    }
+  },
+  "TH12": {
+    "clean": {
+      "averaging": {
+        "values": [
+          {
+            "value": 1.0,
+            "uncertainty": 0.1
+          },
+          {
+            "value": 2.0,
+            "uncertainty": 0.1
+          }
+        ],
+        "covariance": [
+          [
+            0.01,
+            0
+          ],
+          [
+            0,
+            0.01
+          ]
+        ],
+        "tension_threshold": 3.0,
+        "tension_statement": "Inconsistent supplied inputs retained separately."
+      }
+    },
+    "planted": {
+      "averaging": {
+        "values": [
+          {
+            "value": 1.0,
+            "uncertainty": 0.1
+          },
+          {
+            "value": 2.0,
+            "uncertainty": 0.1
+          }
+        ],
+        "covariance": [
+          [
+            0.01,
+            0
+          ],
+          [
+            0,
+            0.01
+          ]
+        ],
+        "tension_threshold": 3.0,
+        "tension_statement": null
+      }
+    }
+  }
+}

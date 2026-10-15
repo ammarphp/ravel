@@ -69,10 +69,13 @@ def staff(root):
                        'session_id': ident, 'actor_id': ident, 'model': {'family': ident},
                        'run_tree': {'modified': False}, 'final_record': {'valid': True, 'path': 'final.json',
                        'sha256': hashlib.sha256(final.read_bytes()).hexdigest()}}
+                # The dispatcher assigns each worker session its actor at spawn and registers it.
+                actor = custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + ident, ident + '/1')
+                rec['actor_id'] = actor['actor_id']
                 path = final.parent/'receipt.json'
                 path.write_text(json.dumps(rec))
                 custody.register_worker_receipt(root, path.relative_to(root).as_posix(),
-                                                verified_label='transport_attested')
+                                                verified_label='transport_attested', actor=actor)
 
 
 def reviews(r, **kwargs):

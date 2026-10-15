@@ -1,0 +1,175 @@
+{
+ "group": {
+   "id": "checkmate",
+   "title": "CheckMATE 2 with its own Pythia 8.244 and Delphes 3.5.1",
+   "tools": [
+    "CheckMATE",
+    "Delphes",
+    "Pythia 8"
+   ],
+   "depends_on": [
+    "recast-base",
+    "madgraph"
+   ],
+   "size_gb": 3.2,
+   "minutes": 45,
+   "licenses": [
+    {
+     "component": "CheckMATE 2",
+     "spdx": "GPL-2.0-only",
+     "source": "https://github.com/CheckMATE2/checkmate2"
+    },
+    {
+     "component": "Delphes",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://github.com/delphes/delphes"
+    },
+    {
+     "component": "Pythia 8.244",
+     "spdx": "GPL-2.0-or-later",
+     "source": "conda-forge"
+    }
+   ],
+   "steps": [
+    {
+     "id": "pythia82-env",
+     "kind": "conda_env",
+     "name": "pythia82",
+     "specs": [
+      "python=3.9",
+      "pythia8=8.244"
+     ]
+    },
+    {
+     "id": "checkmate-env",
+     "kind": "conda_env",
+     "name": "checkmate",
+     "specs": [
+      "python=3.12",
+      "numpy",
+      "scipy",
+      "pip",
+      "root=6.40.00",
+      "hepmc2=2.06.11",
+      "onnxruntime-cpp=1.30.0",
+      "clang=20.*",
+      "clangxx=20.*",
+      "libboost-headers=1.88.*",
+      "future",
+      "matplotlib-base",
+      "jax",
+      "jaxlib",
+      "make",
+      "autoconf",
+      "automake",
+      "libtool"
+     ],
+     "pip": [
+      "pyhf==0.7.6",
+      "jsonpatch==1.33",
+      "spey==0.2.7",
+      "spey-pyhf==0.2.2"
+     ]
+    },
+    {
+     "id": "delphes-source",
+     "kind": "git",
+     "url": "https://github.com/delphes/delphes",
+     "commit": "28658365abeb71ee36dfc739f9670c1514c0cb10",
+     "dest": "{TOOLS}/delphes-3.5.1-src",
+     "tag": "3.5.1"
+    },
+    {
+     "id": "checkmate-source",
+     "kind": "git",
+     "url": "https://github.com/CheckMATE2/checkmate2",
+     "commit": "bacf9d17ff8e844e3b40851849e21f0dd0f0638c",
+     "dest": "{TOOLS}/checkmate2"
+    },
+    {
+     "id": "checkmate-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-checkmate.sh",
+      "--checkmate",
+      "{TOOLS}/checkmate2",
+      "--delphes-src",
+      "{TOOLS}/delphes-3.5.1-src",
+      "--delphes-out",
+      "{TOOLS}/delphes-3.5.1-py82",
+      "--pythia",
+      "{ENVS}/pythia82",
+      "--env",
+      "{ENVS}/checkmate",
+      "--madgraph",
+      "{TOOLS}/mg5amcnlo",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/checkmate2/bin/CheckMATE",
+      "{TOOLS}/delphes-3.5.1-py82/libDelphes.so"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-checkmate.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "checkmate",
+     "kind": "executable",
+     "path": "{TOOLS}/checkmate2/bin/CheckMATE"
+    },
+    {
+     "id": "pythia82-config",
+     "kind": "executable",
+     "path": "{ENVS}/pythia82/bin/pythia8-config",
+     "probe": {
+      "argv": [
+       "grep",
+       "-h",
+       "define PYTHIA_VERSION",
+       "{ENVS}/pythia82/include/Pythia8/Pythia.h"
+      ],
+      "regex": "(\\d+\\.\\d+)",
+      "expect": "8.244"
+     }
+    },
+    {
+     "id": "checkmate-python",
+     "kind": "executable",
+     "path": "{ENVS}/checkmate/bin/python",
+     "probe": {
+      "argv": [
+       "{path}",
+       "-c",
+       "import numpy, scipy, pyhf, jsonpatch, spey, spey_pyhf; print('imports ok')"
+      ],
+      "regex": "imports ok"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "limitations": [
+     "Unresolved: this record covers installation and the group doctor checks only (executables present, the Pythia 8.244 version string, the CheckMATE Python imports). It does not establish runtime ABI closure of Fritz.",
+     "The installed recipe links Fritz directly against the Pythia 8.244 library while the checkmate ROOT environment carries a second libpythia8 (static inspection of the qualified prefix), so one process can load two Pythia versions; that runtime is not qualified.",
+     "The newer Pythia-free recipe, its checkmate-abi check and its cleanup are held under strict xfails of the source tests until an admitted native build qualifies them. Runtime ABI closure may not be claimed before that qualification."
+    ],
+    "record": {
+     "tool": "checkmate",
+     "version": {
+      "pythia82-config": "8.244",
+      "checkmate-python": "imports ok"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "548f5a45698d346a45f455b70efed8ca27d8a36d496aa9e065b880060fc3a09b"
+    }
+   }
+  }
+}

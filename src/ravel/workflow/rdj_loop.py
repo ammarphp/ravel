@@ -1431,7 +1431,7 @@ def _resolve(rundir, request, ref):
         if registration is None:
             raise ValueError("the worker receipt is not registered by the worker dispatcher")
         receipt = read_json(path)
-        if receipt.get("schema_version") not in (1, 2) or receipt.get("kind") != "agent-worker-receipt" \
+        if receipt.get("schema_version") not in (1, 2, 3) or receipt.get("kind") != "agent-worker-receipt" \
                 or receipt.get("status") != "ok" or (receipt.get("role") or {}).get("id") != agent_role:
             raise ValueError("the worker receipt is not a successful receipt for this role")
         if receipt.get("rdj") != {"case_id": request["case_id"], "slot": request["slot"],
@@ -1446,14 +1446,22 @@ def _resolve(rundir, request, ref):
             raise ValueError("the worker's final record differs from its receipt")
         output = read_json(final_path)
         # The label comes from the dispatcher's registration, bounded by the observed execution mode;
-        # the receipt's own ``attestation`` field is a self-claim and is never read.
+        # the receipt's own ``attestation`` field is a self-claim and is never read. A receipt
+        # written before the mode was recorded takes the mode of its dispatcher-written transport.
+        from . import agent_worker, review_points
         verified = registration.get("verified_label")
         attested = "self_attested"
         if verified is not None:
-            attested = dc.label_for(receipt.get("execution_mode"), verified)
+            mode = receipt.get("execution_mode") or agent_worker.execution_mode(receipt.get("transport"))
+            attested = dc.label_for(mode, verified)
             if dc.ATTESTATION_RANK[attested] > dc.ATTESTATION_RANK[verified]:
                 attested = verified
-        session = {"actor_id": receipt["actor_id"],
+        # The identity is the actor the dispatcher assigned and registered. A receipt that only
+        # states an actor, or states none, has no assigned actor: it is one unattested call.
+        assigned = review_points.registered_actor(receipt, registration)
+        if assigned is None:
+            attested = "self_attested"
+        session = {"actor_id": assigned["actor_id"] if assigned else "unassigned:" + sha,
                    "session_receipt": f"{receipt['transport']['id']}:{receipt['session_id']}",
                    "attestation": attested}
         family = (receipt.get("model") or {}).get("family")
@@ -1473,8 +1481,11 @@ def _resolve(rundir, request, ref):
         separated = isolation.get("fresh_request") is True and isolation.get("parent_transcript_supplied") is False
         attested = dc.label_for(model["execution_observation"], model.get("attestation")) \
             if custody.host_registered(rundir, model["host_sha256"]) and separated else "self_attested"
-        session = {"actor_id": transport.get("actor_id") or "{}:{}".format(transport.get("adapter", "host"),
-                                                                            transport["request_id"]),
+        # The identity is built from what the dispatcher owns: the adapter, the requested model,
+        # the request it issued and the graph node. An actor a host response states is never read.
+        session = {"actor_id": custody.actor_id(str(transport.get("adapter") or "host"),
+                                                str(transport.get("requested_model") or "unspecified"),
+                                                str(transport["request_id"]), f"{ref['root']}#{ref.get('node_id')}"),
                    "session_receipt": f"{ref['root']}#{model['receipt_sha256']}", "attestation": attested}
         family = transport.get("family")  # an adapter name is not a model family
     return output, dc.actor(session, role + " session"), family

@@ -7,7 +7,10 @@ non-interactive session in an empty temporary directory, with the argv of the
 CLI's ``*-cli-oneshot`` transport declaration and only the environment names
 that declaration passes. No earlier conversation and no parent transcript is
 passed; the session receives only the request's instructions, its output schema
-and its prepared context.
+and its prepared context. When the run pins a project instruction document
+(``ravel project-instructions pin``; name the run with ``--rundir`` or the host
+config key ``rundir``), the session also receives that document verbatim, ahead of
+RAVEL's instructions, and the receipt records its sha256, byte count and mechanism.
 
 Before launch the CLI needs a current probe (``ravel transport probe <id>``) of the
 same executable: the launcher's sha256 must equal the probed one. The model id and
@@ -54,7 +57,7 @@ import tempfile
 import time
 import uuid
 
-from . import transport_registry, transport_receipt
+from . import project_instructions, transport_registry, transport_receipt
 
 AGENTS = ('claude', 'codex', 'antigravity', 'gemini')
 LAUNCHERS = {'claude': 'claude', 'codex': 'codex', 'antigravity': 'agy', 'gemini': 'gemini'}
@@ -523,10 +526,11 @@ def check_extra_args(agent, extra_args):
                             'refused')
 
 
-def _argv_values(agent, parameters, prompt, *, cwd, timeout, env):
+def _argv_values(agent, parameters, prompt, *, cwd, timeout, env, instruction_values=None):
     schema = parameters.get('output_schema')
     values = {'model': parameters['model'], 'effort': parameters['reasoning_effort'] if EFFORTS[agent] else None,
-              'schema': json.dumps(schema, sort_keys=True) if schema is not None else None}
+              'schema': json.dumps(schema, sort_keys=True) if schema is not None else None,
+              **(instruction_values or {project_instructions.CARRIER: None})}
     if agent == 'codex':
         values['last_message'] = str(Path(cwd) / 'last-message.txt')
     elif agent == 'antigravity':
@@ -561,19 +565,89 @@ def _cli_version(executable, env):
     return text.splitlines()[0][:200] if text else None
 
 
+def run_instructions(rundir, *, beside=None):
+    """The pin of the run's project instruction document (None when the run pins nothing).
+
+    ``rundir`` names the run. Without it, the run is the one that owns the path ``beside``
+    (``project_instructions.owning_run``); with neither there is no run and no document.
+    """
+    try:
+        if rundir is None:
+            return None if beside is None else project_instructions.for_path(beside)
+        return project_instructions.for_run(rundir)
+    except project_instructions.ProjectInstructionsError as exc:
+        raise AgentCLIError(str(exc), 'refused') from None
+
+
+def _request_run(request, rundir):
+    """The run a relayed request belongs to: the host's ``project_run`` field, which must agree with ``--rundir``."""
+    named = request.get('project_run')
+    if named is None:
+        return rundir
+    if type(named) is not str or not Path(named).is_absolute():
+        raise AgentCLIError('request project_run must be an absolute run directory', 'refused')
+    if rundir is not None and os.path.realpath(rundir) != os.path.realpath(named):
+        raise AgentCLIError(f'the request belongs to run {named} and this launcher was started for {rundir}; '
+                            'one session receives one run\'s project instruction document', 'refused')
+    return named
+
+
+def _declaration_recheck(run, record):
+    """The last check before the CLI process exists: the run's declaration as it is now.
+
+    ``record`` is the delivery record this session was prepared with (None: no document). The run's
+    pin is read again, the document must still hold the pinned bytes, and the record must name that
+    pin. A pin resolved earlier is not trusted, and a run pinned in the meantime is not skipped.
+    """
+    if run is None:
+        return
+    try:
+        current = project_instructions.for_run(run)
+        if current is not None:
+            project_instructions.text_of(current)
+    except project_instructions.ProjectInstructionsError as exc:
+        raise AgentCLIError(str(exc), 'refused') from None
+    if current is None:
+        problem = None if record is None else 'project_instructions:not-pinned'
+    else:
+        problem = project_instructions.record_problem(record, current)
+    if problem is not None:
+        raise AgentCLIError(f'project instructions refused: {problem} (the declaration of run {run} is not the one '
+                            'this session was prepared with; nothing was launched)', 'refused')
+
+
 def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=None, extra_args=(), environment=None,
-           request_sha256=None, own_group=True, max_output_bytes=MAX_OUTPUT_BYTES, tools_required='none'):
+           request_sha256=None, own_group=True, max_output_bytes=MAX_OUTPUT_BYTES, tools_required='none', rundir=None,
+           instructions=None, project_run=None):
     """Run one fresh CLI session; return its parsed, schema-checked answer and the launcher's receipt.
 
     Refuses before launch when the transport has no current probe of this executable, when the model
     id or effort is invalid for the CLI, or when an extra argument is outside the allowlist.
+    ``instructions`` is the run's project instruction pin (``run_instructions``): its text goes
+    verbatim ahead of RAVEL's prompt, and a document that no longer matches the pin refuses the launch.
+    ``project_run`` names the run of a session whose run pins nothing. The run's declaration is read
+    again immediately before the CLI process is created, and the receipt names the run.
     """
     from .agent_host import validate_public_result, HostFailure
     if tools_required not in transport_registry.TOOLS:
         raise AgentCLIError('unknown role tools requirement', 'refused')
     source = dict(os.environ if environment is None else environment)
     agent = choose(agent, source)
+    bound_run = project_run if project_run is not None else (instructions or {}).get('rundir')
+    if instructions is not None and (bound_run is None or os.path.realpath(bound_run)
+                                     != os.path.realpath(instructions.get('rundir') or bound_run)):
+        raise AgentCLIError('project instructions refused: project_instructions:run-unnamed (a pin is delivered '
+                            'only together with the one run that declares it)', 'refused')
+    bound_run = None if bound_run is None else os.path.realpath(bound_run)
     declaration = transport_registry.load(ONESHOT[agent])
+    from . import provider_policy
+    try:
+        admission = provider_policy.admission(rundir or context.get('provider_policy_run'), declaration,
+                                             provider_policy.account_class(declaration))
+    except provider_policy.PolicyRefused as exc:
+        raise AgentCLIError(str(exc), 'refused') from None
+    # The run location locates the policy; it is not model context, a prompt line or a request identity.
+    context = {k: v for k, v in context.items() if k != 'provider_policy_run'}
     check_values(agent, parameters)
     extra_args = [str(a) for a in extra_args]
     check_extra_args(agent, extra_args)
@@ -586,10 +660,18 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
     if capabilities is None:
         raise AgentCLIError(f'transport {declaration["id"]} is unusable: ' + ', '.join(reasons) +
                             f'; run `ravel transport probe {declaration["id"]}` for this executable', 'unusable')
-    prompt = build_prompt(parameters, context)
     host_invocation = 'host-' + uuid.uuid4().hex
     with tempfile.TemporaryDirectory(prefix='ravel-agent-cli-') as cwd, \
             tempfile.TemporaryDirectory(prefix='ravel-agent-home-') as home:
+        try:
+            # The pinned project document, verbatim, ahead of the RAVEL prompt (or behind the route's
+            # confirmed flag, from a file beside the temporary home; the working directory stays empty).
+            instruction_values, prefix, instruction_record = project_instructions.deliver(
+                instructions, agent, probe, declaration=declaration,
+                carrier=Path(home) / project_instructions.CARRIER_NAME)
+        except project_instructions.ProjectInstructionsError as exc:
+            raise AgentCLIError(str(exc), 'refused') from None
+        prompt = prefix + build_prompt(parameters, context)
         config, home_mode, dotenv = ('verified-flags' if agent == 'claude' else 'none'), 'real', []
         if agent == 'codex':
             config, home_mode = fresh_codex_home(Path(home) / 'codex-home', env), 'fresh-codex-home'
@@ -598,10 +680,14 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
             home_mode = 'fresh'
         env_names = sorted(env)
         cli_version = _cli_version(path, env)
-        values = _argv_values(agent, parameters, prompt, cwd=cwd, timeout=timeout, env=env)
+        values = _argv_values(agent, parameters, prompt, cwd=cwd, timeout=timeout, env=env,
+                              instruction_values=instruction_values)
         argv = transport_registry.render_argv(declaration, values, executable=path)
         argv = argv[:-1] + extra_args + argv[-1:] if agent == 'codex' else argv + extra_args
         stdin = '' if agent == 'antigravity' else prompt
+        _declaration_recheck(bound_run, instruction_record)
+        if len(prompt.encode('utf-8')) > MAX_STORED_PROMPT_BYTES:
+            raise AgentCLIError('full prompt exceeds the stored prompt byte bound', 'refused')
         out, facts = _run(argv, stdin, cwd=cwd, env=env, timeout=timeout, own_group=own_group, max_bytes=max_output_bytes)
         rollout = None
         if agent == 'claude':
@@ -615,7 +701,21 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
             answer['all_models'] = [answer['observed_model']] if answer['observed_model'] else []
         else:
             answer = _google(agent, out)
-    prompt_sha = transport_receipt.sha256_bytes(prompt.encode())
+    # Response messages can name the served build even without aggregate modelUsage; a bracketed
+    # name such as <synthetic> marks a CLI-generated message, not a served model.
+    if agent == 'claude':
+        reported = json.loads(out)
+        reported = reported if type(reported) is list else [reported]
+        models = [event['message']['model'] for event in reported if type(event) is dict
+                  and event.get('type') == 'assistant' and type(event.get('message')) is dict
+                  and type(event['message'].get('model')) is str and event['message']['model'].strip()
+                  and not event['message']['model'].strip().startswith('<')]
+        if models:
+            answer['observed_model'] = models[-1]
+            answer['all_models'] = sorted(set(answer['all_models']) | set(models))
+    model_fields = {'model_requested': parameters['model'], 'model_reported': answer['observed_model'],
+                    'model_build_exact': _exact_model_build(answer['observed_model']), 'cli_version': cli_version}
+    prompt_sha = transport_receipt.sha256_bytes(prompt.encode('utf-8'))
     recorded_argv = [prompt_sha if agent == 'antigravity' and a == prompt else a for a in argv]
     events = answer.pop('config_events')
     loaded = config == 'none' or bool(events)
@@ -628,6 +728,8 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
         basis += '; admin-managed settings are present and stay in force (digest recorded)'
     if dotenv:
         basis += '; dotenv files left out of the fresh HOME: ' + ', '.join(dotenv)
+    if instruction_record is not None:
+        basis += '; ' + project_instructions.statement(instruction_record)
     value = extract_json(answer['text'])
     try:
         value = validate_public_result(value, parameters.get('output_schema'))
@@ -651,7 +753,7 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
                        'prompt_in_argv': agent == 'antigravity'},
         'process': facts,
         'content': {'request_sha256': request_sha256 or transport_receipt.digest({'parameters': parameters, 'context': context}),
-                    'prompt_sha256': prompt_sha, 'value_sha256': transport_receipt.digest(value)},
+                    'prompt_sha256': prompt_sha, 'prompt_text': prompt, 'value_sha256': transport_receipt.digest(value)},
         'effort': {'requested': parameters['reasoning_effort'], 'transmitted': effort_transmitted},
         'configuration': {'tools_required': tools_required, 'effective_tools': capabilities['tools'], 'isolation_profile': capabilities['isolation'],
                           'config': config, 'override_args': [], 'managed_settings_sha256': managed,
@@ -659,31 +761,114 @@ def invoke(agent, parameters, context, *, timeout=DEFAULT_TIMEOUT, executable=No
         'cli_reported': {'label': 'cli-reported', 'session_id': answer['session_id'] if type(answer['session_id']) is str
                          and answer['session_id'].strip() else None,
                          'observed_model': answer['observed_model'], 'all_models': answer['all_models'],
-                         'usage': answer['usage'], 'config_events': events, 'rollout_sha256': rollout}}
+                         'usage': answer['usage'], 'config_events': events, 'rollout_sha256': rollout, **model_fields}}
+    receipt['configuration']['provider_policy'] = admission
+    if instruction_record is not None:
+        receipt['configuration']['project_instructions'] = instruction_record
+    if bound_run is not None:
+        receipt['configuration']['project_run'] = bound_run
     transport_receipt.shape(receipt)
     observed = answer['observed_model'] or f'not reported by {agent} (requested {parameters["model"]})'
     return {'agent': agent, 'value': value, 'usage': answer['usage'], 'observed_model': observed,
-            'all_models': answer['all_models'], 'meter': answer['meter'], 'receipt': receipt,
+            'all_models': answer['all_models'], 'meter': answer['meter'], 'receipt': receipt, 'prompt': prompt,
+            'prompt_text': prompt, **model_fields,
             'cli_session_id': receipt['cli_reported']['session_id'], 'host_invocation_id': host_invocation,
             'isolation': legacy_isolation(receipt)}
 
 
+def session_prompt(receipt, parameters, context, pinned=None):
+    """The exact prompt of a finished session, rebuilt from its request, or None.
+
+    The text is RAVEL's prompt for ``parameters`` and ``context``, behind the first block of the
+    run's declared document when the receipt records one. It counts only when it hashes to the
+    receipt's ``content.prompt_sha256``.
+    """
+    body = build_prompt(parameters, context)
+    candidates = [body]
+    if pinned is not None and receipt['configuration'].get('project_instructions') is not None:
+        try:
+            candidates.insert(0, project_instructions.block(project_instructions.text_of(pinned), pinned) + body)
+        except project_instructions.ProjectInstructionsError:
+            pass
+    wanted = receipt['content']['prompt_sha256']
+    return next((text for text in candidates if transport_receipt.sha256_bytes(text.encode()) == wanted), None)
+
+
+MAX_STORED_PROMPT_BYTES = 16 * 1024 * 1024
+
+
+def _exact_model_build(model):
+    """An alias is inexact; only a reported valid calendar snapshot counts."""
+    from datetime import datetime
+    if type(model) is not str:
+        return False
+    match = re.search(r'(?<!\d)(20\d{2})-?(\d{2})-?(\d{2})(?!\d)', model)
+    if match is None:
+        return False
+    try:
+        datetime(*map(int, match.groups()))
+    except ValueError:
+        return False
+    return True
+
+
+def prompt_receipt_fields(receipt):
+    """Validate the additive prompt evidence; legacy receipts keep their closed shape.
+
+    The transport receipt validator calls this seam before accepting these fields.
+    Model reports remain CLI claims; the host binds only the prompt's actual bytes.
+    """
+    extra = {'content': {'prompt_text'},
+             'cli_reported': {'model_requested', 'model_reported', 'model_build_exact', 'cli_version'}}
+    content, reported = receipt.get('content'), receipt.get('cli_reported')
+    if type(content) is dict and 'prompt_text' in content:
+        text = content['prompt_text']
+        if type(text) is not str or len(text.encode('utf-8')) > MAX_STORED_PROMPT_BYTES \
+                or transport_receipt.sha256_bytes(text.encode('utf-8')) != content.get('prompt_sha256'):
+            raise transport_receipt.ReceiptError('receipt prompt text hash or byte bound differs')
+    if type(reported) is dict and extra['cli_reported'] & set(reported):
+        if not extra['cli_reported'] <= set(reported):
+            raise transport_receipt.ReceiptError('receipt model evidence fields incomplete')
+        requested, model = reported['model_requested'], reported['model_reported']
+        if type(requested) is not str or not requested.strip() or model is not None and (
+                type(model) is not str or not model.strip()):
+            raise transport_receipt.ReceiptError('receipt model evidence requires a request and reported model or null')
+        if model != reported.get('observed_model') or type(reported['model_build_exact']) is not bool \
+                or reported['model_build_exact'] != _exact_model_build(model):
+            raise transport_receipt.ReceiptError('receipt reported model or exactness differs')
+        executable = receipt.get('executable')
+        if type(executable) is not dict or reported['cli_version'] != executable.get('cli_version'):
+            raise transport_receipt.ReceiptError('receipt CLI version differs')
+    return extra
+
+
 def legacy_isolation(receipt):
-    """The schema-3 relay isolation block, derived from a launcher receipt."""
+    """The schema-3 relay isolation block, derived from a launcher receipt.
+
+    When RAVEL supplied the run's declared project instruction document, the block says so in
+    ``project_instructions`` and in ``basis``: that text is declared, not leaked user instructions.
+    ``project_run`` is the run the session was started for, when one was named or found.
+    """
     configuration = receipt['configuration']
-    return {'transport_id': receipt['transport']['id'], 'declaration_sha256': receipt['transport']['declaration_sha256'],
-            'argv_sha256': receipt['invocation']['argv_sha256'], 'cli_version': receipt['executable']['cli_version'],
-            'config': configuration['config'], 'config_overriding_arguments': configuration['override_args'],
-            'env_names': receipt['invocation']['env_names'], 'effort_transmitted': receipt['effort']['transmitted'],
-            'user_configuration_loaded': configuration['user_configuration_loaded'], 'basis': configuration['basis'],
-            'cli_session_id': receipt['cli_reported']['session_id'],
-            'executable_sha256': receipt['executable']['sha256'],
-            'session_receipt_sha256': transport_receipt.digest(receipt)}
+    block = {'transport_id': receipt['transport']['id'], 'declaration_sha256': receipt['transport']['declaration_sha256'],
+             'argv_sha256': receipt['invocation']['argv_sha256'], 'cli_version': receipt['executable']['cli_version'],
+             'config': configuration['config'], 'config_overriding_arguments': configuration['override_args'],
+             'env_names': receipt['invocation']['env_names'], 'effort_transmitted': receipt['effort']['transmitted'],
+             'user_configuration_loaded': configuration['user_configuration_loaded'], 'basis': configuration['basis'],
+             'cli_session_id': receipt['cli_reported']['session_id'],
+             'executable_sha256': receipt['executable']['sha256'],
+             'session_receipt_sha256': transport_receipt.digest(receipt)}
+    if configuration.get('project_instructions') is not None:
+        block['project_instructions'] = {k: configuration['project_instructions'][k]
+                                         for k in ('sha256', 'bytes', 'mechanism')}
+    if configuration.get('project_run') is not None:
+        block['project_run'] = configuration['project_run']
+    return block
 
 
 # ------------------------------------------------------------ command adapter
 
-def serve(stdin, stdout, *, agent, timeout, executable=None, extra_args=()):
+def serve(stdin, stdout, *, agent, timeout, executable=None, extra_args=(), rundir=None):
     """AgentHost command adapter: {request_id, parameters, context} -> {request_id, value, usage, observed_model, session_receipt}.
 
     The receipt's request digest is the sha256 of the exact bytes read from stdin. The CLI runs in this
@@ -694,9 +879,11 @@ def serve(stdin, stdout, *, agent, timeout, executable=None, extra_args=()):
     # Share the group only when this wrapper leads it (AgentHost starts it in a new session); otherwise
     # a timeout would signal whatever group the caller runs in.
     leader = os.getpgid(0) == os.getpid()
+    run = _request_run(request, rundir)
     answer = invoke(agent, request['parameters'], request['context'], timeout=timeout, executable=executable,
                     extra_args=extra_args, request_sha256=transport_receipt.sha256_bytes(raw), own_group=not leader,
-                    tools_required=request.get('role_requires', {}).get('tools', 'none'))
+                    tools_required=request.get('role_requires', {}).get('tools', 'none'),
+                    instructions=run_instructions(run), project_run=run)
     stdout.write(json.dumps({'request_id': request['request_id'], 'value': answer['value'],
                              'usage': answer['usage'], 'observed_model': answer['observed_model'],
                              'session_receipt': answer['receipt']},
@@ -731,6 +918,7 @@ def wrapper_agent(command, environment):
     parser.add_argument('--timeout', type=int, required=True)
     parser.add_argument('--executable')
     parser.add_argument('--extra-arg', action='append', default=[])
+    parser.add_argument('--rundir')
     try:
         args, rest = parser.parse_known_args(list(command[5:]))
     except (argparse.ArgumentError, ValueError):
@@ -756,7 +944,7 @@ def host_config(config):
     """
     allowed = {'type', 'agent', 'executable', 'extra_args', 'cli_timeout_seconds', 'timeout_seconds',
                'max_request_bytes', 'max_response_bytes', 'bound_roots', 'privacy', 'local_models', 'vision',
-               'literature_origins', 'preferences'}
+               'literature_origins', 'preferences', 'rundir'}
     if type(config) is not dict or config.get('type') != 'agent-cli' or set(config) - allowed:
         raise ValueError('agent-cli host config fields: ' + ', '.join(sorted(allowed)))
     agent = config.get('agent', 'auto')
@@ -777,6 +965,9 @@ def host_config(config):
         command += ['--executable', str(config['executable'])]
     for argument in config.get('extra_args', []):
         command += ['--extra-arg=' + str(argument)]
+    if config.get('rundir'):
+        # The run whose pinned project instruction document every session of this host receives.
+        command += ['--rundir', str(Path(config['rundir']).absolute())]
     environment = {k: v for k, v in os.environ.items() if k in PASSED_ENVIRONMENT and k not in ('PATH', 'LANG')}
     environment['PATH'] = os.environ.get('PATH', os.defpath)
     root = source_root()
@@ -824,21 +1015,53 @@ def _refuse_unfit_reviewer(agent, role):
 
 
 def answer(request_path, out, *, agent='auto', actor_id=None, timeout=DEFAULT_TIMEOUT, executable=None,
-           extra_args=(), environment=None):
-    """Answer one prepared external request and write a version-3 response file and its launcher receipt."""
+           extra_args=(), environment=None, rundir=None):
+    """Answer one prepared external request and write a version-3 response file and its launcher receipt.
+
+    A request prepared in a run that pins a project instruction document names that run in
+    ``project_run``, and the session receives that run's document wherever the file is answered.
+    A request prepared in a run that pins nothing under a tree that pins a document names that run
+    in ``project_run_unresolved``; it is answered only when ``rundir`` names the same run.
+    Otherwise ``rundir`` names the run; without it, the run that owns the request file is used (the
+    nearest directory above it that holds an ``inputs`` folder; the search stops there).
+    A request that no longer matches its own digest is refused before anything is launched.
+    """
     document = json.loads(Path(request_path).read_text())
     if document.get('kind') != 'external_agent_request':
         raise AgentCLIError('not a prepared external agent request')
     request = document['request']
     chosen = choose(agent, dict(os.environ if environment is None else environment))
     _refuse_unfit_reviewer(chosen, (document.get('context') or {}).get('role'))
+    # The run a request names, or the absence of one, counts only while the document matches its digest.
+    from .agent_graph import digest as request_digest
+    if document.get('sha256') != request_digest({k: v for k, v in document.items() if k != 'sha256'}):
+        raise AgentCLIError('the prepared request changed after it was prepared; nothing was launched', 'refused')
+    unresolved = document.get('project_run_unresolved')
+    if document.get('project_run') is not None:
+        run = _request_run(document, rundir)
+    elif unresolved is not None:
+        if rundir is None or os.path.realpath(rundir) != os.path.realpath(str(unresolved)):
+            raise AgentCLIError('project instructions refused: project_instructions:run-ambiguous (this request was '
+                                f'prepared in {unresolved}, which pins no document under a tree that pins one; name '
+                                f'that run with --rundir {unresolved})', 'refused')
+        run = rundir
+    else:
+        run = rundir
+    if run is not None:
+        instructions = run_instructions(run)
+    else:
+        instructions = run_instructions(None, beside=Path(request_path).absolute().parent)
+        run = None if instructions is None else instructions['rundir']
     result = invoke(chosen, document['parameters'], document['context'], timeout=timeout, executable=executable,
-                    extra_args=extra_args, environment=environment, request_sha256=document['sha256'])
+                    extra_args=extra_args, environment=environment, request_sha256=document['sha256'],
+                    instructions=instructions, project_run=run)
     out = Path(out).absolute()
     actor = actor_id or f'{result["agent"]}-cli:{request.get("node_id", "node")}'
     loaded = result['isolation']['user_configuration_loaded']
     invocation = result['cli_session_id'] or result['host_invocation_id']
     receipt = _write_new(out.with_name(out.stem + '.receipt.json'), result['receipt'])
+    # The exact prompt stays beside the receipt that hashes it; a later re-pin does not take it away.
+    prompt = transport_receipt.write_prompt(receipt['path'], result['prompt'], result['receipt'])
     # A session that loaded the user's own instructions, memory or plugins is not a fresh context.
     response = {'schema_version': 3, 'request_id': request['request_id'], 'request_sha256': document['sha256'],
                 'invocation_id': invocation, 'actor_id': actor, 'observed_model': result['observed_model'],
@@ -856,7 +1079,9 @@ def answer(request_path, out, *, agent='auto', actor_id=None, timeout=DEFAULT_TI
             'kind': 'host_meter', 'invocation_id': invocation,
             'artifact': {'path': evidence_path.name, 'sha256': evidence['sha256'], 'size': evidence['size']}}}
     written = _write_new(out, response)
-    return {'response': written, 'receipt': receipt, 'agent': result['agent'], 'observed_model': result['observed_model'],
+    return {'response': written, 'receipt': receipt, 'prompt': prompt,
+            **{key: result[key] for key in ('model_requested', 'model_reported', 'model_build_exact', 'cli_version')},
+            'agent': result['agent'], 'observed_model': result['observed_model'],
             'invocation_id': invocation, 'usage': result['usage'], 'meter': result['meter'],
             'user_configuration_loaded': loaded}
 
@@ -875,7 +1100,7 @@ def _declared_actor(graph_root):
 
 
 def answer_graph(graph_root, *, agent='auto', node=None, actor_id=None, timeout=DEFAULT_TIMEOUT,
-                 executable=None, extra_args=(), environment=None, prepare_pending=False, workers=1):
+                 executable=None, extra_args=(), environment=None, prepare_pending=False, workers=1, rundir=None):
     """Answer and deliver every awaiting external node (or one named node) as a ``map``.
 
     Each awaiting node is one item: a failed answer or delivery is that item's ``failed``
@@ -903,7 +1128,7 @@ def answer_graph(graph_root, *, agent='auto', node=None, actor_id=None, timeout=
         request_file = root / current['external_request']['path']
         out = root / 'external-responses' / f'{identity}-{current["attempt_id"]}.json'
         result = answer(request_file, out, agent=agent, actor_id=actor, timeout=timeout, executable=executable,
-                        extra_args=extra_args, environment=environment)
+                        extra_args=extra_args, environment=environment, rundir=rundir)
         agent_graph.deliver_external(root, identity, out)
         return {k: result[k] for k in ('response', 'agent', 'observed_model', 'invocation_id', 'usage')}
     results = graph_nodes.map_items(awaiting, lambda pair: pair[0], answer_one, workers=workers)
@@ -926,6 +1151,8 @@ def main(argv=None):
         sub.add_argument('--timeout', type=int, default=DEFAULT_TIMEOUT)
         sub.add_argument('--executable')
         sub.add_argument('--extra-arg', action='append', default=[])
+        sub.add_argument('--rundir', type=Path,
+                         help='the run whose pinned project instruction document the session receives')
         if name == 'answer':
             sub.add_argument('--request', type=Path, required=True)
             sub.add_argument('--out', type=Path, required=True)
@@ -940,17 +1167,17 @@ def main(argv=None):
     try:
         if args.command == 'serve':
             serve(sys.stdin, sys.stdout, agent=args.agent, timeout=args.timeout, executable=args.executable,
-                  extra_args=args.extra_arg)
+                  extra_args=args.extra_arg, rundir=args.rundir)
             return 0
         if args.command == 'detect':
             result = detect()
         elif args.command == 'answer':
             result = answer(args.request, args.out, agent=args.agent, actor_id=args.actor, timeout=args.timeout,
-                            executable=args.executable, extra_args=args.extra_arg)
+                            executable=args.executable, extra_args=args.extra_arg, rundir=args.rundir)
         else:
             result = answer_graph(args.graph, agent=args.agent, node=args.node, actor_id=args.actor,
                                   timeout=args.timeout, executable=args.executable, extra_args=args.extra_arg,
-                                  prepare_pending=args.prepare, workers=args.workers)
+                                  prepare_pending=args.prepare, workers=args.workers, rundir=args.rundir)
     except AgentCLIError as exc:
         parser.exit(1, f'agent cli ({exc.code}): {exc}\n')
     except (OSError, ValueError, KeyError) as exc:

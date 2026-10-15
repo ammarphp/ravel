@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "registry-registration",
+  "target": "spawn-row-catalogue",
+  "append": {
+    "rows": [
+      {
+        "row": "KH1",
+        "predicate": "declared-domain",
+        "trigger": "Declared scalar measurement combination",
+        "roles": [
+          {
+            "role": "higgs-combination-reviewer",
+            "count": 1
+          }
+        ],
+        "mode": "specialist",
+        "gate": "checkin2_accept",
+        "tags_all": [
+          "higgs",
+          "combination"
+        ],
+        "min_experiments": 0
+      },
+      {
+        "row": "KH2",
+        "predicate": "declared-domain",
+        "trigger": "Declared extended-scalar model construction",
+        "roles": [
+          {
+            "role": "extended-scalar-modeler",
+            "count": 1
+          },
+          {
+            "role": "consult-higgs",
+            "count": 1
+          }
+        ],
+        "mode": "producer",
+        "gate": "launch",
+        "tags_all": [
+          "extended-scalar"
+        ],
+        "min_experiments": 0
+      },
+      {
+        "row": "KH3",
+        "predicate": "declared-domain",
+        "trigger": "Declared cross-experiment combination",
+        "roles": [
+          {
+            "role": "higgs-theory-uncertainty-auditor",
+            "count": 1
+          }
+        ],
+        "mode": "specialist",
+        "gate": "checkin2_accept",
+        "tags_all": [
+          "combination"
+        ],
+        "min_experiments": 2
+      }
+    ]
+  }
+}

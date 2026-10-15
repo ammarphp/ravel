@@ -1,5 +1,6 @@
 """Installing RAVEL's agent surface into a foreign project keeps that project's rules."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -7,6 +8,7 @@ import sys
 import pytest
 
 from ravel.workflow import agent_surface as surf
+from ravel.workflow.agent_surface import LOCAL as LOCAL_SETTINGS
 from ravel.paths import repository_root
 
 GUARDRAILS = '# Submission rules\n\n- Never weaken these rules.\n- Run all code through the workflow manager.\n'
@@ -36,13 +38,14 @@ def install(project, tmp_path):
 def test_install_preserves_guardrails_and_passes_check(project, tmp_path):
     report = install(project, tmp_path)
     agents = (project / 'AGENTS.md').read_text()
-    assert agents.startswith(GUARDRAILS) and '<!-- ravel:begin agent-surface -->' in agents
-    claude = (project / 'CLAUDE.md').read_text()
-    assert surf._first_instruction(claude) == '@AGENTS.md'
+    assert agents == GUARDRAILS
+    assert not (project / 'CLAUDE.md').exists()
+    assert (project / surf.GUIDANCE).is_file()
     assert 'physicist-intake' in report['skills'] and not report['conflicts']
     assert surf.check(project) == []
     settings = json.loads((project / '.claude/settings.json').read_text())
-    assert settings['env']['RAVEL_PYTHON'] == sys.executable
+    assert 'RAVEL_PYTHON' not in settings.get('env', {})
+    assert json.loads((project / LOCAL_SETTINGS).read_text())['python'] == sys.executable
     assert settings['permissions'] == {'deny': ['Bash(rm:*)']}
     assert settings['hooks']['PreToolUse'][0]['hooks'][0]['command'] == 'their-guard'
     for event in ('UserPromptSubmit', 'Stop', 'SubagentStop'):
@@ -88,7 +91,7 @@ def test_existing_claude_md_and_foreign_skill_are_not_clobbered(project, tmp_pat
     assert foreign.read_text().endswith('mine\n')
     assert '.claude/skills/run-stage/SKILL.md' in report['conflicts'] and 'run-stage' not in report['skills']
     claude = (project / 'CLAUDE.md').read_text()
-    assert 'Keep the plots tidy.' in claude and surf._first_instruction(claude) == '@AGENTS.md'
+    assert claude == '# Project notes\n\nKeep the plots tidy.\n'
 
 
 def test_weakened_guardrails_or_removed_hook_fail_check(project, tmp_path):
@@ -123,3 +126,173 @@ def test_marked_section_helpers_replace_in_place():
     twice = surf.upsert_section(once, 'x', 'two')
     assert twice.count('<!-- ravel:begin x -->') == 1 and 'two' in twice and 'one' not in twice
     assert surf.outside_sections(twice) == 'top'
+
+
+def require_wms(project):
+    folder = project / 'workflow'
+    folder.mkdir(exist_ok=True)
+    (folder / 'policy.json').write_text(json.dumps(
+        {'schema_version': 1, 'wms_required': True, 'engine': 'snakemake'}))
+
+
+def site_record(prefix, **changes):
+    """The record shape the site installation writes under its prefix."""
+    owned = prefix / '.ravel-site'
+    owned.mkdir(parents=True)
+    row = {'schema_version': 1, 'release': 'synthetic-release-a', 'version': '9.27.0',
+           'shim': str(prefix / 'bin/ravel-snakemake'), 'snakemake': str(owned / 'site-wms/bin/snakemake')}
+    row.update(changes)
+    (owned / 'wms.json').write_text(json.dumps({k: v for k, v in row.items() if v is not None}))
+
+
+@pytest.fixture
+def no_site_prefix(monkeypatch):
+    monkeypatch.delenv('RAVEL_SITE_PREFIX', raising=False)
+    monkeypatch.delenv('RAVEL_NATIVE_BUILD', raising=False)
+
+
+def test_site_record_generates_snakemake_without_path_or_distribution(project, tmp_path, monkeypatch, no_site_prefix):
+    monkeypatch.setattr(surf, 'observe', lambda *a: {})
+    site_record(project)
+    report = install(project, tmp_path)
+    assert 'software-snakemake' in report['software_skills']
+    text = (project / '.claude/skills/software-snakemake/SKILL.md').read_text()
+    for item in ('9.27.0', 'ravel-snakemake', 'ravel wms init', 'ravel wms add',
+                 'ravel wms launch', 'ravel wms retry', 'ravel wms status', 'dry-run',
+                 'never approve through the workflow manager'):
+        assert item in text
+    assert str(project) not in text and 'site-wms/bin' not in text
+
+
+def test_site_record_under_declared_prefix_generates_snakemake(project, tmp_path, monkeypatch, no_site_prefix):
+    monkeypatch.setattr(surf, 'observe', lambda *a: {})
+    assert 'software-snakemake' not in surf.software_skills(project=project)
+    prefix = tmp_path / 'prefix'
+    site_record(prefix, version='9.27.1')
+    monkeypatch.setenv('RAVEL_SITE_PREFIX', str(prefix))
+    text = surf.software_skills(project=project)['software-snakemake']
+    assert '9.27.1' in text and str(prefix) not in text
+
+
+@pytest.mark.parametrize('changes', [{'version': None}, {'version': ' '}, {'schema_version': 2},
+                                     {'schema_version': True}])
+def test_malformed_site_record_is_refused(project, monkeypatch, no_site_prefix, changes):
+    monkeypatch.setattr(surf, 'observe', lambda *a: {})
+    site_record(project, **changes)
+    with pytest.raises(ValueError, match='site-wms record'):
+        surf.software_skills(project=project)
+
+
+def test_manifest_declares_snakemake_without_current_environment(tmp_path, monkeypatch, no_site_prefix):
+    monkeypatch.setattr(surf, 'observe', lambda *a: {})
+    manifest = tmp_path / 'tools.json'
+    manifest.write_text(json.dumps({'groups': [{'id': 'site-root-wms', 'title': 'Workflow manager',
+        'version_contract': {'snakemake': '9.27.0'}}]}))
+    assert '9.27.0' in surf.software_skills(manifest)['software-snakemake']
+
+
+def test_required_policy_guidance_routes_only_through_wms(project, tmp_path):
+    require_wms(project)
+    install(project, tmp_path)
+    text = (project / '.ravel/agent-guidance.md').read_text()
+    assert 'ravel wms launch' in text
+    assert 'ravel run' not in text
+    assert 'plan' in text and 'approve' in text and 'check-ins' in text
+
+
+def test_generated_portable_files_do_not_embed_machine_paths(project, tmp_path):
+    install(project, tmp_path)
+    files = [p for p in project.rglob('*') if p.is_file()
+             and p.name not in {'agent-surface.local.json', 'settings.local.json', 'hook-runtime.sh'}]
+    for path in files:
+        text = path.read_text()
+        assert sys.executable not in text, path
+        assert str(Path.home()) not in text, path
+        assert str(Path(surf.__file__).resolve().parents[2]) not in text, path
+
+
+def test_instruction_documents_remain_byte_identical(project, tmp_path):
+    (project / 'AGENTS.md').write_bytes(b'# Local rules\r\n\r\nKeep every byte.\r\n')
+    (project / 'CLAUDE.md').write_bytes(b'# Local host rules\r\n')
+    before = {name: (project / name).read_bytes() for name in ('AGENTS.md', 'CLAUDE.md')}
+    install(project, tmp_path)
+    assert before == {name: (project / name).read_bytes() for name in before}
+
+
+def test_required_policy_installs_guard_by_default_and_checks_removal(project, tmp_path):
+    require_wms(project)
+    install(project, tmp_path)
+    settings_path = project / '.claude/settings.json'
+    settings = json.loads(settings_path.read_text())
+    groups = settings['hooks']['PreToolUse']
+    command = next(h['command'] for g in groups for h in g['hooks'] if surf.GUARD_MARK in h['command'])
+    env = dict(os.environ, CLAUDE_PROJECT_DIR=str(project))
+    for spelling, code in [('ravel run --rundir ANA-0001', 2),
+                           ('ravel wms launch --project . --task ANA-0001', 0)]:
+        result = subprocess.run(['/bin/sh', '-c', command], env=env, text=True, capture_output=True,
+            input=json.dumps({'tool_name': 'Bash', 'tool_input': {'command': spelling}}))
+        assert result.returncode == code, result.stderr
+    assert surf.check(project) == []
+    for group in groups:
+        group['hooks'] = [h for h in group['hooks'] if surf.GUARD_MARK not in h['command']]
+    settings_path.write_text(json.dumps(settings))
+    assert 'workflow-manager guard hook missing' in surf.check(project)
+
+
+def test_guard_opt_out_requires_project_scoped_record_and_detects_drift(project, tmp_path):
+    require_wms(project)
+    with pytest.raises(ValueError, match='recorded'):
+        surf.install(project, wms_guard=False)
+    approval = tmp_path / 'approval.json'
+    row = {'schema_version': 1, 'action': 'wms-guard-opt-out', 'approved': True,
+           'project': str(project), 'approved_by': 'project owner', 'reason': 'Recorded discipline choice'}
+    approval.write_text(json.dumps(row))
+    surf.install(project, wms_guard=False, guard_approval=approval)
+    assert surf.check(project) == []
+    row['reason'] = 'Changed record'
+    approval.write_text(json.dumps(row))
+    assert 'workflow-manager guard opt-out approval changed' in surf.check(project)
+
+
+def test_explicit_guard_without_policy_is_inert(project, tmp_path):
+    surf.install(project, wms_guard=True)
+    settings = json.loads((project / '.claude/settings.json').read_text())
+    assert any(surf.GUARD_MARK in h['command'] for g in settings['hooks']['PreToolUse'] for h in g['hooks'])
+    assert surf.guard_command(project, 'ravel run --rundir ANA-0001') is None
+
+
+@pytest.mark.parametrize('recorded', [None, '', 7, 'elsewhere'])
+def test_guard_opt_out_record_must_name_this_project(project, tmp_path, monkeypatch, recorded):
+    require_wms(project)
+    monkeypatch.chdir(project)
+    approval = tmp_path / 'approval.json'
+    row = {'schema_version': 1, 'action': 'wms-guard-opt-out', 'approved': True,
+           'approved_by': 'project owner', 'reason': 'Recorded discipline choice'}
+    if recorded is not None:
+        row['project'] = str(tmp_path / recorded) if recorded == 'elsewhere' else recorded
+    approval.write_text(json.dumps(row))
+    with pytest.raises(ValueError, match='guard approval'):
+        surf.install(project, wms_guard=False, guard_approval=approval)
+
+
+def test_site_record_owner_reader_agrees(project, tmp_path, monkeypatch, no_site_prefix):
+    """The record its owner validates is the record this guidance reads."""
+    from ravel.workflow import site_contract
+    monkeypatch.setattr(surf, 'observe', lambda *a: {})
+    prefix = tmp_path / 'prefix'
+    owned = prefix / '.ravel-site'
+    owned.mkdir(parents=True)
+    packages = {'snakemake': '9.27.0', 'packaging': '25.0', site_contract.PLUGIN: '1.0.9',
+                site_contract.INTERFACE: '9.3.9'}
+    lock = owned / 'requirements-site-wms.lock'
+    lock.write_text(''.join(f'{name}=={version} \\\n    --hash=sha256:{"a" * 64}\n'
+                            for name, version in packages.items()))
+    row = {'schema_version': 1, 'release': 'synthetic-release-a', 'version': packages['snakemake'],
+           'shim': str(prefix / 'bin/ravel-snakemake'), 'snakemake': str(owned / 'site-wms/bin/snakemake'),
+           'analysis_python': str(owned / 'site-analysis/bin/python'), 'lock': str(lock),
+           'lock_sha256': site_contract.sha256(lock), 'packages': packages,
+           'plugins': {site_contract.PLUGIN: packages[site_contract.PLUGIN]}}
+    (owned / 'wms.json').write_text(json.dumps(row))
+    monkeypatch.setenv('RAVEL_SITE_PREFIX', str(prefix))
+    version = site_contract.read_wms_record(prefix)['version']
+    assert f'# Snakemake {version}\n' in surf.software_skills(project=project)['software-snakemake']

@@ -87,7 +87,7 @@ generator settings).
 (`resource-sweep` skill automates rungs 1–5): 1. the paper body + auxiliary material; 2. HEPData
 record INCLUDING the resources tab (full likelihoods and efficiency maps live there, not under
 "tables"); 3. the collaboration's public analysis code/glance pages + GitHub orgs; 4. recast DBs
-(Rivet, SimpleAnalysis, SModelS, MA5-PAD); 5. INSPIRE forward-citations — recast papers
+(Rivet, SimpleAnalysis, SModelS, CheckMATE, MA5-PAD); 5. INSPIRE forward-citations — recast papers
 and THESES (theses carry the cutflows the paper cut); 6. ask the physicist WITH the ladder's
 evidence + named options. Never invent the missing number; never stop at rung 1.
 | Thought | Reality |

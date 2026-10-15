@@ -1923,8 +1923,10 @@ def _delegated_facts(rundir):
 
 
 def _is_delegated(facts):
-    contract = facts.get("contract") or {}
-    return bool(facts.get("delegated") or contract.get("autonomy"))
+    """One reader of the delegation record: ``review_points.delegated_contract`` set ``delegated``
+    from the contract and the CHECK-IN 1 transition beside it when it built these facts."""
+    from .review_points import delegated_contract
+    return bool(facts.get("delegated") or delegated_contract(facts.get("contract") or {}))
 
 
 def screen_action(rundir, required_plan, command, context, *, write=False):

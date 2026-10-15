@@ -8,6 +8,16 @@ use `--profile site` only for a Linux analysis facility. Every reported requirem
 must pass. A missing or misconfigured tool makes `ravel doctor` exit with status 1
 and prints its exact repair command; licence activation remains a user action.
 
+For a site installation, use `bash scripts/setup/install.sh --profile site --prefix
+<work-prefix> --lcg-view <absolute-view-path-or-none>`. Put the checkout, runs and
+transcripts in work space. Run `ravel site doctor --profile generic --prefix
+<work-prefix> --runs-dir <work-runs> --transcripts-dir <work-transcripts>` before a
+campaign. Use `<work-prefix>/bin/ravel-snakemake` to isolate the hash-locked workflow
+manager from facility Python settings. One prefix holds one release per campaign;
+start a new prefix for the next release after that campaign ends. The
+`tester-qualification` site groups require the facility user's
+[synthetic site qualification](../../reference/site-workflows.md#synthetic-site-qualification).
+
 ## Check the tools this study needs
 
 ```bash
@@ -124,3 +134,28 @@ Before installing an additional tool, resolve its filled entry in
 Pending entries require source acquisition and licence evidence before installation.
 The [scope-tools ledger](../../reference/tool-licences.md#scope-tools-add-ons) gives
 the pin resolver, fragment interface and comparator source-extraction checks.
+
+## Project workflow-manager guidance
+
+For a project declaring workflow-manager-first policy, install portable agent
+guidance with `ravel agent-surface install --project PROJECT`. Load
+`.ravel/agent-guidance.md` into the host session. Existing project instruction
+documents stay byte-identical. The shell discipline guard is enabled by default
+for policy-required projects; `--wms-guard` installs it explicitly elsewhere.
+Machine runtime settings stay local and untracked. Plan and approve retain their
+check-ins; approved stages use `ravel wms launch` when required by policy.
+See [the approved-stage guide](../../guides/approved-workflow-stages.md) for the
+recorded guard opt-out, separate environment skill, retries and qualification
+boundaries. Do not treat generated guidance or a dry-run as native qualification.
+
+Toolchain declarations are read through `ravel.setup.manifest.load(root)`, which merges
+inline groups with `native/setup/groups/*.json` before validation. When inspecting a
+staged tree without its PDF catalogue, use `ravel.setup.manifest.view(root)`; compare
+its content with `python -m ravel.setup.manifest view --canonical-sha256 --root <tree>`.
+The [group fragment contract](../../../native/setup/groups/README.md) describes the
+contributor schema and digest-preserving split helper.
+
+Each non-qualified census entry has an install group, a qualification-job specification,
+a site deferral, or a data-format record in `src/ravel/data/knowledge/qualification/rows.json`.
+The declaration is planning evidence only: use the existing admission and launch guard before
+any source acquisition, installation, or qualification execution.

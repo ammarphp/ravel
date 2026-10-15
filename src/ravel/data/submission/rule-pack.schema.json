@@ -1,0 +1,602 @@
+{
+  "$comment": "Rule IDs must be unique; the runtime validator enforces this cross-row constraint.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "const": "conformance-rule-pack"
+    },
+    "rules": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "instruction_hash"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "session_instructions"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "receipt_field": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path",
+                  "sha256"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "prompt_log"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "workflow_launches"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "guard_log": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "manager": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "policy_sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "receipts": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "stages": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "guard_log",
+                  "manager",
+                  "policy_sha256",
+                  "receipts",
+                  "stages"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "tracked_clean"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "paths": {
+                    "items": {
+                      "minLength": 1,
+                      "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "paths"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "environment"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "installability": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "requirements": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "runtime_directory": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "stages": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "vendored_ravel": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "installability",
+                  "requirements",
+                  "runtime_directory",
+                  "stages"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "skill_coverage"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "coverage": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "invoked": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "coverage",
+                  "invoked"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "rerun_comparison"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "tolerances": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "workflow": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tolerances",
+                  "workflow"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "size_budget"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "intermediates": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "max_file_bytes": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "max_total_bytes": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "max_file_bytes"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "note_limits"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "aux": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "max_main_pages": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "pdf": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  },
+                  "segments": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "aux",
+                  "max_main_pages",
+                  "pdf",
+                  "segments"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "check": {
+                "const": "submission_tag"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "id": {
+                "minLength": 1,
+                "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                "type": "string"
+              },
+              "params": {
+                "additionalProperties": false,
+                "properties": {
+                  "tag": {
+                    "minLength": 1,
+                    "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "tag"
+                ],
+                "type": "object"
+              },
+              "scope": {
+                "enum": [
+                  "repo",
+                  "runs"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "check",
+              "params"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "rundirs": {
+      "items": {
+        "minLength": 1,
+        "pattern": "^(?=[\\s\\S]*\\S)[^\\u0000]*$",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema_version": {
+      "const": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "rules"
+  ],
+  "title": "Requester-supplied conformance rule pack",
+  "type": "object"
+}

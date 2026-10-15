@@ -1,0 +1,148 @@
+{
+ "CRVV_MT2_hghmet_cuts": {
+  "region": "CR_S_VV_high"
+ },
+ "CRVV_MT2_lowmet_cuts": {
+  "region": "CR_S_VV_low"
+ },
+ "CRtau_MT2_hghmet_cuts": {
+  "region": "CR_S_tau_high"
+ },
+ "CRtau_MT2_lowmet_cuts": {
+  "region": "CR_S_tau_low"
+ },
+ "CRtop_MT2_hghmet_cuts": {
+  "region": "CR_S_top_high"
+ },
+ "CRtop_MT2_lowmet_cuts": {
+  "region": "CR_S_top_low"
+ },
+ "SRee_eMT2a_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2a"
+ },
+ "SRee_eMT2a_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2a"
+ },
+ "SRee_eMT2b_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2b"
+ },
+ "SRee_eMT2b_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2b"
+ },
+ "SRee_eMT2c_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2c"
+ },
+ "SRee_eMT2c_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2c"
+ },
+ "SRee_eMT2d_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2d"
+ },
+ "SRee_eMT2d_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2d"
+ },
+ "SRee_eMT2e_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2e"
+ },
+ "SRee_eMT2e_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2e"
+ },
+ "SRee_eMT2f_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2f"
+ },
+ "SRee_eMT2f_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2f"
+ },
+ "SRee_eMT2g_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2g"
+ },
+ "SRee_eMT2g_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2g"
+ },
+ "SRee_eMT2h_hghmet_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_high_eMT2h"
+ },
+ "SRee_eMT2h_lowmet_V2_cuts": {
+  "flavour": "isee",
+  "region": "SR_S_low_eMT2h"
+ },
+ "SRmm_eMT2a_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2a"
+ },
+ "SRmm_eMT2a_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2a"
+ },
+ "SRmm_eMT2b_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2b"
+ },
+ "SRmm_eMT2b_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2b"
+ },
+ "SRmm_eMT2c_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2c"
+ },
+ "SRmm_eMT2c_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2c"
+ },
+ "SRmm_eMT2d_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2d"
+ },
+ "SRmm_eMT2d_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2d"
+ },
+ "SRmm_eMT2e_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2e"
+ },
+ "SRmm_eMT2e_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2e"
+ },
+ "SRmm_eMT2f_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2f"
+ },
+ "SRmm_eMT2f_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2f"
+ },
+ "SRmm_eMT2g_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2g"
+ },
+ "SRmm_eMT2g_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2g"
+ },
+ "SRmm_eMT2h_hghmet_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_high_eMT2h"
+ },
+ "SRmm_eMT2h_lowmet_V2_cuts": {
+  "flavour": "ismm",
+  "region": "SR_S_low_eMT2h"
+ }
+}

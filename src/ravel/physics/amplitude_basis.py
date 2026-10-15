@@ -189,6 +189,35 @@ def evaluate(G, c):
     return np.einsum('nk,nkl,nl->n', np.conj(c), G, c).real
 
 
+def pairing_square(amplitudes, c, *, identical, selected_direct, exchange, normalization):
+    """Replay the hypothesis-dependent partition from retained pairing amplitudes.
+
+    Unlike a reference-partition Gram, this estimator is generally rational in
+    the coefficients. It must not be exported as polynomial term weights.
+    Both-zero exchange channels contribute their continuous zero limit.
+    """
+    a, c = np.asarray(amplitudes, complex), np.asarray(c, complex)
+    require(a.ndim == 4 and a.shape[1] == 2, 'pairings need (points, 2, helicities, members)')
+    n, _, h, k = a.shape
+    require(c.shape == (n, k) and np.isfinite(a).all() and np.isfinite(c).all(), 'finite matching coefficients required')
+    same, selected, exch = (np.asarray(v) for v in (identical, selected_direct, exchange))
+    require(same.shape == selected.shape == (n,) and exch.shape == (h,)
+            and all(v.dtype == bool for v in (same, selected, exch)), 'literal pairing and exchange flags required')
+    norm = np.asarray(normalization, float)
+    require(norm.shape == (n,) and np.isfinite(norm).all(), 'finite pairing normalization required')
+    m, s = (np.einsum('nhk,nk->nh', a[:, j], c) for j in (0, 1))
+    chosen = np.where(selected[:, None], m, s)
+    scale = np.maximum(np.abs(m), np.abs(s))
+    safe = np.where(scale > 0, scale, 1.)
+    x, y = m / safe, s / safe
+    denom = np.abs(x) ** 2 + np.abs(y) ** 2
+    partition = np.abs(x - y) ** 2 / np.where(denom > 0, denom, 1.)
+    square = np.where(same[:, None], 2 * np.abs(chosen) ** 2 * np.where(exch, partition, 1.), np.abs(m) ** 2)
+    result = square.sum(axis=1) * norm
+    require(np.isfinite(result).all(), 'pairing square overflow')
+    return result
+
+
 def pack(G):
     """K*K reals per point: diagonal, then upper-triangle real parts, then imaginary parts."""
     G = np.asarray(G)

@@ -1,4 +1,5 @@
 """Supplied selection discovery, binding and missing-input boundaries."""
+import json
 from pathlib import Path
 
 import pytest
@@ -92,7 +93,10 @@ def test_discovery_reads_metadata_without_importing_selection(tmp_path, monkeypa
     path.write_text(json.dumps(document))
     monkeypatch.setenv('RAVEL_ANALYSIS_PACKAGES', str(tmp_path))
     rows = discover()
-    assert list(rows) == ['ANA-0001']
+    from ravel.physics.analysis_packages import SHIPPED_ROOT
+    shipped = {json.loads(p.read_text())['package_id'] for p in SHIPPED_ROOT.glob('*/manifest.json')}
+    assert shipped and shipped < set(rows)
+    assert [name for name in rows if name not in shipped] == ['ANA-0001']
     assert rows['ANA-0001']['physics_certified'] is False
 
 

@@ -35,7 +35,8 @@ def availability(mode, *, root=None, find_spec=find_spec):
         return Availability(False,module,reason='implementation absent')
     source=Path(root) if root is not None else Path(__file__).resolve().parents[3]
     try:
-        document=json.loads((source/'native/setup/toolchain-manifest.json').read_text())
+        from ravel.setup.manifest import view
+        document=view(source)
         document=manifest_operations(document,root=root)
     except (OSError,ValueError):
         return Availability(True,module,True,'manifest unreadable; module presence used')

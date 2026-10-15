@@ -96,6 +96,9 @@ def _morph_terms(ctx, spec, n):
 
 def load(task, base):
     ctx, doc = common.context(task, base, MODE)
+    if doc.get('operation') == 'cached-profile':
+        from . import cached_profile
+        return ctx, {'cached_profile': cached_profile.load(ctx, doc)}
     required = {'statistic', 'observable', 'measurement', 'reference', 'signal', 'covariance', 'scan', 'domain'}
     optional = {'schema_version', 'kind', 'description', 'hypotheses', 'mc_covariance', 'nuisances',
                 'max_condition', 'applicability'}
@@ -198,11 +201,18 @@ def load(task, base):
 
 
 def inputs(task, base):
-    return common.inputs(load(task, base)[0])
+    ctx, spec = load(task, base)
+    if 'cached_profile' in spec:
+        from pathlib import Path
+        return [Path(p) for p in spec['cached_profile']['inputs']]
+    return common.inputs(ctx)
 
 
 def run(task, base, output):
     ctx, spec = load(task, base)
+    if 'cached_profile' in spec:
+        from . import cached_profile
+        return cached_profile.run(ctx, spec['cached_profile'], output, task=task)
     st, p = spec['statistic'], spec['scan']
     label = next(x['label'] for x in spec['parameters'] if x['name'] == p)
     prescribed = st.get('verbatim') is not None

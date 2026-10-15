@@ -1,0 +1,162 @@
+{
+ "group": {
+   "id": "spectrum",
+   "title": "FlexibleSUSY 2.9.0 (CMSSM, lowMSSM, NMSSM) and SPheno 4.0.5",
+   "depends_on": [
+    "compiler-bootstrap",
+    "wolfram"
+   ],
+   "size_gb": 5.0,
+   "minutes": 90,
+   "licenses": [
+    {
+     "component": "FlexibleSUSY",
+     "spdx": "GPL-3.0-only",
+     "source": "https://github.com/FlexibleSUSY/FlexibleSUSY"
+    },
+    {
+     "component": "SPheno",
+     "spdx": "LicenseRef-SPheno",
+     "source": "https://spheno.hepforge.org"
+    }
+   ],
+   "steps": [
+    {
+     "id": "spectrum-env",
+     "kind": "conda_env",
+     "name": "spectrum",
+     "specs": [
+      "python=3.12",
+      "clangxx=22.*",
+      "gfortran=13.*",
+      "make",
+      "gsl",
+      "libboost-devel=1.88.*",
+      "eigen=3.4.0",
+      "cmake"
+     ]
+    },
+    {
+     "id": "flexiblesusy-source",
+     "kind": "git",
+     "url": "https://github.com/FlexibleSUSY/FlexibleSUSY",
+     "commit": "64276b57499cba6577940c3fc605b9d4b45b3130",
+     "dest": "{TOOLS}/FlexibleSUSY",
+     "tag": "v2.9.0"
+    },
+    {
+     "id": "spheno-source",
+     "kind": "archive",
+     "url": "https://spheno.hepforge.org/downloads/SPheno-4.0.5.tar.gz",
+     "sha256": "3f84a6c3e47f40e0dd1bcccb88eb08a1d0a65aa3d8e42504befdfc3d47ec9529",
+     "dest": "{TOOLS}/SPheno-4.0.5",
+     "strip": 1
+    },
+    {
+     "id": "spheno-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-spheno.sh",
+      "--src",
+      "{TOOLS}/SPheno-4.0.5",
+      "--env",
+      "{ENVS}/spectrum"
+     ],
+     "outputs": [
+      "{TOOLS}/SPheno-4.0.5/bin/SPheno"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-spheno.sh"
+     ]
+    },
+    {
+     "id": "flexiblesusy-build",
+     "kind": "command",
+     "argv": [
+      "bash",
+      "{REPO}/native/setup/recipes/build-flexiblesusy.sh",
+      "--source",
+      "{TOOLS}/FlexibleSUSY",
+      "--sarah",
+      "{TOOLS}/sarah-4.15.4",
+      "--env",
+      "{ENVS}/spectrum",
+      "--out",
+      "{TOOLS}/flexiblesusy-models",
+      "--models",
+      "CMSSM,lowMSSM,NMSSM",
+      "--jobs",
+      "{JOBS}"
+     ],
+     "outputs": [
+      "{TOOLS}/flexiblesusy-models/CMSSM/models/CMSSM/run_CMSSM.x",
+      "{TOOLS}/flexiblesusy-models/lowMSSM/models/lowMSSM/run_lowMSSM.x",
+      "{TOOLS}/flexiblesusy-models/NMSSM/models/NMSSM/run_NMSSM.x"
+     ],
+     "inputs": [
+      "native/setup/recipes/build-flexiblesusy.sh"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "id": "spectrum-cxx",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/clang++",
+     "probe": {
+      "argv": [
+       "{path}",
+       "--version"
+      ],
+      "regex": "version (\\d+)\\.",
+      "expect": "22"
+     }
+    },
+    {
+     "id": "spectrum-fc",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/gfortran"
+    },
+    {
+     "id": "gsl-config",
+     "kind": "executable",
+     "path": "{ENVS}/spectrum/bin/gsl-config"
+    },
+    {
+     "id": "spheno",
+     "kind": "executable",
+     "path": "{TOOLS}/SPheno-4.0.5/bin/SPheno"
+    },
+    {
+     "id": "flexiblesusy-CMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/CMSSM/models/CMSSM/run_CMSSM.x"
+    },
+    {
+     "id": "flexiblesusy-lowMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/lowMSSM/models/lowMSSM/run_lowMSSM.x"
+    },
+    {
+     "id": "flexiblesusy-NMSSM",
+     "kind": "executable",
+     "path": "{TOOLS}/flexiblesusy-models/NMSSM/models/NMSSM/run_NMSSM.x"
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "basis": "Clean-prefix installation and all current group doctor checks in the reference-Mac qualification lane.",
+    "record": {
+     "tool": "spectrum",
+     "version": {
+      "spectrum-cxx": "22"
+     },
+     "platform": "macos-arm64",
+     "date": "2026-10-12",
+     "doctor_result": "ready",
+     "evidence_sha256": "ce7121f61b84e5cdede28849a69a4dc470c65654878f8af9a2724a4e8ddfb79f"
+    }
+   }
+  }
+}

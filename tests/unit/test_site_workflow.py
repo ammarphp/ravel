@@ -217,3 +217,22 @@ def test_frozen_export_rejects_later_root_blind_domain_revision(tmp_path,monkeyp
     newtask={'config':put(fixture,'modified-config.json',newcfg)}
     monkeypatch.setattr(science,'execution_spec',lambda rd,**kwargs:{'mode':'root-stream','task':newtask})
     with pytest.raises(ValueError):w.verify(exported['manifest']['path'],exported['manifest']['sha256'])
+
+
+def test_export_records_the_approved_runtime_environment_and_wms_jobs_restore_it(tmp_path,monkeypatch):
+    from ravel.workflow import execution
+    request,rd,_=workflow_fixture(tmp_path,monkeypatch)
+    approved={k:None for k in execution.RUNTIME_ENVIRONMENT_KEYS}
+    for key in execution.RUNTIME_ENVIRONMENT_KEYS:monkeypatch.delenv(key,raising=False)
+    monkeypatch.setenv('PATH','/approved/bin');approved['PATH']='/approved/bin'
+    plan={'schema_version':2,'stages':[{'outputs':['outputs']}],'stage_binding':{'runtime':{'environment_sha256':execution.digest(approved)}}}
+    monkeypatch.setattr(science,'verify_plan',lambda rd,approved=False,**kwargs:plan)
+    monkeypatch.setenv('OMP_NUM_THREADS','1')  # as a WMS shell job would set it
+    with pytest.raises(ValueError,match='approved runtime environment'):w.export(request,tmp_path,tmp_path/'refused')
+    monkeypatch.delenv('OMP_NUM_THREADS')
+    result=w.export(request,tmp_path,tmp_path/'export')
+    assert w.verify(result['manifest']['path'],result['manifest']['sha256'])['tasks'][0]['runtime_environment']==approved
+    monkeypatch.setenv('OMP_NUM_THREADS','1');monkeypatch.setenv('MKL_NUM_THREADS','1')
+    w._restore_environment(result['manifest']['path'],result['manifest']['sha256'],'analyze')
+    assert execution.runtime_environment()==approved
+    with pytest.raises(ValueError,match='digest'):w._restore_environment(result['manifest']['path'],'0'*64)

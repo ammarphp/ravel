@@ -43,11 +43,15 @@ def test_row20_installed_template_has_no_selected_physics():
     schema = json.loads(path.read_text())
     assert 'default' not in path.read_text()
     assert {'axes', 'quantities', 'datasets', 'output'} <= set(schema['required'])
-    assert not (ROOT/'src/ravel/data/templates/slepton_scan_template.toml').exists()
+    # The slepton scan template is a library entry, not a default: its masses are the scan axes.
+    import tomllib
+    template = ROOT/'src/ravel/data/templates/slepton_scan_template.toml'
+    assert tomllib.loads(template.read_text())['ravel']['native']['library'] == 'slepton-bino-isrslep'
 
 
 def test_row21_process_requires_selected_source(tmp_path):
-    assert not (ROOT/'src/ravel/data/templates/slepton_isrslep_generate.mg5').exists()
+    # The shipped process block is a named library file; a recipe still has to select its process.
+    assert (ROOT/'src/ravel/data/templates/slepton_isrslep_generate.mg5').is_file()
     request = recipe(tmp_path)
     del request['process_card']
     with pytest.raises(cards.MissingInputError) as caught:

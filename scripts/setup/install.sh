@@ -16,6 +16,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MINIFORGE_VERSION=26.5.3-0
 PROFILE=default
 PREFIX_ARG=""
+LCG_VIEW="${RAVEL_LCG_VIEW:-}"
 CHECK_DISK=1
 PREFLIGHT_ONLY=0
 PLAN=0
@@ -30,6 +31,7 @@ Usage: bash scripts/setup/install.sh [options]
   --only GROUPS        install only these groups (comma-separated) and what they need
   --skip GROUPS        leave these groups out
   --prefix PATH        where tools go (default: native/build inside this checkout)
+  --lcg-view PATH|none  explicit facility software view for site; auto lists candidates and refuses
   --plan               print the ordered steps and change nothing
   --dry-run            print every action, size estimate and network fetch, and change nothing
   --resume             continue after a failure; finished steps are skipped
@@ -51,6 +53,8 @@ while [ $# -gt 0 ]; do
     --profile=*) PROFILE="${1#*=}"; ARGS+=("$1"); shift ;;
     --prefix) PREFIX_ARG="${2:?--prefix needs a path}"; shift 2 ;;
     --prefix=*) PREFIX_ARG="${1#*=}"; shift ;;
+    --lcg-view) LCG_VIEW="${2:?--lcg-view needs a path or none}"; ARGS+=("$1" "$2"); shift 2 ;;
+    --lcg-view=*) LCG_VIEW="${1#*=}"; ARGS+=("$1"); shift ;;
     --no-disk-check) CHECK_DISK=0; shift ;;
     --preflight-only) PREFLIGHT_ONLY=1; shift ;;
     --plan|--dry-run) PLAN=1; ARGS+=("$1"); shift ;;
@@ -126,6 +130,35 @@ case "$PREFIX" in "~"*) PREFIX="$HOME${PREFIX#\~}" ;; esac
 case "$PREFIX" in /*) ;; *) PREFIX="$(pwd)/$PREFIX" ;; esac
 case "$PREFIX" in *[[:space:]]*) fail "the prefix '$PREFIX' contains a space, which Miniforge refuses; choose another with --prefix" 3 ;; esac
 
+# A view choice precedes every bootstrap download or prefix write.
+if [ "$PROFILE" = site ] && [ "$PLAN" = 0 ]; then
+  if [ -z "$LCG_VIEW" ] || [ "$LCG_VIEW" = auto ]; then
+    printf '%s\n' 'Choose an explicit LCG view; candidates for this CPU:' >&2
+    VIEW_ROOT="${RAVEL_LCG_VIEWS:-/cvmfs/sft.cern.ch/lcg/views}"
+    for VIEW in "$VIEW_ROOT"/LCG_*/"$MACHINE"-*-opt; do
+      if [ -f "$VIEW/setup.sh" ]; then
+        printf '%s\n' "$VIEW" >&2
+        printf 'Rerun: bash scripts/setup/install.sh --profile site --prefix %q --lcg-view %q\n' "$PREFIX" "$VIEW" >&2
+      fi
+    done
+    printf 'Without CVMFS rerun: bash scripts/setup/install.sh --profile site --prefix %q --lcg-view none\n' "$PREFIX" >&2
+    exit 2
+  fi
+  if [ "$LCG_VIEW" != none ]; then
+    case "$LCG_VIEW" in /*) ;; *) fail 'LCG view must be an absolute path or none' 2 ;; esac
+    [ -f "$LCG_VIEW/setup.sh" ] || fail "LCG view has no setup.sh: $LCG_VIEW" 2
+  fi
+fi
+export RAVEL_LCG_VIEW="$LCG_VIEW"
+export APPTAINER_CACHEDIR="$PREFIX/cache/apptainer" APPTAINER_TMPDIR="$PREFIX/tmp/apptainer"
+export CONDA_PKGS_DIRS="$PREFIX/pkgs" PIP_CACHE_DIR="$PREFIX/cache/pip" XDG_CACHE_HOME="$PREFIX/cache"
+# macOS container tooling keeps its sockets under TMPDIR, and a prefix path is too long for them.
+PREFIX_TMP=""
+if [ "$SYSTEM" = Linux ]; then PREFIX_TMP="$PREFIX/tmp"; export TMPDIR="$PREFIX_TMP"; fi
+export CONDA_REGISTER_ENVS=false CONDA_AUTO_UPDATE_CONDA=false CONDA_NOTIFY_OUTDATED_CONDA=false
+unset PYTHONPATH PYTHONHOME PYTHONSTARTUP
+export PYTHONNOUSERSITE=1
+
 # ---------------------------------------------------------------- disk
 # Fixed-format JSON: the default target is the top-level "default" object (header one space,
 # disk_gb two); a named profile sits under "profiles" (header two spaces, disk_gb three).
@@ -155,10 +188,62 @@ if [ "$CHECK_DISK" = 1 ] && [ "$PLAN" = 0 ] && [ "$FREE_GB" -lt "$NEED_GB" ]; th
 Choose a larger volume with --prefix /path/on/that/volume,
 or keep an existing toolchain with --adopt --prefix /path/to/it. Use --no-disk-check to proceed anyway." 4
 fi
+# Home quota is a separate limit from filesystem free space. Check it before
+# Miniforge creates its destination, including when the disk gate is disabled.
+if [ "$PROFILE" = site ] && [ "$PLAN" = 0 ]; then
+  case "$PREFIX/" in "$HOME/"*)
+    QUOTA_TEXT=""
+    QUOTA_MODE=standard
+    case "$PREFIX" in /afs/*)
+      if command -v fs >/dev/null 2>&1; then
+        QUOTA_TEXT="$(fs listquota -path "$probe_dir" 2>/dev/null || true)"
+        QUOTA_MODE=afs
+      fi ;;
+    esac
+    if [ -z "$QUOTA_TEXT" ] && command -v quota >/dev/null 2>&1; then
+      QUOTA_TEXT="$(quota -s 2>/dev/null || true)"
+    fi
+    QUOTA_FS="$(df -Pk "$probe_dir" | awk 'NR==2 {print $1}')"
+    QUOTA_FREE_KB="$(printf '%s\n' "$QUOTA_TEXT" | awk -v target="$QUOTA_FS" -v mode="$QUOTA_MODE" '
+      function blocks(v, unit) {
+        gsub(/\*/, "", v); unit=substr(v,length(v),1)
+        if (v !~ /^[0-9]+([.][0-9]+)?[KMGTkmgt]?$/) return -1
+        if (unit ~ /[KMGTkmgt]/) {
+          v=substr(v,1,length(v)-1); unit=toupper(unit)
+          if (unit=="M") v*=1024
+          if (unit=="G") v*=1024*1024
+          if (unit=="T") v*=1024*1024*1024
+        }
+        return v+0
+      }
+      {
+        start=1
+        if (blocks($1)<0) { filesystem=$1; start=2 }
+        if (mode=="afs") {
+          limit=blocks($2); used=blocks($3)
+        } else {
+          if (filesystem!=target) next
+          used=blocks($start); soft=blocks($(start+1)); hard=blocks($(start+2))
+          limit=soft>0 ? soft : hard
+          if (hard>0 && (limit<0 || hard<limit)) limit=hard
+        }
+        if (used>=0 && limit>0) {
+          free=limit-used; if (free<0) free=0
+          if (!found || free<minimum) minimum=free
+          found=1
+        }
+      }
+      END { if (found) printf "%.0f", minimum }')"
+    if [ -z "$QUOTA_FREE_KB" ] || [ "$QUOTA_FREE_KB" -lt "$((NEED_GB * 1024 * 1024))" ]; then
+      fail "Home area free quota is insufficient or unknown for the site install ($DISK_GB GiB required). Choose a work area with enough free space and quota; pass --prefix there." 4
+    fi
+  esac
+fi
 [ "$PREFLIGHT_ONLY" = 1 ] && { say "preflight: ok"; exit 0; }
 
 # ---------------------------------------------------------------- Miniforge
 MF="$PREFIX/tools/miniforge3"
+if [ "$PLAN" = 0 ]; then mkdir -p ${PREFIX_TMP:+"$PREFIX_TMP"} "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"; fi
 if [ -x "$MF/bin/python" ] && [ -x "$MF/bin/conda" ]; then
   say "Miniforge: using $MF"
 elif [ "$PLAN" = 1 ]; then
@@ -175,7 +260,7 @@ elif [ "$PLAN" = 1 ]; then
 else
   [ ! -e "$MF" ] || fail "$MF exists but has no working conda; move it aside and rerun" 5
   CACHE="$PREFIX/downloads/sha256"
-  mkdir -p "$CACHE" "$PREFIX/downloads/quarantine" "$PREFIX/downloads/tmp"
+  mkdir -p "$CACHE" "$PREFIX/downloads/quarantine" "$PREFIX/downloads/tmp" ${PREFIX_TMP:+"$PREFIX_TMP"} "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR"
   if [ ! -f "$CACHE/$SHA" ]; then
     [ "$OFFLINE" = 0 ] || fail "offline: the Miniforge installer $ASSET is not in the download cache ($CACHE/$SHA); place it there or rerun without --offline" 5
     URL="https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/$ASSET"

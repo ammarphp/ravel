@@ -1,0 +1,1072 @@
+{
+  "schema_version": 1,
+  "kind": "registry-registration",
+  "target": "physics-premises",
+  "append": {
+    "premises": [
+      {
+        "id": "trap:TH1",
+        "title": "Inclusive and template or differential observables sharing events need a supplied joint likelihood to prevent double counting",
+        "statement": "Inclusive and template or differential observables sharing events need a supplied joint likelihood to prevent double counting.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH1",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH1"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH1",
+            "description": "Inclusive and template or differential observables sharing events need a supplied joint likelihood to prevent double counting.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH1"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH2",
+        "title": "Shared signal theory sources need cross-experiment correlation declarations, matched scale and PDF definitions, and unique uncertainty accounting",
+        "statement": "Shared signal theory sources need cross-experiment correlation declarations, matched scale and PDF definitions, and unique uncertainty accounting.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH2",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH2"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH2",
+            "description": "Shared signal theory sources need cross-experiment correlation declarations, matched scale and PDF definitions, and unique uncertainty accounting.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH2"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH3",
+        "title": "Prediction and measurement masses must agree or have an explicit source-backed mass translation",
+        "statement": "Prediction and measurement masses must agree or have an explicit source-backed mass translation.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH3",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH3"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH3",
+            "description": "Prediction and measurement masses must agree or have an explicit source-backed mass translation.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH3"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH4",
+        "title": "Resolved and effective loop-coupling interpretations must agree between predictions and measurements",
+        "statement": "Resolved and effective loop-coupling interpretations must agree between predictions and measurements.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH4",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH4"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH4",
+            "description": "Resolved and effective loop-coupling interpretations must agree between predictions and measurements.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH4"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH5",
+        "title": "Free unobserved branching fraction with free vector coupling needs a width constraint or declared coupling upper bound",
+        "statement": "Free unobserved branching fraction with free vector coupling needs a width constraint or declared coupling upper bound.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH5",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH5"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH5",
+            "description": "Free unobserved branching fraction with free vector coupling needs a width constraint or declared coupling upper bound.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH5"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH6",
+        "title": "Asymmetric errors near a physical boundary must not be replaced silently by a symmetric Gaussian",
+        "statement": "Asymmetric errors near a physical boundary must not be replaced silently by a symmetric Gaussian.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH6",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH6"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH6",
+            "description": "Asymmetric errors near a physical boundary must not be replaced silently by a symmetric Gaussian.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH6"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH7",
+        "title": "Angle-convention changes must preserve available wrong-sign Yukawa branches unless an explicit restriction excludes them",
+        "statement": "Angle-convention changes must preserve available wrong-sign Yukawa branches unless an explicit restriction excludes them.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH7",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH7"
+        },
+        "tags": [
+          "extended-scalar"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH7",
+            "description": "Angle-convention changes must preserve available wrong-sign Yukawa branches unless an explicit restriction excludes them.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH7"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH8",
+        "title": "The tan(beta) definition must be transported when comparing different scalar bases",
+        "statement": "The tan(beta) definition must be transported when comparing different scalar bases.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH8",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH8"
+        },
+        "tags": [
+          "extended-scalar"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH8",
+            "description": "The tan(beta) definition must be transported when comparing different scalar bases.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH8"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH9",
+        "title": "An exclusion ratio from one channel selected by expected sensitivity is not a combined channel exclusion",
+        "statement": "An exclusion ratio from one channel selected by expected sensitivity is not a combined channel exclusion.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH9",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH9"
+        },
+        "tags": [
+          "extended-scalar"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH9",
+            "description": "An exclusion ratio from one channel selected by expected sensitivity is not a combined channel exclusion.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH9"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH10",
+        "title": "The dimension used to interpret delta chi-squared must match the requested confidence region or goodness-of-fit construction",
+        "statement": "The dimension used to interpret delta chi-squared must match the requested confidence region or goodness-of-fit construction.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH10",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH10"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH10",
+            "description": "The dimension used to interpret delta chi-squared must match the requested confidence region or goodness-of-fit construction.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH10"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH11",
+        "title": "A supplied likelihood data release must match the source-backed required release before being described as current",
+        "statement": "A supplied likelihood data release must match the source-backed required release before being described as current.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH11",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH11"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH11",
+            "description": "A supplied likelihood data release must match the source-backed required release before being described as current.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH11"
+          }
+        ]
+      },
+      {
+        "id": "trap:TH12",
+        "title": "A covariance-aware average of mutually tense mass measurements requires a tension statement",
+        "statement": "A covariance-aware average of mutually tense mass measurements requires a tension statement.",
+        "predicate": {
+          "any": [
+            {
+              "tags_all": [
+                "higgs",
+                "combination"
+              ]
+            },
+            {
+              "tags_any": [
+                "extended-scalar"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "check:higgs.trap_TH12",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "canonical": {
+          "kind": "scalar-fit",
+          "path": "src/ravel/validation/higgs_checks.py",
+          "id": "TH12"
+        },
+        "tags": [
+          "higgs",
+          "combination"
+        ],
+        "conventions": [
+          "conv:higgs"
+        ],
+        "obligations": [
+          {
+            "id": "obligation:trap-TH12",
+            "description": "A covariance-aware average of mutually tense mass measurements requires a tension statement.",
+            "resource_class": "pure_check",
+            "check": "check:higgs.trap_TH12"
+          }
+        ]
+      }
+    ],
+    "conventions": [
+      {
+        "id": "conv:higgs",
+        "title": "Declared scalar framework",
+        "statement": "Declare the scalar framework, parameter basis, truncation, total-width assumptions, supplied mass reference and source release. Framework labels do not establish applicability.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for declared scalar framework.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-kappa",
+        "title": "Loop modifiers and total width",
+        "statement": "Declare whether each loop modifier is resolved from elementary couplings or independently effective. Rates scale as production modifier squared times partial-width modifier squared divided by total-width scaling; supplied extra partial widths enter that denominator.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "kappa"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for loop modifiers and total width.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "kappa"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-kappa",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-width",
+        "title": "Unobserved widths and flat directions",
+        "statement": "BR_BSM = BR_inv + BR_undet for disjoint invisible and undetected components. Free unobserved branching fraction and free vector coupling require an explicit width constraint or a declared vector-coupling upper bound to control the rate flat direction.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "width"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for unobserved widths and flat directions.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "width"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-width",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-stxs",
+        "title": "Template-bin definitions and overlap",
+        "statement": "Declare the supplied STXS stage version and exact bin boundaries. Stages 1.0, 1.1 and 1.2 require explicit bin transport; merging preserves yields and the full uncertainty covariance. Inclusive, template and differential observables can share events and require overlap accounting.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "combination",
+                "stxs"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for template-bin definitions and overlap.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "combination",
+          "stxs"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-stxs",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-mass",
+        "title": "Mass reference and prediction transport",
+        "statement": "Use the measurement mass reference for the prediction or supply a source-backed mass translation. A declared translation binds both endpoint masses, its method and its domain; no reference mass is hard-coded.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "mass"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for mass reference and prediction transport.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "mass"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-mass",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-scalar-basis",
+        "title": "Extended-scalar basis and signs",
+        "statement": "Declare generic, Higgs or physical basis, angle ranges, cos(beta-alpha) sign, tan(beta) definition and supplied basis map. Yukawa type I, II, lepton-specific and flipped labels require explicit coupling definitions. Retain wrong-sign branches unless a source-backed restriction excludes them.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "extended-scalar",
+                "basis"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for extended-scalar basis and signs.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "extended-scalar",
+          "basis"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-scalar-basis",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-triplet",
+        "title": "Triplet normalization",
+        "statement": "Declare the triplet vev normalization, weak representation and hypercharge convention before evaluating the rho parameter. A vev symbol alone does not identify the normalization or custodial-symmetry assumption.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "extended-scalar",
+                "triplet"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for triplet normalization.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "extended-scalar",
+          "triplet"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-triplet",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-heft",
+        "title": "Nonlinear scalar coupling dictionary",
+        "statement": "Declare the operator normalization for kappa_V, kappa_F, c_gg, c_gamma_gamma, kappa_2V and c_2. In a nonlinear scalar EFT these are independent supplied definitions; names alone do not specify powers, loop factors or field normalization.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "heft"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for nonlinear scalar coupling dictionary.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "heft"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-heft",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-smeft",
+        "title": "Linear scalar EFT truncation",
+        "statement": "Declare the SMEFT basis, Lambda normalization, input scheme and the retained interference or squared dimension-six terms. Linear and quadratic truncations have different domains; a quadratic contribution does not supply missing dimension-eight effects.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "smeft",
+                "eft"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for linear scalar eft truncation.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "smeft",
+          "eft"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-smeft",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      },
+      {
+        "id": "conv:higgs-theory-uncertainty",
+        "title": "Signal theory nuisance definitions",
+        "statement": "Shared signal theory sources across experiments require declared cross-experiment correlations. Scale variations and PDF prescriptions must match or have a justified transport; table and program representations of one source must not be counted twice. Decorrelation needs located evidence.",
+        "predicate": {
+          "any": [
+            {
+              "tags_any": [
+                "higgs",
+                "combination",
+                "theory-uncertainty"
+              ]
+            }
+          ]
+        },
+        "operations": [],
+        "severity": "warning",
+        "check": "Inspect supplied source and declaration for signal theory nuisance definitions.",
+        "citation": [
+          {
+            "title": "RAVEL authored scalar declarations",
+            "locator": "RAVEL authored scalar convention; analytic rate scaling and explicitly supplied framework, basis, likelihood and uncertainty definitions. Primary source acquisition remains a run-time obligation.",
+            "license": "Apache-2.0",
+            "excerpt_sha256": null,
+            "verification": "authored_declaration"
+          }
+        ],
+        "license": "Apache-2.0",
+        "tags": [
+          "higgs",
+          "combination",
+          "theory-uncertainty"
+        ],
+        "conventions": [],
+        "obligations": [
+          {
+            "id": "obligation:higgs-theory-uncertainty",
+            "description": "Inspect the supplied source, definition and domain before using this convention.",
+            "resource_class": "source_inspection",
+            "check": null
+          }
+        ],
+        "shard": "higgs"
+      }
+    ]
+  }
+}

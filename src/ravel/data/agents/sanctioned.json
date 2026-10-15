@@ -282,12 +282,12 @@
    "reason": "Host-plane export command (\u00a77.4)."
   },
   {
-   "qualname": "ravel.workflow.submission_export:export",
+   "qualname": "ravel.workflow.submission_export:_embedded_procedure",
    "sinks": [
     "S7"
    ],
    "disposition": "substrate",
-   "reason": "The export sink's own implementation calling the procedure export sink.",
+   "reason": "The export sink's own implementation (its embedded-procedure step) calling the procedure export sink.",
    "targets": [
     "ravel.workflow.procedure_export.export"
    ]

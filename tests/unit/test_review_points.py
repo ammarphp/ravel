@@ -49,12 +49,32 @@ def receipt(root, point, role, number=1, *, register=True, verified_label='trans
              'execution_mode': 'transport_attested_cli', 'review_subject': {'scope': rp.subject_scope(p), 'sha256': digest},
              'attestation': 'transport_attested', 'session_id': role + str(number), 'actor_id': role + str(number),
              'run_tree': {'modified': False}, 'final_record': {'valid': True, 'path': 'final.json', 'sha256': final['sha256']}, 'model': {'family': role}}
+    # The dispatcher's part: it assigns the actor of this worker session at spawn and registers it.
+    # A test that passes its own ``actor_id`` models a worker that declares one.
+    declared = 'actor_id' in changes
+    worker_session = changes.pop('worker_session', None)
     value.update(changes)
+    actor = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', worker_session or 'ws-' + value['node_id'],
+                                     value['node_id'] + '/1', family=value['model'].get('family'))
+    if not declared:
+        value['actor_id'] = actor['actor_id']
     path = root / 'agent-work' / value['node_id'] / '1/receipt.json'
     write(path, value)
     if register:
-        rdj_custody.register_worker_receipt(root, path.relative_to(root).as_posix(), verified_label=verified_label)
+        rdj_custody.register_worker_receipt(root, path.relative_to(root).as_posix(), verified_label=verified_label,
+                                            **({} if declared else {'actor': actor}))
     return value
+
+
+def credit_pending(root, gate='checkin2_accept'):
+    """Credit every blocking review point of ``gate`` as the dispatcher does: one registered,
+    transport-attested receipt per missing role seat, each from its own worker session and actor."""
+    rp = module()
+    seats = [(p['id'], role['role']) for p in rp.pending(root) if p['blocking'] and p['gate'] == gate
+             for role in p['roles'] for _ in range(role['count'])]
+    for number, (point_id, role) in enumerate(seats, 1):
+        receipt(root, point_id, role, 9000 + number)
+    return seats
 
 
 def test_compute_and_authored_plan_requires_plan_critic():

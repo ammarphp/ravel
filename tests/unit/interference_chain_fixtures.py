@@ -110,6 +110,7 @@ def case(base, monkeypatch):
         'hypotheses': [reference, candidate], 'reference': 'reference', 'reference_description': 'Synthetic reference',
         'invariant': 's_gev2', 'scale': 'factorization_scale_gev', 'beams': {'pdg': 2212, 'sqrt_s_gev': 13000.},
         'max_streams': 3, 'format': 'hepmc3', 'unit': 'fb',
+        'coupling_scaling': deepcopy(prediction['coupling_scaling']),
         'rivet': {'program': '/inert/routine', 'analyses': ['SYN'], 'options': [],
             'histograms': [{'path': '/SYN/m', 'label': 'Synthetic mass', 'unit': 'GeV', 'representation': 'integrated'}]},
         'backend': {'kind': 'native', 'resources': {'cpus': 1, 'memory_mib': 64, 'wall_seconds': 10}}}

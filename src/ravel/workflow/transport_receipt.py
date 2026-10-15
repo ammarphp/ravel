@@ -29,6 +29,8 @@ KIND = 'transport-session-receipt'
 ATTESTATIONS = ('transport_attested', 'host_attested', 'self_attested')
 SHA = re.compile(r'^[0-9a-f]{64}$')
 RECEIPTS_DIR = 'transport-receipts'
+# The exact prompt of a session, kept beside its receipt file and bound by the receipt's prompt digest.
+PROMPT_SUFFIX = '.prompt.txt'
 SECTIONS = {
     'schema_version', 'kind', 'writer', 'transport', 'probe', 'executable', 'invocation', 'process', 'content',
     'effort', 'configuration', 'cli_reported'}
@@ -74,10 +76,23 @@ def shape(receipt):
     if type(receipt) is not dict or set(receipt) != SECTIONS or receipt.get('kind') != KIND \
             or receipt.get('schema_version') != SCHEMA_VERSION:
         raise ReceiptError('not a transport session receipt')
+    from .cli_agent_host import prompt_receipt_fields
+    extensions = prompt_receipt_fields(receipt)
     for section, keys in FIELDS.items():
-        allowed = keys | ({'tools_required'} if section == 'configuration' else set())
+        # ``provider_policy``: the run's provider-policy admission of this session.
+        # ``project_instructions``: the delivery record of the run's declared project instruction document.
+        # ``project_run``: the run directory the session was started for.
+        allowed = (keys | ({'tools_required', 'provider_policy', 'project_instructions', 'project_run'}
+                           if section == 'configuration' else set())
+                   | extensions.get(section, set()))
         if type(receipt[section]) is not dict or not keys <= set(receipt[section]) <= allowed:
             raise ReceiptError(f'receipt {section} fields differ')
+    if 'provider_policy' in receipt['configuration']:
+        from .provider_policy import validate_admission, PolicyRefused
+        try:
+            validate_admission(receipt['configuration']['provider_policy'])
+        except PolicyRefused as exc:
+            raise ReceiptError(str(exc)) from None
     _sha(receipt['writer']['module_sha256'], 'writer digest')
     _sha(receipt['transport']['declaration_sha256'], 'declaration digest')
     _sha(receipt['probe']['probe_sha256'], 'probe digest', nullable=True)
@@ -169,6 +184,26 @@ def write(root, request_id, attempt_id, record):
     with (directory / name).open('xb') as stream:
         stream.write(raw)
     return {'path': f'{RECEIPTS_DIR}/{name}', 'sha256': sha256_bytes(raw), 'size': len(raw)}
+
+
+def prompt_path(receipt_file):
+    """Where the exact prompt of a session is kept: beside its receipt or session record file."""
+    return Path(receipt_file).with_suffix(PROMPT_SUFFIX)
+
+
+def write_prompt(receipt_file, prompt, receipt):
+    """Keep a session's exact prompt beside its receipt file, create-only; return its pin.
+
+    The text must hash to the receipt's ``content.prompt_sha256``. The receipt binds it; the
+    file adds no claim of its own.
+    """
+    raw = prompt.encode('utf-8')
+    if type(receipt) is not dict or sha256_bytes(raw) != (receipt.get('content') or {}).get('prompt_sha256'):
+        raise ReceiptError('prompt differs from the receipt prompt digest')
+    path = prompt_path(receipt_file)
+    with path.open('xb') as stream:
+        stream.write(raw)
+    return {'path': str(path), 'sha256': sha256_bytes(raw), 'size': len(raw)}
 
 
 def read(root, pin):

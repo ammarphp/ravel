@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ravel-hep"
-version = "1.0.0"
+version = "1.1.0"
 description = "Source-bound collider studies, supervised tool workflows, and iterative research"
 readme = "docs/cli.md"
 requires-python = ">=3.11,<3.13"
@@ -78,6 +78,8 @@ symbolic = ["sympy>=1.14.0,<2"]
 
 [project.scripts]
 ravel = "ravel.cli:main"
+ravel-wms-condor-submit = "ravel.workflow.site_profiles.htcondor:submit_main"
+ravel-wms-condor-status = "ravel.workflow.site_profiles.htcondor:status_main"
 
 [project.urls]
 Repository = "https://github.com/ammarphp/ravel"
@@ -87,7 +89,7 @@ packages = ["src/ravel"]
 exclude = ["src/ravel/data/workflow"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/ravel", "pyproject.toml", "hatch_build.py", "scripts/run.py", "docs/cli.md", "LICENSE", "NOTICE", "requirements-replay.txt", "requirements-replay.lock", "requirements-full.txt", "requirements-site.txt", "requirements-site-wms.txt",
+include = ["src/ravel", "pyproject.toml", "hatch_build.py", "scripts/run.py", "docs/cli.md", "LICENSE", "NOTICE", "requirements-replay.txt", "requirements-replay.lock", "requirements-full.txt", "requirements-site.txt", "requirements-site-wms.txt", "requirements-site-wms.in", "requirements-site-wms.lock",
   "environment", "native/scripts", "native/setup", "scripts/setup", "tests/unit/test_ravel_cli.py", "tests/unit/test_cli_initiate.py", "tests/unit/test_package_delivery.py", "tests/unit/test_python_installation.py", "tests/unit/workflow_instruction_inventory_fixture.py"]
 
 [tool.hatch.build.hooks.custom]

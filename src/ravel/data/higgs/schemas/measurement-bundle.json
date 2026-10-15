@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "higgs-measurement-bundle"
+    },
+    "dataset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mass_gev": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "production": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decay": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "enum": [
+              "mu",
+              "sigma_br"
+            ]
+          },
+          "unit": {
+            "enum": [
+              "1",
+              "pb",
+              "fb",
+              "ab"
+            ]
+          },
+          "mass_gev": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "value": {
+            "type": "number"
+          },
+          "uncertainty": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "minus": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "plus": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "minus",
+              "plus"
+            ]
+          },
+          "energy_tev": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "luminosity": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "value",
+              "unit"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "production",
+          "decay",
+          "quantity",
+          "unit",
+          "mass_gev",
+          "value",
+          "uncertainty"
+        ]
+      },
+      "minItems": 1
+    },
+    "correlation": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1
+          },
+          "minItems": 1
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "format": {
+              "enum": [
+                "json",
+                "hepdata"
+              ]
+            },
+            "column": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bin_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "path",
+            "format",
+            "bin_ids"
+          ]
+        }
+      ]
+    },
+    "correlation_order": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "overlap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "enum": [
+            "joint_correlation",
+            "independent"
+          ]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "policy",
+        "evidence"
+      ]
+    },
+    "source_pins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "source",
+          "sha256"
+        ]
+      },
+      "minItems": 1
+    },
+    "loop_modes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "g": {
+          "enum": [
+            "resolved",
+            "effective"
+          ]
+        },
+        "gamma": {
+          "enum": [
+            "resolved",
+            "effective"
+          ]
+        },
+        "Zgamma": {
+          "enum": [
+            "resolved",
+            "effective"
+          ]
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "dataset_id",
+    "mass_gev",
+    "rows",
+    "correlation",
+    "overlap",
+    "source_pins"
+  ],
+  "description": "Asymmetric error magnitudes and supplied correlation in labelled row order. No implicit theory covariance or overlap removal. File references are local and resolved by the supervising input loader."
+}

@@ -52,7 +52,7 @@ BOOLEAN_CAPABILITIES = ('structured_output', 'blind_capable', 'effort_control', 
 CAPABILITY_KEYS = {'tools', 'isolation', 'attestation', *BOOLEAN_CAPABILITIES}
 DECLARATION_KEYS = {'schema_version', 'kind', 'id', 'transport_kind', 'launcher', 'argv_template', 'models', 'auth',
                     'pass_env', 'billing', 'capabilities', 'max_concurrent', 'qualification'}
-OPTIONAL_KEYS = {'endpoint', 'notes', 'worker_surface'}
+OPTIONAL_KEYS = {'endpoint', 'notes', 'worker_surface', 'account_class'}
 # how a CLI worker loads the broker MCP face and how its final record is checked.
 MCP_CONFIGS = ('mcp_config_flag', 'codex_home', 'settings_json', 'opencode_config', 'probe_required')
 STRUCTURED_OUTPUT = ('enforced', 'validated_text')
@@ -116,6 +116,9 @@ def validate(document):
         _fail(identity, f'missing {sorted(missing)} or unknown {sorted(extra)} fields')
     if type(identity) is not str or not IDENT.match(identity):
         _fail(identity, 'id must be lower-case letters, digits, dots and hyphens')
+    if 'account_class' in document and (type(document['account_class']) is not str
+                                       or not IDENT.fullmatch(document['account_class'])):
+        _fail(identity, 'account_class must be an explicit lower-case identifier')
     kind = document['transport_kind']
     if kind not in TRANSPORT_KINDS:
         _fail(identity, f'transport_kind must be one of {TRANSPORT_KINDS}')

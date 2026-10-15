@@ -56,19 +56,24 @@ class Workers:
         if role == 'analysis-author':
             final['regions'] = self.regions[len([s for s in self.seen if s['role'] == role]) - 1]
         put(rundir, ws, 'outputs/review.json', json.dumps({'findings': final['findings']}))
+        # The dispatcher assigns the actor of each worker session before it runs.
+        agent_worker.bind_actor(rundir, spec['node_id'], spec['attempt'], transport_id='unknown',
+                                model_id='synthetic-model')
         receipt = agent_worker.finish(rundir, spec, execution={'exit_status': 0}, final=final)
         assert receipt['status'] == 'ok', receipt
         # Credit needs an attested, independent registration; the transport layer supplies it in production.
         rel = f"agent-work/{spec['node_id']}/{spec['attempt']}/receipt.json"
         value = json.loads((self.root / rel).read_text())
-        value.update(execution_mode='transport_attested_cli', session_id='s-' + spec['node_id'],
-                     actor_id='a-' + spec['node_id'], model={'family': 'f-' + spec['node_id']})
         credit = 'credit-' + spec['node_id']
+        actor = rdj_custody.actor_record('synthetic-cli', 'synthetic-model', 'ws-' + credit, credit + '/1')
+        value.update(execution_mode='transport_attested_cli', session_id='s-' + spec['node_id'],
+                     actor_id=actor['actor_id'], transport={'id': 'synthetic-cli', 'transport_kind': 'cli-worker'},
+                     model={'family': 'f-' + spec['node_id']})
         final_pin = write(self.root / 'agent-work' / credit / '1/final.json', final)
         value.update(node_id=credit, attempt=1, final_record={**value['final_record'], 'sha256': final_pin['sha256']})
         write(self.root / 'agent-work' / credit / '1/receipt.json', value)
         rdj_custody.register_worker_receipt(self.root, f'agent-work/{credit}/1/receipt.json',
-                                            verified_label='transport_attested')
+                                            verified_label='transport_attested', actor=actor)
         return receipt
 
 
@@ -94,7 +99,9 @@ def test_worker_receipt_carries_the_dispatcher_review_subject(root, monkeypatch)
     assert subjects and all(v['sha256'] == review_points.subject_digest(facts, points[k]) for k, v in subjects.items())
     for path in sorted((root / 'agent-work').glob('review-*/1/receipt.json')):
         # The transport registers its receipts; here the real receipt itself is registered, unmodified.
-        rdj_custody.register_worker_receipt(root, path.relative_to(root).as_posix(), verified_label='transport_attested')
+        actor = agent_worker._record(root, path.parent.parent.name, 1)['actor']
+        rdj_custody.register_worker_receipt(root, path.relative_to(root).as_posix(), verified_label='transport_attested',
+                                            actor=actor)
     eligible = [r for r in review_points._receipt_records(root, facts) if r['node_id'].startswith('review-')]
     assert eligible and all(r['_eligible'] and r['_advisory'] is None for r in eligible)
 

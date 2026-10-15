@@ -22,6 +22,8 @@
       "requirements-full.txt",
       "requirements-site.txt",
       "requirements-site-wms.txt",
+      "requirements-site-wms.in",
+      "requirements-site-wms.lock",
       "GEMINI.md"
     ],
     "trees": [

@@ -180,3 +180,15 @@ def test_boundary_cannot_substitute_an_unlocated_deviation(tmp_path, monkeypatch
     review_run(rd, [cp['path'], str(rd / science.SPEC), boundary['path'], deviation['path']], monkeypatch)
     with pytest.raises(ValueError, match='DEVIATIONS.md'):
         tc.evaluate(request(tmp_path, cp, [out]), base_dir=tmp_path)
+
+
+def test_registration_creates_the_ledger_directory_for_a_contract_outside_an_inputs_folder(tmp_path):
+    # A parent contract stored at <dir>/<name>.json makes <dir> the parent root, which has no
+    # inputs folder yet; registration must create it rather than fail inside tempfile.mkstemp.
+    c, _ = parent(tmp_path)
+    cp = write(tmp_path / 'bare/contract.json', c)
+    out = outcome(tmp_path, cp, 'child')
+    assert not (tmp_path / 'bare/inputs').exists()
+    tc.register_child(out['rundir'], {'contract': cp, 'assignment_id': 'A1'}, run_kind='science')
+    assert len((tmp_path / 'bare/inputs/children.jsonl').read_text().splitlines()) == 1
+    assert not (tmp_path / 'inputs/children.jsonl').exists()

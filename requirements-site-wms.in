@@ -1,0 +1,6 @@
+# Isolated Linux Python 3.12 workflow manager; never merge with the analysis host.
+snakemake==9.27.0
+packaging==25.0
+snakemake-executor-plugin-cluster-generic
+# Compatibility constraint for Snakemake 9.27.0, resolved into the hash lock.
+snakemake-interface-executor-plugins>=9.3.2,<10

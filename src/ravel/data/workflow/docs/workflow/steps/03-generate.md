@@ -6,6 +6,52 @@ this selects the native build and binary paths, including an existing local tool
 
 Produce showered events (HepMC) for the model. `MG=$RAVEL_NATIVE_BUILD/tools/mg5amcnlo/bin/mg5_aMC`
 
+**Declared generation controls.** For a scoped generation specification, optional
+`generation.nb_core` selects MadGraph's cores. The default remains one core and
+`run_mode 0`. A larger count requires native `execution.backend_plan.resources.cpus`
+at least as large; the plan and approved machine-lease binding record the count,
+and the worker refuses a missing or insufficient live grant. Multicore uses
+`run_mode 2` inside the existing one-native-job lease. It does not authorize
+another job or change CHECK-IN 1, pilot, time or event budgets.
+
+To name an external PDF, set `generation.pdf_set` to a row in
+`native/setup/pdf-sets.json`, with its explicit `pdlabel: "lhapdf"` and `lhaid`
+in `run_settings`. `generation.pdf_install_record` optionally locates the
+installer's `<native-prefix>/state/install-state.json`. Planning requires the named set in a
+completed installation record, its complete local members and the matching
+LHAPDF data path. A refusal prints the install command; planning never installs
+it. The completed LHE must still report the declared PDF identifiers.
+
+For shower-only decay daughters absent from the UFO, provide the full SLHA
+`parameter_card` and `generation.decay_states` with `produced`, `stable` and
+`invisible` PDG lists. Literal UFO particle identities determine model membership.
+Outside-model states need declared masses and zero-width tables and must be
+stable and invisible. Planning records the outside states, retains
+`inputs/shower-spectrum.slha`, and supplies a separate generator card without
+those states or channels. The declared parent widths are retained. A declared
+scoped shower reads the full card through `SLHA:file` and `SLHA:readFrom = 2`.
+For event production, provide `model.ufo` and the full `model.slha`; the invisible
+census performs the same membership check and every shower variant must retain
+that SLHA file. These are closure and transport checks, not decay-model validation.
+
+Shower declarations accept a named `tune`. `pythia_cards.resolve_tune` reads
+`src/ravel/data/shower/tunes.json`: Monash is the event-production default and
+uses the built-in index 14. Each preset records its source and PDF requirement;
+settings-list presets retain their citation. `monash-no-reconnection` is a
+declared variation, not an independently fitted tune. Commands record the preset
+name, apply its settings before explicit overrides and refuse conflicting tune
+indices or PDFs. Scoped showers retain their existing behavior when `tune` is
+absent. Native initialization and physical tune qualification remain separate.
+
+An MLM `model-events-native.json` can be supplied as
+`events.generation_receipt` to event-production planning. A passed receipt must
+pin the selected LHE, process, run and shower cards. The consumer checks the
+declared multiplicities and actual `xqcut` and fills the complete matching block
+from the recorded shower card. Missing explicit settings refuse; a hand-typed
+`shower.merging` block must agree. This handoff requires the original LHE and
+currently uses LHE-init normalization; multiweight analysis, transformed MLM
+receipts and native matching validation need their own qualified route.
+
 **Pre-generate recipe gate ([judgment — script-assisted: resource_census.py], mandatory before any
 `generate_events`).** For a BSM/HV model you may NOT run the hard process until the model's external
 generation recipe (UFO / restrict card / process syntax) has been fetched and recorded. Fetch it with
