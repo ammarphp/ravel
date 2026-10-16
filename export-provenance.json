@@ -2381,11 +2381,11 @@
     },
     {
       "public_path": "CHANGELOG.md",
-      "export_sha256": "c0a07828f6b699edc353565c201349b6760c3767fcbf1427311d05096bfe7e28"
+      "export_sha256": "cbb6b6b95c780beba332943fdb9fc69dd994726369dfc14ae755feb95a1c59a7"
     },
     {
       "public_path": "CITATION.cff",
-      "export_sha256": "ea7ab0f9131308b59c8000f27c28301da7e4e628378310eb99fb376829b1a8ac"
+      "export_sha256": "d355e77b0775cdea123a1a02012cdc6f656fa817fd0d7eaf3d9abf6f35539f57"
     },
     {
       "public_path": "CLAUDE.md",
@@ -3997,7 +3997,7 @@
     },
     {
       "public_path": "docs/workflow/reference/research-orchestration.md",
-      "export_sha256": "f2696aeede7697eb4a660122179f7b39f31520b45580911d9a05a0a1b9d4f07e"
+      "export_sha256": "abbaca7a2b495de8763f1b7860e62870c9bebe48c26aeaea76159dc06a61ae73"
     },
     {
       "public_path": "docs/workflow/reference/research-protocols.md",
@@ -4473,7 +4473,7 @@
     },
     {
       "public_path": "pyproject.toml",
-      "export_sha256": "e08f424b2352b58a0fd33b239c463b9092a35868516e4fc57d4a3ca15f5ccf25"
+      "export_sha256": "43378c3d4c7906ee2c7c0d5d6f1b1ccb952e68586ee9f5805d310d446230546c"
     },
     {
       "public_path": "requirements-full.txt",
@@ -4689,7 +4689,7 @@
     },
     {
       "public_path": "src/ravel/data/agents/call_sites.json",
-      "export_sha256": "304b5f7d88a08a452d6a1a7c33b7ad03185a659c22cfd587dcdf81d7d069b914"
+      "export_sha256": "5677d5e9fdac023ad9bd5c4ac2c803cb4a88a0cc583bc30b163c9938b2f7a40e"
     },
     {
       "public_path": "src/ravel/data/agents/sanctioned.json",
@@ -5481,7 +5481,7 @@
     },
     {
       "public_path": "src/ravel/data/knowledge/atlas.json",
-      "export_sha256": "f105ee69b37b44709218faddc3656e3f6fb95259c54e8a6d70ee364fcaa924dc"
+      "export_sha256": "a6175698994f9fc102a173251a4f705fdd0334117b37be753f37715a88312624"
     },
     {
       "public_path": "src/ravel/data/knowledge/consult_bindings.json",
@@ -7489,7 +7489,7 @@
     },
     {
       "public_path": "src/ravel/data/workflow/docs/workflow/reference/research-orchestration.md",
-      "export_sha256": "f2696aeede7697eb4a660122179f7b39f31520b45580911d9a05a0a1b9d4f07e"
+      "export_sha256": "abbaca7a2b495de8763f1b7860e62870c9bebe48c26aeaea76159dc06a61ae73"
     },
     {
       "public_path": "src/ravel/data/workflow/docs/workflow/reference/result-templates.md",
@@ -9689,7 +9689,7 @@
     },
     {
       "public_path": "src/ravel/workflow/agent_worker.py",
-      "export_sha256": "d51cec868dbc2c69e554d0b2952478efecb414ee22b172f87008dad9609458fe"
+      "export_sha256": "5c612036a74c91a7d146947b73c2c84ac8affd16721f902e44b374bb9b354f4a"
     },
     {
       "public_path": "src/ravel/workflow/agentrivet_brief.py",
@@ -9977,7 +9977,7 @@
     },
     {
       "public_path": "src/ravel/workflow/graph_substrate.py",
-      "export_sha256": "be03d567ef0b71ac28b6720d12edee5c9ee75ebb328daf42f6406b0bf054108d"
+      "export_sha256": "a0ee52bcf149246ac28378ad13fe06956016acdcd03221a5acdc9b8d3f6dd4d6"
     },
     {
       "public_path": "src/ravel/workflow/graphs/__init__.py",
@@ -12101,7 +12101,7 @@
     },
     {
       "public_path": "tests/unit/test_agent_worker.py",
-      "export_sha256": "1473a9f9fb58032c2949b4b4653d449af34a6cac694cc9dba073c43f89219351"
+      "export_sha256": "7ef4223519d78ee7f8be97f8a984a2d7568b3e9818d907c18a4685f1ef87f489"
     },
     {
       "public_path": "tests/unit/test_agentrivet_candidate.py",

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ravel-hep"
-version = "1.2.1"
+version = "1.2.2"
 description = "Source-bound collider studies, supervised tool workflows, and iterative research"
 readme = "docs/cli.md"
 requires-python = ">=3.11,<3.13"

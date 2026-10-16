@@ -63,6 +63,124 @@ def test_all_stub_transports_have_same_receipt_schema(tmp_path,monkeypatch,trans
     assert r['recovery'] is None
 
 
+@pytest.mark.parametrize('entrypoint',['dispatch','launch'])
+def test_synchronous_receipt_waits_for_terminal_custody_and_supervisor_exit(tmp_path,monkeypatch,entrypoint):
+    worker,run=setup(tmp_path,monkeypatch);s=spec()
+    worker.materialize(run,s)
+    receipt=worker.finish(run,s,final=result(),execution={'exit_status':0})
+    step=[0];reaped=[]
+    def registrations(_):
+        return [{'node_id':'worker','attempt':1,'pid':100,'pgid':100,'child_pgid':101,
+                 'status':'running' if step[0]==0 else 'finished','verified_gone':step[0]>0}]
+    monkeypatch.setattr(worker,'processes',registrations)
+    monkeypatch.setattr(worker,'_reap_supervisor',reaped.append)
+    monkeypatch.setattr(worker,'_group_alive',lambda pgid:pgid==100 and step[0]<2)
+    monkeypatch.setattr(worker.time,'sleep',lambda _:step.__setitem__(0,step[0]+1))
+    assert getattr(worker,entrypoint)(run,s)==receipt
+    assert step[0]==2 and reaped==[100,100,100]
+
+
+@pytest.mark.parametrize('entrypoint',['dispatch','launch'])
+@pytest.mark.parametrize('unverified',['custody','supervisor','child'])
+def test_synchronous_cleanup_timeout_cannot_return_a_successful_receipt(tmp_path,monkeypatch,entrypoint,unverified):
+    worker,run=setup(tmp_path,monkeypatch);s=spec();ws=worker.materialize(run,s)
+    put(run,ws,'outputs/result.txt','output')
+    receipt=worker.finish(run,s,final=result(),execution={'exit_status':0})
+    assert receipt['status']=='ok'
+    monkeypatch.setattr(worker,'processes',lambda _:[{'node_id':'worker','attempt':1,'pid':100,'pgid':100,
+        'child_pgid':101,'status':'finished','verified_gone':unverified!='custody'}])
+    monkeypatch.setattr(worker,'_reap_supervisor',lambda _:None)
+    monkeypatch.setattr(worker,'_group_alive',lambda pgid:pgid=={'supervisor':100,'child':101}.get(unverified))
+    clock=[0.0]
+    monkeypatch.setattr(worker.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(worker.time,'sleep',lambda _:clock.__setitem__(0,clock[0]+5))
+    with pytest.raises(TimeoutError,match='worker cleanup not verified'):
+        getattr(worker,entrypoint)(run,s)
+    assert clock[0]==15.0
+    assert worker.load_receipt(run,'worker',1)==receipt  # Preserve the original record for reconciliation.
+
+
+def test_fresh_dispatch_receipt_publication_does_not_end_cleanup_wait(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    worker,run=setup(tmp_path,monkeypatch);s=spec();s['declared_outputs'][0]['required']=False
+    step=[0];launches=[]
+    monkeypatch.setattr(worker.sandbox,'available',lambda:'inert-test-seam')
+    def spawn(*args,**kwargs):
+        launches.append(args);return SimpleNamespace(pid=100)
+    monkeypatch.setattr(worker.subprocess,'Popen',spawn)
+    monkeypatch.setattr(worker,'_reap_supervisor',lambda _:None)
+    monkeypatch.setattr(worker,'_group_alive',lambda pgid:pgid==100 and step[0]<3)
+    monkeypatch.setattr(worker,'processes',lambda _:[{'node_id':'worker','attempt':1,'pid':100,'pgid':100,
+        'child_pgid':101,'status':'finished' if step[0]>=2 else 'running','verified_gone':step[0]>=2}])
+    def advance(_):
+        step[0]+=1
+        if step[0]==1:worker.finish(run,s,final=result(),execution={'exit_status':0})
+    monkeypatch.setattr(worker.time,'sleep',advance)
+    receipt=worker.dispatch(run,s,launch_spec={'argv':[sys.executable,'-B','-c','pass']})
+    assert receipt['status']=='ok' and step[0]==3 and len(launches)==1
+
+
+def test_launch_observation_timeout_preserves_the_running_attempt(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    worker,run=setup(tmp_path,monkeypatch);s=spec();clock=[0.0];launches=[]
+    monkeypatch.setattr(worker.sandbox,'available',lambda:'inert-test-seam')
+    def spawn(*args,**kwargs):
+        launches.append(args);return SimpleNamespace(pid=100)
+    monkeypatch.setattr(worker.subprocess,'Popen',spawn)
+    monkeypatch.setattr(worker.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(worker.time,'sleep',lambda _:clock.__setitem__(0,clock[0]+100))
+    for _ in range(2):
+        with pytest.raises(TimeoutError,match='worker completion not observed'):
+            worker.dispatch(run,s,launch_spec={'argv':[sys.executable,'-B','-c','pass']})
+        record=worker._record(run,'worker',1)
+        assert record['receipt'] is None and record['launch']['status']=='started'
+        # Changed launch prerequisites cannot publish an early competing refusal.
+        worker.atomic_json(run/worker.broker.STOP_RECORD,{'mode':'cancel'})
+        monkeypatch.setattr(worker.sandbox,'available',lambda:None)
+    assert len(launches)==1  # No competing receipt or duplicate launch on reattachment.
+
+
+@pytest.mark.parametrize('vanishes',[True,False])
+def test_kernel_stop_verifies_a_finished_workers_still_live_supervisor(tmp_path,monkeypatch,vanishes):
+    from ravel.workflow import graph_substrate
+    worker,run=setup(tmp_path,monkeypatch);clock=[0.0]
+    worker._process_record(run,{'node_id':'worker','attempt':1,'pid':100,'pgid':100,
+        'child_pid':None,'child_pgid':None,'status':'finished','verified_gone':True,'token':'inert',
+        'control_socket':None,'termination':None})
+    monkeypatch.setattr(graph_substrate,'_group_alive',lambda _:not vanishes or clock[0]<1)
+    monkeypatch.setattr(graph_substrate,'_reap',lambda _:None)
+    monkeypatch.setattr(graph_substrate.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(graph_substrate.time,'sleep',lambda _:clock.__setitem__(0,clock[0]+1))
+    def no_signal(*_):raise AssertionError('an exited identity may have been reused')
+    monkeypatch.setattr(graph_substrate.os,'killpg',no_signal)
+    stopped=graph_substrate.stop(run,reason='terminal custody still has a live supervisor',now=True)
+    assert stopped['all_gone'] is vanishes and len(stopped['terminated'])==1
+    assert stopped['terminated'][0]['signal'] is None
+    assert clock[0]==(1 if vanishes else graph_substrate.TERMINATE_GRACE_SECONDS)
+    assert graph_substrate.processes(run)[0]['state']=='exited'
+
+
+def test_worker_stop_waits_for_supervisor_after_terminal_child_custody(tmp_path,monkeypatch):
+    worker,run=setup(tmp_path,monkeypatch);step=[0]
+    worker._process_record(run,{'node_id':'worker','attempt':1,'pid':100,'pgid':100,'child_pgid':None,
+        'status':'finished','verified_gone':True,'token':'inert','control_socket':None})
+    monkeypatch.setattr(worker,'_reap_supervisor',lambda _:None)
+    monkeypatch.setattr(worker,'_group_alive',lambda _:step[0]<2)
+    monkeypatch.setattr(worker.time,'sleep',lambda _:step.__setitem__(0,step[0]+1))
+    assert worker.stop(run)['verified_gone'] is True and step[0]==2
+
+
+def test_worker_stop_reports_unverified_supervisor_at_its_bound(tmp_path,monkeypatch):
+    worker,run=setup(tmp_path,monkeypatch);clock=[0.0]
+    worker._process_record(run,{'node_id':'worker','attempt':1,'pid':100,'pgid':100,'child_pgid':None,
+        'status':'finished','verified_gone':True,'token':'inert','control_socket':None})
+    monkeypatch.setattr(worker,'_reap_supervisor',lambda _:None)
+    monkeypatch.setattr(worker,'_group_alive',lambda _:True)
+    monkeypatch.setattr(worker.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(worker.time,'sleep',lambda _:clock.__setitem__(0,clock[0]+5))
+    assert worker.stop(run)['verified_gone'] is False and clock[0]==10.0
+
+
 def test_missing_final_and_output_outside_outputs_not_credited(tmp_path,monkeypatch):
     worker,run=setup(tmp_path,monkeypatch)
     bad=spec();bad['declared_outputs'][0]['path']='scratch/result.txt'
@@ -358,6 +476,8 @@ def test_real_sandboxed_worker_uses_socket_broker_and_cannot_forge_receipts(tmp_
     receipts=broker.Broker(run,ws,node_id='worker',attempt=1,allowed_actions=[],max_calls=0).verify_ledger()
     assert [x['action'] for x in receipts]==['read','write','shell'] and receipts[2]['status']=='refused'
     assert r['broker']['calls']==3 and all(p['verified_gone'] for p in worker.processes(run))
+    assert all(not worker._group_alive(p['pgid']) and not worker._group_alive(p['child_pgid'])
+               for p in worker.processes(run))
     public=json.loads((run/'agent-work/processes.json').read_text())
     assert public['processes'] and not any('token' in p for p in public['processes'])
 
@@ -388,9 +508,16 @@ def test_kernel_stop_now_terminates_sandboxed_child_and_leaves_receipt(tmp_path,
     worker.dispatch(run,s,launch_spec={'argv':[sys.executable,'-B','-c',child],
                                        'transport':{'id':'inert-stub','transport_kind':'stub'}},wait=False)
     ws=worker.workspace(run,'worker',1);end=time.monotonic()+10
-    while not (ws/'scratch/up').exists() and time.monotonic()<end:time.sleep(.05)
-    entry=next(p for p in json.loads((run/'agent-work/processes.json').read_text())['processes']
-               if p['id']=='worker-supervisor:worker/1')
+    # A child-authored marker can precede the supervisor's durable registration.
+    # Wait on the product's own registration signal, keeping both identity assertions.
+    entry=None
+    while time.monotonic()<end:
+        registry=run/'agent-work/processes.json'
+        entry=next((p for p in json.loads(registry.read_text())['processes']
+                    if p['id']=='worker-supervisor:worker/1'),None) if registry.exists() else None
+        if entry and entry.get('child_pgid') and (ws/'scratch/up').exists():break
+        time.sleep(.02)
+    assert entry is not None and (ws/'scratch/up').exists()
     assert entry['child_pgid'] and entry['child_pid']==entry['child_pgid']
     result=graph_substrate.stop(run,reason='inert stop control',now=True)
     assert result['all_gone'] and result['terminated'][0]['child_pgid']==entry['child_pgid']

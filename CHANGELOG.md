@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+Fixes a race in worker completion.
+
+- A worker run now reports completion only after every process it started is confirmed gone. Stopping a worker waits for its supervisor and child processes to exit, and reports it when they do not.
+
 ## 1.2.1
 
 Adds measured fault diagnosis with verified repair, bounded unattended endings, research objectives with retained scope, and a checked chain from generated events to limits.

@@ -10682,7 +10682,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "be03d567ef0b71ac28b6720d12edee5c9ee75ebb328daf42f6406b0bf054108d"
+        "sha256": "a0ee52bcf149246ac28378ad13fe06956016acdcd03221a5acdc9b8d3f6dd4d6"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -10694,7 +10694,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "be03d567ef0b71ac28b6720d12edee5c9ee75ebb328daf42f6406b0bf054108d"
+        "sha256": "a0ee52bcf149246ac28378ad13fe06956016acdcd03221a5acdc9b8d3f6dd4d6"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -10706,7 +10706,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "be03d567ef0b71ac28b6720d12edee5c9ee75ebb328daf42f6406b0bf054108d"
+        "sha256": "a0ee52bcf149246ac28378ad13fe06956016acdcd03221a5acdc9b8d3f6dd4d6"
       },
       "status": "registered",
       "summary": "run, observe, answer and drain registered agent graphs (graph run|status|stop|respond|events|list)",
@@ -15566,7 +15566,7 @@
       "links": {},
       "source": {
         "path": "docs/workflow/reference/research-orchestration.md",
-        "sha256": "f2696aeede7697eb4a660122179f7b39f31520b45580911d9a05a0a1b9d4f07e"
+        "sha256": "abbaca7a2b495de8763f1b7860e62870c9bebe48c26aeaea76159dc06a61ae73"
       },
       "status": "registered",
       "summary": "Packaged workflow instruction",
@@ -53938,7 +53938,7 @@
       },
       {
         "path": "docs/workflow/reference/research-orchestration.md",
-        "sha256": "f2696aeede7697eb4a660122179f7b39f31520b45580911d9a05a0a1b9d4f07e"
+        "sha256": "abbaca7a2b495de8763f1b7860e62870c9bebe48c26aeaea76159dc06a61ae73"
       },
       {
         "path": "docs/workflow/reference/research-protocols.md",
@@ -55226,7 +55226,7 @@
       },
       {
         "path": "src/ravel/data/workflow/docs/workflow/reference/research-orchestration.md",
-        "sha256": "f2696aeede7697eb4a660122179f7b39f31520b45580911d9a05a0a1b9d4f07e"
+        "sha256": "abbaca7a2b495de8763f1b7860e62870c9bebe48c26aeaea76159dc06a61ae73"
       },
       {
         "path": "src/ravel/data/workflow/docs/workflow/reference/result-templates.md",
@@ -56314,7 +56314,7 @@
       },
       {
         "path": "src/ravel/workflow/graph_substrate.py",
-        "sha256": "be03d567ef0b71ac28b6720d12edee5c9ee75ebb328daf42f6406b0bf054108d"
+        "sha256": "a0ee52bcf149246ac28378ad13fe06956016acdcd03221a5acdc9b8d3f6dd4d6"
       },
       {
         "path": "src/ravel/workflow/graphs/lifecycle.py",

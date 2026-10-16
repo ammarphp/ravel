@@ -482,8 +482,19 @@ Code-authored `agent` and `map` nodes use `ravel.workflow.agent_worker`; their
 launch descriptors come from a trusted adapter, never artifact or board prose.
 `ravel work dispatch --rundir RUN --spec SPEC.json` materializes pinned inputs and
 starts a durable supervisor. `ravel work status --rundir RUN` verifies receipt and
-output bytes. `ravel work stop --rundir RUN` contacts registered supervisors and
-reports whether their children were reaped. An ambiguous worker requires
+output bytes. Synchronous dispatch and launch, including receipt reuse, wait for
+terminal process custody, verified child-group disappearance and supervisor-group
+exit. Receipt publication alone does not signal cleanup. Cleanup has a 15-second
+wait bound after receipt observation; an unverified cleanup or an expired launch
+observation deadline raises `TimeoutError` with reattachment/reconciliation guidance,
+preserving custody and preventing a second launch. `wait=False` remains asynchronous.
+For an asynchronous worker, use the product process registry's `child_pgid` to
+observe child registration; a child-authored file can precede that publication.
+`ravel work stop --rundir RUN` contacts registered supervisors and
+waits up to ten seconds for their process groups as well as their children;
+unverified disappearance returns `verified_gone=False`. Kernel `stop --now`
+also checks worker groups whose public registry entry already says exited,
+because terminal child custody can precede supervisor shutdown. An ambiguous worker requires
 `ravel work reconcile --rundir RUN --node NODE --attempt N --evidence PIN.json
 --reason REASON`; the evidence file contains a run-relative path and its SHA256.
 

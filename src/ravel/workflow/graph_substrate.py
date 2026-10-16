@@ -738,6 +738,14 @@ def stop(scope_root, *, reason, now=False, pause=None):
         cancellation = effect_ledger.bump_epoch(root, "cancellation")["cancellation"]
         for entry in processes(root):
             if entry.get("state") != "running":
+                # A worker publishes its child's terminal custody before its own
+                # supervisor finishes shutting down. Verify the registered groups
+                # even if that publication already labels the public entry exited.
+                if (entry.get("role") != "worker-supervisor"
+                        or not any(_group_alive(group) for group in (entry["pgid"], entry.get("child_pgid"))
+                                   if group is not None)):
+                    continue
+                terminated.append(_verify_terminal_worker(entry))
                 continue
             terminated.append(_terminate(root, entry))
     return {"scope_root": str(root), "stop": read_json(root / STOP), "terminated": terminated,
@@ -762,6 +770,25 @@ def _owned(pid, pgid):
         return os.getpgid(pid) == pgid
     except ProcessLookupError:
         return False
+
+
+def _verify_terminal_worker(entry):
+    """Wait for shutdown without signalling identities from a historical exited entry.
+
+    Such a group may already have been reused. If it remains visible at the bound,
+    report unverified disappearance; do not turn the old entry back into kill authority.
+    """
+    groups = [(entry["pid"], entry["pgid"])]
+    if entry.get("child_pgid") is not None:
+        groups.append((entry.get("child_pid"), entry["child_pgid"]))
+    deadline = time.monotonic() + TERMINATE_GRACE_SECONDS
+    while any(_group_alive(group) for _, group in groups) and time.monotonic() < deadline:
+        for pid, _ in groups:
+            if pid is not None:
+                _reap(pid)
+        time.sleep(0.05)
+    return {"id": entry["id"], "pgid": entry["pgid"], "child_pgid": entry.get("child_pgid"),
+            "signal": None, "gone": not any(_group_alive(group) for _, group in groups)}
 
 
 def _terminate(root, entry):

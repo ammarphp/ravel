@@ -842,6 +842,41 @@ def _control(path, token, action):
     return broker.socket_call(path,{'token':token,'action':action})
 
 
+def _reap_supervisor(pid):
+    try:os.waitpid(pid,os.WNOHANG)
+    except ChildProcessError:pass  # A reattached dispatcher need not be its parent.
+
+
+def _process_quiescent(registration):
+    if registration.get('pid') is None or registration.get('pgid') is None:return False
+    _reap_supervisor(registration['pid'])
+    return (registration['status']=='finished' and registration['verified_gone']
+            and not _group_alive(registration['pgid'])
+            and (registration.get('child_pgid') is None
+                 or not _group_alive(registration['child_pgid'])))
+
+
+def _completed_receipt(rundir, node_id, attempt, *, timeout=15.0):
+    """A receipt can precede terminal process custody. Synchronous callers wait for both.
+
+    Never turn a cleanup timeout into success or rewrite an immutable receipt. A caller
+    may reattach later, but must not redispatch an uncertain attempt.
+    """
+    deadline=time.monotonic()+timeout
+    while True:
+        registration=next((p for p in processes(rundir)
+                           if (p['node_id'],p['attempt'])==(node_id,attempt)),None)
+        if registration is None:
+            if _record(rundir,node_id,attempt)['launch'] is None:
+                return load_receipt(rundir,node_id,attempt)
+        else:
+            if _process_quiescent(registration):
+                return load_receipt(rundir,node_id,attempt)
+        if time.monotonic()>=deadline:
+            raise TimeoutError(f'worker cleanup not verified: {node_id}/{attempt}; reattach or reconcile')
+        time.sleep(.02)
+
+
 def _new_actor(node_id, attempt, transport_id, model_id, family):
     from .rdj_custody import actor_record
     return actor_record(transport_id,model_id,uuid.uuid4().hex,f'{node_id}/{attempt}',family=family)
@@ -969,10 +1004,34 @@ def supervisor_env(run, ws, descriptor, pass_env):
     return env
 
 
+def _wait_for_completion(run, spec, *, wait):
+    if not wait:return {'status':'running','node_id':spec['node_id'],'attempt':spec['attempt']}
+    deadline=time.monotonic()+spec['budgets']['max_wall_seconds']+15
+    while time.monotonic()<deadline:
+        record=_record(run,spec['node_id'],spec['attempt'])
+        if record['receipt']:return _completed_receipt(run,spec['node_id'],spec['attempt'])
+        if record['launch'].get('control_socket'):
+            try:_control(record['launch']['control_socket'],record['launch']['token'],'status')
+            except (OSError,ValueError):pass
+        time.sleep(.05)
+    raise TimeoutError(f'worker completion not observed: {spec["node_id"]}/{spec["attempt"]}; reattach or reconcile')
+
+
 def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None, protected=(), effect=None):
     """Start exactly one supervisor. An uncertain launch is never blindly repeated."""
     spec=_validate(spec);run=broker.ordinary(rundir);ws=materialize(run,spec,packet=packet,protected=protected,effect=effect)
     path=_record_path(run,spec['node_id'],spec['attempt'])
+    existing=_record(run,spec['node_id'],spec['attempt'])
+    if existing['launch'] is not None:
+        from . import gate_wiring
+        with gate_wiring.steering_dispatch(run,spec['node_id']):pass
+    if existing['receipt']:
+        return (_completed_receipt(run,spec['node_id'],spec['attempt']) if wait
+                else load_receipt(run,spec['node_id'],spec['attempt']))
+    if existing['launch'] is not None:
+        # Reattachment observes the owned attempt even if launch prerequisites changed.
+        # It must not publish a competing refusal while that supervisor is still alive.
+        return _wait_for_completion(run,spec,wait=wait)
     # A stop refuses every new launch; under a drain an attempt whose supervisor already
     # started is left to finish, so reattaching to it does not end it.
     stopping=broker.stop_mode(run)
@@ -1002,10 +1061,9 @@ def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None
     from . import gate_wiring
     with gate_wiring.steering_dispatch(run, spec['node_id']), file_lock(path.with_suffix('.lock')):
         record=read_json(path)
-        if record['receipt']:return load_receipt(run,spec['node_id'],spec['attempt'])
         # Nothing starts when the declared document or the pin changed after the launch was prepared.
         refused=_declared_document_refusal(run,descriptor,ws) if record['launch'] is None else None
-        if record['launch'] is None and refused is None:
+        if record['launch'] is None and refused is None and not record['receipt']:
             token=uuid.uuid4().hex
             descriptor_path=broker.custody(run)/(_key(spec['node_id'],spec['attempt'])+'.launch.json')
             atomic_json(descriptor_path,descriptor)
@@ -1028,16 +1086,7 @@ def launch(rundir: Path, spec: dict, *, launch_spec=None, wait=True, packet=None
         return finish(run,spec,execution={'refusal':'transport_refused','refusal_detail':refused[0],
                                           'refusal_missing':refused[1]})
     # Reattach through custody+nonce. We do not look up or signal a process by name.
-    if not wait:return {'status':'running','node_id':spec['node_id'],'attempt':spec['attempt']}
-    deadline=time.monotonic()+spec['budgets']['max_wall_seconds']+15
-    while time.monotonic()<deadline:
-        record=read_json(path)
-        if record['receipt']:return load_receipt(run,spec['node_id'],spec['attempt'])
-        if record['launch'].get('control_socket'):
-            try:_control(record['launch']['control_socket'],record['launch']['token'],'status')
-            except (OSError,ValueError):pass
-        time.sleep(.05)
-    return finish(run,spec,execution={'ambiguous':True})
+    return _wait_for_completion(run,spec,wait=wait)
 
 
 def supervise(rundir: Path, node_id: str, attempt: int):
@@ -1172,7 +1221,7 @@ def supervise(rundir: Path, node_id: str, attempt: int):
         execution['ambiguous']=child is not None
         if child is None:execution['refusal']='process_error'
     finally:
-        if child is not None and child.poll() is None:
+        if child is not None and (child.poll() is None or _group_alive(registration['child_pgid'])):
             registration['termination']=_terminate_child(child,registration['child_pgid'])
         elif child is not None and registration['termination'] is None and (child.returncode or 0)<0:
             # Another owner (a kernel `stop --now`) signalled the child's group.
@@ -1286,9 +1335,12 @@ def _terminate_child(child, pgid, *, grace=2.0):
 def dispatch(rundir: Path, spec: dict, *, graph=None, framework_step=None, packet=None, protected=(), effect=None,
              **options):
     materialize(rundir,spec,graph=graph,framework_step=framework_step,packet=packet,protected=protected,effect=effect)
-    try:return load_receipt(rundir,spec['node_id'],spec['attempt'])
+    try:receipt=load_receipt(rundir,spec['node_id'],spec['attempt'])
     except ValueError as exc:
         if str(exc)!='worker has no receipt yet':raise
+    else:
+        return (_completed_receipt(rundir,spec['node_id'],spec['attempt'])
+                if options.get('wait',True) else receipt)
     return launch(rundir,spec,packet=packet,protected=protected,effect=effect,**options)
 
 
@@ -1321,7 +1373,7 @@ def stop(rundir: Path, *, drain=False, pause=None):
                                      **({'steering_pause':pause} if pause is not None else {})})
     root=broker.custody(run);rows=read_json(root/'processes.json') if (root/'processes.json').exists() else []
     if drain:
-        return {'stopped': [], 'verified_gone': all(p['status']=='finished' and p['verified_gone'] for p in rows), 'draining': True}
+        return {'stopped': [], 'verified_gone': all(_process_quiescent(p) for p in rows), 'draining': True}
     stopped=[];verified=True
     for p in rows:
         if p['status']=='finished':verified=verified and p['verified_gone'];continue
@@ -1334,12 +1386,12 @@ def stop(rundir: Path, *, drain=False, pause=None):
             stopped.append(p['pgid'])
         except (OSError,ValueError):verified=False
     deadline=time.monotonic()+10
-    while stopped and time.monotonic()<deadline:
+    while rows and time.monotonic()<deadline:
         latest=read_json(root/'processes.json')
-        if all(p['status']=='finished' and p['verified_gone'] for p in latest):break
+        if all(_process_quiescent(p) for p in latest):break
         time.sleep(.05)
     latest=read_json(root/'processes.json') if (root/'processes.json').exists() else []
-    verified=verified and all(p['status']=='finished' and p['verified_gone'] for p in latest)
+    verified=verified and all(_process_quiescent(p) for p in latest)
     return {'stopped':stopped,'verified_gone':verified}
 
 
