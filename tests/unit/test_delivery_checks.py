@@ -220,6 +220,7 @@ def test_reco_writer_keeps_region_edges_and_weight_moments(tmp_path):
     pin = write_regions(tmp_path / 'regions.json', ['R0', 'R1'], {'R0': -2., 'R1': 3.}, {'R0': 4., 'R1': 5.},
                         provenance={'source': 'synthetic'})
     doc = json.loads((tmp_path / 'regions.json').read_text())
+    assert doc['quantity'] == {'weight_convention': 'signed'}
     assert doc['normalization']['kind'] == 'unnormalized'
     assert [b['value'] for b in doc['bins']] == [-2., 3.]
     assert doc['sumw2'] == [4., 5.]

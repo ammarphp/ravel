@@ -66,6 +66,11 @@
       "schema": "producer.v1",
       "sidecar": true
     },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": []
+    },
     "protocol": [
       "Reconstruct the reference recipe from the paper, its configuration repositories and their commit history. Follow cited code to the commit that produced the result.",
       "Record each value as an evidence card with the fields claim, assertion_kind, quantity, value, uncertainty, conditions (each located or not_stated, including observed_or_expected), scope_not_covered, locator (document, unit, byte range and excerpt_sha256 of the verbatim excerpt), superseded_by and extractor.",
@@ -111,5 +116,5 @@
     },
     "version": "2.1.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

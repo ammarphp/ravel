@@ -205,7 +205,7 @@ def _hold(path, document):
 
 
 @contextmanager
-def launch_authorization(workflow, task, number, exports):
+def launch_authorization(workflow, task, number, exports, **governed):
     """Held by ``ravel wms launch`` while Snakemake runs.
 
     ``exports`` maps each task this launch may run (the target and the tasks it
@@ -215,7 +215,7 @@ def launch_authorization(workflow, task, number, exports):
     """
     with _hold(Path(workflow) / LIVE.split('/', 1)[1] / f'launch-{task}-{number:06d}.json',
                {'schema_version': 1, 'kind': 'launch', 'task': task, 'launch': number, 'pid': os.getpid(),
-                'exports': dict(exports)}) as path:
+                'exports': dict(exports), **governed}) as path:
         yield path
 
 

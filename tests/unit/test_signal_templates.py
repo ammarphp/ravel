@@ -157,6 +157,7 @@ def test_identity_preserves_all_channels_and_distinct_template_identity(tmp_path
     source, _ = fixture(tmp_path)
     template = templates.identity_template(source, "identity-control")
     contract = templates.build_signal_template(source, template)
+    assert contract.manifest()['quantity'] == {'weight_convention': 'signed'}
     assert contract.workspace_json == source.workspace_json
     assert contract.manifest()["template_compact_sha256"] != source.manifest()["workspace_compact_sha256"]
     assert contract.manifest()["source_contract"] == source.manifest()

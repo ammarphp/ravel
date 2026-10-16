@@ -335,7 +335,35 @@ def withheld_tool(manifest, row):
             or release_mentions(manifest, [row.get('id', ''), row.get('title', '')]))
 
 
-def profile_groups(manifest, profile=None, *, only=None, skip=None):
+def qualification_records(group):
+    """The original platform record and any later records in the same format."""
+    qualification = group.get('qualification') or {}
+    record = qualification.get('record')
+    return ([record] if record is not None else []) + qualification.get('additional_records', [])
+
+
+def platform_qualification_reason(group, platform_key):
+    """A release hold only for groups that require qualification on each host platform."""
+    qualification = group.get('qualification') or {}
+    if not qualification.get('required_per_platform'):
+        return ''
+    if qualification.get('status') == 'qualified' and any(
+            _successful_qualification_record(group['id'], record)
+            and record['platform'] == platform_key for record in qualification_records(group)):
+        return ''
+    return (f"{group['id']}: missing successful qualification for {platform_key} "
+            "in native/setup qualification records")
+
+
+def _successful_qualification_record(gid, record):
+    return (isinstance(record, dict) and record.get('tool') == gid and bool(record.get('version'))
+            and record.get('platform') in PLATFORMS
+            and re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(record.get('date', ''))) is not None
+            and record.get('doctor_result') == 'ready'
+            and _HEX64.fullmatch(str(record.get('evidence_sha256', ''))) is not None)
+
+
+def profile_groups(manifest, profile=None, *, only=None, skip=None, platform_key=None):
     """Ordered group ids for a profile (or explicit --only list) plus dependencies."""
     groups = by_id(manifest)
     if only:
@@ -364,6 +392,9 @@ def profile_groups(manifest, profile=None, *, only=None, skip=None):
     skipped = set(skip or ())
     if not only:
         skipped.update(unreleased_groups(manifest))
+        platform_key = platform_key or detect_platform()
+        skipped.update(gid for gid, group in groups.items()
+                       if platform_qualification_reason(group, platform_key))
     return [g["id"] for g in manifest["groups"] if g["id"] in needed and g["id"] not in skipped]
 
 
@@ -567,14 +598,18 @@ def validate(document, catalog=None):
             _require(group["qualification"].get("status") in QUALIFICATIONS
                      and isinstance(group["qualification"].get("basis"), str) and group["qualification"]["basis"],
                      gid + ": qualification needs a status from " + ", ".join(QUALIFICATIONS) + " and a basis")
-            if group['qualification']['status'] == 'qualified':
-                record = group['qualification'].get('record', {})
-                _require(record.get('tool') == gid and record.get('version')
-                         and record.get('platform') in PLATFORMS
-                         and re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(record.get('date', '')))
-                         and record.get('doctor_result') == 'ready'
-                         and _HEX64.fullmatch(str(record.get('evidence_sha256', ''))),
+            qualification = group['qualification']
+            _require(type(qualification.get('required_per_platform', False)) is bool,
+                     gid + ': required_per_platform must be boolean')
+            _require(isinstance(qualification.get('additional_records', []), list),
+                     gid + ': additional qualification records must be a list')
+            records = qualification_records(group)
+            if (qualification['status'] == 'qualified' or qualification.get('required_per_platform')
+                    or qualification.get('additional_records')):
+                _require(bool(records) and all(_successful_qualification_record(gid, r) for r in records),
                          gid + ': successful platform qualification record required')
+                _require(len({r['platform'] for r in records}) == len(records),
+                         gid + ': duplicate platform qualification record')
             if group['qualification']['status'] == 'tester-qualification':
                 procedure = group['qualification'].get('procedure')
                 _require(isinstance(procedure, str) and procedure.strip() and '\n' not in procedure,

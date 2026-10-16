@@ -107,7 +107,13 @@ SIGNATURE_SCHEMA = _obj({
     'basis': _obj({'adds': _array(_ADD), 'passes': _array(TEXT)}),
     'tools': _array(TEXT), 'stages': _array(_enum(STAGES)),
     'review': _obj({'checks': _array(TEXT)}),
-    'fidelity_rank': {'type': 'integer', 'minimum': 0, 'maximum': 9}})
+    'fidelity_rank': {'type': 'integer', 'minimum': 0, 'maximum': 9},
+    'quantity_relations': _array(_obj({'relation': _enum(('equal', 'disjoint')),
+                                     'slots': _array(TEXT, minimum=1),
+                                     'fields': _array(TEXT, minimum=1),
+                                     'group_by': _array(TEXT, minimum=1)}, required=('relation', 'slots', 'fields')))},
+    required=('summary', 'implementation', 'consumes', 'produces', 'effects', 'cost', 'critical_fields',
+              'basis', 'tools', 'stages', 'review', 'fidelity_rank'))
 SIGNATURES_SCHEMA = _obj({'schema_version': {'type': 'integer', 'const': 1},
                           'kind': {'type': 'string', 'const': 'operation-signatures'},
                           'scope': TEXT, 'operations': {'type': 'object', 'additionalProperties': SIGNATURE_SCHEMA}})
@@ -467,7 +473,7 @@ def _anchor(plan, claim_id, anchors, reading):
 
 
 # --------------------------------------------------------------------------- the check
-def check(reading, plan, reg=None, delegation=None, *, obligations=None, anchors=None, catalogue=None):
+def check(reading, plan, reg=None, delegation=None, *, obligations=None, anchors=None, catalogue=None, artifacts=None):
     """Typed plan errors (§2.6.3) for a plan against its reading. An empty list means the plan checks.
 
     ``obligations`` is the contract's obligation census (``task_requirements.obligations``); without it
@@ -512,6 +518,10 @@ def check(reading, plan, reg=None, delegation=None, *, obligations=None, anchors
                                  'a claim is a delivered statement; use inherits for document claims', ids=[edge['id']]))
     errors += _operations(plan, reg, nodes)
     errors += _slots(plan, reg, nodes, inputs, claims)
+    from ravel.validation.semantic_composition import plan_report, message
+    errors += [_error('quantity_incompatible', message(row),
+                      'supply compatible quantity facts or an explicit conversion operation',
+                      ids=[row['location'].split()[0]]) for row in plan_report(plan, reg, artifacts)['errors']]
     errors += _unresolved(plan, nodes)
     errors += _critical_fields(plan, reg, nodes, ambiguities)
     errors += _coverage(reading, plan, nodes, inputs, claims, obligations)
@@ -570,6 +580,8 @@ def _kind_ok(edge_kind, slot_kind):
 
 def _require_ok(declared, required):
     for key, allowed in required.items():
+        if key == 'quantity':  # Nested quantity contracts have located obligations and errors.
+            continue
         if key not in declared:
             continue
         options = allowed if isinstance(allowed, list) else [allowed]
@@ -1039,7 +1051,7 @@ def _boundaries(reading, plan):
 
 
 # --------------------------------------------------------------------------- flags
-def flags(reading, plan, reg=None, *, catalogue=None):
+def flags(reading, plan, reg=None, *, catalogue=None, artifacts=None):
     """Numbered CHECK-IN 1 flags the plan raises without being in error."""
     reg = registry() if reg is None else reg
     nodes, _, claims = _index(plan)
@@ -1071,6 +1083,9 @@ def flags(reading, plan, reg=None, *, catalogue=None):
     for edge in plan['edges']:
         if edge['resolution'] == 'unresolved':
             rows.append({'flag': 'edge_unresolved', 'ids': [edge['id']], 'text': f'{edge["id"]} is checked by its witness'})
+    from ravel.validation.semantic_composition import plan_report, message
+    rows += [{'flag': 'quantity_obligation', 'ids': [row['location'].split()[0]],
+              'text': message(row)} for row in plan_report(plan, reg, artifacts)['obligations']]
     return rows
 
 

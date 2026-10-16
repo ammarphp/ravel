@@ -57,6 +57,11 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
+  },
   "protocol": [
     "Advise on generator matching, merging, weight naming, tune choice and normalization conventions.",
     "Locate supplied matching and merging prescriptions, their cut scales, named weight streams and selected tune. Treat generator equivalence as a question for comparison, not an assumption.",

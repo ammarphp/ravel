@@ -8,12 +8,12 @@
   "family": "production",
   "id": "detector-calibrator",
   "independence": {
-    "kind": "producer",
     "distinct_actor_from": [
       "skeptical-verifier",
       "integrity-auditor"
     ],
-    "fresh_session": true
+    "fresh_session": true,
+    "kind": "producer"
   },
   "kind": "role-card",
   "knowledge": {
@@ -47,9 +47,9 @@
     ]
   },
   "model": {
-    "tier": "agent",
+    "distinct_family_from": [],
     "effort": "high",
-    "distinct_family_from": []
+    "tier": "agent"
   },
   "must_check": [
     "check:calibration_target_disjoint",
@@ -65,20 +65,27 @@
     "detector-calibration"
   ],
   "output": {
-    "schema": "producer.v1",
     "declared_outputs": [
       {
-        "path": "response.json",
         "kind": "cal:response",
+        "path": "response.json",
         "required": true
       },
       {
-        "path": "freeze.json",
         "kind": "cal:receipt",
+        "path": "freeze.json",
         "required": true
       }
     ],
+    "schema": "producer.v1",
     "sidecar": true
+  },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "detector-response"
+    ]
   },
   "protocol": [
     "Fit only declared knobs on declared calibration nodes against intermediate observables.",
@@ -104,12 +111,12 @@
   ],
   "schema_version": 2,
   "sees": {
-    "profile": "workspace",
     "forbidden_inputs": [
       "held_out_artifacts",
       "claim_quantity",
       "withheld_sources"
-    ]
+    ],
+    "profile": "workspace"
   },
   "stop": {
     "evidence_budget": 0,
@@ -120,16 +127,16 @@
     "max_wall_seconds": 2700
   },
   "tools": {
+    "exec_argv_prefixes": [],
     "ravel_actions": [
       "knowledge query",
       "check run"
     ],
-    "validators": [
-      "ravel.validation.calibration_checks"
-    ],
-    "exec_argv_prefixes": [],
     "read_paths": [
       "inputs/calibration/"
+    ],
+    "validators": [
+      "ravel.validation.calibration_checks"
     ]
   },
   "version": "1.0.0"

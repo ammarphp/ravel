@@ -227,7 +227,15 @@ N = _scalar(["string", "null"])
 def output_schema(*, context_followup=False):
     """Finite public scientific assertions and decisions, never reasoning traces."""
     evidence = _object({"path": S, "location": S})
-    finding = _object({"id": S, "summary": S, "evidence": {**_array(evidence), "minItems":1}, "check_ids": {**_array(S), "minItems":1}, "required_paths": _array(S), "required_stages": {**_array(S), "minItems":1}})
+    finding = _object({"id": S, "summary": S, "evidence": {**_array(evidence), "minItems":1}, "check_ids": {**_array(S), "minItems":1}, "required_paths": _array(S), "required_stages": _array(S)})
+    from . import finding_routing
+    classified = deepcopy(finding)
+    classified['properties']['classification'] = finding_routing.transport_fields()['classification']
+    classified['required'].append('classification')
+    history = deepcopy(classified)
+    history['properties']['reclassifications'] = finding_routing.transport_fields()['reclassifications']
+    history['required'].append('reclassifications')
+    finding = {'type': 'object', 'anyOf': [finding, classified, history]}
     decision = _scalar("string", enum=list(decision_case.STATUSES))
     disposition = _scalar("string", enum=["accepted", "unresolved", "rejected"])
     audit = _object({"case_sha256": S, "nodes": _array(_object({"id": S, "decision": decision, "reason": S,
@@ -531,7 +539,7 @@ def prepare_role(root, out, *, role, actor_id, model, reasoning_effort, max_outp
         "Use the closed response schema. Audit node and support-edge decision values are supported/unresolved/contradicted, "
         "never the overall verdict accept/send_back/stop. Material-assumption dispositions are accepted/unresolved/rejected. "
         "These are public evidential judgments, not automatic truth or permission. subject_sha256 must equal " + subject + ". "
-        "Result roles return kind='scientific_review', verdict accept/send_back/stop with located findings; acceptance names only the requested permitted scope and all inherited closes. For send_back/stop claim_scope MUST be null and closes MUST be []. A send_back finding must name existing allowed stages requiring recomputation. For missing retained evidence without requested computation, return scientific_evidence_request with verdict/claim_scope/proposal/proposal_verdict null, findings=[], closes=[], an exact public unresolved audit and a located evidence request in summary; this is nonvoting and keeps this cycle pending, with the actual call still charged. "
+        "Result roles return kind='scientific_review', verdict accept/send_back/stop with located findings; acceptance names only the requested permitted scope and all inherited closes. For send_back/stop claim_scope MUST be null and closes MUST be []. Classify each new finding: defect names classification.target and rework_evidence; limitation gives every affected claim, effect and bound (or unbounded). Bind classification.artifact_sha256 to a reviewed artifact. Only defects may request recomputation; accept with limitations and a permitted scope to deliver qualified or withdrawn claims. Legacy unclassified findings retain their prior route. For missing retained evidence without requested computation, return scientific_evidence_request with verdict/claim_scope/proposal/proposal_verdict null, findings=[], closes=[], an exact public unresolved audit and a located evidence request in summary; this is nonvoting and keeps this cycle pending, with the actual call still charged. "
         "An improver returns kind='scientific_repair_proposal', verdict/claim_scope/proposal_verdict null, no findings or closes; "
         "propose exact replacement text only within allowed mutable paths, original stages/checks, and tests for every located finding. Label it untested. "
         "A known fix may use method='direct_verification', reference={artifact_id,location,expected_json,grounding_reason} from an indexed independent input/reference, alternatives=[]; never cite the produced result or changed setting as its own reference. "

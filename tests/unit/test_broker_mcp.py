@@ -147,8 +147,7 @@ def test_ravel_work_mcp_serves_stdio_against_the_broker_socket(root):
     assert len(side.verify_ledger()) == 1
 
 
-@pytest.mark.skipif(sandbox.available() not in ('macos', 'linux'), reason='needs the worker sandbox')
-def test_cli_worker_mcp_command_serves_inside_the_worker_sandbox(root):
+def test_cli_worker_mcp_command_serves_inside_the_worker_sandbox(root, require_sandbox):
     """The CLI starts the MCP face inside the worker's sandbox, which reads src/ and not the tree
     around it; the package must import there (a refused stat of pyproject.toml once closed it)."""
     from ravel.workflow.transports import cli_worker

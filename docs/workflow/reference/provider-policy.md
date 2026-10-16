@@ -1,4 +1,39 @@
-# Run data classification and model transports
+# Project and run data classification and model transports
+
+Set a project default in `<project>/.ravel/data_classification.json`, using the
+same declaration format below, then run
+`ravel agent-surface install --project <project>`.
+The installer validates the default and retains
+`<project>/.ravel/provider-policy.json` as its declaration marker. It never
+creates a permissive default or overwrites the supplied declaration.
+`ravel agent-surface check --project <project>` reports the effective classification,
+exact provider allowlist, governing project locations and canonical policy digests
+in `provider_policy`. A missing, unreadable, malformed or linked default in a
+declared project fails the check and refuses dispatch, including for new runs.
+Restore the default to recover; reinstalling does not erase its declaration.
+
+Every new run inside the project inherits the default at creation. The launcher
+writes the effective declaration to `inputs/data_classification.json` and records
+the project declarations, their locations and `transport_registry.digest` hashes
+in `inputs/project_provider_policy.json`. The run's provider pin binds the digest
+of that snapshot. Projects discovered at first guarded startup also retain the
+declaration marker. Projects without defaults keep the existing public behavior.
+
+A supplied run declaration may narrow the project default: its allowlist must be
+a subset of exact transport/account pairs, and its level must be equally strict
+or stricter (`public` < `internal` < `restricted`). An empty allowlist denies all
+providers. Broader declarations are refused, including through human-approved
+run amendments. Enclosing project defaults combine by allowlist intersection and
+the strictest level; nested project settings cannot override an outer restriction.
+Nested graphs retain their enclosing run's policy.
+
+Each dispatch checks both the saved project restriction and the current project
+defaults. Broadening a project default cannot widen an existing run. Tightening
+the default holds runs that no longer comply until an operator approves a
+compliant run amendment. Deleting a run's project snapshot, or deleting or making
+the original project default unreadable, refuses dispatch even if the run has
+moved. Direct dispatch without a run directory checks the current working
+directory's project defaults.
 
 Before model dispatch, the trusted run launcher calls
 `provider_policy.start(run, data_classification=declaration, input_pins=pins)`.
@@ -24,9 +59,10 @@ Anthropic routes using the account distinctions in the shipped declarations:
 ```
 
 Each entry admits only that route and account class. An empty list denies all
-model calls, including at level `public`. With no declaration, existing public
-behavior continues. A boolean `restricted: true` on an input pin requires an
-explicit restricted declaration before graph start or worker/model dispatch.
+model calls, including at level `public`. With neither a run declaration nor a
+project default, existing public behavior continues. A boolean `restricted: true`
+on an input pin requires a restricted declaration, inherited or explicit, before
+graph start or worker/model dispatch.
 Graph artifact pins and worker input pins preserve this optional field.
 
 Account classes default to `auth.kind:billing`. This distinguishes login and

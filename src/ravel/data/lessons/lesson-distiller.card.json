@@ -60,6 +60,11 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
+  },
   "protocol": [
     "Write a computable trigger that fires on the ticket facts, a body of at most 40 lines that states the lookup or procedure, the confirming check and the version scope.",
     "Cite execution receipts and the origin request digest and run id. Never propose a status other than candidate and never weaken a check, trap, gate or threshold."

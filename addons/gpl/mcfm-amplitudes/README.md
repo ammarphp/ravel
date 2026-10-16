@@ -44,3 +44,15 @@ Operation 0 evaluates supplied points, 1 is the warm-up that writes
 `proposal-grid.bin`, and 2 integrates a block on that frozen grid. Channel 1, 2 and 3
 select the lepton-flavour configuration declared in the card (different flavours,
 identical electrons, identical muons).
+
+The output (record format `RAVEL_MCFM_3`) opens with the control line, the
+initialized `DOMAIN` and a `SAFETY` header naming the cuts the program applies.
+Both are MCFM's own and are declared in `addon.json` under `protocol.safety_cuts`:
+MCFM omits its continuum quark loops below a Z transverse momentum of 0.1 GeV
+(`src/ZZ/getggZZamps.f`), applied here to both lepton pairings, and `lowint`
+discards a draw whose lepton energies or normalized invariants fall below 1e-9
+(`passed_smallnew`, `src/Need/smallnew.f`), applied here to supplied points too. A
+draw below either is written as an `EXCLUDE` record with its momenta (and, for the
+Z cut, its weight fields and MCFM's own squared amplitude), counts in the
+`COMPLETE` census and is never stored, so integrals cover exactly the restricted
+phase space and the excluded share is measured.

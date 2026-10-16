@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 
 from . import provenance
-from .execution import digest, file_hash
+from .execution import digest, file_hash, log_path
 from .state_io import file_lock, read_json
 
 APPROVAL = 'inputs/checkin1_approval.json'
@@ -60,7 +60,7 @@ def _leaves(path):
     return [path]
 
 
-def _producers(root, stages, native):
+def _producers(root, stages, native, *, native_log_directory='logs'):
     """(output path, producing stage name) for every declared stage output and log."""
     rows = []
     for stage in stages:
@@ -70,7 +70,7 @@ def _producers(root, stages, native):
             rows.append((absolute(root, stage['log']), name))
         if native:
             # Native dispatch supplies these per-operation supervisor log paths.
-            rows.append((absolute(root, 'logs/' + name + '.log'), name))
+            rows.append((log_path(root, Path(native_log_directory) / (name + '.log')), name))
     return rows
 
 
@@ -212,7 +212,7 @@ def operation_inputs(rundir, contract):
         if not isinstance(stages, list):
             raise ValueError(f'{path}: stages must be a list')
         native = 'capability' in plan and 'rundir' in plan
-        produced = _producers(root, stages, native)
+        produced = _producers(root, stages, native, native_log_directory=plan.get('log_directory', 'logs'))
         # Plan-level reads happen at preparation, before any stage writes.
         reads = [(None, p['path']) for p in plan.get('sources', [])]
         # Native plans also name source cards/templates used by preparation.
@@ -236,15 +236,18 @@ def operation_inputs(rundir, contract):
                 continue
             seen.add(source)
             files.extend(_leaves(source))
-        if 'capability' in plan and 'rundir' in plan and 'rendered' in plan:
+        card_directory = 'output'
+        if native and 'rendered' in plan:
             from ravel.physics.native_effective_config import expected_cards
+            from ravel.physics.native_pipeline import output_root
             texts = expected_cards(plan)
+            card_directory = output_root(plan)
         else:
             texts = plan.get('rendered', {})
         for name, text in texts.items():
             if not isinstance(text, str) or Path(name).is_absolute() or '..' in Path(name).parts:
                 raise ValueError('rendered cards require relative names and literal text')
-            rendered[absolute(root, 'output/' + name)] = text.encode('utf-8')
+            rendered[absolute(root, str(Path(card_directory) / name))] = text.encode('utf-8')
     request_pin = contract.get('request_plan')
     if request_pin:
         plan_path = absolute(root, request_pin['path'])

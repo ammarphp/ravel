@@ -396,3 +396,16 @@ def test_route_warning_keeps_the_validator_s_declared_success(tmp_path, monkeypa
     assert reply['status'] == 'ok'
     output = target.workspace / json.loads(reply['stdout_tail'])['result']
     assert json.loads(output.read_text())['diagnostics']['status'] == 'WARN'
+
+
+def test_runtime_directory_uses_the_platform_temporary_root(monkeypatch, tmp_path):
+    from ravel.workflow import broker
+    monkeypatch.delenv('TMPDIR', raising=False)
+    monkeypatch.setattr(broker.tempfile, 'gettempdir', lambda: str(tmp_path))
+    assert broker.runtime_dir() == tmp_path.resolve()
+
+
+def test_runtime_directory_honors_an_explicit_temporary_root(monkeypatch, tmp_path):
+    from ravel.workflow import broker
+    monkeypatch.setenv('TMPDIR', str(tmp_path))
+    assert broker.runtime_dir() == tmp_path.resolve()

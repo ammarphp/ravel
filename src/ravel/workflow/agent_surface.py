@@ -43,6 +43,7 @@ BEGIN = '<!-- ravel:begin {name} -->'
 END = '<!-- ravel:end {name} -->'
 HOOK_EVENTS = ('UserPromptSubmit', 'Stop', 'SubagentStop')
 HOOK_MARK = 'ravel.workflow.agent_audit hook'
+HOST_GUARD_MARK = 'ravel.workflow.host_guards'
 
 
 def _sha(raw):
@@ -321,7 +322,7 @@ def _write_local_runtime(project, approval, report, runtime_python=None):
             report['written'].append(rel)
     ignored = project / '.ravel/.gitignore'
     text = ignored.read_text() if ignored.is_file() else ''
-    for pattern in ('/agent-surface.local.json', '/hook-runtime.sh', '/agent-audit/'):
+    for pattern in ('/agent-surface.local.json', '/hook-runtime.sh', '/agent-audit/', '/bin/', '/activate.sh'):
         if pattern not in text.splitlines():
             text = text.rstrip('\n') + '\n' + pattern + '\n'
     if not ignored.is_file() or ignored.read_text() != text:
@@ -410,6 +411,9 @@ def install(project, *, skills_from=None, manifest=None, include_software=True, 
     project = Path(project).absolute()
     if not project.is_dir():
         raise ValueError('project directory must exist')
+    from .provider_policy import project_policy
+    # Runs are refused through symbolic links; the project default is read at its real location.
+    provider = project_policy(project.resolve(), register=True)
     required = _wms_required(project)
     guard_enabled = required if wms_guard is None else wms_guard
     approval = _guard_approval(project, guard_approval) if required and not guard_enabled else None
@@ -465,6 +469,16 @@ def install(project, *, skills_from=None, manifest=None, include_software=True, 
                 digest = _write_owned(project, rel, text.encode(), previous, report)
                 if digest:
                     files[rel] = digest
+    from . import native_shims
+    for rel, body in native_shims.render().items():
+        digest = _write_owned(project, rel, body.encode(), previous, report)
+        if digest:
+            files[rel] = digest
+            (project / rel).chmod(0o755)
+    activate = 'export PATH=' + shlex.quote(str(project / '.ravel/bin')) + ':"$PATH"\n'
+    digest = _write_owned(project, '.ravel/activate.sh', activate.encode(), previous, report)
+    if digest:
+        files['.ravel/activate.sh'] = digest
     log_rel = data['audit_log']
     command = f'{_python_command()} -m {HOOK_MARK} --log "$CLAUDE_PROJECT_DIR/{log_rel}"'
     settings_path = project / '.claude' / 'settings.json'
@@ -472,6 +486,18 @@ def install(project, *, skills_from=None, manifest=None, include_software=True, 
     if 'env' in settings and not isinstance(settings['env'], dict):
         raise ValueError('.claude/settings.json env must be a JSON object')
     merged = _merge_hooks(json.loads(json.dumps(settings)), command)
+    from .host_hooks import command as host_command, enforcement_levels
+    for event, phase, matcher in (('PreToolUse', 'pre', 'Bash|Edit|Write|MultiEdit|NotebookEdit|Skill|Agent|Task'),
+                                  ('PostToolUse', 'post', 'Edit|Write|MultiEdit|NotebookEdit')):
+        entries = merged.setdefault('hooks', {}).setdefault(event, [])
+        present = False
+        for group in entries:
+            for hook in group.get('hooks', []):
+                if HOST_GUARD_MARK in hook.get('command', ''):
+                    hook['command'] = host_command('claude', phase)
+                    present = True
+        if not present:
+            entries.append({'matcher': matcher, 'hooks': [{'type': 'command', 'command': host_command('claude', phase)}]})
     groups = merged.setdefault('hooks', {}).setdefault('PreToolUse', [])
     for group in groups:
         group['hooks'] = [h for h in group.get('hooks', []) if _RETIRED_GUARD_MARK not in h.get('command', '')]
@@ -516,6 +542,9 @@ def install(project, *, skills_from=None, manifest=None, include_software=True, 
     (project / MANIFEST).write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
     from . import execution_guard
     return {**report, 'manifest': str(project / MANIFEST), 'skills': installed, 'software_skills': sorted(software),
+            'provider_policy': provider,
+            'enforcement': enforcement_levels(),
+            'path_activation': str(project / '.ravel/activate.sh'),
             'wms_guard': {'hook': True, 'policy_mode': execution_guard.mode(project)} if guard_enabled else None}
 
 
@@ -537,11 +566,16 @@ def _frontmatter_errors(path, name):
 def check(project):
     """Errors in an installed agent surface; an empty list means it passes."""
     project = Path(project).absolute()
+    from .provider_policy import project_policy, PolicyRefused
+    errors = []
+    try:
+        project_policy(project.resolve())
+    except PolicyRefused as exc:
+        errors.append(str(exc))
     path = project / MANIFEST
     if not path.is_file():
-        return [f'{MANIFEST} missing: run ravel agent-surface install']
+        return [*errors, f'{MANIFEST} missing: run ravel agent-surface install']
     record = json.loads(path.read_text())
-    errors = []
     from . import role_registry
     if record.get('role_registry_sha256') != role_registry.registry_sha256():
         errors.append('installed role registry is stale: re-run agent-surface install')
@@ -587,6 +621,10 @@ def check(project):
         commands = [h.get('command', '') for g in settings.get('hooks', {}).get(event, []) for h in g.get('hooks', [])]
         if not any(HOOK_MARK in c for c in commands):
             errors.append(f'prompt-log hook missing for {event}')
+    for event in ('PreToolUse', 'PostToolUse'):
+        commands = [h.get('command', '') for g in settings.get('hooks', {}).get(event, []) for h in g.get('hooks', [])]
+        if not any(HOST_GUARD_MARK in c for c in commands):
+            errors.append(f'host guard hook missing for {event}')
     if required or record.get('wms_guard'):
         commands = [h.get('command', '') for g in settings.get('hooks', {}).get('PreToolUse', []) for h in g.get('hooks', [])]
         if record.get('wms_guard') and not any(GUARD_MARK in c for c in commands):
@@ -653,7 +691,14 @@ def main(argv=None):
                              all_groups=args.all_groups, wms_guard=args.wms_guard, guard_approval=args.guard_approval)
         elif args.command == 'check':
             errors = check(args.project)
-            print(json.dumps({'passed': not errors, 'errors': errors}, indent=2))
+            from .provider_policy import project_policy, PolicyRefused
+            from .host_hooks import enforcement_levels
+            try:
+                provider = project_policy(Path(args.project).resolve())
+            except PolicyRefused:
+                provider = None  # Failure is already reported by check().
+            print(json.dumps({'passed': not errors, 'errors': errors, 'provider_policy': provider,
+                              'enforcement': enforcement_levels()}, indent=2))
             return 1 if errors else 0
         elif args.command == 'profiles':
             from .role_registry import resolve_panel

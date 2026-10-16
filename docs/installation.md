@@ -69,7 +69,8 @@ installation. RAVEL calls separately licensed GPL programs across process and fi
 boundaries; their sources and attribution remain separate from the Apache Python package.
 
 Some tools run on Linux. On a Mac the installer uses a Podman virtual machine inside
-the prefix for the CMS Combine and SimpleAnalysis images.
+the prefix for the CMS Combine and SimpleAnalysis images and the MCFM amplitude program;
+on Linux x86_64 the MCFM program is compiled on the host.
 Facility environments run on the facility itself. Use `--prefix /path/to/volume/ravel`
 for a larger volume or `--adopt --prefix /path/to/existing/toolchain` to retain installed tools.
 

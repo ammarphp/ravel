@@ -68,6 +68,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "supplied-measurement-bundle"
+    ]
+  },
   "protocol": [
     "Assemble supplied measurement bundles with all bin, uncertainty and covariance source definitions retained.",
     "Retain the supplied bin population and format; assemble covariance from every marginal-error and correlation contribution. Declare asymmetric symmetrization and any central shift.",

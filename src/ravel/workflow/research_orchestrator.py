@@ -776,6 +776,7 @@ def _open_plan(root, request_pin, output_dir, *, host, pause=None, stage_runner=
         methodology = research_protocol.methodology_status(root)
         if methodology['next_stage'] == 'limitation_census':
             interrupt({'kind': 'research_stage_required', 'stage': methodology['record']['stages'][0],
+                       'review_limitations': methodology['review_limitations'],
                        'command': 'ravel research-protocol stage-prepare', 'execution_authorized': False})
             if research_protocol.methodology_status(root)['next_stage'] == 'limitation_census':
                 raise RecoveryHold('required limitation census and sufficiency verification remain incomplete')

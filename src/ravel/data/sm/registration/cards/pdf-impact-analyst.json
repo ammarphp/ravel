@@ -63,6 +63,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "pdf-impact-result"
+    ]
+  },
   "protocol": [
     "Prepare profiling or reweighting with the fitted data population, tolerance and effective replica accounting stated.",
     "Locate the supplied PDF fit data census, impact population, ErrorType, confidence level, alpha_s sets and tolerance source. Reject impact computed from data already fitted by the set.",

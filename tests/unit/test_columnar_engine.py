@@ -101,6 +101,7 @@ def test_finalize_writes_template_ready_results_cutflow_and_provenance(sample, t
     assert result['normalization']['scale'] == pytest.approx(scale)
     hist = json.loads((out / 'histograms' / 'met-in-three-lepton-region.json').read_text())
     assert hist['kind'] == 'binned_values' and hist['unit'] == 'events' and hist['axes'] == [{'name': 'Missing transverse momentum', 'unit': 'GeV'}]
+    assert hist['quantity'] == {'weight_convention': 'signed'}
     raw = partial['variations']['nominal']['histograms']['met in three-lepton region']
     assert [b['value'] for b in hist['bins']] == pytest.approx([scale * x for x in raw['sumw']])
     assert [b['uncertainty'] for b in hist['bins']] == pytest.approx([scale * math.sqrt(x) for x in raw['sumw2']])
@@ -131,6 +132,7 @@ def test_finalize_writes_template_ready_results_cutflow_and_provenance(sample, t
     assert rows[-1]['value'] == pytest.approx(scale * (raw['sumw'][-1] + raw['overflow'][1]))
     assert rows[0]['value'] == pytest.approx(scale * raw['sumw'][0])
     cutflow = json.loads((out / 'cutflow.json').read_text())
+    assert cutflow['quantity'] == {'weight_convention': 'signed'}
     assert cutflow['kind'] == 'cutflow' and cutflow['regions'][1]['cuts'][-1]['name'] == 'missing momentum'
     assert cutflow['regions'][1]['cuts'][-1]['raw'] == partial['variations']['nominal']['cutflows']['three leptons on Z'][-1][0]
     summary = json.loads((out / 'analysis-result.json').read_text())

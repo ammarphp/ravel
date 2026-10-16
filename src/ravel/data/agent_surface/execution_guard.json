@@ -11,6 +11,7 @@
   },
   "programs": {
     "snakemake": {"class": "workflow-manager", "skill": "software-snakemake"},
+    "ravel-snakemake": {"class": "workflow-manager", "skill": "software-snakemake"},
     "ravel": {"class": "workflow-tool", "skill": "software-ravel"},
     "git": {"class": "version-control", "skill": "software-git"},
     "ls": {"class": "inspection"},
@@ -38,7 +39,7 @@
     "conformance": null,
     "agent-audit": null,
     "agent-surface": ["check", "profiles"],
-    "wms": ["init", "add", "launch", "status"]
+    "wms": ["init", "add", "launch", "status", "retry"]
   },
   "ravel_refused_with_route": ["run", "go", "advance", "drive", "work", "research-cycle", "science-correct"],
   "git_subcommands": {

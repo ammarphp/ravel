@@ -146,7 +146,7 @@ def parameter_values(raw):
 
 def validate_config(c):
     keys(c, ('schema_version', 'source', 'runtime', 'model_tree', 'cards', 'generation', 'shower', 'decay',
-             'reweight', 'weights', 'outputs', 'max_seconds', 'max_ram_mib', 'assumptions', *(['spectrum_origin'] if 'spectrum_origin' in c else []), *(['parameter_observation'] if 'parameter_observation' in c else []), *(['operative_seed_observation'] if 'operative_seed_observation' in c else []), *(['pre_shower_lhe_transform'] if 'pre_shower_lhe_transform' in c else []), *(['generator_reuse'] if 'generator_reuse' in c else []), *(['integration_checkpoint'] if 'integration_checkpoint' in c else [])), 'model-events configuration')
+             'reweight', 'weights', 'outputs', 'max_seconds', 'max_ram_mib', 'assumptions', *(['conventions'] if 'conventions' in c else []), *(['spectrum_origin'] if 'spectrum_origin' in c else []), *(['parameter_observation'] if 'parameter_observation' in c else []), *(['operative_seed_observation'] if 'operative_seed_observation' in c else []), *(['pre_shower_lhe_transform'] if 'pre_shower_lhe_transform' in c else []), *(['generator_reuse'] if 'generator_reuse' in c else []), *(['integration_checkpoint'] if 'integration_checkpoint' in c else [])), 'model-events configuration')
     require(c['schema_version'] == 1 and type(c['schema_version']) is int, 'model-events schema1 required')
     if 'integration_checkpoint' in c:
         from . import native_integration_checkpoint
@@ -155,6 +155,8 @@ def validate_config(c):
                 'same-run survey checkpoint is separate from static reuse and split shower')
         require(c['generation']['order'] == 'LO' and 'operative_seed_observation' in c,
                 'regular released LO checkpoint requires complete operative seed observation')
+    from . import generation_conventions
+    generation_conventions.declaration(c.get('conventions', {}))
     text(c['source'], 'source')
     if 'generator_reuse' in c:
         from . import generator_reuse
@@ -338,7 +340,7 @@ def process_commands(raw, c):
         else:
             require(line.startswith(('generate ', 'add process ')), 'process card contains a non-process operation')
             expression = line.removeprefix('generate ').removeprefix('add process ')
-            require(re.fullmatch(r'[A-Za-z0-9_+~\- >/=,@.\[\]]+', expression), 'unsupported executable process syntax')
+            require(re.fullmatch(r'[A-Za-z0-9_+~\- ><^/=,@.\[\]]+', expression), 'unsupported executable process syntax')
             require(('[QCD]' in expression) == (c['generation']['order'] == 'NLO'), 'process perturbative syntax differs from requested order')
             require(expression.count('>') == 1 and ',' not in expression, 'decay chains must be declared through the separate MadSpin card')
             final = expression.split('>', 1)[1].split('[')[0].split('@')[0].split('/')[0]
@@ -346,6 +348,8 @@ def process_commands(raw, c):
         commands.append(line)
     require(commands and sum(x.startswith('generate ') for x in commands) == 1 and commands[0].startswith(('define ', 'generate ')), 'one initial process generation required')
     require(sorted(set(multiplicities)) == c['generation']['jet_multiplicities'], 'literal process jet population differs from requested regime')
+    from . import generation_conventions
+    generation_conventions.parse_process_card(raw)
     return commands
 
 
@@ -558,6 +562,8 @@ def inputs(task, base):
             p = bridge._pin(pin,path.parent); require(p.stat().st_size <= 2*1024**2, 'card exceeds source bound')
             texts[name] = authenticated_text(p,pin['sha256']); files.append(p)
     check_cards(c,texts)
+    from . import generation_conventions
+    generation_conventions.model_events_record(c,texts['process'],path.parent)
     if 'parameter_observation' in c:
         from ravel.physics import model_event_parameters
         model_sources, parameter_inputs = model_event_parameters.source_inputs(c['parameter_observation'], modelroot, mgroot)
@@ -1020,6 +1026,8 @@ def native_worker(request_path, output):
             'capture_helper':reuse_helper_pin}
         reuse_info=generator_reuse.publish(out,reuse_export,reuse['compatibility'],origin,reuse_static)
     result={'status':'passed','physics_validated':False,'status_scope':SCOPE,'generated_events':population['generated_events'],
+        'generation_convention':__import__('ravel.physics.generation_conventions',fromlist=['model_events_record']).model_events_record(c,texts['process'],Path(request['source_base'])),
+        'quantity':{'weight_convention':'signed'},
         'source':c['source'],'intended':c,'rendered_cards':rendered,'observed_settings':checked_settings,
         **({'integration_continuation':continuation_seed,'continuation_reservation':request['checkpoint_reservation']} if continuation_seed is not None else {}),
         **({'operative_seed_observation':seed_observation} if seed_observation is not None else {}),

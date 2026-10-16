@@ -30,6 +30,7 @@ GATES = ("approve_plan", "launch", "failed_stage_feedback", "checkin2_accept", "
          "research_choice", "delivery", "final_task", "report_integrity", "export", "unblind",
          "spend_above_ceiling")
 ACTIONS = GATES + ("tool_call",)
+WRITE_ACTIONS = ("protected_write", "deviation_check")
 DELIVERY_GATES = ("delivery", "final_task", "export")
 
 _PYTHON = re.compile(r"python(?:[0-9]+(?:[.][0-9]+)*)?$")
@@ -387,7 +388,7 @@ def _builtin_errors(rd, gate, command, session_id, cwd, project, providers):
 def verdict(rundir, action, command=None, *, session_id=None, cwd=None, project=None, floor=None):
     """The gate verdict object (also printed by `ravel gate --json`)."""
     if action not in ACTIONS:
-        raise ValueError(f"unknown action {action!r}; expected one of {', '.join(ACTIONS)}")
+        raise ValueError(f"unknown action {action!r}; expected one of {', '.join(ACTIONS + WRITE_ACTIONS)}")
     if floor is not None and floor not in ("R0", "R1", "R2", "R3"):
         raise ValueError("floor must be R0|R1|R2|R3")
     session_id = session_id if session_id is not None else active_run.session_from_env()
@@ -483,6 +484,8 @@ def main(argv=None):
     ap.add_argument("--command", help="the exact command text of a tool call")
     ap.add_argument("--session", help="host session id (default: RAVEL_SESSION_ID or the host's variable)")
     ap.add_argument("--project", type=Path, help="project whose hook table governs the run")
+    ap.add_argument("--path", type=Path, help="write destination for protected_write or deviation_check")
+    ap.add_argument("--host", default="codex", choices=("claude", "codex", "gemini", "opencode", "antigravity"))
     ap.add_argument("--floor", choices=("R0", "R1", "R2", "R3"), help="raise the decision risk floor")
     ap.add_argument("--json", action="store_true", help="print the verdict object")
     ap.add_argument("--hook", choices=("bash",), help=argparse.SUPPRESS)
@@ -491,10 +494,24 @@ def main(argv=None):
         project = args.project or host_governance.project_root()
         print(hook_bash(sys.stdin.read(), project))
         return 0
-    if args.action not in ACTIONS:
+    if args.action not in ACTIONS + WRITE_ACTIONS:
         ap.print_usage(sys.stderr)
-        print(f"ravel gate: --action must be one of {', '.join(ACTIONS)}", file=sys.stderr)
+        print(f"ravel gate: --action must be one of {', '.join(ACTIONS + WRITE_ACTIONS)}", file=sys.stderr)
         return 1
+    if args.action in ('protected_write', 'deviation_check'):
+        if args.path is None:
+            ap.error('--path is required for write checks')
+        from . import host_guards
+        project = args.project or host_governance.project_root(args.rundir)
+        data = {'tool_name': 'Write', 'tool_input': {'file_path': str(args.path)},
+                'session_id': args.session or active_run.session_from_env(), 'cwd': str(args.rundir or Path.cwd())}
+        try:
+            errors = host_guards.write_errors(data, project, deviations=args.action == 'deviation_check')
+        except Exception as exc:
+            errors = ['write guard unavailable: ' + str(exc)]
+        result = {'decision': 'deny' if errors else 'allow', 'errors': errors, 'action': args.action}
+        print(json.dumps(result) if args.json else result['decision'] + ': ' + '; '.join(errors))
+        return 2 if errors else 0
     if args.action == "tool_call" and args.command is None:
         print("ravel gate: --action tool_call requires --command", file=sys.stderr)
         return 1

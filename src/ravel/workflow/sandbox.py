@@ -474,8 +474,13 @@ print(json.dumps(checks))
                             capture_output=True,text=True,timeout=10)
         if done.returncode!=0:
             # Only the launcher's own refusal means unavailable; a denied child is a profile failure.
-            if 'sandbox_apply' in done.stderr or 'sandbox_init' in done.stderr:
-                raise SandboxUnavailable('sandbox_probe_unconfirmed')
+            if ('sandbox_apply' in done.stderr or 'sandbox_init' in done.stderr or
+                    (available() == 'linux' and done.stderr.startswith('bwrap: ') and
+                     any(message in done.stderr for message in (
+                         'No permissions to create new namespace',
+                         'Creating new namespace failed: Operation not permitted',
+                         'setting up uid map: Permission denied')))):
+                raise SandboxUnavailable('sandbox launcher unavailable: ' + done.stderr.strip()[-1000:])
             failure=SandboxProbeFailed('sandbox probe launcher or profile failed')
             failure.returncode,failure.stderr=done.returncode,done.stderr[-2000:]
             raise failure

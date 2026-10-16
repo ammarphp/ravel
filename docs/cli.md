@@ -717,6 +717,7 @@ See [figures and comparison](reference/figures-and-comparison.md).
 | `ravel site-workflow` | Export prepared studies for a site analysis and WMS profile |
 | `ravel wms adopt`, `adopt-run`, `adopt-status` | Pin an external Snakefile, plan its approved inspection and its supervised run, and show the state of an adoption |
 | `ravel site` | Check Linux analysis-site readiness, print a no-root install plan and run one study per Slurm allocation |
+| `ravel study-grid` | Submit, observe, resume and harvest a finite grid of prepared studies, each cell in its own batch allocation ([batch allocations](reference/batch-allocations.md)) |
 | `ravel ntuples` | Resolve grid datasets into ROOT members and build MC normalization |
 | `ravel backend` | Inspect execution backends, prepare plans, and follow, recover or cancel backend jobs |
 | `ravel partitions` | Run a stage over a split input population and merge additive outputs |

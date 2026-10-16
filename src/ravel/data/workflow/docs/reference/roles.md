@@ -264,3 +264,23 @@ remain required at use; these declarations establish neither a valid fit nor a
 qualified prediction. Native and remote work uses the existing method admission
 and supervised launch guard. See [inference conventions](inference-engines.md)
 for the requested statistic and likelihood scope.
+
+
+## Quantity ownership and the supplied coupling group
+
+Each role card has a closed `ownership` contract: `owns` identifies produced
+quantity kinds, `judges` identifies review scope, and `inputs` identifies consumed
+quantity kinds. Only producers own quantities; a role cannot judge its own kind.
+The role registry's controlled `quantity_kinds` records the existing source roles
+behind each kind. The vocabulary describes the cards' existing work and grants
+no new scientific capability.
+
+In a Higgs combination inside the fit workflow, the coupling analyst owns the
+measurement and parameterisation bundle it hands to the fit specialists. The
+fit roles own coupling-modifier extraction and scale, PDF and parametric theory
+uncertainty estimation. The theory auditor and combination reviewer judge and
+own no quantities. See [the fit assembly contract](../workflow/steps/sfitter.md#quantity-ownership-at-assembly)
+for the exact kind names, graph bindings, required quantities and handoff rules.
+Registry validation checks the fit phase table, and graph validation refuses
+parallel ownership unless an explicit output-to-input chain is declared.
+These declarations do not enable any withheld setup group.

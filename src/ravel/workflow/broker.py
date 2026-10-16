@@ -18,6 +18,7 @@ import socket
 import socketserver
 import stat
 import threading
+import tempfile
 import time
 from datetime import datetime, timezone
 
@@ -54,7 +55,7 @@ def ordinary(path):
 
 def runtime_dir():
     """The resolved temporary directory for sockets (``ordinary`` refuses a symlinked TMPDIR)."""
-    return Path(os.path.realpath(os.environ.get('TMPDIR') or '/private/tmp'))
+    return Path(os.path.realpath(os.environ.get('TMPDIR') or tempfile.gettempdir()))
 
 
 def confined(root, rel):

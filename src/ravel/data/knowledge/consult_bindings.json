@@ -200,7 +200,9 @@
         "diagram-analysis",
         "finite-integrals"
       ],
-      "handbooks": []
+      "handbooks": [
+        "hb:mcfm-amplitudes"
+      ]
     },
     "consult-normalization": {
       "role": "consult-normalization",

@@ -302,7 +302,7 @@ def test_integrator_retains_all_pairings_with_inert_stage_seam(tmp_path, monkeyp
     schedule = {'schema_version': 1, 'max_operation_seconds': 10,
                 'blocks': [{'id': f'b{i}', 'cohort': 'channel', 'seed': i+1, 'draws': 2, 'max_seconds': 2} for i in range(2)]}
     ctx = {'doc': {'operation': 'blocks', 'retain_pairings': True, 'schedule': schedule}, 'protocol': protocol,
-           'spin0': None, 'store': tmp_path/'store',
+           'spin0': None, 'store': tmp_path/'store', 'safety_cuts': [],
            'addon': SimpleNamespace(identity=lambda: {'id': 'synthetic-addon'}),
            'cohorts': {'channel': {'channel': 1, 'card': {'sha256': 'synthetic-card'}}}}
     # This control exercises the real writer/manifest join; it never prepares or launches a backend.
@@ -311,8 +311,12 @@ def test_integrator_retains_all_pairings_with_inert_stage_seam(tmp_path, monkeyp
     amps = np.ones((2, 2, 16, 1), complex)
     meta = np.ones((2, 9))
     parsed = {'meta': meta, 'identical': np.array([False, True]), 'selected_direct': np.array([True, False]),
-              'summary': {'attempted': 2, 'accepted': 2, 'rejected': 0, 'failed': 0}}
-    monkeypatch.setattr(integration, 'run_stage', lambda *args, **kw: (parsed, None, {'synthetic': True}))
+              'summary': {'attempted': 2, 'accepted': 2, 'rejected': 0, 'failed': 0, 'excluded': 0}}
+    census = {'attempted': 2, 'excluded': 0, 'stored': 2, 'weight_unmeasured': 0, 'by_cut': {},
+              'factor_excluded': 0., 'factor_stored': 2.,
+              'weight_excluded': 0., 'weight_stored': 2.}
+    monkeypatch.setattr(integration, 'run_stage', lambda *args, **kw: (parsed, None, {'synthetic': True,
+                                                                                     'safety': {'census': census}}))
     monkeypatch.setattr(amplitude_records, 'oracle_check', lambda *args, **kw: {'passed': True, 'max_relative_residual': {}})
     monkeypatch.setattr(amplitude_records, 'to_block', lambda *args, **kw: (
         {'gram': np.ones((2, 1, 1)), 'factor': np.ones(2), 'observables': np.ones((2, 5)),
@@ -366,9 +370,9 @@ def test_profile_retains_disconnected_minima_and_invalid_states():
 
 
 def test_original_raw_returns_replay_complete_cache_and_refuse_drift(tmp_path):
-    from amplitude_fixtures import program_output
+    from amplitude_fixtures import DECLARED_CUTS, program_output
     from ravel.physics import amplitude_records as records
-    protocol = {'format': 'RAVEL_MCFM_2', 'channels': {'1': {'pdg': [21, 21, 11, -11, 13, -13]}},
+    protocol = {'format': 'RAVEL_MCFM_3', 'safety_cuts': DECLARED_CUTS, 'channels': {'1': {'pdg': [21, 21, 11, -11, 13, -13]}},
                 'amplitude_channels': ['up', 'down', 'bottom', 'top', 'hbottom', 'htop'],
                 'members': {'background': {'sum': {'up': 2, 'down': 2, 'bottom': 1, 'top': 1}},
                             'signal': {'sum': {'hbottom': 1, 'htop': 1}, 'per_reference_propagator': True}},
@@ -393,7 +397,8 @@ def test_original_raw_returns_replay_complete_cache_and_refuse_drift(tmp_path):
         return {k: parsed['summary'][k] for k in ('attempted', 'accepted', 'rejected', 'failed')}
     header = {'basis': ['background', 'signal'], 'observables': list(records.OBSERVABLES), 'factor_unit': 'fb',
               'particles': {'pdg': protocol['channels']['1']['pdg'], 'status': [-1, -1, 1, 1, 1, 1]},
-              'pairing': {'exchange': records.EXCHANGE.tolist()}, 'proposals': {'sample': pin(proposal)['sha256']}}
+              'pairing': {'exchange': records.EXCHANGE.tolist()}, 'proposals': {'sample': pin(proposal)['sha256']},
+              'safety_cuts': DECLARED_CUTS}
     store.run_schedule(tmp_path/'store', schedule, produce, header=header)
     mass, width = map(float, captured[0]['meta'][0, 1:3])
     ref = {'id': 'baseline', 'constant': {'background': 1.}, 'states': [

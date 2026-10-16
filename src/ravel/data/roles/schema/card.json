@@ -249,6 +249,41 @@
       ],
       "type": "object"
     },
+    "ownership": {
+      "additionalProperties": false,
+      "properties": {
+        "inputs": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "judges": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "owns": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "owns",
+        "judges",
+        "inputs"
+      ],
+      "type": "object"
+    },
     "protocol": {
       "items": {
         "minLength": 1,
@@ -460,7 +495,8 @@
     "escalation",
     "requires",
     "model",
-    "independence"
+    "independence",
+    "ownership"
   ],
   "type": "object"
 }

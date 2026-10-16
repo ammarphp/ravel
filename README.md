@@ -17,7 +17,7 @@ bash scripts/setup/install.sh
 
 The installer brings its own Python, needs no administrator rights and resumes a failed step where it stopped.
 <!-- ravel:disk:start -->
-The default installation needs 55.1 GB of disk space.
+The default installation needs 63.1 GB of disk space.
 <!-- ravel:disk:end -->
 It plans about 8 hours for the default toolchain; `bash scripts/setup/install.sh --dry-run` prints the size and time of each part before anything changes.
 
@@ -142,7 +142,7 @@ Each family groups the operations of this release. A study combines them; when a
 | [Analysis and reinterpretation](docs/workflow/reference/scientific-studies.md) | 25 | Rivet, SimpleAnalysis and MadAnalysis 5 routines, columnar selections, newly written analysis code, SModelS and Contur constraints, signal patches for published likelihoods |
 | [Statistics and limits](docs/reference/inference-engines.md) | 24 | 95% CLs limits with pyhf, statistics the request prescribes, CMS Combine and RooFit likelihoods, profile fits, workspace combinations |
 | [Measurements and global fits](docs/reference/quantities-and-measurements.md) | 12 | Higgs coupling and signal-strength fits, SFitter global fits, EFT responses and coefficient conventions, EasyScan parameter scans |
-| [Models and calculations](docs/reference/models-and-normalization.md) | 25 | FeynRules and SARAH models, FlexibleSUSY and SPheno spectra, widths and decays, Feynman diagrams and amplitudes, loop integrals, EFT running, symbolic and numerical calculations |
+| [Models and calculations](docs/reference/models-and-normalization.md) | 26 | FeynRules and SARAH models, FlexibleSUSY and SPheno spectra, widths and decays, Feynman diagrams and amplitudes, loop integrals, EFT running, symbolic and numerical calculations |
 | [Machine learning](docs/workflow/checklists/ml-training.md) | 3 | Classifier training against baselines with one held-out test, published ONNX classifiers on supplied events |
 | [Literature, comparison and reports](docs/workflow/reference/research-orchestration.md) | 7 | Literature census and published-limit overlays, figure digitisation and comparison, result comparisons, report delivery |
 <!-- ravel:capabilities:end -->
@@ -184,6 +184,7 @@ The installer sets up the tools below and `ravel doctor` checks them. You instal
 | PDF, graph and SVG tools for reports | poppler, Graphviz, librsvg, pypdfium2, pypdf |
 | Linux site analysis and Snakemake environments |  |
 | Analysis-facility access: CVMFS, grid proxy, Kerberos, HTCondor, apptainer, agent CLI |  |
+| MCFM per-point helicity amplitudes for interfering resonances | MCFM |
 | FeynGraph diagram generator (Rust build) | FeynGraph |
 | HEPTAPOD NDA and Diagrammatica EDA diagram tools | HEPTAPOD |
 | External agent sources (AgentRivet) | AgentRivet |
@@ -346,6 +347,8 @@ When you publish results from a study, cite the tools it used. Each entry gives 
 **[LHAPDF](https://lhapdf.hepforge.org/)**: parton densities.
 
 9. A. Buckley et al., “LHAPDF6: parton density access in the LHC precision era”, *Eur. Phys. J. C* **75** (2015) 132, [arXiv:1412.7420](https://arxiv.org/abs/1412.7420), [doi:10.1140/epjc/s10052-015-3318-8](https://doi.org/10.1140/epjc/s10052-015-3318-8).
+
+**[MCFM](https://mcfm.fnal.gov/)**: amplitudes for interfering resonances. Home page: <https://mcfm.fnal.gov/>.
 
 **[Rivet](https://gitlab.com/hepcedar/rivet)**: analysis routines.
 

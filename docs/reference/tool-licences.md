@@ -109,4 +109,5 @@ inventory; no blanket licence is asserted.
 | `torch` | BSD-3-Clause | true | allowed | allowed | pending licence-file sha256 |
 | `torch-geometric` | MIT | true | allowed | allowed | pending licence-file sha256 |
 | `scikit-learn` | BSD-3-Clause | true | allowed | allowed | pending licence-file sha256 |
+| `mcfm-image` | GPL-3.0-or-later | true | never | never | pending licence-file sha256 |
 | `container-base` | LicenseRef-Fedora-packages | false | never | never | pending licence-file sha256 |

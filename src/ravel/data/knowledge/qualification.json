@@ -553,7 +553,7 @@
       "source_locator": "tools-and-validation-census.md:312",
       "source_status": "E",
       "status": "qualified",
-      "summary": "Linux-only tools on a Mac (SA, Combine)",
+      "summary": "Linux-only tools on a Mac (SA, Combine, MCFM)",
       "title": "Podman 5.8.2 (macOS client), vfkit 0.6.3, gvproxy 0.8.9, Podman VM `ravel`; Rosetta 2"
     },
     {

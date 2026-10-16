@@ -41,7 +41,8 @@ def search_yields(document):
         moments = [b['sumw2'] for b in doc['bins']]
     if covariance is not None and any(covariance[i][i] != moment for i,moment in enumerate(moments)):
         raise ValueError('covariance diagonal differs from producer sumw2')
-    return {'values':[b['value'] for b in doc['bins']], 'sumw2':list(moments)}
+    return {'values':[b['value'] for b in doc['bins']], 'sumw2':list(moments),
+            **({'quantity': deepcopy(doc['quantity'])} if 'quantity' in doc else {})}
 
 
 def measurement_prediction(document):
@@ -65,7 +66,8 @@ def measurement_prediction(document):
             'covariance':{'bin_ids':ids,'unit':f"({doc['unit']})^2",'matrix':matrix},
             'representation':doc['representation'], 'bins':doc['bins'],
             'normalization':doc.get('normalization'), 'provenance':doc.get('provenance'),
-            'source_sha256':_digest(doc)}
+            'source_sha256':_digest(doc),
+            **({'quantity': deepcopy(doc['quantity'])} if 'quantity' in doc else {})}
 
 
 def profile_likelihood(workspace, *, poi_values, measurement=None, released=None):

@@ -445,3 +445,14 @@ def test_identical_site_record_drives_doctor_and_batch(tmp_path):
     text = site_batch.render({'spec': job}, tmp_path, 'synthetic-job')
     assert report['ready'] and '+JobFlavour = "extended"' in text and str(proxy) in text
     assert 'environment = "A=1"' in text
+
+
+def test_htcondor_facility_record_overrides_default_scheduler_and_credentials():
+    host = FakeHost(tools=('condor_q', 'voms-proxy-info'),
+                    outputs={'voms-proxy-info --timeleft': (0, '86400\n')})
+    report = sd.doctor(profile='analysis-facility', host=host, site_record={
+        'scheduler': 'htcondor', 'requires_proxy': True, 'requires_kerberos': False, 'requires_afs': False})
+    checks = statuses(report)
+    assert checks['batch scheduler'] == 'ok'
+    assert ['condor_q', '-totals'] in host.calls
+    assert ['squeue', '-h'] not in host.calls and ['klist', '-s'] not in host.calls

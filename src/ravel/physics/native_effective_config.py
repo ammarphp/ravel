@@ -294,7 +294,8 @@ def explicit_shower_controls(cfg, source):
 
 
 def expected_cards(plan):
-    out = Path(plan["rundir"])/"output"
+    from .native_pipeline import output_root
+    out = output_root(plan)
     legacy = plan["capability"]["preparation"] == "slepton-bino"
     result = {name: plan["rendered"][name] if legacy else Path(plan["inputs"][name.removesuffix(".dat")]).read_text()
               for name in ("param_card.dat", "run_card.dat")}
@@ -319,23 +320,24 @@ def expected_cards(plan):
 
 
 def _snapshot(plan):
-    root = Path(plan["rundir"])
+    from .native_pipeline import output_root
+    out = output_root(plan)
     expected = expected_cards(plan)
     cards = {}
     for name, text in expected.items():
-        path = root/"output"/name
+        path = out/name
         if path.read_bytes() != text.encode(): raise ValueError(f"prepared effective card differs from requested plan: {name}")
         cards[name] = fingerprint(path)
     cards["delphes_card"] = fingerprint(plan["inputs"]["delphes_card"])
     if cards["delphes_card"] not in plan["sources"]:
         raise ValueError("effective detector card differs from its declared source identity")
-    run = assignments((root/"output/run_card.dat").read_text(), run=True)
-    shower = assignments((root/"output/shower.cfg").read_text())
+    run = assignments((out/"run_card.dat").read_text(), run=True)
+    shower = assignments((out/"shower.cfg").read_text())
     process = [line.split("#", 1)[0].strip() for line in Path(plan["inputs"]["process_card"]).read_text().splitlines()]
     from .native_pipeline import validate_process_card
     from ravel.validation.lhe_check import parse_param_card
     produced = validate_process_card(plan["inputs"]["process_card"], plan["capability"]["model"])
-    actual_masses, mass_lint = parse_param_card(str(root/"output/param_card.dat"))
+    actual_masses, mass_lint = parse_param_card(str(out/"param_card.dat"))
     mass_errors = [message for level, message in mass_lint if level == "FAIL"]
     if mass_errors: raise ValueError("; ".join(mass_errors))
     controls = plan["effective_controls"]
@@ -368,7 +370,7 @@ def _snapshot(plan):
 
 def emit(plan):
     record = _snapshot(plan)
-    atomic_json(Path(plan["rundir"])/MANIFEST, record)
+    atomic_json(Path(plan["effective_settings"]), record)
     return record
 
 
@@ -381,7 +383,7 @@ def validate(plan, record=None):
             raise ValueError("effective-settings execution plan changed")
         for source in plan["sources"]:
             if fingerprint(source["path"]) != source: raise ValueError(f"effective-settings source changed: {source['path']}")
-        record = read_json(Path(plan["rundir"])/MANIFEST) if record is None else record
+        record = read_json(Path(plan["effective_settings"])) if record is None else record
         if record != _snapshot(plan): raise ValueError("effective-settings manifest differs from current cards, controls or plan")
         return []
     except (OSError, ValueError, KeyError, TypeError) as exc:

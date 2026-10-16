@@ -24,7 +24,7 @@ def setup(tmp_path):
     cp = tmp_path / 'source.json'
     capsule = {'schema_version':1,'kind':'analysis-source-capsule','framework':'rivet','routine':'Unknown',
         'source':{'repository':'supplied','revision':None,'description':'Mechanical source transport control only'},
-        'root':str(root),'files':[{'path':p.name,'sha256':sources.digest(p),'role':'compile' if p.suffix=='.cc' else 'configuration' if p.suffix=='.info' else 'reference'} for p in root.iterdir()],
+        'root':str(root),'files':[{'path':p.name,'sha256':sources.digest(p),'role':'compile' if p.suffix=='.cc' else 'configuration' if p.suffix=='.info' else 'reference'} for p in sorted(root.iterdir())],
         'layout':{'include_dirs':[],'asset_dirs':['.']},'dependencies':[],
         'dependency_review':{'complete':False,'description':'Control source; no native closure.'},'submodules':[]}
     atomic_json(cp,capsule)
@@ -145,3 +145,16 @@ def test_same_native_graph_cannot_reset_cumulative_reservation(tmp_path):
         native.prepare_agent_request(cfg,packet,graph,model='fixture-control',reasoning_effort='high')
     state=agent_graph.status(graph)
     assert state['usage']['calls']==1 and state['budget']['max_calls']==2
+
+
+def test_source_packet_order_is_independent_of_supplied_member_order(tmp_path):
+    cfg, config = setup(tmp_path)
+    first = native.write_source_packet(cfg, tmp_path / 'first.json')
+    capsule_path = Path(config['source_capsule']['path'])
+    capsule = read_json(capsule_path)
+    capsule['files'].reverse()
+    atomic_json(capsule_path, capsule)
+    config['source_capsule'] = pin(capsule_path)
+    atomic_json(cfg, config)
+    second = native.write_source_packet(cfg, tmp_path / 'second.json')
+    assert read_json(first['path'])['source_text'] == read_json(second['path'])['source_text']

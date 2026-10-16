@@ -51,7 +51,7 @@ there are no manual container steps.
 2. Clone `https://gitlab.com/mcfm-team/releases.git` at
    `0adaa4ed4079de1b17c84417a0a428a468f57e69` into the prefix's `tools/mcfm-src`
    (about 230 MB of source).
-3. Run `native/setup/recipes/mcfm-overlay.py`. It verifies the hash of every member
+3. Run `native/setup/recipes/mcfm_overlay.py`. It verifies the hash of every member
    of the separately licensed component, exports source without Git metadata, applies the capture patch, copies
    the declared overlay members, and appends the CMake include. Its ownership
    receipt detects altered outputs and refuses foreign non-empty destinations.

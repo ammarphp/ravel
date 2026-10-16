@@ -251,3 +251,25 @@ def test_census_never_promotes_installation_to_numerical_qualification():
     from ravel.setup.qualification import census_status
     assert census_status('ready') == 'built_but_unqualified'
     assert census_status('missing') == 'not_installed'
+
+
+def test_reference_fit_restores_the_callers_backend_on_failure(tmp_path, monkeypatch):
+    from ravel.physics import pyhf_exclude as exclude
+    source = tmp_path / 'model.json'; source.write_text('{}')
+    reference = {'background': str(source), 'patch': str(source), 'output_format': 'json',
+                 'expected': {key: {'value': 0., 'atol': 0., 'rtol': 0.}
+                              for key in ('mu_hat', 'twice_nll')}}
+    original = exclude.pyhf.get_backend()
+    try:
+        exclude.pyhf.set_backend('numpy', exclude.scipy_optimizer(), precision='32b')
+        caller = exclude.pyhf.get_backend()
+        def fail(*args):
+            backend, optimizer = exclude.pyhf.get_backend()
+            assert backend.precision == '64b' and isinstance(optimizer, exclude.robust_optimizer)
+            raise RuntimeError('synthetic model construction failure')
+        monkeypatch.setattr(exclude, 'model_from_likelihood', fail)
+        with pytest.raises(RuntimeError, match='synthetic model construction failure'):
+            exclude.check_fit_reference(reference)
+        assert exclude.pyhf.get_backend() == caller
+    finally:
+        exclude.pyhf.set_backend(*original)

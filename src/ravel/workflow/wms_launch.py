@@ -85,17 +85,46 @@ def _audit(audit, base):
     return value
 
 
-def init(project, profile='local', *, audit, python=None, site_id='local'):
+def init(project, profile='local', *, audit, python=None, site_id='local', jobs=None,
+         remote_ceiling=None, shared_state_root=None, site_options=None):
     """Lay out a project workflow and require the workflow manager for its runs."""
-    core.require(profile == 'local', 'only the local profile is supported (cores 1, retries 0)')
+    core.require(profile in ('local', 'htcondor'), 'profile must be local or htcondor')
+    core.require(profile != 'local' or all(x is None for x in (jobs, remote_ceiling, shared_state_root, site_options)),
+                 'site options require the htcondor profile; local remains cores 1, retries 0')
     root = _project(project)
     core.require(root.is_dir(), f'project directory {root} must exist')
     wf = root / 'workflow'
     wf.mkdir(exist_ok=True)
     with file_lock(wf / '.wms.lock', blocking=False):
+        interpreter = python or (sys.executable if profile == 'htcondor' else os.path.realpath(sys.executable))
         config = {'schema_version': 1, 'profile': profile, 'site_id': core.text(site_id, 'site id'),
-                  'python': _file(python or os.path.realpath(sys.executable), root, 'python'),
+                  'python': _file(interpreter, root, 'python'),
                   'audit': _audit(audit, root), 'wms': dict(WMS)}
+        if profile == 'htcondor':
+            from . import wms_site
+            core.require(jobs is not None and remote_ceiling is not None,
+                         'HTCondor init requires --jobs and --remote-ceiling')
+            if (wf / 'project.json').exists():
+                previous = _read(wf / 'project.json')
+                site, _ = wms_site.validate(root, previous, jobs)
+                core.require(previous['wms']['remote_ceiling'] == remote_ceiling
+                             and site['shared_state_root'] == wms_site.shared_state(root, shared_state_root),
+                             'project workflow already initialized differently; preserve it')
+                if site_options is not None:
+                    from .site_profiles import render
+                    core.require(site_options.get('workflow_dir', str(wf)) == str(wf)
+                                 and site_options.get('lease_scope', 'batch-slot') == 'batch-slot',
+                                 'governed site options require the project workflow and batch-slot leases')
+                    options = {**site_options, 'workflow_dir': str(wf), 'lease_scope': 'batch-slot'}
+                    core.require(render('htcondor', jobs=jobs, options=options)
+                                 == _read(Path(site['profile']['path']) / 'profile.json'),
+                                 'project site options changed; preserve them')
+                config['wms'] = {**previous['wms'], 'jobs': jobs}
+                config['site'] = site
+            else:
+                config['wms'], config['site'] = wms_site.initialize(
+                    root, jobs=jobs, remote_ceiling=remote_ceiling,
+                    shared_state_root=shared_state_root, options=site_options)
         if (wf / 'project.json').exists():
             core.require(_read(wf / 'project.json') == config, 'project workflow already initialized differently; preserve it')
         if (wf / 'policy.json').exists():
@@ -151,6 +180,9 @@ def add(project, rundir, after=(), *, task=None):
     from . import science
     wf = _workflow(project)
     config = _read(wf / 'project.json')
+    if config['profile'] == 'htcondor':
+        from . import wms_site
+        wms_site.validate(wf.parent, config)
     rd = science.root(rundir)
     core.require(wf.parent in rd.parents, f'run dir {rd} must be inside the project {wf.parent} so its policy governs direct dispatch')
     with file_lock(wf / '.wms.lock', blocking=False):
@@ -188,6 +220,8 @@ def add(project, rundir, after=(), *, task=None):
                  'rule': site_workflow._pin(wf / 'rules' / f'{identity}.smk'),
                  'policy': _policy_pin(wf),
                  'added_utc': _utc(), 'execution_authorized': False}
+        if config['profile'] == 'htcondor':
+            entry['site_launch'] = {'wms': config['wms'], 'site': config['site']}
         from . import wms_adopt
         binding = wms_adopt.export_binding(rd, plan, entry['export'])
         if binding is not None:
@@ -217,7 +251,8 @@ def _closure(index, task):
 
 def _execute(argv, cwd):
     # Snakemake turns every key of the profile named in this variable into an option no receipt shows.
-    environment = {name: value for name, value in os.environ.items() if name != PROFILE_VARIABLE}
+    environment = {name: value for name, value in os.environ.items()
+                   if name not in (PROFILE_VARIABLE, 'SNAKEMAKE_WORKFLOW_PROFILE')}
     done = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, env=environment)
     return done.returncode, done.stdout + done.stderr
 
@@ -228,6 +263,10 @@ def _parse_inputs(wf, task):
     index = json.loads(index_raw)
     entry = next((row for row in index['tasks'] if row['id'] == task), None)
     core.require(entry is not None, f'task {task} is not in the index; add it with `ravel wms add` first')
+    config = _read(wf / 'project.json')
+    if config['profile'] == 'htcondor' or 'site_launch' in entry:
+        core.require(entry.get('site_launch') == {'wms': config['wms'], 'site': config.get('site')},
+                     'site launch configuration changed since add; preserve its original profile and ceiling')
     pinned = entry['policy']
     core.require(_policy_pin(wf) == pinned,
                  f'workflow policy changed since task {task} was added; '
@@ -243,6 +282,9 @@ def _parse_inputs(wf, task):
     rules = {}
     for row in index['tasks']:
         if row['id'] in bound:
+            if config['profile'] == 'htcondor' or 'site_launch' in row:
+                core.require(row.get('site_launch') == {'wms': config['wms'], 'site': config.get('site')},
+                             f"site launch configuration changed since task {row['id']} was added")
             wms_adopt.check_launch_binding(row)
         rule, recorded = wf / 'rules' / f"{row['id']}.smk", row.get('rule')
         raw = rule.read_bytes() if rule.is_file() else None
@@ -316,7 +358,7 @@ def _freeze_parse(folder, index_raw, rules):
             'rules': [write(folder / 'rules' / f'{name}.smk', raw) for name, raw in sorted(rules.items())]}
 
 
-def launch(project, task, cores=1):
+def launch(project, task, cores=1, *, jobs=None):
     """Run one indexed task (and any unfinished --after tasks) through Snakemake.
 
     The Snakefile, the index and every indexed rule are verified and copied under
@@ -328,6 +370,13 @@ def launch(project, task, cores=1):
     """
     core.require(cores == 1, 'the local profile runs one core with no retries')
     wf = _workflow(project)
+    config = _read(wf / 'project.json')
+    site = None
+    if config['profile'] == 'htcondor':
+        from . import wms_site
+        site, jobs = wms_site.validate(wf.parent, config, jobs)
+    else:
+        core.require(jobs is None, '--jobs requires the htcondor profile; local runs one core')
     core.require(not os.path.lexists(wf / 'profiles'),
                  f'{wf / "profiles"} would be loaded by Snakemake as a workflow profile that no pin covers; a profile '
                  'rewrites the launch (dry run, executor, submit command): move it out of the project workflow')
@@ -335,7 +384,9 @@ def launch(project, task, cores=1):
     # A run dir that lost its method decision is refused by name, before its plan is read or Snakemake starts.
     method_selection.require_launch(entry['rundir'])
     site_workflow.verify(entry['export']['path'], entry['export']['sha256'])
-    snakemake = wms_runtime.snakemake_argv()
+    if site:
+        wms_site.require_approved_fanout(wf, task, jobs)
+    snakemake = [site['shim']['path']] if site else wms_runtime.snakemake_argv()
     core.require(snakemake, 'no Snakemake executable found; set RAVEL_SNAKEMAKE or install the site WMS environment')
     version = wms_runtime.snakemake_version(snakemake)  # read before the stage, so nothing can fail on it afterwards
     target = f'exports/{task}/completed/{task}.json'
@@ -349,8 +400,11 @@ def launch(project, task, cores=1):
                       if p.suffix in ('.log', '.json') and p.stem.isdecimal()), default=0) + 1
         log_stream = (folder / f'{number:06d}.log').open('x')
         parse = _freeze_parse(folder / f'{number:06d}.parse', index_raw, rules)
+        site_profile = wms_site.freeze(wf.parent, site, task, number) if site else None
     argv = [*snakemake, '--snakefile', parse['snakefile']['path'], '--directory', str(wf),
             '--cores', '1', '--retries', '0', target]
+    if site:
+        argv[-1:-1] = ['--profile', site_profile['path'], '--jobs', str(jobs)]
     authorized = _closure(json.loads(index_raw), task)
     # A launch of a later task also runs its unfinished dependencies: their dispatch records belong to this receipt.
     folders = [Path(row['export']['path']).parent / 'dispatch' for row in json.loads(index_raw)['tasks'] if row['id'] in authorized]
@@ -358,16 +412,29 @@ def launch(project, task, cores=1):
     before = dispatched()
     profile = {'workflow_profiles_folder': False,
                PROFILE_VARIABLE: 'removed' if PROFILE_VARIABLE in os.environ else 'absent'}
+    if site:
+        profile.update({'pinned': site_profile, 'source': site['profile'], 'jobs': jobs,
+                        'remote_ceiling': config['wms']['remote_ceiling'],
+                        'shared_state_root': site['shared_state_root'], 'shim': site['shim'],
+                        'lease_scope': site['lease_scope'], 'batch_slot_dir_env': site['batch_slot_dir_env']})
     start = _utc()
-    with log_stream, wms_policy.launch_authorization(wf, task, number, authorized):
+    governed = {'argv': argv, 'site_profile': site_profile, 'jobs': jobs, 'parse_inputs': parse} if site else {}
+    with log_stream, wms_policy.launch_authorization(wf, task, number, authorized, **governed):
         # Recheck the combined records at dispatch, after version discovery and parse freezing.
         from . import wms_adopt
         for row in json.loads(index_raw)['tasks']:
             if row['id'] in authorized:
                 wms_adopt.check_launch_binding(row)
+        if site:
+            wms_site.admit_command(argv, wf.parent, wf)
         code, log = _execute(argv, wf)
         log_stream.write(log)
     end = _utc()
+    if site:
+        try:
+            profile['unchanged_after_run'] = wms_site.profile_pin(site_profile['path']) == site_profile
+        except (ValueError, OSError):
+            profile['unchanged_after_run'] = False
     marker = wf / target
     frozen = [parse['snakefile'], parse['index'], *parse['rules']]
     parse['unchanged_after_run'] = all(Path(p['path']).is_file() and site_workflow._pin(p['path']) == p for p in frozen)
@@ -423,6 +490,10 @@ def main(argv=None):
     i.add_argument('--python', type=Path)
     i.add_argument('--site-id', default='local')
     i.add_argument('--profile', default='local')
+    i.add_argument('--jobs', type=int)
+    i.add_argument('--remote-ceiling', type=int)
+    i.add_argument('--shared-state-root', type=Path)
+    i.add_argument('--site-options', type=Path, help='JSON HTCondor submit options')
     a = sub.add_parser('add', help='emit the rule for an approved run dir before it runs')
     a.add_argument('--project', type=Path, required=True)
     a.add_argument('--rundir', type=Path, required=True)
@@ -432,6 +503,7 @@ def main(argv=None):
     l.add_argument('--project', type=Path, required=True)
     l.add_argument('--task', required=True)
     l.add_argument('--cores', type=int, default=1)
+    l.add_argument('--jobs', type=int)
     s = sub.add_parser('status', help='show delivery, launches and dispatches per task')
     s.add_argument('--project', type=Path, required=True)
     r = sub.add_parser('revalidate', help='acknowledge a policy change for one indexed, still approved task')
@@ -447,11 +519,13 @@ def main(argv=None):
         return wms_adopt.main(arguments)
     args = p.parse_args(arguments)
     if args.operation == 'init':
-        value = init(args.project, args.profile, audit=_read(args.audit), python=args.python, site_id=args.site_id)
+        value = init(args.project, args.profile, audit=_read(args.audit), python=args.python, site_id=args.site_id,
+                     jobs=args.jobs, remote_ceiling=args.remote_ceiling, shared_state_root=args.shared_state_root,
+                     site_options=_read(args.site_options) if args.site_options else None)
     elif args.operation == 'add':
         value = add(args.project, args.rundir, args.after, task=args.task)
     elif args.operation == 'launch':
-        value = launch(args.project, args.task, args.cores)
+        value = launch(args.project, args.task, args.cores, jobs=args.jobs)
     elif args.operation == 'revalidate':
         value = revalidate(args.project, args.task)
     elif args.operation == 'retry':

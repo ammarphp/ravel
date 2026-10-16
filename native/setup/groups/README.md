@@ -78,3 +78,15 @@ preserves the original group JSON text in the fragment. Canonical JSON uses sort
 keys and compact separators, so storage layout and whitespace do not affect the digest.
 The shell preflight reads the main disk allowance before Python is available; the
 installer disk gate must eventually derive its figure from the merged plan.
+
+
+A group can set `qualification.required_per_platform` to `true` to require matching
+platform evidence for implicit installer/doctor selection and operation availability.
+The existing `qualification.record` supplies the first successful platform record;
+`qualification.additional_records` holds later records in exactly the same format
+(`tool`, `version`, `platform`, `date`, `doctor_result: ready`, `evidence_sha256`).
+Every record is validated and platform identities must be unique. Adding a successful
+record admits that platform without code changes. Platforms without a successful
+record stay excluded from implicit selection and operation planning, even if the
+group is present in the exported release. Explicit group selection remains possible
+for qualification work. Other groups retain their existing selection rules.

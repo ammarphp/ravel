@@ -1,6 +1,6 @@
 {
   "kind": "host-capabilities",
-  "reviewed_on": "2026-10-11",
+  "reviewed_on": "2026-10-15",
   "schema_version": 1,
   "surfaces": {
     "antigravity": {
@@ -69,7 +69,31 @@
         }
       },
       "redirect_fields": {},
-      "redirect_source": null
+      "redirect_source": null,
+      "enforcement": {
+        "host_registration": "unverified",
+        "runtime_verified": false,
+        "host_guards": [],
+        "ravel_guards": [
+          "approval-checked PATH shims when activated",
+          "supervised launch authorization",
+          "decision_gate.check",
+          "execution_guard",
+          "explicit protected_write and deviation_check gates"
+        ],
+        "prompt_only": [
+          "arbitrary shell file writes",
+          "absolute executable paths bypass PATH shims",
+          "host lifecycle events without a projected adapter"
+        ],
+        "pre_execution_guards": "none",
+        "version": null,
+        "capability_status": "unverified",
+        "sources": [],
+        "requires": "No confirmed native hook configuration; explicit gate and PATH shims only.",
+        "enforcement_level": "explicit-gate-and-path-shims",
+        "custody_requirement": "Runtime host-hooks requires host-emitted registration evidence; generated configuration alone is not attestation."
+      }
     },
     "claude": {
       "limitations": [
@@ -160,7 +184,34 @@
       "redirect_fields": {
         "tools": []
       },
-      "redirect_source": "https://code.claude.com/docs/en/sub-agents"
+      "redirect_source": "https://code.claude.com/docs/en/sub-agents",
+      "enforcement": {
+        "host_registration": "generated",
+        "runtime_verified": false,
+        "host_guards": [
+          "shell classification",
+          "protected native write tools",
+          "deviations for native write tools"
+        ],
+        "ravel_guards": [
+          "approval-checked PATH shims when activated",
+          "supervised launch authorization",
+          "decision_gate.check",
+          "execution_guard",
+          "explicit protected_write and deviation_check gates"
+        ],
+        "prompt_only": [
+          "arbitrary shell file writes",
+          "absolute executable paths bypass PATH shims",
+          "host lifecycle events without a projected adapter"
+        ],
+        "pre_execution_guards": "none",
+        "capability_status": "existing-adapter-preserved",
+        "hooks_file": ".claude/settings.json",
+        "requires": "Existing lifecycle adapters retained; installed host runtime not probed in this package.",
+        "enforcement_level": "host-adapter-and-path-shims",
+        "custody_requirement": "Runtime host-hooks requires host-emitted registration evidence; generated configuration alone is not attestation."
+      }
     },
     "codex": {
       "limitations": [
@@ -251,7 +302,45 @@
       "redirect_fields": {
         "sandbox_mode": "read-only"
       },
-      "redirect_source": "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      "redirect_source": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+      "enforcement": {
+        "host_registration": "generated",
+        "runtime_verified": false,
+        "host_guards": [
+          "shell classification",
+          "protected native write tools",
+          "deviations for native write tools"
+        ],
+        "ravel_guards": [
+          "approval-checked PATH shims when activated",
+          "supervised launch authorization",
+          "decision_gate.check",
+          "execution_guard",
+          "explicit protected_write and deviation_check gates"
+        ],
+        "prompt_only": [
+          "arbitrary shell file writes",
+          "absolute executable paths bypass PATH shims",
+          "host lifecycle events without a projected adapter"
+        ],
+        "pre_execution_guards": "none",
+        "version": "0.162.0-alpha.17.2",
+        "installed_cli": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex",
+        "capability_status": "installed-help-and-official-docs",
+        "sources": [
+          "https://learn.chatgpt.com/docs/hooks"
+        ],
+        "hooks_file": ".codex/hooks.json",
+        "events": [
+          "PreToolUse",
+          "PostToolUse",
+          "UserPromptSubmit"
+        ],
+        "requires": "Project and current hook definitions must be trusted; CLI runtime hook execution was not probed.",
+        "enforcement_level": "host-adapter-and-path-shims",
+        "custody_requirement": "Runtime host-hooks requires host-emitted registration evidence; generated configuration alone is not attestation.",
+        "installed_feature_probe": "features list: hooks stable true"
+      }
     },
     "gemini": {
       "limitations": [
@@ -333,7 +422,44 @@
       "redirect_fields": {
         "tools": []
       },
-      "redirect_source": "https://geminicli.com/docs/core/subagents/"
+      "redirect_source": "https://geminicli.com/docs/core/subagents/",
+      "enforcement": {
+        "host_registration": "generated",
+        "runtime_verified": false,
+        "host_guards": [
+          "shell classification",
+          "protected native write tools",
+          "deviations for native write tools"
+        ],
+        "ravel_guards": [
+          "approval-checked PATH shims when activated",
+          "supervised launch authorization",
+          "decision_gate.check",
+          "execution_guard",
+          "explicit protected_write and deviation_check gates"
+        ],
+        "prompt_only": [
+          "arbitrary shell file writes",
+          "absolute executable paths bypass PATH shims",
+          "host lifecycle events without a projected adapter"
+        ],
+        "pre_execution_guards": "none",
+        "version": null,
+        "installed_cli": null,
+        "capability_status": "documented-runtime-unverified",
+        "sources": [
+          "https://geminicli.com/docs/hooks/reference/"
+        ],
+        "hooks_file": ".gemini/settings.json",
+        "events": [
+          "BeforeTool",
+          "AfterTool",
+          "BeforeAgent"
+        ],
+        "requires": "No executable on PATH or in checked standard install locations; version and runtime unverified.",
+        "enforcement_level": "host-adapter-and-path-shims",
+        "custody_requirement": "Runtime host-hooks requires host-emitted registration evidence; generated configuration alone is not attestation."
+      }
     },
     "opencode": {
       "limitations": [
@@ -425,7 +551,43 @@
           "*": false
         }
       },
-      "redirect_source": "https://opencode.ai/docs/agents/"
+      "redirect_source": "https://opencode.ai/docs/agents/",
+      "enforcement": {
+        "host_registration": "generated",
+        "runtime_verified": false,
+        "host_guards": [
+          "shell classification",
+          "protected native write tools",
+          "deviations for native write tools"
+        ],
+        "ravel_guards": [
+          "approval-checked PATH shims when activated",
+          "supervised launch authorization",
+          "decision_gate.check",
+          "execution_guard",
+          "explicit protected_write and deviation_check gates"
+        ],
+        "prompt_only": [
+          "arbitrary shell file writes",
+          "absolute executable paths bypass PATH shims",
+          "host lifecycle events without a projected adapter"
+        ],
+        "pre_execution_guards": "none",
+        "version": null,
+        "installed_cli": null,
+        "capability_status": "documented-runtime-unverified",
+        "sources": [
+          "https://opencode.ai/docs/plugins/"
+        ],
+        "hooks_file": ".opencode/plugins/ravel-guards.js",
+        "events": [
+          "tool.execute.before",
+          "tool.execute.after"
+        ],
+        "requires": "No executable on PATH or in checked standard install locations; prompt interception unverified.",
+        "enforcement_level": "host-adapter-and-path-shims",
+        "custody_requirement": "Runtime host-hooks requires host-emitted registration evidence; generated configuration alone is not attestation."
+      }
     }
   }
 }

@@ -8,6 +8,7 @@ import numpy as np
 
 from ravel.physics import amplitude_integration as integration, weighted_events as events
 from ravel.workflow import route_prompt, task_completion
+from amplitude_fixtures import DECLARED_CUTS
 from test_amplitude_integration import FakeBackend
 from test_weighted_events import _yoda
 
@@ -69,7 +70,7 @@ def case(base, monkeypatch):
     addon_root = base / 'addons/synthetic-amplitudes'
     addon_root.mkdir(parents=True)
     (addon_root / 'protocol.txt').write_text('Synthetic record contract, no executable.\n')
-    protocol = {'format': 'RAVEL_MCFM_2', 'channels': {'1': {'pdg': [21, 21, 11, -11, 13, -13]}},
+    protocol = {'format': 'RAVEL_MCFM_3', 'safety_cuts': DECLARED_CUTS, 'channels': {'1': {'pdg': [21, 21, 11, -11, 13, -13]}},
         'amplitude_channels': ['up', 'down', 'bottom', 'top', 'hbottom', 'htop'],
         'members': {'continuum': {'sum': {'up': 2, 'down': 2, 'bottom': 1, 'top': 1}},
                     'numerator': {'sum': {'htop': 1}, 'per_reference_propagator': True}},
@@ -92,7 +93,7 @@ def case(base, monkeypatch):
             'warmup': {'draws': 3, 'seed': 11, 'max_seconds': 10}}],
         'schedule': {'schema_version': 1, 'max_operation_seconds': 30, 'blocks': [
             {'id': f'b{i}', 'cohort': 'c', 'seed': 20 + i, 'draws': 5, 'max_seconds': 10} for i in range(2)]},
-        'audit_points': 2}
+        'audit_points': 2, 'safety_cuts': [c['id'] for c in DECLARED_CUTS]}
     reference = {'id': 'reference', 'constant': {'continuum': 1}, 'states': [
         {'mass_gev': 125.0, 'width_gev': 0.004, 'propagator': 'fixed-width',
          'couplings': {'numerator': 1, 'reference-numerator': 1}}]}

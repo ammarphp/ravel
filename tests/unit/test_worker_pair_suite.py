@@ -55,17 +55,31 @@ def test_legacy_graph_and_worker_substrate_pass_together_without_skips(tmp_path)
     assert passed >= 44, summary
 
 
-def test_worker_adversarial_suite_passes_and_skips_only_without_a_sandbox(tmp_path):
+def _confinement(tmp_path):
+    """The working sandbox launcher, or None when the host cannot confine (a failed denial still fails)."""
     from ravel.workflow import sandbox
+    ws = tmp_path / 'probe-workspace'
+    for name in ('inputs', 'outputs', 'scratch'):
+        (ws / name).mkdir(parents=True)
+    (tmp_path / 'probe-private').write_text('must be inaccessible')
+    try:
+        sandbox.probe(ws, forbidden=tmp_path / 'probe-private', read_paths=sandbox.runtime_paths([sys.executable]))
+    except sandbox.SandboxUnavailable:
+        return None
+    return sandbox.available()
+
+
+def test_worker_adversarial_suite_passes_and_skips_only_without_a_sandbox(tmp_path):
+    launcher = _confinement(tmp_path)
     output, summary = _run(tmp_path, SANDBOXED, 'sandboxed')
     assert not re.search(r'\b(xfailed|xpassed|deselected|error)', summary), summary
-    if sandbox.available() == 'macos':
+    if launcher == 'macos':
         assert 'skipped' not in summary, summary
-    elif sandbox.available() is not None:
+    elif launcher is not None:
         # The login keychain exists on macOS only, and port filtering elsewhere needs kernel port rules.
         reasons = [line for line in output.splitlines() if line.startswith('SKIPPED')]
         admitted = re.compile(r'^SKIPPED \[1\] tests/unit/test_worker_sandbox\.py:\d+: '
-                              r'(the keychain home|port filtering) is a macOS sandbox profile property\b')
+                              r'(the keychain home|port filtering|metadata visibility) is a macOS sandbox profile property\b')
         assert all(admitted.match(line) for line in reasons), reasons
         declared = (HERE / 'test_worker_sandbox.py').read_text().count('is a macOS sandbox profile property')
         assert len(reasons) <= declared, reasons

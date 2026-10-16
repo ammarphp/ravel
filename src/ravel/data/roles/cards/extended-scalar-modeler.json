@@ -8,11 +8,11 @@
   "family": "production",
   "id": "extended-scalar-modeler",
   "independence": {
-    "kind": "producer",
     "distinct_actor_from": [
       "coordinator"
     ],
-    "fresh_session": true
+    "fresh_session": true,
+    "kind": "producer"
   },
   "kind": "role-card",
   "knowledge": {
@@ -58,6 +58,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "scalar-population"
+    ]
+  },
   "protocol": [
     "Construct supplied extended-scalar populations in a declared basis, preserving signs, branches and theory constraints.",
     "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -83,8 +90,8 @@
   ],
   "schema_version": 2,
   "sees": {
-    "profile": "workspace",
-    "forbidden_inputs": []
+    "forbidden_inputs": [],
+    "profile": "workspace"
   },
   "stop": {
     "evidence_budget": 0,

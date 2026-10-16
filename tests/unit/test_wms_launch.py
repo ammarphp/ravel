@@ -745,3 +745,12 @@ def test_dependency_dispatched_inside_a_later_launch_is_attached_to_that_receipt
     rows = {row['id']: row for row in wms_launch.status(project)['tasks']}
     assert rows['first']['dispatches'] == 1 and rows['first']['dispatches_outside_launch'] == 0
     assert receipt['incomplete'] is None
+
+
+def test_local_project_refuses_site_job_options_and_preserves_legacy_config(project):
+    config = json.loads((project / 'workflow/project.json').read_text())
+    assert config['profile'] == 'local' and config['wms'] == wms_launch.WMS and 'site' not in config
+    with pytest.raises(ValueError, match='--jobs requires'):
+        wms_launch.launch(project, 'unused', jobs=2)
+    with pytest.raises(ValueError, match='site options require'):
+        wms_launch.init(project, audit=audit_files(project), jobs=2)

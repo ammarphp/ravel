@@ -1,21 +1,119 @@
 # Host enforcement in this release
 
-Codex, Gemini and opencode are hookless hosts: `pre_execution_guards: none`.
-Their optional `ravel-gate.sh` shims forward an explicit gate request; they do not register
-host events. Call `ravel gate` before consequential actions. Supervised launch authorization
-and the required delivery providers enforce their respective contracts in code.
+Hook capability, generated registration and observed enforcement are separate facts.
+The capability census below was read on 2026-10-15. No model session or native
+scientific program was launched to qualify these adapters.
 
-Claude Code reports `host-hooks` only with a host-emitted session variable and the project's
-wired PreToolUse Bash hook. Broker custody can establish `broker` for a pinned worker
-session. Environment declarations alone establish neither value. A path that calls
-`decision_gate.check` gives every host the same decision, including required-provider refusal
-and the earlier-run and invalid-contract rules; the [gate-wiring record](gate-wiring.md) lists
-the paths that call it. The operator commands record their text as the operator's, whoever runs
-them under that OS user: nothing in the record attests a human identity.
+| Host | Evidence and native configuration | Projected checks | Remaining limits |
+|---|---|---|---|
+| Claude Code | Existing `.claude/settings.json` lifecycle hooks retained | Bash admission, pristine cards, enforcement surface, deviations, prompt routing and existing observer/session/stop adapters | Native write tools are checked; arbitrary shell writes remain outside the write guard |
+| Codex CLI | Installed `0.162.0-alpha.17.2`; `--help` documents hook trust; `features list` reports `hooks stable true`; `.codex/hooks.json` | `PreToolUse`, `PostToolUse`, `UserPromptSubmit` delegate to shared Python guards | Project and current hook definitions must be trusted; actual host invocation unverified |
+| Gemini CLI | No executable found on PATH or checked standard install paths; official interface documented; `.gemini/settings.json` | `BeforeTool`, `AfterTool`, `BeforeAgent` delegate to the same guards | Installed version and runtime compatibility unverified |
+| opencode | No executable found on PATH or checked standard install paths; official plugin interface documented; `.opencode/plugins/ravel-guards.js` | `tool.execute.before` and `tool.execute.after` call shared guards; exceptions refuse calls | Installed version, runtime compatibility and prompt interception unverified |
+| Antigravity | Native hook format unverified | Explicit gate adapter and native PATH shims | Lifecycle and write checks require explicit calls |
 
-See [host governance](../workflow/hooks.md) for the gate CLI, interpreter installation,
-append-only enforcement records and extension surface. This describes
-implemented software guards; it does not claim live host qualification or scientific validity.
+Codex was inspected at
+`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex` with `--version`,
+`--help`, `debug --help` and `features list`. Gemini and opencode were checked via
+`command -v` and standard system/user executable locations; absence from these
+locations is not a claim that no copy exists anywhere on disk. Neither was installed
+or invoked over the network.
+
+Official sources: [Codex hooks](https://learn.chatgpt.com/docs/hooks),
+[Gemini hooks reference](https://geminicli.com/docs/hooks/reference/),
+[opencode plugins](https://opencode.ai/docs/plugins/).
+Codex command hooks accept event JSON on stdin and exit 2 with a reason on stderr
+to deny a supported pre-tool call. Its hook table is `{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"..."}]}]}}`;
+shell calls match `Bash`, native patches match `apply_patch` (also `Edit`/`Write`).
+Gemini uses the same group structure with `BeforeTool`/`AfterTool` and `BeforeAgent`;
+its timeout unit is milliseconds. opencode loads a JavaScript plugin exporting an
+async function returning event callbacks; the before callback reads `input.tool`
+and `output.args` and throws to refuse. The generated plugin uses only built-in
+runtime modules. Generated command hooks omit timeouts to use the host default.
+Prompt hooks are advisory, as in Claude's router: a routing failure warns on stderr
+and exits 0, because exit 2 would block the prompt (Codex) or drop it (Gemini).
+Tool hooks fail closed: an unavailable guard exits 2. Adapters find the nearest ancestor containing `.claude/settings.json`, then fall
+back to the Git root or the starting directory. Claude starts from
+`CLAUDE_PROJECT_DIR` when set; other command hooks start from the working directory,
+and the plugin starts from its host directory. This locates the local runtime even
+when the RAVEL project is nested inside another repository.
+The adapters inspect every tool event, translating documented shell/write arguments;
+they do not infer unknown tool semantics. MCP naming outside `mcp__server__tool`
+needs explicit admission through the site-tool gate below.
+
+The role renderer owns these projections and every host's `ravel-gate.sh`:
+
+```sh
+python -m ravel.workflow.role_registry --write --project .
+ravel agent-surface install --project /path/to/project
+ravel agent-surface check --project /path/to/project
+```
+
+The installer preserves foreign or modified configuration files and reports conflicts.
+A reported conflict means that registration needs manual integration before relying
+on it. `agent-surface check` reports the capability/enforcement level for all five
+hosts; this is a declaration of wiring and limits, not attestation that a host loaded
+or trusted it. Runtime `pre_execution_guards` remains `host-hooks` only with the
+existing host-emitted evidence and wired Claude hook, or `broker` with pinned broker
+custody; other contexts remain `none`. Configuration presence or an environment
+claim does not upgrade custody. No Codex/Gemini/opencode runtime attestation is inferred.
+
+## Native execution on every host
+
+Installation writes local `.ravel/bin/` shims for the executable names declared in
+`src/ravel/data/agent_surface/hooks.json`: generator, shower, detector simulation
+and workflow-manager entry points. It also writes local interpreter settings and
+an activation script. Activate in the shell environment used by the host:
+
+```sh
+. /path/to/project/.ravel/activate.sh
+```
+
+Each shim calls `execution_guard.decide`, resolves the active run and reuses its
+byte-bound CHECK-IN 1 approval verifier and live steering gate before `exec` of
+the next executable on PATH. Missing run, invalid/stale approval, unavailable guard
+or paused steering refuses before execution. Arguments and the executable exit
+status are preserved. The shim grants no approval or supervised launch receipt;
+use the normal supervised workflow for admitted work. Shims and activation files
+are local installer state, covered by the installation manifest and ignored by Git.
+Reinstall after moving a project or changing interpreter.
+
+PATH shims cover only the registered executable names while that directory heads
+PATH. **An absolute executable path bypasses a PATH shim.** Changing PATH, copying
+or renaming an executable, invoking it through an interpreter, and direct libraries
+also fall outside this boundary. Recognized shell commands can additionally be
+held by a loaded host hook, but lexical inspection is not a universal shell sandbox.
+Protected-file writes through arbitrary shell programs require an explicit gate;
+PATH shims do not intercept file writes. Rules in `.claude/rules` are host guidance;
+other hosts read the shared workflow guidance, with no native rules enforcement claim.
+RAVEL's supervised launch authorization, `decision_gate.check` and `execution_guard`
+retain their in-code checks regardless of host. Cached checks do not qualify physics.
+
+## Explicit write gates
+
+Every generated `ravel-gate.sh` forwards unchanged arguments and exit status:
+
+```sh
+ravel gate --project . --action protected_write --path /path/to/destination --json
+ravel gate --project . --action deviation_check --path /path/to/input --json
+```
+
+The first refuses configured pristine-card writes and enforcement-surface changes
+in a physics session. Card protection is enabled only by the card hook registration
+in the same project's `.claude/settings.json`; public settings omit that registration.
+When enabled, `RAVEL_PROTECTED_CARD_ROOT` overrides the default root derived from
+Git's common directory, matching the source hook across linked worktrees. The second also checks required deviation records and current approved
+input bytes. The shared Python owner resolves relative paths, patch destinations,
+moves and symlink aliases for native write tools. A changed approved input still
+requires amendment and reapproval; a deviation note does not renew approval.
+Claude's existing post-edit guard retains its timing and failure behavior. Native
+adapters protect records before writes and check deviations after completion;
+post-tool checks can report a violation but cannot undo a completed write.
+
+See [host governance](../workflow/hooks.md) for explicit decision gates, interpreter
+installation and append-only records, and the [gate-wiring record](gate-wiring.md)
+for the code paths that enforce decisions. Operator records attest the supplied
+text under the executing OS user, not a human identity.
 
 ## Site tool servers
 
@@ -84,9 +182,9 @@ Use the governed acquisition or execution route for outputs and subsequent stage
 
 Generated declarations live under `.ravel/site-tools/<host>.json`. The role
 renderer generates them for Claude, Codex, Gemini, opencode, Antigravity and
-RAVEL's governed node host. Their common matcher is `mcp__.*`. Hookless hosts
-still report `pre_execution_guards: none`: their declarations require explicit
-pre-call admission and post-call observation, not fictitious automatic hooks.
+RAVEL's governed node host. Their common matcher is `mcp__.*`. Hosts without runtime hook custody still report `pre_execution_guards: none`.
+Only Claude's existing adapter has the full native MCP observer wiring; use explicit
+pre-call admission and post-call observation for other tool naming conventions.
 Pass host tool-call JSON (`tool_name`, `tool_input`, optional `session_id`, `cwd`,
 and after execution `tool_response`) on stdin:
 

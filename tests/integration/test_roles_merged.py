@@ -139,7 +139,7 @@ def test_shipped_voting_route_does_not_claim_live_qualification():
     assert shipped['qualification']['status'] != 'live_qualified'
 
 
-def test_t_m1_real_transport_truth_table_matches_recorded_roles(tmp_path, monkeypatch):
+def test_t_m1_real_transport_truth_table_matches_recorded_roles(tmp_path, monkeypatch, require_sandbox):
     registry = _module('role_registry')
     transport = _module('transport_registry')
     if not hasattr(transport, 'is_voting') or not transport.is_voting({'independence': {'kind': 'voting'}}):

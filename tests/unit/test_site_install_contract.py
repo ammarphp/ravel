@@ -97,15 +97,15 @@ def test_missing_or_unhashed_lock_refuses_before_venv(tmp_path, monkeypatch):
 def test_lock_generator_uses_fake_uv(tmp_path):
     root = tmp_path / 'checkout'
     (root / 'scripts/setup').mkdir(parents=True)
-    shutil_source = SOURCE / 'scripts/setup/lock_site_wms.sh'
-    (root / 'scripts/setup/lock_site_wms.sh').write_text(shutil_source.read_text())
+    shutil_source = SOURCE / 'scripts/setup/lock-site-wms.sh'
+    (root / 'scripts/setup/lock-site-wms.sh').write_text(shutil_source.read_text())
     (root / 'requirements-site-wms.in').write_text('snakemake==9.27.0\n')
     tools = tmp_path / 'tools'; tools.mkdir()
     uv = tools / 'uv'
     uv.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$UV_ARGS"\nwhile [ "$#" -gt 0 ]; do\n'
                   ' if [ "$1" = --output-file ]; then shift; echo "# inert lock" > "$1"; fi\n shift\ndone\n')
     uv.chmod(0o755)
-    result = subprocess.run(['bash', str(root / 'scripts/setup/lock_site_wms.sh')],
+    result = subprocess.run(['bash', str(root / 'scripts/setup/lock-site-wms.sh')],
         env=dict(os.environ, PATH=str(tools) + ':' + os.environ['PATH'], UV_ARGS=str(tmp_path / 'args')),
         capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

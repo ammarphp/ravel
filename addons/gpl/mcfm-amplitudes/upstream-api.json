@@ -8,7 +8,7 @@
   "point_convention": "all-outgoing(px,py,pz,E),GeV",
   "cross_section": "fb; gridJacobian/N applied exactly once",
   "rng": "C++ std::mt19937_64; source uniform_real_distribution<double>",
-  "native_execution_qualified": false,
+  "native_execution_qualification": "recorded per platform in native/setup/toolchain-manifest.json, group mcfm-amplitudes",
   "source_files": {
     "CMakeLists.txt": "7670a0cb67f4cdc3eefc0c37d9605df9a660e3e47d1759f9faefbf23be8c47a1",
     "src/ZZ/gg_ZZ_all.f": "32e79086a20b2e122176b7c1b57e48ffbf581402f1d2ebfdde13f7078b45ac3b",
@@ -46,17 +46,21 @@
     "src/Need/includedipole.f": "e90b7b8782ca9f6d119a0d7b6302a6ae8921258ea1d7f2da0d3901df1f91ed07",
     "src/Need/masscuts.f": "6522d22a4f08201f97fe114f4d50b09e46330fe0a16c3f2c9d93ea3516e82fde",
     "src/Inc/zcouple_cms.f": "722e81493cfd2216f762d6e588e5dce63a7a715503c2a944e73c900fbf3790b7",
-    "src/Inc/cpscheme.f": "78c764c98568dac82a116111da8c135b4bb3b574167b0ce9d917d8bb426ab400"
+    "src/Inc/cpscheme.f": "78c764c98568dac82a116111da8c135b4bb3b574167b0ce9d917d8bb426ab400",
+    "src/Need/smallnew.f": "e84f887cbb32cd55d348b159f6bd54a125084832f66068a7f9e2e2ce6b368c55",
+    "src/Need/dot.f": "c1e3d601f59575c4aace138d85ad6e532f590b177a8ae42ff12fadb6079cfa78",
+    "src/Inc/npart.f": "bbdddacf6f7c2599885ff32aa48ce9e2667ee885d31e80d580dcab94a22a2121"
   },
-  "overlay_lowint_sha256": "ec6445fc0a2c34033e4c88ef65f1efbcef5277c13f4bd9ab959deadd5a1e3f24",
+  "overlay_lowint_sha256": "91d3819821c0a0e8fc7ef0474b55e057e43e6f0c2281f82581319e3845505f03",
   "rng_coordinates": "12 uniform draws,10 mapped dimensions; original pairing branch separately retained",
-  "native_record_schema": "RAVEL_MCFM_2 with complete initialized DOMAIN record",
+  "native_record_schema": "RAVEL_MCFM_3 with complete initialized DOMAIN record and a SAFETY header; a draw below a declared safety cut (the Z pT cut or lowint's small safety cut) is an EXCLUDE record",
   "source_domain": {
     "pt34min_gev": 0,
+    "ptz_safety_cut_gev": "0.1, src/ZZ/getggZZamps.f ptZsafetycut_massless and ptZsafetycut_massive; declared in addon.json protocol.safety_cuts and applied by the overlay at sampling",
     "cutoff_gev2": 0,
     "initialized_pair_upper_squared_gev2": "(13000*0.9999)^2; original parseinput clamp retained",
     "initialized_four_lepton_upper_gev": 13000,
-    "smallnew_safety": "original lowint passed_smallnew(p,npart,1d-9) retained; numerical qualification unresolved",
+    "smallnew_safety": "original lowint passed_smallnew(p,npart,1d-9) retained (src/Need/smallnew.f); declared in addon.json protocol.safety_cuts and applied at sampling, also to supplied points",
     "physical_flow_coverage_qualified": false
   }
 }

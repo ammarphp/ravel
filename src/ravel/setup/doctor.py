@@ -555,7 +555,7 @@ def group_label(group, status, rows):
     return entry
 
 
-def select_groups(manifest, *, profile=None, groups=None, mode=None):
+def select_groups(manifest, *, profile=None, groups=None, mode=None, platform_key=None):
     if groups:
         unknown = [g for g in groups if g not in mf.by_id(manifest)]
         if unknown:
@@ -564,7 +564,7 @@ def select_groups(manifest, *, profile=None, groups=None, mode=None):
     if mode:
         row = next((r for r in manifest.get("operations", []) if r["mode"] == mode), None)
         return mf.profile_groups(manifest, only=row["groups"] if row else ["python-host"])
-    return mf.profile_groups(manifest, profile)
+    return mf.profile_groups(manifest, profile, platform_key=platform_key)
 
 
 def format_report(report):
@@ -637,7 +637,8 @@ def main(argv=None, *, repo=None, environ=None, run_probe=probe):
         doctor = Doctor(repo, prefix, platform_key, manifest, catalog, environ=environ, run_probe=run_probe)
         if args.record_host_config:
             host_config.record(doctor.values["CONFIG"], doctor.environ.get("HOME") or str(Path.home()), replace=True)
-        report = doctor.report(select_groups(manifest, profile=args.profile, groups=args.group, mode=args.mode),
+        report = doctor.report(select_groups(manifest, profile=args.profile, groups=args.group, mode=args.mode,
+                                          platform_key=platform_key),
                                profile=(args.profile or "default") if not (args.group or args.mode) else None)
         if args.census:
             report['tool_census'] = doctor.census_report()

@@ -529,6 +529,12 @@ def generate(rd, spec, out=None):
         model=model_identity, beams=plan.get("beam_content"), pdf=plan.get("pdf"),
         points=point_rows, weight_convention=results[0][1]["recipe"]["weight_convention"],
         cross_section_only=bool(g.get("cross_section_only")), transform=transform_record, shower=shower_record)
+    from ravel.physics import generation_conventions
+    receipt["generation_convention"] = generation_conventions.build(card.read_text(),
+        {"path": str(card), "sha256": receipts.file_record(card, out)["sha256"]},
+        plan["generation_convention"]["model"], g.get("conventions"))
+    if receipt["generation_convention"]["processes"] != plan["generation_convention"]["processes"]:
+        raise ValueError("executed coupling-order constraints differ from generation planning")
     atomic_json(out / "generation-receipt.json", receipt)
     if batch or g.get("cross_section_only"):
         plot_cross_sections(out, result if batch else {"points": [{"id": "single", "cross_section_pb": result["cross_section_pb"],

@@ -15,7 +15,9 @@
   "shim_paths": {
     "claude": ".claude/ravel-gate.sh",
     "codex": ".codex/ravel-gate.sh",
-    "gemini": ".gemini/ravel-gate.sh"
+    "gemini": ".gemini/ravel-gate.sh",
+    "antigravity": ".antigravity/ravel-gate.sh",
+    "opencode": ".opencode/ravel-gate.sh"
   },
   "site_tools": {
     "matcher": "mcp__.*",
@@ -26,5 +28,41 @@
     "input": "host tool-call JSON on stdin; pass --project and optionally --rundir",
     "scope": "CHECK-IN 1 sections.site_tools: exact tool name, tool_input_sha256 and effects",
     "hookless": "Explicit check before call and observation after call; no automatic host event registration"
+  },
+  "native_executables": [
+    "mg5_aMC",
+    "mg5",
+    "generate_events",
+    "madevent",
+    "pythia_shower",
+    "DelphesHepMC",
+    "DelphesHepMC2",
+    "DelphesHepMC3",
+    "DelphesSTDHEP",
+    "DelphesLHEF",
+    "snakemake",
+    "pythia_shower.py",
+    "DelphesPythia8",
+    "ravel-snakemake"
+  ],
+  "adapters": {
+    "codex": {
+      "path": ".codex/hooks.json",
+      "pre": "PreToolUse",
+      "post": "PostToolUse",
+      "prompt": "UserPromptSubmit"
+    },
+    "gemini": {
+      "path": ".gemini/settings.json",
+      "pre": "BeforeTool",
+      "post": "AfterTool",
+      "prompt": "BeforeAgent"
+    },
+    "opencode": {
+      "path": ".opencode/plugins/ravel-guards.js",
+      "pre": "tool.execute.before",
+      "post": "tool.execute.after",
+      "prompt": null
+    }
   }
 }

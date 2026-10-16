@@ -133,7 +133,7 @@ def _load(path):
     # output numbers, previous candidates or a producer-authored answer program.
     texts = []
     total = 0
-    for fact in capsule["files"]:
+    for fact in sorted(capsule["files"], key=lambda row: row["path"]):
         p = root / fact["path"]; size = p.stat().st_size; total += size
         if total > config["max_source_bytes"]:
             raise ValueError("declared source byte bound exceeded")

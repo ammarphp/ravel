@@ -601,7 +601,37 @@ def _render_spec(scan, spec, *, write=True):
               'outputs': copy.deepcopy(spec['outputs']), 'layers': [],
               'population': [{'coordinates': {k: p[axes[k]['column']] for k in axes},
                               'tag': p.get('tag'), 'limits': read_limits(p).to_dict()} for p in points]}
+    missing_rows = []
+    present = {p.get('tag') for p in points}
+    for row in scan.get('point_population', []):
+        if row['tag'] not in present:
+            coords = row.get('parameters', {})
+            # A line's y column is usually a quantity; a hole has only its x coordinate.
+            if axes['x']['column'] not in coords:
+                raise PlotInputError('missing point coordinates required to preserve holes', 'invalid_plot_input')
+            missing_rows.append(coords)
+    marked = [p for p in points if p.get('overridden')]
+    marked += [{**row, **row['parameters']} for row in scan.get('point_population', [])
+               if row.get('overridden') and row['tag'] not in present]
+    report['overridden_points'] = [{k: p.get(k) for k in ('tag', 'regime', 'receipt_sha256')} for p in marked]
     try:
+        placed = [p for p in marked if axes['y']['column'] in p]
+        unplaced = [p for p in marked if axes['y']['column'] not in p]
+        if placed:
+            ax.scatter([p[axes['x']['column']] for p in placed], [p[axes['y']['column']] for p in placed],
+                       marker='D', facecolors='none', edgecolors='darkorange', zorder=8, label='Overridden settings')
+            for p in placed:
+                ax.annotate(p['regime'], (p[axes['x']['column']], p[axes['y']['column']]),
+                            xytext=(5, 5), textcoords='offset points', fontsize=8)
+        if unplaced:
+            # Missing overridden points without a y value are marked along the x axis.
+            transform = ax.get_xaxis_transform()
+            ax.scatter([p[axes['x']['column']] for p in unplaced], [0.03] * len(unplaced), transform=transform,
+                       marker='D', facecolors='none', edgecolors='darkorange', zorder=8,
+                       label=None if placed else 'Overridden settings')
+            for p in unplaced:
+                ax.annotate(p['regime'], (p[axes['x']['column']], 0.03), xycoords=transform,
+                            xytext=(5, 5), textcoords='offset points', fontsize=8)
         for layer in spec['layers']:
             kind = layer['kind']; result = {'kind': kind, 'label': layer['label']}
             color = layer.get('color', 'black')
@@ -622,21 +652,30 @@ def _render_spec(scan, spec, *, write=True):
                     if (~valid).any():
                         ax.scatter(x[~valid], y[~valid], marker='x', color='0.5', label='Bounds or missing limits')
                 elif kind in ('line', 'band'):
-                    order = np.argsort(x)
+                    line_x = np.r_[x, [r[axes['x']['column']] for r in missing_rows]]
+                    line_mu = np.r_[mu, [np.nan] * len(missing_rows)]
+                    order = np.argsort(line_x)
                     if len(set(x)) != len(x):
                         raise PlotInputError('line requires one point per x coordinate', 'invalid_plot_input')
                     if kind == 'line':
-                        ax.plot(x[order], mu[order], color=color, label=layer['label'])
+                        ax.plot(line_x[order], line_mu[order], color=color, label=layer['label'])
                     else:
                         low, high = (np.array([_plot_value(p, i) for p in points]) for i in layer['indices'])
                         if axes['y']['scale'] == 'log' and any(np.any(v[np.isfinite(v)] <= 0) for v in (low, high)):
                             raise PlotInputError('band crosses zero on log axis', 'invalid_plot_input')
-                        ax.fill_between(x[order], low[order], high[order], color=color,
+                        low = np.r_[low, [np.nan] * len(missing_rows)]
+                        high = np.r_[high, [np.nan] * len(missing_rows)]
+                        ax.fill_between(line_x[order], low[order], high[order], color=color,
                                         alpha=layer.get('alpha', .3), label=layer['label'])
                 elif kind == 'contour':
-                    tx = np.log10(x) if axes['x']['scale'] == 'log' else x
+                    if any(axes['y']['column'] not in r for r in missing_rows):
+                        raise PlotInputError('missing point coordinates required to preserve holes', 'invalid_plot_input')
+                    contour_x = np.r_[x, [r[axes['x']['column']] for r in missing_rows]]
+                    contour_y = np.r_[y, [r[axes['y']['column']] for r in missing_rows]]
+                    contour_mu = np.r_[mu, [np.nan] * len(missing_rows)]
+                    tx = np.log10(contour_x) if axes['x']['scale'] == 'log' else contour_x
                     try:
-                        tri, values = _supported_triangulation(tx, y, mu, logy=axes['y']['scale'] == 'log')
+                        tri, values = _supported_triangulation(tx, contour_y, contour_mu, logy=axes['y']['scale'] == 'log')
                     except ValueError as error:
                         result['unavailable'] = str(error)
                     else:

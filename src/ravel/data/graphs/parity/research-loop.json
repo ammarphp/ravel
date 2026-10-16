@@ -17,7 +17,7 @@
       "workflow/graphs/__init__.py": "ee5395aa2eaa9e21639a850cef319d9a2ee58bc1c0e6ecb27d68b401458b2a43",
       "workflow/graphs/research_loop.py": "a37955a194a875d695c98a42f2bbb49a388e4b5cda261d00fb3cd695ef9a0880",
       "workflow/graphs/stage.py": "3c08b4ea0d50bee76c79dcc2ea5936c50753fff003a5f456cd891be19011b781",
-      "workflow/research_orchestrator.py": "4313182c63bdefe2923daca1c3ac92dc04f5c8754b7251fd28ed257e996e70d1"
+      "workflow/research_orchestrator.py": "cd982feeb1aabe1f5c82407b30b5d58232280f2b8058dfe8e3f9e31744c4bdb8"
     },
     "structure_sha256": "2766b92b93cfbcc10dce0828568c848bcb3a2e3aff5dc582d11809e1c70d67a7",
     "version": 1
@@ -33,28 +33,28 @@
   "fixtures": [
     {
       "equal": true,
-      "graph_sha256": "a38c3ee75b8511b2744b48bfb5578dbffc9184118e7ed14d57396a9e03e084b7",
+      "graph_sha256": "742861f87e6f372faea1ae739b47ccb74f824de9cea3ea93afff869d5aa8dfba",
       "id": "open-question-baseline-failure",
-      "legacy_sha256": "a38c3ee75b8511b2744b48bfb5578dbffc9184118e7ed14d57396a9e03e084b7",
+      "legacy_sha256": "742861f87e6f372faea1ae739b47ccb74f824de9cea3ea93afff869d5aa8dfba",
       "test": "tests/unit/test_research_loop_graph.py::test_open_question_engines_agree_where_both_stop_on_the_baseline_failure"
     },
     {
       "equal": true,
-      "graph_sha256": "71e9461b1a0c24ae904b576865ea25dcb029b3cd0fa526b0baab191278414035",
+      "graph_sha256": "c28b0ea878b85d7a7d52f91b8cdbfa085a522d7be41564d49a6c4e9fd16fca6f",
       "id": "synthetic-open-question",
-      "legacy_sha256": "71e9461b1a0c24ae904b576865ea25dcb029b3cd0fa526b0baab191278414035",
+      "legacy_sha256": "c28b0ea878b85d7a7d52f91b8cdbfa085a522d7be41564d49a6c4e9fd16fca6f",
       "test": "tests/unit/test_research_loop_graph.py::test_open_question_runs_equal_on_both_engines"
     },
     {
       "equal": true,
-      "graph_sha256": "052ea74979330b6b0ca2a5b78815df6768422bea8fd177b74674995e22fa2df9",
+      "graph_sha256": "3c7de60f6322c0adefd1d1e7ad9abf57939567d710c10eb2d5b1b25f535d74da",
       "id": "synthetic-protocol-stages",
-      "legacy_sha256": "052ea74979330b6b0ca2a5b78815df6768422bea8fd177b74674995e22fa2df9",
+      "legacy_sha256": "3c7de60f6322c0adefd1d1e7ad9abf57939567d710c10eb2d5b1b25f535d74da",
       "test": "tests/unit/test_research_loop_graph.py::test_stage_graph_matches_the_legacy_stage_runner_through_the_first_r2_stage"
     }
   ],
   "kind": "graph-parity-record",
   "note": "R2 and higher stages need distinct-family critics, which need per-role stage models (prepare_stage role_models); the fixtures stop at the first R2 stage, which both engines refuse at dispatch. complete_stage re-checks a stage reservation with the campaign's inherited goal binding on both engines (test_goal_bound_stage_completion).",
   "schema_version": 2,
-  "sha256": "df974a89d6d0d8e3740db7e9e723cbc3da4ae808291764882b83702c875f48f1"
+  "sha256": "3be7b2dc25c6fcec11c85f05edb3cfc1a6f73b078c8d475f67affc720fd4bacb"
 }

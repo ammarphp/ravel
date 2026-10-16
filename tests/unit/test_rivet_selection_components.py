@@ -224,7 +224,8 @@ def test_whole_source_materialization_enters_existing_construction_and_build(tmp
     cp = tmp_path/'constructed-source.json'; cp.write_text(json.dumps(fresh))
     analysis_sources.source_files(fresh, tmp_path)
     assert analysis_sources.routine_bindings(fresh, tmp_path, ['Unknown.cc'])['Unknown']['registration'] != 'declared-capsule-primary'
-    assert fresh['files'][1:] == original['files'][1:]
+    assert [f for f in fresh['files'] if f['role'] != 'compile'] == [
+        f for f in original['files'] if f['role'] != 'compile']
     assert not fresh['dependency_review']['complete']
     # Existing full-source construction consumes complete C++ and explicit recipe;
     # it does not claim the deterministic compiler was a fresh model generation.

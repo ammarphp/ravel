@@ -64,7 +64,8 @@ def write(path, document):
 def write_regions(path, names, sumw, sumw2, *, provenance):
     return write(path, binned_values.build(axes=[{'name': 'region_index', 'unit': '1'}], unit='sum of event weights',
         bins=[{'low': [i], 'high': [i+1], 'value': sumw[name], 'sumw2': sumw2[name]} for i, name in enumerate(names)],
-        normalization={'kind': 'unnormalized'}, provenance={**provenance, 'region_order': list(names)}))
+        normalization={'kind': 'unnormalized'}, provenance={**provenance, 'region_order': list(names)},
+        quantity={'weight_convention': 'signed'}))
 
 
 def write_stream(delivery, output):

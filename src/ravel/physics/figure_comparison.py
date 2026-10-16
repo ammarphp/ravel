@@ -23,7 +23,7 @@ from pathlib import Path
 SCOPE = 'declared_figure_digitisation_and_reference_comparison'
 OUTPUT = 'figure-comparison'
 KINDS = ('digitize', 'compare', 'parameter-plane', 'measurement-overlay')
-FILE_KEYS = ('path', 'digitized', 'hepdata', 'inference')
+FILE_KEYS = ('path', 'digitized', 'hepdata', 'inference', 'study_grid')
 MAX_OPERATIONS = 200
 
 
@@ -81,6 +81,17 @@ def _plan(task, base):
             raise ValueError(f'digitisation {op["name"]} needs a source path')
         files.append(spec_path)
         files.extend(resolve(spec_dir, value) for value in referenced)
+        if op['kind'] == 'parameter-plane':
+            # Harvest surfaces read their exact result artifacts as well as the
+            # harvest itself; ordinary figure approval must bind those bytes.
+            from ravel.plotting.parameter_plane import _grid_from_study_harvest
+            from ravel.plotting.reference_metrics import _Recorder
+            for panel in spec.get('panels', []):
+                grid = panel.get('grid', {})
+                if 'study_grid' in grid:
+                    recorder = _Recorder()
+                    _grid_from_study_harvest(grid, spec_dir, recorder)
+                    files.extend(Path(path) for path in recorder.pins)
         plan.append((op, spec_path))
         seen.append(op['name'])
     return plan, list(dict.fromkeys(files))

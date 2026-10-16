@@ -1406,10 +1406,20 @@ def check_fit_reference(reference=None):
     # Capture identity before fitting and refuse changed source bytes afterwards.
     paths = [Path(reference[key]) for key in ("background", "patch")]
     pins = [hashlib.sha256(path.read_bytes()).hexdigest() for path in paths]
-    model, data = model_from_likelihood(*paths)
-    robust_optimizer.escalated = False
-    pars, nll = pyhf.infer.mle.fit(data, model, return_fitted_val=True)
-    actual = {"mu_hat": float(pars[model.config.poi_index]), "twice_nll": float(nll)}
+    # The reference comparison uses this engine's guarded NumPy optimizer.
+    # Other in-process clients can replace pyhf's global optimizer after this
+    # module was imported; the default SLSQP can report success at the initial
+    # point on constrained models. Scope the policy to this call and restore
+    # the caller's backend, precision and optimizer even on a failed fit.
+    previous_backend = pyhf.get_backend()
+    try:
+        pyhf.set_backend("numpy", robust_optimizer(maxiter=200000), precision="64b")
+        model, data = model_from_likelihood(*paths)
+        robust_optimizer.escalated = False
+        pars, nll = pyhf.infer.mle.fit(data, model, return_fitted_val=True)
+        actual = {"mu_hat": float(pars[model.config.poi_index]), "twice_nll": float(nll)}
+    finally:
+        pyhf.set_backend(*previous_backend)
     if pins != [hashlib.sha256(path.read_bytes()).hexdigest() for path in paths]:
         raise ValueError("selected reference input changed during fit")
     checks = {name: bool(np.isfinite(value) and abs(value - expected[name]["value"])

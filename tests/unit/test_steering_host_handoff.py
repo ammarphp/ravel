@@ -16,7 +16,8 @@ HOST = 'host-subagent-claude'
 
 
 @pytest.fixture
-def run(tmp_path, monkeypatch):
+def run(short_tmp_path, monkeypatch):
+    tmp_path = short_tmp_path
     monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path / 'state'))
     monkeypatch.delenv('RAVEL_WORK_ROOT', raising=False)
     monkeypatch.setattr(gs, 'stop', lambda *a, **kw: {})

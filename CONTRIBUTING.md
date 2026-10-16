@@ -62,6 +62,42 @@ python3.12 -m venv .venv-replay
 
 The complete installer above is the default development setup.
 
+The public test matrix installs this hash lock first and constrains the editable
+package installation to those resolved versions. It partitions the sorted test
+files into eight shards and runs a fresh pytest process for every file. The long
+files listed in `ci_shards.LONG` each run in a job of their own:
+
+```bash
+python scripts/maintenance/ci_shards.py --index 0 --count 8 --run --file-timeout 2400
+python scripts/maintenance/ci_shards.py --long tests/unit/test_wms_retry.py --run --file-timeout 16200
+```
+
+The runner retains every file's exit status, continues after failures, prints file
+and shard timings, and supplies a short private temporary root for Unix sockets.
+This runner sets umask `0002` for every pytest child; helper executables used by
+permission checks must explicitly set mode `0700`. Cluster rehearsals using other
+launchers must set `0002` inside the remote test process too: a batch script can
+reset the invoking shell's umask. Include a run with the sandbox unavailable.
+Shared runners can take substantially longer than cluster nodes. Tests of custody
+or presentation should inject a scoped clock rather than depend on elapsed wall
+time; deadline tests must retain explicit clock advancement and exhaustion checks.
+A file that reaches its time limit is stopped with its process group, reported as
+`exit=timeout` and counted as failed; a test still running two minutes before the
+file's limit dumps its thread tracebacks to the log once, so a hang names its test and
+waiting line.
+The Linux CI job installs bubblewrap, logs and disables the AppArmor restriction
+on unprivileged user namespaces when that sysctl exists, and requires the actual
+worker denial probe to succeed before testing. Tests that need real confinement
+skip with `sandbox-blocked` when its launcher is unavailable; a failed denial
+remains a test failure. Inert transport controls still run without a launcher.
+
+Do not infer numerical drift from a shared pytest process alone: module imports,
+optimizer state and loaded-runtime custody can survive between files. Preserve
+and restore global numerical backends in tests that change them. The reference-fit
+API scopes its guarded NumPy optimizer and restores its caller's backend. Source exports
+bind package source/data bytes and membership, excluding generated `__pycache__`
+trees; they do not depend on checkout timestamps.
+
 ## Preserve scientific inputs
 
 Keep upstream physics inputs attributable.

@@ -259,7 +259,7 @@ def test_the_repository_ships_the_hashed_site_wms_lock():
     # their own temporary roots (site_install_fixture), never in place of this file.
     lock = ROOT / 'requirements-site-wms.lock'
     assert lock.is_file() and (ROOT / 'requirements-site-wms.in').is_file()
-    assert (ROOT / 'scripts/setup/lock_site_wms.sh').is_file()
+    assert (ROOT / 'scripts/setup/lock-site-wms.sh').is_file()
     text = lock.read_text()
     pins = re.findall(r'^([A-Za-z0-9_.-]+)==\S+(?: ;[^\n]*)? \\$', text, re.M)
     assert pins and 'snakemake' in pins

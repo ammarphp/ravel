@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.2.0
+
+Adds governed HTCondor launches, project-wide provider defaults, MCFM amplitudes and the capabilities below.
+
+**Facility runs**
+
+- HTCondor projects: `ravel wms init --profile htcondor` pins a site profile, declares shared state and a job ceiling, and launches with zero scheduler retries. Only the exact approved launch command is admitted.
+- Batch-slot leases in the HTCondor job scratch directory.
+- A project default for data classification and the provider allowlist. Every new run inherits it, and a run or an amendment can only narrow it. A missing or altered default refuses dispatch.
+
+**Scans and grids**
+
+- Study grids: prepared study manifests across a grid of batch allocations, with bounded concurrency, explicit supersession and typed harvest.
+- Per-point setting overrides for native scans and study grids. Overrides are part of the point identity, run as separate attempts, and are marked in harvests and plots.
+- Native quantity outputs carry their hashes; harvest refuses a missing, unlisted or changed file.
+
+**Calculations**
+
+- MCFM per-point helicity amplitudes for interfering resonances, released and qualified on Linux x86_64.
+- A producer's phase-space safety cuts apply when each point is drawn, so exposure and normalization stay exact for the restricted phase space.
+
+**Checks on scientific work**
+
+- Generation coupling-order conventions are recorded, and a fit whose terms, basis, scheme or cutoff differ from the generation is refused.
+- Quantity descriptors are checked on every composition edge, including weight conventions.
+- One owner per scientific quantity; a graph with two producers of the same quantity is refused.
+- Review findings are classified: defects go to repair at their exact target, limitations go to the census and narrow or withdraw the claim.
+
+**Agent hosts**
+
+- One shared guard for every host. Codex, Gemini, opencode and Antigravity get generated hook adapters and gate shims, and each host's enforcement level is documented.
+- Approval-checked PATH shims for native tools.
+
+**Testing**
+
+- Linux portability fixes.
+- Public CI runs each test file in its own time-limited process; the two long files run in jobs of their own.
+
 ## 1.1.0
 
 Restores the general analysis knowledge removed in 1.0.0 and adds the capabilities below.

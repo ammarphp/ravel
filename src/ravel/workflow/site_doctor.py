@@ -1,4 +1,4 @@
-"""Readiness checks for a Linux analysis site (for example lxplus or an analysis facility).
+"""Readiness checks for an HTCondor analysis facility or other Linux batch site.
 
 ``ravel site doctor`` reports whether the pieces a long agent-driven analysis
 needs are present: Python 3.12, a grid proxy with enough lifetime, a Kerberos
@@ -10,7 +10,8 @@ Declare ``--run-hours`` and ``--ticket-lifetime-hours`` for renewal guidance.
 Use ``--prefix``, ``--run-root`` and ``--transcript`` with
 ``--planned-install-gib`` and ``--min-home-free-gib`` to check a storage plan.
 ``--site-record`` reads the same JSON site block as the batch backend. Named
-``analysis-facility`` uses SLURM with the same tool and credential checks.
+``analysis-facility`` defaults to Slurm; ``--site-record`` overrides that default,
+including scheduler and credential requirements for an HTCondor analysis facility.
 It never prints credential contents: it runs ``klist -s`` (exit status only)
 and ``voms-proxy-info --timeleft`` (seconds only). The EOS probe writes one small
 file in the directory you name and removes it.

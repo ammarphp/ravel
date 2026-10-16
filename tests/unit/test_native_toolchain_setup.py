@@ -83,4 +83,5 @@ def test_research_host_and_python_profiles_are_required():
     assert host["argv"][-1] == "{REPO}/scripts/setup/python_installation.py"
     assert "{REPO}/.venv-smodels/bin/python" in host["outputs"]
     assert "{REPO}/.venv-sfitter/bin/python" in host["outputs"]
-    assert all(group["id"] in mf.profile_groups(MANIFEST) for group in MANIFEST["groups"] if group["id"] not in mf.unreleased_groups(MANIFEST))
+    selected = mf.profile_groups(MANIFEST, platform_key="linux-x86_64")
+    assert all(group["id"] in selected for group in MANIFEST["groups"] if group["id"] not in mf.unreleased_groups(MANIFEST))

@@ -114,6 +114,8 @@ def _pin(pin):
 def validate(spec):
     """Validate a finite DAG; dependencies schedule, never implicitly expose context."""
     _keys(spec, {"schema_version", "graph_id", "budget", "nodes", *({"goal_binding"} if "goal_binding" in spec else set()),
+                 *({'quantity_handoffs'} if 'quantity_handoffs' in spec else set()),
+                 *({'required_quantity_kinds'} if 'required_quantity_kinds' in spec else set()),
                  *({'data_classification'} if 'data_classification' in spec else set())}, "agent graph")
     if 'data_classification' in spec:
         from .provider_policy import classification
@@ -136,7 +138,8 @@ def validate(spec):
     nodes = {}
     canonical = deepcopy(spec)
     for node in canonical["nodes"]:
-        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts"}, "graph node")
+        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts",
+                     *({'registry_role'} if 'registry_role' in node else set())}, "graph node")
         _id(node["id"], "node ID")
         if node["id"] in nodes:
             raise GraphError("duplicate node ID")
@@ -204,6 +207,44 @@ def validate(spec):
         seen.add(node_id)
     for node_id in nodes:
         walk(node_id)
+    from . import role_registry
+    assignments = {}
+    for node in nodes.values():
+        identity = node.get('registry_role')
+        if node['kind'] in {'agent', 'map'}:
+            worker = node['parameters']['spec']
+            if node['kind'] == 'map':
+                worker = worker['spec']
+            worker_identity = worker['role']['id']
+            # A scheduler label names a graph role, not a scientific specialist;
+            # only an explicit registry binding then assigns quantity ownership.
+            if worker_identity not in ROLES:
+                if identity is not None:
+                    if type(identity) is not str:
+                        raise GraphError('registered scientific role must be text')
+                    try:
+                        resolved = role_registry.resolve_names([identity, worker_identity])
+                    except ValueError as exc:
+                        raise GraphError(str(exc)) from exc
+                    if resolved[identity] != resolved[worker_identity]:
+                        raise GraphError('registry role differs from dispatched worker role')
+                identity = worker_identity
+        if identity is not None:
+            if type(identity) is not str:
+                raise GraphError('registered scientific role must be text')
+            assignments[node['id']] = identity
+    required = canonical.get('required_quantity_kinds', [])
+    if type(required) is not list or any(type(k) is not str for k in required) or len(set(required)) != len(required):
+        raise GraphError('required quantity kinds must be a unique text list')
+    try:
+        role_registry.validate_ownership(assignments, canonical.get('quantity_handoffs', []), required_kinds=required)
+        for handoff in canonical.get('quantity_handoffs', []):
+            def precedes(source, target):
+                return source in nodes[target]['depends_on'] or any(precedes(source, dep) for dep in nodes[target]['depends_on'])
+            if not precedes(handoff['from'], handoff['to']):
+                raise GraphError('quantity handoff requires a scheduling dependency')
+    except (ValueError, KeyError, TypeError) as exc:
+        raise GraphError(str(exc)) from exc
     return canonical
 
 
@@ -238,12 +279,13 @@ def create(root, spec):
     root = _path(str(root))
     from . import provider_policy
     declaration = spec.get('data_classification')
-    inherited = provider_policy.inherited_declaration(root.parent)
+    inherited = provider_policy.inherited_declaration(root.parent, include_project=False)
     if declaration is not None and inherited is not None and declaration != inherited:
         raise provider_policy.PolicyRefused('child graph cannot override its run data classification')
     if declaration is None:
         declaration = inherited
-    provider_policy.validate_start(declaration, [p for n in spec['nodes'] for p in n['inputs']])
+    declaration = provider_policy.validate_run_start(
+        root, declaration, [p for n in spec['nodes'] for p in n['inputs']])
     root.mkdir(parents=True, exist_ok=False)
     provider_policy.start(root, data_classification=declaration,
                           input_pins=[p for n in spec['nodes'] for p in n['inputs']])
@@ -812,16 +854,54 @@ def _invalidate(state, affected, reason):
     _event(state, "rework", affected_nodes=affected, reason=reason)
 
 
-def rework(root, nodes, *, reason):
+def rework(root, nodes=(), *, reason, findings=None):
     root = _root(root); _text(reason, "rework reason", 4000)
     with file_lock(root / "run.lock", blocking=False), file_lock(root / "state.lock"):
         spec, state = _load(root)
-        if state["reworks"] >= spec["budget"]["max_reworks"]:
-            raise GraphError("graph cumulative rework budget exhausted")
-        affected = _affected(spec, nodes)
-        if not affected:
-            raise GraphError("rework needs a changed node")
-        _invalidate(state, affected, reason)
+        if findings is not None:
+            from . import finding_routing as routing
+            repairs, limitations = routing.partition(findings)
+            artifacts = {p['sha256'] for node in spec['nodes'] for p in node['inputs']}
+            for current in state['nodes'].values():
+                if current['result']:
+                    artifacts.update(current['result'][k] for k in ('sha256', 'result_sha256'))
+            for finding in findings:
+                classification = routing.validate(finding)
+                if classification and classification['artifact_sha256'] not in artifacts:
+                    raise GraphError('finding must bind a current graph artifact digest')
+            targets = [routing.validate(f)['target'] for f in repairs if routing.kind(f) == 'defect']
+            # Unclassified documents retain the old caller-supplied routing.
+            if any(routing.kind(f) == 'unclassified' for f in repairs):
+                targets += list(nodes)
+            elif repairs and nodes and set(nodes) != set(targets):
+                raise GraphError('rework nodes must exactly match named defect targets')
+            _affected(spec, targets)
+            seen = state.get('finding_reworks', {})
+            fresh = [f for f in repairs if routing.kind(f) == 'unclassified' or routing.repair_key(f) not in seen]
+            targets = list(dict.fromkeys(routing.validate(f)['target'] for f in fresh if routing.kind(f) == 'defect'))
+            if any(routing.kind(f) == 'unclassified' for f in fresh):
+                targets += list(nodes)
+            affected = _affected(spec, targets)
+            if affected and state['reworks'] >= spec['budget']['max_reworks']:
+                raise GraphError('graph cumulative rework budget exhausted')
+            if affected:
+                _invalidate(state, affected, reason)
+            ledger = state.setdefault('finding_reworks', {})
+            for finding in fresh:
+                if routing.kind(finding) == 'defect':
+                    ledger[routing.repair_key(finding)] = deepcopy(finding)
+            census = state.setdefault('limitation_census', [])
+            for row in routing.limitation_census(limitations):
+                if row not in census:
+                    census.append(row)
+            _event(state, 'findings_routed', findings=deepcopy(findings), affected_nodes=affected)
+        else:
+            if state['reworks'] >= spec['budget']['max_reworks']:
+                raise GraphError('graph cumulative rework budget exhausted')
+            affected = _affected(spec, nodes)
+            if not affected:
+                raise GraphError('rework needs a changed node')
+            _invalidate(state, affected, reason)
         _save(root, state)
     return status(root)
 
@@ -1522,7 +1602,8 @@ def main(argv=None):
         if name in {"cancel", "rework", "revise", "release-external"}:
             sub.add_argument("--reason", required=True)
         if name == "rework":
-            sub.add_argument("--nodes", nargs="+", required=True)
+            sub.add_argument("--nodes", nargs="+", default=[])
+            sub.add_argument("--findings", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "create":
@@ -1544,7 +1625,15 @@ def main(argv=None):
         elif args.command == "resume":
             result = resume(args.graph)
         elif args.command == "rework":
-            result = rework(args.graph, args.nodes, reason=args.reason)
+            findings = None
+            if args.findings:
+                from .role_registry import validate_output
+                document = read_json(args.findings)
+                errors = validate_output('findings.v2', document)
+                if errors:
+                    raise GraphError('; '.join(errors))
+                findings = document['items']
+            result = rework(args.graph, args.nodes, reason=args.reason, findings=findings)
         elif args.command == "revise":
             result = revise(args.graph, read_json(args.spec), reason=args.reason)
         else:

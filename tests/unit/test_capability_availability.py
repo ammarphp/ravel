@@ -68,3 +68,34 @@ def test_lazy_module_patches_reach_the_implementation(monkeypatch):
         assert target.value==2 and proxy.value==2
     assert target.value==1 and proxy.value==1
     assert 'value' not in vars(proxy)
+
+
+@pytest.mark.parametrize('platform_key', ['macos-arm64', 'macos-x86_64', 'linux-aarch64'])
+def test_amplitude_availability_and_planner_refuse_missing_platform_qualification(tmp_path, monkeypatch, platform_key):
+    from ravel.setup import manifest as mf
+    from ravel.workflow import science
+    monkeypatch.setattr(mf, 'detect_platform', lambda: platform_key)
+    reason = (f'amplitude-integration: mcfm-amplitudes: missing successful qualification for {platform_key} '
+              'in native/setup qualification records')
+    result = ca.availability('amplitude-integration')
+    assert not result.available and not result.manifest_fallback and result.reason == reason
+    spec = tmp_path / 'spec.json'
+    spec.write_text(json.dumps({'mode': 'amplitude-integration', 'task': {}}))
+    run = tmp_path / 'run'
+    with pytest.raises(ca.CapabilityNotInRelease) as exc:
+        science.plan(run, spec)
+    assert str(exc.value) == reason
+    assert not run.exists()
+
+
+def test_amplitude_qualified_platform_reaches_the_planner(tmp_path, monkeypatch):
+    from ravel.setup import manifest as mf
+    from ravel.workflow import science
+    monkeypatch.setattr(mf, 'detect_platform', lambda: 'linux-x86_64')
+    assert ca.require('amplitude-integration').available
+    spec = tmp_path / 'spec.json'
+    spec.write_text(json.dumps({'mode': 'amplitude-integration', 'task': {}}))
+    monkeypatch.setattr(science, '_plan', lambda *a, **k: {'status': 'synthetic-planned'})
+    from ravel.workflow import research_admission
+    monkeypatch.setattr(research_admission, 'admission', lambda *a, **k: [])
+    assert science.plan(tmp_path / 'run', spec) == {'status': 'synthetic-planned'}

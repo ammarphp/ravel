@@ -75,7 +75,7 @@ def test_descriptor_byte_identity():
     released = {**document, 'modes': {k: v for k, v in document['modes'].items() if k not in held}}
     encoded = (json.dumps(released, indent=1, ensure_ascii=False) + '\n').encode()
     assert held or encoded == data
-    assert hashlib.sha256(encoded).hexdigest() == '13f2ff9625ea36f36d2058d865f81ab9163514fae144df2aab295fbcde58bb01'
+    assert hashlib.sha256(encoded).hexdigest() == 'f83bc30ef033dcb1cb6f55fab98e480ab3bace1a1f98738b2a45e6cff8890ccf'
 
 
 def test_default_gate_requires_operation_curation(atlas, monkeypatch):

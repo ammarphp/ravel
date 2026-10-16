@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "RAVEL_PROJECT_DIR=\"$(ravel_start=\"$PWD\"; ravel_dir=\"$ravel_start\"; while :; do if [ -f \"$ravel_dir/.claude/settings.json\" ]; then printf '%s\\n' \"$ravel_dir\"; break; fi; if [ \"$ravel_dir\" = / ]; then git -C \"$ravel_start\" rev-parse --show-toplevel 2>/dev/null || printf '%s\\n' \"$ravel_start\"; break; fi; ravel_dir=\"$(dirname \"$ravel_dir\")\"; done)\"; if [ -f \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\" ]; then . \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\"; fi; if [ -d \"$RAVEL_PROJECT_DIR/src/ravel\" ]; then export PYTHONPATH=\"$RAVEL_PROJECT_DIR/src${PYTHONPATH:+:$PYTHONPATH}\"; fi; \"${RAVEL_PYTHON:-python3}\" -m ravel.workflow.host_guards --host gemini --phase pre --project \"$RAVEL_PROJECT_DIR\"; RAVEL_GUARD_STATUS=$?; [ \"$RAVEL_GUARD_STATUS\" -eq 0 ] && exit 0; echo \"BLOCKED: RAVEL host guard refused or is unavailable\" >&2; exit 2"
+          }
+        ]
+      }
+    ],
+    "AfterTool": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "RAVEL_PROJECT_DIR=\"$(ravel_start=\"$PWD\"; ravel_dir=\"$ravel_start\"; while :; do if [ -f \"$ravel_dir/.claude/settings.json\" ]; then printf '%s\\n' \"$ravel_dir\"; break; fi; if [ \"$ravel_dir\" = / ]; then git -C \"$ravel_start\" rev-parse --show-toplevel 2>/dev/null || printf '%s\\n' \"$ravel_start\"; break; fi; ravel_dir=\"$(dirname \"$ravel_dir\")\"; done)\"; if [ -f \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\" ]; then . \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\"; fi; if [ -d \"$RAVEL_PROJECT_DIR/src/ravel\" ]; then export PYTHONPATH=\"$RAVEL_PROJECT_DIR/src${PYTHONPATH:+:$PYTHONPATH}\"; fi; \"${RAVEL_PYTHON:-python3}\" -m ravel.workflow.host_guards --host gemini --phase post --project \"$RAVEL_PROJECT_DIR\"; RAVEL_GUARD_STATUS=$?; [ \"$RAVEL_GUARD_STATUS\" -eq 0 ] && exit 0; echo \"BLOCKED: RAVEL host guard refused or is unavailable\" >&2; exit 2"
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "RAVEL_PROJECT_DIR=\"$(ravel_start=\"$PWD\"; ravel_dir=\"$ravel_start\"; while :; do if [ -f \"$ravel_dir/.claude/settings.json\" ]; then printf '%s\\n' \"$ravel_dir\"; break; fi; if [ \"$ravel_dir\" = / ]; then git -C \"$ravel_start\" rev-parse --show-toplevel 2>/dev/null || printf '%s\\n' \"$ravel_start\"; break; fi; ravel_dir=\"$(dirname \"$ravel_dir\")\"; done)\"; if [ -f \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\" ]; then . \"$RAVEL_PROJECT_DIR/.ravel/hook-runtime.sh\"; fi; if [ -d \"$RAVEL_PROJECT_DIR/src/ravel\" ]; then export PYTHONPATH=\"$RAVEL_PROJECT_DIR/src${PYTHONPATH:+:$PYTHONPATH}\"; fi; \"${RAVEL_PYTHON:-python3}\" -m ravel.workflow.host_guards --host gemini --phase prompt --project \"$RAVEL_PROJECT_DIR\"; RAVEL_GUARD_STATUS=$?; [ \"$RAVEL_GUARD_STATUS\" -eq 0 ] && exit 0; echo \"RAVEL hook unavailable: prompt routing failed\" >&2; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

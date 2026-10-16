@@ -81,6 +81,134 @@ checks that each entry resolves to its implementation, uses known artifact kinds
 witnesses and carries no paper or benchmark identifier. Another package proposes rows with
 `--entries FILE`. A passing signature declares shape, not scientific validity.
 
+### Quantity contracts on composition edges
+
+Structural witnesses remain useful for shape checking. Rate, exposure, yield,
+template and inference consumers also declare `require.quantity`. This contract
+compares explicit scientific metadata; it does not certify the supplied facts.
+Old artifacts and receipts remain readable. Missing descriptors or properties
+become located `quantity_obligation` CHECK-IN flags on consumers that require them.
+No unit, factor, selection or weight convention is filled in automatically.
+
+An artifact can carry this optional `quantity` object; a plan edge carries the
+same supplied facts under `require.quantity`:
+
+```json
+{
+  "kind": "event_count",
+  "unit": "events",
+  "normalization": {
+    "per_luminosity": false,
+    "per_bin_width": false,
+    "per_event": false
+  },
+  "included_factors": [
+    {"name": "decay_mode", "kind": "branching_fraction", "value": 0.4,
+     "source": "supplied:decay-table"}
+  ],
+  "weight_convention": "signed",
+  "selection": "fiducial-a",
+  "model_point": {"model": "model-a", "mass": 80},
+  "bin_ids": ["region-a:0", "region-a:1"],
+  "exposure": {"id": "sample-a", "revision": "revision-a"}
+}
+```
+
+The kind vocabulary is `cross_section`, `differential_cross_section`,
+`event_count`, `efficiency`, `acceptance_efficiency`, `luminosity`,
+`sample_exposure`, `statistical_model` and `inference`. Units are literal and
+include their scale: `pb`, `fb`, `nb`, `events`, `1`, or a stated differential
+unit such as `pb/GeV`. The existing weighted-event scale convention has 1 pb =
+1000 fb = 0.001 nb. An edge comparing pb with fb is refused even though an
+explicit conversion operation could relate them. The descriptor never rescales
+numbers or derives a conversion from an axis label.
+
+The three normalization booleans say whether the values are per unit luminosity,
+per bin width, or per event. Integrated absolute yields declare all three false.
+A cross section, including a differential one, is a rate per unit integrated
+luminosity and declares `per_luminosity` true; an event count declares it false.
+A flag contradicting the kind is refused.
+The existing binned-value validator checks representation, unit, bin identity,
+moments and covariance; its normalization and statistical-domain checks remain
+in force. A descriptor contradicting the artifact's unit, representation or
+producer bin identities is refused. A normalized shape cannot enter the existing
+absolute-yield statistics interface by changing its descriptor.
+
+Each included factor has a unique name, kind (`branching_fraction`,
+`filter_efficiency`, `k_factor`), finite value and literal source locator. A
+missing source is an obligation. Repeating a name refuses double application,
+even if the second entry claims another source. An explicit empty list declares
+that none of these factors is included. Weight conventions are `signed`,
+`absolute` or `unweighted`; changing a producer's signed convention to absolute
+is a contradiction. `selection` is the supplied fiducial or selection identity;
+`model_point` retains the supplied model identity and coordinates. Neither is
+inferred from filenames.
+
+Consumers use partial exact requirements and a `required` list of field paths:
+
+```json
+{"quantity": {
+  "required": ["included_factors", "weight_convention", "selection", "model_point",
+               "bin_ids", "exposure.id", "exposure.revision"],
+  "kind": "event_count", "unit": "events",
+  "normalization": {"per_luminosity": false, "per_bin_width": false, "per_event": false}
+}}
+```
+
+A missing property produces an obligation with its edge location, field and
+expected value. A contradiction produces `quantity_incompatible`, including the
+field, observed value and expected value. An edge annotation cannot override a
+producer declaration. Absence and explicit false or an empty factor list are
+distinct. Requirements never use `_require_ok`'s permissive missing-property
+behavior for scientific metadata.
+
+Signatures can also declare `quantity_relations` between incoming slots. An
+`equal` rule names `slots` and `fields` that must agree where both inputs state
+them, including shared properties of partial objects. Only the consuming slot's
+own requirements create missing-field obligations. A published background-only
+workspace needs no signal model point or signal selection. If both inputs state
+a model point, conflicting shared coordinates are refused. Ordered `bin_ids` bind a
+signal template to the likelihood's exact bin order; equal dimensions alone do
+not suffice. A shared sample `exposure.id` and `exposure.revision` bind all
+regional contributions to the same production revision, so an updated signal
+contribution with a stale control contribution is refused. Complete signal
+quantities also carry `regional_exposures`, a nonempty mapping from each supplied
+region identity to its sample `id` and `revision`. Every entry must agree with
+the shared exposure; missing entry properties remain obligations. This catches
+stale control contributions within a single complete template. The consumer
+requires this mapping but its source must establish completeness. Optional `group_by`
+field paths scope equality, for example by model point and sample identity;
+distinct model points do not acquire a false shared-exposure requirement.
+A `disjoint` rule on `auxiliary_information` rejects overlapping information
+identities across constraints, including duplicate identities in one artifact.
+Sharing a nuisance parameter is allowed; reusing its auxiliary observation as
+independent information is refused. These identities must be supplied from the
+statistical construction, not invented by the composition checker.
+
+`signature_conformance.edge_report(..., artifact=document)` checks an actual
+artifact against both endpoint declarations and returns `errors` and structured
+`obligations`. `edge_errors` returns only contradictions; callers presenting a
+plan must also retain obligations. `validate_request_plan.check` and `flags` use
+the same checker; their optional `artifacts={edge_id: document}` argument checks
+actual edge documents and cross-input relations. Without documents the check
+compares declared plan facts only. It neither authenticates source bytes nor
+proves that a numerical producer honored its declarations. Existing custody,
+approval, domain and physics-certification gates keep those responsibilities.
+
+The shared binned-value builder accepts `quantity` as supplied metadata;
+`from_quantity(..., descriptor=...)` explicitly attaches it when projecting
+weighted moments. This projection, regional yield templates, event production,
+generated event transport, columnar histograms and cutflows, and signal-template contracts declare `signed`
+because they retain weights or supplied values without taking their magnitudes.
+Here `signed` describes sign preservation even for an entirely positive sample;
+it does not assert that negative events occurred. These known producer contracts
+also declare the convention in operation signatures. An undeclared producer
+leaves a located weight obligation at a consumer that requires it; absence alone
+does not refuse composition. Search and measurement projections preserve
+present metadata.
+Partition merging already requires equality of nonadditive metadata and therefore
+refuses quantities with different conventions.
+
 A review term in a signature resolves first through the alias map
 `REVIEW_TERM_CHECKS` in `knowledge_atlas.py` (term to implementing check), then to a
 source-declared check of the same name. A term with neither gets a

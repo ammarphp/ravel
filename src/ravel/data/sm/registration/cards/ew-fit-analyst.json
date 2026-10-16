@@ -60,6 +60,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "electroweak-fit"
+    ]
+  },
   "protocol": [
     "Prepare electroweak fits and indirect determinations in supplied input, width, mixing-angle and mass schemes with declared reference points.",
     "State the supplied input scheme, pole or running width convention, mixing-angle definition, top mass scheme and quoted mass; retain sourced conversion direction for every mismatch.",

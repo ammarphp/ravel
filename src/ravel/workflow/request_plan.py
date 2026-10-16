@@ -742,7 +742,8 @@ def _tool_node(b, view, reg, operation, node=None):
             b._edge(match['from']['ref'], match['from']['slot'], node['id'], port['slot'],
                     port['kind'], match['require'])
         elif not port.get('optional'):
-            require = dict(port.get('require', {}))
+            # A quantity requirement is not a supplied fact; the awaited input leaves it as an obligation.
+            require = {k: v for k, v in port.get('require', {}).items() if k != 'quantity'}
             refs = b._bound({'provides': {'kind': port['kind'], 'require': require},
                              'source': 'requester', 'status': 'awaited',
                              'locator': f'{operation} {port["slot"]} input', 'bind': port['kind']}, {})

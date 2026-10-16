@@ -62,8 +62,16 @@
       "schema": "producer.v1",
       "sidecar": true
     },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": [
+        "measurement-parameterization-bundle"
+      ]
+    },
     "protocol": [
       "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
+      "Inside the fit workflow, own the supplied measurement and parameterization bundle handed to the fit specialists. The fit roles own coupling-modifier extraction and scale, PDF and parametric signal-theory uncertainty estimation; the theory auditor and combination reviewer judge these quantities without owning them.",
       "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
       "Inspect inclusive, STXS and differential sample overlap. Require a supplied joint likelihood for reused events and keep asymmetric likelihoods near physical boundaries.",
       "Inspect shared signal theory sources and correlations; use consistent scale and PDF definitions and count each table or program uncertainty once.",
@@ -116,5 +124,5 @@
     },
     "version": "1.0.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

@@ -41,7 +41,7 @@ def schema():
     return {'type':'array','items':row,'maxItems':MAX_CLAIMS}
 
 
-def validate(plan, rows, value, evidence, *, expected_ids=None, final=False, figures=None):
+def validate(plan, rows, value, evidence, *, expected_ids=None, final=False, figures=None, review_findings=()):
     """Validate all allocated originals and actual target/qualifier locations.
 
     A source-ordered row is required even for a withdrawal or unresolved claim.
@@ -108,6 +108,8 @@ def validate(plan, rows, value, evidence, *, expected_ids=None, final=False, fig
             other=by_id.get(identity)
             if other is None or other['disposition']!='merged' or any(other[k]!=row[k] for k in ('related_claim_ids','paragraph_ids','figure_ids')):
                 raise ValueError('merge omitted an original or changed its shared targets')
+    from .finding_routing import require_dispositions
+    require_dispositions(review_findings, rows)
     return deepcopy(rows)
 
 

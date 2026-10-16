@@ -899,8 +899,8 @@ def verify_stage_binding(binding):
         if errors:
             raise ValueError('the stage is not approved: ' + '; '.join(errors))
     elif route == 'native-plan':
-        from ravel.physics.native_pipeline import load_plan as load_native_plan, verify_execution_approval
-        verify_execution_approval(load_native_plan(root / 'inputs/native_execution_plan.json'))
+        from ravel.physics.native_pipeline import load_plan as load_native_plan, verify_execution_approval, approved_plan_path
+        verify_execution_approval(load_native_plan(approved_plan_path(root)))
     elif route == 'science':
         from . import physics_review, science
         if not (physics_review._science_run(root) and (root / science.PLAN).is_file()):

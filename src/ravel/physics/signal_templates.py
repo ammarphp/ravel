@@ -299,6 +299,7 @@ def build_signal_template(source_contract, template, base="."):
                 if total == 0 and error2 > 0:
                     raise ValueError("positive staterror at zero pooled nominal would be silently disabled")
     manifest = {"schema_version": 1, "scope": SCOPE, "template_id": template["template_id"],
+                "quantity": {"weight_convention": "signed"},
                 "template_compact_sha256": _digest(template), "workspace_compact_sha256": _digest(workspace),
                 "source_workspace_compact_sha256": source["workspace_compact_sha256"], "source_contract": source,
                 "measurement": source["measurement"], "modifier_settings": template["modifier_settings"],

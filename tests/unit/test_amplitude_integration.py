@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from amplitude_fixtures import CONSTANTS, program_output
+from amplitude_fixtures import CONSTANTS, point_with_pair_pt, program_output
 from ravel.physics import amplitude_basis as ab
 from ravel.physics import amplitude_integration as ai
 from ravel.physics import amplitude_predictions as ap
@@ -29,8 +29,9 @@ usesobol = .false.
 class FakeBackend:
     """Runs the 'program' synchronously in the stage directory; records every spec."""
 
-    def __init__(self, fail_stage=None, corrupt_stage=None, higgs=None):
+    def __init__(self, fail_stage=None, corrupt_stage=None, higgs=None, exclude=(), leak=(), cuts=None, draws=None, small=()):
         self.specs, self.fail_stage, self.corrupt_stage, self.higgs = [], fail_stage, corrupt_stage, higgs
+        self.exclude, self.leak, self.cuts, self.draws, self.small = exclude, leak, cuts, draws, small
         self.leases = 0
 
     def prepare(self, spec, *, base=None):
@@ -51,9 +52,11 @@ class FakeBackend:
         op, draws, seed, channel = map(int, (stage_dir / 'ravel-control.dat').read_text().split())
         card_seed = [l for l in (stage_dir / 'input.ini').read_text().splitlines() if l.startswith('seed')]
         assert card_seed == [f'seed = {seed}']
-        reject = (2,) if op == 2 else ()
+        reject = (2,) if op == 2 and not self.draws else ()
         raw = program_output(op, draws, seed, channel, reject=reject, corrupt=spec['stage'] == self.corrupt_stage,
-                             higgs=self.higgs)
+                             higgs=self.higgs, exclude=self.exclude if op else (), leak=self.leak if op == 2 else (),
+                             cuts=self.cuts, small=self.small if op == 2 else (),
+                             **(self.draws(op, draws, seed) if self.draws else {}))
         (stage_dir / 'amplitudes.dat').write_bytes(raw)
         if op == 1:
             (stage_dir / 'proposal-grid.bin').write_bytes(b'grid-' + str(seed).encode())
@@ -83,7 +86,7 @@ def _document(tmp_path, **changes):
            'schedule': {'schema_version': 1, 'max_operation_seconds': 1000, 'blocks': [
                {'id': f'{c}-{i}', 'cohort': c, 'seed': 20 + 2 * i + (c == 'same'), 'draws': 5, 'max_seconds': 100}
                for i in range(2) for c in ('mixed', 'same')]},
-           'audit_points': 2}
+           'audit_points': 2, 'safety_cuts': ['z-candidate-pt', 'small-invariants']}
     doc.update(changes)
     (tmp_path / 'doc.json').write_text(json.dumps(doc))
     return {'input': str(tmp_path / 'doc.json')}
@@ -243,6 +246,12 @@ def test_record_census_errors():
     swapped = [l for l in lines if not l.startswith(' A 2 6 2 2 2 2')]
     with pytest.raises(ValueError):
         ar.parse(('\n'.join(swapped) + '\n').encode(), operation=2, draws=3, seed=7, channel=1, protocol=protocol)
+    # An exclusion must carry exactly the excluded weight its cut declares.
+    raw = program_output(2, 3, 7, 1, small=(2,))
+    assert ar.parse(raw, operation=2, draws=3, seed=7, channel=1, protocol=protocol)['summary']['excluded'] == 1
+    claimed = raw.replace(b' EXCLUDE 2 2 0 0', b' EXCLUDE 2 2 0 1')
+    with pytest.raises(ValueError, match='excluded weight its cut declares'):
+        ar.parse(claimed, operation=2, draws=3, seed=7, channel=1, protocol=protocol)
 
 
 def _amplitude_spec(store, seed='1'):
@@ -484,3 +493,140 @@ def test_native_installation_fills_program_and_passes_the_card_in_place(tmp_path
     task = _document(tmp_path, backend={'kind': 'native', 'resources': {'cpus': 1, 'memory_mib': 1024}})
     with pytest.raises(ValueError, match='built for the oci-local backend'):
         ai.load(task, tmp_path)
+
+
+# ---------------------------------------------------------------- declared safety cuts
+def _pair_pts(momenta, identical):
+    pairs = [(3, 4), (5, 6)] + ([(3, 6), (5, 4)] if identical else [])
+    return np.array([[np.hypot(*(p[i - 1, :2] + p[j - 1, :2])) for i, j in pairs] for p in momenta])
+
+
+def _invariants(momenta):
+    out = []
+    for p in momenta:
+        dot = lambda i, j: p[i - 1, 3] * p[j - 1, 3] - p[i - 1, :3] @ p[j - 1, :3]
+        values = [abs(p[j - 1, 3]) / 100 for j in (3, 4, 5, 6)]
+        values += [abs(dot(j, k) / p[j - 1, 3] / p[k - 1, 3]) for j in (3, 4, 5, 6) for k in (1, 2, 3, 4, 5, 6) if k > j or k < 3]
+        out.append(min(values))
+    return np.array(out)
+
+
+@pytest.mark.usefixtures('in_process_backend_seam')
+def test_draws_below_a_declared_cut_are_excluded_at_sampling_and_measured(tmp_path):
+    backend = FakeBackend(exclude=(3,), small=(5,))
+    result = ai.run(_document(tmp_path), tmp_path, tmp_path / 'out', backend=backend)
+    manifest = store.load_manifest(tmp_path / 'store')
+    declared = addons.resolve('mcfm-amplitudes').manifest['protocol']['safety_cuts']
+    assert manifest['header']['safety_cuts'] == declared and result['safety']['cuts'] == declared
+    for row in manifest['blocks']:
+        s = row['summary']
+        # Draw 2 is rejected; draw 3 (low Z pT, measured weight) and draw 5 (collinear leptons, unmeasured
+        # weight) are excluded: all stay in the exposure, none is stored.
+        assert (s['attempted'], s['accepted'], s['rejected'], s['excluded']) == (5, 2, 1, 2) and row['points'] == 2
+        assert s['safety']['by_cut'] == {'z-candidate-pt': 1, 'small-invariants': 1} and s['safety']['weight_unmeasured'] == 1
+        assert s['safety']['exposure_fraction'] == 2 / 5 and 0 < s['safety']['weight_fraction'] < 1
+        block = store.read_block(tmp_path / 'store' / row['path'])
+        assert (_pair_pts(block['momenta'], row['cohort'] == 'same') >= 0.1).all()
+        assert (_invariants(block['momenta']) >= 1e-9).all()
+    total = result['safety']['blocks']
+    assert (total['attempted'], total['excluded'], total['stored']) == (20, 8, 8) and total['exposure_fraction'] == 0.4
+    assert total['by_cut'] == {'z-candidate-pt': 4, 'small-invariants': 4} and total['weight_unmeasured'] == 4
+    assert total['weight_fraction'] == pytest.approx(
+        sum(r['summary']['safety']['weight_excluded'] for r in manifest['blocks'])
+        / sum(r['summary']['safety']['weight_excluded'] + r['summary']['safety']['weight_stored'] for r in manifest['blocks']))
+    assert [a['id'] for a in result['assumptions']] == ['safety-cut:z-candidate-pt', 'safety-cut:small-invariants']
+    assert all('restricted phase space' in a['statement'] for a in result['assumptions'])
+    assert 'unmeasured' in result['assumptions'][1]['statement']
+    assert all(w['safety']['census']['excluded'] == 1 for w in result['warmups'])  # three warm-up draws
+    assert any('Safety cuts excluded 8 of 20' in line for line in result['summary'])
+
+
+@pytest.mark.usefixtures('in_process_backend_seam')
+def test_a_program_that_stores_a_point_below_its_declared_cut_is_refused(tmp_path):
+    with pytest.raises(ValueError, match='declared safety cuts'):
+        ai.run(_document(tmp_path), tmp_path, tmp_path / 'out', backend=FakeBackend(leak=(4,)))
+    assert store.load_manifest(tmp_path / 'store')['blocks'] == []
+
+
+@pytest.mark.usefixtures('in_process_backend_seam')
+def test_a_cut_the_program_applies_but_does_not_declare_is_refused(tmp_path):
+    with pytest.raises(ValueError, match='undeclared cut is refused'):
+        ai.run(_document(tmp_path), tmp_path, tmp_path / 'out', backend=FakeBackend(cuts=[('pair_pt_min', 0.2)]))
+
+
+def test_undeclared_or_unaccepted_cuts_are_refused_at_plan_time(tmp_path):
+    backend = FakeBackend()
+    both = ['z-candidate-pt', 'small-invariants']
+    for cuts, message in ((both + ['lepton-pt'], 'not declared'), (['lepton-pt'], 'not declared'),
+                          ([], 'must accept exactly'), (['z-candidate-pt'], 'must accept exactly'),
+                          (both + ['z-candidate-pt'], 'must accept exactly')):
+        task = _document(tmp_path, safety_cuts=cuts)
+        with pytest.raises(ValueError, match=message):
+            ai.load(task, tmp_path)
+        with pytest.raises(ValueError, match=message):
+            ai.run(task, tmp_path, tmp_path / 'out', backend=backend)
+    task = _document(tmp_path)
+    doc = json.loads(Path(task['input']).read_text())
+    doc.pop('safety_cuts')
+    Path(task['input']).write_text(json.dumps(doc))
+    with pytest.raises(ValueError, match='must accept exactly'):
+        ai.load(task, tmp_path)
+    assert backend.specs == [] and not (tmp_path / 'store').exists()
+
+
+def test_a_producer_declaration_is_validated():
+    protocol = addons.resolve('mcfm-amplitudes').manifest['protocol']
+    cut = protocol['safety_cuts'][0]
+    for change in ({'kind': 'lepton_pt_min'}, {'min_gev': 0}, {'pairs': [[3, 3]]}, {'pairs': [[3, 7]]}, {'source': ''},
+                   {'excluded_weight': 'assumed'}):
+        with pytest.raises(ValueError):
+            ar.validate_protocol({**protocol, 'safety_cuts': [{**cut, **change}]})
+    small = protocol['safety_cuts'][1]
+    for change in ({'minimum': -1.0}, {'particles': [3, 1]}, {'beams': []}, {'reference_energy_gev': 0}, {'min_gev': 0.1}):
+        with pytest.raises(ValueError):
+            ar.validate_protocol({**protocol, 'safety_cuts': [{**small, **change}]})
+    with pytest.raises(ValueError, match='each safety cut needs'):
+        ar.validate_protocol({**protocol, 'safety_cuts': [{k: v for k, v in cut.items() if k != 'reason'}]})
+
+
+@pytest.mark.usefixtures('in_process_backend_seam')
+def test_the_restricted_region_integral_is_unbiased(tmp_path):
+    """Excluded draws stay in the exposure, so the store's block mean estimates the integral over the admitted region.
+
+    Each draw is uniform in the Z candidate pT u in [0, 1) GeV and carries the integration
+    factor f(u) / (N |M|^2), with |M|^2 the program's own square. The stored blocks, read back
+    and weighted with the reference hypothesis as every prediction does, then estimate the
+    integral of f over u >= 0.1 only. Normalising by the stored points instead would converge
+    to a value larger by 1/0.9; the test tells the two apart.
+    """
+    f = lambda u: 1.0 + 3.0 * u * u
+    exact = (1.0 - 0.1) + (1.0 - 0.1 ** 3)
+    n, blocks = 150, 20
+
+    def draws(op, count, seed):
+        u = np.random.default_rng(seed).uniform(0.0, 1.0, size=count)
+        momenta = [point_with_pair_pt(seed * 1000 + i, x) for i, x in enumerate(u)]
+        fields = lambda draw, p, square: [1.0 / count, f(u[draw - 1]) / square, 1.0, 1.0, 1.0, 0.1, 0.2, 100.0, 1e4]
+        return {'momenta': momenta, 'weights': fields}
+    schedule = {'schema_version': 1, 'max_operation_seconds': 10000, 'blocks': [
+        {'id': f'mixed-{i}', 'cohort': 'mixed', 'seed': 100 + i, 'draws': n, 'max_seconds': 100} for i in range(blocks)]}
+    task = _document(tmp_path, schedule=schedule)
+    doc = json.loads(Path(task['input']).read_text()); doc['cohorts'] = doc['cohorts'][:1]
+    Path(task['input']).write_text(json.dumps(doc))
+    result = ai.run(task, tmp_path, tmp_path / 'out', backend=FakeBackend(draws=draws))
+    manifest = store.load_manifest(tmp_path / 'store')
+    reference = {'id': 'SM', 'constant': {'continuum': 1}, 'states': [
+        {'mass_gev': 125.0, 'width_gev': 0.004, 'propagator': 'fixed-width', 'couplings': {'scalar_bottom': 1, 'scalar_top': 1}}]}
+    basis = ab.Basis(manifest['header']['basis'])
+    estimates, per_point = [], []
+    for row in manifest['blocks']:
+        block = store.read_block(tmp_path / 'store' / row['path'])
+        w = block['factor'] * ab.evaluate(block['gram'], ab.coefficients(reference, basis, block['observables'][:, 0]))
+        assert row['summary']['attempted'] == n == row['points'] + row['summary']['excluded']
+        estimates.append(w.sum())
+        per_point.append(w.sum() * n / row['points'])
+    mean, error = np.mean(estimates), np.std(estimates, ddof=1) / np.sqrt(blocks)
+    assert abs(mean - exact) < 4 * error
+    assert abs(np.mean(per_point) - exact) > 4 * error
+    # The measured excluded share of the draws matches the admitted fraction of the uniform proposal.
+    assert result['safety']['blocks']['exposure_fraction'] == pytest.approx(0.1, abs=0.04)

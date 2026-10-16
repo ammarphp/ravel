@@ -131,6 +131,7 @@ def test_chunked_run_keeps_counts_weights_and_writes_the_receipt(tmp_path):
     result = ep.run(task, tmp_path, tmp_path / 'out')
     assert result['status'] == 'passed' and result['physics_validated'] is False, result.get('failures')
     receipt = receipt_of(tmp_path / 'out')
+    assert receipt['quantity'] == {'weight_convention': 'signed'}
     assert receipt['events']['attempted'] == receipt['events']['accepted'] == 12
     assert receipt['events']['detector_entries'] == {'synthetic': 12, 'skimmed': 12}
     seeds = [c['seed'] for c in receipt['events']['chunks']]

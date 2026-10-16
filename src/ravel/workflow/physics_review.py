@@ -19,7 +19,7 @@ import re
 import shutil
 import uuid
 
-from . import execution, waypoint_evidence
+from . import execution, waypoint_evidence, finding_routing
 from .state_io import atomic_json, file_lock, read_json
 
 POLICY = "inputs/physics_review_policy.json"
@@ -527,7 +527,7 @@ def _read(root, *, _session=None):
         if (path.name != f"{n:08d}.json" or e.get("sequence") != n
                 or e.get("previous_sha256") != previous or e.get("run_id") != reg["run_id"]
                 or e.get("sha256") != execution.digest({k: v for k, v in e.items() if k != "sha256"})
-                or e.get("event") not in ("cycle", "review", "correction", "correction_failed", "scientific_hold")):
+                or e.get("event") not in ("cycle", "review", "correction", "correction_failed", "scientific_hold", "finding_reclassified")):
             raise ValueError("review journal sequence or digest changed")
         for pin in e.get("snapshots", []):
             cycle = e if e["event"] == "cycle" else _view(reg, events)["cycle"]
@@ -747,6 +747,10 @@ def _base_live(root, reg, *, _session=None):
     return amended
 
 
+def _accepted_scope(view):
+    return next((r['claim_scope'] for r in view['reviews'] if r['verdict'] == 'accept'), None)
+
+
 def _view(reg, events):
     cycles = [e for e in events if e["event"] == "cycle"]
     current = cycles[-1] if cycles else None
@@ -754,15 +758,32 @@ def _view(reg, events):
     corrections = [e for e in events if e["event"] == "correction"]
     active = next((e for e in reversed(corrections) if current and e["cycle_id"] == current["cycle_id"]), None)
     failed = active and any(e["event"] == "correction_failed" and e["correction_id"] == active["correction_id"] for e in events)
-    inherited = current["inherited_findings"] if current else []
-    findings = [*inherited, *(f for e in reviews for f in e["findings"])]
+    reviews = deepcopy(reviews)
+    all_findings = {f['id']: deepcopy(f) for e in events if e['event'] == 'review' for f in e['findings']}
+    for event in events:
+        if event['event'] == 'finding_reclassified':
+            item = all_findings[event['finding_id']]
+            all_findings[event['finding_id']] = finding_routing.reclassify(item, event['classification'],
+                actor_id=event['actor_id'], decider_id=reg['policy']['actors']['physics_decider'], reason=event['reason'])
+    for item in all_findings.values():
+        classification = finding_routing.validate(item)
+        if item.get('reclassifications') and classification['kind'] == 'defect':
+            item['required_stages'] = [classification['target']]
+    for review in reviews:
+        review['findings'] = [deepcopy(all_findings[f['id']]) for f in review['findings']]
+    inherited = [deepcopy(all_findings.get(f['id'], f)) for f in current['inherited_findings']] if current else []
+    # A repeated defect stays visible; authorize_correction refuses another redo on unchanged bytes.
+    findings, _ = finding_routing.partition([*inherited, *(f for e in reviews for f in e['findings'])])
+    census = finding_routing.limitation_census(all_findings.values())
     verdicts = [e["verdict"] for e in reviews]
     state = "unopened" if not current else "awaiting_review"
     if "stop" in verdicts:
         state = "stopped"
-    elif "send_back" in verdicts:
+    elif "send_back" in verdicts and findings:
         state = "correction_failed" if failed else "correction_admitted" if active else "send_back"
-    elif len(reviews) == len(ROLES) and all(v == "accept" for v in verdicts):
+    elif (len(reviews) == len(ROLES)
+          and all(r['verdict'] == 'accept' or r['verdict'] == 'send_back' and all(finding_routing.kind(f) == 'limitation' for f in r['findings']) for r in reviews)
+          and any(r['role'] == 'physics_decider' and r['verdict'] == 'accept' for r in reviews)):
         state = "accepted"
         findings = []
     holds = [e for e in events if e["event"] == "scientific_hold" and current and e["cycle_id"] == current["cycle_id"]]
@@ -770,7 +791,7 @@ def _view(reg, events):
         state = "scientific_hold"
         findings = [f for e in holds for f in _hold_document(e["finding_context"])["findings"]]
     return {"state": state, "cycle": current, "reviews": reviews, "correction": active, "holds": holds,
-            "findings": findings, "redos_used": len(corrections), "redos_remaining": reg["policy"]["max_redos"] - len(corrections)}
+            "findings": findings, "limitation_census": census, "redos_used": len(corrections), "redos_remaining": reg["policy"]["max_redos"] - len(corrections)}
 
 
 def _receipt(root, value, *, _session=None):
@@ -990,16 +1011,62 @@ def _capture_cycle(root, *, effective_settings, stage_receipts, check_results,
         **({"final_results": final_binding} if final_binding is not None else {})}
 
 
+def _finding_keys(item, label):
+    base = {'id', 'summary', 'evidence', 'check_ids', 'required_paths', 'required_stages'}
+    _object(item, base | (set(item) & {'classification', 'reclassifications'}), label)
+
+
+def _validate_reclassification(reg, events, event):
+    if event['actor_id'] != reg['policy']['actors']['physics_decider']:
+        raise ValueError('only the declared decider may reclassify a finding')
+    _text(event['reason'], 'reclassification reason')
+    matches = [f for e in events if e['event'] == 'review' for f in e['findings'] if f['id'] == event['finding_id']]
+    if len(matches) != 1:
+        raise ValueError('reclassification needs one original journal finding')
+    result = finding_routing.reclassify(matches[0], event['classification'], actor_id=event['actor_id'],
+        decider_id=reg['policy']['actors']['physics_decider'], reason=event['reason'])
+    current = _view(reg, events)
+    if current['state'] not in ('awaiting_review', 'send_back'):
+        raise ValueError('reclassification requires an open review before correction or acceptance')
+    if not any(f['id'] == event['finding_id'] for r in current['reviews'] for f in r['findings']):
+        raise ValueError('reclassification must concern the current cycle')
+    classification = finding_routing.validate(result)
+    if classification['kind'] == 'defect' and classification['target'] not in reg['policy']['allowed_stages']:
+        raise ValueError('reclassified defect must name an allowed owning stage')
+    # Preserve the submission invariants, so a reclassification cannot strand or bypass the cycle.
+    for r in _view(reg, [*events, event])['reviews']:
+        repairs = finding_routing.partition(r['findings'])[0]
+        if r['verdict'] == 'accept' and repairs:
+            raise ValueError('an acceptance cannot carry an actionable defect; send back with a new finding')
+        if r['verdict'] == 'send_back' and r['role'] == 'physics_decider' and not repairs:
+            raise ValueError('a decider send_back needs an actionable defect')
+
+
+def reclassify_finding(root, finding_id, classification, *, actor_id, reason):
+    """Append a decider decision; the original review and classification stay immutable."""
+    root = _root(root)
+    with file_lock(root / DIRECTORY / 'write.lock'):
+        reg, events = _read(root)
+        _base_live(root, reg)
+        payload = {'event': 'finding_reclassified', 'finding_id': finding_id,
+                   'classification': classification, 'actor_id': actor_id, 'reason': reason}
+        _validate_reclassification(reg, events, payload)
+        return _append(root, reg, events, payload)
+
+
 def _findings(root, findings, cycle, policy):
     if not isinstance(findings, list):
         raise ValueError("findings must be a list")
     pins = {p["path"] for p in cycle["snapshots"]}
     for f in findings:
-        _object(f, {"id", "summary", "evidence", "check_ids", "required_paths", "required_stages"}, "finding")
+        _finding_keys(f, 'finding')
+        classification = finding_routing.validate(f, decider_id=policy['actors']['physics_decider'])
+        if classification and classification['artifact_sha256'] not in {p['sha256'] for p in cycle['snapshots']}:
+            raise ValueError('finding classification must bind a reviewed artifact digest')
         _ids([f["id"]], "finding id")
         _text(f["summary"], "finding summary")
         _ids(f["check_ids"], "finding check IDs")
-        _ids(f["required_stages"], "required stages")
+        _ids(f["required_stages"], "required stages", empty=finding_routing.kind(f) == "limitation")
         if not set(f["check_ids"]) <= {c["id"] for c in policy["required_checks"]} or not set(f["required_stages"]) <= set(policy["allowed_stages"]):
             raise ValueError("finding correction scope exceeds declared policy")
         if not isinstance(f["required_paths"], list) or len(set(f["required_paths"])) != len(f["required_paths"]):
@@ -1039,7 +1106,7 @@ def _validate_hold_context(reg, view, context, snapshots):
             or view["state"] != "accepted" or document["run_id"] != reg["run_id"]
             or document["cycle_id"] != view["cycle"]["cycle_id"]
             or document["cycle_sha256"] != view["cycle"]["sha256"]
-            or document["claim_scope"] != view["reviews"][0]["claim_scope"]
+            or document["claim_scope"] != _accepted_scope(view)
             or document["accepted_review_sha256"] != [r["sha256"] for r in view["reviews"]]):
         raise ValueError("late finding must bind the exact currently accepted run, cycle, scope and votes")
     if (document["role"] not in ("physics_critic", "skeptical_verifier")
@@ -1116,7 +1183,7 @@ def submit_hold(root, *, actor_id, cycle_id, claim_scope, summary, finding_conte
         if actor_id != reg["policy"]["actors"]["physics_decider"]:
             raise ValueError("scientific hold requires the registered physics decider")
         if (view["state"] != "accepted" or cycle_id != view["cycle"]["cycle_id"]
-                or claim_scope != view["reviews"][0]["claim_scope"]):
+                or claim_scope != _accepted_scope(view)):
             raise ValueError("scientific hold requires the exact currently accepted cycle and scope")
         _text(summary, "scientific hold summary")
         pin = _pin(root, finding_context)
@@ -1258,13 +1325,15 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
         if verdict not in ("accept", "send_back", "stop"):
             raise ValueError("review verdict must be accept, send_back or stop")
         _findings(root, findings, view["cycle"], reg["policy"])
+        if any(f.get('reclassifications') for f in findings):
+            raise ValueError('use the decider reclassification journal operation')
         all_ids = [f["id"] for e in events if e["event"] == "review" for f in e["findings"]]
         new_ids = [f["id"] for f in findings]
         if len(set(new_ids)) != len(new_ids) or set(all_ids) & set(new_ids):
             raise ValueError("finding IDs must be globally distinct")
         _ids(closes, "closed findings", empty=True)
         if verdict == "accept":
-            if view["state"] == "send_back" or findings:
+            if view["state"] == "send_back" or finding_routing.partition(findings)[0]:
                 raise ValueError("a rejected cycle cannot be accepted or silently overridden")
             # Declared reviewer names are not authenticated: an epoch-two acceptance needs the attested receipts.
             from . import review_points
@@ -1288,6 +1357,8 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
             raise ValueError("only acceptance may close findings or claim a scope")
         if verdict == "send_back" and not findings:
             raise ValueError("send_back requires explicit located correction findings")
+        if verdict == "send_back" and role == "physics_decider" and not finding_routing.partition(findings)[0]:
+            raise ValueError("a decider send_back needs an actionable defect; accept limitations with a permitted scope or stop")
         if retained_session is None:
             _judgments_live(root, view)
         support = (_supporting(root, supporting_artifacts, _session=retained_session)
@@ -1396,6 +1467,14 @@ def authorize_correction(root, *, actor_id, changed_paths, stages, recheck_check
         view = _view(reg, events)
         if actor_id != reg["policy"]["actors"]["physics_decider"] or view["state"] not in ("send_back", "correction_failed"):
             raise ValueError("only the physics decider may admit a correction to rejected work")
+        if not view['findings']:
+            raise ValueError('correction requires an actionable defect')
+        repair_keys = sorted({finding_routing.repair_key(f) for f in view['findings'] if finding_routing.kind(f) == 'defect'})
+        used = {key for event in events if event['event'] == 'correction' for key in event.get('finding_reworks', [])}
+        fresh_keys = sorted(set(repair_keys) - used)
+        if repair_keys and not fresh_keys and not any(finding_routing.kind(f) == 'unclassified' for f in view['findings']):
+            raise ValueError('unchanged finding artifact already attempted; no repeat rework')
+        repair_keys = fresh_keys
         if view["redos_remaining"] <= 0:
             raise ValueError("review redo budget exhausted")
         _ids(stages, "correction stages")
@@ -1407,6 +1486,9 @@ def authorize_correction(root, *, actor_id, changed_paths, stages, recheck_check
         if not set(recheck_checks) <= {c["id"] for c in reg["policy"]["required_checks"]}:
             raise ValueError("correction uses undeclared checks")
         for f in view["findings"]:
+            classification = finding_routing.validate(f)
+            if classification and classification['target'] not in stages:
+                raise ValueError('correction stages must include the named defect target; phase targets use their mapped phase rework')
             if not set(f["required_stages"]) <= set(stages) or not set(f["check_ids"]) <= set(recheck_checks):
                 raise ValueError("correction omits a mandatory finding obligation")
         old = view["cycle"]
@@ -1483,6 +1565,7 @@ def authorize_correction(root, *, actor_id, changed_paths, stages, recheck_check
             "correction_id": correction_id, "actor_id": actor_id, "changed_paths": changed_paths, "held_paths": held_paths,
             "stages": stages, "recheck_checks": recheck_checks, "effective_settings": settings,
             "stage_specs": specs, "regenerated_inputs": generated, "snapshots": snapshots, "redo_number": view["redos_used"] + 1,
+            **({"finding_reworks": repair_keys} if repair_keys else {}),
             **({"supporting_artifacts": support} if support is not None else {})})
 
 
@@ -1623,7 +1706,7 @@ def gate_errors(root, action, stage=None, *, _session=None, retained_study=False
             from . import review_points
             refusal = review_points.legacy_accept_refusal(root)
             if refusal: raise ValueError(f"recorded acceptance does not authorize {action}: {refusal}")
-            scope = view["reviews"][0]["claim_scope"]
+            scope = _accepted_scope(view)
             authorized_action = "delivery" if action == "final_task" else action
             if authorized_action not in reg["policy"]["claim_scopes"][scope]["actions"]:
                 raise ValueError(f"accepted claim scope {scope} does not authorize {action}")
@@ -1669,10 +1752,10 @@ def status(root, *, _session=None, retained_study=False):
         return {"schema_version": 1, "state": view["state"],
             "cycle_id": view["cycle"]["cycle_id"] if view["cycle"] else None,
             "correction_id": view["correction"]["correction_id"] if view["correction"] else None,
-            "claim_scope": view["reviews"][0]["claim_scope"] if view["state"] == "accepted" else None,
+            "claim_scope": next((r["claim_scope"] for r in view["reviews"] if r["verdict"] == "accept"), None) if view["state"] == "accepted" else None,
             "held_claim_scope": view["holds"][-1]["claim_scope"] if view["holds"] else None,
             "scientific_hold_sha256": view["holds"][-1]["sha256"] if view["holds"] else None,
-            "unresolved_findings": view["findings"], "redos_used": view["redos_used"],
+            "unresolved_findings": view["findings"], "limitation_census": view["limitation_census"], "redos_used": view["redos_used"],
             "redos_remaining": view["redos_remaining"], "events": len(events),
             "live_errors": live_errors, "next_correction_stage": next_stage,
             "completed_correction_stages": completed,
@@ -1782,12 +1865,13 @@ def validate_snapshot(document, *, require_admission=True):
             "review": {"cycle_id", "role", "actor_id", "verdict", "summary", "findings", "closes", "claim_scope", "attestation"},
             "correction": {"cycle_id", "correction_id", "actor_id", "changed_paths", "held_paths", "stages", "recheck_checks", "effective_settings", "stage_specs", "regenerated_inputs", "snapshots", "redo_number"},
             "correction_failed": {"correction_id", "reason"},
+            "finding_reclassified": {"finding_id", "actor_id", "classification", "reason"},
             "scientific_hold": {"cycle_id", "claim_scope", "actor_id", "summary", "finding_context", "snapshots", "attestation"}}
         for n, e in enumerate(events, 1):
             kind = e.get("event") if isinstance(e, dict) else None
             if kind not in fields:
                 raise ValueError("unknown review journal event")
-            _object(e, base_keys | fields[kind] | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()), "review journal event")
+            _object(e, base_keys | fields[kind] | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()) | ({"finding_reworks"} if kind == "correction" and "finding_reworks" in e else set()), "review journal event")
             if "supporting_artifacts" in e:
                 pins = e["supporting_artifacts"]
                 if not isinstance(pins, list) or len(pins) > 512 or len({p.get("path") for p in pins}) != len(pins):
@@ -1857,7 +1941,7 @@ def validate_snapshot(document, *, require_admission=True):
                 _text(e["summary"], "review summary")
                 if e["verdict"] == "accept":
                     scopes = reg["policy"]["claim_scopes"]
-                    if (view["state"] == "send_back" or e["findings"] or e["claim_scope"] not in scopes
+                    if (view["state"] == "send_back" or finding_routing.partition(e["findings"])[0] or e["claim_scope"] not in scopes
                             or set(e["closes"]) != {f["id"] for f in view["cycle"]["inherited_findings"]}
                             or any(r["verdict"] == "accept" and r["claim_scope"] != e["claim_scope"] for r in view["reviews"])):
                         raise ValueError("acceptance overrides rejection, closure or claim scope")
@@ -1869,16 +1953,26 @@ def validate_snapshot(document, *, require_admission=True):
                     raise ValueError("invalid review verdict")
                 if e["verdict"] == "send_back" and not e["findings"]:
                     raise ValueError("rejection has no correction obligations")
+                if e["verdict"] == "send_back" and e["role"] == "physics_decider" and not finding_routing.partition(e["findings"])[0]:
+                    raise ValueError("decider rejection has no actionable defect")
                 for f in e["findings"]:
-                    _object(f, {"id", "summary", "evidence", "check_ids", "required_paths", "required_stages"}, "frozen finding")
-                    if f["id"] in finding_ids or not f["evidence"] or not f["check_ids"] or not f["required_stages"]:
+                    _finding_keys(f, 'frozen finding')
+                    classification = finding_routing.validate(f, decider_id=reg['policy']['actors']['physics_decider'])
+                    if f.get('reclassifications'):
+                        raise ValueError('reclassification must use the decider journal event')
+                    if classification:
+                        if classification['artifact_sha256'] not in {p['sha256'] for p in view['cycle']['snapshots']}:
+                            raise ValueError('finding artifact digest is not bound to its cycle')
+                    if f["id"] in finding_ids or not f["evidence"] or not f["check_ids"] or (not f["required_stages"] and finding_routing.kind(f) != "limitation"):
                         raise ValueError("invalid or duplicate finding")
                     finding_ids.add(f["id"])
+            elif kind == 'finding_reclassified':
+                _validate_reclassification(reg, seen, e)
             elif kind == "scientific_hold":
                 if (view["state"] != "accepted"
                         or e["actor_id"] != reg["policy"]["actors"]["physics_decider"]
                         or not view["cycle"] or e["cycle_id"] != view["cycle"]["cycle_id"]
-                        or e["claim_scope"] != view["reviews"][0]["claim_scope"]
+                        or e["claim_scope"] != _accepted_scope(view)
                         or e["attestation"] != ATTESTATION):
                     raise ValueError("invalid scientific hold authority, scope or cycle")
                 _text(e["summary"], "scientific hold summary")
@@ -1888,6 +1982,12 @@ def validate_snapshot(document, *, require_admission=True):
                     raise ValueError("duplicate late finding identity")
                 finding_ids.update(ids)
             elif kind == "correction":
+                repair_keys = sorted({finding_routing.repair_key(f) for f in view['findings'] if finding_routing.kind(f) == 'defect'})
+                used = {key for event in seen if event['event'] == 'correction' for key in event.get('finding_reworks', [])}
+                fresh_keys = sorted(set(repair_keys) - used)
+                if (e.get('finding_reworks', []) != fresh_keys
+                        or repair_keys and not fresh_keys and not any(finding_routing.kind(f) == 'unclassified' for f in view['findings'])):
+                    raise ValueError('correction repeats unchanged finding bytes or lost its repair keys')
                 if (view["state"] not in ("send_back", "correction_failed")
                         or e["cycle_id"] != view["cycle"]["cycle_id"]
                         or e["actor_id"] != reg["policy"]["actors"]["physics_decider"]
@@ -1902,6 +2002,9 @@ def validate_snapshot(document, *, require_admission=True):
                         or e["held_paths"] != _held_paths(reg, seen, e["effective_settings"], e["changed_paths"])):
                     raise ValueError("correction changed settings or inherited repair commitment")
                 for f in view["findings"]:
+                    classification = finding_routing.validate(f)
+                    if classification and classification['target'] not in e['stages']:
+                        raise ValueError('correction omitted the named defect target')
                     if (not set(f["required_stages"]) <= set(e["stages"])
                             or not set(f["check_ids"]) <= set(e["recheck_checks"])):
                         raise ValueError("correction dropped a mandatory obligation")
@@ -1921,7 +2024,7 @@ def validate_snapshot(document, *, require_admission=True):
                     raise ValueError("snapshot does not authorize this correction")
             elif document["action"] not in ("bulk", "delivery", "reuse") or view["state"] != "accepted":
                 raise ValueError("snapshot is not accepted for this action")
-            elif document["action"] not in reg["policy"]["claim_scopes"][view["reviews"][0]["claim_scope"]]["actions"]:
+            elif document["action"] not in reg["policy"]["claim_scopes"][_accepted_scope(view)]["actions"]:
                 raise ValueError("accepted scope does not authorize the recorded action")
         return []
     except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
@@ -1932,7 +2035,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rundir", required=True)
     sub = parser.add_subparsers(dest="action", required=True)
-    for action in ("open", "review", "correct", "fail", "hold"):
+    for action in ("open", "review", "correct", "fail", "hold", "reclassify"):
         p = sub.add_parser(action)
         p.add_argument("--request", required=True, help="Strict JSON keyword arguments for the corresponding API")
     p = sub.add_parser("status")
@@ -1948,7 +2051,7 @@ def main(argv=None):
         elif args.action == "gate":
             result = {"errors": gate_errors(args.rundir, args.gate_action, args.stage, retained_study=args.retained_study)}
         else:
-            fn = {"open": open_cycle, "review": submit_review, "correct": authorize_correction, "fail": fail_correction, "hold": submit_hold}[args.action]
+            fn = {"open": open_cycle, "review": submit_review, "correct": authorize_correction, "fail": fail_correction, "hold": submit_hold, "reclassify": reclassify_finding}[args.action]
             result = fn(args.rundir, **read_json(args.request))
         print(json.dumps(result, indent=2, allow_nan=False))
         return 1 if result.get("errors") or result.get("state") == "invalid" else 0

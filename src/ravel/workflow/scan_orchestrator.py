@@ -98,7 +98,7 @@ def load_spec(path):
     quantities = spec["quantities"]
     if not isinstance(quantities, list) or not quantities:
         raise ValueError("explicit nonempty requested quantities required")
-    reserved = {"tag", "parameters", "sources", "inference", *names}
+    reserved = {"tag", "parameters", "sources", "inference", "overridden", "regime", "override", "receipt_sha256", "status", *names}
     qnames = []
     for q in quantities:
         if not isinstance(q, dict) or set(q) != {"name", "source", "field"}:
@@ -267,7 +267,86 @@ def load_manifest(scandir):
     if not os.path.exists(mpath):
         die(f"no scan_manifest.json in {scandir} -- run `plan` first")
     with open(mpath) as fh:
-        return scandir, json.load(fh)
+        manifest = json.load(fh)
+    if len(manifest['points']) != manifest['n_points'] or len({p['tag'] for p in manifest['points']}) != len(manifest['points']):
+        raise ValueError('scan population changed or contains duplicate point identities')
+    return scandir, manifest
+
+
+def override_context(manifest):
+    from .point_overrides import digest, pin
+    return digest({**{k: manifest[k] for k in ('name', 'axes', 'quantities', 'datasets')},
+        'points': [{**{k: p[k] for k in ('tag', 'parameters', 'run_dir')},
+                    'config': p.get('base_config', p['config']),
+                    'base_input': pin(Path(REPO) / p['run_dir'] / p.get('base_config', p['config']))}
+                   for p in manifest['points']]})
+
+
+def record_override(scandir, point_id, request):
+    """Admit one replacement configuration, retaining original cards and receipts."""
+    import tomllib
+    from . import point_overrides as overrides
+    from .state_io import atomic_json, file_lock
+    directory = Path(scandir).resolve()
+    with file_lock(directory / '.point-overrides.lock'):
+        _, manifest = load_manifest(str(directory))
+        if manifest.get('schema_version') != SCHEMA_VERSION:
+            raise ValueError('point overrides require a current declarative scan manifest')
+        population = {p['tag']: p for p in manifest['points']}
+        if point_id not in population:
+            raise ValueError('override names an unknown point')
+        point = population[point_id]
+        if point_status(point)[0] == 'running':
+            raise ValueError('cannot override a running point')
+        root = Path(REPO) / point['run_dir']
+        base_config = point.get('base_config', point['config'])
+        original = root / base_config
+        settings = tomllib.loads(original.read_text())
+        def successful_neighbour(p):
+            if point_status(p)[0] != 'done':
+                return []
+            harvested = harvest_point(p)
+            if not harvested:
+                return []
+            pins = [{'path': v['path'], 'sha256': v['sha256']} for v in harvested.get('sources', {}).values()]
+            if not pins and harvested.get('source'):
+                run = point_attempt_root(p, Path(REPO) / p['run_dir'])
+                pins = [overrides.pin(candidate) for candidate in
+                        (run / harvested['source'], run / 'output' / harvested['source']) if candidate.is_file()]
+            return pins
+        record, effective = overrides.admit(point_id, request, settings, point=point,
+            population=population, axes=manifest['axes'], successful=successful_neighbour,
+            context_sha256=override_context(manifest),
+            evidence_directory=root / 'inputs/point-overrides/evidence')
+        # Immutable copies, never edits to original input cards or completed results.
+        rendered = overrides.toml_text(effective)
+        config = 'config/overrides/' + record['receipt_sha256'] + '.toml'
+        receipt = root / ('inputs/point-overrides/' + record['receipt_sha256'] + '.json')
+        target = root / config
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(rendered)
+        atomic_json(receipt, record)
+        atomic_json(root / 'inputs/active-point-override.json', record)
+        attempts = point.setdefault('attempt_history', [])
+        if not attempts:
+            attempts.append({k: point[k] for k in ('config', 'output_directory', 'override', 'override_receipt') if k in point})
+            attempts[0].setdefault('output_directory', 'output')
+        output_directory = 'attempts/' + record['receipt_sha256'] + '/output'
+        attempt_identity = {'config': config, 'output_directory': output_directory,
+                            'override': record, 'override_receipt': str(receipt)}
+        if attempt_identity not in attempts:
+            attempts.append(attempt_identity)
+        history = point.setdefault('override_history', [])
+        if point.get('override') and point['override'] != record:
+            history.append({k: point[k] for k in ('config', 'output_directory', 'override', 'override_receipt') if k in point})
+        point.update(base_config=base_config, **attempt_identity)
+        atomic_json(directory / 'scan_manifest.json', manifest)
+        return record
+
+
+def cmd_override(args):
+    from .state_io import read_json
+    print(json.dumps(record_override(args.scandir, args.point, read_json(Path(args.record))), allow_nan=False))
 
 
 def sigma_ref_fb(mp):
@@ -277,11 +356,12 @@ def sigma_ref_fb(mp):
     σ_theory cancels in the relative difference). Reads logs/madgraph.log + the run's TOML kfactor;
     returns None if unavailable (the contour overlay still works, only the difference map needs it)."""
     run_dir = os.path.join(REPO, mp["run_dir"])
-    normalization = os.path.join(run_dir, "output", "normalization.json")
+    attempt = point_attempt_root(mp, run_dir)
+    normalization = str(attempt / "output/normalization.json")
     if os.path.exists(normalization):
         from ravel.physics.native_normalization import load_normalization
         return load_normalization(normalization)["applied_cross_section_pb"] * 1000.0
-    log = os.path.join(run_dir, "logs", "madgraph.log")
+    log = str(point_log_root(mp, run_dir) / "madgraph.log")
     sigma_pb = None
     if os.path.exists(log):
         try:
@@ -296,7 +376,7 @@ def sigma_ref_fb(mp):
         # line (MadGraph reused a cached refine and did not re-print it): the σ that was actually fed
         # downstream is recorded in analysis.log as "Using cross section X" (pb). Same number, so the
         # σ_ref is faithful. Without this a healed point has sigma_ref_fb=None and BREAKS the rebase.
-        alog = os.path.join(run_dir, "logs", "analysis.log")
+        alog = str(point_log_root(mp, run_dir) / "analysis.log")
         if os.path.exists(alog):
             try:
                 for line in open(alog, errors="ignore"):
@@ -320,7 +400,7 @@ def point_kfactor(mp):
     the same value sigma_ref_fb() folded in). None if the TOML is unreadable: the NLO re-norm must
     then fail loud rather than guess what normalization it is replacing."""
     try:
-        normalization = os.path.join(REPO, mp["run_dir"], "output", "normalization.json")
+        normalization = str(point_attempt_root(mp, Path(REPO) / mp["run_dir"]) / "output/normalization.json")
         if os.path.exists(normalization):
             from ravel.physics.native_normalization import load_normalization
             return load_normalization(normalization)["kfactor"]
@@ -370,17 +450,84 @@ def point_parameters(point):
     return coordinates
 
 
+def point_attempt_root(point, run):
+    """Resolve only the attempt selected by the manifest identity."""
+    relative = _relative_path(point.get('output_directory', 'output'))
+    expected = 'attempts/' + point['override']['receipt_sha256'] + '/output' if point.get('override') else 'output'
+    if relative != expected:
+        raise ValueError('point attempt must name its output directory')
+    root = (Path(run) / relative).parent.resolve()
+    if not root.is_relative_to(Path(run).resolve()):
+        raise ValueError('point attempt escapes point directory')
+    return root
+
+
+def point_log_root(point, run):
+    if point.get('override'):
+        return Path(run) / 'logs/attempts' / point['override']['receipt_sha256']
+    return Path(run) / 'logs'
+
+
+def native_quantity_manifest(point, run):
+    witness = point_attempt_root(point, run) / 'output/native_execution_result.json'
+    if not witness.is_file():
+        if point.get('output_directory') or (Path(run) / 'execution_state.json').exists():
+            raise ValueError('native quantity receipt is missing for the selected attempt')
+        return None
+    try:
+        report = json.loads(witness.read_text())
+        expected_receipt = point.get('override', {}).get('receipt_sha256')
+        if not isinstance(report, dict) or report.get('point_receipt_sha256') != expected_receipt:
+            raise ValueError('native quantity lacks the effective point override receipt')
+        pins = report.get('quantity_outputs')
+        if not isinstance(pins, list) or not pins:
+            raise ValueError('native quantity output manifest is missing')
+        identities = {}
+        for pin in pins:
+            if (not isinstance(pin, dict) or not isinstance(pin.get('path'), str)
+                    or not Path(pin['path']).is_absolute()
+                    or not isinstance(pin.get('sha256'), str)
+                    or not re.fullmatch(r'[0-9a-f]{64}', pin['sha256'])):
+                raise ValueError('invalid native quantity output manifest entry')
+            path = str(Path(pin['path']).resolve())
+            if path in identities:
+                raise ValueError('duplicate native quantity output manifest entry')
+            identities[path] = pin['sha256']
+        return identities
+    except (OSError, KeyError, TypeError) as exc:
+        raise ValueError('invalid native quantity output manifest') from exc
+
+
+def verify_native_quantity(source, pins, *, identity=None):
+    from ravel.physics.native_normalization import fingerprint
+    if pins is None:
+        return
+    if not source.is_file():
+        raise ValueError('native quantity output is missing: ' + str(source))
+    identity = fingerprint(source) if identity is None else identity
+    if pins.get(str(source.resolve())) != identity['sha256']:
+        raise ValueError('native quantity output is unlisted or its sha256 mismatches: ' + str(source))
+
+
 def harvest_quantities(point, run):
     from ravel.physics.native_normalization import fingerprint
     coordinates = point_parameters(point)
+    record = point.get('override')
+    if record:
+        from . import point_overrides as overrides
+        overrides.verify(record, Path(run) / point['config'])
+    pins = native_quantity_manifest(point, run)
+    attempt = point_attempt_root(point, run)
     result = {"parameters": coordinates, "sources": {}}
     for quantity in point["quantities"]:
-        source = Path(run)/_relative_path(quantity["source"])
+        source = attempt/_relative_path(quantity["source"])
         if not source.is_file():
+            verify_native_quantity(source, pins)
             return None
-        if not source.resolve().is_relative_to(Path(run).resolve()):
+        if not source.resolve().is_relative_to(attempt):
             raise ValueError("quantity source escapes point directory")
         identity = fingerprint(source)
+        verify_native_quantity(source, pins, identity=identity)
         document = json.loads(source.read_text())
         if isinstance(document, dict) and "parameters" in document and document["parameters"] != coordinates:
             raise ValueError("quantity artifact parameters differ from the planned point")
@@ -388,6 +535,8 @@ def harvest_quantities(point, run):
             errors = source_errors(document, run, required=True)
             if errors:
                 raise ValueError("; ".join(errors))
+        if record and pins is None and (not isinstance(document, dict) or document.get('point_receipt_sha256') != record['receipt_sha256']):
+            raise ValueError('quantity lacks the effective point override receipt')
         value = document
         try:
             for key in quantity["field"].split('.'):
@@ -402,6 +551,8 @@ def harvest_quantities(point, run):
             result.setdefault("inference", {})[quantity["name"]] = read_limits(document).to_dict()
         result[quantity["name"]] = value
         result["sources"][quantity["name"]] = {**identity, "field": quantity["field"]}
+    if record:
+        result.update(overrides.metadata(record))
     return result
 
 
@@ -423,11 +574,22 @@ def harvest_point(mp):
             raise ValueError(f"stale/invalid execution artifacts: {errors}")
     if "quantities" in mp:
         return harvest_quantities(mp, run_dir)
+    if mp.get('override'):
+        from . import point_overrides as overrides
+        overrides.verify(mp['override'], Path(run_dir) / mp['config'])
+        witness = point_attempt_root(mp, run_dir) / 'output/native_execution_result.json'
+        if not witness.is_file() or json.loads(witness.read_text()).get('point_receipt_sha256') != mp['override']['receipt_sha256']:
+            raise ValueError('native output lacks the effective point override receipt')
+    pins = native_quantity_manifest(mp, run_dir)
+    attempt = point_attempt_root(mp, run_dir)
     sref = sigma_ref_fb(mp)
     for relative in ("result.json", "output/exclusion.json"):
-        path = os.path.join(run_dir, relative)
+        path = attempt / relative
         if not os.path.exists(path):
+            if pins is not None and relative == "output/exclusion.json":
+                verify_native_quantity(path, pins)
             continue
+        verify_native_quantity(path, pins)
         try:
             with open(path) as fh:
                 d = json.load(fh)
@@ -468,6 +630,8 @@ def harvest_point(mp):
             if required(run_dir):
                 from ravel.workflow.physics_review import status
                 out["physics_review"] = status(run_dir)
+            if mp.get('override'):
+                out.update(overrides.metadata(mp['override']))
             return out
         except (ValueError, TypeError, OSError) as exc:
             # A corrupt preferred headline cannot silently fall back to an older
@@ -486,18 +650,20 @@ def point_status(mp):
             return state,None
         from ravel.workflow.state_io import read_json
         try:
-            report=read_json(Path(run_dir)/"output/native_execution_result.json")
+            report=read_json(point_attempt_root(mp, run_dir)/"output/native_execution_result.json")
         except (ValueError,OSError):
             return "failed",None
-        if report.get("statistics")=="yields":
+        if mp.get('override') and report.get('point_receipt_sha256') != mp['override']['receipt_sha256']:
+            return 'failed', None
+        if report.get("statistics")=="yields" and "quantities" not in mp:
             return "done",None
     try:
         h = harvest_point(mp)
-    except ValueError:
+    except (ValueError, OSError):
         return "failed", None
     if h is not None:
         return "done", h.get("mu95_obs")
-    status_txt = os.path.join(REPO, mp["run_dir"], "logs", "STATUS.txt")
+    status_txt = str(point_log_root(mp, run_dir) / "STATUS.txt")
     if os.path.exists(status_txt):
         tail = open(status_txt).read().strip().splitlines()
         last = tail[-1] if tail else ""
@@ -522,24 +688,36 @@ def cmd_status(args):
 
 def cmd_assemble(args):
     directory, manifest = load_manifest(args.scandir)
+    from .point_overrides import metadata
     rows = []; missing = []; invalid = {}
     general = manifest.get("schema_version") == SCHEMA_VERSION
     for point in manifest["points"]:
         try:
             harvested = harvest_point(point)
-        except ValueError as exc:
+        except (ValueError, OSError) as exc:
             invalid[point["tag"]] = str(exc)
             harvested = None
         if harvested is None:
             missing.append(point["tag"])
             continue
-        rows.append({"tag": point["tag"], **harvested})
+        rows.append({"tag": point["tag"], "status": "completed", **harvested, **metadata(point.get('override'))})
     if not rows:
-        die("no completed points -- nothing to assemble")
+        print("no completed points; preserving the complete missing population")
     result = {"schema_version": SCHEMA_VERSION, "name": manifest["name"],
         "model": manifest.get("model"), "analysis_id": manifest.get("analysis_id"),
         "n_planned": manifest["n_points"], "n_done": len(rows), "n_missing": len(missing),
-        "missing_tags": missing, "invalid_points": invalid, "points": rows}
+        "missing_tags": missing, "invalid_points": invalid, "points": rows,
+        "point_population": []}
+    completed = {row['tag']: row for row in rows}
+    for point in manifest['points']:
+        # Historical producers sometimes supplied coordinates only in the result.
+        supplied = point if point.get('parameters') or any(type(v) in (int, float) for v in point.values()) else completed.get(point['tag'])
+        coordinates = point_parameters(supplied) if supplied else {}
+        result['point_population'].append({'tag': point['tag'], 'parameters': coordinates,
+            'status': 'failed' if point['tag'] in invalid else 'missing' if point['tag'] in missing else 'completed',
+            **metadata(point.get('override'))})
+    if "data_schema" in manifest:
+        result["data_schema"] = manifest["data_schema"]
     if general:
         result.update({key: manifest[key] for key in ("axes", "datasets", "quantities", "output")})
         output = manifest["output"]
@@ -574,11 +752,14 @@ def cmd_assemble(args):
         names = [a["name"] for a in manifest["axes"]]
         quantities = [q["name"] for q in manifest["quantities"]]
         with out.open('w', newline='') as stream:
-            writer = csv.DictWriter(stream, fieldnames=["tag", *names, *quantities])
+            writer = csv.DictWriter(stream, fieldnames=["tag", *names, *quantities, "overridden", "regime", "receipt_sha256", "status"])
             writer.writeheader()
-            for row in rows:
+            completed = {row['tag']: row for row in rows}
+            for population_row in result['point_population']:
+                row = completed.get(population_row['tag'], population_row)
                 writer.writerow({"tag": row["tag"], **row["parameters"],
-                    **{q: json.dumps(row[q], allow_nan=False) if isinstance(row[q], (dict, list)) else row[q] for q in quantities}})
+                    **{key: row[key] for key in ('overridden', 'regime', 'receipt_sha256')}, 'status': population_row['status'],
+                    **{q: json.dumps(row[q], allow_nan=False) if isinstance(row.get(q), (dict, list)) else row.get(q) for q in quantities}})
         # Metadata and custody remain available even in flat-table output.
         from ravel.workflow.state_io import atomic_json
         atomic_json(out.with_suffix(out.suffix+'.metadata.json'), result)
@@ -623,8 +804,9 @@ def launch_point(mp, manifest, args, *, plan=None):
         print(f"  {mp['tag']}: container {mp['config']} [DRY DIAGNOSTIC ONLY; live dispatch unsupported]")
         if not args.go:
             return cmd
-    os.makedirs(os.path.join(run_dir, "logs"), exist_ok=True)
-    with open(os.path.join(run_dir, "logs", "orchestrator_launch.log"), "a") as log:
+    logs = point_log_root(mp, run_dir)
+    logs.mkdir(parents=True, exist_ok=True)
+    with (logs / "orchestrator_launch.log").open("a") as log:
         from ravel.workflow.launch_authorization import authorized_popen
         process = authorized_popen(run_dir, plan["required_compute_plan"], cmd,
                                    context={"kind": "scan-dispatch", "plan_sha256": plan["plan_sha256"]},
@@ -648,7 +830,7 @@ def cmd_launch(args):
             die("container backend is sequential; --max must be 1")
     pending = [mp for mp in man["points"] if point_status(mp)[0] == "pending" or
                (native and getattr(args,"resume",False) and point_status(mp)[0] == "failed"
-                and os.path.exists(os.path.join(REPO,mp["run_dir"],"execution_state.json")))]
+                and (mp.get("override") or os.path.exists(os.path.join(REPO,mp["run_dir"],"execution_state.json"))))]
     if not pending:
         print("no pending points (all done/running/failed)")
         return
@@ -694,6 +876,9 @@ def main():
     p.add_argument("--dry-run", action="store_true",
                    help="enumerate the grid points WITHOUT writing run dirs / TOMLs / manifest")
     p.set_defaults(fn=cmd_plan)
+    p = sub.add_parser("override"); p.add_argument("scandir")
+    p.add_argument("--point", required=True); p.add_argument("--record", required=True)
+    p.set_defaults(fn=cmd_override)
     p = sub.add_parser("status"); p.add_argument("scandir"); p.set_defaults(fn=cmd_status)
     p = sub.add_parser("assemble"); p.add_argument("scandir")
     p.add_argument("--out", default=None)

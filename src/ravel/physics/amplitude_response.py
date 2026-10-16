@@ -96,14 +96,20 @@ class CachedResponse:
             ab.require(bh['block'] == identity and marker['summary'] == row['summary']
                        and marker['sha256'] == row['sha256'] and marker['points'] == row['points']
                        and marker['header_sha256'] == hashlib.sha256(store._canonical(bh)).hexdigest(), 'block/manifest identity differs')
-            for key in ('basis', 'observables', 'factor_unit', 'pairing', 'proposals'):
+            for key in ('basis', 'observables', 'factor_unit', 'pairing', 'proposals', 'safety_cuts'):
                 ab.require(bh.get(key) == header.get(key), 'block scientific header differs: ' + key)
             summary = row['summary']
             ab.require(all(type(summary[k]) is int and summary[k] >= 0 for k in ('attempted', 'accepted', 'rejected', 'failed')),
                        'nonnegative integer draw census required')
-            ab.require(summary['attempted'] == planned['draws'] == summary['accepted'] + summary['rejected'] + summary['failed']
+            # A draw excluded by a declared safety cut is a zero of the restricted phase space; any
+            # other unstored draw outside rejected must not become one.
+            excluded = summary.get('excluded', 0)
+            ab.require(type(excluded) is int and excluded >= 0 and (excluded == 0 or header.get('safety_cuts')),
+                       'excluded draws need the store\'s declared safety cuts')
+            ab.require(summary['attempted'] == planned['draws']
+                       == summary['accepted'] + summary['rejected'] + summary['failed'] + excluded
                        and summary['accepted'] == row['points'] and summary['failed'] == 0
-                       and summary.get('safety_excluded', 0) == 0, 'failed/safety/incomplete draws cannot become zeros')
+                       and 'safety_excluded' not in summary, 'failed/undeclared/incomplete draws cannot become zeros')
             if estimator == 'hypothesis-pairing':
                 ab.require('pairing' in block, 'hypothesis-pairing needs complete retained pairings, not audit samples')
             mask = np.ones(row['points'], bool)
@@ -160,10 +166,11 @@ class CachedResponse:
             ab.require(expected_proposal == source['proposal']['sha256'], 'raw replay proposal differs from cached cohort')
             parsed = records.parse(captured['source'], operation=protocol['operations']['block'],
                                    draws=identity['draws'], seed=identity['seed'], channel=source['channel'], protocol=protocol)
-            ab.require(parsed['summary']['failed'] == 0 and parsed['summary']['safety_excluded'] == 0,
-                       'raw replay has failed or safety-excluded draws')
-            for key in ('attempted', 'accepted', 'rejected', 'failed'):
-                ab.require(parsed['summary'][key] == block['marker']['summary'][key], 'raw replay draw census differs')
+            ab.require(parsed['summary']['failed'] == 0, 'raw replay has failed draws')
+            for key in ('attempted', 'accepted', 'rejected', 'failed', 'excluded'):
+                ab.require(parsed['summary'][key] == block['marker']['summary'].get(key, 0), 'raw replay draw census differs')
+            ab.require(protocol.get('safety_cuts', []) == block['header'].get('safety_cuts', []),
+                       'raw replay safety cuts differ from the cached store')
             ab.require(protocol['factor_unit'] == block['header']['factor_unit']
                        and protocol['channels'][str(source['channel'])]['pdg'] == block['header']['particles']['pdg'],
                        'raw replay units or particle identities differ')

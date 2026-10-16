@@ -233,3 +233,15 @@ globality, coverage, physics accuracy and exclusion remain separate claims.
 Required omissions raise `SpecificationError` with `reason="missing_input"` and
 an explicit field. Native work uses the existing method-decision and launch
 admission path after actual CHECK-IN 1; no preparation command launches it.
+
+At rate, sample-exposure, yield, template and likelihood joins, retain supplied
+quantity descriptors and run the ordinary request-plan check. Present every
+`quantity_obligation` in the numbered CHECK-IN flags; resolve the missing fact
+from a source or an explicitly recorded assumption. A `quantity_incompatible`
+error requires compatible input or an explicit conversion operation. Inspect
+ordered likelihood bins, auxiliary-information identities and matching regional
+exposure revisions. Cross-input equality compares only stated shared facts;
+a background-only workspace does not acquire a signal model-point requirement.
+Known sign-preserving producers declare their weight convention. If a producer
+has no declaration, retain the consumer's located weight obligation; a declared
+signed-to-absolute relabeling is refused. See [quantity contracts](../../reference/knowledge.md#quantity-contracts-on-composition-edges).

@@ -152,3 +152,21 @@ def test_actual_root_stream_schema2_plan_export_and_missing_plan_private_context
         with pytest.raises(HostFailure):
             AgentHost()._context({"packet": None, "role": "lead"}, {"request_id": "synthetic"},
                 {"ledger": (ledger, pin(ledger)["sha256"])})
+
+
+def test_source_epoch_ignores_generated_bytecode_and_timestamps_but_binds_source_bytes(tmp_path):
+    import os
+    root = tmp_path / 'source'; root.mkdir()
+    code = root / 'module.py'; code.write_text('value = 1\n')
+    original = site_workflow._source_census(root)
+    os.utime(code, (1, 1))
+    cache = root / '__pycache__'; cache.mkdir()
+    (cache / 'module.cpython-312.pyc').write_bytes(b'generated interpreter cache')
+    assert site_workflow._source_census(root) == original
+    (cache / 'module.cpython-312.pyc').write_bytes(b'changed generated interpreter cache')
+    assert site_workflow._source_census(root) == original
+    code.write_text('value = 2\n')
+    assert site_workflow._source_census(root) != original
+    code.write_text('value = 1\n')
+    (root / 'new.dat').write_bytes(b'new source member')
+    assert site_workflow._source_census(root) != original

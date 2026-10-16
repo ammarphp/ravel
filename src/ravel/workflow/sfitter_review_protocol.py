@@ -548,17 +548,58 @@ def consume(rundir, binding, *, allow_control=False):
         supporting_artifacts=list({p['path']:p for p in support}.values()))
 
 
+def _journal_findings(view, binding, verified):
+    matching = [r for r in view['reviews'] if r['actor_id'] == verified['contract']['actor_id']
+                and binding['judgment']['request'] in r.get('supporting_artifacts', [])]
+    if len(matching) != 1:
+        raise ValueError('current actual send-back must already be recorded in the review journal')
+    return matching[0]['findings']
+
+
 def rework(rundir, binding, out, *, allow_control=False):
+    from .state_io import file_lock
+    from . import finding_routing as routing
+    # Verification precedes reuse, so a stale source cannot borrow a previous draft.
+    _, _, verified = verify_binding(binding, allow_control=allow_control)
+    _, _, _, view = judgment._live(rundir)
+    repairs, _ = routing.partition(_journal_findings(view, binding, verified))
+    if not repairs or any(routing.kind(f) == 'unclassified' for f in repairs):
+        return _rework(rundir, binding, out, allow_control=allow_control)
+    key = judgment.execution.digest(sorted(routing.repair_key(f) for f in repairs))
+    root = judgment.review._root(rundir)
+    memo = root / 'logs/physics_review/phase_reworks' / (key + '.json')
+    with file_lock(root / 'logs/physics_review/phase_reworks.lock'):
+        if memo.exists():
+            return {'schema_version': 1, 'kind': 'unchanged_finding_rework', 'rework': False,
+                    'previous': judgment.review.read_json(memo)}
+        result = _rework(rundir, binding, out, allow_control=allow_control)
+        memo.parent.mkdir(parents=True, exist_ok=True)
+        judgment._new(memo, result)
+        return result
+
+
+def _rework(rundir, binding, out, *, allow_control=False):
     """Actual send-back -> new owning-phase draft, never old vote/status mutation."""
     request,report,verified=verify_binding(binding,allow_control=allow_control)
     root,_,_,view=judgment._live(rundir)
-    if str(root)!=verified['contract']['rundir'] or verified['value']['verdict']!='send_back' or view['state']!='send_back': raise ValueError('current actual send-back for this run required')
+    from . import finding_routing as routing
+    repairs, limitations = routing.partition(_journal_findings(view, binding, verified))
+    if str(root) != verified['contract']['rundir']:
+        raise ValueError('review belongs to another run')
+    if not repairs:
+        return {'schema_version': 1, 'kind': 'review_limitation_routing', 'rework': False,
+                'limitation_census': routing.limitation_census(limitations)}
+    if verified['value']['verdict']!='send_back' or view['state']!='send_back':
+        raise ValueError('current actual send-back for this run required')
     matching=[r for r in view['reviews'] if r['actor_id']==verified['contract']['actor_id'] and r['verdict']=='send_back' and binding['judgment']['request'] in r.get('supporting_artifacts',[])]
     if len(matching)!=1: raise ValueError('send-back must already be recorded in the existing review journal')
-    checks={x for f in verified['value']['findings'] for x in f['check_ids']}
+    checks={x for f in repairs for x in f['check_ids']}
     concerns=[c for c in report['concerns'] if checks&set(c['original_check_ids'])]
     if not concerns: raise ValueError('located finding has no owning-phase mapping')
-    owner=min((c['owner_phase'] for c in concerns),key=workflow.PHASES.index)
+    targets = {routing.validate(f)['target'] for f in repairs if routing.kind(f) == 'defect'}
+    if targets and (len(targets) != 1 or targets != {c['owner_phase'] for c in concerns}):
+        raise ValueError('defect target must exactly match its owning phase; split independent defects')
+    owner = next(iter(targets)) if targets else min((c['owner_phase'] for c in concerns),key=workflow.PHASES.index)
     base=Path(request['workflow']['path']).parent; wf=_read(request['workflow'],base)
     # Preserve current handoff identities but discard the owning suffix in a new request.
     wf=deepcopy(wf); cutoff=workflow.PHASES.index(owner)

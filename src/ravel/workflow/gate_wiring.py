@@ -665,6 +665,8 @@ def initialize_steering(rundir, *, route):
                     _bind_identity(rundir)
             record = {'event': 'journal_init', 'route': route, 'path': str(Path(rundir).resolve()),
                       'location': _location(rundir)}
+            from .provider_policy import initialize_project_policy
+            initialize_project_policy(rundir)
             custody.append(rundir, 'steering', record)
             return record
 

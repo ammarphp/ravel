@@ -1,7 +1,4 @@
 {
-  "schema_version": 1,
-  "kind": "registry-registration",
-  "target": "role-registry",
   "append": {
     "required_roles": [
       "consult-higgs",
@@ -22,11 +19,11 @@
           "family": "consult",
           "id": "consult-higgs",
           "independence": {
-            "kind": "advisory",
             "distinct_actor_from": [
               "coordinator"
             ],
-            "fresh_session": true
+            "fresh_session": true,
+            "kind": "advisory"
           },
           "kind": "role-card",
           "knowledge": {
@@ -72,6 +69,11 @@
             "schema": "findings.v1",
             "sidecar": true
           },
+          "ownership": {
+            "inputs": [],
+            "judges": [],
+            "owns": []
+          },
           "protocol": [
             "Advise on scalar framework choice, conventions and a discriminating check; advice never accepts a result.",
             "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -95,13 +97,13 @@
           "reviewed_by": [],
           "schema_version": 2,
           "sees": {
-            "profile": "workspace",
             "forbidden_inputs": [
               "lessons",
               "other_verdicts",
               "producer_headline",
               "withheld_sources"
-            ]
+            ],
+            "profile": "workspace"
           },
           "stop": {
             "evidence_budget": 0,
@@ -129,126 +131,6 @@
         },
         "override": "cards/consult-higgs.json"
       },
-      "higgs-coupling-analyst": {
-        "card": {
-          "escalation": [
-            "checkin_flag",
-            "stop",
-            "new_experiment_required",
-            "decision_block"
-          ],
-          "family": "production",
-          "id": "higgs-coupling-analyst",
-          "independence": {
-            "kind": "producer",
-            "distinct_actor_from": [
-              "coordinator"
-            ],
-            "fresh_session": true
-          },
-          "kind": "role-card",
-          "knowledge": {
-            "budget_tokens": 24000,
-            "consult": [
-              {
-                "role": "consult-higgs",
-                "when": "on_use"
-              }
-            ],
-            "derive": [
-              "handbooks_for_node",
-              "checks_judging_node",
-              "premises_firing",
-              "conventions:node_tags"
-            ],
-            "forbidden": [],
-            "may_query": [
-              "find",
-              "show",
-              "for_node",
-              "coverage"
-            ],
-            "must_read": [
-              "conv:higgs",
-              "trap:TH1",
-              "trap:TH2",
-              "trap:TH3",
-              "trap:TH4",
-              "trap:TH5",
-              "trap:TH6"
-            ]
-          },
-          "model": {
-            "distinct_family_from": [],
-            "effort": "high",
-            "tier": "agent"
-          },
-          "must_check": [
-            "check:higgs.measurement_bundle",
-            "check:higgs.parameterization_closure"
-          ],
-          "operations": [],
-          "output": {
-            "declared_outputs": [],
-            "schema": "producer.v1",
-            "sidecar": true
-          },
-          "protocol": [
-            "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
-            "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
-            "Inspect inclusive, STXS and differential sample overlap. Require a supplied joint likelihood for reused events and keep asymmetric likelihoods near physical boundaries.",
-            "Inspect shared signal theory sources and correlations; use consistent scale and PDF definitions and count each table or program uncertainty once.",
-            "Preserve supplied angle ranges, cosine signs, Yukawa types and wrong-sign branches, and require an explicit basis transport before comparing tan(beta).",
-            "Declare the requested statistic and its scope. An expected-sensitivity channel selection is not a channel combination; a confidence-region dimension is not a goodness-of-fit residual dimension.",
-            "Acquire the framework and tool handbooks through the governed resource route. A missing handbook or operation check remains an unresolved obligation; no metadata check grants physics qualification.",
-            "Run the card-named checks through check run on a source-bound supplied JSON document. An inconclusive operation delegation is not a pass. Native or remote work uses method admission and the existing launch guard.",
-            "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
-            "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
-          ],
-          "purpose": "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
-          "requires": {
-            "attestation_min": "transport",
-            "blind": false,
-            "isolation_min": "ravel-sandbox",
-            "structured_output": true,
-            "tools": "broker-full"
-          },
-          "reviewed_by": [
-            "higgs-combination-reviewer",
-            "higgs-theory-uncertainty-auditor"
-          ],
-          "schema_version": 2,
-          "sees": {
-            "profile": "workspace",
-            "forbidden_inputs": []
-          },
-          "stop": {
-            "evidence_budget": 0,
-            "max_broker_calls": 200,
-            "max_cost_usd": null,
-            "max_rounds": 2,
-            "max_turns": 40,
-            "max_wall_seconds": 2700
-          },
-          "tools": {
-            "exec_argv_prefixes": [],
-            "ravel_actions": [
-              "knowledge query",
-              "review-context read",
-              "check run"
-            ],
-            "read_paths": [
-              "inputs/"
-            ],
-            "validators": [
-              "check:higgs.measurement_bundle",
-              "check:higgs.parameterization_closure"
-            ]
-          },
-          "version": "1.0.0"
-        },
-        "override": "cards/higgs-coupling-analyst.json"
-      },
       "extended-scalar-modeler": {
         "card": {
           "escalation": [
@@ -260,11 +142,11 @@
           "family": "production",
           "id": "extended-scalar-modeler",
           "independence": {
-            "kind": "producer",
             "distinct_actor_from": [
               "coordinator"
             ],
-            "fresh_session": true
+            "fresh_session": true,
+            "kind": "producer"
           },
           "kind": "role-card",
           "knowledge": {
@@ -310,6 +192,13 @@
             "schema": "producer.v1",
             "sidecar": true
           },
+          "ownership": {
+            "inputs": [],
+            "judges": [],
+            "owns": [
+              "scalar-population"
+            ]
+          },
           "protocol": [
             "Construct supplied extended-scalar populations in a declared basis, preserving signs, branches and theory constraints.",
             "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -335,8 +224,8 @@
           ],
           "schema_version": 2,
           "sees": {
-            "profile": "workspace",
-            "forbidden_inputs": []
+            "forbidden_inputs": [],
+            "profile": "workspace"
           },
           "stop": {
             "evidence_budget": 0,
@@ -376,13 +265,13 @@
           "family": "specialist-review",
           "id": "higgs-combination-reviewer",
           "independence": {
-            "kind": "specialist",
             "distinct_actor_from": [
               "coordinator",
               "higgs-coupling-analyst",
               "extended-scalar-modeler"
             ],
-            "fresh_session": true
+            "fresh_session": true,
+            "kind": "specialist"
           },
           "kind": "role-card",
           "knowledge": {
@@ -442,6 +331,16 @@
             "schema": "findings.v1",
             "sidecar": true
           },
+          "ownership": {
+            "inputs": [],
+            "judges": [
+              "measurement-parameterization-bundle",
+              "coupling-modifier-extraction",
+              "signal-scale-uncertainty",
+              "signal-pdf-uncertainty"
+            ],
+            "owns": []
+          },
           "protocol": [
             "Independently review dataset overlap, correlations, likelihood boundaries and the supplied cross-engine comparison.",
             "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -465,13 +364,13 @@
           "reviewed_by": [],
           "schema_version": 2,
           "sees": {
-            "profile": "blind",
             "forbidden_inputs": [
               "lessons",
               "other_verdicts",
               "producer_headline",
               "withheld_sources"
-            ]
+            ],
+            "profile": "blind"
           },
           "stop": {
             "evidence_budget": 0,
@@ -500,6 +399,134 @@
         },
         "override": "cards/higgs-combination-reviewer.json"
       },
+      "higgs-coupling-analyst": {
+        "card": {
+          "escalation": [
+            "checkin_flag",
+            "stop",
+            "new_experiment_required",
+            "decision_block"
+          ],
+          "family": "production",
+          "id": "higgs-coupling-analyst",
+          "independence": {
+            "distinct_actor_from": [
+              "coordinator"
+            ],
+            "fresh_session": true,
+            "kind": "producer"
+          },
+          "kind": "role-card",
+          "knowledge": {
+            "budget_tokens": 24000,
+            "consult": [
+              {
+                "role": "consult-higgs",
+                "when": "on_use"
+              }
+            ],
+            "derive": [
+              "handbooks_for_node",
+              "checks_judging_node",
+              "premises_firing",
+              "conventions:node_tags"
+            ],
+            "forbidden": [],
+            "may_query": [
+              "find",
+              "show",
+              "for_node",
+              "coverage"
+            ],
+            "must_read": [
+              "conv:higgs",
+              "trap:TH1",
+              "trap:TH2",
+              "trap:TH3",
+              "trap:TH4",
+              "trap:TH5",
+              "trap:TH6"
+            ]
+          },
+          "model": {
+            "distinct_family_from": [],
+            "effort": "high",
+            "tier": "agent"
+          },
+          "must_check": [
+            "check:higgs.measurement_bundle",
+            "check:higgs.parameterization_closure"
+          ],
+          "operations": [],
+          "output": {
+            "declared_outputs": [],
+            "schema": "producer.v1",
+            "sidecar": true
+          },
+          "ownership": {
+            "inputs": [],
+            "judges": [],
+            "owns": [
+              "measurement-parameterization-bundle"
+            ]
+          },
+          "protocol": [
+            "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
+            "Inside the fit workflow, own the supplied measurement and parameterization bundle handed to the fit specialists. The fit roles own coupling-modifier extraction and scale, PDF and parametric signal-theory uncertainty estimation; the theory auditor and combination reviewer judge these quantities without owning them.",
+            "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
+            "Inspect inclusive, STXS and differential sample overlap. Require a supplied joint likelihood for reused events and keep asymmetric likelihoods near physical boundaries.",
+            "Inspect shared signal theory sources and correlations; use consistent scale and PDF definitions and count each table or program uncertainty once.",
+            "Preserve supplied angle ranges, cosine signs, Yukawa types and wrong-sign branches, and require an explicit basis transport before comparing tan(beta).",
+            "Declare the requested statistic and its scope. An expected-sensitivity channel selection is not a channel combination; a confidence-region dimension is not a goodness-of-fit residual dimension.",
+            "Acquire the framework and tool handbooks through the governed resource route. A missing handbook or operation check remains an unresolved obligation; no metadata check grants physics qualification.",
+            "Run the card-named checks through check run on a source-bound supplied JSON document. An inconclusive operation delegation is not a pass. Native or remote work uses method admission and the existing launch guard.",
+            "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
+            "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+          ],
+          "purpose": "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
+          "requires": {
+            "attestation_min": "transport",
+            "blind": false,
+            "isolation_min": "ravel-sandbox",
+            "structured_output": true,
+            "tools": "broker-full"
+          },
+          "reviewed_by": [
+            "higgs-combination-reviewer",
+            "higgs-theory-uncertainty-auditor"
+          ],
+          "schema_version": 2,
+          "sees": {
+            "forbidden_inputs": [],
+            "profile": "workspace"
+          },
+          "stop": {
+            "evidence_budget": 0,
+            "max_broker_calls": 200,
+            "max_cost_usd": null,
+            "max_rounds": 2,
+            "max_turns": 40,
+            "max_wall_seconds": 2700
+          },
+          "tools": {
+            "exec_argv_prefixes": [],
+            "ravel_actions": [
+              "knowledge query",
+              "review-context read",
+              "check run"
+            ],
+            "read_paths": [
+              "inputs/"
+            ],
+            "validators": [
+              "check:higgs.measurement_bundle",
+              "check:higgs.parameterization_closure"
+            ]
+          },
+          "version": "1.0.0"
+        },
+        "override": "cards/higgs-coupling-analyst.json"
+      },
       "higgs-theory-uncertainty-auditor": {
         "card": {
           "escalation": [
@@ -511,13 +538,13 @@
           "family": "specialist-review",
           "id": "higgs-theory-uncertainty-auditor",
           "independence": {
-            "kind": "specialist",
             "distinct_actor_from": [
               "coordinator",
               "higgs-coupling-analyst",
               "extended-scalar-modeler"
             ],
-            "fresh_session": true
+            "fresh_session": true,
+            "kind": "specialist"
           },
           "kind": "role-card",
           "knowledge": {
@@ -563,6 +590,15 @@
             "schema": "findings.v1",
             "sidecar": true
           },
+          "ownership": {
+            "inputs": [],
+            "judges": [
+              "signal-scale-uncertainty",
+              "signal-pdf-uncertainty",
+              "signal-parametric-uncertainty"
+            ],
+            "owns": []
+          },
           "protocol": [
             "Audit shared signal theory nuisances across experiments, scale and PDF definitions, and duplicated uncertainty sources.",
             "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -586,13 +622,13 @@
           "reviewed_by": [],
           "schema_version": 2,
           "sees": {
-            "profile": "blind",
             "forbidden_inputs": [
               "lessons",
               "other_verdicts",
               "producer_headline",
               "withheld_sources"
-            ]
+            ],
+            "profile": "blind"
           },
           "stop": {
             "evidence_budget": 0,
@@ -621,5 +657,8 @@
         "override": "cards/higgs-theory-uncertainty-auditor.json"
       }
     }
-  }
+  },
+  "kind": "registry-registration",
+  "schema_version": 1,
+  "target": "role-registry"
 }

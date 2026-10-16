@@ -24,9 +24,9 @@ ZERO = '0' * 64
 
 
 def write_program(path, body):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     path.write_text(f'#!{sys.executable}\n' + body)
-    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+    path.chmod(0o700)
     return path
 
 

@@ -17,15 +17,15 @@
     "CMakeLists-ravel.cmake"
   ],
   "files": {
-    "ravel_bridge.f90": "612bba3cb31022158ee8173dbc7310a3b9e6cee3b3b0cec50f6e578c69a4cc3f",
-    "ravel_driver.f90": "670e6a9be983c0f8d36f9955113e3290628c97aac321f7a00b8ace534d1c6e3d",
-    "lowint-capture.patch": "414a870631fc6df128c54844a913105315d4bd2050409c33113f62ee98a556bd",
+    "ravel_bridge.f90": "16d03bfa5a6081a7282459681ffb90cc67e92f1076cd9d96edea0c8eea9f79a7",
+    "ravel_driver.f90": "7acbbf498d67a319d552aec3feaf502d3758a031b6ed7c905a8522b99297b960",
+    "lowint-capture.patch": "b67f438a3a4966ea58b5dde64ad29378475d57a9fbca356f2a404e4eab7946f7",
     "CMakeLists-ravel.cmake": "3d2dcfb7a1c97c9324177ab2b0683670d5c9fcee5329e0f2d78ca5e184fea9b9",
-    "upstream-api.json": "0f11a9064e50b4a6cc7e4304501f839a59a593dd9c5d5f2e07c00d3da6543355",
+    "upstream-api.json": "da90dfd2f7634fe04a4eb01b159eaa33cd87f740fa9a3ccab2a73c872921bb6d",
     "COPYING.GPL-3.txt": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
   },
   "protocol": {
-    "format": "RAVEL_MCFM_2",
+    "format": "RAVEL_MCFM_3",
     "operations": {
       "points": 0,
       "warmup": 1,
@@ -109,6 +109,55 @@
       "pdf_product"
     ],
     "factor_divisor": "branching_ratio",
-    "factor_unit": "fb"
+    "factor_unit": "fb",
+    "safety_cuts": [
+      {
+        "id": "z-candidate-pt",
+        "kind": "pair_pt_min",
+        "min_gev": 0.1,
+        "pairs": [
+          [
+            3,
+            4
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "identical_pairs": [
+          [
+            3,
+            6
+          ],
+          [
+            5,
+            4
+          ]
+        ],
+        "excluded_weight": "measured",
+        "reason": "MCFM omits the light-quark and the top/bottom continuum loops below this Z transverse momentum for numerical stability, so its amplitudes there are incomplete. The program excludes such draws when it makes them; integrals cover the restricted phase space.",
+        "source": "MCFM 10.2.1 src/ZZ/getggZZamps.f (ptZsafetycut_massless = ptZsafetycut_massive = 0.1 GeV, applied to pttwo(3,4)); file pinned in upstream-api.json"
+      },
+      {
+        "id": "small-invariants",
+        "kind": "normalized_invariant_min",
+        "minimum": 1e-09,
+        "particles": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "beams": [
+          1,
+          2
+        ],
+        "reference_energy_gev": 100.0,
+        "excluded_weight": "unmeasured",
+        "reason": "MCFM's lowint discards a draw whose lepton energy over 100 GeV or whose normalized invariant |p_j.p_k|/|E_j E_k| with another lepton or a beam is below 1e-9, for numerical safety, before it evaluates the flux, the PDFs or the squared amplitude. The program excludes such draws when it makes them (and supplied points meeting it); their weight is not measured, and MCFM's own integrand is zero there.",
+        "source": "MCFM 10.2.1 src/Procdep/lowint.f (passed_smallnew(p,npart,1d-9)) and src/Need/smallnew.f; both pinned in upstream-api.json"
+      }
+    ]
   }
 }

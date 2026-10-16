@@ -63,6 +63,13 @@
     "schema": "findings.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [
+      "supplied-measurement-bundle"
+    ],
+    "owns": []
+  },
   "protocol": [
     "Independently review measurement data overlap, common luminosity, shared systematic sources and combination covariance assumptions.",
     "Begin in a fresh session distinct from the producer without the producer_headline. Enumerate dataset, luminosity and systematic overlap for every measurement pair and recompute covariance contributions.",

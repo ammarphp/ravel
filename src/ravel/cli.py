@@ -15,6 +15,7 @@ from .paths import repository_root
 # execution remains in plan/approve/run; these commands inspect evidence or
 # preserve explicitly requested advisory artifacts.
 FOCUSED_COMMANDS = {
+    'study-grid': ('workflow.study_grid', 'submit, observe, resume and harvest finite prepared-study grids'),
     'doctor': ('setup.doctor', 'check that every required tool is installed and give the exact fix for each problem'),
     'research-orchestrate': ('workflow.research_orchestrator', 'durable default design/review/evidence/ordinary-execution research coordination'),
     'agentrivet-construction': ('workflow.agentrivet_construction', 'connect original source-bound paper roles, ordinary build/event feedback and independent whole-task closure'),
@@ -623,7 +624,7 @@ def _initiate(args) -> int:
         # holds anything: dispatch needs the initialization record, and a later copy of the
         # directory is recognized by the identity bound here.
         gate_wiring.initialize_steering(output, route='run-initialization')
-        (output / "inputs").mkdir()
+        (output / "inputs").mkdir(exist_ok=True)
         (output / "request.txt").write_text(prompt, encoding="utf-8")
         session_id = _session_id(args)
         _write_intake(output, prompt, contract, recovery, interpretation_bytes=interpretation_bytes,

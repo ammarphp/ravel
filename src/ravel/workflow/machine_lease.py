@@ -10,7 +10,7 @@ ledger, a custody store) live there.
 Lease scope. On a cluster the home directory is shared by every node, so a lease in
 the state root would be one lease for the whole cluster. The lease root
 (``machine_dir()``, used by ``machine_lock()`` and every lease record) is therefore
-scoped by facts of the process, never by a setting:
+scoped by the process allocation and the governed worker policy:
 
 - inside a Slurm allocation (``SLURM_JOB_ID``, proven by the job's own cgroup in
   ``/proc/self/cgroup``) the allocation is the machine:
@@ -18,6 +18,10 @@ scoped by facts of the process, never by a setting:
   steps included, shares that lease; a variable without the cgroup selects nothing;
 - on Linux with the home on a network file system (NFS, Lustre, GPFS and the like)
   the host is the machine: ``<state root>/scopes/host-<host name>``;
+- a governed HTCondor worker uses ``RAVEL_LEASE_SCOPE=batch-slot`` and its owned
+  ``_CONDOR_SCRATCH_DIR/.ravel-lease``. A missing scratch root, or one without the
+  starter's job ad (``_CONDOR_JOB_AD``), refuses this scope;
+  changing worker slots never relocates persistent user-wide stores;
 - otherwise (a laptop, a workstation with a local home) the state root itself.
 
 Within one scope the rule is unchanged: one native scientific job at a time.
@@ -243,6 +247,21 @@ def shared_filesystem(path, mounts_text=None):
 
 def lease_scope(state_root=None, *, environ=None, cgroup_text=None, mounts_text=None, host=None):
     """``{'kind', 'key', ...}``: the machine a lease stands for (``slurm-job``, ``host`` or ``machine``)."""
+    environ = os.environ if environ is None else environ
+    if environ.get('RAVEL_LEASE_SCOPE') == 'batch-slot':
+        # The governed HTCondor submit environment selects this policy. Worker
+        # scratch is local to the allocation; persistent stores stay in state_root.
+        # The starter's job ad inside that scratch is the batch-slot fact: the
+        # variables alone would give any owned directory its own lease.
+        scratch = Path(environ.get('_CONDOR_SCRATCH_DIR', ''))
+        ad = Path(environ.get('_CONDOR_JOB_AD', ''))
+        if (not environ.get('_CONDOR_SCRATCH_DIR') or not scratch.is_absolute() or scratch.is_symlink()
+                or not scratch.is_dir() or scratch.stat().st_uid != os.getuid()
+                or not environ.get('_CONDOR_JOB_AD') or ad.parent != scratch
+                or ad.is_symlink() or not ad.is_file()):
+            raise ValueError('batch-slot lease requires an owned absolute _CONDOR_SCRATCH_DIR on the worker '
+                             'holding the starter job ad named by _CONDOR_JOB_AD')
+        return {'kind': 'batch-slot', 'key': 'htcondor', 'scratch_root': str(scratch.resolve())}
     allocation = slurm_allocation(environ, cgroup_text)
     if allocation is not None:
         return {'kind': 'slurm-job', 'key': allocation_key(allocation), **allocation}
@@ -257,7 +276,7 @@ def lease_scope(state_root=None, *, environ=None, cgroup_text=None, mounts_text=
 def allocation_identity():
     """The host or Slurm allocation a cluster lease stands for, for receipts; None outside a cluster scope."""
     current = scope()
-    if current['kind'] not in ('slurm-job', 'host'):
+    if current['kind'] not in ('slurm-job', 'host', 'batch-slot'):
         return None
     identity = {'scope': current['key'], 'kind': current['kind'], 'host': socket.gethostname()}
     if current['kind'] == 'slurm-job':
@@ -267,6 +286,8 @@ def allocation_identity():
                           ('array_job_id', 'SLURM_ARRAY_JOB_ID'), ('array_task_id', 'SLURM_ARRAY_TASK_ID')):
             if os.environ.get(name):
                 identity[key] = os.environ[name]
+    elif current['kind'] == 'batch-slot':
+        identity['scratch_root'] = current['scratch_root']
     else:
         identity['filesystem'] = current['filesystem']
     try:
@@ -297,6 +318,8 @@ def _resolve():
                          'grant; it uses neither a test domain nor the machine directory')
     root = _state_root_path()
     scope = lease_scope(root)
+    if scope['kind'] == 'batch-slot':
+        return Path(scope['scratch_root']) / '.ravel-lease', 'machine'
     return (root / 'scopes' / scope['key'] if scope['key'] else root), 'machine'
 
 
@@ -332,6 +355,14 @@ def scope():
     if kind == 'test' or _LOCATION is not None:
         return {'kind': kind, 'key': None, 'directory': str(path)}
     return lease_scope(_state_root_path()) | {'directory': str(path)}
+
+
+def lease_domain():
+    """Public site readiness view of the built-in worker batch-slot policy."""
+    current = scope()
+    return {'path': current['directory'], 'scope': current['kind'], 'lock_mode': 'local',
+            'reason': 'one native job per host, allocation or HTCondor worker scratch slot',
+            'policy': {'batch_slot_dir_env': '_CONDOR_SCRATCH_DIR'}}
 
 
 def _checked_test_domain(path):

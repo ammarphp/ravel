@@ -89,7 +89,9 @@ def prepare(request, *, base_dir, output_dir, presented_pins=None):
     emitted=model_events._generated_pin(path)
     model_events.require(original=={str(p):bridge._hash(p) for p in request_inputs(request,base)},'input source changed during generator preparation')
     model_events.require(path.read_bytes()==raw and model_events._generated_pin(path)==emitted,'generated specification changed before return')
-    result={'schema_version':1,'kind':'model-event-preparation','status':'prepared','specification':emitted,
+    from ravel.physics import generation_conventions
+    convention=generation_conventions.model_events_record(c,model_events.authenticated_text(bridge._pin(c['cards']['process'],config.parent),c['cards']['process']['sha256']),config.parent)
+    result={'generation_convention':convention,'schema_version':1,'kind':'model-event-preparation','status':'prepared','specification':emitted,
         'input_pins':[{'path':p,'sha256':sha} for p,sha in original.items()],
         'graph_source_population':'Exact pinned tree/support identities are fully expanded and hashed here; ordinary plan binds every expanded member.',
         'new_events_generated':0,'future_generated_event_ceiling':c['generation']['events'],

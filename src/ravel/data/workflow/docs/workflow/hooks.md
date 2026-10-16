@@ -8,16 +8,19 @@ hooks asks `ravel gate` before acting, and the delivery-side checks refuse what 
 | Host | Pre-execution checks | Delivery-side checks |
 |---|---|---|
 | Claude Code with this repository's `.claude/settings.json` | the hooks below (`pre_execution_guards: host-hooks`) | raw-launch invariant, scientific review, delivery checks |
-| Any other host (Codex, Gemini CLI, opencode, a bare shell, an SDK loop) | none run automatically; the host or agent calls `ravel gate` (`pre_execution_guards: none`) | the same delivery-side checks |
+| Codex, Gemini CLI, opencode with generated trusted/loaded adapters | Shared pre-tool guards; runtime compatibility and custody limits in the [host matrix](../reference/host-enforcement.md) | the same delivery-side checks |
+| Other contexts and unloaded hooks | explicit `ravel gate`; activated native PATH shims | the same delivery-side checks |
 | A broker worker whose session is pinned in the broker's custody ledger | `broker` only after a matching registered worker receipt | the same delivery-side checks |
 
-**Hook governance covers Claude Code only.** The hook scripts under `.claude/hooks/` run only where
-Claude Code loads this repository's `.claude/settings.json`. Codex, Gemini CLI and other hosts do
-not run them, and an installed wheel used from another project does not either. On those hosts
-the supervised launch path (`ravel run`, `stage_supervisor`, `launch_authorization`) still checks
-approval just before it starts a process, and delivery refuses generation output that has no
-approved launch record. Nothing stops a raw command on such a host before it runs: the agent must
-call `ravel gate` first, and the refusal at delivery is the backstop.
+Native adapters and their capability evidence are generated from the shared registry.
+Install with `ravel agent-surface install --project DIR`, then source
+the generated activation script in the host shell to enable native execution shims. Trust/load host configuration before relying on its hooks. Inspect the
+installation conflict report and `ravel agent-surface check --project DIR`.
+Absolute executable paths bypass PATH shims; arbitrary shell file writes require
+explicit `ravel gate --action protected_write --path PATH` and
+`ravel gate --action deviation_check --path PATH` checks. See the
+[host enforcement reference](../reference/host-enforcement.md) for scope and formats.
+Supervised launch approval and delivery checks still run in code on every host.
 
 ## `ravel gate`
 
@@ -140,3 +143,11 @@ with the host JSON on stdin. Unknown MCP tools are effectful. Observations in
 `logs/site-tools.jsonl` do not substitute for governed acquisition records,
 supervised launch receipts or remote completion evidence. Humans perform the
 facility's browser and grid-identity setup; agents never handle credentials.
+
+
+Host adapters locate the nearest ancestor with `.claude/settings.json` before
+falling back to the Git root or starting directory, so nested projects use their
+own installed runtime. Card protection follows the source hook registration in
+that same settings file; the public settings omit it. The configured root override
+and common-directory default apply only when that hook is registered. See the
+[host enforcement reference](../reference/host-enforcement.md).

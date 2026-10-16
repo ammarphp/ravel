@@ -19,6 +19,20 @@ ravel site doctor --profile generic --prefix /work/ravel-tools \
   --runs-dir /work/runs --transcripts-dir /work/transcripts
 ```
 
+For an HTCondor analysis facility, save this supplied site record as `site.json`:
+
+```json
+{"scheduler":"htcondor","requires_proxy":true,"requires_kerberos":false,"requires_afs":false}
+```
+
+```sh
+ravel site doctor --profile analysis-facility --site-record site.json \
+  --prefix /work/ravel-tools --runs-dir /work/runs --transcripts-dir /work/transcripts
+```
+
+`--site-record` overrides the analysis-facility profile's Slurm default and its
+credential requirements. Declare only the requirements that the site actually has.
+
 Choose an absolute LCG view path containing `setup.sh` when the facility uses
 CVMFS. `auto` lists this CPU's candidates and refuses installation. The installer
 carries the explicit choice through `RAVEL_LCG_VIEW` and writes
@@ -33,7 +47,7 @@ Linux CPython3.12 runs `<prefix>/.ravel-site/site-analysis`, installed from
 `pip --require-hashes`. The WMS lock includes Snakemake9.27.0, packaging25.0,
 cluster-generic and its compatible executor interface (`>=9.3.2,<10`). A release
 ships the lock. Maintainers regenerate it from `requirements-site-wms.in` with
-`bash scripts/setup/lock_site_wms.sh`, which needs network access to the package
+`bash scripts/setup/lock-site-wms.sh`, which needs network access to the package
 index. A missing lock stops installation. The analysis and native environments
 retain their existing dependency contracts.
 
@@ -50,7 +64,8 @@ One prefix holds one release for one campaign. `campaign.json` reserves the rele
 before creating either site environment. A different release is refused with both
 release names: install the new release into a new prefix once the current campaign
 ends. Exact interrupted declarations can resume; changed declarations require a
-new prefix.
+new prefix. The project profile and launch receipts also belong to that campaign;
+retain their original pins when changing releases.
 
 Installer children, `config/ravel-env.sh` and container wrappers set
 `APPTAINER_CACHEDIR=<prefix>/cache/apptainer` and
@@ -107,8 +122,9 @@ rule second:
 Export the configured HTCondor profile for this release. Its submit and status
 console scripts must resolve to the site-analysis interpreter. The doctor reports
 `ravel-wms-condor-submit` and `ravel-wms-condor-status` and skips them in a release
-that does not declare them; qualify the profile once both rows pass. Run against a real single-node
-HTCondor or the facility's permitted test queue:
+that does not declare them; qualify the profile once both rows pass. The following direct shim command is the synthetic qualification and manual fallback.
+For approved campaign stages, use the governed `ravel wms init/launch` path below.
+Run this check against a real single-node HTCondor or the permitted test queue:
 
 ```sh
 /work/ravel-tools/bin/ravel-snakemake --snakefile /work/site-qualification/Snakefile \
@@ -119,11 +135,11 @@ HTCondor or the facility's permitted test queue:
 Retain the release and lock digest, doctor JSON, profile, submission/status logs,
 worker qualification records and both output files. Require a successful scheduler
 exit and equal file contents. These receipts qualify the tested facility and
-synthetic workflow. The doctor warns when local-mode leases use a network
-filesystem or HTCondor lacks a recorded batch-slot policy. It prints
-`ravel lease policy set --scope host --batch-slot-dir-env _CONDOR_SCRATCH_DIR --reason <text> --operator <name>`;
-the facility user supplies the reason and operator and runs it. Machine actions
-are never labelled human approval.
+synthetic workflow. The doctor reports the built-in batch-slot lease policy. Governed HTCondor workers
+use `_CONDOR_SCRATCH_DIR/.ravel-lease` with `RAVEL_LEASE_SCOPE=batch-slot`; a missing,
+relative, linked or unowned scratch directory, or one without the starter's job ad
+named by `_CONDOR_JOB_AD`, refuses the lease. Persistent state
+stays in the shared work area. Machine actions are never labelled human approval.
 
 ## Closed scientific source contracts
 
@@ -277,6 +293,60 @@ only `index.json` at parse time, includes `rules/<task>.smk` in sorted order and
 single `rule all`. The audit block lists record paths; the local profile has one core
 and no retries.
 
+For an HTCondor analysis facility, initialize the project on its worker-reachable
+shared POSIX work area. Set the owner ceiling in the launch environment; the
+project's declared ceiling must fit it (the owner default is one job):
+
+```sh
+export RAVEL_SITE_PREFIX=/work/ravel-tools
+export RAVEL_REMOTE_JOB_CEILING=32
+ravel wms init --project /work/campaign --audit /work/campaign/audit.json \
+  --profile htcondor --jobs 8 --remote-ceiling 32 --shared-state-root /work \
+  --python /work/ravel-tools/.ravel-site/site-analysis/bin/python
+ravel wms add --project /work/campaign --rundir /work/campaign/runs/RUN --task TASK
+ravel wms launch --project /work/campaign --task TASK --jobs 8
+ravel wms retry --project /work/campaign --task TASK
+```
+
+Optional `init --site-options options.json` supplies the existing validated HTCondor
+submit options, including memory, runtime, analysis-bin path and opt-in proxy path
+handoff. The governed profile fixes `workflow_dir` to the project workflow and
+`lease_scope` to `batch-slot`. It is exported by `site_profiles/htcondor.py` to
+`PROJECT/.ravel-site/profiles/htcondor/`, outside `workflow/profiles`. Both profile
+files and their complete member roster have a combined SHA-256 digest recorded
+in `project.json`, bound at `add`, and checked before every launch. Each launch
+copies those bytes to `PROJECT/.ravel-site/launches/TASK/N/htcondor/`, pins the copy
+in its receipt, and invokes the pinned installed `ravel-snakemake` shim with
+`--profile <copy> --jobs N --cores 1 --retries 0`. It ignores the ordinary
+`RAVEL_SNAKEMAKE` override for this route. The HTCondor default keeps the active
+Python launcher, including its virtual environment symlink; `--python` selects the
+site-analysis interpreter explicitly. A changed profile, shim, project ceiling
+or extra profile member is refused. Local projects keep the one-core command.
+
+`launch --jobs N` defaults to the initialized count and must fit the declared
+remote ceiling and the current owner ceiling. Partition tasks additionally retain
+the exact fan-out pinned in their approved master; a project ceiling cannot widen
+that approval, including for unfinished `--after` tasks. Snakemake retries remain zero;
+`ravel wms retry` plans/registers a fresh approved partition attempt within its
+master's attempt bound. No launch flag enables scheduler retries.
+
+The declared shared root must contain the project, run state, exports, launch
+records and live authorization locks. Node-local temporary and worker scratch
+paths are refused. A path declaration cannot establish remote reachability:
+qualify identical paths, read/write access and cross-node POSIX locks on the
+workers before a campaign. The run directories' canonical paths must stay inside
+the project. Per-slot leases use worker scratch while persistent state stays
+shared. A site run and retained worker receipts are still required for facility
+qualification.
+
+The strict guard admits a site command only when its exact argv matches a live
+`ravel wms launch` record, using the pinned shim, profile digest and bounded job
+count. It rechecks the profile and frozen parse inputs. Arbitrary `--profile`,
+`--executor`, retry options and alternate paths are refused. A completed launch
+record grants no authority. The normal agent entry point is `ravel wms launch`;
+the direct shim example above remains a manual qualification/fallback outside
+this governed launch contract.
+
 `add` runs after approval and before execution. It refuses a run dir without a current
 approved plan and names `ravel approve`; Snakemake never approves. The run dir must sit
 inside the project, so that the project's policy governs it. `add` writes a one-task
@@ -327,7 +397,7 @@ receipts never overwrite an earlier launch's evidence.
 Snakemake loads `profiles/default/` beside a workflow and the profile named in
 `SNAKEMAKE_PROFILE`, and turns every key into a command-line option that the receipt's
 argv does not show. `launch` refuses when `workflow/profiles` exists and runs Snakemake
-without `SNAKEMAKE_PROFILE`. The receipt records under `snakemake_profile` whether the
+without `SNAKEMAKE_PROFILE` or `SNAKEMAKE_WORKFLOW_PROFILE`. The receipt records under `snakemake_profile` whether the
 variable was removed or absent.
 
 When the policy requires the workflow manager, a direct `ravel run`, `science.run` or
@@ -617,6 +687,9 @@ partition's selected delivery to this same output. Relaunching the original
 export then runs the merge rule without dispatching spent partition rules.
 The manifest and Snakefile retain their original bytes; manager retries remain 0.
 
+In an HTCondor project, use `ravel wms init --profile htcondor` with its declared
+shared state root and ceiling, followed by `ravel wms launch --jobs N`; scheduler
+submission and each run-step remain attached to RAVEL launch receipts.
 In a project governed from the start (`ravel wms init`), add each original
 partition run directory with `ravel wms add` and run it with `ravel wms launch`
 through its own one-task export. Create the export with the merge rule under
@@ -822,8 +895,9 @@ configuration behavior; a successful site run establishes scheduler qualificatio
 `site_profiles.write_profile(directory, name, cores=1, jobs=None, options=None,
 project_id=None)` writes `directory/name/config.yaml` and `profile.json` and returns
 the directory, both files' SHA-256 pins and the profile. `write_profiles` calls that
-writer for local and HTCondor. A project launch calls `write_profile` with its
-project id and writes `run-keys.json` before starting Snakemake. That plain
+writer for local and HTCondor. The governed project launcher exports its pinned profile under `.ravel-site` at
+initialization. Standalone exports may call `write_profile` with a project id
+and must write `run-keys.json` before starting Snakemake. That plain
 JSON object maps task ids to study run keys, taken from `rdj_custody.root(rundir).name`.
 The submit client reads the index without importing custody. It derives the task id
 from `task_<id>` or `ravel_verify_<id>`. With a project id it refuses missing or invalid
@@ -843,8 +917,8 @@ the batch backend). `flavour` supplies `+JobFlavour`. Declared `disk_mb` supplie
 `request_disk`. `getenv = False` and an explicit minimal environment provide PATH
 from `analysis_bin` plus `/usr/bin:/bin`, HOME from the submitter and only the named
 variables in `ravel_env`. `lease_scope="batch-slot"`, the default, adds
-`RAVEL_LEASE_SCOPE=batch-slot`; the site lease policy names the per-job scratch
-variable. `lease_scope="machine"` omits that batch-slot marker. The job runs on the
+`RAVEL_LEASE_SCOPE=batch-slot`; the built-in lease policy uses the worker
+`_CONDOR_SCRATCH_DIR` as its scratch root, with locks under `.ravel-lease`. `lease_scope="machine"` omits that batch-slot marker. The job runs on the
 shared filesystem with `should_transfer_files = NO`.
 
 Credential hand-off is opt-in: `use_x509userproxy=true` uses the scheduler's proxy
@@ -920,6 +994,16 @@ instruction documents byte for byte and writes portable guidance into
 toolchain manifest even when the separate environment is absent from PATH.
 Machine paths stay in ignored local runtime files; load the guidance into the
 host session alongside the project's instructions.
+
+Before creating runs with restricted material, put the project's classification
+and exact transport/account allowlist in `<project>/.ravel/data_classification.json`
+and run `ravel agent-surface install --project <project>`. New runs inherit it and
+record its digest in their inputs; run declarations may only narrow the project
+restriction. `ravel agent-surface check --project <project>` reports the effective
+policy. Once declared, a missing or unreadable default refuses dispatch rather
+than restoring public behavior. Keep the declaration marker with the project and
+the policy snapshot with each run. See [provider policy](../workflow/reference/provider-policy.md)
+for declaration syntax, amendments and the saved/current restriction checks.
 
 A policy-required project enables the shell discipline guard by default.
 `--wms-guard` installs it explicitly; `--no-wms-guard --guard-approval FILE`

@@ -5,7 +5,7 @@
          use MCFMSetupPlots, only: nplotter_new
          use MCFMSettings
 +        use ravel_four_lepton, only: begin_draw,dump_point,
-+     &       rejected_draw,failed_draw
++     &       rejected_draw,failed_draw,small_safety_draw
        implicit none
        real(dp):: lowint
        include 'constants.f'
@@ -29,12 +29,12 @@
  c small safety cuts
        if (origkpart == kresummed) then
            if (.not. passed_smallnew(p,npart,1d-9)) then
-+              call failed_draw(6)
++              call small_safety_draw(p)
                goto 999
            endif
        else
            if (.not. passed_smallnew(p,npart,1d-9)) then
-+              call failed_draw(6)
++              call small_safety_draw(p)
                goto 999
            endif
        endif

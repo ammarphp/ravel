@@ -85,6 +85,9 @@ REGISTRY = {
     'src/ravel/workflow/derived_label.py::plan_label::<literal>.literal[task_mode]#0': ('fail-closed', 'derived-label'),
     'src/ravel/workflow/intake.py::open_parent::contract.get[task_mode]#0': ('fail-closed', 'no-handoff'),
     'src/ravel/workflow/route_prompt.py::_decide::label.subscript[task_mode]#0': ('fail-closed', 'derived-label'),
+    # The shared prompt hook reads the contract route_prompt.route just returned.
+    'src/ravel/workflow/host_guards.py::route::contract.get[task_mode]#0': ('unreachable-for-v2', 'router-v1-output'),
+    'src/ravel/workflow/host_guards.py::route::contract.get[compute_plan]#0': ('unreachable-for-v2', 'router-v1-output'),
     'src/ravel/workflow/route_prompt.py::_finish::contract.subscript[task_mode]#0': ('unreachable-for-v2', 'router-v1-output'),
     'src/ravel/workflow/route_prompt.py::_route::decision.subscript[task_mode]#0': ('unreachable-for-v2', 'router-v1-output'),
     'src/ravel/workflow/route_prompt.py::_selftest_extra::herwig.subscript[task_mode]#0': ('unreachable-for-v2', 'router-v1-output'),

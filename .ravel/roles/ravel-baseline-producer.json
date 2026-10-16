@@ -53,6 +53,13 @@
       "schema": "producer.v1",
       "sidecar": true
     },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": [
+        "baseline-result"
+      ]
+    },
     "protocol": [
       "Compare our result, our reproduction and the published result with source pins and common quantities, units and uncertainty conventions.",
       "Return the stage, role_id, exact subject_sha256, accept or revise verdict, findings, and attributed_claim_ids. Leave attributed_claim_ids empty except for mechanism gains that the ablation critic can attribute from the actual controlled contrast."
@@ -92,5 +99,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

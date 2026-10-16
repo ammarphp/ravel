@@ -22,7 +22,7 @@ def test_host_shims_equal_hookless_gate(action, verdict, tmp_path):
     env = {**os.environ, 'PATH': str(bin_dir) + os.pathsep + os.environ['PATH']}
     args = ['--rundir', str(tmp_path / 'run with spaces'), '--action', action, '--json']
     direct = subprocess.run(['ravel', 'gate', *args], env=env, capture_output=True, text=True)
-    for host in ('claude', 'codex', 'gemini'):
+    for host in ('claude', 'codex', 'gemini', 'opencode', 'antigravity'):
         rel, body = rr.gate_shim(host)
         target = tmp_path / rel; target.parent.mkdir(parents=True, exist_ok=True); target.write_text(body)
         shim = subprocess.run(['/bin/sh', str(target), *args], env=env, capture_output=True, text=True)

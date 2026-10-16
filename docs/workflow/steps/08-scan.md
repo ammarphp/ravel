@@ -37,6 +37,10 @@ The request determines the scan dimensionality, dataset population, requested qu
 and presentation. Use the [named scan and card recipe contract](../reference/named-scans.md)
 for `scan_orchestrator` planning, status, supervised native proposals and aggregation.
 The package ships parameter-free schemas; select model/process/card inputs explicitly.
+For a finite grid of already-prepared ordinary studies over any supported operation, use
+[`ravel study-grid submit|status|resume|harvest`](../reference/named-scans.md#prepared-study-allocation-grids).
+It bridges directly to the allocation launcher, retains delegated approval and budget checks,
+and feeds declared-axis plots with explicit missing cells.
 
 Before native execution, record cost preflight, a method decision and the actual CHECK-IN 1
 approval. Do not turn a dry proposal into authorization. Reuse approved source-bound results
@@ -59,6 +63,18 @@ python scripts/run.py ravel.plotting.scan_contour \
   --scan <scandir>/scan.json --plot-spec <plot-spec.json> \
   --experiment <experiment> --com <energy-TeV> --lumi <luminosity-fb-inverse>
 ```
+
+For a diagnosed point-specific repair, use the
+[per-point override record](../reference/named-scans.md#per-point-setting-overrides):
+`scan_orchestrator override` or `ravel study-grid override`. Bind the changed fields,
+regime reason, diagnostics and approval before retrying; physics-setting changes
+also require a recorded comparison at an adjacent successful default point.
+Keep the effective receipt on resume and in harvest. Each native override uses
+its own `attempts/<receipt-sha256>/output/`, saved proposal and stage logs; the
+default output stays intact and `attempt_history` retains both identities.
+Harvest selects the named attempt and checks every native quantity against the
+execution report's `quantity_outputs` SHA-256 manifest. Missing or mismatched
+files are failed cells. Leave failed cells masked.
 
 At delivery, report coverage, missing and invalid points, numerical status, uncertainty and
 qualification scope for the quantities requested. Supply plot axes, labels, comparison

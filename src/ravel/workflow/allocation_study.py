@@ -126,7 +126,7 @@ def _environment(pairs):
 
 
 def prepare(rundir, agent, *, account, partition, cpus, minutes, rung='none', route='checkin1', checkout=None,
-            venv=None, prefix=None, modules=(), env=(), claude_config_dir=None, collect_to=None, job_name=None):
+            venv=None, prefix=None, modules=(), env=(), claude_config_dir=None, collect_to=None, job_name=None, point_override=None):
     """Write the request and its sbatch script; return the request directory. Nothing is submitted."""
     rundir = Path(rundir).resolve()
     if not rundir.is_dir():
@@ -170,6 +170,11 @@ def prepare(rundir, agent, *, account, partition, cpus, minutes, rung='none', ro
                         'claude_config_dir': str(claude_config_dir) if claude_config_dir else None},
         'collect_to': str(collect_to) if collect_to else None,
     }
+    if point_override is not None:
+        from .point_overrides import verify, pin
+        verify(point_override['record'], point_override['settings'])
+        request['point_override'] = point_override
+        request['point_settings'] = pin(point_override['settings'])
     atomic_json(directory / 'request.json', request)
     (directory / 'study.sbatch').write_text(render(request, directory))
     return directory
@@ -211,16 +216,24 @@ def render(request, directory):
     return '\n'.join(lines) + '\n'
 
 
+class NotSubmitted(ValueError):
+    """The scheduler was refused or never reached: no job exists for the request."""
+
+
 def submit(directory, *, sbatch='sbatch'):
     """Submit a prepared request with ``sbatch --parsable``; record and return the job id."""
     directory = Path(directory)
     request = read_json(directory / 'request.json')
-    _recheck(request)
+    try:
+        _recheck(request)
+    except ValueError as exc:
+        raise NotSubmitted(str(exc)) from None
     out = subprocess.run([sbatch, '--parsable', str(directory / 'study.sbatch')], capture_output=True, text=True,
                          timeout=300)
     job = out.stdout.strip().split(';')[0] if out.returncode == 0 else ''
     if not re.fullmatch(r'[0-9]+', job):
-        raise ValueError(f'sbatch refused the request (rc {out.returncode}): {out.stderr.strip()[-800:]}')
+        # A nonzero exit is a refusal; an unparsable reply after exit 0 may still hide a job.
+        raise (NotSubmitted if out.returncode else ValueError)(f'sbatch refused the request (rc {out.returncode}): {out.stderr.strip()[-800:]}')
     atomic_json(directory / 'submission.json', {'request_id': request['request_id'], 'job_id': job,
                                                  'submitted_utc': utc_now(), 'sbatch': sbatch})
     return job
@@ -233,6 +246,10 @@ def _recheck(request):
         raise ValueError(f'the study directory {rundir} is gone')
     if _run_identity(rundir) != request['run']:
         raise ValueError('the study directory names another run than the request; nothing was started')
+    if request.get('point_override'):
+        from .point_overrides import verify, check_pin
+        check_pin(request['point_settings'])
+        verify(request['point_override']['record'], request['point_override']['settings'])
     if request['rung'] == 'none':
         return
     binding, digests = _approval(rundir, request['route'], request['rung'])
@@ -283,6 +300,9 @@ def run(request_path, *, popen=subprocess.Popen):
     env.update(RAVEL_ALLOCATION_REQUEST=str(request_path), RAVEL_ALLOCATION_RECEIPT=str(receipt_dir / 'allocation.json'),
                RAVEL_RUN_ID=request['run']['run_id'], RAVEL_ALLOCATION_RUNG=request['rung'],
                RAVEL_JOBS=os.environ.get('SLURM_CPUS_PER_TASK') or str(request['resources']['cpus']))
+    if request.get('point_override'):
+        env['RAVEL_POINT_RECEIPT_SHA256'] = request['point_override']['record']['receipt_sha256']
+        env['RAVEL_POINT_SETTINGS'] = request['point_override']['settings']
     with (receipt_dir / 'agent.log').open('ab') as log:
         try:
             child = popen(request['agent']['argv'], cwd=rundir, env=env, stdout=log, stderr=subprocess.STDOUT,
@@ -359,3 +379,61 @@ def main_args(args):
         result['job_id'] = submit(directory)
     print(json.dumps(result, indent=2))
     return 0
+
+
+def collect(directory, *, scheduler=None, job_id=None):
+    """Read the ordinary allocation/collection receipts and current scheduler state.
+
+    Missing accounting is unknown, never evidence that a submission can be retried.
+    ``scheduler(job_id)`` is an injectable read-only observation seam.
+    """
+    directory = Path(directory)
+    request = read_json(directory / 'request.json')
+    submission = read_json(directory / 'submission.json') if (directory / 'submission.json').is_file() else {}
+    job = submission.get('job_id', job_id)
+    if job_id is not None and job != job_id:
+        raise ValueError('submission identity differs from collection caller')
+    roots = [Path(request['rundir'])]
+    if request.get('collect_to'):
+        roots.append(Path(request['collect_to']) / f"{roots[0].name}-{request['run']['run_id']}")
+    receipt = None
+    for root in roots:
+        for path in sorted((root / 'logs/allocations').glob('*/allocation.json')):
+            row = read_json(path)
+            if row.get('request_id') == request['request_id'] and row.get('run') == request['run']:
+                if row.get('request_sha256') != _sha(directory / 'request.json'):
+                    raise ValueError('allocation receipt request digest differs')
+                receipt = {'path': str(path), 'sha256': _sha(path), 'record': row}
+    observed = (scheduler or _scheduler_state)(job) if job else 'unknown'
+    if receipt:
+        row = receipt['record']
+        if row.get('state') == 'finished':
+            if observed in ('completed', 'missing'):
+                observed = 'completed' if row.get('agent_exit') == 0 else 'failed'
+        elif row.get('state') == 'not-started':
+            if observed not in ('pending', 'running', 'unknown'):
+                observed = 'failed'
+    # A scheduler exit alone does not establish successful agent execution/collection.
+    if observed == 'completed' and not (receipt and receipt['record'].get('state') == 'finished'):
+        observed = 'missing'
+    return {'status': observed, 'job_id': job, 'receipt': receipt,
+            'result_root': str(roots[-1] if roots[-1].is_dir() else roots[0])}
+
+
+def _scheduler_state(job):
+    from .backends.site_batch import SLURM_STATES
+    for command in (['squeue', '-h', '-j', job, '-o', '%T'],
+                    ['sacct', '-j', job, '-n', '-P', '-X', '-o', 'State']):
+        try:
+            out = subprocess.run(command, capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.SubprocessError):
+            return 'unknown'
+        if out.returncode:
+            return 'unknown'
+        if out.stdout.strip():
+            state = out.stdout.strip().splitlines()[0].split('|')[0].split()[0].rstrip('+')
+            if state == 'TIMEOUT':
+                return 'timed-out'
+            mapped = SLURM_STATES.get(state, 'unknown')
+            return 'completed' if mapped == 'exited' else mapped
+    return 'missing'

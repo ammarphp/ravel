@@ -266,3 +266,42 @@ The complete schema2 runtime declares at most64,000 exact file assets, with a
 ending checks. No runtime files are truncated to fit it. The existing legacy
 schema1 limit remains20,000. The64k bound is an explicit custody allocation; the
 separate SFitter environment requires its own census and root runtime admission before a native job.
+
+
+## Quantity ownership at assembly
+
+Every producer card declares `ownership.owns`; reviewers declare only
+`ownership.judges`. The controlled `quantity_kinds` vocabulary in the role
+registry records the existing source roles behind each kind. Artifact
+`output.declared_outputs[].kind` still describes serialization and custody.
+`validate_phase_ownership()` checks the complete phase table before request
+validation, so a duplicate across different phases is refused as well.
+
+For a Higgs combination inside this fit workflow, `sf-kappa-extractor` owns
+`coupling-modifier-extraction`, and the scale, PDF and parametric fit estimators
+own `signal-scale-uncertainty`, `signal-pdf-uncertainty` and
+`signal-parametric-uncertainty`, respectively. `higgs-coupling-analyst` owns the
+`measurement-parameterization-bundle` supplied to those roles and the measurement
+extractor. It supplies inputs rather than repeating their extraction or estimates.
+`higgs-theory-uncertainty-auditor` and `higgs-combination-reviewer` judge the
+quantities and own none. The context records `quantity_owners` and the declared
+bundle handoffs; `validate_phase_ownership(higgs=True)` checks this boundary.
+The withheld setup groups retain their existing status.
+
+Graph factories bind scientific specialists with each node's `registry_role`;
+the fit phase factory does this for every specialist. Scheduler labels such as
+`designer` describe orchestration, so they cannot substitute for that binding.
+Worker and map nodes use the actual dispatched card automatically, and a
+conflicting explicit binding is refused. A worker whose role is a scheduler
+label takes its ownership only from an explicit binding. The two independent
+proposer streams own distinct hypothesis sets, so a panel of both is admitted. Graphs may name
+`required_quantity_kinds` to refuse missing producers.
+
+Repeated production of one kind requires `quantity_handoffs` entries with
+exactly `kind`, `from` and `to` (node IDs). The predecessor owns the output kind;
+the successor declares that kind in `ownership.inputs`. All producers of that
+kind must form one chain with one final owner. Graph dependencies must also put
+each predecessor before its consumer. This is a declared output-to-input plan;
+actual handoff artifacts still require the existing source pins and custody
+checks before use. A dependency alone grants neither quantity ownership nor
+artifact access.

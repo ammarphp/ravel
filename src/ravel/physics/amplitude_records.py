@@ -5,18 +5,37 @@ text record per integration draw. The record grammar and the meaning of its
 amplitude channels are declared by the program's ``addon.json`` under
 ``protocol``::
 
-    {"format": "RAVEL_MCFM_2",
+    {"format": "RAVEL_MCFM_3",
      "channels": {"1": {"pdg": [21, 21, 11, -11, 13, -13]}, ...},
      "amplitude_channels": ["up", "down", "bottom", "top", "hbottom", "htop"],
      "members": {"continuum": {"sum": {"up": 2, "down": 2, "bottom": 1, "top": 1}},
                  "scalar_bottom": {"sum": {"hbottom": 1}, "per_reference_propagator": true}, ...},
      "factor": ["grid_weight_over_n", "phase_space", "flux", "pdf_product"],
-     "factor_divisor": "branching_ratio", "factor_unit": "fb"}
+     "factor_divisor": "branching_ratio", "factor_unit": "fb",
+     "safety_cuts": [{"id": "z-candidate-pt", "kind": "pair_pt_min", "min_gev": 0.1,
+                      "pairs": [[3, 4], [5, 6]], "identical_pairs": [[3, 6], [5, 4]],
+                      "excluded_weight": "measured", "reason": "...", "source": "..."},
+                     {"id": "small-invariants", "kind": "normalized_invariant_min", "minimum": 1e-9,
+                      "particles": [3, 4, 5, 6], "beams": [1, 2], "reference_energy_gev": 100.0,
+                      "excluded_weight": "unmeasured", "reason": "...", "source": "..."}]}
 
 Members marked ``per_reference_propagator`` are divided by the propagator the
 program applied, so they become propagator-free numerators. Each record also
 carries the program's own squared amplitudes (the point oracle); ``oracle_check``
 recomputes them from the captured amplitudes.
+
+A program's phase-space safety cuts are declared under ``safety_cuts`` and
+applied by the program when a draw is made: a draw below a cut is written as an
+``EXCLUDE`` record (its momenta and, where the cut declares a measured excluded
+weight, its weight fields and the program's own squared amplitude with that
+square's coupling normalization, as in ``META``), stays in the
+draw census and contributes zero, so every integral covers exactly the
+restricted phase space. ``pair_pt_min`` bounds the transverse momentum of declared
+particle pairs; ``normalized_invariant_min`` bounds E_j / E_ref and
+|p_j.p_k| / |E_j E_k| over the declared particles and beams. The program repeats the cuts it
+applies in its ``SAFETY`` header; a cut it applies but does not declare is
+refused. ``check_safety`` recomputes every cut from the momenta and
+``safety_census`` measures the excluded exposure and weight.
 
 Points with identical leptons are integrated by the program with a pairing
 partition. The Gram matrices use a hypothesis-independent partition built from
@@ -39,8 +58,53 @@ HELICITY_INDICES = tuple(itertools.product((1, 2), repeat=4))
 OBSERVABLES = ('s_gev2', 'mass_gev', 'factorization_scale_gev', 'x1', 'x2')
 
 
+FORMAT = 'RAVEL_MCFM_3'
+_COMMON = {'id', 'kind', 'excluded_weight', 'reason', 'source'}
+CUT_FIELDS = {'pair_pt_min': _COMMON | {'min_gev', 'pairs', 'identical_pairs'},
+              'normalized_invariant_min': _COMMON | {'minimum', 'particles', 'beams', 'reference_energy_gev'}}
+CUT_KINDS = tuple(CUT_FIELDS)
+
+
+def _pairs(value, label):
+    ab.require(type(value) is list and value and all(
+        type(p) is list and len(p) == 2 and all(type(i) is int and 1 <= i <= 6 for i in p) and p[0] != p[1]
+        for p in value), f'{label} must list pairs of particle positions 1-6')
+    return value
+
+
+def validate_safety_cuts(cuts):
+    """The producer's declared phase-space safety cuts (possibly none)."""
+    ab.require(type(cuts) is list, 'safety_cuts must be a list')
+    ids = set()
+    for cut in cuts:
+        ab.require(type(cut) is dict and cut.get('kind') in CUT_KINDS, 'safety cut kind must be one of ' + ', '.join(CUT_KINDS))
+        fields = CUT_FIELDS[cut['kind']]
+        ab.require(set(cut) == fields, 'each safety cut needs ' + ', '.join(sorted(fields)))
+        ab.require(isinstance(cut['id'], str) and cut['id'] and cut['id'] not in ids, 'safety cut ids must be unique names')
+        ids.add(cut['id'])
+        ab.require(threshold(cut) > 0, 'safety cut threshold must be positive')
+        ab.require(cut['excluded_weight'] in ('measured', 'unmeasured'), 'excluded_weight must be measured or unmeasured')
+        if cut['kind'] == 'pair_pt_min':
+            _pairs(cut['pairs'], f'safety cut {cut["id"]} pairs')
+            _pairs(cut['identical_pairs'], f'safety cut {cut["id"]} identical_pairs')
+        else:
+            for key in ('particles', 'beams'):
+                ab.require(type(cut[key]) is list and cut[key] and len(set(cut[key])) == len(cut[key])
+                           and all(type(i) is int and 1 <= i <= 6 for i in cut[key]), f'safety cut {key} must list positions 1-6')
+            ab.require(not set(cut['particles']) & set(cut['beams']), 'safety cut particles and beams must differ')
+            ab.require(ab.real(cut['reference_energy_gev'], 'reference_energy_gev') > 0, 'reference_energy_gev must be positive')
+        ab.text(cut['reason'], 'safety cut reason')
+        ab.text(cut['source'], 'safety cut source')
+    return cuts
+
+
+def threshold(cut):
+    return ab.real(cut['min_gev'] if cut['kind'] == 'pair_pt_min' else cut['minimum'], 'safety cut threshold')
+
+
 def validate_protocol(protocol):
-    ab.require(type(protocol) is dict and protocol.get('format') == 'RAVEL_MCFM_2', 'program protocol RAVEL_MCFM_2 required')
+    ab.require(type(protocol) is dict and protocol.get('format') == FORMAT, f'program protocol {FORMAT} required')
+    validate_safety_cuts(protocol.get('safety_cuts', []))
     channels = protocol['amplitude_channels']
     ab.require(type(channels) is list and channels and len(set(channels)) == len(channels), 'amplitude_channels must be unique')
     for name, member in protocol['members'].items():
@@ -75,7 +139,19 @@ def parse(raw, *, operation, draws, seed, channel, protocol):
     header = [int(x) for x in take(protocol['format'], 4)]
     ab.require(header == [operation, draws, seed, channel], 'program control (operation, draws, seed, channel) differs')
     domain = _numbers(take('DOMAIN', 8))
+    declared = protocol.get('safety_cuts', [])
+    count = take('SAFETY', 1)
+    ab.require(count[0].isdigit(), 'SAFETY needs the number of applied cuts')
+    applied = []
+    for i in range(1, int(count[0]) + 1):
+        v = take('CUT', 3)
+        ab.require(int(v[0]) == i, 'CUT records must be ordered')
+        applied.append((v[1], _numbers(v[2:])[0]))
+    ab.require(applied == [(c['kind'], threshold(c)) for c in declared],
+               'the program applies safety cuts ' + repr(applied) + ' but its manifest declares '
+               + repr([(c['kind'], threshold(c)) for c in declared]) + '; an undeclared cut is refused')
     rows, outcomes, summary, expected = [], [], None, 1
+    excluded = []
     while True:
         try:
             parts = next(lines).split()
@@ -85,16 +161,37 @@ def parse(raw, *, operation, draws, seed, channel, protocol):
         if parts[0] == 'COMPLETE':
             ab.require(len(parts) == 7, 'COMPLETE record needs six fields')
             counts = [int(x) for x in parts[1:6]]
-            summary = dict(zip(('attempted', 'accepted', 'rejected', 'failed', 'safety_excluded'), counts))
+            summary = dict(zip(('attempted', 'accepted', 'rejected', 'failed', 'excluded'), counts))
             summary['cpu_seconds'] = _numbers(parts[6:])[0]
             break
-        ab.require(parts[0] in ('POINT', 'REJECT', 'FAIL') and int(parts[1]) == expected, 'draws must be complete and ordered')
+        ab.require(parts[0] in ('POINT', 'REJECT', 'FAIL', 'EXCLUDE') and int(parts[1]) == expected,
+                   'draws must be complete and ordered')
         expected += 1
+        if parts[0] == 'EXCLUDE':
+            ab.require(len(parts) == 5 and parts[2].isdigit() and 1 <= int(parts[2]) <= len(declared)
+                       and parts[3] in ('0', '1') and parts[4] in ('0', '1'),
+                       'EXCLUDE needs a declared cut index, the identical flag and the measured flag')
+            measured = parts[4] == '1'
+            ab.require(measured == (declared[int(parts[2]) - 1]['excluded_weight'] == 'measured'),
+                       'an EXCLUDE record must carry exactly the excluded weight its cut declares')
+            weight, (reference, normalization) = ((_numbers(take('WEIGHT', 9)), _numbers(take('REFERENCE', 2))) if measured
+                                                  else ([float('nan')] * 9, (float('nan'), float('nan'))))
+            momenta = []
+            for j in range(1, 7):
+                v = take('P', 5)
+                ab.require(int(v[0]) == j, 'momentum rows must be ordered')
+                momenta.append(_numbers(v[1:]))
+            ab.require(take('ENDEXCLUDE', 1) == [parts[1]], 'ENDEXCLUDE must close its EXCLUDE')
+            excluded.append({'draw': int(parts[1]), 'cut': int(parts[2]) - 1, 'identical': parts[3] == '1',
+                             'measured': measured, 'weight': weight, 'reference': reference,
+                             'normalization': normalization, 'momenta': momenta})
+            outcomes.append('EXCLUDE')
+            continue
         if parts[0] != 'POINT':
             ab.require(len(parts) == (2 if parts[0] == 'REJECT' else 3), f'{parts[0]} record fields')
             outcomes.append(parts[0])
             continue
-        ab.require(len(parts) == 5 and all(v in ('0', '1') for v in parts[2:]), 'POINT flags must be 0 or 1')
+        ab.require(len(parts) == 4 and all(v in ('0', '1') for v in parts[2:]), 'POINT flags must be 0 or 1')
         meta, weight, coords = _numbers(take('META', 9)), _numbers(take('WEIGHT', 9)), _numbers(take('COORD', 12))
         momenta = []
         for j in range(1, 7):
@@ -115,18 +212,119 @@ def parse(raw, *, operation, draws, seed, channel, protocol):
         outcomes.append('POINT')
     ab.require(expected == draws + 1 and not any(x.strip() for x in lines), 'records must cover exactly the declared draws')
     ab.require(summary['attempted'] == draws and summary['accepted'] == len(rows)
-               and summary['rejected'] == outcomes.count('REJECT') and summary['failed'] == outcomes.count('FAIL'),
+               and summary['rejected'] == outcomes.count('REJECT') and summary['failed'] == outcomes.count('FAIL')
+               and summary['excluded'] == len(excluded),
                'COMPLETE census differs from the records')
     n = len(rows)
     arr = lambda key, shape: np.array([r[key] for r in rows], dtype=float).reshape((n, *shape))
-    flags = np.array([r['flags'] for r in rows], dtype=bool).reshape(n, 3)
+    flags = np.array([r['flags'] for r in rows], dtype=bool).reshape(n, 2)
+    m = len(excluded)
     out = {'meta': arr('meta', (9,)), 'weight': arr('weight', (9,)), 'coords': arr('coords', (12,)),
            'momenta': arr('momenta', (6, 4)),
            'amplitudes': np.array([r['amplitudes'] for r in rows], dtype=complex).reshape(n, 2, 16, nch),
-           'identical': flags[:, 0], 'selected_direct': flags[:, 1], 'safety_excluded': flags[:, 2],
+           'identical': flags[:, 0], 'selected_direct': flags[:, 1],
+           'excluded': {'draw': np.array([e['draw'] for e in excluded], dtype=int),
+                        'cut': np.array([e['cut'] for e in excluded], dtype=int),
+                        'identical': np.array([e['identical'] for e in excluded], dtype=bool),
+                        'measured': np.array([e['measured'] for e in excluded], dtype=bool),
+                        'weight': np.array([e['weight'] for e in excluded], dtype=float).reshape(m, 9),
+                        'reference': np.array([e['reference'] for e in excluded], dtype=float),
+                        'normalization': np.array([e['normalization'] for e in excluded], dtype=float),
+                        'momenta': np.array([e['momenta'] for e in excluded], dtype=float).reshape(m, 6, 4)},
            'summary': summary, 'domain': domain, 'channel': channel}
-    ab.require(int(out['safety_excluded'].sum()) == summary['safety_excluded'], 'safety census differs from the records')
     return out
+
+
+def pair_pt(momenta, pairs):
+    """Transverse momentum of each declared pair, shape (points, pairs); positions count from 1."""
+    p = np.asarray(momenta, float)
+    out = [np.hypot(*(p[:, i - 1, :2] + p[:, j - 1, :2]).T) for i, j in pairs]
+    return np.stack(out, axis=1) if out else np.zeros((len(p), 0))
+
+
+def _dot(p, i, j):
+    """Minkowski product in the program's own operation order (E E - px px - py py - pz pz)."""
+    return p[:, i, 3] * p[:, j, 3] - p[:, i, 0] * p[:, j, 0] - p[:, i, 1] * p[:, j, 1] - p[:, i, 2] * p[:, j, 2]
+
+
+def normalized_invariants(momenta, cut):
+    """Smallest of E_j / E_ref and |p_j.p_k| / |E_j E_k| over the declared particles j and partners k."""
+    p = np.asarray(momenta, float)
+    if not len(p):
+        return np.zeros(0)
+    parts = [i - 1 for i in cut['particles']]
+    beams = [i - 1 for i in cut['beams']]
+    values = []
+    for n, j in enumerate(parts):
+        values.append(np.abs(p[:, j, 3] / cut['reference_energy_gev']))
+        for k in beams + parts[n + 1:]:
+            values.append(np.abs(_dot(p, j, k) / p[:, j, 3] / p[:, k, 3]))
+    return np.min(np.stack(values, axis=1), axis=1)
+
+
+def _cut_values(cut, momenta, identical):
+    """The cut variable per point: the smallest declared pair pT (identical-lepton points also use the
+    exchanged pairs) or the smallest normalized invariant."""
+    if cut['kind'] == 'normalized_invariant_min':
+        return normalized_invariants(momenta, cut)
+    direct = pair_pt(momenta, cut['pairs']).min(axis=1)
+    swapped = pair_pt(momenta, cut['identical_pairs']).min(axis=1)
+    return np.where(identical, np.minimum(direct, swapped), direct)
+
+
+# A value recomputed from printed momenta can differ from the program's own by rounding (a small
+# invariant is a cancellation); only points within this relative distance of a cut are given the
+# benefit of that doubt.
+CUT_RTOL = {'pair_pt_min': 1e-9, 'normalized_invariant_min': 1e-6}
+
+
+def check_safety(records, protocol):
+    """Recompute every declared cut: stored points lie above it and each excluded draw below its cut."""
+    cuts = protocol.get('safety_cuts', [])
+    ex = records['excluded']
+    rows = []
+    for k, cut in enumerate(cuts):
+        lo, rtol = threshold(cut), CUT_RTOL[cut['kind']]
+        stored = _cut_values(cut, records['momenta'], records['identical'])
+        mine = ex['cut'] == k
+        below = _cut_values(cut, ex['momenta'][mine], ex['identical'][mine])
+        rows.append({'id': cut['id'], 'threshold': lo,
+                     'stored_below': int(np.count_nonzero(stored < lo * (1 - rtol))),
+                     'excluded_above': int(np.count_nonzero(below >= lo * (1 + rtol))),
+                     'excluded': int(mine.sum()),
+                     'smallest_stored': float(stored.min()) if len(stored) else None})
+    unknown = int(np.count_nonzero((ex['cut'] < 0) | (ex['cut'] >= len(cuts))))
+    passed = unknown == 0 and all(r['stored_below'] == 0 and r['excluded_above'] == 0 for r in rows)
+    return {'passed': passed, 'cuts': rows, 'undeclared_exclusions': unknown,
+            'scope': 'every declared cut recomputed from the recorded momenta'}
+
+
+def safety_census(records, protocol):
+    """Measured share of the draws, of the integration factor and of the program's own weight that the cuts exclude.
+
+    The weight is the program's own squared amplitude times the integration factor, summed over
+    stored and excluded draws; it is what the program would have integrated without the cut. Draws
+    excluded by a cut that declares an unmeasured weight count in the exposure share and are listed
+    as ``weight_unmeasured``; the factor and weight shares cover the measured exclusions only.
+    """
+    ex = records['excluded']
+    s = records['summary']
+    kept_factor = factor(records, protocol)
+    measured = ex['measured']
+    lost_factor = factor({'weight': ex['weight'][measured]}, protocol)
+    cuts = protocol.get('safety_cuts', [])
+    kept_weight = kept_factor * records['meta'][:, 6]
+    lost_weight = lost_factor * ex['reference'][measured]
+    share = lambda lost, kept: float(lost / (lost + kept)) if lost + kept else 0.0
+    return {'attempted': s['attempted'], 'excluded': s['excluded'], 'stored': s['accepted'],
+            'by_cut': {c['id']: int(np.count_nonzero(ex['cut'] == k)) for k, c in enumerate(cuts)},
+            'weight_unmeasured': int(np.count_nonzero(~measured)),
+            'exposure_fraction': s['excluded'] / s['attempted'] if s['attempted'] else 0.0,
+            'factor_excluded': float(lost_factor.sum()), 'factor_stored': float(kept_factor.sum()),
+            'factor_fraction': share(lost_factor.sum(), kept_factor.sum()),
+            'weight_excluded': float(lost_weight.sum()), 'weight_stored': float(kept_weight.sum()),
+            'weight_fraction': share(lost_weight.sum(), kept_weight.sum()),
+            'weight_unit': protocol['factor_unit']}
 
 
 def member_names(protocol):
@@ -163,7 +361,6 @@ EXCHANGE = np.array([h[2] == h[3] for h in HELICITY_INDICES])
 
 def grams(basis_amplitudes, records):
     a = basis_amplitudes
-    ab.require(not records['safety_excluded'].any(), 'numerically excluded points cannot enter a physical block')
     return ab.point_grams(a[:, 0], a[:, 1], identical=records['identical'], selected_direct=records['selected_direct'],
                           exchange=EXCHANGE, reference=records['reference'], normalization=records['meta'][:, 5])
 
@@ -235,6 +432,9 @@ def oracle_check(records, protocol, *, rtol=1e-10):
 
 def to_block(records, protocol, *, spin0=None):
     """Gram block contents (gram, factor, observables, momenta, audit amplitudes) for accepted points."""
+    safety = check_safety(records, protocol)
+    ab.require(safety['passed'], 'a stored point lies below a declared safety cut, or an excluded draw above it: '
+               + repr(safety['cuts']))
     a = members(records, protocol)
     records = {**records, 'reference': reference_coefficients(records, protocol)}
     closure = None

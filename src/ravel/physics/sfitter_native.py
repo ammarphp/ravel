@@ -84,7 +84,7 @@ def _pins(value):
     elif type(value) is list:
         for v in value:yield from _pins(v)
 def semantic(document,card,basis):
-    _keys(document,('schema_version','purpose','observables','eft','uncertainty_policy','interval_policy','sources'),'native semantic manifest')
+    _keys(document,('schema_version','purpose','observables','eft','uncertainty_policy','interval_policy','sources', *(['generation_coherence'] if 'generation_coherence' in document else [])),'native semantic manifest')
     if type(document['schema_version']) is not int or document['schema_version']!=1 or document['purpose'] not in ('analytic_qualification','supplied_full_study'):raise ValueError('explicit semantic scope required')
     rows=document['observables'];actual=card['observations']
     if type(rows) is not list or len(rows)!=len(actual):raise ValueError('whole observable population required')
@@ -95,7 +95,7 @@ def semantic(document,card,basis):
         if row['representation'] not in ('integrated','differential') or row['normalization']!=('normalized' if len(row['bins'])>1 else 'absolute'):raise ValueError('unchanged native score requires normalized multi-bin groups and absolute singletons')
         _text(row['unit'],'measurement unit')
     eft=document['eft']
-    _keys(eft,('target_basis','source_basis','flavour','coefficient_unit','lambda_unit','source_scale_gev','target_scale_gev','rge_policy','conversion','linear','quadratic','mixed_pairs','domain','evidence'),'EFT convention contract')
+    _keys(eft,('target_basis','source_basis','flavour','coefficient_unit','lambda_unit','source_scale_gev','target_scale_gev','rge_policy','conversion','linear','quadratic','mixed_pairs','domain','evidence', *[k for k in ('basis_identifier','ew_input_scheme','validity_cutoff') if k in eft]),'EFT convention contract')
     if eft['target_basis']!=basis or eft['rge_policy']!='not_applied_same_scale' or eft['source_scale_gev']!=eft['target_scale_gev']:
         raise ValueError('only explicit native basis at the same scale; RGE needs a separate source-bound method')
     for k in ('source_scale_gev','target_scale_gev'):
@@ -160,6 +160,8 @@ def _inputs(task,base,*,_session=None):
     bound=sfitter_inputs.compile_known_card(root,card_path,run_path,input_scope='engineering_control' if c['purpose']=='analytic_qualification' else 'upstream_known_card')
     read=read_json if _session is None else _session.read_document
     sem_path=pin(c['semantic_manifest'],parent);sem=semantic(read(sem_path),read(card_path),bound['active_parameter_names'])
+    from . import generation_conventions
+    coherence=generation_conventions.check_fit(sem,sem_path.parent,pin=pin,read=read,card=read(card_path))
     if sem['purpose']!=c['purpose']:raise ValueError('semantic purpose differs from native operation')
     for vector in c['vectors']:sfitter_inputs._vector(vector,len(bound['active_parameter_names']),'full coefficient vector')
     python=pin(c['runtime']['python'],parent)
@@ -169,7 +171,7 @@ def _inputs(task,base,*,_session=None):
     sites=[custody._regular(directory,parent,directory=True) for directory in c['runtime']['site_roots']]
     if not sites or any(not any(asset.is_relative_to(site) for site in sites) for asset in runtime):raise ValueError('runtime asset must belong to a declared site root')
     evidence=[pin(p,parent) for p in [*sem['sources'],*sem['eft']['evidence']]]
-    result=sorted(set([path,manifest,card_path,run_path,sem_path,python,*files,*runtime,*evidence]))
+    result=sorted(set([path,manifest,card_path,run_path,sem_path,python,*files,*runtime,*evidence,*coherence['paths']]))
     if _session is not None:_session.proofs[key]=tuple(result)
     return result
 def inputs(task,base):return _inputs(task,base)

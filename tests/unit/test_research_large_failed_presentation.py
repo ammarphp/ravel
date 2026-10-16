@@ -2,10 +2,13 @@
 from copy import deepcopy
 import json,sys
 from pathlib import Path
+from types import SimpleNamespace
+import time
 import pytest
 from ravel.workflow import execution, failed_stage_review as failed, research_cycle as cycle, research_protocol as proto, research_presentation as material, physics_review, agent_host, state_io
 from test_research_protocol import make,no_process
 from test_research_cycle import write
+from ravel.workflow import agent_graph
 
 
 def native_failure(base,n=8974):
@@ -31,6 +34,11 @@ def native_failure(base,n=8974):
 
 
 def test_real_large_canonical_import_current_custody_and_bounded_protocol_host(tmp_path,monkeypatch):
+    # This checks large-file custody, not elapsed time. Scope a fixed wall clock
+    # to the campaign and Graph modules; keep real monotonic receipt durations.
+    clock = SimpleNamespace(time=lambda: 1000.0, monotonic=time.monotonic)
+    monkeypatch.setattr(cycle, 'time', clock)
+    monkeypatch.setattr(agent_graph, 'time', clock)
     root,p=make(tmp_path,monkeypatch)
     original=monkeypatch.undo
     # make's synthetic successful-evidence seam must not cover this canonical failure.

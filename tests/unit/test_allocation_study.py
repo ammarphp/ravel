@@ -12,7 +12,7 @@ from ravel.workflow import site_doctor
 sys.path.insert(0, str(Path(__file__).parent))
 import test_checkin2_gate as gate  # noqa: E402
 
-RES = dict(account='lab-account', partition='genoa-std-mem', cpus=4, minutes=30)
+RES = dict(account='lab-account', partition='standard', cpus=4, minutes=30)
 
 
 @pytest.fixture
@@ -79,7 +79,7 @@ def test_submission_records_the_job_id(tmp_path, venv):
     root = _planning_run(tmp_path)
     directory = al.prepare(root, ['agent'], venv=venv, checkout=tmp_path, **RES)
     sbatch = tmp_path / 'sbatch'
-    sbatch.write_text('#!/bin/sh\necho "$@" > "$0.args"; echo "9100001;betty"\n')
+    sbatch.write_text('#!/bin/sh\necho "$@" > "$0.args"; echo "9100001;clustera"\n')
     sbatch.chmod(0o755)
     assert al.submit(directory, sbatch=str(sbatch)) == '9100001'
     assert (tmp_path / 'sbatch.args').read_text().split() == ['--parsable', str(directory / 'study.sbatch')]
@@ -117,18 +117,18 @@ def test_the_job_runs_the_agent_in_the_study_records_the_allocation_and_collects
              'os.environ["RAVEL_RUN_ID"]+" "+os.environ["RAVEL_ALLOCATION_RUNG"]);print("stub agent")']
     collect = tmp_path / 'collected'
     directory = al.prepare(root, agent, venv=venv, checkout=tmp_path, collect_to=str(collect), **RES)
-    monkeypatch.setattr(ml, 'slurm_allocation', lambda *a, **k: {'cluster': 'betty', 'job_id': '9100002'})
-    monkeypatch.setattr(ml, 'allocation_identity', lambda: {'scope': 'slurm-betty-9100002', 'job_id': '9100002'})
+    monkeypatch.setattr(ml, 'slurm_allocation', lambda *a, **k: {'cluster': 'clustera', 'job_id': '9100002'})
+    monkeypatch.setattr(ml, 'allocation_identity', lambda: {'scope': 'slurm-clustera-9100002', 'job_id': '9100002'})
     request = json.loads((directory / 'request.json').read_text())
     assert al.run(directory / 'request.json') == 0
     assert (root / 'agent-was-here').read_text() == request['run']['run_id'] + ' none'
-    receipt = json.loads((root / 'logs/allocations/slurm-betty-9100002/allocation.json').read_text())
+    receipt = json.loads((root / 'logs/allocations/slurm-clustera-9100002/allocation.json').read_text())
     assert receipt['state'] == 'finished' and receipt['agent_exit'] == 0
     assert receipt['allocation']['job_id'] == '9100002' and receipt['run'] == request['run']
-    assert 'stub agent' in (root / 'logs/allocations/slurm-betty-9100002/agent.log').read_text()
+    assert 'stub agent' in (root / 'logs/allocations/slurm-clustera-9100002/agent.log').read_text()
     copy = collect / f"{root.name}-{request['run']['run_id']}"
     assert receipt['collected_to'] == str(copy) and (copy / 'agent-was-here').is_file()
-    assert (copy / 'logs/allocations/slurm-betty-9100002/allocation.json').is_file()
+    assert (copy / 'logs/allocations/slurm-clustera-9100002/allocation.json').is_file()
 
 
 def test_the_job_refuses_when_the_run_identity_changed(tmp_path, venv, monkeypatch):
@@ -137,7 +137,7 @@ def test_the_job_refuses_when_the_run_identity_changed(tmp_path, venv, monkeypat
     request = json.loads((directory / 'request.json').read_text())
     request['run']['run_id'] = 'path-0000'
     (directory / 'request.json').write_text(json.dumps(request))
-    monkeypatch.setattr(ml, 'slurm_allocation', lambda *a, **k: {'cluster': 'betty', 'job_id': '1'})
+    monkeypatch.setattr(ml, 'slurm_allocation', lambda *a, **k: {'cluster': 'clustera', 'job_id': '1'})
     with pytest.raises(ValueError, match='another run'):
         al.run(directory / 'request.json')
 

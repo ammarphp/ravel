@@ -41,9 +41,10 @@ def test_unreleased_groups_are_skipped_by_default_and_explicitly_selectable(tmp_
     # The source tree lists them as withheld; a released tree does not declare them at all.
     excluded = mf.held_groups(manifest, {'checkmate', 'madloop', 'magnus', 'jhugen-mela', 'tex', 'mcfm-amplitudes',
                                          'iris', 'nyx'})
-    assert {'madloop', 'magnus', 'jhugen-mela', 'mcfm-amplitudes'} <= excluded
+    assert {'madloop', 'magnus', 'jhugen-mela'} <= excluded
     assert not {'checkmate', 'iris', 'tex'} & excluded, 'qualified on the reference Mac; part of the release'
     assert 'nyx' not in excluded, 'qualified on a Linux MPI site'
+    assert 'mcfm-amplitudes' not in excluded, 'qualified on a Linux x86_64 clean prefix'
     tool = installer.Installer(ROOT, tmp_path / 'prefix', manifest=manifest, catalog=catalog,
                                platform_key='macos-arm64', environ={}, interactive=False)
     assert not excluded.intersection(tool.groups())
@@ -52,7 +53,7 @@ def test_unreleased_groups_are_skipped_by_default_and_explicitly_selectable(tmp_
     stale = copy.deepcopy(manifest)
     for group in stale['groups']:
         group['qualification'] = {'status': 'not-built', 'basis': 'synthetic stale label'}
-    assert mf.profile_groups(stale) == mf.profile_groups(manifest)
+    assert mf.profile_groups(stale, platform_key='linux-x86_64') == mf.profile_groups(manifest, platform_key='linux-x86_64')
     d = doctor.Doctor(ROOT, tmp_path / 'prefix', 'macos-arm64', manifest, catalog,
                       environ={}, which=lambda _: None, glob_paths=lambda _: [],
                       run_probe=lambda *a, **k: (127, 'synthetic missing tool'))
@@ -71,10 +72,9 @@ def test_unreleased_groups_are_skipped_by_default_and_explicitly_selectable(tmp_
 
 def test_standard_groups_and_doctor_never_offer_optional_tools(tmp_path):
     manifest, catalog = mf.load(ROOT)
-    selected = mf.profile_groups(manifest)
+    selected = mf.profile_groups(manifest, platform_key='linux-x86_64')
     assert {'agent-sources', 'sfitter', 'nyx', 'publication', 'ml', 'diagram-consumers'} <= set(selected)
-    assert not {'mcfm-amplitudes'} & set(selected)
-    assert {'checkmate', 'iris', 'tex'} <= set(selected)
+    assert {'checkmate', 'iris', 'tex', 'mcfm-amplitudes'} <= set(selected)
     forbidden = re.compile(r'optional|add-on|addon|if installed|when available', re.I)
     for group in manifest['groups']:
         assert 'optional' not in group
@@ -287,3 +287,49 @@ def test_census_report_and_table_work_on_a_tree_that_declares_only_released_grou
     assert {e for e, tool in engines.items() if tool in only_held}
     for engine, tool in engines.items():
         assert (('| ' + engine + ' |') in coverage) == (tool not in only_held), engine
+
+
+@pytest.mark.parametrize('platform_key', mf.PLATFORMS)
+def test_amplitude_default_selection_follows_platform_evidence(tmp_path, platform_key):
+    manifest, catalog = mf.load(ROOT)
+    qualified = platform_key == 'linux-x86_64'
+    tool = installer.Installer(ROOT, tmp_path / 'prefix', manifest=manifest, catalog=catalog,
+                               platform_key=platform_key, environ={}, interactive=False)
+    assert ('mcfm-amplitudes' in tool.groups()) == qualified
+    assert ('mcfm-amplitudes' in doctor.select_groups(manifest, platform_key=platform_key)) == qualified
+    assert 'mcfm-amplitudes' in tool.groups(only=['mcfm-amplitudes'])
+
+
+def test_later_platform_record_enables_selection_and_availability(tmp_path, monkeypatch):
+    from ravel.workflow import capability_availability as ca
+    manifest, catalog = mf.load(ROOT)
+    group = mf.by_id(manifest)['mcfm-amplitudes']
+    qualification = group['qualification']
+    qualification['additional_records'] = [{**qualification['record'], 'platform': 'macos-arm64'}]
+    mf.validate(manifest, catalog)
+    monkeypatch.setattr(mf, 'view', lambda *args: manifest)
+    assert 'mcfm-amplitudes' in mf.profile_groups(manifest, platform_key='macos-arm64')
+    assert 'mcfm-amplitudes' in doctor.select_groups(manifest, platform_key='macos-arm64')
+    assert ca.require('amplitude-integration', root=ROOT, platform_key='macos-arm64').available
+    from ravel.workflow import science, research_admission
+    monkeypatch.setattr(mf, 'detect_platform', lambda: 'macos-arm64')
+    monkeypatch.setattr(science, '_plan', lambda *a, **k: {'status': 'synthetic-planned'})
+    monkeypatch.setattr(research_admission, 'admission', lambda *a, **k: [])
+    spec = tmp_path / 'spec.json'
+    spec.write_text(json.dumps({'mode': 'amplitude-integration', 'task': {}}))
+    assert science.plan(tmp_path / 'run', spec) == {'status': 'synthetic-planned'}
+    assert not ca.availability('amplitude-integration', root=ROOT, platform_key='macos-x86_64').available
+
+
+@pytest.mark.parametrize('mutation', [
+    lambda q: q.update(required_per_platform='yes'),
+    lambda q: q.update(additional_records={}),
+    lambda q: q.update(additional_records=[q['record']]),
+    lambda q: q.update(additional_records=[{**q['record'], 'platform': 'macos-arm64', 'doctor_result': 'failed'}]),
+    lambda q: q.update(additional_records=[{**q['record'], 'platform': 'macos-arm64', 'evidence_sha256': ''}]),
+])
+def test_platform_evidence_must_be_valid_and_unambiguous(mutation):
+    manifest, catalog = mf.load(ROOT)
+    mutation(mf.by_id(manifest)['mcfm-amplitudes']['qualification'])
+    with pytest.raises(mf.ManifestError, match='qualification|per_platform'):
+        mf.validate(manifest, catalog)

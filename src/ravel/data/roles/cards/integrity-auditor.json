@@ -57,8 +57,13 @@
   ],
   "output": {
     "declared_outputs": [],
-    "schema": "findings.v1",
+    "schema": "findings.v2",
     "sidecar": true
+  },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
   },
   "protocol": [
     "Read the record, not the narrative: research/protocol.json, every stage record (research/head.json and research/history/), the exposure ledger including its select-query entries, the broker receipt index and the call receipts under agent-work/, and the claim records under claims/.",
@@ -68,7 +73,10 @@
     "Report a shared anchor under two material claims.",
     "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
     "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
-    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
+    "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
+    "A limitation states each affected claim_id, effect (bounds or invalidates), and a bound or unbounded. Route it to the limitation census and qualified or withdrawn claim disposition; it cannot request rework or spend repair budget.",
+    "Only the decider may reclassify, recording a reason and retaining the original classification. Repeated findings against unchanged artifact bytes do not request another repair. Legacy unclassified findings keep their prior route."
   ],
   "purpose": "Audit the complete scientific record from its stored artifacts: the protocol, stage records, exposure and query ledgers, broker receipts, trial counts and the computed disclosure block.",
   "requires": {

@@ -242,6 +242,8 @@ INTAKE_SCHEMA = {**INTERPRETATION_SCHEMA, "properties": {
     "review_status": {"type": "string", "const": "draft"}},
     "required": [*INTERPRETATION_SCHEMA["required"], "source", "review_status"]}
 
+from ravel.workflow.point_overrides import DECLARATION_SCHEMAS
+
 SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Ravel task contract, version 1",
@@ -269,6 +271,7 @@ SCHEMA = {
         "forbidden_sources": _array(_object({}, additional=True)),
         "intake": INTAKE_SCHEMA,
         "task_requirements": _TASK_REQUIREMENTS,
+        **DECLARATION_SCHEMAS,
         "execution_plan": _object({"path": _TEXT,
             "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, ("path", "sha256")),
         "certification_plans": _object({kind: _object({

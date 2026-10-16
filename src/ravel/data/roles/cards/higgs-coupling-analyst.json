@@ -8,11 +8,11 @@
   "family": "production",
   "id": "higgs-coupling-analyst",
   "independence": {
-    "kind": "producer",
     "distinct_actor_from": [
       "coordinator"
     ],
-    "fresh_session": true
+    "fresh_session": true,
+    "kind": "producer"
   },
   "kind": "role-card",
   "knowledge": {
@@ -61,8 +61,16 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "measurement-parameterization-bundle"
+    ]
+  },
   "protocol": [
     "Construct supplied measurement and parameterization bundles and use the admitted fit operation.",
+    "Inside the fit workflow, own the supplied measurement and parameterization bundle handed to the fit specialists. The fit roles own coupling-modifier extraction and scale, PDF and parametric signal-theory uncertainty estimation; the theory auditor and combination reviewer judge these quantities without owning them.",
     "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
     "Inspect inclusive, STXS and differential sample overlap. Require a supplied joint likelihood for reused events and keep asymmetric likelihoods near physical boundaries.",
     "Inspect shared signal theory sources and correlations; use consistent scale and PDF definitions and count each table or program uncertainty once.",
@@ -87,8 +95,8 @@
   ],
   "schema_version": 2,
   "sees": {
-    "profile": "workspace",
-    "forbidden_inputs": []
+    "forbidden_inputs": [],
+    "profile": "workspace"
   },
   "stop": {
     "evidence_budget": 0,

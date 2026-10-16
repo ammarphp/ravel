@@ -87,7 +87,9 @@ def test_actual_yield_hub_projection_preserves_already_scaled_moments():
     quantity = calculate(contract, [{'event_id':'e', 'group_id':'g', 'shard_id':'s',
                                      'fills':[[0.5]], 'weights':{'nominal':3}}])
     doc = from_quantity(quantity, 'nominal')
-    assert search_yields(doc) == {'values':[6.], 'sumw2':[36.]}
+    assert search_yields(doc) == {'values':[6.], 'sumw2':[36.], 'quantity': {'weight_convention': 'signed'}}
+    with pytest.raises(ValueError, match='weight_convention'):
+        from_quantity(quantity, 'nominal', descriptor={'weight_convention': 'absolute'})
     assert measurement_prediction(doc)['covariance']['matrix'] == [[36.]]
 
 

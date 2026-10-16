@@ -134,7 +134,17 @@ def validate_output(identity, record):
     if not re.fullmatch(r'[a-z][a-z0-9-]*\.v[0-9]+', identity):
         return ['invalid output schema ID']
     path = package_data_path('roles', 'schema', 'outputs', identity + '.json')
-    return _schema_errors(record, path) if path.is_file() else ['unresolved output schema: ' + identity]
+    if not path.is_file():
+        return ['unresolved output schema: ' + identity]
+    errors = _schema_errors(record, path)
+    if not errors and record.get('kind') == 'findings' and record.get('schema_version') == 2:
+        from . import finding_routing
+        try:
+            for item in record['items']:
+                finding_routing.validate(item)
+        except ValueError as exc:
+            errors.append(str(exc))
+    return errors
 
 
 def validate_qualification(record):
@@ -150,10 +160,11 @@ def _known_ids(root=None):
     return {r['id'] for r in json.loads(path.read_text())['entries']}
 
 
-def validate_card(card, *, root=None, known_ids=None):
+def validate_card(card, *, root=None, known_ids=None, quantity_kinds=None):
     errors = _schema_errors(card, package_data_path('roles', 'schema', 'card.json'))
     if errors:
         return errors
+    errors += ownership_card_errors(card, registry_document()['quantity_kinds'] if quantity_kinds is None else quantity_kinds)
     ids = _known_ids(root) if known_ids is None else set(known_ids)
     for identity in [*card['must_check'], *card['knowledge']['must_read']]:
         if identity not in ids:
@@ -188,6 +199,88 @@ def validate_card(card, *, root=None, known_ids=None):
     return errors
 
 
+def ownership_card_errors(card, kinds):
+    """Quantity authority is distinct from an artifact's serialization kind."""
+    contract = card.get('ownership', {})
+    if (type(contract) is not dict or set(contract) != {'owns', 'judges', 'inputs'}
+            or any(type(v) is not list or any(type(k) is not str for k in v)
+                   or len(v) != len(set(v)) for v in contract.values())):
+        return ['closed ownership contract required']
+    errors = ['unknown quantity kind: ' + k for values in contract.values() for k in values if k not in kinds]
+    if contract['owns'] and (card.get('independence', {}).get('kind') != 'producer'
+                             or card['family'] in ('specialist-review', 'governance', 'consult')):
+        errors.append('only a producer can own a quantity; reviewers may judge')
+    if card.get('independence', {}).get('kind') == 'producer' and not contract['owns']:
+        errors.append('producer must declare its owned quantity kinds')
+    if set(contract['owns']) & set(contract['judges']):
+        errors.append('a role cannot judge its own quantity')
+    return errors
+
+
+def validate_ownership(assignments, handoffs=(), *, required_kinds=(), document=None, roles_root=None):
+    """Return final owners for a closed assembly, refusing parallel production.
+
+    Assignment keys are workflow node IDs, values are registered role IDs. A
+    handoff names a kind, from and to: the predecessor's owned output becomes
+    the successor's declared input. Repeated ownership must form one chain.
+    Scheduling and artifact custody remain the caller's responsibility.
+    """
+    document = registry_document(roles_root=roles_root) if document is None else document
+    kinds = document['quantity_kinds']
+    if type(assignments) is not dict or type(handoffs) not in (list, tuple):
+        raise ValueError('ownership assignments and finite handoffs required')
+    cards, owners = {}, {}
+    for node, identity in assignments.items():
+        card = load(identity, document=document, roles_root=roles_root)
+        errors = ownership_card_errors(card, kinds)
+        if errors:
+            raise ValueError(identity + ': ' + '; '.join(errors))
+        cards[node] = card
+        for kind in card['ownership']['owns']:
+            owners.setdefault(kind, set()).add(node)
+    edges = {}
+    for row in handoffs:
+        if type(row) is not dict or set(row) != {'kind', 'from', 'to'}:
+            raise ValueError('closed quantity handoff required')
+        kind, source, target = row['kind'], row['from'], row['to']
+        if any(type(v) is not str for v in (kind, source, target)):
+            raise ValueError('quantity handoff identities must be text')
+        if source == target or source not in cards or target not in cards or kind not in kinds:
+            raise ValueError('unresolved quantity handoff')
+        if (kind not in cards[source]['ownership']['owns']
+                or kind not in cards[target]['ownership']['inputs']):
+            raise ValueError('handoff requires owned output and declared consumer input')
+        edge = (source, target)
+        if edge in edges.setdefault(kind, []):
+            raise ValueError('duplicate quantity handoff')
+        edges[kind].append(edge)
+    final = {}
+    for kind in set(owners) | set(required_kinds):
+        if kind not in kinds:
+            raise ValueError('unknown required quantity kind: ' + str(kind))
+        producers = owners.get(kind, set())
+        if not producers:
+            raise ValueError('missing owner for quantity: ' + kind)
+        chain = [(a, b) for a, b in edges.get(kind, []) if b in producers]
+        incoming = {b for a, b in chain}
+        roots = producers - incoming
+        if len(roots) != 1 or len(chain) != len(producers) - 1:
+            raise ValueError('duplicate ownership requires an explicit handoff chain: ' + kind)
+        current = next(iter(roots)); seen = set()
+        while current not in seen:
+            seen.add(current)
+            following = [b for a, b in chain if a == current]
+            if len(following) > 1:
+                raise ValueError('branching quantity ownership: ' + kind)
+            if not following:
+                break
+            current = following[0]
+        if seen != producers or any(a == current for a, b in chain):
+            raise ValueError('cyclic or disconnected quantity ownership: ' + kind)
+        final[kind] = current
+    return dict(sorted(final.items()))
+
+
 def _source_roles(root):
     """Omissions are checked against actual current producer vocabularies too."""
     found = set()
@@ -217,10 +310,18 @@ def validate_registry(document=None, *, root=None, roles_root=None):
     try:
         document = registry_document(roles_root=roles_root) if document is None else document
         errors = []
-        if set(document) != {'schema_version', 'kind', 'required_roles', 'aliases', 'roles'} or document['schema_version'] != 1 or document['kind'] != 'role-registry':
+        if set(document) != {'schema_version', 'kind', 'required_roles', 'aliases', 'roles', 'quantity_kinds'} or document['schema_version'] != 1 or document['kind'] != 'role-registry':
             return ['closed role-registry envelope required']
         if len(document['required_roles']) != len(set(document['required_roles'])):
             errors.append('duplicate required role')
+        vocabulary = document['quantity_kinds']
+        if (type(vocabulary) is not dict or not vocabulary
+                or any(not re.fullmatch(r'[a-z][a-z0-9-]*', kind)
+                       or type(row) is not dict or set(row) != {'source_roles'}
+                       or type(row['source_roles']) is not list or not row['source_roles']
+                       or any(role not in document['roles'] for role in row['source_roles'])
+                       for kind, row in vocabulary.items())):
+            return ['controlled quantity vocabulary with source roles required']
         required = set(document['required_roles'])
         # The packaged source contract remains the minimum when validating a candidate.
         required.update(registry_document()['required_roles'])
@@ -241,7 +342,7 @@ def validate_registry(document=None, *, root=None, roles_root=None):
                 errors.append('unregistered source role: ' + identity)
         ids = _known_ids(root)
         for card in all_cards(document=document, roles_root=roles_root):
-            errors += [card['id'] + ': ' + e for e in validate_card(card, known_ids=ids)]
+            errors += [card['id'] + ': ' + e for e in validate_card(card, known_ids=ids, quantity_kinds=vocabulary)]
             for identity in card['reviewed_by'] + [c['role'] for c in card['knowledge']['consult'] if c['role'] != 'by_failure_class']:
                 if document['aliases'].get(identity, identity) not in document['roles']:
                     errors.append(card['id'] + ': unresolved role reference: ' + identity)
@@ -249,6 +350,10 @@ def validate_registry(document=None, *, root=None, roles_root=None):
         declared = {r['override'] for r in document['roles'].values() if r.get('override')}
         errors += ['unlisted card override: ' + p.relative_to(cards_root).as_posix()
                    for p in (cards_root / 'cards').glob('*.json') if p.relative_to(cards_root).as_posix() not in declared]
+        from .sfitter_workflow import validate_phase_ownership
+        validate_phase_ownership(document=document, roles_root=roles_root)
+        if {'higgs-coupling-analyst', 'higgs-combination-reviewer', 'higgs-theory-uncertainty-auditor'} <= set(document['roles']):
+            validate_phase_ownership(higgs=True, document=document, roles_root=roles_root)
         return sorted(set(errors))
     except (OSError, ValueError, KeyError, TypeError) as exc:
         return ['cannot validate role registry: ' + str(exc)]
@@ -261,9 +366,13 @@ def finding_effect(item, *, resolve=None):
     declared class or declared failed test grants no evidence authority.
     """
     checked = {**item, 'evidence_class': 'opinion'}
-    errors = validate_output('findings.v1', {'schema_version': 1, 'kind': 'findings', 'items': [checked], 'handoff': None})
+    from . import finding_routing
+    version = 2 if 'classification' in item else 1
+    errors = validate_output('findings.v2', {'schema_version': version, 'kind': 'findings', 'items': [checked], 'handoff': None})
     if errors:
         raise ValueError('; '.join(errors))
+    if finding_routing.kind(item) == 'limitation':
+        return 'claim_disposition'
     if item['severity'] != 'A':
         return 'advisory'
     request = item.get('request')
@@ -398,9 +507,11 @@ def render(surface, *, document=None, roles_root=None) -> dict[str, str]:
         files[name] = '@AGENTS.md\n\n<!-- ' + mark + ' -->\nResolve registered role profiles before dispatch. Profiles declare policy; the broker and `ravel gate` enforce it.\n'
     elif surface == 'opencode':
         files['.opencode/RAVEL.md'] = '<!-- ' + mark + ' -->\nRead AGENTS.md and the mirrored workflow skills in .claude/skills and .agents/skills.\n'
-    if surface in ('claude', 'codex', 'gemini'):
+    if surface != 'governed-node':
         rel, content = gate_shim(surface, document=document, roles_root=roles_root)
         files[rel] = content
+    from .host_hooks import render as render_hooks
+    files.update(render_hooks(surface))
     from .site_tools import declaration
     files['.ravel/site-tools/' + surface + '.json'] = json.dumps(declaration(surface), indent=2, sort_keys=True) + '\n'
     if surface == 'codex':
@@ -440,7 +551,7 @@ def check_rendered(project, *, surfaces=SURFACES, document=None, roles_root=None
                 relative = path.relative_to(project).as_posix()
                 if relative not in expected:
                     errors.append('generated surface orphan: ' + relative)
-    removed = {'.codex/hooks.json', '.gemini/settings.json', '.claude/settings.ravel-gates.json', '.ravel/gate-surface.json'}
+    removed = {'.claude/settings.ravel-gates.json', '.ravel/gate-surface.json'}
     selected_roots = {PROFILE_DIRS[surface].split('/')[0] for surface in surfaces}
     errors.extend('generated surface orphan: ' + rel for rel in sorted(removed)
                   if rel.split('/')[0] in selected_roots and ((project / rel).exists() or (project / rel).is_symlink()))
@@ -466,11 +577,13 @@ def owned_paths(project):
                 files['src/ravel/data/roles/' + path.relative_to(roles).as_posix()] = path
     for path in (roles / 'schema').rglob('*.json'):
         files['src/ravel/data/roles/' + path.relative_to(roles).as_posix()] = path
-    for name in ('role_registry.py', 'work_order_fidelity.py', 'work_dispatch.py'):
+    for name in ('role_registry.py', 'work_order_fidelity.py', 'work_dispatch.py', 'host_guards.py', 'host_hooks.py', 'native_shims.py'):
         files['src/ravel/workflow/' + name] = (project / 'src/ravel/workflow' / name
                                               if project is not None else Path(__file__).parent / name)
     files['src/ravel/data/agent_surface/host_capabilities.json'] = (project / 'src/ravel/data/agent_surface/host_capabilities.json'
                                                                if project is not None else package_data_path('agent_surface', 'host_capabilities.json'))
+    files['src/ravel/data/agent_surface/hooks.json'] = (project / 'src/ravel/data/agent_surface/hooks.json'
+        if project is not None else package_data_path('agent_surface', 'hooks.json'))
     if project is not None:
         for surface in SURFACES:
             files.update({rel: project / rel for rel in render(surface, roles_root=roles)})
@@ -531,7 +644,7 @@ def main(argv=None):
         root = args.project or repository_root()
         if root is None:
             ap.error('--project is required outside a checkout')
-        retired = ['.claude/settings.ravel-gates.json', '.codex/hooks.json', '.gemini/settings.json', '.ravel/gate-surface.json']
+        retired = ['.claude/settings.ravel-gates.json', '.ravel/gate-surface.json']
         for relative in retired:
             path = root / relative
             if path.is_file():

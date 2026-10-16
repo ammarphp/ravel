@@ -2480,6 +2480,41 @@
     "scope": "general"
    }
   },
+  "amplitude-integration": {
+   "summary": "Weighted integration with per-point helicity amplitudes from an amplitude program (MCFM) into a resumable Gram store.",
+   "operations": [
+    "generate"
+   ],
+   "tools": [
+    "MCFM",
+    "amplitude program"
+   ],
+   "inputs": [
+    "MCFM input card",
+    "integration blocks"
+   ],
+   "observables": [
+    "re:\\bfour[- ]lepton|\\b4\\s*-?\\s*(?:l|lepton)\\b|\\bZZ\\b",
+    "re:\\bgg\\s*(?:->|\\u2192|to)\\s*ZZ\\b",
+    "off-shell Higgs",
+    "heavy scalar",
+    "pseudoscalar",
+    "broad resonance"
+   ],
+   "outputs": [
+    "amplitude store",
+    "weighted points"
+   ],
+   "context": [
+    "interference",
+    "continuum",
+    "helicity amplitudes",
+    "reweighting"
+   ],
+   "applicability": {
+    "scope": "general"
+   }
+  },
   "amplitude-predictions": {
    "summary": "Exact post-hoc reweighting of stored amplitudes into binned predictions for any coupling, mass, width and propagator choice.",
    "operations": [

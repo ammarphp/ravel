@@ -28,6 +28,16 @@ def exclusion():
     }
 
 
+def native_receipt(run, *relatives):
+    """The native report's quantity manifest, which harvest requires of an executed run."""
+    import hashlib
+    pins = [{'path': str((Path(run) / r).resolve()),
+             'sha256': hashlib.sha256((Path(run) / r).read_bytes()).hexdigest()} for r in relatives]
+    (Path(run) / 'output').mkdir(exist_ok=True)
+    (Path(run) / 'output/native_execution_result.json').write_text(
+        json.dumps({'point_receipt_sha256': None, 'quantity_outputs': pins}))
+
+
 def packed(excl):
     args = SimpleNamespace(routine=None, analysis_id=None, model=None, driving_sr=None,
                            sigma_lo_pb=1., m_parent=150., m_lsp=140., lumi_fb=139.,
@@ -260,6 +270,7 @@ def test_real_execution_receipt_staleness_blocks_harvest(tmp_path):
     assert supervise('fit', tmp_path, 0, 'logs/fit.log', [sys.executable, '-c', code],
         inputs=['input.json'], outputs=['output/exclusion.json'], depends_on=[],
         cwd=str(tmp_path), resume=True, poll=.02, grace=.1, kill_secs=4, _engineering_only=True) == 0
+    native_receipt(tmp_path, 'output/exclusion.json')
     mp = {'run_dir': str(tmp_path), 'm_parent': 150., 'm_lsp': 140.}
     assert scan.harvest_point(mp)['mu95_obs'] == .8
     assert scan.point_status(mp)[0] == 'pending'  # no final native_report receipt yet
@@ -385,6 +396,7 @@ def test_coherent_pack_edit_cannot_borrow_source_acceptance_certificate(tmp_path
     assert source_errors(pack, tmp_path)
     assert vrs.inv_certify_before_limit(str(tmp_path), contract, facts, False, True)[0] == 'FAIL'
     assert vrs.inv_limit_transport(str(tmp_path), contract, facts, False, True)[0] == 'FAIL'
+    native_receipt(tmp_path, 'result.json')
     mp = {'run_dir': str(tmp_path), 'm_parent': 150., 'm_lsp': 140.}
     # An approved run carries a review policy: nothing is harvested before its review is accepted.
     with pytest.raises(ValueError, match='scientific review prevents scan harvesting'):

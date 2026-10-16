@@ -50,6 +50,60 @@
    },
    "fidelity_rank": 1
   },
+  "amplitude-integration": {
+   "summary": "Weighted integration through an amplitude program into a resumable Gram store.",
+   "implementation": {
+    "kind": "science-mode",
+    "mode": "amplitude-integration",
+    "module": "ravel.physics.amplitude_integration"
+   },
+   "consumes": [
+    {
+     "slot": "card",
+     "kind": "table",
+     "task_pointer": "/task/card"
+    }
+   ],
+   "produces": [
+    {
+     "slot": "store",
+     "kind": "amplitude:gram-store"
+    }
+   ],
+   "effects": [
+    "generates_events",
+    "executes_native"
+   ],
+   "cost": {
+    "unit": "blocks",
+    "forecast": "cost_preflight",
+    "ceiling_pointer": "/max_seconds"
+   },
+   "critical_fields": [
+    "/task/card"
+   ],
+   "basis": {
+    "adds": [
+     {
+      "element": "generated_prediction"
+     }
+    ],
+    "passes": []
+   },
+   "tools": [
+    "MCFM"
+   ],
+   "stages": [
+    "generation"
+   ],
+   "review": {
+    "checks": [
+     "io_contract",
+     "normalization_ledger"
+    ]
+   },
+   "fidelity_rank": 2
+  },
   "amplitude-predictions": {
    "summary": "Binned predictions for declared hypotheses from a Gram store.",
    "implementation": {
@@ -312,7 +366,23 @@
      "slot": "events",
      "kind": "event_sample",
      "cardinality": "1..*",
-     "task_pointer": "/task/events"
+     "task_pointer": "/task/events",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ],
+       "kind": "sample_exposure"
+      }
+     }
     },
     {
      "slot": "routine",
@@ -775,7 +845,21 @@
        "delphes-root",
        "flat-ntuple",
        "lhe"
-      ]
+      ],
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ],
+       "kind": "sample_exposure"
+      }
      }
     },
     {
@@ -787,7 +871,24 @@
      "slot": "cross_section",
      "kind": "scalar",
      "task_pointer": "/task/normalization/cross_section_pb",
-     "optional": true
+     "optional": true,
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ],
+       "kind": "cross_section",
+       "unit": "pb"
+      }
+     }
     },
     {
      "slot": "measured",
@@ -807,11 +908,21 @@
    "produces": [
     {
      "slot": "histograms",
-     "kind": "binned_values"
+     "kind": "binned_values",
+     "require": {
+      "quantity": {
+       "weight_convention": "signed"
+      }
+     }
     },
     {
      "slot": "cutflow",
-     "kind": "cutflow"
+     "kind": "cutflow",
+     "require": {
+      "quantity": {
+       "weight_convention": "signed"
+      }
+     }
     }
    ],
    "effects": [],
@@ -1589,7 +1700,22 @@
      "slot": "signal",
      "kind": "binned_values",
      "cardinality": "1..*",
-     "task_pointer": "/task/signal/terms"
+     "task_pointer": "/task/signal/terms",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ]
+      }
+     }
     },
     {
      "slot": "measured",
@@ -1943,7 +2069,21 @@
       ],
       "level": [
        "parton"
-      ]
+      ],
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ],
+       "kind": "sample_exposure"
+      }
      }
     },
     {
@@ -1956,7 +2096,24 @@
      "slot": "cross_section",
      "kind": "scalar",
      "task_pointer": "/task/normalization",
-     "optional": true
+     "optional": true,
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ],
+       "kind": "cross_section",
+       "unit": "pb"
+      }
+     }
     }
    ],
    "produces": [
@@ -1965,7 +2122,10 @@
      "kind": "event_sample",
      "require": {
       "level": "detector",
-      "format": "delphes-root"
+      "format": "delphes-root",
+      "quantity": {
+       "weight_convention": "signed"
+      }
      }
     }
    ],
@@ -2244,7 +2404,22 @@
    "consumes": [
     {
      "slot": "result",
-     "kind": "binned_values"
+     "kind": "binned_values",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ]
+      }
+     }
     },
     {
      "slot": "template",
@@ -2818,7 +2993,22 @@
     {
      "slot": "values",
      "kind": "binned_values",
-     "cardinality": "1..*"
+     "cardinality": "1..*",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ]
+      }
+     }
     }
    ],
    "produces": [
@@ -3601,13 +3791,44 @@
    "consumes": [
     {
      "slot": "signal",
-     "kind": "binned_values"
+     "kind": "binned_values",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point",
+        "bin_ids",
+        "exposure.id",
+        "exposure.revision"
+       ],
+       "kind": "event_count",
+       "unit": "events",
+       "normalization": {
+        "per_luminosity": false,
+        "per_bin_width": false,
+        "per_event": false
+       }
+      }
+     }
     },
     {
      "slot": "workspace",
      "kind": "statistical_model",
      "require": {
-      "origin": "published"
+      "origin": "published",
+      "quantity": {
+       "required": [
+        "bin_ids",
+        "auxiliary_information"
+       ]
+      }
      }
     }
    ],
@@ -3655,7 +3876,39 @@
      "fit_alarms"
     ]
    },
-   "fidelity_rank": 4
+   "fidelity_rank": 4,
+   "quantity_relations": [
+    {
+     "relation": "equal",
+     "slots": [
+      "signal",
+      "workspace"
+     ],
+     "fields": [
+      "bin_ids",
+      "selection",
+      "model_point"
+     ]
+    },
+    {
+     "relation": "equal",
+     "slots": [
+      "signal"
+     ],
+     "fields": [
+      "exposure"
+     ]
+    },
+    {
+     "relation": "disjoint",
+     "slots": [
+      "workspace"
+     ],
+     "fields": [
+      "auxiliary_information"
+     ]
+    }
+   ]
   },
   "likelihood": {
    "summary": "Scoped limit on a supplied likelihood workspace or stated counting model.",
@@ -3669,7 +3922,15 @@
      "slot": "model",
      "kind": "statistical_model",
      "task_pointer": "/likelihood/workspace",
-     "optional": true
+     "optional": true,
+     "require": {
+      "quantity": {
+       "required": [
+        "bin_ids",
+        "auxiliary_information"
+       ]
+      }
+     }
     },
     {
      "slot": "counts",
@@ -3724,7 +3985,19 @@
      "limit_status"
     ]
    },
-   "fidelity_rank": 2
+   "fidelity_rank": 2,
+   "quantity_relations": [
+    {
+     "relation": "disjoint",
+     "slots": [
+      "model",
+      "counts"
+     ],
+     "fields": [
+      "auxiliary_information"
+     ]
+    }
+   ]
   },
   "likelihood-candidate-check": {
    "summary": "Verification of retained conditional-profile candidate vectors; no refit.",
@@ -4657,7 +4930,10 @@
      "kind": "event_sample",
      "require": {
       "level": "parton",
-      "format": "lhe"
+      "format": "lhe",
+      "quantity": {
+       "weight_convention": "signed"
+      }
      }
     }
    ],
@@ -5422,7 +5698,22 @@
     {
      "slot": "components",
      "kind": "binned_values",
-     "cardinality": "1..*"
+     "cardinality": "1..*",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ]
+      }
+     }
     },
     {
      "slot": "measured",
@@ -5662,7 +5953,22 @@
      "slot": "values",
      "kind": "binned_values",
      "cardinality": "0..*",
-     "optional": true
+     "optional": true,
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point"
+       ]
+      }
+     }
     },
     {
      "slot": "tables",
@@ -6546,7 +6852,32 @@
      "slot": "signal",
      "kind": "binned_values",
      "cardinality": "1..*",
-     "task_pointer": "/task/signal_points"
+     "task_pointer": "/task/signal_points",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point",
+        "bin_ids",
+        "exposure.id",
+        "exposure.revision"
+       ],
+       "kind": "event_count",
+       "unit": "events",
+       "normalization": {
+        "per_luminosity": false,
+        "per_bin_width": false,
+        "per_event": false
+       }
+      }
+     }
     },
     {
      "slot": "background",
@@ -6632,7 +6963,31 @@
      "statistic_matches_claim"
     ]
    },
-   "fidelity_rank": 2
+   "fidelity_rank": 2,
+   "quantity_relations": [
+    {
+     "relation": "equal",
+     "slots": [
+      "signal"
+     ],
+     "fields": [
+      "exposure"
+     ],
+     "group_by": [
+      "model_point",
+      "exposure.id"
+     ]
+    },
+    {
+     "relation": "disjoint",
+     "slots": [
+      "background"
+     ],
+     "fields": [
+      "auxiliary_information"
+     ]
+    }
+   ]
   },
   "sfitter-native-fit": {
    "summary": "Native SFitter global fit.",
@@ -6811,12 +7166,46 @@
      "slot": "yields",
      "kind": "binned_values",
      "cardinality": "1..*",
-     "task_pointer": "/task/input"
+     "task_pointer": "/task/input",
+     "require": {
+      "quantity": {
+       "required": [
+        "kind",
+        "unit",
+        "normalization.per_luminosity",
+        "normalization.per_bin_width",
+        "normalization.per_event",
+        "included_factors",
+        "weight_convention",
+        "selection",
+        "model_point",
+        "bin_ids",
+        "exposure.id",
+        "exposure.revision",
+        "regional_exposures"
+       ],
+       "kind": "event_count",
+       "unit": "events",
+       "normalization": {
+        "per_luminosity": false,
+        "per_bin_width": false,
+        "per_event": false
+       }
+      }
+     }
     },
     {
      "slot": "workspace",
      "kind": "statistical_model",
-     "optional": true
+     "optional": true,
+     "require": {
+      "quantity": {
+       "required": [
+        "bin_ids",
+        "auxiliary_information"
+       ]
+      }
+     }
     }
    ],
    "produces": [
@@ -6824,7 +7213,10 @@
      "slot": "patch",
      "kind": "binned_values",
      "require": {
-      "content": "signal-patch"
+      "content": "signal-patch",
+      "quantity": {
+       "weight_convention": "signed"
+      }
      }
     }
    ],
@@ -6853,7 +7245,39 @@
      "normalization_ledger"
     ]
    },
-   "fidelity_rank": 2
+   "fidelity_rank": 2,
+   "quantity_relations": [
+    {
+     "relation": "equal",
+     "slots": [
+      "yields",
+      "workspace"
+     ],
+     "fields": [
+      "bin_ids",
+      "selection",
+      "model_point"
+     ]
+    },
+    {
+     "relation": "equal",
+     "slots": [
+      "yields"
+     ],
+     "fields": [
+      "exposure"
+     ]
+    },
+    {
+     "relation": "disjoint",
+     "slots": [
+      "workspace"
+     ],
+     "fields": [
+      "auxiliary_information"
+     ]
+    }
+   ]
   },
   "simplified-spectrum": {
    "summary": "Declarative simplified-model spectra written as SLHA2 cards with a decay-closure check.",

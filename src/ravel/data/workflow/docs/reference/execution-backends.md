@@ -5,7 +5,7 @@ A supervised stage can run in four places:
 | Backend | Runs on | Use it for |
 |---|---|---|
 | `native` | this machine, as a subprocess | tools installed on the host (MadGraph, Pythia, Delphes, Rivet, Python analyses) |
-| `oci-local` | this machine, in a podman container | Linux-only tools on macOS (CMS Combine, AnalysisBase) |
+| `oci-local` | this machine, in a podman container | Linux-only tools on macOS (MCFM, CMS Combine, AnalysisBase) |
 | `site` | an HTCondor or SLURM cluster (for example lxplus) | large or many jobs on an analysis facility |
 
 The approval, CHECK-IN and recovery rules are the same for all four. Choose the
@@ -309,7 +309,8 @@ ravel backend image-build --containerfile F --context DIR --tag localhost/name -
 ```
 
 Machine and image commands print what they would run until `--execute` is
-given. Container recipes live in `native/containers/`.
+given. Container recipes live in `native/containers/`
+([MCFM](../../native/containers/mcfm/README.md)).
 
 **Container launcher for native adapters.** An adapter that already owns its
 native process can declare

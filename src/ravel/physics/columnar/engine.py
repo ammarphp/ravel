@@ -978,6 +978,7 @@ def _histogram_result(h, store, scale, value_unit_default):
                      'high': [float(h.edges[a][i + 1]) for a, i in enumerate(idx)],
                      'value': float(values[flat]), 'uncertainty': float(errors[flat])})
     doc = {'schema_version': 1, 'kind': 'binned_values',
+           'quantity': {'weight_convention': 'signed'},
            'axes': [{'name': label, 'unit': unit_} for label, unit_ in zip(h.labels, h.units)],
            'unit': unit, 'representation': representation, 'bins': bins,
            'description': f'{h.name}: {h.normalization} in region {h.region}; uncertainty is the Monte Carlo statistical '
@@ -1066,7 +1067,7 @@ def finalize(merged, plan, normalization, *, out_dir, input_files=None, base=Non
                 for (name, expr), row in zip([('all events', None)] + [(c[0], c[1].text) for c in cuts],
                                              acc['cutflows'][region])]}
             for region, cuts in plan.regions.items()]
-    cutflow = {'schema_version': 1, 'kind': 'cutflow', 'recipe': plan.doc['name'], 'unit': nominal_norm['unit'],
+    cutflow = {'schema_version': 1, 'kind': 'cutflow', 'quantity': {'weight_convention': 'signed'}, 'recipe': plan.doc['name'], 'unit': nominal_norm['unit'],
                'normalization_scale': nominal_norm['scale'], 'regions': regions_out[NOMINAL],
                'note': 'Rows are cumulative: each cut applies after all earlier cuts of its region.'}
     _write(out_dir / 'cutflow.json', cutflow, files, out_dir)

@@ -71,6 +71,15 @@
     "schema": "findings.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [
+      "electroweak-fit",
+      "pdf-impact-result",
+      "theory-prediction-bundle"
+    ],
+    "owns": []
+  },
   "protocol": [
     "Independently audit scale, PDF, coupling, electroweak and nonperturbative prescriptions, correlation models and double counting.",
     "Begin in a fresh session distinct from the producer. Read the raw bundle and member records without the producer_headline or other verdicts. Recompute the listed checks and reject the review packet on any prescription, coupling or double-counting fault.",

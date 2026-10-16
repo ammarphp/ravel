@@ -60,6 +60,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "generator-tune"
+    ]
+  },
   "protocol": [
     "Prepare tuning with declared observable weights and a disjoint held-out validation population.",
     "Declare the supplied fit observable weights and eigentune or tolerance definition before tuning. Do not choose an observable population or parameter grid in this card.",

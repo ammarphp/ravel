@@ -293,7 +293,7 @@ def review_status(root, *, _session=None):
         history = proof['review']
         view = review._view(history['registration'], history['events'])
         return {'schema_version':1, 'state':view['state'], 'cycle_id':proof['cycle_id'],
-            'correction_id':None, 'claim_scope':view['reviews'][0]['claim_scope'] if view['state']=='accepted' else None,
+            'correction_id':None, 'claim_scope':review._accepted_scope(view) if view['state']=='accepted' else None,
             'held_claim_scope':view['holds'][-1]['claim_scope'] if view['holds'] else None,
             'scientific_hold_sha256':view['holds'][-1]['sha256'] if view['holds'] else None,
             'unresolved_findings':view['findings'], 'redos_used':0,
@@ -344,7 +344,7 @@ def _packet(root, *, write=False, _session=None):
         result.update(task_mode=proof['mode'], errors=[], review_errors=errors,
             execution={'status':'completed' if state=='accepted' and not errors else state},
             lifecycle_verdict='PASS' if state=='accepted' and not errors else 'PENDING',
-            review_state=state, claim_scope=view['reviews'][0]['claim_scope'] if state=='accepted' else None,
+            review_state=state, claim_scope=review._accepted_scope(view) if state=='accepted' else None,
             held_claim_scope=view['holds'][-1]['claim_scope'] if view['holds'] else None,
             scientific_hold_sha256=view['holds'][-1]['sha256'] if view['holds'] else None,
             unresolved_findings=view['findings'], events=len(history['events']),
@@ -355,9 +355,9 @@ def _packet(root, *, write=False, _session=None):
                 'output_snapshot_sha256':execution.digest(proof['receipt']['output_snapshot']),
                 'framework_root':proof['framework_root'], 'framework_inputs_sha256':proof['bound_framework_inputs_sha256'],
                 'runtime':proof['historical_runtime']}, current_reader=proof['current_reader'],
-            accepted_actions=history['registration']['policy']['claim_scopes'][view['reviews'][0]['claim_scope']]['actions'] if state=='accepted' else [],
+            accepted_actions=history['registration']['policy']['claim_scopes'][review._accepted_scope(view)]['actions'] if state=='accepted' else [],
             retained_route_actions=[a for a in ('delivery', 'reuse') if state=='accepted'
-                and a in history['registration']['policy']['claim_scopes'][view['reviews'][0]['claim_scope']]['actions']],
+                and a in history['registration']['policy']['claim_scopes'][review._accepted_scope(view)]['actions']],
             next_required='Only the original accepted scope may be delivered/reused after a fresh retained gate; new computation or consumers need separate plans'
                 if state=='accepted' else 'Retain the recorded review state and findings; no execution, correction or hold-lift authority is granted')
     except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError) as exc:

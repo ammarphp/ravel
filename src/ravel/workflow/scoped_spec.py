@@ -28,8 +28,9 @@ GENERATION = _object({
     "runtime": RUNTIME,
     "model": {"type": "string", "pattern": r"^[A-Za-z][A-Za-z0-9_\-]*$"},
     "definitions": _object({}, additional={"type": "string", "pattern": r"^[A-Za-z0-9_+~\- ]+$"}),
-    "process": {"type": "string", "pattern": r"^[A-Za-z0-9_+~>,/@=(). \-]+$"},
+    "process": {"type": "string", "pattern": r"^[A-Za-z0-9_+~><^,/@=(). \-]+$"},
     "parameter_card": _TEXT,
+    "conventions": {"type": "object"},
     "nb_core": {"type": "integer", "minimum": 1, "maximum": 512},
     "pdf_set": _TEXT,
     "pdf_install_record": _TEXT,
@@ -100,6 +101,12 @@ def validate(spec):
             placement.validate(spec["execution"])
         except ValueError as exc:
             return [f"spec.execution: {exc}"]
+    if "conventions" in spec.get("generation", {}):
+        from ravel.physics.generation_conventions import declaration
+        try:
+            declaration(spec["generation"]["conventions"])
+        except ValueError as exc:
+            return [str(exc)]
     mode = spec["mode"]
     section = "generation" if mode == "generate" else "likelihood"
     if section not in spec or ({"generation", "likelihood"} - {section}) & spec.keys():

@@ -64,6 +64,13 @@
     "schema": "findings.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [
+      "supplied-measurement-bundle"
+    ],
+    "owns": []
+  },
   "protocol": [
     "Review supplied response, regularization, prior dependence, closure, stress and interval coverage before an unfolded result is used.",
     "Begin in a fresh session distinct from the producer without the producer_headline. Recompute response forward closure, independent stress residuals and interval coverage from the supplied populations; reject a packet missing any required evidence.",

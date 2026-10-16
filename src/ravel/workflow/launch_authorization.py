@@ -541,7 +541,8 @@ def audit_scan_launches(root, manifest, scan):
             if path in paths:
                 raise ValueError("distinct scan points cannot reuse one run's launch history")
             paths.add(path)
-            plan = read_json(path / "inputs/native_execution_plan.json")
+            from .scan_orchestrator import point_attempt_root
+            plan = read_json(point_attempt_root(by_tag[tag], path) / "inputs/native_execution_plan.json")
             if plan.get("required_compute_plan") not in ("full", "scan"):
                 raise ValueError(f"scan point {tag} has no recorded bulk compute plan")
             errors += [f"point {tag}: {e}" for e in [*ws.verify_checkin2_go(str(path)),

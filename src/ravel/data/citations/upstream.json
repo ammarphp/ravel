@@ -49,6 +49,10 @@
       {"id": "arXiv:1412.7420", "authors": "A. Buckley et al.", "title": "LHAPDF6: parton density access in the LHC precision era", "journal": "Eur. Phys. J. C", "volume": "75", "year": 2015, "pages": "132", "doi": "10.1140/epjc/s10052-015-3318-8", "arxiv": "1412.7420"}
      ]
     },
+    {"tool": "MCFM", "area": "Event generation and simulation", "link": "https://mcfm.fnal.gov/", "home_page": "https://mcfm.fnal.gov/",
+     "used_for": "Amplitudes for interfering resonances", "basis": "home-page", "cite": [],
+     "source_url": "https://mcfm.fnal.gov/",
+     "note": "The home page and the manual overview carry no citation request."},
     {"tool": "Rivet", "area": "Analysis and reinterpretation", "link": "https://gitlab.com/hepcedar/rivet", "home_page": "https://rivet.hepforge.org/", "used_for": "Analysis routines", "basis": "release-paper", "source_url": "https://arxiv.org/abs/2404.15984", "note": "The home page served an automated-browser check and the repository README names no reference; the Rivet 4 release note was confirmed at arXiv.",
      "cite": [
       {"id": "arXiv:2404.15984", "authors": "C. Bierlich et al.", "title": "Robust independent validation of experiment and theory: Rivet version 4 release note", "journal": "SciPost Phys. Codeb.", "volume": "36", "year": 2024, "doi": "10.21468/SciPostPhysCodeb.36", "arxiv": "2404.15984"}

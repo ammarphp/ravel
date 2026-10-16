@@ -42,7 +42,7 @@ pyarrow) are provided by the analysis site's LCG view and are not pinned by RAVE
 | `ml` | `ml` environment | scikit-learn 1.7.2, torch 2.14.0, torch_geometric 2.7.0; reference-platform doctor and synthetic fits passed |
 
 The other groups (`spectrum`, `finite-integrals`, `sfitter`, `easyscan`, `nyx`, `feyngraph`, `diagram-consumers`,
-`publication`, `site-*`, `agent-sources`) are pinned in the manifest in the same way.
+`publication`, `site-*`, `mcfm-amplitudes`, `agent-sources`) are pinned in the manifest in the same way.
 `ravel doctor --json` also lists the refusal classes (loop decays of generated spectra, and the EasyScan cells that need
 micrOMEGAs, SUSY-HIT, FeynHiggs, HiggsBounds or MultiNest) with what would make each possible.
 

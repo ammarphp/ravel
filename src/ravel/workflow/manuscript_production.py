@@ -1372,6 +1372,16 @@ def finalize(package_pin,bindings,build_binding,final_manifest,completion_reques
     gate=final_results_review.gate(rundir,{k:final_manifest[k] for k in ('path','sha256')})
     manifest=integrity._json(integrity._raw(final_manifest,base_dir,consumed))
     root=Path(rundir).resolve(strict=True)
+    from . import physics_review, finding_routing
+    if physics_review.registered(root):
+        registration, events = physics_review._read(root)
+        census = physics_review._view(registration, events)['limitation_census']
+        if census:
+            if 'planned_claim_census' not in ir:
+                raise ValueError('review limitations require the actual manuscript claim disposition census')
+            claim_census = integrity._json(integrity._raw(ir['planned_claim_census'], Path(package['source_base']), consumed))
+            finding_routing.require_dispositions([row['finding'] for row in census], claim_census['rows'])
+
     population={str((root/row['path']).resolve() if not Path(row['path']).is_absolute() else Path(row['path']).resolve()):row for row in manifest['artifacts']}
     required=[package_pin,package['manuscript'],package['latex'],package['integrity_request'],package['model_provenance'],
         package['formatting_assessment_pin'],package['author_binding'],build_binding['result'],result['pdf'],*package['figures'],*manuscript_assets.pins(package['template_assets'])]

@@ -46,7 +46,7 @@ EXAMPLES = {
                      'warmup': {'draws': 100000, 'seed': 11, 'max_seconds': 3600}}],
         'schedule': {'schema_version': 1, 'max_operation_seconds': 36000, 'blocks': [
             {'id': f'mixed-{i}', 'cohort': 'mixed', 'seed': 21 + i, 'draws': 50000, 'max_seconds': 3600} for i in range(4)]},
-        'audit_points': 16},
+        'safety_cuts': ['z-candidate-pt', 'small-invariants'], 'audit_points': 16},
     'weighted-events': {
         'schema_version': 1, 'kind': 'weighted-events', 'operation': 'rivet', 'store': 'store',
         'hypotheses': [_REFERENCE, _HYPOTHESIS], 'reference': 'SM', 'reference_description': 'continuum and 125 GeV Higgs boson',

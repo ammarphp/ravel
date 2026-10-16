@@ -1,4 +1,4 @@
-# Generated from the RAVEL role registry f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb. Do not hand edit.
+# Generated from the RAVEL role registry b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67. Do not hand edit.
 name = "ravel-research-explorer"
 description = "Dispatch redirect for research-explorer."
 sandbox_mode = "read-only"

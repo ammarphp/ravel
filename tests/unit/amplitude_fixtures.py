@@ -109,17 +109,92 @@ def _square(m, s, identical, direct, norm):
     return total * norm
 
 
-def program_output(operation, draws, seed, channel, *, reject=(), fail=(), corrupt=False, higgs=None):
+# The synthetic program declares the same safety cuts as the MCFM manifest and applies them per draw.
+Z_CUT = {'id': 'z-candidate-pt', 'kind': 'pair_pt_min', 'min_gev': 0.1, 'pairs': [[3, 4], [5, 6]],
+         'identical_pairs': [[3, 6], [5, 4]], 'excluded_weight': 'measured',
+         'reason': 'Synthetic program: amplitudes unreliable below the cut.', 'source': 'Synthetic fixture'}
+SMALL_CUT = {'id': 'small-invariants', 'kind': 'normalized_invariant_min', 'minimum': 1e-9, 'particles': [3, 4, 5, 6],
+             'beams': [1, 2], 'reference_energy_gev': 100.0, 'excluded_weight': 'unmeasured',
+             'reason': 'Synthetic program: discards nearly collinear or soft leptons before weighting.',
+             'source': 'Synthetic fixture'}
+DECLARED_CUTS = [Z_CUT, SMALL_CUT]
+
+
+def point_with_pair_pt(seed, pt):
+    """One gg -> 4 lepton point (all outgoing) whose pairs (3,4) and (5,6) have transverse momentum ``pt``."""
+    rng = np.random.default_rng(seed)
+    q, r = rng.normal(size=2) * 30.0, rng.normal(size=2) * 30.0
+    transverse = [np.array([pt / 2, 0]) + q, np.array([pt / 2, 0]) - q, np.array([-pt / 2, 0]) + r, np.array([-pt / 2, 0]) - r]
+    leptons = []
+    for v in transverse:
+        z = rng.normal() * 80.0
+        leptons.append([v[0], v[1], z, float(np.sqrt(v @ v + z * z))])
+    leptons = np.array(leptons)
+    e, pz = leptons[:, 3].sum(), leptons[:, 2].sum()
+    a, b = (e + pz) / 2, (e - pz) / 2
+    return np.concatenate([np.array([[0, 0, -a, -a], [0, 0, b, -b]]), leptons])
+
+
+def collinear_point(seed):
+    """One gg -> 4 lepton point (all outgoing) whose leptons 3 and 4 are exactly collinear."""
+    rng = np.random.default_rng(seed)
+    a = rng.normal(size=3) * 40.0
+    c = 0.5
+    r = rng.normal(size=2) * 30.0
+    t5, t6 = -(1 + c) * a[:2] / 2 + r, -(1 + c) * a[:2] / 2 - r
+    leptons = [a, c * a, np.array([*t5, rng.normal() * 80.0]), np.array([*t6, rng.normal() * 80.0])]
+    leptons = np.array([[*v, float(np.linalg.norm(v))] for v in leptons])
+    e, pz = leptons[:, 3].sum(), leptons[:, 2].sum()
+    return np.concatenate([np.array([[0, 0, -(e + pz) / 2, -(e + pz) / 2], [0, 0, (e - pz) / 2, -(e - pz) / 2]]), leptons])
+
+
+def below_cut(p, identical, cut):
+    """Independent loop evaluation of a declared cut on one point."""
+    if cut['kind'] == 'pair_pt_min':
+        pt = lambda i, j: float(np.hypot(*(p[i - 1, :2] + p[j - 1, :2])))
+        pairs = cut['pairs'] + (cut['identical_pairs'] if identical else [])
+        return min(pt(i, j) for i, j in pairs) < cut['min_gev']
+    dot = lambda i, j: p[i - 1, 3] * p[j - 1, 3] - p[i - 1, :3] @ p[j - 1, :3]
+    values = []
+    for n, j in enumerate(cut['particles']):
+        values.append(abs(p[j - 1, 3] / cut['reference_energy_gev']))
+        values += [abs(dot(j, k) / p[j - 1, 3] / p[k - 1, 3]) for k in cut['beams'] + cut['particles'][n + 1:]]
+    return min(values) < cut['minimum']
+
+
+def reference_square(p):
+    """A deterministic stand-in for the program's own squared amplitude at an excluded draw."""
+    return float(1e-6 * (1 + np.abs(p[2:, 3]).sum()))
+
+
+def reference_norm(p):
+    """A deterministic stand-in for the coupling normalization of that square."""
+    return float(0.5 + 1e-3 * np.abs(p[2, 3]))
+
+
+def program_output(operation, draws, seed, channel, *, reject=(), fail=(), corrupt=False, higgs=None, exclude=(),
+                   leak=(), cuts=None, momenta=None, low_pt=0.04, weights=None, small=(), declared=DECLARED_CUTS):
     """Text output of the add-on program for ``draws`` draws (synthetic amplitudes).
 
     ``higgs(momenta) -> (direct, swap)`` (each (16,) complex, propagator-free) replaces
-    the random scalar numerators, for closure tests.
+    the random scalar numerators, for closure tests. Draws in ``exclude`` and ``leak`` get a
+    Z candidate of transverse momentum ``low_pt``; the program excludes every draw below its
+    cut at sampling, except ``leak`` draws, which it stores as points (a program that does
+    not apply its cut). Draws in ``small`` have two exactly collinear leptons (below the small
+    invariant cut). The program applies the ``declared`` cuts in order (the small cut first, as
+    MCFM's lowint does). ``cuts`` replaces the applied cuts it reports; ``momenta`` supplies
+    the momenta of each draw; ``weights(draw, momenta, square)`` returns the nine weight
+    fields of a draw from the program's own squared amplitude there.
     """
     rng = np.random.default_rng(seed)
     identical = channel != 1
-    lines = [f' RAVEL_MCFM_2 {operation} {draws} {seed} {channel}',
-             ' DOMAIN 0 1.69e8 0 1.69e8 0 13000 0 0']
-    accepted = rejected = failed = 0
+    order = sorted(range(len(declared)), key=lambda k: declared[k]['kind'] != 'normalized_invariant_min')
+    applied = ([(c['kind'], c['min_gev'] if c['kind'] == 'pair_pt_min' else c['minimum']) for c in declared]
+               if cuts is None else cuts)
+    lines = [f' RAVEL_MCFM_3 {operation} {draws} {seed} {channel}',
+             ' DOMAIN 0 1.69e8 0 1.69e8 0 13000 0 0', f' SAFETY {len(applied)}']
+    lines += [f' CUT {i} {kind} {value!r}' for i, (kind, value) in enumerate(applied, 1)]
+    accepted = rejected = failed = excluded = 0
     for draw in range(1, draws + 1):
         if draw in reject:
             lines.append(f' REJECT {draw}')
@@ -129,8 +204,30 @@ def program_output(operation, draws, seed, channel, *, reject=(), fail=(), corru
             lines.append(f' FAIL {draw} 3')
             failed += 1
             continue
+        if momenta is not None:
+            p = np.asarray(momenta[draw - 1], float)
+        elif draw in exclude or draw in leak:
+            p = point_with_pair_pt(seed * 1000 + draw, low_pt)
+        elif draw in small:
+            p = collinear_point(seed * 1000 + draw)
+        else:
+            p = points(seed * 1000 + draw, 1)[0]
+        weight = [float(rng.uniform(0.1, 1.0)) * 1e-3, 2.0, 3.0, 0.5, 1.0, 0.1, 0.2, 100.0, 1e4]
+        hit = next((k for k in order if below_cut(p, identical, declared[k])), None) if draw not in leak else None
+        if hit is not None:
+            excluded += 1
+            measured = declared[hit]['excluded_weight'] == 'measured'
+            if weights is not None:
+                weight = list(weights(draw, p, reference_square(p)))
+            lines.append(f' EXCLUDE {draw} {hit + 1} {int(identical)} {int(measured)}')
+            if measured:
+                lines.append(' WEIGHT ' + ' '.join(f'{v:.17e}' for v in weight))
+                lines.append(f' REFERENCE {reference_square(p):.17e} {reference_norm(p):.17e}')
+            for j in range(6):
+                lines.append(f' P {j + 1} ' + ' '.join(f'{v:.17e}' for v in p[j]))
+            lines.append(f' ENDEXCLUDE {draw}')
+            continue
         accepted += 1
-        p = points(seed * 1000 + draw, 1)[0]
         s = float(sp.dot(p[0] + p[1], p[0] + p[1]))
         mass, width = 125.0, 0.004
         prop = 1 / complex(s - mass ** 2, mass * width)
@@ -149,8 +246,10 @@ def program_output(operation, draws, seed, channel, *, reject=(), fail=(), corru
         c = _square(cont[0], cont[1], identical, direct, norm)
         if corrupt:
             f *= 1.001
-        weight = [float(rng.uniform(0.1, 1.0)) * 1e-3, 2.0, 3.0, 0.5, 1.0, 0.1, 0.2, np.sqrt(s) / 2, s / 4]
-        lines.append(f' POINT {draw} {int(identical)} {int(direct)} 0')
+        weight[7:] = [np.sqrt(s) / 2, s / 4]
+        if weights is not None:
+            weight = list(weights(draw, p, f))
+        lines.append(f' POINT {draw} {int(identical)} {int(direct)}')
         lines.append(' META ' + ' '.join(f'{v:.17e}' for v in [s, mass, width, prop.real, prop.imag, norm, f, f - c, c]))
         lines.append(' WEIGHT ' + ' '.join(f'{v:.17e}' for v in weight))
         lines.append(' COORD ' + ' '.join(['0.5'] * 12))
@@ -162,5 +261,5 @@ def program_output(operation, draws, seed, channel, *, reject=(), fail=(), corru
                     a = amps[pair - 1, h, ch - 1]
                     lines.append(f' A {pair} {ch} {" ".join(map(str, hel))} {a.real:.17e} {a.imag:.17e}')
         lines.append(f' ENDPOINT {draw}')
-    lines.append(f' COMPLETE {draws} {accepted} {rejected} {failed} 0 0.5')
+    lines.append(f' COMPLETE {draws} {accepted} {rejected} {failed} {excluded} 0.5')
     return ('\n'.join(lines) + '\n').encode()

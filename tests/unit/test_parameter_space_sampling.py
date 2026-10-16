@@ -348,6 +348,17 @@ def test_real_common_worker_intake_checkin_and_report(tmp_path,monkeypatch):
 
 
 def test_real_child_protocol_forwards_original_cli_once(tmp_path,monkeypatch):
+    # The production protocol runs in a fresh interpreter. Collection of other
+    # test files can import native libraries which are deliberately not in this
+    # inert child's captured runtime, so exercise the same process boundary.
+    import os, subprocess
+    if os.environ.get('RAVEL_TEST_SAMPLING_CHILD') != '1':
+        child = subprocess.run([sys.executable, '-B', '-m', 'pytest', '-q',
+            f'{__file__}::test_real_child_protocol_forwards_original_cli_once'],
+            env={**os.environ, 'RAVEL_TEST_SAMPLING_CHILD': '1', 'PYTHONDONTWRITEBYTECODE': '1'},
+            capture_output=True, text=True, timeout=120)
+        assert child.returncode == 0, child.stdout + child.stderr
+        return
     from ravel.physics import parameter_space_sampling_worker as worker
     import os,types
     request=observer_fixture(tmp_path);work=Path(request['work']);fw=tmp_path/'framework';fw.mkdir()

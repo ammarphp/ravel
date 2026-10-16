@@ -131,6 +131,17 @@ def _schema(schema, depth=0):
         types = [types]
     if not isinstance(types, list) or not types or any(type(t) is not str or t not in JSON_TYPES for t in types) or len(set(types)) != len(types):
         raise HostFailure("output schema requires supported explicit types")
+    # A pure object union keeps every alternative closed and fully required.
+    # It permits versioned records without admitting partially specified objects.
+    if set(schema) == {'type', 'anyOf'} and schema['type'] == 'object':
+        choices = schema['anyOf']
+        if type(choices) is not list or not 1 <= len(choices) <= 16:
+            raise HostFailure('bounded output alternatives required')
+        for choice in choices:
+            _schema(choice, depth + 1)
+            if choice['type'] != 'object':
+                raise HostFailure('object alternatives require object type')
+        return
     for key in ("description", "title"):
         if key in schema:
             _text(schema[key], "schema annotation", 4096)
@@ -188,6 +199,8 @@ def _validate(value, schema):
             except HostFailure: continue
             break
         else: raise HostFailure("public JSON does not match conditional output alternatives")
+    if set(schema) == {'type', 'anyOf'}:
+        return
     if "enum" in schema and all(not _same_json(value, choice) for choice in schema["enum"]):
         raise HostFailure("public JSON does not match output enum")
     if "const" in schema and not _same_json(value, schema["const"]):
@@ -1102,7 +1115,8 @@ class AgentHost:
 
     def prepare_model_context(self, node, request):
         """Validate role custody and model parameters, without a transport call."""
-        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts"}, "graph node")
+        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts",
+                     *({'registry_role'} if 'registry_role' in node else set())}, "graph node")
         if node["kind"] != "model":
             raise HostFailure("model context preparation requires a model node")
         if request.get("packet") != node["packet"]:
@@ -1133,7 +1147,8 @@ class AgentHost:
 
     def execute(self, node, request, control):
         self._cancel(control)
-        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts"}, "graph node")
+        _keys(node, {"id", "kind", "role", "depends_on", "inputs", "packet", "action", "parameters", "max_attempts",
+                     *({'registry_role'} if 'registry_role' in node else set())}, "graph node")
         if request.get("packet") != node["packet"]:
             raise HostFailure("host packet pin mismatch")
         pins = self._pins(node, request)

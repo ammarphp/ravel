@@ -49,6 +49,7 @@ class Node(_Strict):
     action: str
     parameters: dict[str, JsonValue]
     max_attempts: int = Field(ge=1, le=16)
+    registry_role: str | None = None
 
 
 class Dependency(_Strict):

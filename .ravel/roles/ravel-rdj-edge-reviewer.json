@@ -55,14 +55,22 @@
     ],
     "output": {
       "declared_outputs": [],
-      "schema": "findings.v1",
+      "schema": "findings.v2",
       "sidecar": true
+    },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": []
     },
     "protocol": [
       "Test a material assertion against its pinned parent support and request unresolved evidence.",
       "Check every input, required output and inherited obligation against the pinned contract. Preserve failed and unresolved evidence.",
       "Only new_receipt, code_check or a typed discriminating-test request can block. Ask for the cheapest test that could invalidate the claim. Cited claims and opinions remain advisory.",
-      "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+      "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
+      "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
+      "A limitation states each affected claim_id, effect (bounds or invalidates), and a bound or unbounded. Route it to the limitation census and qualified or withdrawn claim disposition; it cannot request rework or spend repair budget.",
+      "Only the decider may reclassify, recording a reason and retaining the original classification. Repeated findings against unchanged artifact bytes do not request another repair. Legacy unclassified findings keep their prior route."
     ],
     "purpose": "Test a material assertion against its pinned parent support and request unresolved evidence.",
     "requires": {
@@ -104,5 +112,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

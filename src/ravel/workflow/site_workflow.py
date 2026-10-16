@@ -160,9 +160,32 @@ def _restore_environment(path,expected_sha256,identity=None):
         return
 
 
+def _source_census(root):
+    """Commit source/data bytes; interpreter caches are derived local state.
+
+    Keep the generic complete-directory census strict for scientific inputs.
+    Only this package-source commitment excludes Python's generated cache tree.
+    """
+    root = root_stream.custody._ordinary(root, Path.cwd(), directory=True)
+    rows = {}
+    for directory, subdirs, files in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        for name in sorted(subdirs + files):
+            path = parent / name
+            if path.is_symlink() or not (path.is_file() or path.is_dir()):
+                raise ValueError('complete ordinary source directory/file census required')
+            if name == '__pycache__' and path.is_dir():
+                continue
+            rows[path.relative_to(root).as_posix()] = (
+                {'kind': 'directory'} if path.is_dir() else
+                {'kind': 'file', 'sha256': root_stream.custody.custody._hash(path), 'size': path.stat().st_size})
+        subdirs[:] = sorted(name for name in subdirs if name != '__pycache__')
+    return rows
+
+
 def _source_assets():
     root=Path(__file__).parents[2]
-    census=root_stream.census(root)
+    census=_source_census(root)
     # Complete source membership, including installed operational/data assets.
     return root,census
 
@@ -352,7 +375,7 @@ def verify(path,expected_sha256):
     core.require(snake==_snakefile(path,doc),'workflow executable differs from original typed tasks')
     core.require(_interpreter(cap,doc['python'],out)==doc['python'],'exported interpreter name must be absolute')
     for p in doc['audit_input_pins']:cap.read(p,out,64*1024**2)
-    core.require(root_stream.census(Path(doc['source_root']))==doc['source_census'],'complete original source epoch differs')
+    core.require(_source_census(Path(doc['source_root']))==doc['source_census'],'complete original source epoch differs')
     from . import science,research_cycle
     partition_tasks=set();masters={}
     for task in doc['tasks']:
@@ -388,7 +411,7 @@ def verify(path,expected_sha256):
             value=cap.document(_pin(marker),out)
             core.require(value.get('task')==row['id'] and value.get('export_sha256')==expected_sha256 and
                 value.get('status')=='merge-draft-written' and value.get('execution_authorized') is False,'original merge rule marker required')
-    cap.finish();core.require(root_stream.census(Path(doc['source_root']))==doc['source_census'],'ending complete original source differs')
+    cap.finish();core.require(_source_census(Path(doc['source_root']))==doc['source_census'],'ending complete original source differs')
     for rd,folder,receipt in delivered:
         core.require(root_stream.ordinary_delivery(rd,expected_output=folder)==receipt,'ending original WMS delivery differs')
     cap.finish()

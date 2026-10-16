@@ -63,6 +63,13 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": [
+      "theory-prediction-bundle"
+    ]
+  },
   "protocol": [
     "Produce prediction bundles with all supplied members, source versions, perturbative orders and validity domains retained.",
     "Read handbooks_for_node for the actual selected program; retain its version, process definition, member census and source-bound inputs. Store shape and rate orders separately and disclose any rate rescaling.",

@@ -243,6 +243,28 @@ def require_claim_inputs(cfg, rundir, statistics):
         raise ValueError("native agreement requires an explicitly declared delphes_card; fallback detector cards are refused")
 
 
+def output_root(plan):
+    return Path(plan.get('output_directory', Path(plan['rundir']) / 'output'))
+
+
+def log_root(plan):
+    return Path(plan.get('log_directory', Path(plan['rundir']) / 'logs'))
+
+
+def approved_plan_path(rundir):
+    """Resolve the saved proposal pinned by this run's task contract."""
+    root = Path(rundir).resolve()
+    contract = root / 'inputs/task_contract.json'
+    if contract.is_file():
+        pin = json.loads(contract.read_text()).get('execution_plan')
+        if pin is not None:
+            path = (root / pin['path']).resolve()
+            if not path.is_relative_to(root):
+                raise ValueError('native execution plan escapes the run directory')
+            return path
+    return root / 'inputs/native_execution_plan.json'
+
+
 def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_parent=None, m_lsp=None, pdf=None, campaign_points=1):
     rundir = Path(rundir).resolve()
     config = Path(config)
@@ -433,8 +455,19 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
         if any(entry is not None and (entry['region'] not in regions or
                entry.get('flavour') is not None and entry['flavour'] not in flags) for entry in mapping.values()):
             raise ValueError('channel map names a region or flavour absent from the selected package')
-    out = rundir/"output"
-    plan_path = rundir/"inputs/native_execution_plan.json"
+    override_path = rundir / 'inputs/active-point-override.json'
+    override_record = None
+    if override_path.is_file():
+        from ravel.workflow import point_overrides as overrides
+        override_record = json.loads(override_path.read_text())
+        overrides.verify(override_record, config)
+    attempt = (rundir / 'attempts' / override_record['receipt_sha256']
+               if override_record else rundir)
+    out = attempt / "output"
+    if override_record:
+        rendered = {name: text.replace(str(rundir / 'output'), str(out))
+                    for name, text in rendered.items()}
+    plan_path = attempt / "inputs/native_execution_plan.json"
     tools = native_build_root()/"tools"
     conda = str(tools/"miniforge3/bin/conda")
     required_tools = [conda,str(tools/"mg5amcnlo/bin/mg5_aMC"),str(native_binary("pythia_shower")),
@@ -465,7 +498,7 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             raise ValueError("The linker policy requires explicit LHAPDF260000 central-member cards")
         if any(line.split("#", 1)[0].strip().startswith("set ") for line in Path(inputs["process_card"]).read_text().splitlines()):
             raise ValueError("This linker policy does not accept process-card environment overrides")
-        generation_linker = linker_contract(rundir, decision_path, decision)
+        generation_linker = linker_contract(rundir, decision_path, decision, output_directory=out)
         source_paths.extend(Path(item["path"]) for item in decision["sources"].values())
         source_paths.append(Path(link.__file__))
     if lhe_provenance is not None:
@@ -488,7 +521,7 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
         stages.append({"stage": name, "command": list(map(str, command)), "inputs": ins,
                        "outputs": list(map(str, outputs)), "depends_on": dependencies})
     cards = [out/n for n in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")]
-    effective_path = rundir/effective.MANIFEST
+    effective_path = out / Path(effective.MANIFEST).name
     stage("prepare", local("prepare", "--plan", plan_path), [*source_paths, plan_path], [*cards,effective_path], [])
     lhe = out/"madgraph/unweighted_events.lhe"
     stage("madgraph", local("generate", "--plan", plan_path), [plan_path,*cards[:3]],
@@ -516,7 +549,8 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
         shower_outputs += [sidecar, provenance_report]
     stage("pythia",shower_command, shower_inputs, shower_outputs, ["lhe_check"])
     normalization = out/"normalization.json"
-    logs = [rundir/"logs/madgraph.log",rundir/"logs/pythia.log"]
+    logs_dir = rundir / 'logs' / 'attempts' / override_record['receipt_sha256'] if override_record else rundir / 'logs'
+    logs = [logs_dir / 'madgraph.log', logs_dir / 'pythia.log']
     stage("normalization",module_command("ravel.physics.native_normalization","--lhe",lhe,"--madgraph-log",logs[0],"--shower-log",logs[1],"--kfactor",kfactor,"--nevents",nevents,"--out",normalization),[lhe,*logs], [normalization],["pythia"])
     detector_output = out/"delphes/delphes.root"
     detector_binary = tools/"miniforge3/envs/recast/bin/DelphesHepMC3"
@@ -553,7 +587,10 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
                        if statistics_python is not None else
                        python(statistics_env,"ravel.physics.pyhf_exclude",*fit_args))
         stage("pyhf",fit_command,[inputs["likelihood"],patch,signal_metadata],[out/"exclusion.json"],["sa2json"])
-    stage("native_report",local("report","--plan",plan_path),[plan_path,*outputs,normalization],[out/"native_execution_result.json"],[stages[-1]["stage"]])
+    quantity_outputs = list(dict.fromkeys(path for item in stages
+        if item['stage'] in ('normalization', 'simpleanalysis', 'sa2json', 'pyhf')
+        for path in item['outputs']))
+    stage("native_report",local("report","--plan",plan_path),[plan_path,*quantity_outputs],[out/"native_execution_result.json"],[stages[-1]["stage"]])
     plan = {"schema_version":1,"rundir":str(rundir),"config":str(config),"plan_path":str(plan_path),
             "capability":capability,"nevents":nevents,"seed":seed,"ecms_gev":ecms,
             "luminosity_pb_inverse":lumi,"kfactor":kfactor,"expected_masses_gev":expected_masses,
@@ -565,6 +602,10 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
             "generator_command":[conda,"run","--live-stream","-p",str(tools/"miniforge3/envs/mg5"),str(tools/"mg5amcnlo/bin/mg5_aMC"),str(cards[2])],
             "stages":stages,"required_tools":required_tools,"required_backend_files":[str(converter)],"compute_authorized":False,
             "limitations":["Unmerged LO MSSM generation only", "Execution registration is not physics certification"]}
+    plan["quantity_outputs"] = quantity_outputs
+    if override_record:
+        plan['output_directory'] = str(out)
+        plan['log_directory'] = str(logs_dir)
     plan["effective_settings"] = str(effective_path)
     plan["shower_translation"] = shower_translation
     plan["effective_controls"] = {
@@ -585,6 +626,16 @@ def build_execution_plan(rundir, config, *, model=None, analysis_id=None, m_pare
         plan["lhe_provenance"] = {"policy": lhe_provenance, "sidecar": str(sidecar),
             "verification": str(provenance_report), "wrapper_source": str(wrapper_source),
             "scope": "New-generation original-LHA identity only; no replay byte equality or physics certification"}
+    # A scan override is a source of the executable proposal, never an approval bypass.
+    if override_record:
+        record = override_record
+        override_path = rundir / ('inputs/point-overrides/' + record['receipt_sha256'] + '.json')
+        if not override_path.is_file():
+            override_path = rundir / 'inputs/active-point-override.json'
+        plan['point_override'] = record
+        plan['sources'].append(fingerprint(override_path))
+        for stage in stages:
+            stage['inputs'].append(str(override_path))
     plan["plan_sha256"] = plan_hash(plan)
     return plan
 
@@ -616,7 +667,7 @@ def prepare(plan):
     from ravel.workflow import physics_review
     if physics_review.active(plan["rundir"]) and physics_review.status(plan["rundir"]).get("state") == "correction_admitted":
         raise ValueError("prepare correction cards and derivative plan before admission; admitted effective bytes cannot be regenerated")
-    out = Path(plan["rundir"])/"output"
+    out = output_root(plan)
     out.mkdir(parents=True,exist_ok=True)
     from . import native_effective_config as effective
     if "effective_settings" not in plan:
@@ -650,8 +701,8 @@ def correction_derivative(plan, *, plan_path):
         for field in ("command", "inputs"):
             item[field] = [str(path) if value == before else value for value in item[field]]
     preparation = next(item for item in derivative["stages"] if item["stage"] == "prepare")
-    cards = [str(root/"output"/name) for name in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")]
-    adoption_path = str(root/"output/native_preparation_adoption.json")
+    cards = [str(output_root(plan)/name) for name in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")]
+    adoption_path = str(output_root(plan)/"native_preparation_adoption.json")
     preparation.update(command=module_command("ravel.physics.native_pipeline", "adopt-preparation", "--plan", str(path)),
                        inputs=list(dict.fromkeys([*preparation["inputs"], *cards, derivative["effective_settings"]])),
                        outputs=[adoption_path], depends_on=[])
@@ -688,7 +739,7 @@ def adopt_preparation(plan):
     if native_correction(plan) is None:
         raise ValueError("prepared-card adoption requires a current admitted correction")
     from . import native_effective_config as effective
-    cards = [fingerprint(Path(plan["rundir"])/"output"/name) for name in effective.expected_cards(plan)]
+    cards = [fingerprint(output_root(plan)/name) for name in effective.expected_cards(plan)]
     write_new_json(plan["correction_preparation"]["receipt"], {
         "schema_version": 1, "mode": "adopt_frozen_prepared_cards", "plan_sha256": plan["plan_sha256"],
         "effective_settings": fingerprint(plan["effective_settings"]), "cards": cards,
@@ -725,9 +776,9 @@ def native_correction(plan):
             raise ValueError(f"native correction derivative input is outside its exact admitted snapshots: {path}")
     adoption = plan.get("correction_preparation")
     prepare_stage = next((item for item in plan["stages"] if item["stage"] == "prepare"), None)
-    expected_receipt = str(root/"output/native_preparation_adoption.json")
+    expected_receipt = str(output_root(plan)/"native_preparation_adoption.json")
     expected_command = module_command("ravel.physics.native_pipeline", "adopt-preparation", "--plan", plan["plan_path"])
-    expected_cards = {str(root/"output"/name) for name in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")}
+    expected_cards = {str(output_root(plan)/name) for name in ("param_card.dat", "run_card.dat", "run.mg5", "shower.cfg")}
     if (adoption != {"mode": "adopt_frozen_prepared_cards", "receipt": expected_receipt,
                      "scope": "all_native_descendants_rerun"}
             or prepare_stage is None or prepare_stage["command"] != expected_command
@@ -810,7 +861,7 @@ def verify_native_stage_authority(plan, name, *, resume=False, inside_supervised
     if correction:
         expanded = execution.plan_stage(root, name, stage["command"], stage["inputs"], stage["outputs"], stage["depends_on"], str(root))
         errors = physics_review.correction_execution_errors(root, name, stage["command"], expanded["inputs"],
-                    stage["outputs"], stage["depends_on"], str(root), log=str(root/"logs"/(name+".log")))
+                    stage["outputs"], stage["depends_on"], str(root), log=str(log_root(plan)/(name+".log")))
         if inside_supervised:
             record = execution.load_execution(root)["stages"].get(name, {})
             if (record.get("status") != "running" or any(record.get(key) != expanded[key] for key in
@@ -822,15 +873,16 @@ def verify_native_stage_authority(plan, name, *, resume=False, inside_supervised
     return correction["correction_id"] if correction else None
 
 
-def linker_contract(rundir, decision_path, decision):
+def linker_contract(rundir, decision_path, decision, *, output_directory=None):
     """Deterministic opt-in extension; no default-plan or toolchain mutation."""
     from .native_lhapdf import GENERATION_POLICY
     root = Path(rundir).resolve()
+    out = Path(output_directory) if output_directory is not None else root / "output"
     return {"policy": GENERATION_POLICY, "decision": fingerprint(decision_path),
             "prefix": decision["prefix"], "python": decision["python"],
             "payload_command": [decision["python"], "-O", "-B",
-                                decision["sources"]["madgraph"]["path"], "-s", str(root/"output/run.mg5")],
-            "execution_record": str(root/"output/madgraph/linker_execution.json")}
+                                decision["sources"]["madgraph"]["path"], "-s", str(out/"run.mg5")],
+            "execution_record": str(out/"madgraph/linker_execution.json")}
 
 
 def activated_command(plan):
@@ -851,7 +903,7 @@ def checked_linker(plan):
     if not decision_path:
         raise ValueError("Missing approved linker decision")
     decision = link.validate_generation_decision(link.read_decision(decision_path), contract.get("prefix"))
-    expected = linker_contract(plan["rundir"], decision_path, decision)
+    expected = linker_contract(plan["rundir"], decision_path, decision, output_directory=output_root(plan))
     if link.canonical(contract) != link.canonical(expected) or plan["generator_command"] != activated_command(plan):
         raise ValueError("Activated command or contract differs from its pinned decision")
     sources = {item["path"]: item["sha256"] for item in plan["sources"]}
@@ -973,7 +1025,7 @@ def generate(plan):
         verify_effective_settings(plan)
         verify_activated_result(plan, attempt)
     source = attempt/"PROC_madgraph/Events/run_01/unweighted_events.lhe.gz"
-    target = root/"output/madgraph/unweighted_events.lhe.gz"
+    target = output_root(plan)/"madgraph/unweighted_events.lhe.gz"
     if not source.is_file() or not source.stat().st_size:
         raise ValueError("MadGraph did not produce a complete compressed LHE")
     # Exclusive creation catches undeclared reuse; the supervisor archives a
@@ -1005,6 +1057,9 @@ def verify_execution_approval(plan):
     required="scan" if plan["campaign_points"]>1 else "full" if plan["nevents"]>1000 else "smoke"
     if plan.get("required_compute_plan")!=required:
         raise ValueError("execution compute rung disagrees with actual point/event scope")
+    if plan.get('point_override'):
+        from ravel.workflow import point_overrides as overrides
+        overrides.verify(plan['point_override'], plan['config'])
     correction = native_correction(plan)
     amended = correction or accepted_native_derivative(plan)
     errors=(verify_approval_envelope(str(root), required) if correction else verify_approval(str(root),required_plan=required,disclose=True))
@@ -1057,13 +1112,14 @@ def execute_plan(plan, *, supervisor=None, resume=True):
             raise ValueError("admitted correction stages are absent from the native derivative plan")
     # Approval pins these existing bytes. Do not rewrite or regenerate a plan
     # after approval, including on resume.
+    log_root(plan).mkdir(parents=True, exist_ok=True)
     for stage in selected:
         # Revalidate original inputs before every stage, including resumed runs.
         load_plan(plan["plan_path"])
         verify_execution_approval(plan)
         if stage["stage"] != "prepare": verify_effective_settings(plan)
         verify_native_stage_authority(plan, stage["stage"], resume=resume and not correction)
-        result = supervisor(stage["stage"],str(rundir),plan["nevents"],str(rundir/"logs"/(stage["stage"]+".log")),
+        result = supervisor(stage["stage"],str(rundir),plan["nevents"],str(log_root(plan)/(stage["stage"]+".log")),
                             stage["command"],inputs=stage["inputs"],outputs=stage["outputs"],
                             depends_on=stage["depends_on"],resume=resume and not correction,cwd=str(rundir),authorization_plan=plan)
         if result != 0:
@@ -1100,14 +1156,18 @@ def main(argv=None):
             elif args.action == "generate-activated": return generate_activated(plan)
             else:
                 verify_effective_settings(plan)
-                out=Path(plan["rundir"])/"output"
+                out=output_root(plan)
                 actual=plan["capability"]["routine"]
                 for extension in (".root",".txt"):
                     if not (out/(actual+extension)).is_file():raise ValueError("requested routine outputs are missing")
                 result={"analysis":actual,"model":plan["capability"]["model"],"detector":plan["capability"]["detector"],
                         "statistics":plan["capability"]["statistics_adapter"],"plan_sha256":plan["plan_sha256"],
                         "physics_certified":False,"normalization":fingerprint(out/"normalization.json"),
-                        "outputs":[fingerprint(out/(actual+ext)) for ext in (".root",".txt")]}
+                        "outputs":[fingerprint(out/(actual+ext)) for ext in (".root",".txt")],
+                        "quantity_outputs":[fingerprint(path) for path in plan['quantity_outputs']]}
+                if plan.get('point_override'):
+                    result['point_receipt_sha256'] = plan['point_override']['receipt_sha256']
+                    result['regime'] = plan['point_override']['reason']
                 from . import native_effective_config as effective
                 result["effective_settings"] = fingerprint(plan["effective_settings"])
                 result["runtime_settings_evidence"] = effective.runtime_evidence(plan)

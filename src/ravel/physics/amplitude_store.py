@@ -12,7 +12,11 @@ hypothesis theta at a point is ``factor * Re(c^dagger G c)``.
 
 A block is written to ``<name>.partial`` and becomes readable only when
 ``finish`` renames it and writes ``<name>.complete.json`` with its sha256, point
-count and integration census. ``audit_points`` keeps the full amplitude arrays of
+count and integration census. The census counts every attempted draw once:
+accepted (stored), rejected, failed or ``excluded`` by a declared phase-space
+safety cut applied when the draw was made. Excluded and rejected draws stay in
+the exposure and contribute zero, so a block integrates exactly the restricted
+phase space. ``audit_points`` keeps the full amplitude arrays of
 the first points in ``<name>.audit.npy`` for later cross-checks.
 
 ``run_schedule`` runs a declared list of blocks through a producer, records a
@@ -169,10 +173,10 @@ class BlockWriter:
     def finish(self, summary):
         ab.require(self.state == 'open', 'block writer is closed')
         ab.require(type(summary) is dict and set(_SUMMARY) <= set(summary), 'summary needs ' + ', '.join(_SUMMARY))
-        for key in _SUMMARY:
+        for key in _SUMMARY + (('excluded',) if 'excluded' in summary else ()):
             ab.require(type(summary[key]) is int and summary[key] >= 0, f'summary {key} must be a non-negative integer')
-        ab.require(summary['attempted'] == summary['accepted'] + summary['rejected'] + summary['failed'],
-                   'attempted must equal accepted + rejected + failed')
+        ab.require(summary['attempted'] == summary['accepted'] + summary['rejected'] + summary['failed']
+                   + summary.get('excluded', 0), 'attempted must equal accepted + rejected + failed + excluded')
         ab.require(summary['accepted'] == self.points, 'accepted must equal the stored points')
         self._stream.flush()
         os.fsync(self._stream.fileno())

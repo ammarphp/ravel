@@ -19,6 +19,19 @@ JOB_ID = re.compile(r'[0-9]+\.[0-9]+\Z')
 FIELDS = ['ClusterId', 'ProcId', 'JobStatus', 'ExitCode', 'HoldReasonCode', 'RavelPause']
 
 
+def write_governed_profile(project, *, jobs, options=None):
+    """Export a project profile outside workflow/profiles for a pinned RAVEL launch."""
+    from . import write_profile
+    project = Path(project).resolve()
+    effective = dict(options or {})
+    if effective.get('workflow_dir', str(project / 'workflow')) != str(project / 'workflow'):
+        raise ValueError('governed profile workflow_dir must be the project workflow')
+    if effective.get('lease_scope', 'batch-slot') != 'batch-slot':
+        raise ValueError('governed HTCondor workers require batch-slot leases')
+    effective.update(workflow_dir=str(project / 'workflow'), lease_scope='batch-slot')
+    return write_profile(project / '.ravel-site' / 'profiles', 'htcondor', jobs=jobs, options=effective)
+
+
 def _invoke(argv):
     done = subprocess.run(argv, capture_output=True, text=True, timeout=20, check=False,
                           stdin=subprocess.DEVNULL)

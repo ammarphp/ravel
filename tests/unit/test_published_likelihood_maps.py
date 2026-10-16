@@ -226,12 +226,22 @@ def test_cli_with_a_shipped_map_records_its_identity(tmp_path, monkeypatch, spec
                                '--compressed-signal-model', 'sr-only-diagnostic', '-c'])
 
 
-def test_the_shipped_three_lepton_reference_fit_matches_its_published_numbers():
+@pytest.mark.parametrize('prior_optimizer', ['default', 'guarded'])
+def test_the_shipped_three_lepton_reference_fit_matches_its_published_numbers(prior_optimizer):
     fixture = package_data_path('fixtures', 'susy-2018-06')
     reference = json.loads((fixture/'reference_fit.json').read_text())
     reference = {**reference, 'background': str(fixture/reference['background']),
                  'patch': str(fixture/reference['patch'])}
-    result = pyhf_exclude.check_fit_reference(reference)
+    original_backend = pyhf.get_backend()
+    optimizer = (pyhf.optimize.scipy_optimizer() if prior_optimizer == 'default' else
+                 pyhf_exclude.robust_optimizer(maxiter=200000))
+    try:
+        pyhf.set_backend('numpy', optimizer, precision='64b')
+        caller_backend = pyhf.get_backend()
+        result = pyhf_exclude.check_fit_reference(reference)
+        assert pyhf.get_backend() == caller_backend
+    finally:
+        pyhf.set_backend(*original_backend)
     assert result['status'] == 'passed', result['actual']
     assert result['actual']['twice_nll'] == pytest.approx(271.786, abs=0.1)
     assert result['actual']['mu_hat'] == pytest.approx(0.2446, abs=0.02)

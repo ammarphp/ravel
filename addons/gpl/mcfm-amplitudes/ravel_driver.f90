@@ -8,7 +8,8 @@ program ravel_mcfm_amplitudes
   use MCFMStorage, only: IntegrationInfo,integrate,currentPart,currentIps
   use Integration, only: lord
   use ravel_four_lepton, only: active,draw,wanted,stream,accepted,rejected,failed,excluded, &
-      captured,coordinates,gridweight,dump_point,failed_draw
+      captured,coordinates,gridweight,dump_point,failed_draw,write_safety,small_safety_draw
+  use SafetyCuts, only: passed_smallnew
   use, intrinsic :: ieee_arithmetic
   use m_config, only: cfg_get
   use m_gencuts, only: enable_reweight_user
@@ -33,6 +34,7 @@ program ravel_mcfm_amplitudes
   include 'kpart.f'
   include 'limits.f'
   include 'cutoff.f'
+  include 'npart.f'
   type(IntegrationInfo)::info
   integer::control,op,seed,flavour,actual_seed,nproc_,npoints,pointunit,i,j,status,gridunit,pairbranch
   integer(int64)::calls
@@ -82,10 +84,14 @@ program ravel_mcfm_amplitudes
   doMultitaucut=.false.
   bin=.false.;wanted=int(calls);active=.true.
   open(newunit=stream,file=trim(outdir)//'amplitudes.dat',status='new',action='write')
-  write(stream,*) 'RAVEL_MCFM_2',op,calls,seed,flavour
+  write(stream,*) 'RAVEL_MCFM_3',op,calls,seed,flavour
   write(stream,*) 'DOMAIN',wsqmin,wsqmax,bbsqmin,bbsqmax,m3456min,m3456max,pt34min,cutoff
+  call write_safety()
   call cpu_time(start_time)
   if(op==0) then
+     ! gen_lops sets npart=4 for process 131 (kggZZ4l) at every sampled draw; supplied points never
+     ! pass through it, and passed_smallnew reads npart.
+     npart=4
      open(newunit=pointunit,file='ravel-points.dat',status='old',action='read')
      do i=1,int(calls)
         p=0._dp
@@ -98,7 +104,12 @@ program ravel_mcfm_amplitudes
         read(pointunit,*,iostat=status)pairbranch
         if(status/=0.or.pairbranch<0.or.pairbranch>1) error stop 'literal pairing branch required'
         bw34_56=pairbranch==1
-        call dump_point(p,1._dp,1._dp,1._dp,1._dp,0._dp,0._dp,0._dp,0._dp)
+        ! A supplied point meets the same declared safety cuts as a sampled draw.
+        if(.not.passed_smallnew(p,npart,1.e-9_dp)) then
+           call small_safety_draw(p)
+        else
+           call dump_point(p,1._dp,1._dp,1._dp,1._dp,0._dp,0._dp,0._dp,0._dp)
+        endif
      enddo
      read(pointunit,*,iostat=status)dummy
      if(status>=0) error stop 'extra point population'
@@ -130,7 +141,7 @@ program ravel_mcfm_amplitudes
   call cpu_time(end_time)
   write(stream,*) 'COMPLETE',draw,accepted,rejected,failed,excluded,end_time-start_time
   close(stream)
-  if(draw/=int(calls).or.draw/=accepted+rejected+failed.or.failed/=0) error stop 'incomplete block'
+  if(draw/=int(calls).or.draw/=accepted+rejected+failed+excluded.or.failed/=0) error stop 'incomplete block'
 contains
   function weighted(r,wgt)result(value)
     real(dp),intent(in)::r(mxdim),wgt

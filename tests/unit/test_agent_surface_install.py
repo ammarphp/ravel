@@ -35,6 +35,58 @@ def install(project, tmp_path):
     return surf.install(project, skills_from=repository_root(), manifest=manifest)
 
 
+def test_project_provider_default_install_check_and_deleted_default(project, tmp_path, capsys):
+    from ravel.workflow import provider_policy as policy
+    from ravel.workflow.state_io import atomic_json, read_json
+    value = {'level': 'restricted', 'allowed_providers': [
+        {'transport_id': 'claude-cli-worker', 'account_class': 'login:subscription'}]}
+    atomic_json(project / policy.PROJECT_CONFIG, value)
+    report = install(project, tmp_path)
+    assert report['provider_policy']['data_classification'] == value
+    assert read_json(project / policy.PROJECT_DECLARED) == policy.PROJECT_MARKER
+    assert surf.check(project) == []
+    assert surf.main(['check', '--project', str(project)]) == 0
+    checked = json.loads(capsys.readouterr().out)
+    assert checked['provider_policy']['data_classification'] == value
+    assert checked['provider_policy']['project_defaults'][0]['sha256']
+    # No run has yet existed: the installed project still remembers its default.
+    (project / policy.PROJECT_CONFIG).unlink()
+    assert surf.main(['check', '--project', str(project)]) == 1
+    checked = json.loads(capsys.readouterr().out)
+    assert checked['provider_policy'] is None
+    assert any('provider policy' in e for e in checked['errors'])
+    with pytest.raises(policy.PolicyRefused):
+        policy.check(project / 'new', None, 'unknown')
+    with pytest.raises(policy.PolicyRefused):
+        install(project, tmp_path)
+
+
+def test_agent_surface_check_reports_legacy_public_policy(project, tmp_path, capsys):
+    from ravel.workflow import provider_policy as policy
+    install(project, tmp_path)
+    assert surf.main(['check', '--project', str(project)]) == 0
+    checked = json.loads(capsys.readouterr().out)
+    assert checked['provider_policy'] == {
+        'data_classification': policy.PUBLIC, 'declared': False, 'project_defaults': []}
+    assert not (project / policy.PROJECT_DECLARED).exists()
+
+
+def test_project_reached_through_symlink_keeps_install_and_policy_report(project, tmp_path, capsys):
+    from ravel.workflow import provider_policy as policy
+    from ravel.workflow.state_io import atomic_json
+    alias = tmp_path / 'alias'
+    alias.symlink_to(project)
+    # Installation through an alias and its policy report behave as at the real location.
+    assert install(alias, tmp_path)['provider_policy']['declared'] is False
+    assert surf.check(project) == []
+    value = {'level': 'internal', 'allowed_providers': []}
+    atomic_json(project / policy.PROJECT_CONFIG, value)
+    assert install(alias, tmp_path)['provider_policy']['data_classification'] == value
+    assert not any('provider policy' in e for e in surf.check(alias))
+    surf.main(['check', '--project', str(alias)])
+    assert json.loads(capsys.readouterr().out)['provider_policy']['data_classification'] == value
+
+
 def test_install_preserves_guardrails_and_passes_check(project, tmp_path):
     report = install(project, tmp_path)
     agents = (project / 'AGENTS.md').read_text()

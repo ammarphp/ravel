@@ -146,8 +146,8 @@ def real_sandbox_or_skip(tmp_path):
     (tmp_path / 'private').write_text('protected')
     try:
         sandbox.probe(ws, forbidden=tmp_path / 'private', read_paths=sandbox.runtime_paths([sys.executable]))
-    except sandbox.SandboxUnavailable:
-        pytest.skip('sandbox-blocked: actual OS confinement unavailable here')
+    except sandbox.SandboxUnavailable as exc:
+        pytest.skip(f'sandbox-blocked: actual OS confinement unavailable: {exc}')
 
 
 # ------------------------------------------------------------------ descriptor
@@ -814,7 +814,9 @@ def test_surface_reply_parsing_admits_only_ravel_tool_names():
     assert cli_worker.surface_names('', tools) == ([], [])
 
 
-def test_qualify_refuses_before_any_process_without_a_probe(cli, capsys):
+def test_qualify_refuses_before_any_process_without_a_probe(cli, capsys, monkeypatch):
+    # This control tests the missing probe, before any actual confinement/launch.
+    monkeypatch.setattr(sandbox, "available", lambda: "inert-test-seam")
     install(cli, 'claude')
     assert tr.main(['qualify', 'claude-cli-worker', '--rundir', str(cli / 'q'), '--model', 'claude-fixture-model']) == 3
     assert json.loads(capsys.readouterr().out)['missing'] == ['probe']

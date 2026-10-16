@@ -56,6 +56,11 @@
     "schema": "producer.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
+  },
   "protocol": [
     "Advise on particle level, normalization, fiducial definitions, covariance sources and the smallest discriminating comparison.",
     "Locate absolute, normalized or ratio definitions and Born, bare, dressed, parton, particle or reconstructed levels; require the supplied photon radius, prompt-lepton and tau-feed-down policies.",

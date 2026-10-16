@@ -110,7 +110,7 @@ def plan(rundir, spec_path):
             "i": {"request": contract["prompt"], "source": spec["source"], "scope": spec["mode"], **parent_projection},
             "i-b": {"recipe": frozen, "execution_plan_sha256": execution.file_hash(rd / PLAN),
                     **({key: proposal[key] for key in ("generator_selection", "beam_content", "pdf", "model_origin",
-                                                       "lhe_transform", "spec_reconciliation") if proposal.get(key)}
+                                                       "lhe_transform", "spec_reconciliation", "generation_convention") if proposal.get(key)}
                        if spec["mode"] == "generate" else {}),
                     **({"placement": placement.checkin(rd)} if "execution" in spec else {})},
             "ii": {"figure": figure_description(spec),
@@ -122,6 +122,12 @@ def plan(rundir, spec_path):
                 ("answer", "Approve this exact recipe and ceiling"), ("ask", "Clarify an assumption before approval"),
                 ("propose", "Create a revised plan in a new run"))],
         }}
+        if spec["mode"] == "generate":
+            record = proposal["generation_convention"]
+            for key in ("basis_identifier", "ew_input_scheme", "validity_cutoff", "terms"):
+                if record[key] is None:
+                    checkin["sections"]["v"].append({"id": f"F{len(checkin['sections']['v']) + 1}",
+                        "assumption": "CHECK-IN: generation " + key + " undeclared"})
         from ravel.validation.validate_checkin import validate, pinned_records, with_registered_sections
         reading, request = pinned_records(rd, contract)
         if request is not None:
@@ -336,6 +342,14 @@ def prepare_generation(rd, g, base, inputs, *, lease_cpus=1):
                                  "deviations": deviations}
     proc_lines = [f"import model {g['model']}", *[f"define {k} = {v}" for k, v in g["definitions"].items()],
                   f"generate {g['process']}"]
+    from ravel.physics import generation_conventions
+    process_card = rd / "inputs/generation-process.dat"
+    process_card.write_text("\n".join(proc_lines) + "\n")
+    inputs.append("inputs/generation-process.dat")
+    plan["generation_convention"] = generation_conventions.build(process_card.read_text(),
+        {"path": str(process_card), "sha256": execution.file_hash(process_card)},
+        {"identifier": g["model"], "pin": plan["model_source_sha256"], "restriction": restriction or "default"},
+        g.get("conventions"))
     from ravel.physics.scoped import run_card
     settings = run_card("\n".join(f"{v} = {k}" for k, v in g["run_settings"].items()))
     sim = spec_reconciliation.simulation_from_cards(proc_lines, settings, param_text)

@@ -20,6 +20,7 @@ FINAL_INVENTORY = FINAL_INVENTORY[:_delivery_at] + ('docs/reference/deliver-work
 FINAL_INVENTORY += ('docs/workflow/reference/provider-policy.md',)
 FINAL_INVENTORY += ('docs/workflow/checklists/conformance.md',)
 FINAL_INVENTORY += ('docs/workflow/reference/supplied-document-builds.md',)
+FINAL_INVENTORY += ('docs/workflow/steps/eft-conventions.md',)
 _batch_at = FINAL_INVENTORY.index('docs/reference/execution-backends.md') + 1
 FINAL_INVENTORY = FINAL_INVENTORY[:_batch_at] + ('docs/reference/batch-allocations.md',) + FINAL_INVENTORY[_batch_at:]
 FINAL_INVENTORY = ('docs/reference/host-enforcement.md', 'docs/workflow/hooks.md') + FINAL_INVENTORY
@@ -28,7 +29,7 @@ FINAL_INVENTORY = ('docs/reference/host-enforcement.md', 'docs/workflow/hooks.md
 def assert_inventory(actual):
     assert tuple(actual) == FINAL_INVENTORY
     assert tuple(x for x in actual if x in set(PRIOR_84)) == PRIOR_84
-    assert len(FINAL_INVENTORY) == 120 == len(set(FINAL_INVENTORY))
+    assert len(FINAL_INVENTORY) == 121 == len(set(FINAL_INVENTORY))
     assert tuple(x for x in actual if x in set(PRIOR_105)) == PRIOR_105
     assert tuple(x for x in actual if x in set(PRIOR_106)) == PRIOR_106
     assert tuple(x for x in actual if x in set(PRIOR_107)) == PRIOR_107
@@ -42,7 +43,8 @@ def assert_site_installation_instruction(project):
                    'requirements-site-wms.lock','--require-hashes','APPTAINER_CACHEDIR',
                    'APPTAINER_TMPDIR','wms.json','lcg-view.json','PYTHONNOUSERSITE=1',
                    'one release for one campaign','--min-free-gb','tester-qualification',
-                   'ravel transport qualify','ravel lease policy set'):
+                   'ravel transport qualify','RAVEL_LEASE_SCOPE=batch-slot',
+                   '_CONDOR_SCRATCH_DIR/.ravel-lease','--shared-state-root'):
         assert marker in text
 
 

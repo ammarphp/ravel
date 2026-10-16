@@ -338,3 +338,34 @@ def test_coupling_matrix_requires_same_returned_native_custody(tmp_path,monkeypa
     else:
         status,result=p._compute('coupling_census',data,wf['target'],['control'],tmp_path,{})
         assert status=='pass' and result['parameter_card_check']['native_observed']
+
+
+def test_classified_defect_targets_one_phase_and_unchanged_finding_is_not_repeated(cycle,tmp_path,observed_role_boundary):
+    from test_finding_routing import classification
+    request,_,_,_=setup(tmp_path/'domain')
+    b=prepared(cycle,tmp_path,request=request)
+    def classify(value,contract):
+        value['findings'][0]['classification']=classification(
+            sha=execution.file_hash(cycle/'outputs/produced.json'),target='extraction')
+    j.execute_role(b['judgment'],FakeHost(verdict='send_back',mutate=classify))
+    p.consume(cycle,b,allow_control=True)
+    first=p.rework(cycle,b,tmp_path/'first-repair',allow_control=True)
+    assert first['owner_phase']=='extraction'
+    assert first['invalidated_handoffs']==list(w.PHASES)
+    repeated=p.rework(cycle,b,tmp_path/'second-repair',allow_control=True)
+    assert repeated['rework'] is False and not (tmp_path/'second-repair').exists()
+    assert review.status(cycle)['redos_used']==0
+
+
+def test_classified_limitation_enters_census_without_a_phase_rework(cycle,tmp_path,observed_role_boundary):
+    from test_finding_routing import classification
+    b=prepared(cycle,tmp_path)
+    def classify(value,contract):
+        value['findings'][0].update(classification=classification('limitation',
+            sha=execution.file_hash(cycle/'outputs/produced.json'),effect='invalidates',bound='unbounded'),
+            required_paths=[],required_stages=[])
+    j.execute_role(b['judgment'],FakeHost(verdict='send_back',mutate=classify))
+    p.consume(cycle,b,allow_control=True)
+    result=p.rework(cycle,b,tmp_path/'no-repair',allow_control=True)
+    assert result['rework'] is False and result['limitation_census'][0]['disposition']=='withdrawn'
+    assert not (tmp_path/'no-repair').exists() and review.status(cycle)['redos_used']==0

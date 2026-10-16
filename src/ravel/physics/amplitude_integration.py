@@ -21,8 +21,19 @@ Input document (``kind: amplitude-integration``)::
                   "blocks": [{"id": "mixed-1", "cohort": "mixed", "seed": 21, "draws": 50000, "max_seconds": 3600}, ...]},
      "spin0": {"members": [...], "constants": {...},
                "closure": {"members": ["top-even", "bottom-even"], "program_members": ["scalar_bottom", "scalar_top"], "rtol": 1e-6}},
+     "safety_cuts": ["z-candidate-pt", "small-invariants"],   # exactly the cuts the program declares
      "audit_points": 8, "oracle_rtol": 1e-10,
      "oracle": {"cohort": "mixed", "points": {"path": "points.json", "sha256": "..."}, "seed": 5, "max_seconds": 600}}
+
+A program declares its phase-space safety cuts in its manifest
+(``protocol.safety_cuts``) and applies them when it makes each draw: a draw below a
+cut is excluded, stays in the draw census and contributes zero, so exposure and
+normalisation are exact for the restricted phase space. The document must accept
+exactly the declared cuts in ``safety_cuts``; an undeclared or unaccepted cut is
+refused before any stage runs. Every stored point and excluded draw is checked
+against the cuts from its momenta, the cuts are recorded in the store header, the
+assumptions and the receipts, and the excluded share of the draws, of the
+integration factor and of the program's own weight is measured per stage.
 
 Every block's points are checked against the program's own squared amplitudes
 before the block is stored. With ``spin0`` the declared spin-0 members join the
@@ -132,7 +143,7 @@ def load(task, base):
     doc = json.loads(path.read_text())
     root = path.parent
     required = {'schema_version', 'kind', 'addon', 'operation', 'store', 'backend', 'cohorts'}
-    optional = {'schedule', 'spin0', 'audit_points', 'oracle_rtol', 'oracle', 'description', 'retain_pairings'}
+    optional = {'schedule', 'spin0', 'audit_points', 'oracle_rtol', 'oracle', 'description', 'retain_pairings', 'safety_cuts'}
     ab.require(type(doc) is dict and required <= set(doc) <= required | optional,
                'document needs ' + ', '.join(sorted(required)))
     ab.require(doc['schema_version'] == 1 and doc['kind'] == MODE, f'schema_version 1 and kind {MODE} required')
@@ -140,6 +151,14 @@ def load(task, base):
     ab.require(doc['operation'] in ('blocks', 'point-oracle'), 'operation must be blocks or point-oracle')
     addon = addons.resolve(doc['addon'])
     protocol = records_.validate_protocol(addon.manifest.get('protocol'))
+    declared = [c['id'] for c in protocol.get('safety_cuts', [])]
+    accepted = doc.get('safety_cuts', [])
+    ab.require(type(accepted) is list and all(isinstance(c, str) for c in accepted), 'safety_cuts must list cut ids')
+    undeclared = sorted(set(accepted) - set(declared))
+    ab.require(not undeclared, f'safety cuts {undeclared} are not declared by {doc["addon"]}; an undeclared cut is refused')
+    ab.require(sorted(accepted) == sorted(declared) and len(set(accepted)) == len(accepted),
+               f'{doc["addon"]} applies the declared safety cuts {declared} when it samples; the document must '
+               'accept exactly these in safety_cuts, since every integral then covers only the restricted phase space')
     ab.require(type(doc['backend']) is dict, 'backend must be an object')
     be, installation = installation_defaults(doc['backend'], doc['addon'])
     doc['backend'] = be
@@ -170,6 +189,7 @@ def load(task, base):
         ab.require(set(cl['program_members']) <= set(protocol['members']), 'closure program_members must be program members')
         ab.require(set(cl['members']) <= {m['id'] for m in spin0['members']}, 'closure members must be spin0 members')
     ctx = {'path': path, 'root': root, 'doc': doc, 'addon': addon, 'protocol': protocol, 'cohorts': cohorts,
+           'safety_cuts': protocol.get('safety_cuts', []),
            'store': (root / doc['store']).absolute(), 'spin0': spin0, 'installation': installation}
     if doc['operation'] == 'blocks':
         schedule = store.validate_schedule(doc['schedule'])
@@ -279,8 +299,11 @@ def run_stage(ctx, name, cohort, operation, draws, seed, seconds, *, extra=None,
                else backend_driver.drive(spec, _attempt(ctx, name), ctx['store'], backend=backend))
     raw = (stage_dir / out_file).read_bytes()
     parsed = records_.parse(raw, operation=operation, draws=draws, seed=seed, channel=int(cohort['channel']), protocol=p)
+    check = records_.check_safety(parsed, p)
+    ab.require(check['passed'], f'stage {name}: the program\'s draws disagree with its declared safety cuts: {check}')
     return parsed, stage_dir, {'stage': name, 'plan_sha256': receipt['plan_sha256'],
-                               'output_sha256': hashlib.sha256(raw).hexdigest()}
+                               'output_sha256': hashlib.sha256(raw).hexdigest(),
+                               'safety': {'check': check, 'census': records_.safety_census(parsed, p)}}
 
 
 def warmups(ctx, backend=None):
@@ -321,6 +344,7 @@ def header(ctx, receipts):
             'addon': {k: v for k, v in ctx['addon'].identity().items() if k != 'root'}, 'spin0': ctx['spin0'],
             'cohorts': {cid: {'channel': c['channel'], 'card_sha256': c['card']['sha256']} for cid, c in ctx['cohorts'].items()},
             'proposals': {r['cohort']: r['sha256'] for r in receipts},
+            'safety_cuts': ctx['safety_cuts'],
             **({'pairing': {'exchange': records_.EXCHANGE.tolist()}} if ctx['doc'].get('retain_pairings') else {})}
 
 
@@ -354,7 +378,8 @@ def run(task, base, output, *, backend=None):
                                      'selected_direct': parsed['selected_direct'], 'normalization': parsed['meta'][:, 5]}
             writer.append(**values, amplitudes=amplitudes)
         s = parsed['summary']
-        return {k: s[k] for k in ('attempted', 'accepted', 'rejected', 'failed')}
+        return {**{k: s[k] for k in ('attempted', 'accepted', 'rejected', 'failed', 'excluded')},
+                'safety': receipt['safety']['census']}
 
     def block_header(block):
         channel = ctx['cohorts'][block['cohort']]['channel']
@@ -362,14 +387,49 @@ def run(task, base, output, *, backend=None):
 
     manifest = store.run_schedule(ctx['store'], ctx['doc']['schedule'], produce, header=header(ctx, receipts),
                                   block_header=block_header)
+    excluded = excluded_fraction([row['summary']['safety'] for row in manifest['blocks']], p)
     result = {'schema_version': 1, 'mode': MODE, 'status': 'passed', 'status_scope': SCOPE, 'physics_validated': False,
               'store': str(ctx['store']), 'store_status': manifest['status'], 'remaining': manifest['remaining'],
               'blocks': manifest['blocks'], 'warmups': receipts, 'stages': stages, 'closures': closures,
-              'summary': [f'{len(manifest["blocks"])} of {len(ctx["doc"]["schedule"]["blocks"])} blocks complete; store {manifest["status"]}.'],
+              'assumptions': assumptions(ctx), 'safety': {'cuts': ctx['safety_cuts'], 'blocks': excluded},
+              'summary': [f'{len(manifest["blocks"])} of {len(ctx["doc"]["schedule"]["blocks"])} blocks complete; store {manifest["status"]}.']
+                         + ([f'Safety cuts excluded {excluded["excluded"]} of {excluded["attempted"]} block draws '
+                             f'(exposure fraction {excluded["exposure_fraction"]:.3g}, weight fraction '
+                             f'{excluded["weight_fraction"]:.3g} of the program\'s own weight over the '
+                             f'{excluded["excluded"] - excluded["weight_unmeasured"]} draws whose weight is measured).']
+                            if ctx['safety_cuts'] else []),
               'limitations': ['The oracle check confirms the stored amplitudes reproduce the program\'s own squares; '
-                              'it does not establish their physical accuracy.']}
+                              'it does not establish their physical accuracy.']
+                             + (['Every integral covers the phase space restricted by the declared safety cuts; the '
+                                 'excluded region is measured, not modelled.'] if ctx['safety_cuts'] else [])}
     (out / 'integration.json').write_text(json.dumps(result, indent=2, default=_plain) + '\n')
     return result
+
+
+def assumptions(ctx):
+    """The declared safety cuts, as the study's numbered assumptions record them."""
+    def region(c):
+        if c['kind'] == 'pair_pt_min':
+            return (f'a pair transverse momentum below {c["min_gev"]} GeV for pairs {c["pairs"]} '
+                    f'(identical leptons also {c["identical_pairs"]})')
+        return (f'a normalized invariant below {c["minimum"]} (E_j / {c["reference_energy_gev"]} GeV and '
+                f'|p_j.p_k| / |E_j E_k| over particles {c["particles"]} and beams {c["beams"]})')
+    return [{'id': f'safety-cut:{c["id"]}', 'statement': f'{ctx["doc"]["addon"]} excludes every draw with {region(c)} '
+             f'when the draw is made; integrals cover the restricted phase space; the excluded weight is {c["excluded_weight"]}.',
+             'reason': c['reason'], 'source': c['source']} for c in ctx['safety_cuts']]
+
+
+def excluded_fraction(censuses, protocol):
+    """Totals of per-stage safety censuses (``records.safety_census``) and the resulting fractions."""
+    keys = ('attempted', 'excluded', 'stored', 'weight_unmeasured', 'factor_excluded', 'factor_stored',
+            'weight_excluded', 'weight_stored')
+    total = {k: sum(c[k] for c in censuses) for k in keys}
+    total['by_cut'] = {c['id']: sum(row['by_cut'][c['id']] for row in censuses) for c in protocol.get('safety_cuts', [])}
+    share = lambda lost, kept: lost / (lost + kept) if lost + kept else 0.0
+    return {**total, 'exposure_fraction': total['excluded'] / total['attempted'] if total['attempted'] else 0.0,
+            'factor_fraction': share(total['factor_excluded'], total['factor_stored']),
+            'weight_fraction': share(total['weight_excluded'], total['weight_stored']),
+            'weight_unit': protocol['factor_unit'], 'stages': len(censuses)}
 
 
 def _plain(value):
@@ -397,6 +457,7 @@ def _point_oracle(ctx, out, rtol, backend):
     check = records_.oracle_check(parsed, ctx['protocol'], rtol=rtol)
     result = {'schema_version': 1, 'mode': MODE, 'status': 'passed' if check['passed'] else 'failed', 'status_scope': SCOPE,
               'physics_validated': False, 'oracle': check, 'stage': receipt, 'points': len(parsed['meta']),
+              'excluded_points': parsed['summary']['excluded'], 'assumptions': assumptions(ctx),
               'summary': [f'point oracle {"passed" if check["passed"] else "failed"} at {len(parsed["meta"])} points.']}
     (out / 'point-oracle.json').write_text(json.dumps(result, indent=2) + '\n')
     return result

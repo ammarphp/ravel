@@ -24,7 +24,8 @@ CANCEL = dict(autonomy='manual', checkin_thresholds={}, hard_ceilings={}, signof
 
 
 @pytest.fixture
-def run(tmp_path, monkeypatch):
+def run(short_tmp_path, monkeypatch):
+    tmp_path = short_tmp_path
     monkeypatch.setenv('RAVEL_STATE_DIR', str(tmp_path / 'state'))
     monkeypatch.delenv('RAVEL_WORK_ROOT', raising=False)
     (tmp_path / 'run').mkdir()

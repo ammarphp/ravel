@@ -61,6 +61,11 @@
           "schema": "producer.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": []
+        },
         "protocol": [
           "Read the supplied project policy, task index, source-pinned rules, profile and original admission records before advising on its DAG.",
           "Check dependency edges, complete task populations, rule inputs and outputs, resource declarations and profile scope. Study identities, parameter grids, datasets and output formats are supplied inputs.",

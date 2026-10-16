@@ -13,7 +13,7 @@ from test_host_governance import GATES, _env, _run
 from test_review_points import run as plan_run
 
 REPO = Path(__file__).resolve().parents[2]
-SHIM_HOSTS = ('claude', 'codex', 'gemini')
+SHIM_HOSTS = ('claude', 'codex', 'gemini', 'antigravity', 'opencode')
 HOST_NAMES = ('claude-code', 'codex', 'gemini-cli', 'opencode', 'qwen-code', 'goose', 'aider', 'ravel-drive')
 SHARED_GATES = ('approve_plan', 'launch', 'checkin2_accept', 'final_task', 'delivery')
 
@@ -34,7 +34,7 @@ def run_gate(root, rundir, action, *, shim=None, command=None):
 
 
 def test_every_host_shim_and_the_bare_gate_return_the_same_verdict(tmp_path):
-    """P-6: for each gate, the Claude, Codex and Gemini shims and a bare `ravel gate` call agree on a shared fixture."""
+    """P-6: for each gate, every host's shim and a bare `ravel gate` call agree on a shared fixture."""
     rd = _run(tmp_path / 'project', compute_plan='smoke', task_mode='reproduce')
     shims = {}
     for host in SHIM_HOSTS:
@@ -55,7 +55,7 @@ def test_the_shim_table_covers_exactly_the_hosts_that_have_hooks():
     assert set(table['shim_paths']) == set(SHIM_HOSTS)
     assert set(table['actions']) <= set(SHARED_GATES) | {'launch'}
     with pytest.raises(ValueError):
-        role_registry.gate_shim('opencode')          # a hookless host has no shim: an explicit refusal
+        role_registry.gate_shim('goose')             # a host without a shim: an explicit refusal
 
 
 @pytest.mark.parametrize('host', HOST_NAMES)

@@ -122,6 +122,7 @@ MODES = (
     'resonance-lineshape',
     'model-authoring',
     'figure-comparison',
+    'amplitude-integration',
     'amplitude-predictions',
     'weighted-events',
     'reco-ntuple-routine',
@@ -309,6 +310,12 @@ def regular(value, base, *, _session=None):
 def validate(spec):
     required = {'schema_version', 'mode', 'source', 'assumptions', 'max_seconds', 'approval_mode', 'task'}
     version = spec.get('schema_version') if isinstance(spec, dict) else None
+    if isinstance(spec, dict):
+        from .point_overrides import DECLARATION_SCHEMAS, validate_declaration
+        for key in DECLARATION_SCHEMAS:
+            if key in spec:
+                required.add(key)
+                validate_declaration(key, spec[key])
     if isinstance(spec, dict) and 'resonance_handoff' in spec:
         required.add('resonance_handoff')
         if version != 2 or type(spec['resonance_handoff']) is not str or not spec['resonance_handoff'].strip():
@@ -453,6 +460,8 @@ def make_checkin(spec, plan_sha256, stage=None, *, base=None, rundir=None, metho
     if spec['mode'] == 'model-events':
         from . import generation_efficiency
         efficiency = {'generation_efficiency': generation_efficiency.guidance(spec, base or Path.cwd())}
+    from ravel.physics import generation_conventions
+    conventions = generation_conventions.checkin(spec, base or Path.cwd())
     from ravel.validation.validate_checkin import with_registered_sections
     return with_registered_sections({'schema_version': 1, 'kind': 'checkin1', 'sections': {
             'i': {'source': spec['source'], 'scope': spec['mode'],
@@ -464,9 +473,10 @@ def make_checkin(spec, plan_sha256, stage=None, *, base=None, rundir=None, metho
                    'reference': 'Only supplied, bound references are comparison evidence.'},
             'iii': {**({'quantitative_check': __import__('ravel.workflow.quantitative_predictive_checks', fromlist=['guidance']).guidance(spec['quantitative_check'], base or Path.cwd())} if 'quantitative_check' in spec else {}), 'waypoint': 'One bounded scientific calculation, followed by CHECK-IN 2; no automatic larger run.',
                     **efficiency,
+                    **({'convention_coherence': conventions} if conventions else {}),
                     **({'autonomy': spec['autonomy'], 'decision_authority': 'machine_under_user_delegation', 'scientific_review_waived': False} if 'autonomy' in spec else {})},
             'iv': {'max_seconds': spec['max_seconds'], 'workers': 1, 'attempts': spec.get('max_attempts', 1), 'new_generated_events': generated},
-            'v': [{'id': f'F{i+1}', 'assumption': a} for i, a in enumerate(spec['assumptions'])],
+            'v': [{'id': f'F{i+1}', 'assumption': a} for i, a in enumerate([*spec['assumptions'], *conventions.get('flags', [])])],
             'vi': [{'mode': m, 'text': t} for m, t in [('answer', 'Approve the exact recipe and assumptions'),
                    ('ask', 'Clarify the scientific inputs'), ('propose', 'Revise the proposal in a new study')]]}},
                    base, context={'spec': spec, 'stage': stage, 'plan_sha256': plan_sha256, 'rundir': rundir, 'method_decision': method_decision})
@@ -1163,7 +1173,10 @@ def _claim_run_directory(rd):
             p.relative_to(rd).as_posix() in ('inputs', 'inputs/steering', 'inputs/user-steering')
             or p.relative_to(rd).as_posix().startswith(allowed)) for p in entries)
         if administrative and gate_wiring.steering_policy(rd) is not None:
-            return  # Initial policy custody is not an old scientific run.
+            # Initial policy custody is not an old scientific run; it still inherits its project.
+            from .provider_policy import initialize_project_policy
+            initialize_project_policy(rd)
+            return
     rd.mkdir(parents=True, exist_ok=False)
     from . import gate_wiring
     gate_wiring.initialize_steering(rd, route='study-plan')
@@ -1294,6 +1307,9 @@ def plan(rundir, specification, *, research_binding=None):
     """Write a concrete plan, or a held CHECK-IN 1 when inputs or prerequisites are absent."""
     source = regular(specification, Path.cwd())
     spec = read_json(source)
+    if isinstance(spec, dict) and spec.get('mode') in MODES:
+        from .capability_availability import require
+        require(spec['mode'])
     rd = Path(rundir).expanduser().absolute()
     held_before = _is_held_dir(rd)
     try:

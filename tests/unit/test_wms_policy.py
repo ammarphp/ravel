@@ -414,3 +414,14 @@ def test_execution_guard_and_software_keys_are_the_only_optional_policy_keys():
     assert wms_policy.validate(document) is document
     with pytest.raises(ValueError):
         wms_policy.validate({**base, 'execution_guard': True})
+
+
+def test_live_site_launch_binds_exact_argv_profile_and_ceiling(tmp_path):
+    project, rd = governed(tmp_path)
+    wf = project / 'workflow'
+    command = ['/synthetic/ravel-snakemake', '--profile', '/shared/.ravel-site/profile', '--jobs', '2']
+    profile = {'path': '/shared/.ravel-site/profile', 'sha256': SHA}
+    with wms_policy.launch_authorization(wf, 'a', 1, {'a': SHA}, argv=command, site_profile=profile, jobs=2) as path:
+        record = wms_policy._live(path)
+        assert record['argv'] == command and record['site_profile'] == profile and record['jobs'] == 2
+    assert wms_policy._live(path) is None

@@ -33,15 +33,16 @@ so every hypothesis stays a quadratic form and the estimator stays unbiased.
 
 ## Workflow
 
-These modes read a supplied amplitude store: per-point records in independent equal-exposure
-blocks, each checked against the producing program's own squared amplitudes before it was stored.
-
-1. **`amplitude-predictions`** turns the store into binned predictions. The bin edges (literal
+1. **`amplitude-integration`** runs the amplitude program through the execution backend: one
+   warm-up per channel to freeze the integration grid, then independent equal-exposure blocks.
+   Each block is checked against the program's own squared amplitudes before it is stored. The
+   store is resumable: a later approved run continues from the first missing block.
+2. **`amplitude-predictions`** turns the store into binned predictions. The bin edges (literal
    or read from a HEPData table), point-level cuts on stored observables, the representation
    (integrated or differential) and any cited normalization factor are supplied in the
    document. It writes one `binned_values` result per stream, the joint block covariance and
    the input of a `differential-likelihood` document.
-2. **`weighted-events`** writes the stored points as HepMC3 or Les Houches events with one
+3. **`weighted-events`** writes the stored points as HepMC3 or Les Houches events with one
    named weight per hypothesis, per difference to the reference, and per declared polynomial
    term. Through the execution
    backend it runs an optional shower and any Rivet routine, then normalizes the RAW
@@ -65,7 +66,7 @@ The amplitudes are numerators: the propagator comes from the hypothesis. Every c
 
 Phases of helicity amplitudes depend on spinor conventions. Before spin-0 members join amplitudes
 from another program, a closure fit must reproduce that program's own CP-even amplitudes at the
-same points with one factor per helicity (`spin0` in the document that produced the store). The fit fails
+same points with one factor per helicity (`spin0` in the integration document). The fit fails
 if the ratio is not constant.
 
 Useful exact properties:
@@ -136,6 +137,54 @@ Blocks of one cohort are independent equal-exposure estimates; their centered co
 mean is the Monte Carlo covariance. Cohorts are independently integrated contributions (for
 example lepton-flavour channels) and add. Draws that the program reports as failed are not
 zeros: predictions refuse blocks with failed draws.
+
+## Safety cuts of the amplitude program
+
+A program can be numerically unreliable in part of phase space. It declares such a region as a
+safety cut in its `addon.json` (`protocol.safety_cuts`: kind, threshold, the particles it applies
+to, whether the excluded weight is measured, the reason and its upstream source) and applies the
+cut when it makes each draw. Kind `pair_pt_min` bounds the transverse momentum of declared
+particle pairs; `normalized_invariant_min` bounds E_j / E_ref and |p_j.p_k| / |E_j E_k| over the
+declared particles and beams. A draw below a cut is excluded: it counts in the attempted draws
+and contributes zero, and nothing of it is stored. Every integral and prediction from the store therefore covers
+exactly the restricted phase space, with exact exposure and normalisation there.
+
+The integration document accepts the declared cuts by id in `safety_cuts`; a document that omits
+one, or names a cut the program does not declare, is refused before any stage runs, and so is a
+program that reports a cut its manifest does not declare. RAVEL recomputes each cut from the
+recorded momenta of every stored point and excluded draw, writes the cuts into the store header,
+the result's assumptions and each stage receipt, and measures the excluded share of the draws and,
+for cuts with a measured excluded weight, of the integration factor and of the program's own
+weight per stage. That share is reported, never
+assumed negligible; the excluded region itself is not modelled.
+
+## The MCFM program
+
+The MCFM overlay that writes helicity amplitudes per point is GPL-3.0-or-later and lives outside
+the Python package in `addons/gpl/mcfm-amplitudes`. The installer builds it as a separate
+program. RAVEL finds it through, in order: `RAVEL_ADDON_PATH`, `$RAVEL_NATIVE_BUILD/addons`,
+the shared native build and a source checkout, and checks every listed file against its sha256.
+Its `addon.json` declares the record format, how the program's amplitude channels form the
+basis members and two safety cuts, both MCFM's own. MCFM omits its continuum quark loops for a
+Z candidate below 0.1 GeV of transverse momentum (`src/ZZ/getggZZamps.f`), so the program
+excludes those draws in both lepton pairings and measures their weight. MCFM's `lowint` also
+discards a draw whose lepton energies or normalized invariants fall below 1e-9
+(`passed_smallnew`, `src/Need/smallnew.f`) before it evaluates the flux, the PDFs or the
+squared amplitude; those draws are excluded with an unmeasured weight (MCFM's own integrand is
+zero there), and their share of the draws is reported.
+
+Install it with `bash scripts/setup/install.sh --only mcfm-amplitudes --jobs 4 --accept-licenses`
+and check it with `ravel doctor --group mcfm-amplitudes`. On macOS the build runs in a pinned
+linux/amd64 image in the Podman machine; start a stopped machine with
+`ravel-podman machine start ravel`. On Linux x86_64 the program is compiled on the host with the
+GNU compilers of the compiler-bootstrap group. The installer writes the prefix record
+`installations/mcfm-amplitudes.json`; an integration backend that omits the program (and, for a
+container, the image and read-only trees) takes them from the record found by
+`ravel.paths.native_build_root()`. The record is pinned in the study inputs and every backend
+stage, so a changed program invalidates prepared work. The Linux x86_64 native route is
+qualified from a clean-prefix build; the macOS container route stays built-unqualified until its
+own build and checks are recorded. Installation authority covers compilation and the binary
+check; it grants no study approval and is never a human review.
 
 ## Continuous fits on retained blocks
 

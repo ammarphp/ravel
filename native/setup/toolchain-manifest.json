@@ -2773,6 +2773,228 @@
    }
   },
   {
+   "id": "mcfm-amplitudes",
+   "title": "MCFM per-point helicity amplitudes for interfering resonances",
+   "tools": [
+    "MCFM"
+   ],
+   "depends_on": [
+    "python-host",
+    "container-runtime",
+    "lhapdf-sets"
+   ],
+   "routes": {
+    "macos-arm64": "container",
+    "macos-x86_64": "container",
+    "linux-x86_64": "native",
+    "default": "unsupported"
+   },
+   "size_gb": 8.0,
+   "minutes": 210,
+   "licenses": [
+    {
+     "component": "MCFM 10.2.1",
+     "spdx": "GPL-3.0-or-later",
+     "source": "https://gitlab.com/mcfm-team/releases"
+    }
+   ],
+   "notes": "MCFM is compiled from its upstream source on your machine; RAVEL does not redistribute it. On macOS the build runs inside a Linux container; on Linux x86_64 it uses the GNU compilers of the compiler-bootstrap group.",
+   "steps": [
+    {
+     "id": "image",
+     "kind": "container_build",
+     "recipe": "mcfm-amplitudes",
+     "containerfile": "{REPO}/native/containers/mcfm/Containerfile.amd64",
+     "context": "{REPO}/native/containers/mcfm",
+     "platform": "linux/amd64",
+     "tag": "localhost/ravel-mcfm-toolchain",
+     "receipt": "{CONTAINERS}/mcfm-amplitudes-toolchain.build.json",
+     "outputs": [
+      "{CONTAINERS}/mcfm-amplitudes-toolchain.build.json"
+     ],
+     "revalidate": true,
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ]
+    },
+    {
+     "id": "source",
+     "kind": "git",
+     "url": "https://gitlab.com/mcfm-team/releases.git",
+     "commit": "0adaa4ed4079de1b17c84417a0a428a468f57e69",
+     "dest": "{TOOLS}/mcfm-src",
+     "revalidate": true
+    },
+    {
+     "id": "overlay",
+     "kind": "command",
+     "argv": [
+      "{HOST_PYTHON}",
+      "{REPO}/native/setup/recipes/mcfm_overlay.py",
+      "--source",
+      "{TOOLS}/mcfm-src",
+      "--dest",
+      "{TOOLS}/mcfm-overlay",
+      "--addon",
+      "{REPO}/addons/gpl/mcfm-amplitudes",
+      "--installed-addon",
+      "{P}/addons/mcfm-amplitudes"
+     ],
+     "env": {
+      "PYTHONPATH": "{REPO}/src"
+     },
+     "outputs": [
+      "{TOOLS}/mcfm-overlay/.ravel-overlay.json",
+      "{TOOLS}/mcfm-overlay/ravel/CMakeLists-ravel.cmake",
+      "{P}/addons/mcfm-amplitudes/addon.json"
+     ],
+     "inputs": [
+      "native/setup/recipes/mcfm_overlay.py",
+      "addons/gpl/mcfm-amplitudes/addon.json"
+     ],
+     "revalidate": true
+    },
+    {
+     "id": "compile",
+     "kind": "container_run",
+     "source": "{TOOLS}/mcfm-src",
+     "overlay": "{TOOLS}/mcfm-overlay",
+     "build": "{TOOLS}/mcfm-build",
+     "image_receipt": "{CONTAINERS}/mcfm-amplitudes-toolchain.build.json",
+     "launcher": "{CONTAINERS}/mcfm-amplitudes-launcher.json",
+     "installation": "{P}/installations/mcfm-amplitudes.json",
+     "program": "ravel_mcfm_amplitudes",
+     "argv": [
+      "/opt/ravel/bin/build-mcfm.sh",
+      "{TOOLS}/mcfm-src",
+      "{TOOLS}/mcfm-overlay",
+      "{TOOLS}/mcfm-build"
+     ],
+     "outputs": [
+      "{TOOLS}/mcfm-build/ravel_mcfm_amplitudes",
+      "{TOOLS}/mcfm-build/build-receipt.json",
+      "{CONTAINERS}/mcfm-amplitudes-launcher.json",
+      "{P}/installations/mcfm-amplitudes.json"
+     ],
+     "revalidate": true,
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ]
+    },
+    {
+     "id": "compile-native",
+     "kind": "native_compile",
+     "platforms": [
+      "linux-x86_64"
+     ],
+     "source": "{TOOLS}/mcfm-src",
+     "overlay": "{TOOLS}/mcfm-overlay",
+     "build": "{TOOLS}/mcfm-build",
+     "toolchain": "{ENVS}/host-build/bin",
+     "installation": "{P}/installations/mcfm-amplitudes.json",
+     "program": "ravel_mcfm_amplitudes",
+     "argv": [
+      "{REPO}/native/containers/mcfm/build-mcfm.sh",
+      "{TOOLS}/mcfm-src",
+      "{TOOLS}/mcfm-overlay",
+      "{TOOLS}/mcfm-build"
+     ],
+     "outputs": [
+      "{TOOLS}/mcfm-build/ravel_mcfm_amplitudes",
+      "{TOOLS}/mcfm-build/build-receipt.json",
+      "{P}/installations/mcfm-amplitudes.json"
+     ],
+     "revalidate": true
+    },
+    {
+     "id": "check-wrapper",
+     "kind": "wrapper",
+     "name": "ravel-mcfm-amplitudes-check",
+     "template": "mcfm-check.py.in",
+     "values": {
+      "HOST_PYTHON": "{HOST_PYTHON}",
+      "REPO": "{REPO}",
+      "LAUNCHER": "{CONTAINERS}/mcfm-amplitudes-launcher.json",
+      "BUILD": "{TOOLS}/mcfm-build",
+      "PREFIX": "{P}"
+     },
+     "platforms": [
+      "macos-arm64",
+      "macos-x86_64"
+     ]
+    },
+    {
+     "id": "check-wrapper-native",
+     "kind": "wrapper",
+     "platforms": [
+      "linux-x86_64"
+     ],
+     "name": "ravel-mcfm-amplitudes-check",
+     "template": "mcfm-check-native.py.in",
+     "values": {
+      "HOST_PYTHON": "{HOST_PYTHON}",
+      "TOOLCHAIN": "{ENVS}/host-build/bin",
+      "CHECK": "{REPO}/native/containers/mcfm/check-mcfm.sh",
+      "BUILD": "{TOOLS}/mcfm-build"
+     }
+    },
+    {
+     "id": "check",
+     "kind": "command",
+     "argv": [
+      "{BIN}/ravel-mcfm-amplitudes-check"
+     ],
+     "outputs": [
+      "{P}/installations/mcfm-amplitudes.json"
+     ],
+     "revalidate": true
+    }
+   ],
+   "checks": [
+    {
+     "id": "program",
+     "kind": "file",
+     "path": "{TOOLS}/mcfm-build/ravel_mcfm_amplitudes"
+    },
+    {
+     "id": "build-receipt",
+     "kind": "file",
+     "path": "{TOOLS}/mcfm-build/build-receipt.json"
+    },
+    {
+     "id": "mcfm-amplitudes",
+     "kind": "probe",
+     "probe": {
+      "argv": [
+       "{BIN}/ravel-mcfm-amplitudes-check"
+      ],
+      "timeout": 120,
+      "json_status": "passed"
+     }
+    }
+   ],
+   "qualification": {
+    "status": "qualified",
+    "required_per_platform": true,
+    "basis": "Linux x86_64 native route on AMD EPYC Slurm nodes: clean-prefix installation through the product installer (installer rc 0 in 2401 s, 8.3 GB), doctor ready and the installation check passed. Numerical qualification on the installed program (same installation; process 131 LO card, 20000 warm-up and 5000 block draws): the declared safety cuts are applied at sampling and recomputed from every stored point and excluded draw, the block is accepted as amplitude-integration accepts it, the point oracle (max relative residual 1.1e-15 on 4995 points), spin-0 phase closure, identical repeat, point evaluation (2.9e-13 against the block) and re-exclusion of the excluded draws in point mode all pass; a 100000-draw block passes the same checks. Measured exclusions: 5 of 5000 block draws (Z pT cut; weight share 9.1e-37 of MCFM's own weight), 54 of 100000 (53 Z pT, 1 small-invariant with unmeasured weight). The macOS container route is not rebuilt or qualified on this record.",
+    "record": {
+     "tool": "mcfm-amplitudes",
+     "version": {
+      "mcfm": "10.2.1 (0adaa4ed4079de1b17c84417a0a428a468f57e69)",
+      "gfortran": "13.4.0",
+      "cmake": "4.4.4"
+     },
+     "platform": "linux-x86_64",
+     "date": "2026-10-15",
+     "doctor_result": "ready",
+     "evidence_sha256": "b467ed08af91517bdca4173c430c6773587d3f60aaeca16e1250dc1d414b3d3a"
+    }
+   },
+   "manual": "On macOS the MCFM toolchain requires linux/amd64 images (Rosetta enabled in the Podman machine on arm64). Linux x86_64 builds natively with the GNU compilers of the compiler-bootstrap group."
+  },
+  {
    "id": "feyngraph",
    "title": "FeynGraph diagram generator (Rust build)",
    "depends_on": [
@@ -3959,6 +4181,14 @@
    ]
   },
   {
+   "mode": "amplitude-integration",
+   "groups": [
+    "python-host",
+    "container-runtime",
+    "mcfm-amplitudes"
+   ]
+  },
+  {
    "mode": "amplitude-predictions",
    "groups": [
     "python-host"
@@ -4098,7 +4328,7 @@
  ],
  "default": {
   "description": "Everything RAVEL uses on this platform (Linux-site parts are prepared as remote plans on a Mac).",
-  "disk_gb": 55.1,
+  "disk_gb": 63.1,
   "groups": [
    "compiler-bootstrap",
    "python-host",
@@ -4129,6 +4359,7 @@
    "tex",
    "site-root-wms",
    "site-access",
+   "mcfm-amplitudes",
    "feyngraph",
    "diagram-consumers",
    "agent-sources",
@@ -4165,6 +4396,7 @@
   "publication",
   "site-root-wms",
   "site-access",
+  "mcfm-amplitudes",
   "feyngraph",
   "diagram-consumers",
   "agent-sources",

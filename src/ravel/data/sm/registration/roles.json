@@ -61,6 +61,11 @@
           "schema": "producer.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": []
+        },
         "protocol": [
           "Advise on particle level, normalization, fiducial definitions, covariance sources and the smallest discriminating comparison.",
           "Locate absolute, normalized or ratio definitions and Born, bare, dressed, parton, particle or reconstructed levels; require the supplied photon radius, prompt-lepton and tau-feed-down policies.",
@@ -180,6 +185,13 @@
           "declared_outputs": [],
           "schema": "producer.v1",
           "sidecar": true
+        },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": [
+            "supplied-measurement-bundle"
+          ]
         },
         "protocol": [
           "Assemble supplied measurement bundles with all bin, uncertainty and covariance source definitions retained.",
@@ -301,6 +313,13 @@
           "schema": "producer.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": [
+            "theory-prediction-bundle"
+          ]
+        },
         "protocol": [
           "Produce prediction bundles with all supplied members, source versions, perturbative orders and validity domains retained.",
           "Read handbooks_for_node for the actual selected program; retain its version, process definition, member census and source-bound inputs. Store shape and rate orders separately and disclose any rate rescaling.",
@@ -415,6 +434,11 @@
           "declared_outputs": [],
           "schema": "producer.v1",
           "sidecar": true
+        },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": []
         },
         "protocol": [
           "Advise on generator matching, merging, weight naming, tune choice and normalization conventions.",
@@ -538,6 +562,15 @@
           "declared_outputs": [],
           "schema": "findings.v1",
           "sidecar": true
+        },
+        "ownership": {
+          "inputs": [],
+          "judges": [
+            "electroweak-fit",
+            "pdf-impact-result",
+            "theory-prediction-bundle"
+          ],
+          "owns": []
         },
         "protocol": [
           "Independently audit scale, PDF, coupling, electroweak and nonperturbative prescriptions, correlation models and double counting.",
@@ -666,6 +699,13 @@
           "schema": "findings.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [
+            "supplied-measurement-bundle"
+          ],
+          "owns": []
+        },
         "protocol": [
           "Review supplied response, regularization, prior dependence, closure, stress and interval coverage before an unfolded result is used.",
           "Begin in a fresh session distinct from the producer without the producer_headline. Recompute response forward closure, independent stress residuals and interval coverage from the supplied populations; reject a packet missing any required evidence.",
@@ -785,6 +825,13 @@
           "schema": "producer.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": [
+            "generator-tune"
+          ]
+        },
         "protocol": [
           "Prepare tuning with declared observable weights and a disjoint held-out validation population.",
           "Declare the supplied fit observable weights and eigentune or tolerance definition before tuning. Do not choose an observable population or parameter grid in this card.",
@@ -902,6 +949,13 @@
           "schema": "producer.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": [
+            "pdf-impact-result"
+          ]
+        },
         "protocol": [
           "Prepare profiling or reweighting with the fitted data population, tolerance and effective replica accounting stated.",
           "Locate the supplied PDF fit data census, impact population, ErrorType, confidence level, alpha_s sets and tolerance source. Reject impact computed from data already fitted by the set.",
@@ -1017,6 +1071,13 @@
           "declared_outputs": [],
           "schema": "producer.v1",
           "sidecar": true
+        },
+        "ownership": {
+          "inputs": [],
+          "judges": [],
+          "owns": [
+            "electroweak-fit"
+          ]
         },
         "protocol": [
           "Prepare electroweak fits and indirect determinations in supplied input, width, mixing-angle and mass schemes with declared reference points.",
@@ -1136,6 +1197,13 @@
           "schema": "findings.v1",
           "sidecar": true
         },
+        "ownership": {
+          "inputs": [],
+          "judges": [
+            "supplied-measurement-bundle"
+          ],
+          "owns": []
+        },
         "protocol": [
           "Independently review measurement data overlap, common luminosity, shared systematic sources and combination covariance assumptions.",
           "Begin in a fresh session distinct from the producer without the producer_headline. Enumerate dataset, luminosity and systematic overlap for every measurement pair and recompute covariance contributions.",
@@ -1205,5 +1273,32 @@
     "ew-fit-analyst",
     "measurement-combination-reviewer"
   ],
-  "handoff": "Merge through the role registration owner only after every must_read ID resolves to an actual source. registered_review_card_errors is already called once from role_registry.validate_card and enforces this fragment's specialist isolation without changing legacy cards. Inactive cards remain unlisted until the registry merge; regenerate host profiles and atlas together."
+  "quantity_kinds": {
+    "electroweak-fit": {
+      "source_roles": [
+        "ew-fit-analyst"
+      ]
+    },
+    "generator-tune": {
+      "source_roles": [
+        "generator-tuner"
+      ]
+    },
+    "pdf-impact-result": {
+      "source_roles": [
+        "pdf-impact-analyst"
+      ]
+    },
+    "supplied-measurement-bundle": {
+      "source_roles": [
+        "measurement-analyst"
+      ]
+    },
+    "theory-prediction-bundle": {
+      "source_roles": [
+        "theory-prediction-producer"
+      ]
+    }
+  },
+  "handoff": "Merge through the role registration owner only after every must_read ID resolves to an actual source. registered_review_card_errors is already called once from role_registry.validate_card and enforces this fragment's specialist isolation without changing legacy cards. Inactive cards remain unlisted until the registry merge; regenerate host profiles and atlas together. Its quantity_kinds join the registry vocabulary in the same merge."
 }

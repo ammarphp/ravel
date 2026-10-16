@@ -298,10 +298,13 @@ print('SYNTHETIC-TOKEN-%d' % n)
 
 def test_bearer_from_token_command_runs_once_per_request_and_is_never_recorded(monkeypatch, tmp_path):
     import sys
-    program = tmp_path / 'token.py'; program.write_text(TOKEN_PROGRAM); counter = tmp_path / 'count'
+    program = tmp_path / 'token.py'
+    program.write_text(f'#!{sys.executable}\n' + TOKEN_PROGRAM)
+    program.chmod(0o700)
+    counter = tmp_path / 'count'
     seen = install_http(monkeypatch, document('chat_completions'))
     h = host.AgentHost.from_config({'type': 'chat_completions', 'endpoint': 'https://vertex.example/v1/chat/completions',
-        'auth': {'kind': 'command', 'command': [sys.executable, str(program), str(counter)], 'header_style': 'bearer'},
+        'auth': {'kind': 'command', 'command': [str(program), str(counter)], 'header_style': 'bearer'},
         'capabilities': capabilities()})
     n = node(); first = h.execute(n, request(n), Control()); second = h.execute(n, request(n), Control())
     assert counter.read_text() == '2'
@@ -313,10 +316,13 @@ def test_bearer_from_token_command_runs_once_per_request_and_is_never_recorded(m
 
 def test_failed_token_command_names_only_its_status(monkeypatch, tmp_path):
     import sys
+    program = tmp_path / 'failed-token.py'
+    program.write_text(f'#!{sys.executable}\nimport sys\nprint("PRIVATE-CANARY", file=sys.stderr)\nsys.exit(4)\n')
+    program.chmod(0o700)
     seen = install_http(monkeypatch, document('chat_completions'))
     h = host.AgentHost(adapter='chat_completions', endpoint='https://vertex.example/v1/chat/completions',
                        capabilities=capabilities(),
-                       auth={'kind': 'command', 'command': [sys.executable, '-c', 'import sys; print("PRIVATE-CANARY", file=sys.stderr); sys.exit(4)']})
+                       auth={'kind': 'command', 'command': [str(program)]})
     n = node(); c = Control()
     with pytest.raises(host.HostFailure) as failure: h.execute(n, request(n), c)
     assert 'status 4' in str(failure.value) and 'PRIVATE' not in str(failure.value) and seen == []

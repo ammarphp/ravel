@@ -26,6 +26,11 @@ def fragment(name):
     return json.loads((DATA / 'sm/registration' / (name + '.json')).read_text())
 
 
+def kinds():
+    # The fragment's quantity vocabulary joins the registry's at the same merge as its cards.
+    return {**rr.registry_document()['quantity_kinds'], **fragment('roles')['quantity_kinds']}
+
+
 @pytest.mark.parametrize('role', ROLES)
 @pytest.mark.parametrize('identity', ['hb:missing-handbook', 'check:sm.missing-check'])
 def test_registry_validator_refuses_unknown_card_reference(role, identity):
@@ -33,14 +38,14 @@ def test_registry_validator_refuses_unknown_card_reference(role, identity):
     # A supplied synthetic ID set isolates registry resolution from pending integration.
     known = set(value['knowledge']['must_read'] + value['must_check'])
     value['knowledge']['must_read'].append(identity)
-    assert 'unresolved knowledge ID: ' + identity in rr.validate_card(value, known_ids=known)
+    assert 'unresolved knowledge ID: ' + identity in rr.validate_card(value, known_ids=known, quantity_kinds=kinds())
 
 
 @pytest.mark.parametrize('role', ROLES)
 def test_ten_cards_follow_schema_and_have_exact_registration(role):
     value = card(role)
     known = set(value['knowledge']['must_read'] + value['must_check'])
-    assert rr.validate_card(value, known_ids=known) == []
+    assert rr.validate_card(value, known_ids=known, quantity_kinds=kinds()) == []
     row = fragment('roles')['roles'][role]
     assert row['card'] == value and row['override'] == 'cards/' + role + '.json'
     assert role in fragment('roles')['required_roles']
@@ -58,7 +63,7 @@ def test_specialist_protocol_rejects_independence_fault(role, fault):
     else: value['independence']['distinct_actor_from'] = []
     assert sm.review_card_errors(value)
     known = set(value['knowledge']['must_read'] + value['must_check'])
-    assert rr.validate_card(value, known_ids=known)
+    assert rr.validate_card(value, known_ids=known, quantity_kinds=kinds())
 
 
 @pytest.mark.parametrize('role', SPECIALISTS)
@@ -70,6 +75,19 @@ def test_specialist_review_packet_rejects_planted_scientific_fault(role):
     assert all(sm.run(identity, bundle, record)['status'] == 'passed' for identity in checks)
     plant(checks[0].removeprefix('check:sm.'), bundle, record)
     assert any(sm.run(identity, bundle, record)['status'] == 'failed' for identity in checks)
+
+
+def test_fragment_quantity_vocabulary_matches_card_ownership():
+    vocabulary = fragment('roles')['quantity_kinds']
+    assert not set(vocabulary) & set(rr.registry_document()['quantity_kinds'])
+    owned = {(kind, role) for role in ROLES for kind in card(role)['ownership']['owns']}
+    assert owned == {(kind, role) for kind, row in vocabulary.items() for role in row['source_roles']}
+    for role in ROLES:
+        value = card(role)
+        assert set(value['ownership']['judges']) <= set(vocabulary)
+        assert bool(value['ownership']['owns']) == (value['independence']['kind'] == 'producer')
+        if role in SPECIALISTS:
+            assert value['ownership']['judges']
 
 
 def test_all_traps_and_checks_have_bidirectional_coverage():

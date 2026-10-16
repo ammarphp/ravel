@@ -51,6 +51,11 @@
       "schema": "producer.v1",
       "sidecar": true
     },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": []
+    },
     "protocol": [
       "Preserve the whole request, derive a complete work order and dispatch only admitted work. Surface missing capabilities and qualification labels.",
       "State the required output and precision in the user's terms. Choose the cheapest method that meets the output, validity domain and precision, record why each cheaper method is insufficient or unavailable with evidence in `inputs/method-decision.json`, and stop when the answer is complete. Validate and render the record with `ravel method-decision --rundir RUN` before CHECK-IN 1 approval; full and scan launches refuse a missing, invalid or unjustified decision.",
@@ -92,5 +97,5 @@
     },
     "version": "2.0.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

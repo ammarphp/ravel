@@ -8,13 +8,13 @@
   "family": "specialist-review",
   "id": "higgs-theory-uncertainty-auditor",
   "independence": {
-    "kind": "specialist",
     "distinct_actor_from": [
       "coordinator",
       "higgs-coupling-analyst",
       "extended-scalar-modeler"
     ],
-    "fresh_session": true
+    "fresh_session": true,
+    "kind": "specialist"
   },
   "kind": "role-card",
   "knowledge": {
@@ -60,6 +60,15 @@
     "schema": "findings.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [
+      "signal-scale-uncertainty",
+      "signal-pdf-uncertainty",
+      "signal-parametric-uncertainty"
+    ],
+    "owns": []
+  },
   "protocol": [
     "Audit shared signal theory nuisances across experiments, scale and PDF definitions, and duplicated uncertainty sources.",
     "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -83,13 +92,13 @@
   "reviewed_by": [],
   "schema_version": 2,
   "sees": {
-    "profile": "blind",
     "forbidden_inputs": [
       "lessons",
       "other_verdicts",
       "producer_headline",
       "withheld_sources"
-    ]
+    ],
+    "profile": "blind"
   },
   "stop": {
     "evidence_budget": 0,

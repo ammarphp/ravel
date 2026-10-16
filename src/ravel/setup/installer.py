@@ -96,7 +96,7 @@ class Installer:
 
     # ------------------------------------------------------------ planning
     def groups(self, profile=None, only=None, skip=None):
-        return mf.profile_groups(self.manifest, profile, only=only, skip=skip)
+        return mf.profile_groups(self.manifest, profile, only=only, skip=skip, platform_key=self.platform)
 
     def plan(self, profile=None, only=None, skip=None):
         """Ordered steps for this platform with their current state; changes nothing."""

@@ -365,6 +365,22 @@ def validate_stage_artifact(stage_id, value, *, base_dir, regime):
     return deepcopy(value)
 
 
+def review_limitation_census(root):
+    """Current journal classifications, original findings and per-claim consequences."""
+    from . import physics_review
+    if not physics_review.registered(root):
+        return []
+    registration, events = physics_review._read(physics_review._root(root))
+    return physics_review._view(registration, events)['limitation_census']
+
+
+def current_limitation_census(root, artifact=None):
+    """Overlay current review effects without rewriting a historical scientific record."""
+    value = deepcopy(artifact) if artifact is not None else {'limitations': []}
+    value['review_limitations'] = review_limitation_census(root)
+    return value
+
+
 def methodology_status(root):
     """Read-only current protocol projection; missing/altered stages fail closed."""
     root = Path(root)
@@ -415,11 +431,14 @@ def methodology_status(root):
     if value['preregistration'] is not None:
         _method_pin(value['preregistration'], root)
     prior, caps = _prior_results(root, value, binding)
+    census_stage = value['stages'][0]
+    census = current_limitation_census(root, _method_json(census_stage['artifact'], root) if census_stage['status'] == 'done' else None)
     return {'schema_version': 1, 'kind': 'research-methodology-status', 'record': value,
             'pending': pending, 'next_stage': pending[0] if pending else None,
             'complete': not pending, 'scientific_acceptance': False, 'prior_results': prior,
             'claim_cap': caps, 'prospective': not caps,
-            'producer_contracts': protocol_producers_present()['contracts']}
+            'producer_contracts': protocol_producers_present()['contracts'],
+            'review_limitations': census['review_limitations'], 'limitation_census': census}
 
 
 def _prior_results(root, value, binding):
@@ -2969,8 +2988,8 @@ def _ordinary_review_stage(root, stage, reg, view):
     cycle = view['cycle']
     if view['state'] != 'accepted':
         return False, f'CHECK-IN 2/3 review is {view["state"]}, not accepted by every reviewer', []
-    roles = {r['role'] for r in view['reviews'] if r['verdict'] == 'accept'}
-    scope = view['reviews'][0]['claim_scope']
+    roles = {r['role'] for r in view['reviews']}
+    scope = review._accepted_scope(view)
     evidence = [{'cycle_id': cycle['cycle_id'], 'role': r['role'], 'actor_id': r['actor_id'],
                  'claim_scope': r['claim_scope']} for r in view['reviews']]
     if stage == 'meta_review':

@@ -15,7 +15,7 @@ def lock_packages(path):
     try:
         raw = Path(path).read_text()
     except OSError as error:
-        raise ValueError('WMS hash lock missing; run bash scripts/setup/lock_site_wms.sh before installation') from error
+        raise ValueError('WMS hash lock missing; run bash scripts/setup/lock-site-wms.sh before installation') from error
     packages = {}
     entries = raw.replace('\\\n', ' ').splitlines()
     for entry in entries:

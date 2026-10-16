@@ -604,7 +604,9 @@ def test_actual_native_worker_prospective_commitment_and_late_publication_refusa
     request={'config':c,'madgraph':c['runtime']['madgraph_tree']['root'],'model':c['model_tree']['root'],
         'process':str(process),'python':c['runtime']['python']['path'],
         'card_paths':{n:p['path'] for n,p in c['cards'].items() if p},'config_sha256':'a'*64,
-        'process_observer_sha256':pin(Path(model_event_process.__file__))['sha256']}
+        'process_observer_sha256':pin(Path(model_event_process.__file__))['sha256'],
+        # Production requests resolve card pins against the configuration's directory.
+        'source_base':str(tmp_path/'inputs')}
     # The production request names the digests of the two delivery helpers the worker copies.
     from ravel.validation import science_shower_guard, lhe_check
     request['delivery_helper_sha256'] = {str(Path(module.__file__).resolve()): pin(Path(module.__file__))['sha256']

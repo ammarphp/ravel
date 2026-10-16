@@ -82,7 +82,11 @@ def test_registry_edit_changes_request_digest_and_every_host_file():
         # The site-tool declaration is host-only and independent of the role registry.
         site = {p for p in old if p.startswith('.ravel/site-tools/')}
         assert len(site) == 1 and all(old[p] == new[p] for p in site)
-        assert all(old[p] != new[p] for p in old if p not in site)
+        # Hook adapters depend on the shared hook table, not individual role cards.
+        from ravel.workflow.host_hooks import render as render_hooks
+        hooks = set(render_hooks(host))
+        assert all(old[p] == new[p] for p in hooks)
+        assert all(old[p] != new[p] for p in old if p not in site | hooks)
     assert rr.request_digest({'role': 'physics-critic'}) != rr.request_digest({'role': 'physics-critic'}, document=data)
 
 
@@ -331,7 +335,7 @@ def test_n4_no_legacy_registered_twin():
 
 def test_n5_no_pseudo_hook_tables():
     rr = registry()
-    forbidden = ['.gemini/settings.json', '.codex/hooks.json', '.claude/settings.ravel-gates.json', '.ravel/gate-surface.json']
+    forbidden = ['.claude/settings.ravel-gates.json', '.ravel/gate-surface.json']
     for host in HOSTS:
         assert not set(forbidden) & rr.render(host).keys()
     assert not [p for p in forbidden if (ROOT / p).exists()]

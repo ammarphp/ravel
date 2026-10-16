@@ -222,3 +222,11 @@ def test_upper_case_names_stay_refused_outside_the_conventional_set(repo):
     errors, _ = hygiene.check(repo, public=True)
     refused = {e.split(':')[0] for e in errors if 'kebab-case' in e}
     assert {'docs/RAVEL.md', 'scripts/live/ordinary_review_cell.sh', 'tests/RAVEL.md'} <= refused
+
+
+def test_every_shipped_file_name_follows_the_naming_rules():
+    # The source tree also checks internal files, which have their own names; the shipped selection must be clean.
+    shipped = {destination for _source, destination in hygiene.evidence_layout.selected_files(REPO)}
+    errors, _ = hygiene.check(REPO)
+    naming = [e for e in errors if 'must use' in e and e.split(':', 1)[0] in shipped]
+    assert not naming

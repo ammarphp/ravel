@@ -137,3 +137,35 @@ delegation recorded through `docs/workflow/start.md` instead uses the authorized
 reviewers and coordinator within the declared scope, resources and correction bounds. CI2 and
 CI3 review remain independent; neither the protocol nor a machine approval establishes expert
 human review. Escalate unavailable required expertise and decisions outside the delegation.
+
+## Finding classification and bounded repair
+
+New review findings use `findings.v2`; it also accepts unchanged version 1 documents.
+Version 1 findings remain unclassified and retain their prior routing. For a defect,
+`classification` contains `kind: defect`, the reviewed `artifact_sha256`, one `target`
+step or node, and `rework_evidence` explaining why its repair changes the result.
+For a limitation it contains `kind: limitation`, the reviewed `artifact_sha256`, and
+`claims` with each `claim_id`, `effect` (`bounds` or `invalidates`) and `bound` (or
+`unbounded`). Severity and evidence authority remain separate from classification.
+
+`ravel agent-graph rework --graph <graph> --findings <document> --reason <reason>`
+repairs exactly the named defect nodes and their descendants. `--nodes` must match
+those targets if supplied. Limitations enter the retained limitation census and
+claim disposition without spending rework budget, even when the budget is exhausted.
+The old `--nodes` interface is reserved for legacy unclassified/manual repairs.
+Repeated objections against unchanged artifact bytes do not spend another repair.
+Scientific findings use the same classification fields alongside their located
+journal evidence; a defect names its owning execution stage or a domain-mapped phase node.
+
+Use `ravel review --rundir <run> reclassify --request <json>` for an open journal finding: the declared
+decider supplies a reason and replacement classification; the original vote and
+classification remain in the hash-chained journal. Reclassification grants no new
+execution authority. A limitation-only send-back does not authorize correction;
+the decider must explicitly accept a permitted supported scope before delivery.
+A decider send-back must carry a defect, and no reclassification may leave an
+acceptance carrying a defect or a decider send-back without one.
+Acceptance may carry limitations. Each bounded affected claim must be qualified
+or withdrawn; invalidated or unbounded claims are withdrawn. The actual manuscript
+claim census and its visible reasons must retain these effects. Honest withdrawal
+of a headline claim permits delivery of the negative result without regeneration.
+Research methodology status and its census handoff include these journal limitations.

@@ -203,6 +203,10 @@ def _program(word):
     if '$' in word:
         return None, 'a program name built from a variable'
     base = os.path.basename(word)
+    # The site branch checks the exact pinned shim, even when its prefix is not
+    # on the agent's PATH. No other invocation of this name is admitted.
+    if base == 'ravel-snakemake':
+        return base, None
     if '/' not in word:
         return base, None
     pinned = {os.environ.get('RAVEL_PYTHON'), sys.executable}
@@ -259,6 +263,22 @@ def _snakefile_problem(project, cwd, explicit):
 
 
 def _snakemake(argv, project, cwd, rules):
+    site_active = False
+    config = Path(project) / 'workflow' / 'project.json'
+    if config.exists():
+        try:
+            site_active = json.loads(config.read_bytes()).get('profile') == 'htcondor'
+        except (OSError, ValueError, AttributeError):
+            return _refused('snakemake-site-profile', 'unreadable workflow project configuration')
+    inspect = any(t in argv for t in ('-n', '--dry-run', '--dryrun', '--version', '-h', '--help'))
+    if (site_active and not inspect or os.path.basename(argv[0]) == 'ravel-snakemake'
+            or any(t.split('=', 1)[0] in ('--profile', '--executor') for t in argv[1:])):
+        try:
+            from . import wms_site
+            wms_site.admit_command(argv, project, cwd)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            return _refused('snakemake-site-profile', str(exc))
+        return _allowed('snakemake-governed-site')
     flags = rules['snakemake_flags']
     explicit, positional, i = None, [], 1
     while i < len(argv):
@@ -355,7 +375,7 @@ def _statement(argv, project, cwd, rules):
     for token in argv[1:]:
         if token.split('=', 1)[0] in row.get('refuse_flags', []):
             return _refused('program-flag', f'`{base} {token}` is not allowed')
-    if base == 'snakemake':
+    if base in ('snakemake', 'ravel-snakemake'):
         return _snakemake(argv, project, cwd, rules)
     if base == 'ravel':
         return _ravel(argv, rules)

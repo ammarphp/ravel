@@ -1,0 +1,25 @@
+{
+ "id": "op:amplitude-integration",
+ "op": {
+  "do_not_use_when": [
+   "The store already exists and only needs binning: use amplitude-predictions.",
+   "A plain cross-section lookup suffices: use cross-section."
+  ],
+  "examples": [
+   {
+    "command": "ravel plan --rundir runs/amplitude-integration-example --spec specs/amplitude-integration.json",
+    "phrase": "Integrate a process with per-point helicity amplitudes into a resumable store.",
+    "spec": {
+     "mode": "amplitude-integration",
+     "task": {
+      "input": "inputs/example.json"
+     }
+    }
+   }
+  ],
+  "use_when": [
+   "Build a resumable Gram store of per-point helicity amplitudes from an amplitude program.",
+   "A later coupling, mass or width scan must be reweighted exactly from one weighted integration."
+  ]
+ }
+}

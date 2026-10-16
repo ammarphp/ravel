@@ -224,6 +224,10 @@ def output_errors(operation, outputs, registry=None):
                 errors.append(f'{operation} produced nothing for slot {name!r}')
             continue
         artifact = outputs[name]
+        if isinstance(artifact, dict) and 'quantity' in artifact:
+            from ravel.validation.semantic_composition import artifact_report, message
+            errors += list(map(message, artifact_report(artifact, slot.get('require', {}).get('quantity', {}),
+                                                        f'{operation}.{name}')['errors']))
         errors += [f'{operation}.{name}: {e}' for e in witness(slot['kind'], artifact)]
         if isinstance(artifact, dict) and slot.get('require'):
             stated = {k: artifact[k] for k in slot['require'] if k in artifact}
@@ -297,9 +301,18 @@ def entry_errors(name, entry, modes=None, scoped=None):
         if len(names) != len(set(names)):
             errors.append(f'{name}: duplicate {side} slot names')
         for slot in entry[side]:
+            from ravel.validation.semantic_composition import requirement_errors, message
+            if 'quantity' in slot.get('require', {}):
+                errors += list(map(message, requirement_errors(slot['require']['quantity'],
+                                   f'{name}.{slot["slot"]}.quantity')))
             if not known_kind(slot['kind']):
                 errors.append(f'{name}: {side} slot {slot["slot"]!r} has unknown kind {slot["kind"]!r}')
     consumed = {s['slot'] for s in entry['consumes']}
+    from ravel.validation.semantic_composition import FIELDS, NORMALIZATION
+    paths = set(FIELDS) | {'normalization.' + k for k in NORMALIZATION} | {'exposure.id', 'exposure.revision'}
+    for rule in entry.get('quantity_relations', []):
+        if set(rule['slots']) - consumed or set(rule['fields'] + rule.get('group_by', [])) - paths:
+            errors.append(f'{name}: quantity relation names an unknown consumed slot or quantity field')
     for slot_name in entry['basis']['passes']:
         if slot_name not in consumed:
             errors.append(f'{name}: basis passes {slot_name!r}, which is not a consumed slot')
@@ -337,7 +350,7 @@ def conformance(document=None):
 
 
 # --------------------------------------------------------------------------- edges and chain search
-def edge_errors(producer, out_slot, consumer, in_slot, registry=None):
+def _structural_edge_errors(producer, out_slot, consumer, in_slot, registry=None):
     """Errors for one edge ``producer.out_slot -> consumer.in_slot``; [] when it resolves."""
     registry = rp.registry() if registry is None else registry
     source, target = registry.get(producer), registry.get(consumer)
@@ -355,6 +368,39 @@ def edge_errors(producer, out_slot, consumer, in_slot, registry=None):
         return [f'{producer}.{out_slot} {produced.get("require", {})} does not meet '
                 f'{consumer}.{in_slot} {wanted.get("require", {})}']
     return []
+
+
+
+def edge_report(producer, out_slot, consumer, in_slot, registry=None, *, artifact=None):
+    """Composition report with located quantity obligations for absent facts.
+
+    An optional actual artifact is checked against both endpoint declarations.
+    Registry-only queries cannot establish the semantics of missing output bytes.
+    """
+    from ravel.validation.semantic_composition import compare, artifact_report, message
+    registry = rp.registry() if registry is None else registry
+    structural = _structural_edge_errors(producer, out_slot, consumer, in_slot, registry)
+    if structural:
+        return {'errors': structural, 'obligations': []}
+    produced = next(s for s in registry[producer]['produces'] if s['slot'] == out_slot)
+    wanted = next(s for s in registry[consumer]['consumes'] if s['slot'] == in_slot)
+    location = f'{producer}.{out_slot} -> {consumer}.{in_slot}'
+    provided = produced.get('require', {}).get('quantity')
+    required = wanted.get('require', {}).get('quantity', {})
+    if artifact is None:
+        result = compare(provided, required, location)
+    else:
+        result = artifact_report(artifact, required, location)
+        if provided is not None:
+            other = artifact_report(artifact, provided, location + '.producer')
+            for side in result:
+                result[side].extend(other[side])
+    return {'errors': list(map(message, result['errors'])), 'obligations': result['obligations']}
+
+
+def edge_errors(producer, out_slot, consumer, in_slot, registry=None, *, artifact=None):
+    """Contradictions on an edge; use edge_report for unresolved obligations."""
+    return edge_report(producer, out_slot, consumer, in_slot, registry, artifact=artifact)['errors']
 
 
 def _feeds(producer, consumer, registry):

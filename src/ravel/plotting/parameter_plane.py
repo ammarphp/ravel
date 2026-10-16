@@ -68,7 +68,7 @@ def grid_contours(x, y, z, level, xscale='linear', yscale='linear', surface_scal
         if np.any(z <= 0) or level <= 0:
             raise ValueError('a logarithmic surface needs positive values and level')
         zz, lv = np.log10(z), math.log10(level)
-    gen = contourpy.contour_generator(_forward(xscale)(x), _forward(yscale)(y), np.ma.masked_invalid(zz))
+    gen = contourpy.contour_generator(_forward(xscale)(x), _forward(yscale)(y), np.ma.masked_invalid(zz), corner_mask=False)
     segments = []
     for line in gen.lines(lv):
         line = np.asarray(line)
@@ -130,10 +130,12 @@ def _in_scale(values, scale):
 
 def _fill_below(ax, x, y, field, threshold, colour, alpha, zorder):
     """Fill the region where a continuous field is below the threshold (smooth boundary)."""
+    if not np.any(np.isfinite(field)):
+        return
     lo = float(np.nanmin(field))
     if lo >= threshold:
         return
-    ax.contourf(x, y, field, levels=[lo - 1.0, threshold], colors=[colour], alpha=alpha, zorder=zorder)
+    ax.contourf(x, y, field, levels=[lo - 1.0, threshold], colors=[colour], alpha=alpha, zorder=zorder, corner_mask=False)
 
 
 def _excluded_mask(z, level, side):
@@ -181,12 +183,92 @@ def _grid_from_inference(grid, base, recorder):
                  'missing_values': missing}
 
 
+def _grid_from_study_harvest(grid, base, recorder):
+    """Project a supplied scenario/slice; absent results remain masked cells."""
+    from .figure_io import resolve
+    from ravel.workflow.allocation_study import _sha
+    allowed = {'study_grid', 'scenario', 'x', 'y', 'fixed', 'surfaces', 'bands', 'level', 'excluded',
+               'surface_scale', 'shade', 'excluded_label'}
+    if set(grid) - allowed:
+        raise ValueError('unknown study-grid plot fields')
+    path = resolve(base, grid['study_grid'])
+    doc = recorder.read(path)
+    if doc.get('kind') != 'study-grid-harvest' or doc.get('schema_version') != 1:
+        raise ValueError('expected a typed study-grid harvest')
+    axes = {a['name']: a['values'] for a in doc['axes']}
+    xname, yname, fixed = grid['x'], grid['y'], grid.get('fixed', {})
+    if xname == yname or xname not in axes or yname not in axes:
+        raise ValueError('declare two distinct study-grid axes')
+    if set(fixed) != set(axes) - {xname, yname} or any(v not in axes[k] for k, v in fixed.items()):
+        raise ValueError('declare one fixed value for every other study-grid axis')
+    if grid['scenario'] not in doc['scenarios']:
+        raise ValueError('undeclared study-grid scenario')
+    xs, ys = axes[xname], axes[yname]
+    for values in (xs, ys):
+        if any(type(v) not in (int, float) or not math.isfinite(v) for v in values):
+            raise ValueError('parameter-plane axes must be finite numeric coordinates')
+    rows, seen = [], set()
+    for cell in doc['cells']:
+        if cell['scenario'] != grid['scenario'] or any(cell['axes'].get(k) != v for k, v in fixed.items()):
+            continue
+        coord = (cell['axes'][xname], cell['axes'][yname])
+        if coord in seen or coord[0] not in xs or coord[1] not in ys:
+            raise ValueError('duplicate or undeclared harvest coordinate')
+        seen.add(coord)
+        rows.append(cell)
+    def surface(name):
+        if name not in {q['name'] for q in doc['quantities']}:
+            raise ValueError('undeclared harvested quantity')
+        arr = np.full((len(ys), len(xs)), np.nan)
+        for cell in rows:
+            if cell['status'] != 'completed' or name not in cell['values']:
+                continue
+            pin = cell['artifacts'][name]
+            source = resolve(base, pin['path'])
+            before = _sha(source)
+            value = recorder.read(source)
+            for key in pin['field'].split('.'):
+                value = value[key]
+            if before != pin['sha256'] or _sha(source) != before or value != cell['values'][name]:
+                raise ValueError('study-grid artifact or quantity differs from harvest')
+            if type(value) not in (int, float) or not math.isfinite(value):
+                raise ValueError('study-grid quantity must be finite')
+            arr[ys.index(cell['axes'][yname]), xs.index(cell['axes'][xname])] = value
+        return arr
+    out = {k: grid[k] for k in ('level', 'excluded', 'surface_scale', 'shade', 'excluded_label') if k in grid}
+    out.update(x=xs, y=ys)
+    for key, name in (grid.get('surfaces') or {}).items():
+        if key not in SURFACES:
+            raise ValueError('unknown study-grid surface')
+        out[key] = surface(name)
+    for key, pair in (grid.get('bands') or {}).items():
+        if key not in BANDS or not isinstance(pair, dict) or set(pair) != {'low', 'high'}:
+            raise ValueError('study-grid band needs low and high quantities')
+        out[key] = {'low': surface(pair['low']), 'high': surface(pair['high'])}
+    return out, {'overridden_cells': [{'id': c['id'], 'x': c['axes'][xname], 'y': c['axes'][yname],
+                    'regime': c['regime'], 'status': c['status'], 'receipt_sha256': c.get('receipt_sha256')}
+                    for c in rows if c.get('overridden')], 'study_grid': str(path), 'scenario': grid['scenario'], 'fixed': fixed,
+                 'missing_cells': len(xs) * len(ys) - sum(c['status'] == 'completed' for c in rows),
+                 'missing_values': {k: int(np.sum(~np.isfinite(out[k]))) for k in SURFACES if k in out}}
+
+
 def _draw_grid(ax, panel, axes, record, handles, base=None, recorder=None):
     from matplotlib.patches import Patch
     from matplotlib.lines import Line2D
     grid = panel['grid']
+    if 'study_grid' in grid:
+        grid, record['grid_source'] = _grid_from_study_harvest(grid, base, recorder)
     if 'inference' in grid:
         grid, record['grid_source'] = _grid_from_inference(grid, base, recorder)
+    marked = record.get('grid_source', {}).get('overridden_cells', [])
+    if marked:
+        ax.scatter([c['x'] for c in marked], [c['y'] for c in marked], marker='D',
+                   facecolors='none', edgecolors='darkorange', zorder=8)
+        handles.append((Line2D([], [], marker='D', color='darkorange', markerfacecolor='none', ls=''),
+                        'Overridden settings'))
+        for cell in marked:
+            ax.annotate(cell['regime'], (cell['x'], cell['y']), xytext=(5, 5),
+                        textcoords='offset points', fontsize=8)
     x = np.array(finite_list(grid.get('x'), 'grid x', minimum=2))
     y = np.array(finite_list(grid.get('y'), 'grid y', minimum=2))
     if np.any(np.diff(x) <= 0) or np.any(np.diff(y) <= 0):
@@ -220,7 +302,7 @@ def _draw_grid(ax, panel, axes, record, handles, base=None, recorder=None):
     primary = 'observed' if surfaces['observed'] is not None else 'expected'
     z = surfaces[primary]
     mask = _excluded_mask(z, level, side)
-    record['excluded_fraction'] = float(mask[np.isfinite(z)].mean())
+    record['excluded_fraction'] = float(mask[np.isfinite(z)].mean()) if np.any(np.isfinite(z)) else None
     if grid.get('shade', True):
         zs, lv = _in_scale(z, sscale), _in_scale(level, sscale)
         _fill_below(ax, x, y, zs - lv if side == 'below' else lv - zs, 0.0, EXCLUDED, 0.25, 0)

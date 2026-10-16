@@ -47,7 +47,7 @@ def test_dry_run_covers_each_profile_of_the_real_manifest(tmp_path, profile):
                                interactive=False)
     plan = tool.dry_run(profile)
     json.dumps(plan)
-    assert [g["group"] for g in plan["groups"]] == mf.profile_groups(MANIFEST, profile)
+    assert [g["group"] for g in plan["groups"]] == mf.profile_groups(MANIFEST, profile, platform_key="macos-arm64")
     assert plan["profile"] == (profile or "default") and plan["actions"]
     for group in plan["groups"]:
         assert group["size_gb"] >= 0 and group["minutes"] >= 0
@@ -73,7 +73,7 @@ def fake_doctor(tmp_path, platform="macos-arm64"):
 
 @pytest.mark.parametrize("profile", PROFILES)
 def test_doctor_json_reports_every_group_of_a_profile_with_label_and_fix(tmp_path, profile):
-    expected = mf.profile_groups(MANIFEST, profile)
+    expected = mf.profile_groups(MANIFEST, profile, platform_key="macos-arm64")
     report = fake_doctor(tmp_path).report(expected, profile=profile)
     json.dumps(report)
     assert report["profile"] == profile and report["expected_groups"] == expected

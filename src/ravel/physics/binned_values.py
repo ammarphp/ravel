@@ -7,7 +7,7 @@ from copy import deepcopy
 import math
 
 KEYS = {'schema_version', 'kind', 'axes', 'unit', 'representation', 'bins', 'overflow', 'underflow',
-        'overflow_in_last_bin', 'underflow_in_first_bin', 'description', 'sumw2', 'normalization', 'provenance', 'covariance'}
+        'overflow_in_last_bin', 'underflow_in_first_bin', 'description', 'sumw2', 'normalization', 'provenance', 'covariance', 'quantity'}
 
 
 def number(value, label):
@@ -21,6 +21,15 @@ def validate(doc):
         raise ValueError('binned_values result needs axes, unit, representation and bins with only shared schema keys')
     if type(doc['schema_version']) is not int or doc['schema_version'] != 1 or doc['kind'] != 'binned_values' or doc['representation'] not in ('integrated', 'differential'):
         raise ValueError('binned_values version 1 with integrated or differential representation required')
+    if 'quantity' in doc:
+        from ravel.validation.semantic_composition import compare, message
+        expected = {'unit': doc['unit'], 'normalization': {'per_bin_width': doc['representation'] == 'differential'}}
+        ids = doc.get('provenance', {}).get('bin_ids') if isinstance(doc.get('provenance'), dict) else None
+        if ids is not None:
+            expected['bin_ids'] = ids
+        errors = compare(doc['quantity'], expected, 'binned_values')['errors']
+        if errors:
+            raise ValueError('; '.join(map(message, errors)))
     axes = doc['axes']
     if type(axes) is not list or not axes or any(type(a) is not dict or set(a) != {'name', 'unit'} or
             type(a['name']) is not str or not a['name'].strip() or type(a['unit']) is not str for a in axes):
@@ -81,10 +90,18 @@ def build(*, axes, bins, unit, representation='integrated', normalization, prove
     return validate(doc)
 
 
-def from_quantity(quantity, weight):
+def from_quantity(quantity, weight, *, descriptor=None):
     """Project one named stream without discarding its bin covariance or flows."""
     if quantity.get('finalization_pending') is not False:
         raise ValueError('finalized weighted quantity required')
+    # Weighted moments retain the signed event stream; normalization never
+    # replaces weights by their magnitudes, even when all inputs are positive.
+    from ravel.validation.semantic_composition import compare, message
+    supplied = deepcopy(descriptor) if descriptor is not None else {}
+    errors = compare(supplied, {'weight_convention': 'signed'}, 'from_quantity')['errors']
+    if errors:
+        raise ValueError('; '.join(map(message, errors)))
+    supplied['weight_convention'] = 'signed'
     contract = quantity['contract']; names = contract['weight_names']
     k = names.index(weight); n = len(contract['bins'])
     covariance = [r[k*n:(k+1)*n] for r in quantity['covariance'][k*n:(k+1)*n]]
@@ -97,4 +114,5 @@ def from_quantity(quantity, weight):
                  representation=contract['representation'], normalization=normalization,
                  provenance={'weight': weight, 'bin_ids': [b['id'] for b in contract['bins']],
                              'contract_sha256': quantity['contract_sha256'], 'state_sha256': quantity['state_sha256'],
-                             'combined_flow': quantity['flow'][weight], 'flow_separable': False}, covariance=covariance)
+                             'combined_flow': quantity['flow'][weight], 'flow_separable': False}, covariance=covariance,
+                 quantity=supplied)

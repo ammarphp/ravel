@@ -8,11 +8,11 @@
   "family": "consult",
   "id": "consult-higgs",
   "independence": {
-    "kind": "advisory",
     "distinct_actor_from": [
       "coordinator"
     ],
-    "fresh_session": true
+    "fresh_session": true,
+    "kind": "advisory"
   },
   "kind": "role-card",
   "knowledge": {
@@ -58,6 +58,11 @@
     "schema": "findings.v1",
     "sidecar": true
   },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
+  },
   "protocol": [
     "Advise on scalar framework choice, conventions and a discriminating check; advice never accepts a result.",
     "Record framework, loop-coupling definitions, width assumptions, mass reference, supplied dataset release and every parameter or population source before using a prediction.",
@@ -81,13 +86,13 @@
   "reviewed_by": [],
   "schema_version": 2,
   "sees": {
-    "profile": "workspace",
     "forbidden_inputs": [
       "lessons",
       "other_verdicts",
       "producer_headline",
       "withheld_sources"
-    ]
+    ],
+    "profile": "workspace"
   },
   "stop": {
     "evidence_budget": 0,

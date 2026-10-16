@@ -19,6 +19,28 @@ def put(path, value):
 
 
 @pytest.fixture
+def forbid_pyhf_import(monkeypatch):
+    """Detect imports during the operation even if another file already imported it."""
+    import builtins
+    import importlib
+    original_import, original_dynamic = builtins.__import__, importlib.import_module
+    def checked(name, *args, **kwargs):
+        if name == 'pyhf' or name.startswith('pyhf.'):
+            pytest.fail('inert operation imported the native likelihood engine')
+        return original_import(name, *args, **kwargs)
+    def dynamic(name, *args, **kwargs):
+        if name == 'pyhf' or name.startswith('pyhf.'):
+            pytest.fail('inert operation dynamically imported the native likelihood engine')
+        return original_dynamic(name, *args, **kwargs)
+    already = 'pyhf' in sys.modules
+    monkeypatch.setattr(builtins, '__import__', checked)
+    monkeypatch.setattr(importlib, 'import_module', dynamic)
+    yield
+    # Alone in its process the engine was never loaded, and the operation must not load it.
+    assert already or 'pyhf' not in sys.modules
+
+
+@pytest.fixture
 def fixture(tmp_path, monkeypatch):
     w = workspace(); m = ToyEngine().describe(None)
     reference = {source: m[target] for source, target in {
@@ -44,7 +66,7 @@ def fixture(tmp_path, monkeypatch):
     return {'input': str(path)}, doc, runtime
 
 
-def test_all_three_arms_five_vectors_component_journal_and_no_native(fixture, tmp_path):
+def test_all_three_arms_five_vectors_component_journal_and_no_native(fixture, tmp_path, forbid_pyhf_import):
     result = s.run(fixture[0], tmp_path, tmp_path/'out')
     assert result['status'] == 'passed' and result['physics_validated'] is False
     report = json.loads((tmp_path/'out/checkpoint.json').read_text())
@@ -52,7 +74,6 @@ def test_all_three_arms_five_vectors_component_journal_and_no_native(fixture, tm
     assert all(row['status'] == 'completed' for row in report['calls'])
     assert result['checkpoint_sha256'] == hashlib.sha256((tmp_path/'out/checkpoint.json').read_bytes()).hexdigest()
     assert result['optimizer_calls'] == result['generated_events'] == result['root_searches'] == 0
-    assert 'pyhf' not in sys.modules
 
 
 def test_started_and_successful_components_survive_second_half_failure(fixture, tmp_path, monkeypatch):
@@ -188,7 +209,7 @@ def specification(task):
             'correction_contract': {'task_fields': [], 'input_slots': []}}}
 
 
-def test_genuine_unapproved_ordinary_plan_is_inert(fixture, tmp_path, monkeypatch):
+def test_genuine_unapproved_ordinary_plan_is_inert(fixture, tmp_path, monkeypatch, forbid_pyhf_import):
     import platform
     monkeypatch.setattr(platform, 'platform', lambda: 'synthetic-platform')
     monkeypatch.setattr(s.witness, 'PyhfEngine', lambda: pytest.fail('planning compiled a model'))
@@ -197,4 +218,3 @@ def test_genuine_unapproved_ordinary_plan_is_inert(fixture, tmp_path, monkeypatc
     assert science.adapter(spec) is s and science._new_capability(spec)
     assert (rd/'inputs/checkin1.json').is_file()
     assert not (rd/'inputs/science-approval.json').exists()
-    assert 'pyhf' not in sys.modules

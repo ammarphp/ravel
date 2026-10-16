@@ -54,6 +54,15 @@ def test_child_permission_failure_is_a_probe_failure_not_unavailable(tmp_path,mo
     monkeypatch.setattr(sandbox.subprocess,'run',launcher_denied)
     with pytest.raises(sandbox.SandboxUnavailable):
         sandbox.probe(ws,forbidden=tmp_path/'private')
+    monkeypatch.setattr(sandbox, 'available', lambda: 'linux')
+    def namespace_denied(*a, **k):
+        return subprocess.CompletedProcess(a, 1, '', 'bwrap: Creating new namespace failed: Operation not permitted\n')
+    monkeypatch.setattr(sandbox.subprocess, 'run', namespace_denied)
+    with pytest.raises(sandbox.SandboxUnavailable, match='namespace'):
+        sandbox.probe(ws, forbidden=tmp_path/'private')
+    monkeypatch.setattr(sandbox.subprocess, 'run', child_denied)
+    with pytest.raises(sandbox.SandboxProbeFailed):
+        sandbox.probe(ws, forbidden=tmp_path/'private')
 
 
 def test_extra_read_roots_must_avoid_run_tree_workspaces_and_custody(tmp_path,monkeypatch):
@@ -88,12 +97,13 @@ def test_probe_checks_every_denied_location(tmp_path,monkeypatch):
     assert seen['targets']==[str(p) for p in denied]
 
 
-def test_metadata_is_scoped_to_ancestors_and_readable_roots(tmp_path):
+def test_metadata_is_scoped_to_ancestors_and_readable_roots(tmp_path, require_sandbox):
     import json,subprocess,sys
     from ravel.workflow import sandbox
     (tmp_path/'w').mkdir();profile=sandbox.macos_profile(tmp_path/'w',read_paths=['/usr'])
     assert '(allow file-read-metadata)' not in profile
-    if sandbox.available()!='macos':return  # the scoped metadata rule is a macOS profile rule
+    if sandbox.available() != 'macos':
+        pytest.skip('metadata visibility is a macOS sandbox profile property')
     ws=tmp_path/'ws';[(ws/n).mkdir(parents=True) for n in ('inputs','outputs','scratch')]
     hidden=tmp_path/'unrelated';hidden.mkdir();(hidden/'present.txt').write_text('x')
     program=('import json,os,sys\nr={}\nfor n,p in json.loads(sys.argv[1]):\n'
@@ -138,7 +148,7 @@ def test_denial_probe_runs_the_launch_profile_home_and_network(tmp_path,monkeypa
     assert evidence['cli_home'] is True
 
 
-def test_real_provider_profile_denies_ports_other_than_443(tmp_path):
+def test_real_provider_profile_denies_ports_other_than_443(tmp_path, require_sandbox):
     import sys
     from ravel.workflow import sandbox
     ws=tmp_path/'worker'
@@ -198,7 +208,7 @@ def test_profiles_without_a_keychain_home_never_name_the_login_keychain(tmp_path
         assert '/usr/bin/security' not in profile
 
 
-def test_real_keychain_profile_still_denies_ports_other_than_443(tmp_path,monkeypatch):
+def test_real_keychain_profile_still_denies_ports_other_than_443(tmp_path,monkeypatch,require_sandbox):
     import sys
     from ravel.workflow import sandbox
     ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
@@ -213,7 +223,7 @@ def test_real_keychain_profile_still_denies_ports_other_than_443(tmp_path,monkey
     assert evidence['computed_checks']['other_port_denied'] is True and evidence['network']=='tcp-443'
 
 
-def test_real_keychain_profile_reads_through_the_link_and_never_writes(tmp_path,monkeypatch):
+def test_real_keychain_profile_reads_through_the_link_and_never_writes(tmp_path,monkeypatch,require_sandbox):
     import subprocess,sys
     from ravel.workflow import sandbox
     ws,home,real=_keychain_fixture(tmp_path,monkeypatch)
@@ -238,7 +248,7 @@ def test_real_keychain_profile_reads_through_the_link_and_never_writes(tmp_path,
     assert sorted(p.name for p in real.iterdir())==['login.keychain-db']
 
 
-def test_real_keychain_profile_runs_the_security_tool_read_only(tmp_path):
+def test_real_keychain_profile_runs_the_security_tool_read_only(tmp_path, require_sandbox):
     """The account's real login keychain, read through the worker's keychain home; no secret is read or printed."""
     import os,pwd,subprocess,sys
     from ravel.workflow import sandbox

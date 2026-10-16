@@ -67,6 +67,13 @@
       "schema": "producer.v1",
       "sidecar": true
     },
+    "ownership": {
+      "inputs": [],
+      "judges": [],
+      "owns": [
+        "trained-model-receipt"
+      ]
+    },
     "protocol": [
       "State the claim, estimand and precision target before choosing data sizes.",
       "Compute independent counts per region, fold and working point; narrow or stop an undersized plan.",
@@ -121,5 +128,5 @@
     },
     "version": "1.1.0"
   },
-  "registry_sha256": "f40dbf8f991f96c069c979c80fd2cc443083667fdc9abd2baefd65aa10e66abb"
+  "registry_sha256": "b71ff7e60f5624ba06ae4a380ebf2fe142e938be61a1a083228513a2b5383c67"
 }

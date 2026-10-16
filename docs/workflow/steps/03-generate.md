@@ -6,6 +6,21 @@ this selects the native build and binary paths, including an existing local tool
 
 Produce showered events (HepMC) for the model. `MG=$RAVEL_NATIVE_BUILD/tools/mg5amcnlo/bin/mg5_aMC`
 
+**Generation conventions.** In a model-events configuration or scoped
+`generation` section, optionally supply `conventions` with `basis_identifier`,
+`ew_input_scheme`, `validity_cutoff` and `operator_groups`, for example
+`{"NP": ["ca", "cb"]}`. Declare the study's scheme explicitly; a model name
+never supplies it. Planning records the actual process-card coupling orders,
+model pin/restriction and implied SM/linear/square/cross terms in
+`generation_convention`; the ending receipt retains the same convention fields
+against its actual card pin. Null values remain undeclared CHECK-IN flags;
+`"none declared"` explicitly records no validity cutoff. `NP^2==1` selects
+interference, whereas `NP<=1` limits each amplitude and can include squared
+terms. Record deliberate truncation and its effect before the fit, and bind the
+generation record in the semantic manifest. See [generation and fit
+coherence](eft-conventions.md#generation-and-fit-coherence) for the exact handoff
+and approved transport/recorded deviation contracts.
+
 **Declared generation controls.** For a scoped generation specification, optional
 `generation.nb_core` selects MadGraph's cores. The default remains one core and
 `run_mode 0`. A larger count requires native `execution.backend_plan.resources.cpus`

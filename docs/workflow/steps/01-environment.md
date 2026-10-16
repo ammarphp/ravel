@@ -8,6 +8,15 @@ use `--profile site` only for a Linux analysis facility. Every reported requirem
 must pass. A missing or misconfigured tool makes `ravel doctor` exit with status 1
 and prints its exact repair command; licence activation remains a user action.
 
+Groups marked `qualification.required_per_platform` in `native/setup` enter the
+implicit installer and doctor selection only when a successful qualification record
+matches this host platform. The `mcfm-amplitudes` group currently has evidence for
+`linux-x86_64`; its macOS container route remains unqualified. Operation availability
+and planning refuse `amplitude-integration` on platforms without matching evidence,
+naming the missing group and platform. Explicit `--only mcfm-amplitudes` remains the
+route for approved installation and qualification work; installation alone does not
+remove this admission hold.
+
 For a site installation, use `bash scripts/setup/install.sh --profile site --prefix
 <work-prefix> --lcg-view <absolute-view-path-or-none>`. Put the checkout, runs and
 transcripts in work space. Run `ravel site doctor --profile generic --prefix
@@ -142,6 +151,11 @@ guidance with `ravel agent-surface install --project PROJECT`. Load
 `.ravel/agent-guidance.md` into the host session. Existing project instruction
 documents stay byte-identical. The shell discipline guard is enabled by default
 for policy-required projects; `--wms-guard` installs it explicitly elsewhere.
+For an HTCondor analysis facility, initialize with `ravel wms init --profile htcondor
+--jobs N --remote-ceiling C --shared-state-root /shared` and launch through
+`ravel wms launch --jobs N`. The installed site shim, exported profile digest,
+shared state declaration and zero-retry bound remain pinned to the launch.
+See [governed site launch](../../reference/site-workflows.md#workflow-manager-first-projects).
 Machine runtime settings stay local and untracked. Plan and approve retain their
 check-ins; approved stages use `ravel wms launch` when required by policy.
 See [the approved-stage guide](../../guides/approved-workflow-stages.md) for the

@@ -62,7 +62,7 @@ already created (`ravel initiate ...`):
 
 ```sh
 ravel site study-job submit --rundir /vast/projects/<project>/<me>/runs/<run> \
-  --account <account> --partition genoa-std-mem --cpus 16 --time 720 \
+  --account <account> --partition <partition> --cpus 16 --time 720 \
   --rung none --prefix /vast/projects/<project>/<me>/ravel-native/<build>/prefix \
   --module apptainer/1.4.1 --claude-config-dir $HOME/.claude-ravel \
   --collect-to /vast/projects/<project>/<me>/collected \
@@ -99,3 +99,80 @@ Cancel only jobs you submitted, by id.
   remote slots, not this lease.
 - `ravel doctor --profile site` checks lxplus requirements (CVMFS, grid proxy, HTCondor) and
   does not pass on a Slurm facility without them. Use `ravel site doctor --profile generic` there.
+
+## Finite grids of prepared studies
+
+`ravel study-grid` dispatches a supplied Cartesian population of prepared ordinary studies.
+Each cell can use any already-supported generator chain or operation; the grid selects no
+physics adapter. Prepare and approve the ordinary studies first. The allocation still checks
+its own run approval at preparation, submission and job start, and its agent command executes
+inside the ordinary scoped lease and supervision route.
+
+Supply a JSON manifest with these fields (schema version `1`):
+
+| Field | Contract |
+|---|---|
+| `axes` | Nonempty ordered list of `{name, values}` with distinct finite numbers or strings |
+| `scenarios` | Distinct nonempty scenario names |
+| `cells` | One cell per axes/scenario combination, with unique `id`, `axes` coordinates, `scenario`, `study_spec`, `rundir`, and `agent` argv |
+| `approval` | Delegated parent `rundir`, `route`, `rung`, `approval_files` (relative approval-file names to SHA-256 digests), and `expires_utc` |
+| `budget` | Positive integer `max_submissions`, `max_cpu_minutes`, and `expires_utc` |
+| `allocation` | Ordinary allocation `account`, `partition`, `cpus`, `minutes`, and optional environment/collection fields listed below |
+| `concurrency` | Positive maximum number of outstanding attempts |
+| `artifacts` | Optional list of relative result-file paths, including non-JSON outputs; no globbing |
+| `quantities` | List of `{name, source, field}`; a relative result JSON file and dotted numeric field, without a statistic or threshold default |
+
+Paths in the manifest resolve from its directory. Every `rundir` is distinct and already
+prepared. The agent argv is supplied in full, with the ordinary run/specification paths it
+needs; no argument substitution or shell expansion is performed. `study_spec` is a pinned
+reference to the prepared specification, not a request for this command to plan a study.
+The delegation and budget must cover the declared population. This command does not grant
+approval, expand an ordinary approval's scope or replace the underlying run's budget gates.
+The parent approval route and exact approval-file digests are reverified before each cell.
+`rung: "none"` with empty approval files remains planning only.
+
+The allocation profile accepts the same keyword fields as `allocation_study.prepare`:
+`checkout`, `venv`, `prefix`, `modules`, `env`, `claude_config_dir`, `collect_to`, and `job_name`,
+in addition to the four required resource fields. `env` is a list of `NAME=VALUE` strings;
+credentials remain refused. Timestamps must include a timezone. Each attempt reserves
+`cpus × minutes` against the grid budget, including failed or uncertain attempts. These are
+requested resource ceilings, not measured usage.
+
+```sh
+ravel study-grid submit --manifest /path/to/grid.json --grid-dir /path/to/grid-state
+ravel study-grid status --manifest /path/to/grid.json --grid-dir /path/to/grid-state
+ravel study-grid resume --manifest /path/to/grid.json --grid-dir /path/to/grid-state
+ravel study-grid harvest --manifest /path/to/grid.json --grid-dir /path/to/grid-state
+```
+
+Submit fills one wave up to `concurrency` and returns. Status reads allocation receipts,
+including the existing collected run copies, and polls Slurm queue/accounting through the
+allocation collection reader. Resume rereads the locked ledger and fills free slots with
+untouched cells. Invoke resume again as jobs finish; no resident scheduler is introduced.
+A second submit refuses a grid that already has attempts. The immutable manifest identity,
+specification digests, request directories and submission ids remain in `ledger.json`.
+
+A reservation is saved before calling the scheduler. If the caller stops after submission,
+resume adopts the ordinary `submission.json`; an uncertain submission without that receipt
+stays `unknown` and occupies a slot. `missing` scheduler accounting also occupies a slot.
+Neither is treated as proof that a job never started. A scheduler refusal (nonzero `sbatch`
+exit, or an approval that changed before dispatch) is recorded as a `failed` attempt with its
+error; it holds no slot but keeps its reservation. Failed, cancelled, timed-out and
+completed attempts retain their terminal observation even after accounting is purged.
+To retry a terminal or explicitly missing submission, use `resume --supersede CELL_ID`
+(repeatable). Confirm externally that a missing job cannot still run before superseding it.
+Live or unknown submissions refuse supersession. Original attempts and reservations remain.
+
+Approval expiry, changed approval bytes, specification mutation or budget exhaustion stops
+further submissions with exit code 2; already-submitted attempts remain recorded. Restore
+valid authority through ordinary approval procedures; a changed manifest requires a new
+state directory and must not be used to bypass the original budget or duplicate live work.
+
+Harvest writes `harvest.json` (or `--output PATH`), a typed `study-grid-harvest` record with
+the full cell population, axes, scenarios, status, attempt history, numeric quantities and
+artifact paths/digests/fields. A successful scheduler exit without an allocation receipt,
+or a successful agent without the requested result, is `missing`. Failed and unsubmitted
+cells have no numeric result. Agent success and byte custody establish transport only;
+scientific acceptance and result eligibility still follow the ordinary operation's checks.
+See [named scans](../workflow/reference/named-scans.md#prepared-study-allocation-grids) for
+aggregation and plotting.

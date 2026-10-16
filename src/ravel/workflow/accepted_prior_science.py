@@ -41,7 +41,7 @@ retained snapshots, ledger, receipt and output/log inventories before return.
         if errors:
             raise ValueError('prior review does not authorize reuse: ' + '; '.join(errors))
         view = review._view(reg, events)
-        if view['reviews'][0]['claim_scope'] != claim_scope:
+        if review._accepted_scope(view) != claim_scope:
             raise ValueError('prior accepted claim scope differs')
         cycle = view['cycle']
         if (cycle['correction_id'] is not None or cycle['checkpoint']

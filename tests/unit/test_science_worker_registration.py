@@ -98,7 +98,9 @@ def delayed(root,record,pid):
   record['supervisor_pid']=os.getpid()+1000000;original(root,record,pid)
  elif mode=='wrong_pid':original(root,record,pid+1000000)
  elif mode=='wrong_identity':
-  original(root,record,pid);record['child_identity']='forged-start';execution._update(root,'science',record)
+  # Publish only the forged registration. Publishing a valid identity first
+  # lets the worker pass the wait and refuse later at a different custody check.
+  record.update(child_pid=pid,child_identity='forged-start');execution._update(root,'science',record)
  elif mode=='never_publish':time.sleep(5.5)
  elif mode=='parent_death':
   os.kill(os.getpid(),9)

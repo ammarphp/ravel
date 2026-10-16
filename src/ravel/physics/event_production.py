@@ -1332,6 +1332,7 @@ def run(task, base, destination):
         first = next(iter(outputs.values()))
         samples[variant['name']] = {
             'shower_commands': variant['commands'],
+            'quantity': {'weight_convention': 'signed'},
             'events': {'lhe_events': scan['events'], 'used_lhe_events': n_events,
                        'attempted': sum(receipts[t]['events']['attempted'] for t in tags), 'accepted': accepted,
                        'detector_entries': {n: o['entries'] for n, o in outputs.items()},
@@ -1351,6 +1352,7 @@ def run(task, base, destination):
     shower_tool = compiled['tools']['shower_merged' if merged else 'shower']
     receipt = {
         'schema_version': 1, 'kind': 'ravel-production-receipt',
+        'quantity': {'weight_convention': 'signed'},
         'lhe_check': {'path': 'science.lhe_check.json', 'sha256': sha256(out / 'science.lhe_check.json'), 'verdict': lhe_check['verdict']},
         'generator': compiled['header']['generator'] or {'name': 'not stated in the LHE file', 'version': None},
         'shower': {'name': 'Pythia 8', 'program': shower_tool['path'], 'program_sha256': shower_tool['sha256'],

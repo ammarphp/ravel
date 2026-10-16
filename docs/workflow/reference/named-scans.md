@@ -126,3 +126,150 @@ sources and qualification criteria. Then qualify native execution through an app
 bounded job, with supplied references, exposure, time and disk budgets. Synthetic rendering
 and aggregation checks establish software behavior; native execution and physics validity
 need their own evidence.
+
+## Prepared-study allocation grids
+
+Use `ravel study-grid` when each point/scenario already has an ordinary study specification
+and run directory. This bridge uses the batch-allocation launcher directly and does not
+route through the native scan adapter. It adds no generator, model or analysis defaults.
+Prepare the supplied cells, retain the actual delegated approval and budget, then follow
+[finite allocation grids](../../reference/batch-allocations.md#finite-grids-of-prepared-studies)
+for the manifest and `submit`, `status`, `resume`, `harvest` commands. No compute starts
+without the ordinary approvals. Reconcile coverage and scientific result eligibility before
+drawing conclusions from a harvested grid.
+
+The harvest retains all declared axes and scenarios, every attempted or untouched cell,
+result paths and SHA-256 digests. Aggregation can read each cell's `values` by supplied
+quantity name; preserve its `status` and original attempts. A `completed` allocation is an
+agent-exit observation, not physics certification. Missing or failed cells remain holes.
+
+The parameter-plane renderer accepts a panel grid with `study_grid` naming the harvest:
+
+```json
+{
+  "grid": {
+    "study_grid": "/path/to/grid-state/harvest.json",
+    "scenario": "baseline",
+    "x": "first_coordinate",
+    "y": "second_coordinate",
+    "surfaces": {"observed": "requested_quantity"},
+    "level": 1.0,
+    "excluded": "below"
+  }
+}
+```
+
+Supply the full figure's natural-language `axes` labels, units and scales as usual, then
+render through `ravel figure plane --spec ... --out ...`. The surface name,
+threshold and excluded side above are illustrative declarations; choose them for the
+contracted quantity. No exclusion interpretation is inferred by the grid bridge.
+Select exactly two numeric axes and one scenario. For higher-dimensional grids, supply
+`fixed: {"other_coordinate": value}` for every remaining axis. `bands` can bind
+`expected_1sigma` or `expected_2sigma` to `{low, high}` quantity names. Numeric axes must
+increase for plotting. Categorical axes remain available in the harvest for supplied
+aggregation or another renderer.
+
+The plotting reader rechecks each used artifact digest and dotted field against the
+harvest. It masks absent or unsuccessful cells and disables contour corner filling around
+holes; it never estimates missing values. The source receipt records the selected scenario,
+fixed coordinates and missing-cell coverage. Preserve those holes in comparisons and
+report the complete planned population alongside results.
+
+## Per-point setting overrides
+
+Use an override for an explicitly diagnosed regime change, such as a threshold,
+width, integration failure or weight pathology. Keep the original grid and failed
+attempts. Never delete a troublesome point or fill a failed cell by interpolation.
+An override changes that point's receipt identity; its coordinate tag stays stable.
+
+The parent approval must bind a `point_override_scope` object in one of its approved
+JSON input files. It has `context_sha256` and `fields`. Obtain the context with
+`scan_orchestrator.override_context(manifest)` or `study_grid.override_context(grid)`
+before approval. A field uses a JSON pointer into the parsed point TOML or study
+JSON, for example `/settings/accuracy`. Its rule has an explicit `values` list and
+`physics: true|false`. Mark a change to the physical prescription as physics;
+a numerical repair can be classified separately only in the approved scope.
+There is no automatic classification from a field's name. The context binds the
+original axes, population, input locations and bytes, and requested quantities.
+
+Supply an override JSON record with these fields:
+
+- `changes`: nonempty pointer-to-value replacements of existing declared fields;
+  dictionary and indexed list fields are supported. Overlapping replacements,
+  additions, nonfinite values and unchanged values are refused.
+- `reason`: the regime reason, retained verbatim as the harvest's `regime` column.
+- `diagnostics`: nonempty `{path, sha256}` evidence pins with absolute file paths.
+- `approval`: `{rundir, route, rung, approval_files}` referencing a verified existing
+  compute approval. Use the parent run's delegated scope, separately from the
+  point's executable proposal. A planning-only approval cannot authorize a repair.
+- `amendment`, when needed: another approval reference whose approved input has
+  `point_override_amendment: {context_sha256, point_id, changes, physics_fields}` for exactly this
+  point and change set. Out-of-scope values require this amendment. Undeclared
+  fields are conservatively treated as physics changes.
+- `comparison`, for physics changes: `{neighbour_id, default, override, assessment}`.
+  Both arms are pinned JSON records with `{point_id, changes, result}`. `point_id`
+  names one adjacent successful default neighbour in the same scenario; `changes`
+  is `{}` for the default arm and the exact change map for the override arm.
+  `result` pins the arm's actual result file. Run both arms under ordinary approved
+  execution, record their comparison and assessment, and supply their existing
+  evidence. Admission does not generate a comparison or claim its scientific validity.
+
+Use the ordinary commands:
+
+```bash
+python scripts/run.py ravel.workflow.scan_orchestrator override <scandir> \
+  --point <tag> --record <override.json>
+ravel study-grid override --manifest <grid.json> --grid-dir <grid-state> \
+  --cell <cell-id> --record <override.json>
+```
+
+Admission freezes verified diagnostic and comparison bytes in a content-addressed
+evidence archive, preserving their original paths in `source_evidence`. Retry logs
+can then change without erasing the evidence that triggered the repair.
+
+Native scans write a separate effective TOML and an archived receipt, preserving
+the original configuration. Each override receipt selects a separate
+`attempts/<receipt-sha256>/output/`, executable proposal under that attempt's
+`inputs/`, and stage logs under `logs/attempts/<receipt-sha256>/`.
+The approval input census recognizes these supervised logs as produced inputs. The default `output/` and saved
+proposal remain intact. `attempt_history` retains the default and override
+identities, including their output directories; harvest reads the directory
+selected by the point identity and never falls back to another attempt.
+`launch --resume` reuses the effective configuration and attempt.
+Write and admit the revised executable proposal through the ordinary native
+workflow; exact-plan, compute-rung, resource and source checks still apply.
+Delegated approval can cover an in-scope repair without another operator decision;
+an override receipt itself never substitutes for execution authorization. Keep the
+parent scope approval stable when admitting the point's revised executable proposal.
+Native executable plans and stage input identities include the override receipt.
+Native reports carry `point_receipt_sha256` and `quantity_outputs`, an explicit
+list of produced quantity files with their absolute paths and SHA-256 hashes.
+The native report stage declares these files as inputs. Harvest accepts a native
+quantity only when its selected attempt's report lists the file and its hash
+matches. A missing report, unlisted file, missing file or hash mismatch produces
+an explicit failed cell. Older native reports without this manifest require a
+new approved execution; a receipt alone cannot authenticate an output.
+
+Study grids write a separate effective study specification and retain it in the
+ledger. The cell's agent argv must contain its absolute `study_spec` path as an
+argument or the literal `{study_spec}` token. Dispatch replaces that argument with
+the effective file, pins it in the allocation request, and rechecks it before the
+remote agent starts. The agent receives `RAVEL_POINT_SETTINGS` and
+`RAVEL_POINT_RECEIPT_SHA256`. Overridden JSON quantity outputs must carry
+`point_receipt_sha256` with that value, or the producer must supply
+`outputs/point-override-result.json` containing that receipt and
+`artifacts: {"relative/source": "sha256"}` for every harvested artifact. This
+sidecar also supports binary outputs. Harvest treats missing or stale receipts as
+holes even when the allocation completed. The agent must use this supplied specification through the
+ordinary study preparation and approval route. A running or ambiguous allocation
+cannot be overridden. After a terminal failure use `resume --supersede <cell-id>`;
+the new attempt reuses the stored override, keeps the previous attempt and consumes
+the existing grid budget. A proposed repair never relabels an earlier result.
+
+Harvest JSON carries `overridden`, `regime`, `receipt_sha256` and the complete
+`override` record. Native CSV includes status and regime columns and explicit empty
+rows for holes, with full provenance in its metadata sidecar. Native JSON retains
+`point_population`, including missing points. Both plot paths mark overridden
+points with open orange diamonds; the study-grid plot also labels the regime.
+Plot receipts preserve the marked population. Missing values remain masked; lines,
+bands and contours cannot bridge declared holes.

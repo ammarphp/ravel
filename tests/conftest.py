@@ -149,3 +149,27 @@ def engineering_session(monkeypatch):
     from ravel.workflow.approval_authority import AGENT_MARKERS
     for marker in AGENT_MARKERS:
         monkeypatch.delenv(marker, raising=False)
+
+
+@pytest.fixture
+def require_sandbox(tmp_path):
+    """A real confinement probe: skip only an unavailable launcher, never a failed denial."""
+    from ravel.workflow import sandbox
+    workspace = tmp_path / 'sandbox-availability'
+    for name in ('inputs', 'outputs', 'scratch'):
+        (workspace / name).mkdir(parents=True)
+    private = tmp_path / 'sandbox-private'
+    private.write_text('must be inaccessible')
+    try:
+        return sandbox.probe(workspace, forbidden=private,
+                             read_paths=sandbox.runtime_paths([sys.executable]))
+    except sandbox.SandboxUnavailable as exc:
+        pytest.skip(f'sandbox-blocked: actual OS confinement unavailable: {exc}')
+
+
+@pytest.fixture
+def short_tmp_path(monkeypatch):
+    """Private short root for Unix sockets, independent of the caller's TMPDIR."""
+    with tempfile.TemporaryDirectory(prefix='rv-', dir=Path('/tmp').resolve()) as folder:
+        monkeypatch.setenv('TMPDIR', folder)
+        yield Path(folder)

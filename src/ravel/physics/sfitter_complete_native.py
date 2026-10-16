@@ -172,7 +172,10 @@ def inputs(task,base,*,_session=None):
         if derivation!={**proof,'derived_card':c['datacard']} or _read(card,c['datacard']['sha256'])!=expected:raise ValueError('exact declared source-derived card/lineage differs')
         if c['card_derivation'] not in sem['sources']:raise ValueError('scientific semantic sources must explicitly include derived-card lineage')
         paths.append(dp);paths.extend(Path(v['path']) for v in proof['inputs'])
-    if sem:paths.extend(pin(v,parent) for v in [*sem['sources'],*sem['eft']['evidence']])
+    if sem:
+        paths.extend(pin(v,parent) for v in [*sem['sources'],*sem['eft']['evidence']])
+        from . import generation_conventions
+        paths.extend(generation_conventions.check_fit(sem,sem_path.parent,pin=pin,read=_session.read_document if _session else read_json,card=(_session.read_document(card) if _session else read_json(card)) if c['profile']=='top' else None)['paths'])
     if c['saved_run'] is not None:paths.extend(saved_state(c['saved_run'],parent,c,bound)[2])
     if c['production_handoff'] is not None:
         from ravel.workflow import sfitter_native_handoff

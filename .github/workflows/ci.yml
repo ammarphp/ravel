@@ -69,9 +69,9 @@ jobs:
         run: python3 -B -m ravel.validation.check_protected_paths --check-manifest src/ravel/data/knowledge
 
   tests:
-    # The whole suite in one process exceeds GitHub's six-hour job limit. Eight shards each run one
-    # pytest process over every eighth file of the sorted test-file list (scripts/maintenance/ci_shards.py);
-    # tests/unit/test_ci_shards.py checks that the shards partition the full list.
+    # Eight deterministic file shards, with one fresh pytest process per file and a 40-minute
+    # limit per file; the long files (ci_shards.LONG) run in the long-tests job below.
+    # tests/unit/test_ci_shards.py checks the complete partition and runner contract.
     name: test suite (shard ${{ matrix.shard }} of 8)
     runs-on: ubuntu-24.04
     timeout-minutes: 150
@@ -84,15 +84,92 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
         with: { python-version: "3.12" }
       - name: install the package and its pinned dependencies
-        run: python -m pip install -e . pytest==8.3.5
+        run: |
+          python -m pip install --require-hashes -r requirements-replay.lock
+          python -m pip freeze > "$RUNNER_TEMP/replay-constraints.txt"
+          python -m pip install -c "$RUNNER_TEMP/replay-constraints.txt" -e .
+          python -m pip check
       - name: install git hooks required by integration tests
         run: bash scripts/maintenance/install-git-hooks.sh
-      - name: pytest (this shard's files)
+      - name: enable and verify the Linux worker sandbox
         run: |
-          python scripts/maintenance/ci_shards.py --index ${{ matrix.shard }} --count 8 > "$RUNNER_TEMP/shard-files.txt"
-          mapfile -t files < "$RUNNER_TEMP/shard-files.txt"
-          test "${#files[@]}" -gt 0
-          python -m pytest -q "${files[@]}"
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          if sysctl kernel.apparmor_restrict_unprivileged_userns; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          else
+            echo "AppArmor unprivileged-userns restriction is absent on this kernel"
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import sys, tempfile
+          from ravel.workflow import sandbox
+          with tempfile.TemporaryDirectory(prefix='rv-probe-', dir='/tmp') as temporary:
+              root = Path(temporary)
+              ws = root / 'workspace'
+              for name in ('inputs', 'outputs', 'scratch'):
+                  (ws / name).mkdir(parents=True)
+              private = root / 'private'
+              private.write_text('denied')
+              print(sandbox.probe(ws, forbidden=private, read_paths=sandbox.runtime_paths([sys.executable])))
+          PY
+      - name: pytest (this shard's files, one process per file)
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: python scripts/maintenance/ci_shards.py --index ${{ matrix.shard }} --count 8 --run --file-timeout 2400
+
+  long-tests:
+    # Each long test file (ci_shards.LONG) on a runner of its own. The file stops and reports
+    # 30 minutes before the job limit; a stopped file counts as failed.
+    name: long test file (${{ matrix.file }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [tests/unit/test_fresh_replication.py, tests/unit/test_wms_retry.py]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (Node 24)
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 (Node 24)
+        with: { python-version: "3.12" }
+      - name: install the package and its pinned dependencies
+        run: |
+          python -m pip install --require-hashes -r requirements-replay.lock
+          python -m pip freeze > "$RUNNER_TEMP/replay-constraints.txt"
+          python -m pip install -c "$RUNNER_TEMP/replay-constraints.txt" -e .
+          python -m pip check
+      - name: install git hooks required by integration tests
+        run: bash scripts/maintenance/install-git-hooks.sh
+      - name: enable and verify the Linux worker sandbox
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+          if sysctl kernel.apparmor_restrict_unprivileged_userns; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          else
+            echo "AppArmor unprivileged-userns restriction is absent on this kernel"
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import sys, tempfile
+          from ravel.workflow import sandbox
+          with tempfile.TemporaryDirectory(prefix='rv-probe-', dir='/tmp') as temporary:
+              root = Path(temporary)
+              ws = root / 'workspace'
+              for name in ('inputs', 'outputs', 'scratch'):
+                  (ws / name).mkdir(parents=True)
+              private = root / 'private'
+              private.write_text('denied')
+              print(sandbox.probe(ws, forbidden=private, read_paths=sandbox.runtime_paths([sys.executable])))
+          PY
+      - name: pytest (this long file in its own process)
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+        run: python scripts/maintenance/ci_shards.py --long ${{ matrix.file }} --run --file-timeout 16200
 
   scientific-adapters:
     name: scientific adapters with real optional backends

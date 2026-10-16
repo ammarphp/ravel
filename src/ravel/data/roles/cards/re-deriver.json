@@ -57,8 +57,13 @@
   ],
   "output": {
     "declared_outputs": [],
-    "schema": "findings.v1",
+    "schema": "findings.v2",
     "sidecar": true
+  },
+  "ownership": {
+    "inputs": [],
+    "judges": [],
+    "owns": []
   },
   "protocol": [
     "Independently derive the contracted absolute cross section, yield or analytic quantity from pinned physical inputs before seeing producer numbers. Record the source, units, equation, factors and uncertainty scope for each step.",
@@ -66,7 +71,10 @@
     "For a second-method work order, forbid every method in forbidden_method_nodes and use a distinct derivation. Preserve any disagreement with a prescribed formula and request its disposition; do not silently replace it.",
     "Return located derivation evidence and the declared comparison tolerance. A disagreement beyond tolerance requests an RCA ticket; this review cannot itself certify a fit using a reference in its input closure.",
     "Give every finding an evidence class (new_receipt, code_check, cited or opinion) and the receipt, check or locator IDs behind it. Only new_receipt, code_check or a typed discriminating-test request can block; cited claims and opinions stay advisory. Ask for the cheapest discriminating test that could invalidate the claim.",
-    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation."
+    "Report public rationales and located evidence. Never accept your own work, widen approval or erase an unresolved obligation.",
+    "Classify each new finding as defect or limitation in findings.v2. A defect names classification.target (one affected step or node), the reviewed artifact_sha256 and rework_evidence showing why repairing it changes the result.",
+    "A limitation states each affected claim_id, effect (bounds or invalidates), and a bound or unbounded. Route it to the limitation census and qualified or withdrawn claim disposition; it cannot request rework or spend repair budget.",
+    "Only the decider may reclassify, recording a reason and retaining the original classification. Repeated findings against unchanged artifact bytes do not request another repair. Legacy unclassified findings keep their prior route."
   ],
   "purpose": "Independently derive the contracted absolute cross section, yield or analytic quantity from pinned physical inputs before seeing producer numbers. Record the source, units, equation, factors and uncertainty scope for each step.",
   "requires": {

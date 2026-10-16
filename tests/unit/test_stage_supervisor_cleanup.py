@@ -358,7 +358,7 @@ def test_running_orphan_cleanup_finalizes_or_holds(tmp_path, monkeypatch, contro
 pytestmark = pytest.mark.usefixtures("engineering_session")
 
 
-@pytest.mark.parametrize("allocation", [None, {"scope": "slurm-betty-9100003", "kind": "slurm-job", "job_id": "9100003"}])
+@pytest.mark.parametrize("allocation", [None, {"scope": "slurm-clustera-9100003", "kind": "slurm-job", "job_id": "9100003"}])
 def test_an_attempt_under_a_cluster_lease_records_its_allocation(tmp_path, monkeypatch, controls, allocation):
     from ravel.workflow import machine_lease
     monkeypatch.setattr(machine_lease, "allocation_identity", lambda: allocation)
