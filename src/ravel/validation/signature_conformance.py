@@ -277,6 +277,17 @@ def implementation_errors(name, entry, modes=None, scoped=None):
             return errors + [f'{name}: the mode adapter does not resolve ({resolved})']
         if impl.get('module') != resolved:
             errors.append(f'{name}: module {impl.get("module")!r} differs from the adapter {resolved}')
+        if impl.get('dispatch_group'):
+            from ravel.workflow.operation_definitions import definitions
+            try:
+                definitions({name: entry})
+                if impl.get('presentation'):
+                    from importlib import import_module
+                    hook = getattr(import_module(resolved), impl['presentation'], None)
+                    if not callable(hook):
+                        errors.append(f'{name}: presentation hook does not resolve to a callable')
+            except ValueError as exc:
+                errors.append(str(exc))
         return errors
     if kind == 'scoped-adapter':
         return [] if name in scoped else [f'{name}: no registered scoped adapter {name!r}']

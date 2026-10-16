@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 from ravel.workflow import sfitter_review_protocol as p, sfitter_workflow as w
 from ravel.workflow import scientific_judgment as j, agent_host, agent_graph, execution, physics_review as review
-from ravel.workflow.state_io import read_json
+from ravel.workflow.state_io import read_json, atomic_json
 from test_sfitter_adapter import workflow_fixture, save, pin, BASIS, Array, UP
-from test_physics_review import run, opened, finding
+from test_physics_review import run as physics_run, opened, finding
 # A vote counts only through an observed, separated transport. The accounted fake transport is a
 # software control, so tests of what follows a counted vote request the shared observed-boundary
 # fixture; the control refusal itself is covered where the fixture is not requested.
@@ -155,6 +155,17 @@ def test_physical_theory_source_doublecount_not_name_based(tmp_path):
     assert concern(p.context(request,tmp_path),'theory_doublecount')['status']=='fail'
     data['rows'][1].update(name='unfolding',physical_source='independent_PDF');request['checks'][-1]['data']=ref(save(Path(cp['path']),data))
     assert concern(p.context(request,tmp_path),'theory_doublecount')['status']=='pass'
+
+@pytest.fixture
+def run(physics_run):
+    """Register the owning phase and planned claim prospectively, as a domain consumer must."""
+    root,_=physics_run
+    policy=read_json(root/review.POLICY)
+    policy['allowed_stages']=sorted({*policy['allowed_stages'],*w.PHASES})
+    policy['claim_scopes']['reproduction']['claim_ids']=['universal']
+    atomic_json(root/review.POLICY,policy)
+    return physics_run
+
 
 @pytest.fixture
 def cycle(run):opened(run);return run[0]

@@ -228,10 +228,8 @@ def test_every_lhapdf_id_named_by_code_cards_or_tasks_is_installed():
 
 
 def test_operations_name_only_known_modes_and_groups():
-    import ast
-    module = ast.parse((ROOT / "src/ravel/workflow/science.py").read_text())
-    modes = next(ast.literal_eval(n.value) for n in module.body if isinstance(n, ast.Assign)
-                 and any(isinstance(t, ast.Name) and t.id == "MODES" for t in n.targets))
+    from ravel.workflow.capability_routing import catalogue
+    modes = [row['mode'] for row in catalogue(ROOT)['operations']]
     # The scoped adapters are offered through their operation signatures rather than the science registry.
     signatures = json.loads((ROOT / "src/ravel/data/operation_signatures.json").read_text())["operations"]
     scoped = {s["implementation"]["mode"] for s in signatures.values()

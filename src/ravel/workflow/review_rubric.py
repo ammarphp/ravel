@@ -29,6 +29,12 @@ advisory item to blocking, and add a rule that must hold together with the item'
 rule. It cannot remove an item, replace a rule or lower a severity. A run selects its
 rubric in ``inputs/review_rubric.json``; ``review_projection.build`` then places the
 merged rubric in every reviewer packet of that run.
+
+An opt-in ``executable_checks`` overlay adds existing registered document checks
+on exact projected subjects. Review credit verifies their execution in broker
+custody; this module only declares them. Callable separation is recorded apart
+from actor separation and cannot satisfy a required independent method without
+an authenticated method relationship. Scientific applicability remains separate.
 """
 from __future__ import annotations
 
@@ -223,7 +229,7 @@ def rubric_errors(rubric):
     if type(rubric) is not dict:
         return ['a rubric is an object']
     errors = []
-    allowed = {'schema_version', 'kind', 'id', 'purpose', 'packet', 'items', 'overlay'}
+    allowed = {'schema_version', 'kind', 'id', 'purpose', 'packet', 'items', 'overlay', 'executable_checks'}
     if not {'schema_version', 'kind', 'id', 'purpose', 'packet', 'items'} <= set(rubric) <= allowed:
         errors.append('a rubric has schema_version, kind, id, purpose, packet and items')
         return errors
@@ -258,6 +264,59 @@ def rubric_errors(rubric):
                                     and type(overlay['id']) is str and type(overlay['sha256']) is str
                                     and _SHA.fullmatch(overlay['sha256'])):
         errors.append('overlay: null or {id, sha256}')
+    return errors + executable_check_errors(rubric.get('executable_checks', []))
+
+
+def executable_check_errors(rows):
+    """Opt-in checks use existing document validators and exact projected subjects.
+
+    A producer receipt authenticates a callable identity. The current registry has
+    no method relationship that can satisfy ``require_distinct_method``; such a
+    requirement remains unverified even when two callable identities differ.
+    The gate verifies execution; packet prose or this declaration never does.
+    """
+    if type(rows) is not list or len(rows) > MAX_ITEMS:
+        return ['executable_checks: a bounded list']
+    if not rows:
+        return []
+    from . import review_projection_checks as checks, role_registry
+    allowed = {row['id']: row for row in checks.allowlist()['validators']}
+    errors, seen = [], set()
+    fields = {'id', 'roles', 'check_id', 'subject', 'producer_receipt', 'require_distinct_method'}
+
+    def pin(value):
+        return (type(value) is dict and set(value) == {'path', 'sha256'} and type(value['path']) is str
+                and value['path'] and type(value['sha256']) is str and _SHA.fullmatch(value['sha256']))
+
+    for index, row in enumerate(rows):
+        where = f'executable_checks[{index}]'
+        if type(row) is not dict or set(row) != fields:
+            errors.append(f'{where}: requires ' + ', '.join(sorted(fields))); continue
+        identity = row['id']
+        if type(identity) is not str or not _ID.fullmatch(identity) or identity in seen:
+            errors.append(f'{where}.id: a distinct short identifier')
+        else:
+            seen.add(identity)
+        check_id = row['check_id']
+        if type(check_id) is not str or check_id not in allowed or check_id not in checks.CHECKS:
+            errors.append(f'{where}.check_id: an existing document check')
+        roles = row['roles']
+        if type(roles) is not list or not roles or not all(type(r) is str for r in roles) or len(set(roles)) != len(roles):
+            errors.append(f'{where}.roles: distinct registered roles')
+        elif type(check_id) is str and check_id in allowed:
+            for role in roles:
+                try:
+                    permitted = checks.permitted(role_registry.load(role), check_id)
+                except (OSError, ValueError, KeyError):
+                    permitted = False
+                if not permitted:
+                    errors.append(f'{where}.roles: {role} cannot run {check_id}')
+        if not pin(row['subject']) or Path(row['subject']['path']).is_absolute() or '..' in Path(row['subject']['path']).parts:
+            errors.append(f'{where}.subject: a confined run-relative pin')
+        if row['producer_receipt'] is not None and not pin(row['producer_receipt']):
+            errors.append(f'{where}.producer_receipt: null or a broker receipt pin')
+        if type(row['require_distinct_method']) is not bool:
+            errors.append(f'{where}.require_distinct_method: a boolean')
     return errors
 
 
@@ -287,7 +346,7 @@ def overlay_errors(overlay, rubric):
     """Errors of an overlay against the rubric it tightens; empty when it may be applied."""
     if type(overlay) is not dict:
         return ['an overlay is an object']
-    allowed = {'schema_version', 'kind', 'id', 'rubric', 'add', 'tighten'}
+    allowed = {'schema_version', 'kind', 'id', 'rubric', 'add', 'tighten', 'executable_checks'}
     if not {'schema_version', 'kind', 'id', 'rubric'} <= set(overlay) <= allowed:
         return ['an overlay has schema_version, kind, id and rubric, with add and tighten; '
                 'it has no way to remove or replace an item']
@@ -299,7 +358,7 @@ def overlay_errors(overlay, rubric):
     if overlay['rubric'] != rubric['id']:
         errors.append(f"the overlay is for rubric {overlay['rubric']!r}, not {rubric['id']!r}")
     added, tightened = overlay.get('add', []), overlay.get('tighten', [])
-    if type(added) is not list or type(tightened) is not list or not (added or tightened):
+    if type(added) is not list or type(tightened) is not list or not (added or tightened or overlay.get('executable_checks')):
         return errors + ['add and tighten are lists, and at least one row is given']
     base = {item['id']: item for item in rubric['items']}
     new = set()
@@ -332,7 +391,8 @@ def overlay_errors(overlay, rubric):
                 errors.append(f'{where}.{key}: a non-empty text')
     if len(rubric['items']) + len(added) > MAX_ITEMS:
         errors.append(f'the merged rubric exceeds {MAX_ITEMS} items')
-    return errors
+    checks = rubric.get('executable_checks', []) + overlay.get('executable_checks', []) if type(overlay.get('executable_checks', [])) is list else None
+    return errors + executable_check_errors(checks)
 
 
 def read_overlay(pin):
@@ -376,6 +436,8 @@ def apply_overlay(rubric, overlay, sha256):
         merged['items'].append(deepcopy(item))
         if item['section'] not in merged['packet']['sections']:
             merged['packet']['sections'].append(item['section'])
+    if overlay.get('executable_checks'):
+        merged['executable_checks'] = deepcopy(rubric.get('executable_checks', []) + overlay['executable_checks'])
     merged['overlay'] = {'id': overlay['id'], 'sha256': sha256}
     return merged
 
@@ -413,6 +475,11 @@ def extension_errors(rubric):
             errors.append(f"{item['id']}: the shipped rule is not retained")
     if len(got) > len(base['items']) and rubric.get('overlay') is None:
         errors.append('added items name no overlay')
+    checks = rubric.get('executable_checks', [])
+    if checks[:len(base.get('executable_checks', []))] != base.get('executable_checks', []):
+        errors.append('a shipped executable check is missing or changed')
+    if checks != base.get('executable_checks', []) and rubric.get('overlay') is None:
+        errors.append('added executable checks name no overlay')
     return errors
 
 
@@ -427,6 +494,9 @@ def evaluate(packet, rubric=None, *, check_id=CHECK_ID):
         raise ValueError('invalid review rubric: ' + '; '.join(errors[:5]))
     diagnostics = {'rubric': rubric['id'], 'rubric_sha256': digest(rubric), 'overlay': deepcopy(rubric.get('overlay')),
                    'items': len(rubric['items'])}
+    if rubric.get('executable_checks'):
+        diagnostics['executable_checks'] = [{**deepcopy(row), 'execution': 'not_verified',
+            'scientific_independence_proven': False} for row in rubric['executable_checks']]
     if type(packet) is not dict or packet.get('kind') != rubric['packet']['kind']:
         return result(check_id, [], status='inconclusive', outcome='inputs_missing',
                       diagnostics={**diagnostics, 'missing': ['packet of kind ' + rubric['packet']['kind']]})

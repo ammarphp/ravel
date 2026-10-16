@@ -707,11 +707,254 @@ def _evaluate_document(request, inputs):
     return _evaluate(None, inputs, _finish=False, _document=request)
 
 
+def _write_qualified_bytes(path, raw):
+    import os
+    import tempfile
+    descriptor, temporary = tempfile.mkstemp(prefix='.qualified-deviation-', dir=path.parent)
+    try:
+        with os.fdopen(descriptor, 'wb') as stream:
+            stream.write(raw); stream.flush(); os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def _write_qualified_deviation(path, text):
+    _write_qualified_bytes(path, text.encode('utf-8'))
+
+
+def _qualified_json_bytes(value):
+    # Match state_io.atomic_json exactly, including its trailing newline.
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode('utf-8')
+
+
+def _restore_qualified_publication(previous, attempted):
+    """Undo only this attempt's unchanged bytes; preserve separate edits."""
+    errors = []
+    for path, prior in previous.items():
+        if path not in attempted:
+            continue
+        try:
+            if any(p.is_symlink() for p in (path, *path.parents)):
+                errors.append('preserved changed reporting path: ' + path.name)
+                continue
+            if not path.exists() and prior is None:
+                continue
+            if not path.is_file():
+                errors.append('preserved changed reporting path: ' + path.name)
+                continue
+            current = path.read_bytes()
+            if current == prior:
+                continue  # The failed atomic write never replaced this file.
+            if current != attempted[path]:
+                errors.append('preserved changed reporting path: ' + path.name)
+                continue
+            if prior is None:
+                path.unlink()
+            else:
+                _write_qualified_bytes(path, prior)
+        except (OSError, ValueError) as exc:
+            errors.append(path.name + ': ' + str(exc))
+    return errors
+
+
+def qualified_delivery(rundir, *, completion_request=None, claim_package=None):
+    """Serialize reporting before observing its sources, never grant authority."""
+    from .state_io import file_lock
+    root = Path(rundir).absolute()
+    # Validate the ordinary root before creating any output or lock file.
+    inputs = _Inputs(root)
+    inputs.close()
+    folder = root / 'outputs/completion'
+    if any(p.is_symlink() for p in (folder / 'qualified.lock', folder, *folder.parents)):
+        raise ValueError('ordinary qualified delivery output paths required')
+    folder.mkdir(parents=True, exist_ok=True)
+    with file_lock(folder / 'qualified.lock'):
+        return _qualified_delivery_locked(root, completion_request=completion_request, claim_package=claim_package)
+
+
+def _qualified_delivery_locked(rundir, *, completion_request=None, claim_package=None):
+    """Write an honest bounded ending without passing any delivery/compute gate.
+
+    An optional completion request supplies already reviewed contributions through
+    the ordinary evaluator. Without it, every original obligation remains blocked.
+    A supplied claim package uses the existing final disposition validator and
+    withdraws its planned claims; this fallback never establishes new claims.
+    """
+    from . import physics_review, scientific_autonomy, finding_routing, manuscript_claim_disposition
+    from . import execution, state_io
+    root = Path(rundir).absolute(); inputs = _Inputs(root)
+    try:
+        session = inputs.review_session(root)
+        review = physics_review.status(root, _session=session)
+        if review['state'] == 'invalid':
+            raise ValueError('qualified delivery requires intact review custody: ' + '; '.join(review['errors']))
+        registration, _ = physics_review._read(root, _session=session)
+        # Reporting a terminal state is allowed; changing the approved original
+        # request or its policy while retaining that journal is not.
+        physics_review._base_live(root, registration, _session=session)
+        if not (review['waiting_for_human'] or review['limitation_candidates']):
+            raise ValueError('qualified delivery requires exhausted bounds or an escalated review')
+        contract_path = root / 'inputs/task_contract.json'
+        if not contract_path.is_file():
+            from . import science
+            spec = inputs.document(inputs.capture(root / science.SPEC))
+            binding = spec.get('goal_binding')
+            if type(binding) is not dict or 'contract' not in binding:
+                raise ValueError('qualified delivery requires the original obligation contract')
+            contract_pin = binding['contract']
+        else:
+            contract_pin = inputs.capture(contract_path)
+        contract, req, effective, changes = _contract(contract_pin, inputs)
+        _, document = scientific_autonomy.observed_run_document(root)
+        delegation = scientific_autonomy.declaration(document, root) if document else None
+        if delegation:
+            for path in scientific_autonomy.input_paths(document, root):
+                inputs.capture(path)
+        revoked = root / scientific_autonomy.REVOCATION
+        delegation_status = 'absent' if delegation is None else 'recorded'
+        if delegation is not None and revoked.exists():
+            inputs.capture(revoked)
+            delegation_status = 'revoked'
+        evaluation = None
+        if completion_request is not None:
+            request = inputs.document(completion_request)
+            if inputs.canonical(request['contract']) != inputs.canonical(contract_pin):
+                raise ValueError('qualified delivery cannot substitute the original contract')
+            evaluation = _evaluate(completion_request, inputs, _finish=False)
+        census = {r['id']: r for r in evaluation['obligation_census']} if evaluation else {}
+        findings = deepcopy(review['unresolved_findings'])
+        for row in review['limitation_census']:
+            if row['finding'] not in findings:
+                findings.append(deepcopy(row['finding']))
+        reason = (review['waiting_for_human'] or {}).get('reason', 'Repeated redos made no evidenced progress.')
+        obligations = []
+        for original in req['obligations']:
+            item = census.get(original['id'], {})
+            contributions = item.get('contributions', [])
+            complete = [c for c in contributions if c['child_accepted'] and c['addresses_complete_criteria']
+                        and item.get('state') == 'addressed']
+            states = {c['state'] for c in complete}
+            state = ('satisfied' if states == {'satisfied'} else 'negative' if states == {'negative'} else
+                     'partial' if any(c['child_accepted'] and c['state'] in ('satisfied', 'negative', 'partial')
+                                      for c in contributions) else 'blocked')
+            if effective[original['id']].get('withdrawn'):
+                state = 'blocked'
+            obligations.append({'obligation_id': original['id'], 'original': deepcopy(original),
+                'state': state, 'contributions': deepcopy(contributions),
+                'boundary_reason': reason if state in ('blocked', 'partial') else
+                    'Only the existing accepted contribution and its exact scope are reported; no new acceptance.'})
+        dispositions = []
+        for row in finding_routing.limitation_census(findings):
+            existing = next((r for r in dispositions if r['planned_claim_id'] == row['claim_id']), None)
+            if existing:
+                if row['bound'] not in existing['reason']:
+                    existing['reason'] += '; ' + row['bound']
+            else:
+                dispositions.append({'planned_claim_id': row['claim_id'], 'disposition': 'withdrawn',
+                                     'reason': reason + ' ' + row['bound']})
+        claim_prose = None
+        if claim_package is not None:
+            package = inputs.document(claim_package)
+            ce.keys(package, ('plan', 'rows', 'value', 'evidence'))
+            if any(r.get('disposition') != 'withdrawn' for r in package['rows']):
+                raise ValueError('an exhausted-run fallback can only withdraw supplied planned claims')
+            dispositions = manuscript_claim_disposition.validate(package['plan'], package['rows'],
+                package['value'], package['evidence'], final=True, review_findings=findings)
+            claim_prose = package['value']
+        finding_routing.require_dispositions(findings, dispositions)
+        result = {'schema_version': 1, 'kind': 'qualified-task-delivery', 'rundir': str(root),
+            'label': 'machine-produced under delegation' if delegation_status == 'recorded' else 'machine-produced status summary',
+            'delegation_status': delegation_status,
+            'contract': inputs.canonical(contract_pin), 'original_request': contract['prompt'],
+            'obligations': obligations, 'scope_changes': changes, 'unresolved_findings': findings,
+            'limitation_candidates': review['limitation_candidates'], 'claim_dispositions': dispositions,
+            'claim_prose': claim_prose, 'scientific_claims_adopted': [],
+            'review_state': review['state'], 'waiting_for_human': review['waiting_for_human'],
+            'parent_task_accepted': False, 'execution_authorized': False,
+            'authority_origin_authenticated': False, 'semantic_entailment_verified': False}
+        # Retain consumed pins; the one-shot custody sessions are finished only
+        # immediately before publishing the final report, after intermediate writes.
+        result['input_pins'] = list(inputs.pins.values())
+        identity = execution.digest(result)
+        folder = root / 'outputs/completion'
+        deviation = root / 'DEVIATIONS.md'
+        targets = [deviation, folder / 'qualified-delivery.json', folder / 'qualified-boundary.json']
+        for target in targets:
+            if any(p.is_symlink() for p in (target, *target.parents)):
+                raise ValueError('ordinary qualified delivery output paths required')
+        previous = {target: target.read_bytes() if target.exists() else None
+                    for target in (deviation, folder / 'qualified-boundary.json', folder / 'qualified-delivery.json')}
+        attempted = {}
+        prior = previous[deviation].decode('utf-8') if previous[deviation] is not None else '# Deviations\n'
+        try:
+            marker = 'qualified-delivery:' + identity
+            if marker not in prior:
+                entry = '\n\n## Qualified delivery boundary\n\n' + marker + '\n\n' + reason + '\n\n'
+                entry += '\n'.join('- ' + r['obligation_id'] + ': ' + r['state'] + '. ' + r['boundary_reason'] for r in obligations)
+                entry += '\n\nMachine-produced; no new scientific acceptance or execution authorization.\n'
+                attempted[deviation] = (prior + entry).encode('utf-8')
+                _write_qualified_deviation(deviation, prior + entry)
+            deviation_pin = {'path': str(deviation), 'sha256': execution.file_hash(deviation), 'size': deviation.stat().st_size}
+            boundary = {'schema_version': 1, 'kind': 'task-boundary', 'delivery_sha256': identity,
+                        'reason': reason, 'deviation': deviation_pin,
+                        'obligations': [{'obligation_id': r['obligation_id'], 'state': r['state'],
+                                         'reason': r['boundary_reason']} for r in obligations],
+                        'execution_authorized': False}
+            boundary_path = folder / 'qualified-boundary.json'
+            attempted[boundary_path] = _qualified_json_bytes(boundary)
+            state_io.atomic_json(boundary_path, boundary)
+            boundary_pin = {'path': str(boundary_path), 'sha256': execution.file_hash(boundary_path),
+                            'size': boundary_path.stat().st_size}
+            for index, row in enumerate(result['obligations']):
+                row['boundary'] = {'artifact': boundary_pin, 'location': '$.obligations[' + str(index) + ']'}
+                row['deviation'] = deviation_pin
+            result['deviation'] = deviation_pin
+            # Intermediate publication can run injected or external writers. Recheck
+            # every captured source immediately before publishing the final report.
+            inputs.finish()
+            delivery_path = folder / 'qualified-delivery.json'
+            attempted[delivery_path] = _qualified_json_bytes(result)
+            state_io.atomic_json(delivery_path, result)
+        except Exception as exc:
+            repairs = _restore_qualified_publication(previous, attempted)
+            if repairs:
+                raise ValueError(str(exc) + '; reporting repair incomplete: ' + '; '.join(repairs)) from exc
+            raise
+        return result
+    finally:
+        inputs.close()
+
+
 def main(argv=None):
     """Read-only public projection; it never approves or executes a study."""
     import argparse
     import sys
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == 'qualified':
+        parser = argparse.ArgumentParser(prog='ravel task-completion qualified')
+        parser.add_argument('--rundir', type=Path, required=True)
+        parser.add_argument('--request', type=Path)
+        parser.add_argument('--claim-package', type=Path)
+        args = parser.parse_args(argv[1:])
+        try:
+            with_inputs = _Inputs(args.rundir)
+            try:
+                request = with_inputs.capture(args.request.absolute()) if args.request else None
+                claims = with_inputs.capture(args.claim_package.absolute()) if args.claim_package else None
+            finally:
+                with_inputs.close()
+            result = qualified_delivery(args.rundir, completion_request=request, claim_package=claims)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            parser.exit(1, str(exc) + '\n')
+        print(json.dumps(result, sort_keys=True, indent=2, allow_nan=False))
+        return 0
     if argv and argv[0] == 'compose':
         parser = argparse.ArgumentParser(prog='ravel task-completion compose')
         parser.add_argument('--rundir', type=Path, required=True)

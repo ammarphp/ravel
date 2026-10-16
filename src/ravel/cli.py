@@ -173,6 +173,7 @@ def parser() -> argparse.ArgumentParser:
     status = sub.add_parser("status", help="derive a compact current-state packet from live artifacts")
     status.add_argument("--rundir", type=Path, required=True)
     status.add_argument("--write", action="store_true", help="also refresh current_state.json")
+    status.add_argument("--notification-command", type=json.loads, help="Optional JSON argv for wait notifications; receives only run path and one-line reason")
     status.add_argument("--retained-study", action="store_true", help="inspect an immutable initial study using its original commitments and the current review reader; never grants computation")
     plan = sub.add_parser("plan", help="prepare a concrete scoped or supplied-data scientific CHECK-IN 1; no compute")
     plan.add_argument("--rundir", type=Path, required=True)
@@ -646,20 +647,40 @@ def _initiate(args) -> int:
 
 
 def _status(args) -> int:
-    if getattr(args, 'retained_study', False):
+    retained = getattr(args, 'retained_study', False)
+    command = getattr(args, 'notification_command', None)
+    if retained:
+        if command is not None:
+            raise ValueError('wait notifications require an active review run')
         from .workflow.retained_science_review import packet
         result = packet(args.rundir, write=args.write)
-        print(json.dumps(result, indent=2, allow_nan=False))
-        return 1 if result['execution']['status'] in ('invalid', 'failed') else 0
-    if (args.rundir / "inputs/science-plan.json").exists():
+        failures = ('invalid', 'failed')
+    elif (args.rundir / "inputs/science-plan.json").exists():
         from .workflow.science import packet
         result = packet(args.rundir, write=args.write)
-        print(json.dumps(result, indent=2, allow_nan=False))
-        return 1 if result["execution"]["status"] in ("invalid", "failed") else 0
-    from .workflow.current_state import build_packet, write_packet
-    packet = (write_packet if args.write else build_packet)(args.rundir)
-    print(json.dumps(packet, indent=2, allow_nan=False))
-    return 0 if packet["execution"]["status"] != "invalid" else 1
+        failures = ('invalid', 'failed')
+    else:
+        from .workflow.current_state import build_packet, write_packet
+        result = (write_packet if args.write else build_packet)(args.rundir)
+        failures = ('invalid',)
+    if not retained:
+        from .workflow import physics_review, scientific_autonomy
+        if physics_review.registered(args.rundir):
+            review = result.get('physics_review') or physics_review.status(args.rundir)
+            result['physics_review'] = review
+            waiting = review.get('waiting_for_human')
+            if waiting:
+                result['waiting_for_human'] = waiting
+                result['next_required'] = waiting['message']
+            if command is not None:
+                result['notification'] = scientific_autonomy.notify_waiting(args.rundir, command=command)
+            if args.write:
+                from .workflow.state_io import atomic_json
+                atomic_json(args.rundir / 'current_state.json', result)
+        elif command is not None:
+            raise ValueError('wait notifications require an active registered review')
+    print(json.dumps(result, indent=2, allow_nan=False))
+    return 1 if result["execution"]["status"] in failures else 0
 
 
 def _validate(args) -> int:

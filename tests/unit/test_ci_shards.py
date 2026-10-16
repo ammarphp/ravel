@@ -2,6 +2,8 @@
 import importlib.util
 from pathlib import Path
 import re
+import shlex
+import subprocess
 
 import pytest
 
@@ -54,6 +56,7 @@ def test_each_long_file_runs_in_its_own_job_with_a_bounded_file_time():
     assert file_seconds + 20 * 60 <= limit * 60      # the file stops, and reports, before the job limit
     assert 'fail-fast: false' in job and 'sandbox.probe(' in job
     assert 'python -m pip install --require-hashes -r requirements-replay.lock' in job
+    assert_complete_profile_install(job)
     assert 'bash scripts/maintenance/install-git-hooks.sh' in job
     for index in range(8):
         assert not set(ci_shards.LONG) & set(ci_shards.selected(index=index, count=8))
@@ -82,11 +85,31 @@ def test_each_shard_job_runs_isolated_files_with_a_time_limit_and_the_install_st
     file_seconds = int(re.search(r'--count 8 --run --file-timeout (\d+)', job).group(1))
     assert file_seconds + 20 * 60 <= 150 * 60
     assert 'python -m pip install --require-hashes -r requirements-replay.lock' in job
-    assert 'python -m pip install -c "$RUNNER_TEMP/replay-constraints.txt" -e .' in job
+    assert_complete_profile_install(job)
     assert 'sudo apt-get install -y bubblewrap' in job
     assert 'sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0' in job
     assert 'sandbox.probe(' in job
     assert 'bash scripts/maintenance/install-git-hooks.sh' in job
+
+
+def assert_complete_profile_install(job):
+    """The full profile installs the checkout; no second package build is needed."""
+    assert 'python -m pip freeze > "$RUNNER_TEMP/replay-constraints.txt"' in job
+    assert job.count('python -m pip install -c "$RUNNER_TEMP/replay-constraints.txt" -r "$RUNNER_TEMP/requirements-ci.txt"') == 1
+    requirements = (ROOT / 'requirements-full.txt').read_bytes()
+    assert requirements.splitlines().count(b'.') == 1
+    projection = [line.strip() for line in job.splitlines() if 'sed ' in line]
+    assert len(projection) == 1
+    command, destination = projection[0].split(' > ')
+    assert destination == '"$RUNNER_TEMP/requirements-ci.txt"'
+    projected = subprocess.run(shlex.split(command), cwd=ROOT, capture_output=True, check=True).stdout
+    # Execute CI's actual projection: every other requirement and comment stays
+    # byte-identical, and isolated workers retain their source installation.
+    assert projected == requirements.replace(b'\n.\n', b'\n-e .\n')
+    assert projected.splitlines().count(b'-e .') == 1
+    installs = [line.strip() for line in job.splitlines() if 'python -m pip install ' in line]
+    assert len(installs) == 2  # locked statistics layer, then complete profile and editable package
+    assert 'python -m pip check' in job
 
 
 @pytest.mark.parametrize('index,count', [(-1, 8), (8, 8), (0, 0), (1, 1)])

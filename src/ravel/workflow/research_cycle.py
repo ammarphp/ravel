@@ -1619,13 +1619,18 @@ def select(root, *, allocation=None):
     ranked = gate_wiring.prioritize_pending(root, ordinary_order)
     if ranked and any(event['effect'] == 'priority' for event in gate_wiring.steering_records(root)):
         chosen = ranked[0]
+    bound = research_protocol._bound(state)
     if _load(root)[1]["sha256"] != state["sha256"]:
         raise ValueError("research state changed during selection")
-    return {"kind": "research_experiment_selection", "state_sha256": state["sha256"], "selected": None if chosen is None else chosen["id"],
+    result = {"kind": "research_experiment_selection", "state_sha256": state["sha256"], "selected": None if chosen is None else chosen["id"],
             "designs": rows, "usage_ceiling": usage, "exploration_due": exploration,
             "policy": "ordinary eligibility and periodic exploration first; one explicit comparable committed quantitative objective when supplied, otherwise distinct declared categorical pairs; then smaller declared cost and stable ID; no posterior or causal estimate",
             "phase_allocation": policy, "parent_task": deepcopy(state.get("parent_task")),
             "parent_task_accepted": False, "execution_authorized": False, "physics_validated": False}
+    if bound is not None and bound[0].get('objectives'):
+        result['declared_objectives'] = deepcopy(bound[0]['objectives'])
+        result['objective_ranking_applied'] = False
+    return result
 
 
 

@@ -307,6 +307,31 @@ def test_nearest_mass_point_is_diagnostic_only_in_acceptance(tmp_path, monkeypat
     assert "different published mass point" in result["fail_reason"]
 
 
+def test_cutflow_json_name_replaces_only_the_report_suffix(tmp_path, monkeypatch):
+    directory = tmp_path / "rv.md-fixture"
+    directory.mkdir()
+    result = _cutflow_main(directory, monkeypatch, {"SR": 100}, {"SR": 0.1},
+                           extra=("--driving-sr-override", "SR"))
+    assert result["rows"][0]["ratio"] == 1
+    assert sorted(path.name for path in directory.iterdir()) == ["cert.json", "cert.md"]
+
+
+def test_acceptance_json_name_replaces_only_the_report_suffix(tmp_path, monkeypatch):
+    directory = tmp_path / "rv.md-fixture"
+    directory.mkdir()
+    path = directory / "acceptance.json"
+    path.write_text('{"SR_S": {"acceptance": 0.1, "events": 100}}')
+    monkeypatch.setattr(acceptance, "published_acceff", lambda *_a, **_kw:
+                        (0.1, "grid node (m_parent=100, split=10)", False))
+    out = directory / "cert.md"
+    monkeypatch.setattr(sys, "argv", ["certify_acceptance", "--acceptance", str(path),
+        "--tables-dir", str(directory), "--grid", "slepton", "--m-parent", "100", "--dm", "10",
+        "--srs", "SR_S", "--out", str(out), "--diagnostic"])
+    acceptance.main()
+    assert json.loads(out.with_suffix(".json").read_text())["rows"][0]["ratio"] == 1
+    assert sorted(item.name for item in directory.iterdir()) == ["acceptance.json", "cert.json", "cert.md"]
+
+
 def test_exact_inverse_signal_shift_is_separate_from_acceptance_proxy(tmp_path, monkeypatch):
     result = _cutflow_main(tmp_path, monkeypatch, {"SR": 50}, {"SR": 0.1},
                            extra=("--driving-sr-override", "SR"))

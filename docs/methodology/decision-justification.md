@@ -64,8 +64,12 @@ this action be taken?* Each answer becomes a child node, and code then asks of i
 For each edge the reviewer is shown the exact question *Why does "child" establish "parent"?*, or *Why was this
 action chosen over "alternative"?* The tree grows until every branch closes.
 
-**When a branch closes.** A leaf closes when it holds a verified external anchor at the required depth, with
-three exceptions. At R0 and R1 an invariant alone cannot ground a leaf. A path with a hop the edge reviewer
+**When a branch closes.** A node can declare typed `evidence_obligations`: required anchor kinds.
+A branch can close at any depth when externally verified evidence of each kind supports its obligated node.
+Low confidence or weak support requires additional distinct evidence sources. Identical content counts once
+even under different paths, receipts or retrieval routes; distinct bytes alone do not prove scientific
+independence. A conflict stays held until resolved. The class maximum depth remains an upper bound. Without typed obligations, a leaf closes when it
+holds a verified external anchor at the required depth, with three exceptions. At R0 and R1 an invariant alone cannot ground a leaf. A path with a hop the edge reviewer
 judged *generated_only* stays open. At R3 the path needs a tool-output or measurement anchor. The
 required depth is the class minimum plus one for each sign of weakness on the path: a low-confidence node, two
 anchors that report different values for the same quantity, a partial *entailment* (the child establishes part
@@ -80,7 +84,7 @@ question on a node holds its branch until a queued evidence item answers it with
 | Input artifact | The input snapshot taken in custody at run start and at CHECK-IN 1. |
 | User requirement | A character span of the recorded request, CHECK-IN 1 response or steering text that matches the quoted text exactly. |
 | Invariant | An entry of the shipped invariant registry, for example "an exclusion is never reported as a discovery" or "no event generation before CHECK-IN 1 approval". |
-| Retrieved document, external fact | An external fact bound to a reference-data record is checked as an input artifact. A retrieval receipt stays *generated* until the acquisition ledger can verify it. |
+| Retrieved document, external fact | An external fact bound to a reference-data record is checked as an input artifact. A retrieved excerpt must match the exact content and byte span authenticated by the acquisition ledger. |
 
 Files an agent wrote, board posts, RDJ's own records and review verdicts are *generated*: they can be cited but
 never close a branch. An anchor that points at the action's own bytes, or at the output of the stage that produced
@@ -89,9 +93,12 @@ proposer typed. At R3 and at the delivery gates, two unrelated claims that rest 
 as a common-mode dependence.
 
 **Authoritative-practice grounding.** At R2 and above, a claim that recommends an analysis choice (a cut, a
-method, a tolerance) needs an *authoritative-practice anchor* in its support: your recorded words, or a registry
-invariant marked as practice. Without one the claim stays *exploratory*, and the case is not authorized while it
-remains.
+method, a tolerance) needs an *authoritative-practice anchor* in its support: your recorded words, a registry
+invariant marked as practice, or acquired content whose source type is joined to an independently supplied,
+pinned scientific-reference descriptor. An arbitrary citation cannot establish this authority.
+Without one the claim stays *exploratory*. An explicit bounded exploration contract for broker operations can authorize
+selection of that research choice with the same class reviews, while denying scientific acceptance and
+execution. It cannot authorize launch, promotion or delivery; those retain their own gates.
 
 ## The review loop
 
@@ -220,3 +227,27 @@ verification), `rdj_custody` (ledgers), `decision_case` (schema, Merkle digests,
 
 See also the [RAVEL glossary](../reference/glossary.md), the [agent architecture](agent-architecture.md) and
 the [research loop](research-loop.md).
+
+## Economy and retained refusals
+
+Same-gate reuse checks the current action and evidence again without another model call.
+Supplied pins must match the accepted subjects, including their paths; identical bytes
+at a different path do not transfer acceptance. An explicitly changed route requires
+review even when its risk class cannot increase further.
+Cross-gate reuse requires a supplied scope that every original reviewer saw, identical effective
+review obligations and unchanged evidence, regime, input, policy and card digests. It creates a
+new gate-specific receipt with source lineage and preserves current execution and human checks.
+Changed inputs require fresh review. Absolute cost, declared budget fraction, irreversibility and
+scientific consequence are recorded separately. The current positive-spend risk floor is
+unchanged; a declared budget fraction is not authenticated budget authority, and its risk
+threshold remains unset.
+
+The advisory investigation graph offers an opt-in investigator/consultation/boundary-reviewer
+team policy. Mandatory gate reviewers remain separate. This permits a scheduling ablation
+without changing the default or removing a scientific refusal. See the
+[judgment checklist](../workflow/checklists/judgment-protocols.md) for progress histories,
+qualified endings, notification configuration and the executable contracts.
+Reaching the two-unchanged-redo bound produces the same qualified report as numerical
+budget exhaustion without changing the decider route. Executable review credit uses
+the latest exact-subject check; a failed later attempt or broken worker custody cannot
+retain credit from an earlier successful check.

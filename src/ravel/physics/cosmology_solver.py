@@ -476,6 +476,15 @@ def _delegated(rd,path,out):
     if Path(path).resolve()!=original:raise ValueError('native scientific input differs from exact approved ordinary task')
     return rd
 
+def _optional_import(module):
+    try:
+        return importlib.import_module(module)
+    except ImportError as error:
+        raise ImportError(
+            'Cosmology runtime import failed for '+module+
+            '; install ravel-hep[cosmology] and verify its dependencies in the selected runtime.'
+        ) from error
+
 def native_worker(path,out,rd):
     if sys.flags.optimize:raise ValueError('optimized runtime not admitted')
     _delegated(rd,path,out)
@@ -486,9 +495,9 @@ def native_worker(path,out,rd):
     sys.path[1:1]=m['site_roots']
     modules={}
     for name in ENGINES[d['engine']]:
-        modules[name]=importlib.import_module(MODULES[name])
+        modules[name]=_optional_import(MODULES[name])
         if str(getattr(modules[name],'__version__','')).lstrip('v')!=VERSIONS[name]:raise ValueError('loaded official engine version differs')
-    api=importlib.import_module('cobaya.model') if d['engine']=='cobaya' else modules if d['engine']=='camb+class' else modules[d['engine']]
+    api=_optional_import('cobaya.model') if d['engine']=='cobaya' else modules if d['engine']=='camb+class' else modules[d['engine']]
     imported_before=loaded_modules(d,m,path.parent)
     out=Path(out)
     atomic_json(out/'loaded-before.json',imported_before)

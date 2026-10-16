@@ -323,8 +323,18 @@ def test_command_output_flood_is_bounded_and_killed():
     assert time.monotonic() - before < 3 and failure.value.ambiguous is True
 
 
-def test_command_cancellation_terminates_owned_group(tmp_path):
+@pytest.mark.parametrize("empty_reads", [0, 1])
+def test_command_cancellation_terminates_owned_group(tmp_path, monkeypatch, empty_reads):
     marker = tmp_path / "pid.txt"
+    real_read_text = Path.read_text
+    pending_empty_reads = empty_reads
+    def read_text(path, *args, **kwargs):
+        nonlocal pending_empty_reads
+        if path == marker and pending_empty_reads:
+            pending_empty_reads -= 1
+            return ""  # The child has created the file but has not written its PID yet.
+        return real_read_text(path, *args, **kwargs)
+    monkeypatch.setattr(Path, "read_text", read_text)
     code = "import os,time,pathlib; pathlib.Path(" + repr(str(marker)) + ").write_text(str(os.getpid())); time.sleep(10)"
     adapter = host.AgentHost(adapter="command", command=[sys.executable, "-c", code], timeout_seconds=2)
     n = node(action="command"); control = Control(); captured = []
@@ -334,12 +344,22 @@ def test_command_cancellation_terminates_owned_group(tmp_path):
         except host.HostFailure as exc:
             captured.append(exc)
     thread = threading.Thread(target=execute); thread.start()
-    deadline = time.monotonic() + 2
-    while not marker.exists() and time.monotonic() < deadline:
-        time.sleep(.01)
-    assert marker.exists()
-    pid = int(marker.read_text()); control.cancel.set(); thread.join(timeout=3)
+    try:
+        deadline = time.monotonic() + 2
+        pid_text = ""
+        while time.monotonic() < deadline:
+            if marker.exists():
+                pid_text = marker.read_text()
+                if pid_text:
+                    break
+            time.sleep(.01)
+        assert pid_text, "command did not publish its PID before cancellation"
+        pid = int(pid_text)
+    finally:
+        control.cancel.set()
+        thread.join(timeout=3)
     assert not thread.is_alive() and captured[0].ambiguous is True
+    assert "canceled" in str(captured[0])
     assert execution.process_identity(pid) is None
     assert not control.saved
 

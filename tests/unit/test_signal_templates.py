@@ -272,6 +272,41 @@ def test_invalid_templates_refused(tmp_path, fault, match):
     with pytest.raises(ValueError, match=match): templates.build_signal_template(source, template)
 
 
+@pytest.mark.parametrize('path,label', [
+    ((), 'signal template'),
+    (('channels', 0), 'template channel'),
+    (('channels', 0, 'samples', 0), 'template sample'),
+    (('channels', 0, 'samples', 0, 'provenance'), 'template provenance'),
+    (('channels', 0, 'samples', 0, 'mc_stat'), 'MC-stat treatment'),
+])
+def test_closed_template_objects_keep_located_refusals(tmp_path, path, label):
+    source, _ = fixture(tmp_path)
+    template = supplied(source, tmp_path)
+    target = template
+    for key in path:
+        target = target[key]
+    target['unexpected'] = True
+    with pytest.raises(ValueError, match=label + ' requires exactly') as caught:
+        templates.validate_template(template)
+    assert caught.value.field == label
+    assert caught.value.observed  # bounded rendering: large objects are truncated
+    assert 'exactly fields' in caught.value.expected
+    assert caught.value.repair
+
+
+@pytest.mark.parametrize('value', [True, '1', 0, -1, math.nan, math.inf, 10**400])
+def test_normalization_anchor_errors_are_finite_and_located(tmp_path, value):
+    source, _ = fixture(tmp_path)
+    template = supplied(source, tmp_path)
+    next(m for m in template['channels'][0]['samples'][0]['modifiers']
+         if m['type'] == 'normsys')['data']['hi'] = value
+    with pytest.raises(ValueError, match='normsys anchors must be finite positive factors') as caught:
+        templates.build_signal_template(source, template)
+    assert caught.value.field == 'normsys.hi'
+    assert caught.value.expected == 'finite positive factor'
+    assert caught.value.repair
+
+
 def test_absent_source_channel_is_unknown_not_zero(tmp_path):
     source, _ = fixture(tmp_path, omitted_cr=True)
     template = templates.identity_template(source, "absent-is-not-zero")

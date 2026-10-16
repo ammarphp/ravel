@@ -97,9 +97,14 @@ _SLOT = _obj({'slot': TEXT, 'kind': KIND, 'cardinality': {'type': 'string', 'pat
 _ADD = _obj({'element': _enum(BASES[:-1]), 'origin': _enum(SELECTION_ORIGINS), 'origin_from': TEXT,
              'level': _enum(EVENT_LEVELS), 'level_from': TEXT, 'form': TEXT, 'what': TEXT,
              'from': _enum(ANALYTIC_FROM), 'when': {'type': 'object'}}, required=('element',))
+from ravel.workflow.operation_registration import REGISTRATION_SCHEMA
+
 SIGNATURE_SCHEMA = _obj({
-    'summary': TEXT,
-    'implementation': _obj({'kind': _enum(SIGNATURE_IMPLEMENTATIONS), 'mode': TEXT, 'module': TEXT, 'stage': TEXT},
+    'summary': TEXT, 'registration': REGISTRATION_SCHEMA,
+    'implementation': _obj({'kind': _enum(SIGNATURE_IMPLEMENTATIONS), 'mode': TEXT, 'module': TEXT, 'stage': TEXT,
+                           'dispatch_group': _enum(('event-inference-chain',)),
+                           'dispatch_position': {'type': 'integer', 'minimum': 0}, 'dispatch_before': TEXT,
+                           'presentation': {'type': 'string', 'pattern': '^[a-z][a-z0-9_]*$'}},
                            required=('kind',)),
     'consumes': _array(_SLOT), 'produces': _array(_SLOT), 'effects': _array(_enum(EFFECTS)),
     'cost': _obj({'unit': TEXT, 'forecast': _nullable(TEXT), 'ceiling_pointer': _nullable(TEXT)}),
@@ -148,6 +153,8 @@ def _checked_signatures():
     errors = _schema_errors(document, SIGNATURES_SCHEMA, 'signatures')
     if errors:
         raise ValueError('operation signatures are invalid: ' + '; '.join(errors[:5]))
+    from ravel.workflow.operation_registration import registered_rows
+    registered_rows(document['operations'])
     return document['operations']
 
 

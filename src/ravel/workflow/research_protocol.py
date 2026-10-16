@@ -890,6 +890,8 @@ def _ids(rows, limit, label):
         raise ValueError("bounded complete " + label + " required")
     out = {}
     for row in rows:
+        if type(row) is not dict or 'id' not in row:
+            raise ValueError('identified object required in ' + label)
         ce.identity(row["id"])
         if row["id"] in out: raise ValueError("duplicate " + label)
         out[row["id"]] = row
@@ -907,8 +909,130 @@ def _pins(pins, base):
     return found
 
 
+def _objectives(protocol):
+    """Validate opt-in conclusions against the retained evaluation denominator."""
+    rows = protocol.get('objectives', [])
+    if type(rows) is not list or len(rows) > 32:
+        raise ValueError('bounded objective census required')
+    objectives = _ids(rows, 32, 'objective census') if rows else {}
+    cells = {r['id']: r for r in protocol['cells']}
+    stages = {r['id']: r for r in protocol['stages']}
+    comps = {r['id']: r for r in protocol['comparisons']}
+    for row in rows:
+        ce.keys(row, ('id', 'kind', 'scope', 'cell_ids', 'requirements'))
+        if row['kind'] not in {'regional_improvement', 'uniform_improvement', 'cost_accuracy', 'complementary_portfolio'}:
+            raise ValueError('declared conclusion kind required')
+        _cycle()._text(row['scope'])
+        _list_ids(row['cell_ids'], cells, empty=False)
+        if type(row['requirements']) is not list or not 1 <= len(row['requirements']) <= 32:
+            raise ValueError('bounded objective comparison requirements required')
+        covered = set(); members = set(); axes = set(); assignments = set(); stage_cells = set(); axis_metrics = {}
+        for requirement in row['requirements']:
+            ce.keys(requirement, ('comparison_id', 'cell_ids', 'preferred_candidate', 'allowed_decisions', 'axis'))
+            if requirement['comparison_id'] not in comps:
+                raise ValueError('objective requires a declared comparison')
+            comp = comps[requirement['comparison_id']]
+            operands = [stages[comp[k]] for k in ('left_stage', 'right_stage')]
+            if any(s['purpose'] not in {'full', 'baseline'} for s in operands):
+                raise ValueError('objectives require full evaluation operands')
+            ids = {r['cell_id'] for r in operands[0]['cells']}
+            _list_ids(requirement['cell_ids'], ids, empty=False)
+            if any(cells[i]['exposure'] != 'adaptive_full' for i in requirement['cell_ids']):
+                raise ValueError('objective cannot use screening or withheld selection cells')
+            if requirement['preferred_candidate'] not in {s['candidate'] for s in operands} or len({s['candidate'] for s in operands}) != 2:
+                raise ValueError('objective requires distinct declared candidate operands')
+            _list_ids(requirement['allowed_decisions'], {'better', 'equivalent', 'worse'}, empty=False)
+            if requirement['axis'] not in {'performance', 'cost', 'accuracy'}:
+                raise ValueError('explicit objective axis required')
+            if row['kind'] != 'cost_accuracy' and (requirement['axis'] != 'performance' or
+                    set(requirement['allowed_decisions']) - {'better', 'equivalent'}):
+                raise ValueError('improvement requires nonworsening performance in every named cell')
+            for cid in requirement['cell_ids']:
+                key = (requirement['comparison_id'], cid)
+                if key in assignments:
+                    raise ValueError('duplicate objective comparison cell')
+                assignments.add(key)
+                stage_cells.update((s['id'], cid) for s in operands)
+                axis_metrics.setdefault(requirement['axis'], set()).add((cells[cid]['metric'], cells[cid]['unit']))
+            covered.update(requirement['cell_ids']); members.add(requirement['preferred_candidate'])
+            axes.add(requirement['axis'])
+        if covered != set(row['cell_ids']):
+            raise ValueError('objective scope must equal its exact required cell coverage')
+        if row['kind'] == 'complementary_portfolio':
+            if len(members) < 2 or sum(len(r['cell_ids']) for r in row['requirements']) != len(covered):
+                raise ValueError('portfolio requires distinct members assigned to separate regions')
+        elif len(members) != 1:
+            raise ValueError('one preferred candidate required for a single-candidate objective')
+        if row['kind'] == 'cost_accuracy' and axes != {'cost', 'accuracy'}:
+            raise ValueError('cost_accuracy requires separate cost and accuracy axes')
+        if row['kind'] == 'cost_accuracy' and axis_metrics['cost'] & axis_metrics['accuracy']:
+            raise ValueError('cost and accuracy require distinct supplied metrics')
+        if row['kind'] == 'uniform_improvement':
+            participants = {stages[comps[r['comparison_id']][k]]['candidate']
+                            for r in row['requirements'] for k in ('left_stage', 'right_stage')}
+            denominator = {(s['id'], r['cell_id']) for s in stages.values()
+                           if s['purpose'] == 'full' and s['candidate'] in participants for r in s['cells']}
+            if not denominator or denominator - stage_cells:
+                raise ValueError('uniform improvement requires every full stage cell of both operands')
+    return objectives
+
+
+def objective_conclusions(protocol, measured):
+    """Typed, exact-scope conclusions from current accepted cell decisions only.
+
+    These records neither combine member likelihoods nor authorize scientific
+    claims. Missing evidence remains in the declared region and axis census.
+    """
+    objectives = _objectives(protocol)
+    stages = {r['id']: r for r in protocol['stages']}
+    comps = {r['id']: r for r in protocol['comparisons']}
+    conclusions = []
+    for objective in objectives.values():
+        evidence = []; decisions = []; complete = True; satisfied = True
+        for requirement in objective['requirements']:
+            comp = comps[requirement['comparison_id']]
+            current = measured.get(comp['id'], {})
+            reverse = stages[comp['left_stage']]['candidate'] != requirement['preferred_candidate']
+            by_cell = {r['cell_id']: r for r in current.get('cell_decisions', [])}
+            for cid in requirement['cell_ids']:
+                observed = by_cell.get(cid, {})
+                decision = observed.get('decision', 'unknown') if current.get('status') == 'accepted_current' else 'unknown'
+                gain = observed.get('gain_interval') if current.get('status') == 'accepted_current' else None
+                if reverse and gain is not None: gain = [-gain[1], -gain[0]]
+                if reverse and gain is not None:
+                    # Better and worse use different thresholds; reversing a
+                    # label would silently bypass the declared minimum gain.
+                    fixed = current['objective_rule']; t = fixed['tolerance']
+                    decision = ('better' if gain[0] > fixed['min_gain'] + t else
+                                'worse' if gain[1] < -t else
+                                'equivalent' if max(abs(x) for x in gain) <= t else 'unknown')
+                complete = complete and decision != 'unknown' and gain is not None
+                satisfied = satisfied and decision in requirement['allowed_decisions']
+                decisions.append(decision)
+                evidence.append({'comparison_id': comp['id'], 'cell_id': cid,
+                    'preferred_candidate': requirement['preferred_candidate'], 'axis': requirement['axis'],
+                    'allowed_decisions': list(requirement['allowed_decisions']),
+                    'decision': decision, 'gain_interval': gain, 'objective': current.get('objective'),
+                    'rule': current.get('objective_rule')})
+        improvement = objective['kind'] == 'cost_accuracy' or 'better' in decisions
+        if objective['kind'] == 'complementary_portfolio':
+            improvement = all(any(r['preferred_candidate'] == candidate and r['decision'] == 'better'
+                                  for r in evidence)
+                              for candidate in {r['preferred_candidate'] for r in objective['requirements']})
+        supported = complete and satisfied and improvement
+        conclusions.append({'id': objective['id'], 'kind': objective['kind'], 'scope': objective['scope'],
+            'cell_ids': list(objective['cell_ids']), 'candidate_ids': sorted({r['preferred_candidate'] for r in objective['requirements']}),
+            'status': 'supported_in_declared_scope' if supported else 'unresolved' if not complete else 'requirements_not_met',
+            'tradeoff_observed': 'better' in decisions and 'worse' in decisions,
+            'evidence': evidence, 'claim_authorized': False, 'extrapolation_authorized': False,
+            'combination_authorized': False})
+    return conclusions
+
+
 def validate(value, *, base_dir, state, check_sources=True, retained_rules=None):
-    ce.keys(value, ("schema_version", "id", "scope", "candidates", "cells", "stages", "comparisons", "claims",
+    if type(value) is not dict:
+        raise ValueError('staged research protocol object required')
+    ce.keys({k: v for k, v in value.items() if k != 'objectives'}, ("schema_version", "id", "scope", "candidates", "cells", "stages", "comparisons", "claims",
                     "required_stage_ids", "required_comparison_ids", "round_limits", "not_applicable", "meta_actors"))
     if type(value["schema_version"]) is not int or value["schema_version"] != 1:
         raise ValueError("staged research protocol/v1 required")
@@ -1055,14 +1179,30 @@ def validate(value, *, base_dir, state, check_sources=True, retained_rules=None)
     if len(experiment_ids) > state["contract"]["max_experiments"]: raise ValueError("protocol exceeds existing experiment ceiling")
     if set(state["contract"]["required_experiments"]) - experiment_ids: raise ValueError("original required experiment denominator must be retained")
     _list_ids(value["required_stage_ids"], stages, empty=False); _list_ids(value["required_comparison_ids"], comparators)
+    objectives = _objectives(value)
+    for objective in objectives.values():
+        for requirement in objective['requirements']:
+            if requirement['axis'] == 'cost':
+                comp = comparators[requirement['comparison_id']]
+                fixed = retained_rules[comp['id']] if retained_rules is not None and comp['id'] in retained_rules else _json(comp['rule'], base_dir)
+                if fixed['direction'] != 'minimize':
+                    raise ValueError('declared cost axis must minimize supplied cost')
     for claim in claims.values():
-        ce.keys(claim, ("id", "statement", "acceptance_criteria", "stage_ids", "comparison_ids", "premise_ids", "report_slot", "replaces"))
+        ce.keys({k: v for k, v in claim.items() if k != 'objective_ids'}, ("id", "statement", "acceptance_criteria", "stage_ids", "comparison_ids", "premise_ids", "report_slot", "replaces"))
+        if 'objective_ids' in claim:
+            _list_ids(claim['objective_ids'], objectives, empty=False)
+            required = {r['comparison_id'] for i in claim['objective_ids'] for r in objectives[i]['requirements']}
+            if required != set(claim['comparison_ids']):
+                raise ValueError('scoped claim must retain its exact objective comparison obligations')
+            required_stages = {comparators[i][k] for i in required for k in ('left_stage', 'right_stage')}
+            if not required_stages <= set(claim['stage_ids']):
+                raise ValueError('scoped claim must retain both complete operand stages')
         _list_ids(claim["stage_ids"], stages, empty=False); _list_ids(claim["comparison_ids"], comparators)
         _list_ids(claim["premise_ids"], premises); _cycle()._text(claim["report_slot"])
         _cycle()._text(claim["statement"]); pins.append(claim["acceptance_criteria"])
         if claim["replaces"] is not None:
             prior = claims.get(claim["replaces"])
-            if prior is None or prior["id"] == claim["id"] or any(prior[k] != claim[k] for k in ("report_slot","statement","acceptance_criteria","premise_ids")):
+            if prior is None or prior["id"] == claim["id"] or any(prior[k] != claim[k] for k in ("report_slot","statement","acceptance_criteria","premise_ids")) or prior.get('objective_ids') != claim.get('objective_ids'):
                 raise ValueError("replacement must retain the original reporting obligation")
             for field, rows in (("stage_ids",stages),("comparison_ids",comparators)):
                 original = set(prior[field])
@@ -1116,6 +1256,9 @@ def bind(root, protocol_pin):
             for k in ("candidates", "cells", "stages", "comparisons", "claims"):
                 new = {r["id"]:r for r in value[k]}
                 if any(new.get(r["id"]) != r for r in previous[k]): raise ValueError("old protocol rows cannot disappear or change")
+            new_objectives = {r['id']: r for r in value.get('objectives', [])}
+            if any(new_objectives.get(r['id']) != r for r in previous.get('objectives', [])):
+                raise ValueError('old objective scopes cannot disappear or change')
             for k in ("required_stage_ids", "required_comparison_ids"):
                 if not set(previous[k]) <= set(value[k]): raise ValueError("old evaluation obligations cannot disappear")
             if value == previous: raise ValueError("new prospective protocol rows required")
@@ -1130,6 +1273,13 @@ def bind(root, protocol_pin):
         existing = {e["id"]: e for e in state["experiments"]}
         old_ids = set() if old is None else {r["experiment_id"] for s in old[0]["stages"] for r in s["cells"]} | {c["experiment_id"] for c in old[0]["comparisons"]}
         affected = {r["experiment_id"] for s in value["stages"] for r in s["cells"]} | {c["experiment_id"] for c in value["comparisons"]}
+        prior_objectives = set() if old is None else {r['id'] for r in old[0].get('objectives', [])}
+        objective_comps = {r['comparison_id'] for o in value.get('objectives', []) if o['id'] not in prior_objectives for r in o['requirements']}
+        objective_stages = {c[k] for c in value['comparisons'] if c['id'] in objective_comps for k in ('left_stage', 'right_stage')}
+        objective_experiments = {c['experiment_id'] for c in value['comparisons'] if c['id'] in objective_comps} | {
+            r['experiment_id'] for s in value['stages'] if s['id'] in objective_stages for r in s['cells']}
+        if any(e.get('rundir') is not None or e.get('observation') is not None for i, e in existing.items() if i in objective_experiments):
+            raise ValueError('objective scope must precede affected execution evidence')
         if any(e.get("rundir") is not None or e.get("observation") is not None for i,e in existing.items() if i in affected-old_ids):
             raise ValueError("evaluation protocol must precede affected attempt/planning")
         premises = {p for c in value["candidates"] for p in c["premise_ids"]} | {p for c in value["cells"] for p in c["premise_ids"]} | {p for s in value["stages"] for p in s["premise_ids"]} | {p for c in value["claims"] for p in c["premise_ids"]}
@@ -1214,6 +1364,16 @@ def _comparison_request(state, protocol, event, comp):
         for side,s in (("left",left),("right",right)):
             assigned=next(r for r in s["cells"] if r["cell_id"]==cid)
             row[side]={"source":actual[s["id"]][cid]["result"],**{k:assigned[k] for k in ("value_pointer","interval_pointer","quality_pointer")}}
+        # Only the actual returned evaluation can declare a shared construction.
+        # Retained joint group outputs may embed the covariance and self pointers.
+        source = _json(row['left']['source'], state['base_dir'])
+        if type(source) is dict and cid in source.get('paired_evaluations', {}):
+            escaped = cid.replace('~', '~0').replace('/', '~1')
+            row['paired_evaluation'] = {'source': row['left']['source'],
+                                        'pointer': '/paired_evaluations/' + escaped}
+            paired, _ = comparison._pairing(row, state['base_dir'])
+            if paired['population'] != cell['population']:
+                raise ValueError('paired evaluation population differs from declared cell')
         rows.append(row)
     basis=_basis(protocol,comp)
     deps=[*sum(([c["population"],c["normalization"]] for c in basis["cells"]),[]),*sum(([*c["components"].values(),*c["invariant_inputs"]] for c in basis["candidates"]),[])]
@@ -1236,7 +1396,15 @@ def _comparison_current(state, protocol, event, comp):
         observed=_json(e["observation"]["result"],state["base_dir"])
         calculated=comparison.calculate(spec["task"],state["base_dir"])
         if observed!=calculated: raise ValueError("comparison arithmetic/result differs")
-        return {"status":"accepted_current","decision":calculated["decision"],"result":e["observation"]["result"]}
+        result = {"status":"accepted_current","decision":calculated["decision"],
+                "objective_gains":[r['gain_interval'] for r in calculated['cells']],
+                "objective_tolerance":calculated['rule']['tolerance'],
+                "objective":{k:calculated['rule'][k] for k in ('metric','unit','direction')},
+                "result":e["observation"]["result"]}
+        if protocol.get('objectives'):
+            result['cell_decisions'] = [{k: r[k] for k in ('cell_id', 'decision', 'gain_interval')} for r in calculated['cells']]
+            result['objective_rule'] = {k: calculated['rule'][k] for k in ('min_gain', 'tolerance')}
+        return result
     except (ValueError,OSError,KeyError,TypeError,IndexError) as exc:
         return {"status":"unresolved","decision":None,"reason":str(exc)}
 
@@ -1332,7 +1500,7 @@ def _replacement(state, rows, identity, complete, field):
     return None
 
 
-def _full_preferences(protocol, comps, valid):
+def _full_preferences(protocol, comps, valid, *, retained_rules=None):
     """Keep local contrasts separate from complete, compatible pair preference."""
     full = {s['id']:s for s in protocol['stages'] if s['purpose'] == 'full'}
     obligations = {candidate:{(s['id'],r['cell_id']) for s in full.values()
@@ -1347,33 +1515,64 @@ def _full_preferences(protocol, comps, valid):
             'left_candidate':left['candidate'],'right_candidate':right['candidate'],
             'cell_ids':sorted(r['cell_id'] for r in left['cells']),
             'status':measured['status'],'decision':measured['decision'],
+            'objective_gains':measured.get('objective_gains', []),
+            'objective':measured.get('objective'),
+            'objective_tolerance':measured.get('objective_tolerance'),
             'rule':c['rule'],'acceptance_scope':c['acceptance_scope']}
         local.append(row)
         pair = tuple(sorted((left['candidate'],right['candidate'])))
         if set(pair) <= valid:pairs.setdefault(pair,[]).append(row)
-    dominance = []
+    objectives = {}
+    for row in local:
+        if row['status'] == 'accepted_current':
+            for cid in row['cell_ids']:
+                objectives.setdefault(cid, set()).add(ce.digest(row['objective']))
+    dominance = []; search_dominance = []
     for pair, rows in sorted(pairs.items()):
         # Neither uncovered full stages nor incompatible rule/scope choices
         # can be silently discarded from a candidate-level preference.
         policies = {ce.digest({'rule':r['rule'],'scope':r['acceptance_scope']}) for r in rows}
-        if len(policies) != 1 or any(r['status'] != 'accepted_current' for r in rows):continue
-        covered = {candidate:set() for candidate in pair}; decisions = []
+        if any(r['status'] != 'accepted_current' for r in rows):continue
+        covered = {candidate:set() for candidate in pair}
         for r in rows:
             for side in ('left','right'):
                 covered[r[side+'_candidate']].update((r[side+'_stage'],cid) for cid in r['cell_ids'])
-            decision = r['decision']
-            if r['left_candidate'] != pair[0]:decision = {'better':'worse','worse':'better'}.get(decision,decision)
-            decisions.append(decision)
         if any(covered[candidate] != obligations[candidate] for candidate in pair):continue
-        if set(decisions) <= {'better','equivalent'} and 'better' in decisions:winner,loser = pair
-        elif set(decisions) <= {'worse','equivalent'} and 'worse' in decisions:loser,winner = pair
+        gains = []; tolerances = []
+        for r in rows:
+            gains.extend(r['objective_gains'] if r['left_candidate'] == pair[0] else
+                         [None if g is None else [-g[1], -g[0]] for g in r['objective_gains']])
+            tolerances.extend([r['objective_tolerance']] * len(r['objective_gains']))
+        # The search axes must mean the same thing across all candidate pairs.
+        consistent = all(len(objectives[cid]) == 1 for r in rows for cid in r['cell_ids'])
+        retained = comparison.search_retention(gains if consistent else [], tolerances if consistent else [])
+        if retained['dominates'] is not None:
+            winner, loser = pair if retained['dominates'] == 'left' else pair[::-1]
+            search_dominance.append({'preferred_candidate':winner,'other_candidate':loser,
+                'comparison_ids':sorted(r['comparison_id'] for r in rows), 'claim_authorized':False})
+        if len(policies) != 1:continue
+        # A loss only clears tolerance; its reversal need not clear min_gain.
+        # Recompute each possible winner from the retained prospective rule.
+        if retained_rules is None or any(r['comparison_id'] not in retained_rules for r in rows):continue
+        thresholds = [retained_rules[r['comparison_id']] for r in rows for _ in r['objective_gains']]
+        def improves(reverse):
+            decisions = []
+            for gain, fixed in zip(gains, thresholds):
+                if gain is None:return False
+                lo, hi = (-gain[1], -gain[0]) if reverse else gain
+                t = fixed['tolerance']
+                decisions.append('better' if lo > fixed['min_gain'] + t else
+                                 'equivalent' if max(abs(lo), abs(hi)) <= t else 'unknown')
+            return bool(decisions) and set(decisions) <= {'better', 'equivalent'} and 'better' in decisions
+        if improves(False):winner,loser = pair
+        elif improves(True):loser,winner = pair
         else:continue
         dominance.append({'comparison_id':rows[0]['comparison_id'] if len(rows)==1 else None,
             'comparison_ids':sorted(r['comparison_id'] for r in rows),
             'preferred_candidate':winner,'other_candidate':loser,
             'complete_full_stage_cells':{candidate:[{'stage_id':s,'cell_id':cid} for s,cid in sorted(obligations[candidate])] for candidate in pair},
             'rule':rows[0]['rule'],'acceptance_scope':rows[0]['acceptance_scope']})
-    return local,dominance
+    return local,dominance,search_dominance
 
 
 def status_state(state):
@@ -1382,15 +1581,22 @@ def status_state(state):
     protocol,event=bound
     stages={s["id"]:_stage_rows(state,protocol,event,s) for s in protocol["stages"]}
     comps={c["id"]:_comparison_current(state,protocol,event,c) for c in protocol["comparisons"]}
+    conclusions = objective_conclusions(protocol, comps) if protocol.get('objectives') else []
+    objective_map = {r['id']: r for r in conclusions}
     claims=[]
     for c in protocol["claims"]:
         held=_active_holds(state,c["id"])
         try:comparison._snapshot(c['acceptance_criteria'],state['base_dir']);criteria_current=True
         except (ValueError,OSError):criteria_current=False
+        scoped = 'objective_ids' in c
+        comparison_complete = all(comps[i]['status'] == 'accepted_current' and (scoped or comps[i]['decision'] != 'unknown') for i in c['comparison_ids'])
+        objective_complete = all(objective_map[i]['status'] == 'supported_in_declared_scope' for i in c.get('objective_ids', []))
         current=(criteria_current and not held and _cycle()._fresh(state,event["row_premise_bindings"]["claims:"+c["id"]]) and
                  all(all(r["status"]=="accepted_current" for r in stages[s]) for s in c["stage_ids"]) and
-                 all(comps[i]["status"]=="accepted_current" and comps[i]["decision"]!="unknown" for i in c["comparison_ids"]))
+                 comparison_complete and objective_complete)
         claims.append({"id":c["id"],"report_slot":c["report_slot"],"current_evidence_complete":current,"meta_objections_retained":held})
+        if scoped:
+            claims[-1]['conclusion_scopes'] = [deepcopy(objective_map[i]) for i in c['objective_ids']]
     stage_map = {r["id"]:r for r in protocol["stages"]}; comp_map = {r["id"]:r for r in protocol["comparisons"]}; claim_map = {r["id"]:r for r in protocol["claims"]}
     stage_complete = lambda i: all(r["status"] == "accepted_current" for r in stages[i])
     comp_complete = lambda i: comps[i]["status"] == "accepted_current" and comps[i]["decision"] != "unknown"
@@ -1410,18 +1616,26 @@ def status_state(state):
     full_candidates = {s['candidate'] for s in protocol['stages'] if s['purpose'] == 'full'}
     valid = {candidate for candidate in full_candidates if all(stage_complete(s['id']) for s in protocol['stages']
         if s['purpose'] == 'full' and s['candidate'] == candidate)}
-    local,dominance = _full_preferences(protocol,comps,valid)
+    local,dominance,search_dominance = _full_preferences(protocol,comps,valid,retained_rules=event['rule_contracts'])
     nondominated = sorted(valid - {r["other_candidate"] for r in dominance if r["preferred_candidate"] in valid})
-    return {"kind":"staged_research_protocol_status","protocol":event["protocol"],"stages":stages,"comparisons":comps,"claims":claims,
+    result = {"kind":"staged_research_protocol_status","protocol":event["protocol"],"stages":stages,"comparisons":comps,"claims":claims,
             "missing_required_stages":missing_stages,"missing_required_comparisons":missing_comps,
             "complete_scientific_evidence":not missing_stages and not missing_comps and all(c["reporting_obligation_complete"] for c in claims),
             "replacement_obligations":replacements,"incumbent_options":{"valid_full_candidate_ids":sorted(valid),"undominated_candidate_ids":nondominated,"reviewed_dominance":dominance,
+                "search_frontier_candidate_ids":sorted(full_candidates - {r['other_candidate'] for r in search_dominance}),
+                "search_pending_candidate_ids":sorted(full_candidates - valid),
+                "search_dominance":search_dominance,"frontier_authorizes_claim":False,
                 "reviewed_local_contrasts":local,
                 "policy":"Candidate preference requires compatible current comparisons covering every full stage/cell of both candidates. Local, uncovered, conflicting or incompatible contrasts leave choices unresolved. An invalid incumbent is never restored because a repair failed."},
             "candidate_count":len(protocol["candidates"]),"full_stage_cell_denominator":sum(len(s["cells"]) for s in protocol["stages"]),
             "complete_exposures":[{"id":c["id"],"exposure":c["exposure"],"regime":c["regime"],"fidelity":c["fidelity"]} for c in protocol["cells"]],
             "quantitative_checks":[{"experiment_id":e["id"],"evidence":deepcopy(e["observation"].get("quantitative_evidence")),"diagnostic_not_stage_acceptance":True} for e in state["experiments"] if e.get("observation") is not None and "quantitative_evidence" in e["observation"]],
             "not_applicable":protocol["not_applicable"],"execution_authorized":False,"physics_validated":False,"benefit_measured":False}
+    if protocol.get('objectives'):
+        result['objective_conclusions'] = conclusions
+        from .experiment_allocator import objective_advice
+        result['objective_advice'] = objective_advice(conclusions)
+    return result
 
 
 def status(root):return status_state(_cycle()._load(root)[1])

@@ -228,7 +228,12 @@ def _assemble(main, main_path, fragments):
 def _tree_view(repo):
     path = manifest_path(repo)
     from ravel.setup.pin_sources import resolve
+    from ravel.workflow.operation_registration import manifest_document, read_signatures
     document, sources = _assemble(read_json(path), path, [(p, _read_fragment(p)) for p in _fragment_files(repo)])
+    try:
+        document = manifest_document(document, read_signatures(Path(repo) / 'src/ravel/data/operation_signatures.json'))
+    except (ValueError, UnicodeError) as exc:
+        raise ManifestError(str(path) + ': ' + str(exc)) from exc
     return resolve(document, repo), sources
 
 

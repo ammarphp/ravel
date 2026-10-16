@@ -13,13 +13,18 @@ from ravel.workflow import request_plan
 
 
 def quantity(kind='event_count', unit='events'):
-    return {'kind': kind, 'unit': unit,
+    return {'kind': kind, 'unit': unit, 'scale': 1,
             'normalization': {'per_luminosity': kind in ('cross_section', 'differential_cross_section'),
                               'per_bin_width': False, 'per_event': False},
             'included_factors': [{'name': 'decay_mode', 'kind': 'branching_fraction',
                                   'value': 0.4, 'source': 'supplied:decay-table'}],
             'weight_convention': 'signed', 'selection': 'fiducial-a',
             'model_point': {'model': 'model-a', 'mass': 80},
+            'event_population': {'id': 'sample-a', 'revision': 'revision-a', 'grouping': 'event',
+                                 'events': 10, 'sumw': 10, 'sumw2': 10, 'negative_events': 0},
+            'applicability': {'id': 'declared-domain', 'parameters': {}, 'assumptions': []},
+            'covariance': {'status': 'unknown', 'basis': [], 'matrix': None, 'source': 'synthetic declaration'},
+            'luminosity': {'value': 1, 'unit': 'fb^-1', 'scale': 1},
             'bin_ids': ['region-a:0', 'region-b:0'],
             'exposure': {'id': 'sample-a', 'revision': 'revision-a'},
             'regional_exposures': {'region-a': {'id': 'sample-a', 'revision': 'revision-a'},

@@ -937,6 +937,8 @@ separate scheduler log, stdout and stderr directories. Their default is
 `.ravel-condor/` status state on the shared POSIX work area, not on object storage.
 
 With a project id, status uses a per-project snapshot under a POSIX file lock.
+The client samples the cache clock after acquiring that lock, so waiting callers
+compare the snapshot against their serialized observation time.
 At most once per `status_cache_seconds` (default 20), it queries the project's
 queue once and queries history once only for missing registered job ids. The
 history constraint includes those ids and its result limit is their count.

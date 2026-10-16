@@ -38,7 +38,6 @@ MODES = (
     'svj-recipe',
     'research-comparison',
     'quantitative-predictive',
-    'model-events',
     'analyze',
     'quantities',
     'measurement',
@@ -50,7 +49,6 @@ MODES = (
     'likelihood-parity',
     'numerical-reference-check',
     'cosmology-solver',
-    'signal-template',
     'stau-events',
     'native-likelihood',
     'full-auxiliary-calibration',
@@ -110,7 +108,6 @@ MODES = (
     'ma5-saf',
     'ma5-pad',
     'resonance-width',
-    'columnar-analysis',
     'authored-analysis',
     'formula-grid',
     'coupling-morphing',
@@ -131,6 +128,8 @@ MODES = (
     'event-production',
     'ml-training',
 )
+from .operation_definitions import populate_modes as _chain_modes
+MODES = _chain_modes(MODES)
 # Provider seam: a mode whose adapter lives outside ravel.physics. It follows the whole science
 # lifecycle. It joins MODES together with its descriptor in data/mode_descriptors.json.
 PROVIDER_MODES = {'external-workflow': 'ravel.workflow.wms_adopt'}
@@ -182,6 +181,10 @@ def _applicability_notice(mode):
 
 
 def adapter(spec):
+    from .operation_definitions import adapter_for
+    discovered = adapter_for(spec['mode'])
+    if discovered is not None:
+        return discovered
     if spec['mode'] in PROVIDER_MODES:
         return __import__('importlib').import_module(PROVIDER_MODES[spec['mode']])
     if spec['mode'] == 'ml-training':
@@ -229,9 +232,6 @@ def adapter(spec):
     if spec['mode']=='research-comparison':
         from ravel.physics import research_comparison
         return research_comparison
-    if spec['mode'] == 'model-events':
-        from ravel.physics import model_events
-        return model_events
     if spec['mode']=='joint-score':
         from ravel.physics import joint_score
         return joint_score
@@ -272,7 +272,7 @@ def adapter(spec):
     else:
         name = {'manuscript-build': 'manuscript_build', 'task-completion-context':'task_completion_context','literal-calculation': 'literal_calculation', 'quantities': 'quantities', 'measurement': 'measurement', 'domain': 'domain_adapters',
                 'contrast': 'event_contrasts', 'statistical-model': 'statistical_model', 'published-model': 'published_model',
-                'model-portfolio': 'reinterpret_db', 'signal-template': 'signal_templates',
+                'model-portfolio': 'reinterpret_db',
                 'stau-events': 'stau_adapter', 'native-likelihood': 'native_likelihood', 'full-auxiliary-calibration': 'full_auxiliary_calibration', 'asimov-sensitivity':'asimov_sensitivity', 'mc-closure':'mc_closure',
                 'reco-ntuple-routine': 'reco_ntuple_routine',
                 'background-discrete-profile': 'background_discrete_profile',
@@ -283,7 +283,7 @@ def adapter(spec):
                 'pdf-variations': 'pdf_variations', 'model-sources': 'model_sources', 'model-tool-bridge': 'model_tool_bridge', 'model-provider-bridge': 'model_provider_bridge', 'generated-spectrum': 'generated_spectrum',
                 'model-derivation-bridge': 'model_derivation_bridge', 'model-ward': 'model_ward', 'joint-fit': 'joint_fit',
                 'joint-qualification': 'joint_qualification', 'hs3-likelihood': 'hs3_likelihood', 'workspace-combination-study': 'workspace_combination_study', 'diagrammatica-code': 'diagrammatica_code', 'symbolic-evaluation': 'symbolic_evaluation', 'feyn-graph':'feyn_graph', 'diagram-analysis':'diagram_analysis', 'feynarts-amplitude':'feynarts_amplitude', 'sfitter-native-fit': 'sfitter_native', 'sfitter-scan-extraction': 'sfitter_scan_extraction', 'sfitter-observed-events':'sfitter_observed_events', 'eft-convention-transport': 'eft_conventions', 'eft-toolchain': 'eft_toolchain', 'parameter-space-sampling': 'parameter_space_sampling', 'dataset-query-quantities': 'dataset_query_quantities', 'finite-integrals': 'finite_integrals', 'ma5-saf': 'ma5_saf', 'cosmology-solver': 'cosmology_solver', 'cosmic-evolution': 'cosmic_evolution', 'ma5-pad': 'ma5_pad',
-                'resonance-width': 'resonance_width', 'columnar-analysis': 'columnar_analysis', 'authored-analysis': 'authored_analysis',
+                'resonance-width': 'resonance_width', 'authored-analysis': 'authored_analysis',
                 'cross-section': 'cross_sections', 'simplified-spectrum': 'simplified_spectrum',
                 'resonance-lineshape': 'resonance_lineshape', 'model-authoring': 'model_authoring',
                 'figure-comparison': 'figure_comparison',

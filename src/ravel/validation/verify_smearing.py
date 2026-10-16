@@ -323,7 +323,7 @@ def main():
                "strong_projections": strong_found, "efficiency_signals": eff_found,
                "eras": findings["eras"], "declared_projections": findings["declared"],
                "routine_kind": routine_kind, "routine_kind_note": routine_kind_note},
-              open(args.out.replace(".md", ".json"), "w"), indent=2)
+              open(os.path.splitext(args.out)[0] + ".json", "w"), indent=2)
 
     flag = "" if verdict == "PASS" else "  <-- not detector-level (see verdict)"
     print(f"{verdict}: {args.routine} -> {args.out}{flag}")

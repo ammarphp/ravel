@@ -394,7 +394,7 @@ def main(argv=None):
                                          "the uncut generated sample (not independently verified)",
                "rows": [{k: r[k] for k in ("sr", "role", "mine", "pub", "node", "ratio", "ok", "mu95_impact", "attribution", "inverse_signal_limit_shift")}
                         for r in rows]},
-              open(args.out.replace(".md", ".json"), "w"), indent=2, allow_nan=False)
+              open(os.path.splitext(args.out)[0] + ".json", "w"), indent=2, allow_nan=False)
     print(f"{verdict}: driving={'ok' if driving_ok else 'OFF'} worst-residual={worst_s} "
           f"({len(attribs)} attributed) -> {args.out}")
     for r in rows:

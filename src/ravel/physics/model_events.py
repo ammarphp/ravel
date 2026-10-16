@@ -23,6 +23,7 @@ if __package__ in (None, ''):
 from ravel.physics import model_tool_bridge as bridge
 from ravel.physics import pythia_cards
 from ravel.physics.model_event_weights import require, scan, scan_hepmc2_weights, number
+from ravel.validation import core as validation_core
 
 SCHEMES = {'unmerged_lo': 'LO', 'mlm': 'LO', 'ckkw_l': 'LO', 'mcatnlo': 'NLO', 'fxfx': 'NLO'}
 CARD_NAMES = {'process': 'proc_card.dat', 'parameter': 'param_card.dat', 'run': 'run_card.dat',
@@ -42,7 +43,11 @@ def authenticated_text(path, expected=None):
 
 
 def keys(obj, names, label):
-    bridge._keys(obj, names, label)
+    try:
+        validation_core.closed_object(dict(obj) if isinstance(obj, dict) else obj, names, field=label)
+    except ValueError:
+        validation_core.fail(label, obj, 'exactly ' + ', '.join(sorted(names)),
+                             message=label + ' requires exactly ' + ', '.join(sorted(names)))
 
 
 def text(value, label):
@@ -51,7 +56,16 @@ def text(value, label):
 
 
 def positive(value, label):
-    require(type(value) in (int, float) and number(value) > 0, label + ' must be finite and positive')
+    message = label + ' must be finite and positive'
+    try:
+        # Preserve the original Decimal path for arbitrarily large finite ints.
+        checked = number(value) if type(value) is int else validation_core.finite_number(value, field=label)
+        if checked <= 0:
+            raise ValueError(message)
+    except ValueError:
+        if type(value) is float and (value != value or abs(value) == float('inf')):
+            message = 'nonfinite LHE number'
+        validation_core.fail(label, value, 'finite positive number', message=message)
 
 
 def assignments(raw, *, style='run', native_lo_empty_strings=False):
@@ -301,8 +315,20 @@ def validate_config(c):
     return c
 
 
+def diagnostic_presentation(result):
+    if result.get('status_scope') != 'source_bound_generated_event_delivery' or result.get('physics_validated') is not False:
+        raise ValueError('generator delivery cannot acquire physics certification')
+    return {'status_scope': result['status_scope'], 'generated_events': result['generated_events']}, (
+        'Complete source-bound generated-event and signed multiweight delivery. Matching-scale stability, '
+        'decay, EFT validity, detector response and calibrated inference require their own evidence.')
+
+
 def validate(task):
-    keys(task, ('config',), 'model-events task'); text(task['config'], 'config path')
+    keys(task, ('config', *(['composition'] if isinstance(task, dict) and 'composition' in task else [])), 'model-events task')
+    text(task['config'], 'config path')
+    if 'composition' in task:
+        from .event_inference_contract import generation_declaration
+        generation_declaration(task['composition'])
 
 
 def _load(task, base, *, expected=None):
@@ -1139,6 +1165,11 @@ def run(task, base, output):
         native_integration_checkpoint.ending(request['checkpoint_admission'])
         native_integration_checkpoint.verify_claim(request['checkpoint_admission'],request['checkpoint_reservation'],task,path.parent,out)
     result['native_execution']=receipt
+    if 'composition' in task:
+        from .event_inference_contract import generated_sample, file_pin
+        contract = generated_sample(result, task['composition'], Path(request['process']) / c['outputs']['lhe_relative'])
+        bridge._write(out / 'generated-sample-contract.json', contract)
+        result['generated_sample'] = file_pin(out / 'generated-sample-contract.json')
     bridge._write(out/'model-events.json',result)
     if result.get('generator_reuse') is not None:generator_reuse.ending(result,out)
     model_event_commitment.verify(result['generated_member_commitment'],request['process'])

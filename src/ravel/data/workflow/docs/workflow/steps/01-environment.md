@@ -27,6 +27,12 @@ start a new prefix for the next release after that campaign ends. The
 `tester-qualification` site groups require the facility user's
 [synthetic site qualification](../../reference/site-workflows.md#synthetic-site-qualification).
 
+The complete Python installer retains test tools, build tooling and all solver
+dependencies. For a package-only installation, solver imports require the
+`cosmology` extra (`python -m pip install 'ravel-hep[cosmology]'`); the error names
+this extra if a selected runtime is missing an import. Installing an extra does
+not replace source/runtime admission, approval or numerical qualification.
+
 ## Check the tools this study needs
 
 ```bash

@@ -237,9 +237,11 @@ def status(job_id, *, project_id=None, now=None, profile=None):
         raise ValueError('status project differs from profile')
     if project_id is not None:
         identifier(project_id, 'project_id')
-    now = time.time() if now is None else now
     state_dir = workflow_dir(options) / '.ravel-condor'
     with _lock(state_dir, project_id) as key:
+        # Observe time in lock order: a caller that waited must not mistake a
+        # competing caller's newer snapshot for a backwards clock jump.
+        now = time.time() if now is None else now
         index_path = state_dir / (key + '.jobs.json')
         index = _json(index_path, {'jobs': {}})
         if profile is None and 'options' in index:

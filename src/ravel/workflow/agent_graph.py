@@ -111,12 +111,61 @@ def _pin(pin):
     return {**pin, "path": str(_path(pin["path"]))}
 
 
+def _team_shape(spec):
+    """Validate an opt-in investigation arm without changing any review gate.
+
+    The graph remains an advisory scheduler. Required decision-gate reviewers
+    still run independently of this investigator/consultation schedule.
+    """
+    shape = spec.get('team_shape', {'policy': 'current'})
+    if type(shape) is not dict:
+        raise GraphError('team shape must be an explicit policy object')
+    if shape.get('policy') == 'current':
+        _keys(shape, {'policy'}, 'current team shape')
+        return shape
+    _keys(shape, {'policy', 'investigator', 'consultations', 'boundaries'}, 'team shape')
+    if shape['policy'] != 'investigator_consult_reviewer':
+        raise GraphError('unknown team-shape policy')
+    nodes = {n['id']: n for n in spec['nodes']}
+    investigator = nodes.get(shape['investigator'])
+    if investigator is None or investigator['kind'] not in {'model', 'agent'} or investigator['role'] not in HOST_CONTEXT_ROLES:
+        raise GraphError('team shape needs one declared investigator node')
+    if type(shape['consultations']) is not list or type(shape['boundaries']) is not list or not shape['boundaries']:
+        raise GraphError('team shape needs explicit consultations and consequential boundaries')
+    population = [shape['investigator']]
+    for consultation in shape['consultations']:
+        _keys(consultation, {'node', 'specialty'}, 'specialist consultation')
+        _text(consultation['specialty'], 'consultation specialty', 4000)
+        node = nodes.get(consultation['node'])
+        if node is None or node['kind'] not in {'model', 'agent'} or node['role'] not in {'improver', 'designer'}:
+            raise GraphError('specialist consultation must be a non-voting model or worker node')
+        population.append(node['id'])
+    subjects = set()
+    for boundary in shape['boundaries']:
+        _keys(boundary, {'subject', 'reviewer'}, 'consequential boundary')
+        reviewer = nodes.get(boundary['reviewer']); subject = boundary['subject']
+        if subject not in nodes or subject in subjects:
+            raise GraphError('each named consequential subject needs exactly one investigator-arm reviewer')
+        subjects.add(subject)
+        if (reviewer is None or reviewer['kind'] != 'model' or reviewer['role'] not in {'critic', 'verifier'}
+                or reviewer['packet'] is None or subject not in reviewer['depends_on']):
+            raise GraphError('consequential boundary needs a separate blind reviewer depending on its subject')
+        population.append(reviewer['id'])
+    if len(population) != len(set(population)):
+        raise GraphError('investigator, consultations and boundary reviewers must be distinct nodes')
+    agents = {n['id'] for n in nodes.values() if n['kind'] != 'tool'}
+    if set(population) != agents:
+        raise GraphError('team shape must census every model/worker; hidden agents and maps are refused')
+    return shape
+
+
 def validate(spec):
     """Validate a finite DAG; dependencies schedule, never implicitly expose context."""
     _keys(spec, {"schema_version", "graph_id", "budget", "nodes", *({"goal_binding"} if "goal_binding" in spec else set()),
                  *({'quantity_handoffs'} if 'quantity_handoffs' in spec else set()),
                  *({'required_quantity_kinds'} if 'required_quantity_kinds' in spec else set()),
-                 *({'data_classification'} if 'data_classification' in spec else set())}, "agent graph")
+                 *({'data_classification'} if 'data_classification' in spec else set()),
+                 *({'team_shape'} if 'team_shape' in spec else set())}, "agent graph")
     if 'data_classification' in spec:
         from .provider_policy import classification
         classification(spec['data_classification'])
@@ -245,6 +294,7 @@ def validate(spec):
                 raise GraphError('quantity handoff requires a scheduling dependency')
     except (ValueError, KeyError, TypeError) as exc:
         raise GraphError(str(exc)) from exc
+    _team_shape(canonical)
     return canonical
 
 
@@ -922,6 +972,8 @@ def revise(root, spec, *, reason, expected_spec_sha256=None, expected_state_sha2
         if ((expected_spec_sha256 is not None and digest(old)!=expected_spec_sha256)
                 or (expected_state_sha256 is not None and digest(state)!=expected_state_sha256)):
             raise GraphError('current Graph specification or state superseded the checked predecessor')
+        if _team_shape(old) != _team_shape(new):
+            raise GraphError('a revision cannot change its selected team-shape arm')
         if old["graph_id"] != new["graph_id"] or old["budget"] != new["budget"]:
             raise GraphError("a graph revision cannot change identity or widen/reset its frozen budget")
         before, after = {n["id"]: n for n in old["nodes"]}, {n["id"]: n for n in new["nodes"]}
@@ -983,6 +1035,28 @@ def status(root):
         if "goal_binding" in spec:
             from .task_completion import binding_projection
             result["parent_task"] = binding_projection(spec["goal_binding"], base_dir=Path.cwd())
+        # Repeated refused requests remain visible to the decider without
+        # invalidating nodes, spending calls or reclassifying scientific findings.
+        from . import finding_routing as routing
+        histories = {}
+        for event in state['history']:
+            if event['event'] != 'findings_routed':
+                continue
+            for finding in event['findings']:
+                if routing.kind(finding) != 'defect':
+                    continue
+                key = routing.repair_key(finding)
+                histories.setdefault(key, []).append({'sequence': event['sequence'],
+                    'finding': deepcopy(finding), 'affected_nodes': event['affected_nodes']})
+        result['limitation_candidates'] = [
+            {'repair_key': key, 'finding': deepcopy(rows[-1]['finding']),
+             'route': 'physics_decider', 'classification': 'limitation_candidate',
+             'unchanged_requests': sum(not r['affected_nodes'] for r in rows),
+             'history': rows, 'execution_authorized': False}
+            for key, rows in histories.items() if sum(not r['affected_nodes'] for r in rows) >= 2]
+        result['redo_counts_by_stage'] = {node['id']: sum(node['id'] in e['affected_nodes']
+            for e in state['history'] if e['event'] == 'rework') for node in spec['nodes']}
+        result['team_shape'] = deepcopy(_team_shape(spec))
         result["advisory"] = True
         result["execution_authorized"] = False
         result["budget"] = spec["budget"]

@@ -7,6 +7,23 @@ import pytest
 from ravel.physics import cosmology_solver as c
 from ravel.workflow import science
 
+
+@pytest.mark.parametrize('module', ['camb', 'classy', 'cobaya', 'cobaya.model'])
+def test_optional_runtime_import_names_extra(monkeypatch, module):
+ def missing(name):
+  raise ModuleNotFoundError('missing synthetic runtime dependency')
+ monkeypatch.setattr(c.importlib, 'import_module', missing)
+ with pytest.raises(ImportError, match=r'ravel-hep\[cosmology\]') as failure:
+  c._optional_import(module)
+ assert module in str(failure.value)
+ assert isinstance(failure.value.__cause__, ModuleNotFoundError)
+
+
+def test_optional_runtime_import_preserves_module(monkeypatch):
+ module=object()
+ monkeypatch.setattr(c.importlib, 'import_module', lambda name: module)
+ assert c._optional_import('synthetic_solver') is module
+
 def document(engine='class',points=1):
  p={'H0':50.,'omega_b':.022,'omega_cdm':.12,'A_s':2e-9,'n_s':.96,'tau':.05,'T_CMB':2.7255,'YHe':.24,'N_eff':3.046}
  return {'schema_version':1,'engine':engine,'source':'supplied engineering control, no physical computation','profile':'flat-massless-lcdm-linear','points':[{'id':'p'+str(i),'parameters':deepcopy(p)} for i in range(points)],'grid':{'k_h_mpc':[.1,.2],'redshifts':[0.,1.],'background_redshifts':[0.,1.]},'model':None,'components':None,'runtime':{'python':{},'manifest':{}},'trusted_runtime':True,'operation_resources':{'schema_version':1,'kind':'solver','generated_events':0,'solver_evaluations':points,'max_seconds':30},'max_ram_mib':512,'measurement':None}

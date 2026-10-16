@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import uuid
@@ -80,7 +81,7 @@ AGENT_ROLES = {"edge_reviewer": "rdj_edge_reviewer", "critic": "rdj_critic", "ve
 # verified label (``decision_case.label_for``), which every reader applies.
 OBSERVED_ATTESTATION = {**dc.OBSERVED_LABELS, "transport_attested_cli": "transport_attested"}
 NODE_FIELDS = {"id", "kind", "assertion", "rationale", "material", "confidence", "recommends_choice",
-               "assumptions", "unknowns", "anchors"}
+               "assumptions", "unknowns", "anchors", "evidence_obligations"}
 ANCHOR_FIELDS = {"kind", "binding", "locator", "value", "quantity"}
 CONFIDENCE_LEVEL = {"high": 3, None: 2, "medium": 2, "low": 1}  # undeclared counts as medium
 EDGE_FINDING = "E:"
@@ -244,28 +245,75 @@ def _custody_receipts(rundir):
 
 
 def _accepted_before(rundir, action_kind, route):
-    """A custody-recorded authorize receipt of class R1 or above for this kind and route."""
+    """A still-current authorize receipt of class R1 or above for this kind and route.
+
+    Historical acceptance cannot suppress novelty after its evidence or case changes.
+    This recognizes route familiarity; it does not authorize another action or gate.
+    """
     for row in _custody_receipts(rundir):
         if row["outcome"] != "authorize":
             continue
         try:
-            case, _, _ = _load(rundir, row["case_id"])
+            case, state, _ = _current_receipt(rundir, row)
         except (OSError, ValueError, KeyError, TypeError):
             continue
         if RANK[case["risk"]["class"]] >= RANK["R1"] and case["decision_point"]["action_kind"] == action_kind \
-                and case["risk"]["computed_factors"].get("route") == route:
+                and case["risk"]["computed_factors"].get("route") == route \
+                and "exploration" not in case["decision_point"] \
+                and case["risk"]["policy"]["sha256"] == anchor_check.policy_pin()["sha256"] \
+                and not authorization_errors(rundir, case, state):
             return True
     return False
 
 
 COST_RECORD = "inputs/cost_preflight.json"
+COST_NUMBERS = ("points", "walltime_hours", "spend_usd", "authorized_budget_usd", "authorized_budget_fraction")
+COST_FLAGS = ("irreversible", "scientific_consequence")
+
+
+def _nonnegative(value):
+    return type(value) in (int, float) and value >= 0 and (type(value) is int or math.isfinite(value))
+
+
+def _cost_inputs(facts):
+    """Known dimensions are finite and nonnegative; null is explicitly unknown."""
+    if type(facts) is not dict:
+        raise ValueError("risk facts must be an object")
+    for key in COST_NUMBERS:
+        if key not in facts or facts[key] is None:
+            continue
+        if not _nonnegative(facts[key]) or (key == "points" and type(facts[key]) is not int):
+            raise ValueError(f"{key} must be finite and nonnegative (points must be integer)")
+    for key in COST_FLAGS:
+        if key in facts and facts[key] is not None and type(facts[key]) is not bool:
+            raise ValueError(f"{key} must be boolean or unknown")
+    return facts
+
+
+def _caller_facts(action, facts):
+    """Explicit and action-embedded facts are both raising-only inputs."""
+    merged = {}
+    for source in (action.get("facts"), facts):
+        if source is None:
+            continue
+        _cost_inputs(source)
+        for key, value in source.items():
+            if key in COST_NUMBERS:
+                present = [v for v in (merged.get(key), value) if v is not None]
+                merged[key] = max(present) if present else None
+            elif key in COST_FLAGS:
+                merged[key] = bool(merged.get(key)) or value
+            else:
+                merged[key] = value
+    return merged
 
 
 def _cost_facts(rundir):
     """Points and walltime from ``inputs/cost_preflight.json``, read only when its bytes are the
     ones RAVEL's run_init snapshot recorded or an output of a registered, current tool stage
     (a later snapshot alone never vouches for them). An incomplete or uncalibrated record
-    (no integer point count or no numeric walltime range) is unknown: None."""
+    (no point count or no walltime range) is unknown: None. Known invalid
+    dimensions are refused; discarding them must not erase a valid raising fact."""
     path = Path(rundir) / COST_RECORD
     if not path.is_file() or path.is_symlink():
         return None
@@ -275,19 +323,70 @@ def _cost_facts(rundir):
             anchor_check.verify_pin(rundir, {"path": COST_RECORD, "sha256": current},
                                     context={"rundir": str(rundir), "input_snapshot": None, "generated": [],
                                              "action_pins": []}) == "external"
-        record = read_json(path) if trusted else None
     except (custody.CustodyError, OSError, ValueError):
         return None
-    if not isinstance(record, dict) or type(record.get("points")) is not int:
+    if not trusted:
         return None
+    record = read_json(path)
+    if not isinstance(record, dict) or record.get("points") is None:
+        return None
+    _cost_inputs({"points": record["points"]})
     wall = record.get("walltime_h")
-    if not (isinstance(wall, list) and wall and all(isinstance(v, (int, float)) and not isinstance(v, bool)
-                                                    for v in wall)):
+    if wall is None or wall == []:
         return None
+    if not isinstance(wall, list) or any(not _nonnegative(value) for value in wall):
+        raise ValueError("recorded walltime_h must contain finite nonnegative values")
     facts = {"points": record["points"], "walltime_hours": max(wall)}
-    if isinstance(record.get("spend_usd"), (int, float)) and not isinstance(record["spend_usd"], bool):
-        facts["spend_usd"] = record["spend_usd"]
-    return facts
+    facts.update({key: record[key] for key in (*COST_NUMBERS[2:], *COST_FLAGS) if key in record})
+    return _cost_inputs(facts)
+
+
+def _cost_dimensions(pol, caller, computed, irreversible):
+    """Separate declarations from budget authority; no amount or fraction grants approval.
+
+    The absolute-cost rule retains the legacy floor. The fractional threshold stays
+    unset until an owner chooses policy; a declared fraction can never relax a rule.
+    """
+    policy = pol["cost_dimensions"]
+    dc.keys(policy, {"absolute_cost", "authorized_budget_fraction", "irreversibility", "scientific_consequence"},
+            "cost dimension policy")
+    absolute, fraction = policy["absolute_cost"], policy["authorized_budget_fraction"]
+    dc.keys(absolute, {"currency", "raise_above_usd", "basis"}, "absolute cost policy")
+    dc.keys(fraction, {"raise_above", "authority"}, "budget fraction policy")
+    dc.text(absolute["basis"], "absolute cost policy basis")
+    if fraction["authority"] != "separate_verified_budget_required":
+        raise ValueError("a declared budget fraction cannot establish budget authority")
+    if absolute["currency"] != "USD" or not _nonnegative(absolute["raise_above_usd"]) \
+            or (fraction["raise_above"] is not None and not _nonnegative(fraction["raise_above"])):
+        raise ValueError("cost policy thresholds must be finite and nonnegative, or an unset fraction")
+    dc.keys(policy["irreversibility"], {"minimum_class", "requires_human_approval"}, "irreversibility policy")
+    dc.keys(policy["scientific_consequence"], {"when_declared"}, "scientific consequence policy")
+    if policy["irreversibility"]["minimum_class"] != "R3" \
+            or policy["irreversibility"]["requires_human_approval"] is not True \
+            or policy["scientific_consequence"]["when_declared"] != "raise_one_class":
+        raise ValueError("cost policy must retain irreversible approval and scientific-consequence floors")
+    sources = (caller, computed or {})
+
+    def maximum(key):
+        values = [source[key] for source in sources if source.get(key) is not None]
+        return max(values) if values else None
+
+    spend, budget, ratio = (maximum(key) for key in ("spend_usd", "authorized_budget_usd", "authorized_budget_fraction"))
+    budget_mentioned = any("authorized_budget_usd" in source or "authorized_budget_fraction" in source
+                           for source in sources)
+    declared_consequence = any(source.get("scientific_consequence") is True for source in sources)
+    return {
+        "absolute_cost": {"value_usd": spend, "status": "available" if spend is not None else "unknown",
+                          "raise_above_usd": absolute["raise_above_usd"], "basis": absolute["basis"]},
+        "authorized_budget_fraction": {
+            "declared_fraction": ratio, "declared_budget_usd": budget,
+            "status": ("declared_unverified" if ratio is not None or budget is not None else
+                       "unknown" if budget_mentioned else "absent"),
+            "authorization_status": "unknown", "raise_above": fraction["raise_above"],
+            "threshold_status": "owner_policy_required" if fraction["raise_above"] is None else "configured"},
+        "irreversibility": {"effective": irreversible, "minimum_class": "R3", "requires_human_approval": True},
+        "scientific_consequence": {"declared": declared_consequence, "when_declared": "raise_one_class"},
+    }
 
 
 def compute_class(rundir, gate, action, facts=None, declared=None):
@@ -299,7 +398,7 @@ def compute_class(rundir, gate, action, facts=None, declared=None):
     named = gate
     gate = canonical_gate(gate)
     rule = pol["gates"][gate]
-    caller, declared = dict(facts or {}), dict(declared or {})
+    caller, declared = _caller_facts(action, facts), dict(declared or {})
     base = rule["class"]
     factors = {"gate": gate, "gate_class": base}
     kind, rung = action.get("kind"), action.get("rung")
@@ -310,6 +409,10 @@ def compute_class(rundir, gate, action, facts=None, declared=None):
             raising.append(value)
             factors[label] = value
     computed = _cost_facts(rundir)
+    irreversible = rule["irreversible"] or action.get("kind") in pol["irreversible_kinds"] or any(
+        source.get("irreversible") is True for source in (caller, computed or {}))
+    dimensions = _cost_dimensions(pol, caller, computed, irreversible)
+    factors["cost_dimensions"] = dimensions
     merged = {k: max(caller.get(k) or 0, (computed or {}).get(k) or 0)
               for k in ("points", "walltime_hours", "spend_usd")}
     limits, consequence = pol["high_consequence"], []
@@ -317,8 +420,14 @@ def compute_class(rundir, gate, action, facts=None, declared=None):
         consequence.append("points")
     if merged["walltime_hours"] >= limits["walltime_hours_at_least"]:
         consequence.append("walltime")
-    if merged["spend_usd"] > limits["spend_usd_above"]:
+    if merged["spend_usd"] > dimensions["absolute_cost"]["raise_above_usd"]:
         consequence.append("spend")
+    ratio = dimensions["authorized_budget_fraction"]
+    if ratio["raise_above"] is not None and ratio["declared_fraction"] is not None \
+            and ratio["declared_fraction"] > ratio["raise_above"]:
+        consequence.append("authorized_budget_fraction")
+    if dimensions["scientific_consequence"]["declared"]:
+        consequence.append("scientific_consequence")
     cls = base
     lowering = [(kind_class, kind)] if kind in rule.get("lowerable_kinds", ()) and kind_class is not None else []
     if lowering and rung_class is not None:
@@ -335,7 +444,7 @@ def compute_class(rundir, gate, action, facts=None, declared=None):
     if rule.get("consequence_facts") and computed is None and cls != "R0":
         cls = _raise(cls)
         factors["consequence_unknown"] = True
-    if rule["irreversible"] or action.get("kind") in pol["irreversible_kinds"]:
+    if irreversible:
         cls = _at_least(cls, "R3")
         factors["irreversible"] = True
     if caller.get("scope_change"):
@@ -373,6 +482,23 @@ def _pin_ok(rundir, pin):
 def action_digest(pins):
     """The digest of the bytes an action acts on: one pin's sha256, or the digest of all pins."""
     return pins[0]["sha256"] if len(pins) == 1 else dc.jdigest(sorted(pins, key=lambda p: p["path"]))
+
+
+def _action_pins(rundir, action):
+    """Validate and normalize the exact current files an action names."""
+    pins = action.get("pins")
+    if not isinstance(pins, list) or not pins:
+        raise ValueError("an action names at least one pin inside the run: the bytes it acts on")
+    normalized = []
+    for pin in pins:
+        dc.binding(pin)
+        _, rel = anchor_check.inside(rundir, pin["path"])
+        if not _pin_ok(rundir, pin):
+            raise ValueError(f"action pin does not match its bytes: {pin['path']}")
+        normalized.append({"path": rel, "sha256": pin["sha256"]})
+    if action["digest"] != action_digest(normalized):
+        raise ValueError("the action digest must equal the pinned bytes' digest (one pin's sha256, or jdigest of pins)")
+    return normalized
 
 
 def _actor_of(proposer):
@@ -444,7 +570,8 @@ def _escalate_abandoned(rundir, gate, digest):
                 _write_receipt(rundir, case, state, "escalate", 0, reason=reason)
 
 
-def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuning=None, input_artifacts=None):
+def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuning=None, input_artifacts=None,
+              evidence_obligations=None, exploration_contract=None, review_scope=None, reuse_from=None):
     """Commit the proposed action as the first journal event and create the case; returns its id.
 
     Runs under the run's custody lock: the case budget, the escalation check (an earlier case of
@@ -456,18 +583,7 @@ def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuni
     dc.text(action.get("kind"), "action kind")
     dc.text(action.get("summary"), "action summary")
     dc._sha(action.get("digest"), "action digest")
-    pins = action.get("pins")
-    if not isinstance(pins, list) or not pins:
-        raise ValueError("an action names at least one pin inside the run: the bytes it acts on")
-    normalized = []
-    for pin in pins:
-        dc.binding(pin)
-        _, rel = anchor_check.inside(rundir, pin["path"])
-        if not _pin_ok(rundir, pin):
-            raise ValueError(f"action pin does not match its bytes: {pin['path']}")
-        normalized.append({"path": rel, "sha256": pin["sha256"]})
-    if action["digest"] != action_digest(normalized):
-        raise ValueError("the action digest must equal the pinned bytes' digest (one pin's sha256, or jdigest of pins)")
+    normalized = _action_pins(rundir, action)
     author = _actor_of(proposer)
     artifacts = _input_artifacts(rundir, input_artifacts)
     pol = anchor_check.policy()
@@ -485,6 +601,14 @@ def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuni
         policy_pin = anchor_check.policy_pin()
         point = {"gate": gate, "action_kind": action["kind"],
                  "action": {"summary": action["summary"], "digest": digest, "pins": normalized}}
+        if review_scope is not None:
+            point["review_scope"] = dict(review_scope)
+        if exploration_contract is not None:
+            if action.get("authorization_scope") != "exploration_only":
+                raise ValueError("an exploration contract requires an explicit exploration_only action scope")
+            point["exploration"] = {"scope": "exploration_only", "contract": dict(exploration_contract)}
+        elif action.get("authorization_scope") is not None:
+            raise ValueError("an explicit authorization scope requires its supplied exploration contract")
         if tuning is not None:
             point["tuning"] = dict(tuning)
         case = {"schema_version": 2, "kind": dc.CASE_KIND, "case_id": case_id, "rundir": str(rundir.resolve()),
@@ -498,7 +622,13 @@ def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuni
                 "edges": [], "anchors": [], "critique": None, "revisions": [], "verification": None}
         if artifacts:
             case["input_artifacts"] = artifacts
+        if evidence_obligations is not None:
+            case["nodes"][0]["evidence_obligations"] = dc.evidence_obligations(evidence_obligations)
         dc.validate_case_v2(case)  # Refuse a malformed proposal before anything is committed.
+        if exploration_contract is not None:
+            _exploration_contract(rundir, case)
+        if review_scope is not None:
+            _review_scope(rundir, case)
         since = custody.last_reopen_ns(rundir, digest)
         cap = pol["budgets"]["max_cases_per_action"]
 
@@ -527,6 +657,8 @@ def open_case(rundir, gate, action, proposer, *, facts=None, declared=None, tuni
         _state_path(rundir, case_id).parent.mkdir(parents=True, exist_ok=True)
         state["support_closure"] = _closure(case, state)
         _commit(rundir, case, state, "case_created")
+    if reuse_from is not None:
+        _reuse_review(rundir, case_id, reuse_from)
     return case_id
 
 
@@ -573,6 +705,164 @@ def _context(rundir, case, state):
     return {"rundir": str(rundir), "input_snapshot": custody.input_snapshot(rundir, before_ns=state["commit_ns"]),
             "generated": sorted(anchor_check.generated_paths(rundir)), "generated_dirs": _board_dirs(case),
             "action_pins": case["decision_point"]["action"]["pins"]}
+
+
+def _review_contract(gate, cls):
+    """Mechanical review obligations; equal labels alone never establish equivalence."""
+    from . import role_registry
+    pol = anchor_check.policy()
+    return {"gate_rule": pol["gates"][gate], "class_rule": pol["classes"][cls],
+            "critic_card": CRITIC_CARD.get(gate, "decision-critic"),
+            "verifier_card": VERIFIER_CARD.get(gate, "decision-verifier"),
+            "registered_cards": {role: role_registry.card_sha256(AGENT_ROLES[role])
+                                 for role in pol["classes"][cls]["roles"]},
+            "common_mode": {"enabled": cls in pol["common_mode"]["classes"] or gate in pol["common_mode"]["gates"],
+                            "anchor_kinds": pol["common_mode"]["anchor_kinds"]}}
+
+
+def _review_scope(rundir, case, state=None):
+    """An ordinary authoritative input describes the whole portable decision scope."""
+    point = case["decision_point"]
+    pin = point["review_scope"]
+    dc.binding(pin)
+    context = (_context(rundir, case, state) if state is not None else
+               {"rundir": str(rundir), "input_snapshot": custody.input_snapshot(rundir),
+                "generated": sorted(anchor_check.generated_paths(rundir)), "action_pins": point["action"]["pins"]})
+    if anchor_check.verify({"kind": "input_artifact", "binding": pin, "locator": ""},
+                           rundir, context=context) != "external":
+        raise ValueError("review scope requires a current independently supplied input pin")
+    path, _ = anchor_check.inside(rundir, pin["path"])
+    record = read_json(path)
+    dc.keys(record, {"schema_version", "kind", "scope", "regime", "compatible_gates", "action", "semantic_inputs"},
+            "review scope")
+    if type(record["schema_version"]) is not int or record["schema_version"] != 1 or record["kind"] != "rdj-review-scope":
+        raise ValueError("review scope requires version 1 and kind rdj-review-scope")
+    for key in ("scope", "regime"):
+        dc._line(record[key], "review " + key, dc.MAX_REASON)
+    dc.unique(record["compatible_gates"], "compatible review gates")
+    if point["gate"] not in record["compatible_gates"] or any(
+            canonical_gate(gate) != gate for gate in record["compatible_gates"]):
+        raise ValueError("the review scope must name this canonical gate")
+    expected = {"kind": point["action_kind"], **point["action"]}
+    if record["action"] != expected:
+        raise ValueError("review scope must bind the exact action kind, summary, digest and pins")
+    if "exploration" in point:
+        raise ValueError("exploration review cannot be reused across gates")
+    if not isinstance(record["semantic_inputs"], list) or not record["semantic_inputs"]:
+        raise ValueError("review scope needs bound semantic and regime inputs")
+    seen, semantic = set(), []
+    for item in record["semantic_inputs"]:
+        dc.binding(item)
+        if item["path"] in seen or item["path"] == pin["path"]:
+            raise ValueError("semantic review inputs must be unique and cannot be the scope itself")
+        seen.add(item["path"])
+        if anchor_check.verify({"kind": "input_artifact", "binding": item, "locator": ""},
+                               rundir, context=context) != "external":
+            raise ValueError("semantic review inputs must remain independently supplied and current")
+        item_path, _ = anchor_check.inside(rundir, item["path"])
+        semantic.append({**item, "content": read_json(item_path)})
+        if not _pin_ok(rundir, item):
+            raise ValueError("semantic review input changed while read")
+    inputs = {}
+    for item_path in sorted((Path(rundir) / "inputs").rglob("*")):
+        if not item_path.is_file() and not item_path.is_symlink():
+            continue
+        rel = item_path.relative_to(rundir).as_posix()
+        actual, _ = anchor_check.inside(rundir, rel)
+        inputs[rel] = anchor_check.sha256_file(actual)
+        if len(inputs) > anchor_check.policy()["input_snapshot_max_files"]:
+            raise ValueError("review context exceeds the existing input snapshot file cap")
+    relevant = set(inputs) | seen | {item["path"] for item in point["action"]["pins"]}
+    result = {"contract": record, "semantic_inputs": semantic, "current_inputs": inputs,
+              "input_snapshot": context["input_snapshot"],
+              "reopen_epoch_ns": custody.last_reopen_ns(rundir, point["action"]["digest"]),
+              "generated_inputs": sorted(set(context["generated"]) & relevant),
+              "generated_dirs": context.get("generated_dirs", []),
+              "policy_sha256": anchor_check.policy_pin()["sha256"],
+              "implementation_sha256": {name: anchor_check.sha256_file(Path(module.__file__)) for name, module in
+                                         (("decision_case", dc), ("rdj_anchor", anchor_check))}
+              | {"rdj_loop": anchor_check.sha256_file(Path(__file__))},
+              "gate_contracts": {gate: _review_contract(gate, case["risk"]["class"])
+                                 for gate in record["compatible_gates"]}}
+    if not _pin_ok(rundir, pin):
+        raise ValueError("review scope changed while read")
+    return result
+
+
+def _review_subject(case, state):
+    """Review content, excluding only gate/case labels covered by the supplied scope."""
+    anchors = {anchor["id"]: anchor for anchor in case["anchors"]}
+    factors = {key: value for key, value in case["risk"]["computed_factors"].items()
+               if key not in ("gate", "gate_class")}
+    return dc.jdigest({"action": {key: value for key, value in case["decision_point"].items() if key != "gate"},
+                       "class": case["risk"]["class"], "computed_factors": factors,
+                       "declared_factors": case["risk"]["declared_factors"],
+                       "input_artifacts": case.get("input_artifacts", []),
+                       "nodes": [{"id": node["id"], **dc.node_content(node, anchors)} for node in case["nodes"]],
+                       "edges": [{key: edge[key] for key in ("id", "parent", "child", "challenge", "relation")}
+                                 for edge in case["edges"]], "observed": state["observed"],
+                       "context": state.get("review_scope_context")})
+
+
+def _exploration_contract(rundir, case, state=None):
+    """Authenticate one supplied finite broker-only experiment-selection contract.
+
+    This never grants a broker, model or native execution lease. Actual work still
+    needs the applicable execution gates and budget enforcement.
+    """
+    point = case["decision_point"]
+    declaration = point.get("exploration")
+    if declaration is None:
+        return None
+    if point["gate"] != "research_choice" or point["action_kind"] != "screening_choice" \
+            or declaration["scope"] != "exploration_only":
+        raise ValueError("exploration-only scope cannot authorize this gate or action kind")
+    pin = declaration["contract"]
+    dc.binding(pin)
+    context = (_context(rundir, case, state) if state is not None else
+               {"rundir": str(rundir), "input_snapshot": custody.input_snapshot(rundir),
+                "generated": sorted(anchor_check.generated_paths(rundir)), "generated_dirs": [],
+                "action_pins": point["action"]["pins"]})
+    if anchor_check.verify({"kind": "input_artifact", "binding": pin, "locator": ""},
+                           rundir, context=context) != "external":
+        raise ValueError("the exploration contract must be a current independently supplied input")
+    path, _ = anchor_check.inside(rundir, pin["path"])
+    record = read_json(path)
+    dc.keys(record, {"schema_version", "kind", "scope", "gate", "action_kind", "action_digest", "execution",
+                     "hypothesis", "question", "expected_outputs", "bounds", "stop_condition"},
+            "exploration contract")
+    if type(record["schema_version"]) is not int or record["schema_version"] != 1 \
+            or record["kind"] != "rdj-exploration-contract" or record["scope"] != "exploration_only" \
+            or record["execution"] != "broker_only" or record["gate"] != point["gate"] \
+            or record["action_kind"] != point["action_kind"] or record["action_digest"] != point["action"]["digest"]:
+        raise ValueError("the broker-only exploration contract must bind this exact gate, kind and action digest")
+    for field in ("hypothesis", "question", "stop_condition"):
+        dc._line(record[field], "exploration " + field, dc.MAX_REASON)
+    dc.unique(record["expected_outputs"], "exploration expected outputs")
+    for output in record["expected_outputs"]:
+        if not output.startswith("outputs/") or "\\" in output or any(
+                part in ("", ".", "..") for part in output.split("/")):
+            raise ValueError("exploration outputs must be relative broker outputs/ paths")
+    bounds = record["bounds"]
+    dc.keys(bounds, {"max_broker_calls", "max_model_calls"}, "exploration bounds")
+    dc.integer(bounds["max_broker_calls"], "exploration broker-call bound")
+    dc.integer(bounds["max_model_calls"], "exploration model-call bound", zero=True)
+    policy = anchor_check.policy()
+    budgets = policy["budgets"]
+    model_cap = min(policy["classes"][case["risk"]["class"]]["max_model_calls"],
+                    budgets["max_model_calls_per_action"], budgets["max_model_calls_per_run"])
+    if state is not None:
+        calls = [row["record"] for row in custody.rows(rundir, "roles")]
+        model_cap = min(model_cap - state["usage"]["model_calls"],
+                        budgets["max_model_calls_per_run"] - len(calls),
+                        budgets["max_model_calls_per_action"] - sum(
+                            row["action_digest"] == point["action"]["digest"] for row in calls))
+    if bounds["max_broker_calls"] > budgets["max_critic_broker_calls"] \
+            or bounds["max_model_calls"] > model_cap:
+        raise ValueError("exploration bounds exceed the current broker/model policy caps")
+    if not _pin_ok(rundir, pin):
+        raise ValueError("the exploration contract changed while being read")
+    return record
 
 
 def _human(rundir, case):
@@ -879,8 +1169,34 @@ def _refresh(rundir, case, state, *, persist=True):
                 _invalidate(rundir, case, state, reason)
             raise CaseInvalidated(reason + "; a new proposal commit (a new case) is required")
     context = _context(rundir, case, state)
-    statuses = anchor_check.verify_all(case["anchors"], rundir, context=context)
     changes = []
+    if "review_scope" in case["decision_point"]:
+        try:
+            review_context, error = _review_scope(rundir, case, state), None
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            review_context, error = None, str(exc)
+        previous = state.get("review_scope_context")
+        if previous != review_context or state.get("review_scope_error") != error:
+            changes.append("review_scope_context")
+            for edge in case["edges"]:
+                edge["review"] = None
+            case["critique"], case["verification"] = None, None
+            state["critic_revision"], state["critic_digest"], state["verified_digest"] = None, None, None
+            if state.pop("review_reuse", None):
+                state["review_reuse_reason"] = "review context changed after reuse"
+        state["review_scope_context"], state["review_scope_error"] = review_context, error
+        context_sha = dc.jdigest(review_context)
+        for node in case["nodes"]:
+            node["review_context_sha256"] = context_sha
+    if "exploration" in case["decision_point"]:
+        try:
+            contract, error = _exploration_contract(rundir, case, state), None
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            contract, error = None, str(exc)
+        if state.get("exploration_contract") != contract or state.get("exploration_error") != error:
+            changes.append("exploration_contract")
+        state["exploration_contract"], state["exploration_error"] = contract, error
+    statuses = anchor_check.verify_all(case["anchors"], rundir, context=context)
     for anchor in case["anchors"]:
         anchor["verified"] = statuses[anchor["id"]][0]
     status = {aid: s for aid, (s, _, _) in statuses.items()}
@@ -914,6 +1230,17 @@ def _refresh(rundir, case, state, *, persist=True):
     if closure != state.get("support_closure"):
         state["support_closure"] = closure
         changes.append("support_closure")
+    if state.get("review_reuse"):
+        try:
+            _validate_review_reuse(rundir, case, state)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            state.pop("review_reuse", None)
+            state["review_reuse_reason"] = "original review no longer current: " + str(exc)
+            for edge in case["edges"]:
+                edge["review"] = None
+            case["critique"], case["verification"] = None, None
+            state["critic_revision"], state["critic_digest"], state["verified_digest"] = None, None, None
+            changes.append("review_reuse_invalidated")
     return changes
 
 
@@ -926,6 +1253,36 @@ def _extra(nodes, node_id, edge, conflicts, disagreement):
             count += (review["entailment"] == "partial") + (review["grounding"] == "needs_depth") \
                 + (review["relevance"] == "weak")
     return count
+
+
+def _evidence_obligations(ids, nodes, anchors, status, extras):
+    """Check typed obligations against their own supporting suffix, never a sibling.
+
+    Existing uncertainty increments require additional distinct source identities for
+    each required kind. Repeated fields or locators in one source do not add evidence.
+    Source distinction is a custody property, not proof of scientific independence.
+    """
+    typed, missing = False, []
+    for index, node_id in enumerate(ids):
+        for kind in nodes[node_id].get("evidence_obligations", ()):
+            typed = True
+            sources = set()
+            for child in ids[index:]:
+                for aid in nodes[child]["anchors"]:
+                    anchor = anchors[aid]
+                    if anchor["kind"] != kind or status.get(aid) != "external":
+                        continue
+                    source = anchor_check.evidence_source(anchor)
+                    if source is None:
+                        binding = anchor["binding"]
+                        source = ((kind, binding.get("source"), binding.get("sha256"))
+                                  if kind == "user_requirement" else
+                                  (kind, binding.get("invariant_id")))
+                    sources.add(dc.jdigest(source))
+            if len(sources) < 1 + extras:
+                missing.append(f"{node_id} requires {kind} evidence from {1 + extras} distinct source(s) "
+                               f"(now {len(sources)})")
+    return typed, missing
 
 
 def _frontier(case, state, cls):
@@ -950,6 +1307,7 @@ def _frontier(case, state, cls):
             continue
         extras = _extra(nodes, ROOT, None, conflicts, disagreement) + sum(
             _extra(nodes, n, e, conflicts, disagreement) for n, e in zip(ids[1:], edges))
+        typed, missing = _evidence_obligations(ids, nodes, anchors, status, extras)
         required = rules["min_depth"] + (0 if cls == "R0" else extras)
         external = [a for a in nodes[leaf]["anchors"] if status.get(a) == "external"]
         invariant_only = bool(external) and cls in ("R0", "R1") and all(anchors[a]["kind"] == "invariant" for a in external)
@@ -963,7 +1321,9 @@ def _frontier(case, state, cls):
                                 "their evidence work items", "unknown": True}
             continue
         grounded = external and not invariant_only and not generated_only
-        if grounded and depth >= required and tool_ok:
+        conflicted = typed and any(n in conflicts for n in ids)
+        depth_ok = depth <= rules["max_depth"] and (typed or depth >= required)
+        if grounded and depth_ok and tool_ok and not missing and not conflicted:
             closed.append(ids)
             continue
         reason = ("needs a first supporting claim" if not edges else
@@ -971,10 +1331,14 @@ def _frontier(case, state, cls):
                   "an invariant alone cannot ground a leaf at this class" if invariant_only else
                   "needs an externally verified anchor" if not external else
                   "needs a tool-output or measurement anchor on this branch" if not tool_ok else
+                  "needs conflicting external evidence resolved" if conflicted else
+                  "; ".join(missing) if missing else
+                  f"exceeds the class maximum depth {rules['max_depth']}" if depth > rules["max_depth"] else
                   f"needs support to depth {required} (now {depth})")
         if depth >= rules["max_depth"]:
             unresolved[leaf] = {"node_id": leaf, "path": ids, "reason": reason + f"; the class maximum depth {rules['max_depth']} is reached"}
-            if not grounded:  # Evidence gathered later can still be attached here.
+            if depth == rules["max_depth"] and (not grounded or missing) and not conflicted:
+                # Typed evidence gathered later can discharge an obligation at the same depth.
                 open_leaves.setdefault(leaf, {"node_id": leaf, "path": ids, "reason": reason + " (anchors only: the "
                                               "maximum depth is reached)", "anchor_only": True})
         else:
@@ -1056,12 +1420,16 @@ def _verify_digest(case, state):
     return dc.jdigest({"root": dc.merkle(case)["nodes"][ROOT], "findings": (case["critique"] or {}).get("findings"),
                        "revisions": case["revisions"], "blocking": sorted(state["blocking"]),
                        "verdicts": sorted([e["id"], dc.jdigest(e["review"])] for e in case["edges"] if e["review"]),
-                       "basis": state.get("finding_basis", {}), "tests": state.get("finding_tests", {})})
+                       "basis": state.get("finding_basis", {}), "tests": state.get("finding_tests", {}),
+                       **({"exploration": case["decision_point"]["exploration"]}
+                          if "exploration" in case["decision_point"] else {})})
 
 
 def _critic_digest(case):
     """What a critique binds: the case's Merkle root and its revision count (any growth reruns it)."""
-    return dc.jdigest({"root": dc.merkle(case)["nodes"][ROOT], "revisions": len(case["revisions"])})
+    return dc.jdigest({"root": dc.merkle(case)["nodes"][ROOT], "revisions": len(case["revisions"]),
+                       **({"exploration": case["decision_point"]["exploration"]}
+                          if "exploration" in case["decision_point"] else {})})
 
 
 def _critic_fresh(case, state):
@@ -1074,7 +1442,7 @@ def _needs_review(case, state):
 
 
 def _pending_roles(case, state, challenges):
-    if state["invalidated"] or state["budget_exhausted"]:
+    if state["invalidated"] or state["budget_exhausted"] or state.get("exploration_error") or state.get("review_scope_error"):
         return []
     rules = anchor_check.policy()["classes"][case["risk"]["class"]]
     if "edge_reviewer" in rules["roles"] and _needs_review(case, state):
@@ -1126,6 +1494,8 @@ def _new_node(case, spec, author, round_):
             "material": spec.get("material", kind != "alternative"), "round": round_, "author": author,
             "confidence": spec.get("confidence"), "anchors": [], "assumptions": list(spec.get("assumptions", [])),
             "unknowns": list(spec.get("unknowns", [])), "recommends_choice": bool(spec.get("recommends_choice", False))}
+    if "evidence_obligations" in spec:
+        node["evidence_obligations"] = dc.evidence_obligations(spec["evidence_obligations"])
     case["nodes"].append(node)
     for anchor in spec.get("anchors", []):
         node["anchors"].append(_new_anchor(case, node["id"], anchor))
@@ -1157,6 +1527,7 @@ def _prune(case):
 
 def _content(node, anchors):
     return {"assertion": node["assertion"], "rationale": node["rationale"], "confidence": node["confidence"],
+            **({"evidence_obligations": node["evidence_obligations"]} if "evidence_obligations" in node else {}),
             "anchors": [{k: anchors[a][k] for k in ("kind", "binding", "locator")} for a in node["anchors"]]}
 
 
@@ -1500,29 +1871,47 @@ def _projection(case, state):
     """The case as the critic and verifier see it: structure, anchors and verdicts; reviewer reasons withheld."""
     nodes = [{k: n[k] for k in ("id", "kind", "assertion", "rationale", "material", "confidence", "recommends_choice",
                                 "assumptions", "unknowns")} | {"anchors": _anchors_shown(case, state, n)}
+             | ({"evidence_obligations": n["evidence_obligations"]} if "evidence_obligations" in n else {})
              for n in case["nodes"]]
     edges = [{k: e[k] for k in ("id", "parent", "child", "relation", "challenge")}
              | {"review": None if e["review"] is None else
                 {k: e["review"][k] for k in ("entailment", "relevance", "grounding", "code")}} for e in case["edges"]]
     return {"case_id": case["case_id"], "decision_point": case["decision_point"], "class": case["risk"]["class"],
-            "nodes": nodes, "edges": edges}
+            "nodes": nodes, "edges": edges,
+            **({"review_scope_context": state.get("review_scope_context")}
+               if "review_scope" in case["decision_point"] else {}),
+            **({"exploration_contract": state.get("exploration_contract"),
+                "authorization_scope": "exploration_only", "execution_authorized": False,
+                "scientific_acceptance": False} if "exploration" in case["decision_point"] else {})}
 
 
 def _payload(role, case, state):
     gate = case["decision_point"]["gate"]
+    scope_instruction = (" Review the bound decision for every gate listed in review_scope_context.contract."
+                         " The complete gate set, regime inputs and context are supplied; this scope grants no"
+                         " execution authority." if "review_scope" in case["decision_point"] else "")
     if role == "edge_reviewer":
         nodes = _nodes(case)
         edges = _needs_review(case, state)
         return {"role": "rdj-edge-reviewer", "case_id": case["case_id"], "class": case["risk"]["class"],
+                **({"review_scope_context": state.get("review_scope_context")}
+                   if "review_scope" in case["decision_point"] else {}),
+                **({"exploration_contract": state.get("exploration_contract"),
+                    "authorization_scope": "exploration_only", "execution_authorized": False,
+                    "scientific_acceptance": False} if "exploration" in case["decision_point"] else {}),
                 "instructions": "Judge each hop alone: does the child establish (or rule out) the parent, is it "
                                 "relevant, and is it grounded in its verified anchors (the values shown were read "
                                 "from the verified bytes)? The code is no_issue exactly when the hop holds, is "
                                 "relevant and is anchored. Use unmarked_choice when the child recommends an analysis "
-                                "choice. Return one review per edge.",
+                                "choice. Return one review per edge." + scope_instruction,
                 "edges": [{"edge_id": e["id"], "challenge": e["challenge"], "relation": e["relation"],
-                           "parent": {k: nodes[e["parent"]][k] for k in ("id", "kind", "assertion")},
+                           "parent": {k: nodes[e["parent"]][k] for k in ("id", "kind", "assertion")}
+                           | ({"evidence_obligations": nodes[e["parent"]]["evidence_obligations"]}
+                              if "evidence_obligations" in nodes[e["parent"]] else {}),
                            "child": {k: nodes[e["child"]][k] for k in ("id", "kind", "assertion", "rationale", "confidence",
                                                                         "assumptions", "unknowns")}
+                           | ({"evidence_obligations": nodes[e["child"]]["evidence_obligations"]}
+                              if "evidence_obligations" in nodes[e["child"]] else {})
                            | {"anchors": _anchors_shown(case, state, nodes[e["child"]])}} for e in edges],
                 "output_schema": OUTPUT_SCHEMAS["edge_reviewer"]}
     if role == "critic":
@@ -1537,7 +1926,7 @@ def _payload(role, case, state):
                                 "the case elements or run files code can check), cited, or opinion. Only "
                                 "new_receipt and code_check findings, or findings that request a discriminating "
                                 "test, can hold the decision; for a request, ask for the cheapest test that could "
-                                "invalidate the claim and bound its max_broker_calls.",
+                                "invalidate the claim and bound its max_broker_calls." + scope_instruction,
                 "output_schema": OUTPUT_SCHEMAS["critic"]}
     return {"role": VERIFIER_CARD.get(gate, "decision-verifier"), "case": _projection(case, state),
             "findings": [{**f, "holds": finding_status(case, state, f), "test": state.get("finding_tests", {}).get(
@@ -1545,7 +1934,7 @@ def _payload(role, case, state):
             "edge_findings": list(_edge_findings(case, state).values()), "revisions": case["revisions"],
             "instructions": "For each finding say whether a revision resolved it (yes only when a revision addressed "
                             "it; no; or new_issue tied to a revision), using the before and after content, then "
-                            "authorize, escalate or gather_evidence.",
+                            "authorize, escalate or gather_evidence." + scope_instruction,
             "output_schema": OUTPUT_SCHEMAS["verifier"]}
 
 
@@ -1756,8 +2145,9 @@ def _item(code, message, target=None):
     return {"code": code, "message": message, "target": target}
 
 
-def _exploratory(case, state):
-    return anchor_check.exploratory_nodes(case, state["anchor_status"], state["choice_marked"])
+def _exploratory(case, state, rundir=None):
+    return anchor_check.exploratory_nodes(case, state["anchor_status"], state["choice_marked"], rundir=rundir,
+                                          context=_context(rundir, case, state) if rundir is not None else None)
 
 
 SOFT = ("unresolved_branch", "finding_pending")
@@ -1796,6 +2186,18 @@ def authorization_errors(rundir, case, state, *, refreshed=False):
     pol = anchor_check.policy()
     rules = pol["classes"][cls]
     point = case["decision_point"]
+    if state.get("review_scope_error"):
+        errors.append(_item("review_scope_invalid", state["review_scope_error"]))
+    if state.get("review_reuse"):
+        try:
+            _validate_review_reuse(rundir, case, state)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            errors.append(_item("review_reuse_invalid", str(exc)))
+    exploration = "exploration" in point and not state.get("exploration_error") \
+        and state.get("exploration_contract") is not None
+    if "exploration" in point and not exploration:
+        errors.append(_item("exploration_contract_invalid", state.get("exploration_error")
+                            or "the exploration contract has not been authenticated"))
     if state["budget_exhausted"]:
         errors.append(_item("budget_exhausted", f"the decision-justification budget is spent: {state['budget_reason']}"))
     escalated = _escalation_open(rundir, point["gate"], point["action"]["digest"], exclude=case["case_id"])
@@ -1833,8 +2235,8 @@ def authorization_errors(rundir, case, state, *, refreshed=False):
                                 "assumption node and ground it", node["id"]))
     if rules["require_alternative"] and not _has_alternative(case):
         errors.append(_item("alternative_missing", "this class needs one alternative node chosen against", ROOT))
-    if RANK[cls] >= RANK["R2"]:
-        for node_id in _exploratory(case, state):
+    if RANK[cls] >= RANK["R2"] and not exploration:
+        for node_id in _exploratory(case, state, rundir):
             errors.append(_item("exploratory_choice", f"claim {node_id} recommends an analysis choice without an "
                                 "authoritative-practice anchor; it stays exploratory", node_id))
     for row in _common_mode(case, state):
@@ -1862,7 +2264,8 @@ def authorization_errors(rundir, case, state, *, refreshed=False):
     if rules["independence"] == "transport_or_human" and any(a != "transport_attested" for a in used) \
             and not summary["human_approver"]:
         errors.append(_item("attestation_insufficient", "self_attested roles at this class need a recorded human approval"))
-    irreversible = pol["gates"][point["gate"]]["irreversible"] or point["action_kind"] in pol["irreversible_kinds"]
+    irreversible = pol["gates"][point["gate"]]["irreversible"] or point["action_kind"] in pol["irreversible_kinds"] \
+        or case["risk"]["computed_factors"].get("irreversible") is True
     if irreversible and not summary["human_approver"]:
         errors.append(_item("human_required", "an irreversible action also needs a recorded human approval of this case"))
     return errors
@@ -1912,8 +2315,15 @@ def _write_receipt(rundir, case, state, outcome, unresolved, *, reason=None):
                "class": case["risk"]["class"], "outcome": outcome, "attestation_summary": summary,
                "policy_sha256": case["risk"]["policy"]["sha256"],
                "open_a_findings": sum(1 for _, _, holding in rows if holding),
-               "unresolved_branches": unresolved, "exploratory": _exploratory(case, state),
+               "unresolved_branches": unresolved, "exploratory": _exploratory(case, state, rundir),
                "authorized_utc": _now()}
+    if "exploration" in case["decision_point"]:
+        receipt.update(authorization_scope="exploration_only", execution_authorized=False,
+                       scientific_acceptance=False, exploration_contract=case["decision_point"]["exploration"]["contract"])
+    if state.get("review_scope_context") is not None:
+        receipt["review_subject_sha256"] = _review_subject(case, state)
+    if state.get("review_reuse"):
+        receipt["review_reuse"] = deepcopy(state["review_reuse"])
     # The receipt keeps the decision-receipt shape; what else code decided is journaled with it.
     detail = {"advisory_findings": sorted(f["id"] for f, s, _ in rows if s == "advisory"
                                           and f["materiality"] in BLOCKING_CRITIQUE and f["code"] != "no_issue"),
@@ -2007,6 +2417,132 @@ def _current_receipt(rundir, record):
     return case, state, receipt
 
 
+def _receipt_record(rundir, receipt_id):
+    records = [row["record"] for row in custody.rows(rundir, "receipts")
+               if row["record"]["receipt_id"] == receipt_id]
+    if len(records) != 1 or records[0]["outcome"] != "authorize":
+        raise ValueError("review reuse requires one custody-recorded authorize receipt")
+    return records[0]
+
+
+def _reverify_review_calls(rundir, case, state):
+    """Read the original transport outputs again; model-stated identity is never reused."""
+    if state.get("review_reuse"):
+        return  # Its source chain was revalidated by authorization_errors below.
+    used = [edge["review"]["reviewer"] for edge in case["edges"] if edge["review"]]
+    used += [case[key]["reviewer"] for key in ("critique", "verification") if case[key]]
+    verified = set()
+    for call in state["calls"]:
+        if call["status"] != "completed" or call.get("session") not in used:
+            continue
+        request = call["request"]
+        payload = request["payload"].get("case", request["payload"])
+        if payload.get("review_scope_context") != state.get("review_scope_context"):
+            raise ValueError("the original reviewers did not see this complete bound review scope")
+        refs = [{"kind": "agent_graph", "root": request["graph_root"], "node_id": "rdj"}]
+        for row in custody.rows(rundir, "workers"):
+            path = row["record"]["path"]
+            try:
+                worker = read_json(Path(rundir) / path)
+            except (OSError, ValueError):
+                continue
+            if (worker.get("rdj") or {}).get("case_id") == case["case_id"] \
+                    and (worker.get("rdj") or {}).get("slot") == call["slot"]:
+                refs.append({"kind": "worker_receipt", "path": path})
+        for ref in refs:
+            try:
+                output, actor, family = _resolve(rundir, request, ref)
+                if actor != call["session"] or family != call.get("family") \
+                        or dc.jdigest(output) != call["output_sha256"]:
+                    continue
+                verified.add(call["role"])
+                break
+            except (OSError, ValueError, KeyError, TypeError):
+                continue
+        else:
+            raise ValueError("an original review transport or output no longer verifies")
+    if not set(anchor_check.policy()["classes"][case["risk"]["class"]]["roles"]) <= verified:
+        raise ValueError("the complete required review bundle has not been reverified")
+
+
+def _validate_review_reuse(rundir, case, state):
+    lineage = state["review_reuse"]
+    record = _receipt_record(rundir, lineage["source_receipt"]["receipt_id"])
+    source, source_state, receipt = _current_receipt(rundir, record)
+    if record["sha256"] != lineage["source_receipt"]["sha256"] or source["case_id"] == case["case_id"]:
+        raise ValueError("review reuse lineage no longer matches its original receipt")
+    current_policy = anchor_check.policy_pin()["sha256"]
+    if source["risk"]["policy"]["sha256"] != current_policy or case["risk"]["policy"]["sha256"] != current_policy:
+        raise ValueError("review reuse requires the unchanged current policy")
+    _refresh(rundir, source, source_state, persist=False)
+    if _review_contract(source["decision_point"]["gate"], source["risk"]["class"]) != _review_contract(
+            case["decision_point"]["gate"], case["risk"]["class"]):
+        raise ValueError("destination gate review obligations or cards differ")
+    subject = _review_subject(case, state)
+    if subject != receipt.get("review_subject_sha256") or subject != _review_subject(source, source_state) \
+            or subject != lineage["review_subject_sha256"]:
+        raise ValueError("decision inputs, evidence, regime, risk or typed obligations changed")
+    if authorization_errors(rundir, source, source_state, refreshed=True):
+        raise ValueError("the original accepted review no longer passes authorization checks")
+    _reverify_review_calls(rundir, source, source_state)
+
+
+def _reuse_review(rundir, case_id, receipt_id):
+    """Seed an unchanged proposal; reuse only a fully equivalent accepted review bundle.
+
+    On a semantic mismatch the seeded proposal retains no verdicts, so ordinary
+    run_roles dispatches current reviews. No receipt changes gate and no execution
+    or human-approval guard is bypassed.
+    """
+    record = _receipt_record(rundir, receipt_id)
+    source, source_state, receipt = _current_receipt(rundir, record)
+    if "exploration" in source["decision_point"]:
+        raise ValueError("exploration acceptance cannot be reused across gates")
+    with _lock(rundir, case_id):
+        case, state, _ = _load(rundir, case_id)
+        if "exploration" in case["decision_point"]:
+            raise ValueError("exploration acceptance cannot be reused across gates")
+        root = deepcopy(case["nodes"][0])
+        case["nodes"] = [root] + [deepcopy(node) for node in source["nodes"] if node["id"] != ROOT]
+        case["edges"], case["anchors"] = deepcopy(source["edges"]), deepcopy(source["anchors"])
+        for node in case["nodes"]:
+            node["author"], node["round"] = state["proposer"], 0
+            node.pop("review_context_sha256", None)
+        for edge in case["edges"]:
+            edge["review"], edge["author"], edge["round"] = None, state["proposer"], 0
+        _refresh(rundir, case, state)
+        lineage = {"source_receipt": {"receipt_id": receipt_id, "sha256": record["sha256"]},
+                   "source_case_id": source["case_id"], "source_gate": source["decision_point"]["gate"],
+                   "destination_gate": case["decision_point"]["gate"],
+                   "review_subject_sha256": _review_subject(case, state), "execution_authorized": False}
+        reason = None
+        try:
+            if "review_scope" not in case["decision_point"] or "review_scope" not in source["decision_point"]:
+                raise ValueError("legacy review has no supplied portable review scope")
+            if source["revisions"] or (source["critique"] or {}).get("findings"):
+                raise ValueError("revised or finding-bearing bundles require fresh current review")
+            if state["proposer"] != source_state["proposer"]:
+                raise ValueError("proposer identity changed")
+            state["review_reuse"] = lineage
+            _validate_review_reuse(rundir, case, state)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            state.pop("review_reuse", None)
+            reason = str(exc)
+        if reason is None:
+            for edge, original in zip(case["edges"], source["edges"]):
+                edge["review"] = deepcopy(original["review"])
+            case["critique"], case["verification"] = deepcopy(source["critique"]), deepcopy(source["verification"])
+            for key in ("reviewer_sessions", "critic_sessions", "choice_marked"):
+                state[key] = deepcopy(source_state[key])
+            state["critic_revision"] = 0
+            state["critic_digest"] = _critic_digest(case)
+            state["verified_digest"] = _verify_digest(case, state)
+        else:
+            state["review_reuse_reason"] = reason
+        _commit(rundir, case, state, "review_bundle_reused" if reason is None else "review_reuse_refused",
+                {"source_receipt_id": receipt_id, "reason": reason})
+
+
 def _gate_decision(rundir, gate, action):
     """``(errors, accepted)`` for one gate check; ``accepted`` is the one authorize receipt that
     passed every rule (with its case), or None. ``gate_errors`` and ``authorizing_receipt`` both
@@ -2020,7 +2556,7 @@ def _gate_decision(rundir, gate, action):
         return [GateError("rdj_unknown_gate", gate, PROVIDER, str(exc), "map the gate name in data/rdj/policy.json")], None
     digest = action.get("digest") if isinstance(action, dict) else None
     try:
-        required, _ = compute_class(rundir, gate, action, action.get("facts"))
+        required, required_factors = compute_class(rundir, gate, action, action.get("facts"))
         rows = [r for r in custody.rows(rundir, "receipts")
                 if r["record"]["action_digest"] == digest and r["record"]["gate"] == canonical]
         policy_sha = anchor_check.policy_pin()["sha256"]
@@ -2036,12 +2572,21 @@ def _gate_decision(rundir, gate, action):
         record = row["record"]
         pins = (f"rdj/cases/{record['case_id']}.json",)
         try:
+            requested_pins = _action_pins(rundir, action) if "pins" in action else None
             case, state, receipt = _current_receipt(rundir, record)
             point = case["decision_point"]
             if point["gate"] != canonical or point["action"]["digest"] != digest:
                 raise ValueError("the case decided a different gate or action")
             if action.get("kind") is not None and action["kind"] != point["action_kind"]:
                 raise ValueError("the case decided a different action kind")
+            if requested_pins is not None and sorted(requested_pins, key=lambda p: p["path"]) != sorted(
+                    point["action"]["pins"], key=lambda p: p["path"]):
+                raise ValueError("the case decided different action pins")
+            if required_factors.get("route") is not None and required_factors["route"] != case["risk"][
+                    "computed_factors"].get("route"):
+                raise ValueError("the case decided a different route")
+            if action.get("authorization_scope") != ("exploration_only" if "exploration" in point else None):
+                raise ValueError("the case decided a different authorization scope")
             if case["risk"]["policy"]["sha256"] != policy_sha:
                 raise ValueError("the case was decided under a different policy")
         except (OSError, ValueError, KeyError, TypeError) as exc:
@@ -2055,6 +2600,11 @@ def _gate_decision(rundir, gate, action):
         if RANK[case["risk"]["class"]] < RANK[required]:
             errors.append(GateError("rdj_class_too_low", canonical, PROVIDER,
                                     f"case {record['case_id']} is {case['risk']['class']}; this action needs {required}",
+                                    fix, pins))
+            continue
+        if required_factors.get("irreversible") and not _human(rundir, case):
+            errors.append(GateError("rdj_human_required", canonical, PROVIDER,
+                                    "the current irreversible action needs a recorded human approval of this case",
                                     fix, pins))
             continue
         items = authorization_errors(rundir, case, state)
@@ -2188,7 +2738,8 @@ def status(rundir, case_id):
             "challenges": challenges, "pending_roles": roles, "open_items": open_items,
             "usage": state["usage"], "budget": {"max_model_calls": anchor_check.policy()["classes"][cls]["max_model_calls"],
                                                 "reason": state["budget_reason"]},
-            "exploratory": _exploratory(work, view),
+            "exploratory": _exploratory(work, view, rundir),
+            "review_reuse": view.get("review_reuse"), "review_reuse_reason": view.get("review_reuse_reason"),
             "queue": [i["item_id"] for i in evidence_queue.items(rundir, case_id=case_id)],
             "receipts": [r["record"]["receipt_id"] for r in custody.rows(rundir, "receipts")
                          if r["record"]["case_id"] == case_id]}

@@ -29,7 +29,7 @@ from urllib.parse import urlsplit
 from . import provider_transport, visual_presentation
 
 from ravel.physics import model_inputs, quantities, eft_toolchain, finite_integrals, full_auxiliary_calibration, root_stream, dataset_query_quantities, parameter_space_sampling, cosmic_evolution, cosmic_evolution_worker
-from ravel.validation import numerical_witness
+from ravel.validation import numerical_witness, core as validation_core
 from . import scientific_judgment
 from . import report_integrity, manuscript_production
 from . import physics_knowledge, decision_case, experiment_allocator, research_transfer, review_context, constructive_contrast, scientific_context, empirical_search, adaptation_reuse, scientific_artifact, public_source_tools, scientific_task_delivery, scientific_report, scientific_phase_allocation, cosmology_backend, cosmology_runtime, sfitter_workflow, sfitter_scan_inputs
@@ -123,102 +123,21 @@ def _public(value, depth=0):
 
 
 def _schema(schema, depth=0):
-    """Validate an explicit finite JSON-schema subset before any transport call."""
-    if depth > 32 or type(schema) is not dict or set(schema) - SCHEMA_KEYS:
-        raise HostFailure("unsupported output schema")
-    types = schema.get("type")
-    if isinstance(types, str):
-        types = [types]
-    if not isinstance(types, list) or not types or any(type(t) is not str or t not in JSON_TYPES for t in types) or len(set(types)) != len(types):
-        raise HostFailure("output schema requires supported explicit types")
-    # A pure object union keeps every alternative closed and fully required.
-    # It permits versioned records without admitting partially specified objects.
-    if set(schema) == {'type', 'anyOf'} and schema['type'] == 'object':
-        choices = schema['anyOf']
-        if type(choices) is not list or not 1 <= len(choices) <= 16:
-            raise HostFailure('bounded output alternatives required')
-        for choice in choices:
-            _schema(choice, depth + 1)
-            if choice['type'] != 'object':
-                raise HostFailure('object alternatives require object type')
-        return
-    for key in ("description", "title"):
-        if key in schema:
-            _text(schema[key], "schema annotation", 4096)
-    if "object" in types:
-        properties, required = schema.get("properties"), schema.get("required")
-        if (type(properties) is not dict or type(required) is not list
-                or any(type(key) is not str or key in PRIVATE_FIELDS for key in properties)
-                or any(type(key) is not str for key in required)
-                or len(set(required)) != len(required) or set(required) != set(properties)
-                or schema.get("additionalProperties") is not False):
-            raise HostFailure("object output schemas require all properties and no additional fields")
-        for nested in properties.values():
-            _schema(nested, depth + 1)
-    elif any(key in schema for key in ("properties", "required", "additionalProperties")):
-        raise HostFailure("object schema fields require object type")
-    if "array" in types:
-        _schema(schema.get("items"), depth + 1)
-    elif "items" in schema:
-        raise HostFailure("array schema fields require array type")
-    for key in ("minItems", "maxItems", "minLength", "maxLength"):
-        if key in schema:
-            _integer(schema[key], "schema bound", 0)
-            needed = "array" if key.endswith("Items") else "string"
-            if needed not in types:
-                raise HostFailure("output schema bound does not apply to its type")
-    for key in ("minimum", "maximum"):
-        if key in schema and (type(schema[key]) not in (int, float) or not math.isfinite(schema[key])):
-            raise HostFailure("schema bounds must be finite numbers")
-        if key in schema and not {"integer", "number"}.intersection(types):
-            raise HostFailure("output schema bound does not apply to its type")
-    for lower, upper in (("minimum", "maximum"), ("minItems", "maxItems"), ("minLength", "maxLength")):
-        if lower in schema and upper in schema and schema[lower] > schema[upper]:
-            raise HostFailure("inverted output schema bounds")
-    if "enum" in schema and (type(schema["enum"]) is not list or not schema["enum"]):
-        raise HostFailure("schema enum requires values")
-    if "anyOf" in schema:
-        if type(schema["anyOf"]) is not list or not 1 <= len(schema["anyOf"]) <= 16:
-            raise HostFailure("bounded output alternatives required")
-        for choice in schema["anyOf"]: _schema(choice, depth + 1)
-    _json_bytes(schema)
+    try:
+        validation_core.validate_schema(schema, depth)
+    except validation_core.MechanicalValidationError as exc:
+        failure = HostFailure(getattr(exc, 'legacy_message', str(exc)))
+        failure.diagnostics = str(exc)
+        raise failure from exc
 
 
 def _validate(value, schema):
-    types = schema["type"] if isinstance(schema["type"], list) else [schema["type"]]
-    actual = ("null" if value is None else "boolean" if type(value) is bool else
-              "integer" if type(value) is int else "number" if type(value) is float else
-              "string" if type(value) is str else "array" if type(value) is list else
-              "object" if type(value) is dict else "invalid")
-    if actual not in types and not (actual == "integer" and "number" in types):
-        raise HostFailure("public JSON does not match output schema")
-    encoded = _json_bytes(value)
-    if "anyOf" in schema:
-        for choice in schema["anyOf"]:
-            try: _validate(value, choice)
-            except HostFailure: continue
-            break
-        else: raise HostFailure("public JSON does not match conditional output alternatives")
-    if set(schema) == {'type', 'anyOf'}:
-        return
-    if "enum" in schema and all(not _same_json(value, choice) for choice in schema["enum"]):
-        raise HostFailure("public JSON does not match output enum")
-    if "const" in schema and not _same_json(value, schema["const"]):
-        raise HostFailure("public JSON does not match output constant")
-    if actual == "object":
-        if set(value) != set(schema["properties"]):
-            raise HostFailure("public JSON object fields do not match schema")
-        for key, item in value.items():
-            _validate(item, schema["properties"][key])
-    if actual == "array":
-        for item in value:
-            _validate(item, schema["items"])
-    for lower, upper, measure in (("minItems", "maxItems", len(value) if actual == "array" else None),
-                                   ("minLength", "maxLength", len(value) if actual == "string" else None),
-                                   ("minimum", "maximum", value if actual in ("integer", "number") else None)):
-        if measure is not None and ((lower in schema and measure < schema[lower]) or
-                                    (upper in schema and measure > schema[upper])):
-            raise HostFailure("public JSON exceeds output schema bound")
+    try:
+        validation_core.validate_value(value, schema)
+    except validation_core.MechanicalValidationError as exc:
+        failure = HostFailure(getattr(exc, 'legacy_message', str(exc)))
+        failure.diagnostics = str(exc)
+        raise failure from exc
 
 
 def completion_limits(parameters):
@@ -414,17 +333,7 @@ def _responses_public_value(value, schema):
 
 
 def _same_json(left, right):
-    # JSON Schema numeric equality treats 1 and 1.0 alike, while a boolean is
-    # distinct from a number. Scientific anchor type checks remain separate.
-    if type(left) in (int, float) and type(right) in (int, float):
-        return left == right
-    if type(left) is not type(right):
-        return False
-    if type(left) is dict:
-        return set(left) == set(right) and all(_same_json(left[key], right[key]) for key in left)
-    if type(left) is list:
-        return len(left) == len(right) and all(_same_json(a, b) for a, b in zip(left, right))
-    return left == right
+    return validation_core.same_json(left, right)
 
 
 def _safe_path(value):

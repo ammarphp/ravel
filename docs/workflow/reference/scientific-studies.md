@@ -1133,3 +1133,156 @@ are included in columnar planning inputs. Existing `sealed://` custody can be re
 only in its originating evaluator process. Missing custody after process exit fails
 closed; this adapter does not persist sealed models or provide a durable evaluator
 store. Prediction consumes the admitted byte snapshot; it never unpickles a model.
+
+## Generated-event quantity handoffs
+
+Use this opt-in handoff when a declared generated sample feeds one exclusive
+event histogram and then one signal sample in one likelihood channel. The
+operations remain `model-events`, `columnar-analysis` and `signal-template`.
+Each keeps its existing admission, approval, execution and numerical gates.
+Enabling the handoff establishes no scientific qualification.
+
+### Declare the producer
+
+Add `composition` to the generation task with these three required fields:
+
+```json
+{
+  "sampling_model": "independent_poisson_events",
+  "normalization_model": "fixed_cross_section_luminosity_and_sumw",
+  "quantity": {
+    "included_factors": [],
+    "applicability": {
+      "id": "supplied-domain",
+      "parameters": {},
+      "assumptions": ["State the supplied population and applicability assumptions."]
+    }
+  }
+}
+```
+
+These are explicit supplied assumptions. The counting projection treats the
+cross section, luminosity and full-sample weight denominator as fixed. It does
+not propagate their uncertainty or establish the event sampling law. Supply
+sourced included-factor entries when factors are present; an empty array is an
+explicit declaration that none are included. Do not fill a missing fact with
+a consumer's desired value.
+
+`generated-sample-contract.json` records the actual event-file pin, full event
+count, signed-weight census and nominal weight moments, the init cross section
+in pb, unit scale, normalization, included factors and supplied applicability.
+Model identity is bound to the model-source and parameter-card hashes. Producer
+selection identity is bound to the process and run cards. File identity and
+revision define the original event population and exposure. Explicit grouped
+events cannot use this independent-event projection. Generation leaves the
+covariance status unknown and reports `physics_validated: false`.
+
+### Select yields
+
+Pass the returned `generated_sample` pin as `generated_sample` on the selection
+task. Use one original event file, a supplied file-format descriptor, one yield
+histogram, and the nominal generator weight without additional factors or
+object efficiencies. Declare positive luminosity in inverse fb and use
+`cross_section_pb: {"lhe_init": true}` with
+`sum_of_weights: "all-input-events"`. The adapter checks the full event census,
+weight moments, cross section and exact original input bytes.
+
+The additional `quantity-contract.json` in the selection output directory preserves the usual
+binned values, plus a quantity descriptor and provenance pins. Its selection
+identity combines the recipe, format mapping and region. Bin identities retain
+their order. Integrated yields use event units at scale one. Under the supplied
+sampling and fixed-normalization assumptions, disjoint event bins have a
+diagonal covariance equal to the accumulated squared weights. The returned
+`quantity_artifacts` map supplies each artifact pin. Existing histogram files
+retain their previous format.
+
+### Construct the likelihood and expected limits
+
+On the signal sample in the supplied template, add `prediction` with that pin
+and `prediction_requirements` containing explicit intended `selection`,
+`model_point`, `included_factors`, `exposure`, `event_population`, `luminosity`
+and `applicability`. The consumer verifies these declarations, the producing
+recipe and format, all event-file pins, ordered bins, exact signal values and
+finite-MC moments. Use the existing `mc_stat.mode: "supplied"` representation.
+
+Selection and inference apply the same generated-sample checks. The schema,
+sampling assumptions, single event-file identity, population and exposure must
+remain consistent, and the regional exposure must name the consuming channel.
+The inference receipt retains the complete consumer requirements beside the
+input quantity so the intended population and domain remain inspectable.
+
+This projection admits one complete signal sample in one channel with
+nonnegative event weights and diagonal signal covariance. Its finite-MC modifier
+must be unshared and have no source parameter override, so pooling or fixing a
+nuisance cannot change the declared covariance. A signed population,
+extra weight factors, grouped events, shared-channel covariance or a different
+normalization requires a compatible specialised adapter and its evidence.
+The ordinary adapters retain their existing routes for other studies.
+
+The existing likelihood compiler preserves its auxiliary data, constraints and
+parameter ordering. Successful inference writes
+`inference-quantity-contract.json` and returns its `quantity_artifact` pin. The
+record binds the compiled likelihood, retains the input quantity and covariance,
+and labels the five expected limits as dimensionless signal strengths. It
+inherits the supplied model, exposure, factor and domain declarations. The
+existing requirement that all six limit roots resolve still applies; failures
+retain diagnostics and produce no successful quantity delivery. Neither a
+resolved limit nor these interface checks certifies physical applicability.
+
+### Resolve obligations and register an adapter
+
+Missing quantity facts remain located obligations. Each diagnostic names the
+consumer or field, observed value, expected condition and repair boundary.
+Resolve omissions at the producing source or in an explicitly recorded
+assumption. Incompatible units, scales or populations require a compatible
+producer or an explicit conversion operation; changing a descriptor does not
+convert numerical values.
+
+For this chain, operation signatures declare the adapter module and
+`implementation.dispatch_group: "event-inference-chain"`. The same definitions
+drive mode discovery, dispatch and optional adapter-owned
+`implementation.presentation` hooks. A new ordinary chain operation can supply
+one closed `registration` block in its signature:
+
+- `executor`: an existing production role; no role or duty is invented.
+- `descriptor`: the complete discovery vocabulary and explicit applicability.
+- `setup_groups`: a nonempty list of existing installer groups.
+- `documentation`: shipped Markdown paths and exact section headings that
+  describe the procedure used by this operation.
+- `curation`: explicit `use_when`, `do_not_use_when` and offline-valid examples
+  whose specifications name this operation.
+
+These authored declarations supply the existing executor table, effective
+production card, discovery catalogue, setup mapping and knowledge index.
+Conflicting retained declarations refuse. Completeness still requires a real
+adapter, a production role, valid groups, applicability, documentation and
+accepted offline examples. The ordinary role and knowledge checks still refuse
+stale generated outputs. No projection changes installation status, scientific
+qualification or approval authority.
+
+When reusing an existing role, installer groups and documented procedure, adding
+an operation requires its adapter, contract and tests. Different procedures
+still require their own documentation; new roles or tools retain their separate
+registration and qualification requirements. Existing operations retain
+their compatibility positions through signature metadata. The three migrated
+adapters also retain their historical dispatch bindings when an older source
+has a partial signature table. Those bindings supply no scientific contract;
+missing signatures remain undeclared, and invalid explicit declarations refuse.
+Explicit adapter module names and dispatch positions are checked by the same
+validator whether or not the signature includes the optional registration block.
+Their existing metadata remains the compatibility source when the optional
+registration block is absent. Source discovery reads the selected source's
+declarations and dispatch seam without importing that selected code. An operation
+without discovery descriptors can be listed but cannot gain applicability or
+source-ranking claims from its name alone.
+
+Mechanical closed-object, pin, finite-number and bounded output-schema checks
+use `ravel.validation.core` and the existing JSON Schema dependency. Physical
+normalization, covariance and likelihood checks remain in their specialised
+modules. The host still refuses unsupported schema extensions, private fields,
+open objects and invalid runtime types.
+Template objects permit only their declared optional fields. Invalid normalization
+anchors, including numeric overflow, identify the offending field before compilation.
+Its compatibility exceptions retain their historical text; detailed field,
+observed value, expected condition and repair diagnostics remain attached to
+the exception and its cause.

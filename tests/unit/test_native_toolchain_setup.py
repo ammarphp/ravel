@@ -1,5 +1,4 @@
 """The compatibility alias scripts/setup/native_toolchain.py and per-mode tool selection."""
-import ast
 import contextlib
 import importlib.util
 import io
@@ -26,9 +25,8 @@ def run_alias(argv, environ=None):
 
 
 def test_complete_current_operation_population():
-    module = ast.parse((ROOT / "src/ravel/workflow/science.py").read_text())
-    modes = next(ast.literal_eval(n.value) for n in module.body if isinstance(n, ast.Assign)
-                 and any(isinstance(t, ast.Name) and t.id == "MODES" for t in n.targets))
+    from ravel.workflow.capability_routing import catalogue
+    modes = [row['mode'] for row in catalogue(ROOT)['operations']]
     actual = [row["mode"] for row in MANIFEST["operations"]]
     assert len(actual) == len(set(actual))
     # Every science mode has its row, in the registry's order; a further row belongs to a mode that

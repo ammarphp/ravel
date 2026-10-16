@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "medium_max_seconds": 60,
+  "fast": [
+    "tests/governance/test_protected_paths.py",
+    "tests/governance/test_protected_paths_fixes.py",
+    "tests/unit/test_ci_shards.py",
+    "tests/unit/test_test_tiers.py",
+    "tests/unit/test_checkin_sections.py",
+    "tests/unit/test_checkin_withheld.py",
+    "tests/unit/test_source_policy.py",
+    "tests/unit/test_provider_policy.py",
+    "tests/unit/test_restriction_guard.py",
+    "tests/unit/test_machine_lease.py",
+    "tests/unit/test_machine_lease_scope.py",
+    "tests/unit/test_sandbox_linux_profile.py",
+    "tests/unit/test_approval_binding_native.py"
+  ]
+}

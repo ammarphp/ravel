@@ -6,12 +6,21 @@ import pytest
 from ravel.workflow import agent_graph as graph, finding_routing as routing
 from ravel.workflow import physics_review as review, role_registry as roles
 from ravel.workflow import research_protocol, scientific_judgment
-from ravel.workflow.state_io import read_json
+from ravel.workflow.state_io import read_json, atomic_json
 from test_agent_graph import node, pin, spec
 from test_role_registry import finding as role_finding
-from test_physics_review import run, opened, finding as journal_finding
+from test_physics_review import run as physics_run, opened, finding as journal_finding
 from test_manuscript_claim_disposition import contract
 from ravel.workflow import manuscript_claim_disposition as disposition
+
+
+@pytest.fixture
+def run(physics_run):
+    root, _ = physics_run
+    policy = read_json(root / review.POLICY)
+    policy['claim_scopes']['reproduction']['claim_ids'] = ['universal']
+    atomic_json(root / review.POLICY, policy)
+    return physics_run
 
 
 def classification(kind='defect', *, sha='a' * 64, target='produce', effect='bounds', bound='restricted scope', claim='universal'):
@@ -149,10 +158,28 @@ def test_affected_claim_must_be_qualified_or_withdrawn_in_final_prose(effect, bo
 
 def journal_classified(root, kind, **kwargs):
     item = journal_finding()
+    if kind == 'limitation':
+        policy = read_json(root / review.POLICY)
+        kwargs.setdefault('claim', policy['claim_scopes']['reproduction'].get('claim_ids', ['reproduction'])[0])
     item['classification'] = classification(kind, sha=review.execution.file_hash(root / 'outputs/produced.json'),
                                             target='detector', **kwargs)
     if kind == 'limitation': item.update(required_paths=[], required_stages=[])
     return item
+
+
+def disposition_package(root, item, *, chosen=None):
+    plan, rows, value, evidence = contract()
+    affected = item['classification']['claims'][0]
+    identity = affected['claim_id']
+    plan['claim_map'][0]['id'] = identity
+    rows[0]['planned_claim_id'] = identity; rows[0]['original']['id'] = identity
+    rows[0]['disposition'] = chosen or ('withdrawn' if affected['effect'] == 'invalidates'
+                                       or affected['bound'] == 'unbounded' else 'qualified')
+    rows[0]['reason'] = affected['bound']
+    value['paragraphs'][0]['text'] += ' ' + affected['bound']
+    path = root / 'inputs/claim-disposition.json'
+    atomic_json(path, {'plan': plan, 'rows': rows, 'value': value, 'evidence': evidence})
+    return {'path': 'inputs/claim-disposition.json', 'sha256': review.execution.file_hash(path)}
 
 
 def test_headline_invalidated_without_rework_or_endless_delivery_loop(run):
@@ -164,7 +191,8 @@ def test_headline_invalidated_without_rework_or_endless_delivery_loop(run):
     with pytest.raises(ValueError, match='correction'):
         review.authorize_correction(root, actor_id='physicist', changed_paths=[], stages=['detector'], recheck_checks=['agreement'])
     for role, actor in [('skeptical_verifier', 'skeptic'), ('physics_decider', 'physicist')]:
-        review.submit_review(root, role=role, actor_id=actor, verdict='accept', summary='Deliver the scoped negative result', claim_scope='diagnostic')
+        review.submit_review(root, role=role, actor_id=actor, verdict='accept', summary='Deliver the scoped negative result', claim_scope='diagnostic',
+                             **({'supporting_artifacts': [disposition_package(root, item)]} if role == 'physics_decider' else {}))
     state = review.status(root)
     assert state['state'] == 'accepted' and state['redos_used'] == 0
     assert state['limitation_census'][0]['disposition'] == 'withdrawn'
@@ -296,7 +324,8 @@ def test_decider_cannot_send_back_limitations_without_an_actionable_defect(run):
                              summary='Scope disclosure', findings=[item])
     assert review.status(root)['state'] == 'awaiting_review'
     review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
-                         summary='Deliver the qualified scope', findings=[item], claim_scope='diagnostic')
+                         summary='Deliver the qualified scope', findings=[item], claim_scope='diagnostic',
+                         supporting_artifacts=[disposition_package(root, item)])
     assert review.status(root)['limitation_census'][0]['finding_id'] == item['id']
 
 
@@ -319,3 +348,100 @@ def test_reclassified_limitation_in_an_acceptance_cannot_become_an_ignored_defec
     with pytest.raises(ValueError, match='acceptance'):
         review.reclassify_finding(root, item['id'], classification(sha=sha, target='detector'), actor_id='physicist', reason='Input error.')
     assert review.status(root)['limitation_census'][0]['finding_id'] == item['id']
+
+
+def test_submitted_defect_target_must_be_an_allowed_owning_stage(run):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'defect')
+    item['classification']['target'] = 'absent-stage'
+    with pytest.raises(ValueError, match='owning stage'):
+        review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
+                             summary='Located defect', findings=[item])
+
+
+def test_nonmanuscript_delivery_cannot_ignore_an_invalidated_accepted_scope(run):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'limitation', effect='invalidates', bound='claim fails')
+    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
+                         summary='Withdraw the result claim', findings=[item])
+    review.submit_review(root, role='skeptical_verifier', actor_id='skeptic', verdict='accept', summary='Scoped result', claim_scope='reproduction')
+    with pytest.raises(ValueError, match='withdrawn'):
+        review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept', summary='Scoped result',
+                             claim_scope='reproduction', supporting_artifacts=[disposition_package(root, item)])
+    assert review.gate_errors(root, 'delivery')
+
+
+def test_limitation_claim_alias_must_be_explicitly_mapped_before_submission(run):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'limitation', claim='unrelated-claim')
+    head = (root / review.HEAD).read_bytes()
+    with pytest.raises(ValueError, match='policy claim scope'):
+        review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
+                             summary='Unbound alias', findings=[item])
+    assert (root / review.HEAD).read_bytes() == head
+
+
+def test_reclassified_limitation_cannot_introduce_an_unbound_claim_alias(run):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'defect')
+    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
+                         summary='Located defect', findings=[item])
+    replacement = classification('limitation', sha=item['classification']['artifact_sha256'], claim='unrelated-claim')
+    with pytest.raises(ValueError, match='policy claim scope'):
+        review.reclassify_finding(root, item['id'], replacement, actor_id='physicist', reason='Bounded claim')
+
+
+def test_bounded_claim_scope_can_deliver_with_visible_witnessed_qualification(run):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'limitation', bound='restricted supplied domain')
+    review.submit_review(root, role='physics_critic', actor_id='critic', verdict='send_back',
+                         summary='Qualification required', findings=[item])
+    review.submit_review(root, role='skeptical_verifier', actor_id='skeptic', verdict='accept',
+                         summary='Qualified scope', claim_scope='reproduction')
+    with pytest.raises(ValueError, match='disposition package'):
+        review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
+                             summary='Missing witness', claim_scope='reproduction')
+    proof = disposition_package(root, item)
+    decision = review.submit_review(root, role='physics_decider', actor_id='physicist', verdict='accept',
+        summary='Witnessed qualification', claim_scope='reproduction', supporting_artifacts=[proof])
+    assert decision['limitation_disposition']['sha256'] == proof['sha256']
+    assert review.gate_errors(root, 'delivery') == []
+    assert review.validate_snapshot(review.snapshot(root, action='delivery')) == []
+    assert review.status(root)['redos_used'] == 0
+    (root / proof['path']).write_text('{}')
+    assert review.gate_errors(root, 'delivery')
+
+
+def legacy_limitation_acceptance(root, item):
+    """Seed the exact former acceptance shape to exercise current historical gates."""
+    for role, actor in [('physics_critic', 'critic'), ('skeptical_verifier', 'skeptic'), ('physics_decider', 'physicist')]:
+        reg, events = review._read(root)
+        review._append(root, reg, events, {'event': 'review', 'cycle_id': review._view(reg, events)['cycle']['cycle_id'],
+            'role': role, 'actor_id': actor, 'verdict': 'accept', 'summary': 'Historical scoped result',
+            'findings': [item] if role == 'physics_critic' else [], 'closes': [], 'claim_scope': 'diagnostic',
+            'attestation': review.ATTESTATION})
+
+
+@pytest.mark.parametrize('claim', ['universal', 'unrelated-claim'])
+def test_historical_limitation_stays_readable_but_cannot_escape_live_or_detached_delivery(run, claim):
+    root, _ = run; opened(run)
+    item = journal_classified(root, 'limitation', claim=claim)
+    legacy_limitation_acceptance(root, item)
+    assert review.status(root)['state'] == 'accepted'
+    reg, events = review._read(root)
+    history = {'schema_version': 1, 'registration': reg, 'events': events,
+               'checkpoint': read_json(root / review.HEAD), 'action': 'delivery', 'stage': None}
+    assert review.validate_snapshot(history, require_admission=False) == []
+    assert review.validate_snapshot(history)
+    assert review.gate_errors(root, 'delivery')
+    assert review.gate_errors(root, 'final_task')
+
+
+def test_explicit_claim_mapping_preserves_old_policy_shape_and_requires_unique_claims():
+    from test_physics_review import policy
+    old = policy(); assert review.validate_policy(old) == []
+    current = deepcopy(old); current['claim_scopes']['reproduction']['claim_ids'] = ['universal']
+    assert review.validate_policy(current) == []
+    for claims in ([], ['universal', 'universal'], 'universal'):
+        current['claim_scopes']['reproduction']['claim_ids'] = claims
+        assert review.validate_policy(current)

@@ -8,6 +8,10 @@ from ravel.workflow.science import verify_worker, regular, adapter, execution_sp
 
 
 def diagnostic_presentation(mode, result):
+    from ravel.workflow.operation_definitions import presentation_for
+    presented = presentation_for(mode, result)
+    if presented is not None:
+        return presented
     if mode in ('formula-grid', 'coupling-morphing', 'prescribed-statistic', 'search-statistics', 'differential-likelihood'):
         from .inference.common import SCOPE
         if result.get('status_scope') != SCOPE or result.get('physics_validated') is not False:
@@ -147,12 +151,6 @@ def diagnostic_presentation(mode, result):
             raise ValueError('EFT fixed-point delivery cannot acquire physics/interval qualification')
         return {'status_scope':result['status_scope'],'physics_validated':False}, ('Native EFT running/matching and fixed precision quantities only. '
             'Physical matching, numerical accuracy and statistical interpretation require independent evidence.')
-    if mode == 'model-events':
-        if result.get('status_scope') != 'source_bound_generated_event_delivery' or result.get('physics_validated') is not False:
-            raise ValueError('generator delivery cannot acquire physics certification')
-        return {'status_scope':result['status_scope'],'generated_events':result['generated_events']}, (
-            'Complete source-bound generated-event and signed multiweight delivery. Matching-scale stability, '
-            'decay, EFT validity, detector response and calibrated inference require their own evidence.')
     if mode=='sfitter-observed-events':
         if result.get('status_scope')!='sfitter_observed_event_rate_delivery' or any(result.get(k) is not False for k in ('physics_validated','execution_authorized','native_fit_completed','sampling_law_validated','independence_proven')) or result.get('native_calls')!=0:
             raise ValueError('observed-event transport cannot acquire native/physics/sampling authority')

@@ -63,16 +63,33 @@ def declarations(source_root=None):
             or manifest.get('helper') != 'scripts/setup/python_installation.py'):
         raise ValueError('full Python installation contract required')
     deps = manifest['dependencies']
-    if not deps or len(deps) != len(set(deps)) or any(type(d) is not str for d in deps):
+    if (type(deps) is not list or not deps or any(type(d) is not str for d in deps)
+            or len(deps) != len(set(deps))):
         raise ValueError('unique complete host dependencies required')
+    runtime = manifest.get('runtime_dependencies')
+    build = manifest.get('build_requirements')
+    extras = manifest.get('selected_extras')
+    if type(extras) is not dict or set(extras) != {'test', 'cosmology'}:
+        raise ValueError('complete test and cosmology extras required for the full installer')
+    groups = [runtime, build, *extras.values()]
+    if any(type(group) is not list or not group or any(type(d) is not str for d in group)
+           or len(group) != len(set(group)) for group in groups):
+        raise ValueError('explicit unique runtime, build and extra requirements required')
+    if set(deps) != {d for group in groups for d in group}:
+        raise ValueError('full installer must include exactly runtime, build and selected extra requirements')
     requirements = _read(root, manifest['host_requirements']).decode('utf-8')
     rows = [line.strip() for line in requirements.splitlines()
             if line.strip() and not line.lstrip().startswith('#')]
     if rows != deps + ['.']:
         raise ValueError('literal full requirements differ from canonical dependency projection')
     if source_root is not None:
-        project = tomllib.loads(_read(root, 'pyproject.toml').decode('utf-8'))['project']
-        if project['dependencies'] != deps or project['requires-python'] != manifest['requires_python']:
+        canonical = tomllib.loads(_read(root, 'pyproject.toml').decode('utf-8'))
+        project = canonical['project']
+        if (project['dependencies'] != runtime
+                or project['requires-python'] != manifest['requires_python']
+                or canonical['build-system']['requires'] != build
+                or any(project['optional-dependencies'].get(name) != values
+                       for name, values in extras.items())):
             raise ValueError('full dependency manifest differs from canonical pyproject')
     profiles = manifest['isolated_required']
     if [p['name'] for p in profiles] != ['smodels', 'sfitter']:

@@ -836,7 +836,9 @@ def test_late_hold_refuses_unauthorized_unbound_or_replayed_context_without_new_
     with pytest.raises(ValueError): commit_late_hold(root, context, path, **args)
     assert (root/review.HEAD).read_bytes() == previous
     assert {p:p.read_bytes() for p in (root/review.DIRECTORY/"events").glob("*.json")} == previous_events
-    assert review.status(root) == previous_state
+    current_state = review.status(root)
+    assert current_state.pop('seconds_since_last_approved_progress') >= previous_state.pop('seconds_since_last_approved_progress')
+    assert current_state == previous_state
     assert review.gate_errors(root, "delivery") == []
 
 

@@ -169,3 +169,205 @@ or withdrawn; invalidated or unbounded claims are withdrawn. The actual manuscri
 claim census and its visible reasons must retain these effects. Honest withdrawal
 of a headline claim permits delivery of the negative result without regeneration.
 Research methodology status and its census handoff include these journal limitations.
+
+Journal defect targets must name an allowed owning stage when submitted as well as
+when reclassified. Each review policy claim scope may explicitly list `claim_ids`;
+without that field its own scope identifier is the claim identifier. A limitation
+must name a claim in this policy census. Historical unbound findings remain readable
+but cannot pass delivery as if their scope had been established.
+
+For every delivery route with retained limitations, the accepting decider supplies
+one existing full claim-disposition package (`plan`, `rows`, `value`, `evidence`)
+among its pinned `supporting_artifacts`. Its literal final prose must retain every
+required qualification or withdrawal. The journal retains the bounded package bytes
+so live, detached and retained review checks can enforce the same rule. In ordinary
+role orchestration the package can be an explicit source-bound case anchor, which
+is forwarded to review support. A generated summary does not replace this witness.
+The accepted scope cannot contain a withdrawn or unresolved claim; a separate
+diagnostic scope can still deliver a supported negative result after headline withdrawal.
+
+## Progress, bounded endings and unattended waits
+
+A redo must change the cited artifact bytes or the affected check result. The review
+journal compares the retained evidence/check values across correction cycles; changed
+settings, a new attempt identifier and a restated finding are not progress. After two
+consecutive unchanged redos, status supplies a `limitation_candidate` with the original
+finding and correction history for the decider. It does not reclassify the finding or
+accept a claim. The existing stricter refusal of a repeated classified defect on the
+same bytes remains. Repeated refused graph requests also retain a decider handoff,
+without invalidating nodes again or consuming model calls.
+
+Use `ravel status --rundir "$RUN"` to read per-stage redo counts, the last accepted
+review-cycle timestamp, elapsed seconds and any human wait. No accepted progress is
+reported as unknown, rather than as the time of a failed attempt. A wait states
+`WAITING FOR A HUMAN since <time>: <reason>, <what is needed>`; repeated reads preserve
+the start time. A recorded escalation blocks later acceptance/compute use of that
+cycle; historical receipts remain intact.
+
+An explicitly configured local notification command is optional:
+
+```sh
+ravel status --rundir "$RUN" --notification-command '["local-notifier"]'
+```
+
+The command receives two additional arguments: the run path and a one-line reason.
+It runs without a shell, inherited stdin or default network action. It receives no
+request text, findings or scientific data. Each explicit invocation can notify once;
+status alone sends nothing. The command's success is not run approval.
+
+When bounds are exhausted or the review escalates, produce a qualified ending:
+
+```sh
+ravel task-completion qualified --rundir "$RUN"
+```
+
+This writes `outputs/completion/qualified-delivery.json`, a located boundary record
+and an appended `DEVIATIONS.md` entry. Every original obligation is stated as
+`satisfied`, `negative`, `partial` or `blocked`. The optional `--request` is an existing
+completion request: its contributions must pass the ordinary current child-evidence
+and review checks. Without such a request the conservative ending marks every
+obligation blocked. It preserves unresolved findings and limitation candidates.
+Limitation-affected claims are withdrawn through the shared disposition contract.
+An optional `--claim-package` supplies the existing plan/rows/value/evidence document
+shape; every planned claim must be withdrawn with its literal final scope and reason.
+No new scientific claim is adopted by this fallback.
+
+A valid delegation is labelled `machine-produced under delegation`; otherwise the
+artifact is a machine-produced status summary. Neither label authenticates a human
+or approves anything new. The ordinary final-delivery and execution gates remain
+closed. Escalation and exhausted defect-review or correction-failure mutations
+automatically attempt this ending after committing the journal event. Exhaustion
+includes the two-unchanged-redo bound even when numerical redo capacity remains.
+That bound keeps the existing decider route; reporting does not reclassify a
+finding, spend another redo, add an escalation or declare a human wait.
+Their responses include `qualified_ending` with `recorded` or `unavailable` status
+and a repair reason when unavailable; the review CLI exits unsuccessfully for an
+unavailable report. Reporting failure preserves the terminal event and its refusal.
+An identical escalation retries reporting without adding another journal event.
+The publication lock is acquired before observing the report's source custody,
+which is checked again immediately before final publication. Failed publication
+restores prior reporting bytes where they still match this attempt; separate edits
+are preserved and an incomplete restoration is reported. This is not a transaction
+across arbitrary concurrent writers or a crash-atomic update of multiple files.
+Status remains observational; use the explicit command above for an older terminal
+journal or to supply an existing completion request. Upstream execution consumers
+must retain the returned reporting metadata to expose a publication failure.
+
+## Evidence obligations and exploration
+
+An RDJ node may declare a nonempty `evidence_obligations` list of required anchor
+kinds. A branch closes when externally verified evidence of each required kind
+supports its obligated node; it need not reach the class's minimum depth. Untyped
+branches retain their minimum-depth rule. The maximum depth, edge reviews, unknowns,
+common-source checks, alternatives and transport requirements still apply. Low
+confidence or weak reviewed support requires additional distinct sources for each
+kind. Identical content counts once across paths, producer receipts and acquisition
+routes; copying evidence cannot discharge an additional-evidence requirement or
+hide shared support across claims. Different bytes alone do not prove independent
+scientific provenance. Contradictory external evidence keeps a typed branch held until resolved.
+The highest risk class still needs a tool-output or measurement anchor on each path.
+
+Retrieved evidence must join an authenticated acquisition receipt, exact content
+bytes and a UTF-8 excerpt at declared byte offsets. Practice authority additionally
+requires a separately pinned, independently supplied `scientific-practice-reference`
+descriptor joining the exact source identity, full content digest and a policy source
+category. A citation or proposer-authored category is not authority. Provenance and
+source type do not prove applicability; reviewers still judge the claim.
+
+A bounded unfamiliar choice can use an explicit exploration-only RDJ case. The
+supplied `rdj-exploration-contract` binds the exact `research_choice` /
+`screening_choice` action digest, hypothesis, question, expected outputs, stop
+condition and finite broker/model bounds under current policy. Set the action's
+`authorization_scope` to `exploration_only` and pass the independent contract pin to
+`open_case`. Every reviewer sees that contract. The receipt authorizes the selection
+only, explicitly denies execution and scientific acceptance, and retains the full
+risk class and its reviews. It cannot be reused for launch, promotion or delivery,
+and does not establish the route as accepted practice. Executing any experiment
+still needs the ordinary execution authorization and resource accounting.
+
+Current same-gate decision reuse revalidates the action, evidence, class, scope and
+policy and spends no additional model calls. An accepted route whose source evidence
+changed no longer suppresses the novelty trigger. Supplied action pins must identify
+the same current subjects as the accepted case; another path with identical content
+does not inherit its review. An explicitly changed route requires review even when
+both routes already have the highest risk class. Existing callers that supply only
+the action digest retain their current case-custody checks.
+
+Cross-gate reuse is explicit and bounded. Before the source review, supply an
+independent `rdj-review-scope` input with `schema_version: 1`, a scope and regime,
+canonical `compatible_gates`, the exact action (`kind`, `summary`, `digest`, `pins`)
+and nonempty `semantic_inputs` pins to independently supplied JSON. Pass that pin
+as `review_scope` to `open_case`; all reviewers see the complete compatible gate set,
+semantic content, input hashes and actual policy/card contracts. A later
+`open_case(..., review_scope=pin, reuse_from=receipt_id)` creates its own scoped case.
+
+Only equal effective gate obligations, unchanged decision/evidence/regime/input
+digests, the same proposer and a clean accepted bundle permit reuse. Original
+transport outputs and source authority are reverified. The shipped `delivery` and
+`final_task` review contracts form a compatible pair; each still runs its own ordinary
+execution, completion and human-approval checks. Human approval does not transfer.
+Changed context, risk, policy, cards or typed obligations removes reused verdicts
+and requires current review. Legacy, exploratory, revised or finding-bearing bundles
+receive no cross-gate review credit. The new receipt records its source lineage;
+the old receipt never gains another gate.
+
+Cost policy records absolute cost, declared budget fraction, irreversibility and
+scientific consequence separately. The existing positive-spend risk floor is
+preserved. A budget number or fraction alone does not prove authorization and never
+lowers risk. The fractional threshold remains unset pending an owner decision.
+
+## Executable reviewer checks
+
+A tightening rubric overlay may add `executable_checks` for named reviewer roles.
+Each check binds an existing permitted document-validator identifier, an exact
+run-relative subject pin, an optional producer broker-receipt pin and whether a
+distinct method is required. The review approval binds these obligations. Removing
+or changing them after approval refuses review credit.
+
+Credit requires the reviewer's own broker execution against the dispatcher-pinned,
+unredacted subject in its review packet. The current input and result bytes must
+match their receipts. Missing, failed, inconclusive or empty checks do not earn
+credit. A later check of the same subject that raises, or broken later worker
+custody, cannot retain credit from an earlier pass. Completed checks identify their
+subject through normalized input pins, including equivalent path spellings.
+A later validator exception without a subject pin also holds credit when its
+argument digest differs: the digest alone cannot exclude another spelling of the
+same path. A completed check with a pinned different subject leaves prior credit intact.
+A declaration or self-reported check is insufficient. Existing review
+requirements remain in effect when no overlay is selected.
+
+The receipt report separates actor independence from authenticated callable
+identity. It records `same_callable`, `distinct_callable` or `unknown` by comparing
+the registered module and function in producer and reviewer executions on the same
+subject. A different callable does not prove an independent scientific method;
+`scientific_independence_proven` remains false. `method_independence` stays
+`unverified` until an authenticated checker contract establishes an independent
+computation of the same quantity. The current registry supplies no such relationship,
+so `require_distinct_method` remains an open requirement. Producer diagnostics require
+one current matching subject input and one correctly identified, substantive passed
+output. A passed label with material findings cannot earn reviewer credit.
+These checks currently use existing
+document validators. The existing `review.normalization_recompute` check independently
+recomputes the scalar yield from supplied cross section, luminosity, branching fraction,
+correction factor and efficiency; a wrong yield or missing input refuses credit.
+This checks arithmetic, not the applicability of those inputs or event-level closure.
+It does not authorize native execution. The registered likelihood comparison can
+compare supplied frozen-point values through the same packet and broker path; this
+does not authenticate their producing engines or independently recompute a model.
+Specialist point credit needs its consumer to enforce these rubric obligations.
+Run-only cut checks still need a transitive-source contract before they can satisfy
+an executable document obligation. Independent model recomputation and verified
+method relationships remain separate integration work.
+
+## Selectable investigation team
+
+A graph may opt into `team_shape.policy = investigator_consult_reviewer`, naming one
+investigator node, non-voting consultations (each with its specialty), and one blind
+reviewer for each declared consequential subject. The policy censuses every agent,
+requires the reviewer to depend on its subject, and refuses hidden agent populations
+or a changed team arm during revision. Its ordinary graph budgets and fresh-context
+review transport checks remain active. Omission selects the existing team behavior.
+
+This is an advisory investigation-scheduling arm for ablation. It does not delete or
+replace the mandatory reviewers required by a scientific decision gate. Graph
+completion remains separate from scientific acceptance and execution authority.

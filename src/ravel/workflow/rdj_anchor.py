@@ -8,8 +8,9 @@ in custody, an input recorded in RAVEL's custody snapshot, user text RAVEL recor
 a shipped invariant. Model outputs, files an agent wrote, RAVEL's own request files,
 files of unknown provenance, research-board content (under the case's ``board_head``)
 and review or integrity verdicts (an opinion record, never evidence) are ``generated``.
-Broker and retrieval receipts stay ``generated`` until their producers' append-only
-ledgers can be verified. An anchor at the path of the action under decision, or from
+Broker tool receipts stay ``generated`` until their producers' append-only ledgers
+can be verified. Retrieval anchors use the acquisition ledger and exact captured bytes.
+An anchor at the path of the action under decision, or from
 the stage that produced it, is circular and ``invalid``.
 
 The reviewer is shown the value read from the verified bytes, never a value the
@@ -40,6 +41,7 @@ TOOL_KINDS = ("tool_output", "measurement")
 RETRIEVAL_KINDS = ("retrieved_document", "external_fact")
 MAX_PATHS = 4096
 SHOWN_TEXT = 2000
+MAX_RETRIEVED_BYTES = 16 << 20
 WRITE_LOG = "agent-audit/writes.jsonl"
 
 
@@ -441,9 +443,86 @@ def _retrieved(anchor, rundir, context):
         _keys(binding, ("record_id", "file"), label="reference-data binding")
         observed = _input({**anchor, "kind": "input_artifact", "binding": binding["file"]}, rundir, context)
         return observed
+    _, excerpt = _retrieval(anchor, rundir, context)
+    return _same_value(anchor, (excerpt, _shown(excerpt)))
+
+
+def _retrieval(anchor, rundir, context):
+    """Authenticated acquisition identity and a UTF-8 excerpt at byte offsets.
+
+    Only the exact outputs of a retrieval registered outside the worker sandbox
+    can cross the generated-file boundary. A citation and a public receipt alone
+    do not authenticate either the source identity or its bytes.
+    """
+    from . import broker
+    binding = anchor["binding"]
     _keys(binding, ("acquisition_receipt", "content_sha256", "excerpt_span", "excerpt_sha256"),
-          label=anchor["kind"] + " binding")
-    raise Generated("retrieval receipts are not trusted until the acquisition ledger can verify them")
+          ("source_reference",), label=anchor["kind"] + " binding")
+    receipt_pin = binding["acquisition_receipt"]
+    _keys(receipt_pin, ("path", "sha256"), label="acquisition receipt pin")
+    try:
+        receipt = broker.verify_acquisition_receipt(rundir, receipt_pin)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise Generated(f"acquisition ledger cannot verify retrieval: {exc}") from None
+    if receipt.get("exit_status") != 0:
+        raise AnchorError("acquisition did not finish successfully")
+    candidates = [pin for pin in receipt["output_pins"] if pin["sha256"] == binding["content_sha256"]]
+    if len(candidates) != 1:
+        raise AnchorError("content_sha256 must identify exactly one acquired output")
+    path = broker.locate(rundir, candidates[0]["path"])
+    _circular(path, binding["content_sha256"], context)
+    rel = candidates[0]["path"]
+    # Acquisition custody, rather than the worker output directory, determines
+    # provenance here. Board and opinion records still cannot become evidence.
+    _provenance(rel, {**(context or {}), "generated": []}, path)
+    if anchor["locator"] != "":
+        raise AnchorError("a retrieved excerpt is located by its byte span, not a locator")
+    if path.stat().st_size > MAX_RETRIEVED_BYTES:
+        raise AnchorError("acquired content exceeds the anchor byte limit")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != binding["content_sha256"]:
+        raise AnchorError("acquired content changed during verification")
+    span = binding["excerpt_span"]
+    _keys(span, ("start", "end"), label="excerpt byte span")
+    start, end = span["start"], span["end"]
+    if not (type(start) is int and type(end) is int and 0 <= start < end <= len(raw)):
+        raise AnchorError("excerpt byte span lies outside acquired content")
+    excerpt = raw[start:end]
+    if hashlib.sha256(excerpt).hexdigest() != binding["excerpt_sha256"]:
+        raise AnchorError("acquired excerpt differs from excerpt_sha256")
+    if broker.verify_acquisition_receipt(rundir, receipt_pin) != receipt:
+        raise AnchorError("acquisition evidence changed during verification")
+    return receipt["source"], excerpt.decode("utf-8")
+
+
+def _practice_reference(anchor, rundir, context):
+    """Read a source classification from independent input bytes, never a citation.
+
+    The reference descriptor must predate the case in custody (or be a vouched
+    acquisition in its snapshot), bind the acquired source identity and complete
+    content digest, and name a policy-recognized scientific reference category.
+    It establishes provenance and declared source type, not scientific acceptance
+    or applicability to the claim; those remain review obligations.
+    """
+    pin = anchor["binding"].get("source_reference")
+    if pin is None:
+        return False
+    _keys(pin, ("path", "sha256"), label="scientific reference pin")
+    path, _ = inside(rundir, pin["path"])
+    if path.stat().st_size > SHOWN_TEXT:
+        raise AnchorError("scientific reference descriptor exceeds its byte limit")
+    _input({"kind": "input_artifact", "binding": pin, "locator": "", "value": None}, rundir, context)
+    reference = read_json(path)
+    _keys(reference, ("schema_version", "kind", "source_class", "source", "content_sha256"),
+          label="scientific reference descriptor")
+    source, excerpt = _retrieval(anchor, rundir, context)
+    _same_value(anchor, (excerpt, _shown(excerpt)))
+    _matches_hash(path, pin["sha256"], "scientific reference descriptor")
+    return (type(reference["schema_version"]) is int and reference["schema_version"] == 1
+            and reference["kind"] == "scientific-practice-reference"
+            and reference["source_class"] in policy()["practice_source_classes"]
+            and reference["source"] == source
+            and reference["content_sha256"] == anchor["binding"]["content_sha256"])
 
 
 def _requirement(anchor, rundir, context):
@@ -606,21 +685,26 @@ def self_grounded_paths(case, statuses):
             if not any(statuses.get(a) == "external" for a in nodes[ids[-1]]["anchors"])]
 
 
-def practice_anchor(anchor, status):
-    """Authoritative practice: user text RAVEL recorded, or a registry invariant marked practice.
+def practice_anchor(anchor, status, *, rundir=None, context=None):
+    """Practice authority from recorded user text, invariants or verified reference provenance.
 
-    Authority is never read from the anchor's binding. Retrieved sources count once the
-    acquisition ledger can verify their source class."""
+    Authority is never a source class the proposer puts on the anchor. Reference
+    categories come from independent pinned input bytes joined to acquisition custody."""
     if status != "external":
         return False
     if anchor["kind"] == "user_requirement":
         return True
     if anchor["kind"] == "invariant":
         return bool(invariant_rows().get(anchor["binding"]["invariant_id"], {}).get("practice"))
+    if anchor["kind"] in RETRIEVAL_KINDS and rundir is not None and "acquisition_receipt" in anchor["binding"]:
+        try:
+            return _practice_reference(anchor, rundir, context)
+        except (AnchorError, Generated, OSError, ValueError, KeyError, TypeError, UnicodeError):
+            return False
     return False
 
 
-def exploratory_nodes(case, statuses, marked=()):
+def exploratory_nodes(case, statuses, marked=(), *, rundir=None, context=None):
     """Claims recommending an analysis choice (declared, derived or marked by a reviewer)
     without an authoritative-practice anchor in their support."""
     nodes, out = _graph(case)
@@ -630,7 +714,8 @@ def exploratory_nodes(case, statuses, marked=()):
     def grounded(node_id):
         if node_id not in memo:
             memo[node_id] = False
-            memo[node_id] = any(practice_anchor(anchors[a], statuses.get(a)) for a in nodes[node_id]["anchors"]) \
+            memo[node_id] = any(practice_anchor(anchors[a], statuses.get(a), rundir=rundir, context=context)
+                                for a in nodes[node_id]["anchors"]) \
                 or any(grounded(e["child"]) for e in out[node_id] if e["relation"] == "supports")
         return memo[node_id]
     marked = set(marked)
@@ -678,16 +763,19 @@ def conflicting_nodes(case, statuses, tolerance, observed):
 
 
 def evidence_source(anchor):
-    """The underlying source an anchor reads (for common-mode detection), or None."""
+    """Content identity for evidence counting and common-source detection.
+
+    New paths, producer receipts or acquisition routes cannot turn identical
+    bytes into additional evidence. Distinct content is necessary here, but does
+    not establish independent scientific provenance or methods.
+    """
     binding = anchor.get("binding") or {}
-    if anchor["kind"] in TOOL_KINDS:
-        return ("file", binding.get("output_path"), binding.get("sha256"))
-    if anchor["kind"] == "input_artifact":
-        return ("file", binding.get("path"), binding.get("sha256"))
+    if anchor["kind"] in (*TOOL_KINDS, "input_artifact"):
+        return ("content", binding.get("sha256"))
     if anchor["kind"] == "external_fact" and isinstance(binding.get("file"), dict):
-        return ("file", binding["file"].get("path"), binding["file"].get("sha256"))
+        return ("content", binding["file"].get("sha256"))
     if anchor["kind"] in RETRIEVAL_KINDS:
-        return ("retrieval", binding.get("acquisition_receipt"), binding.get("content_sha256"))
+        return ("content", binding.get("content_sha256"))
     return None
 
 
@@ -701,4 +789,8 @@ def describe(anchor, observed=None):
                 "invariant_id", "path"):
         if key in binding:
             shown[key] = binding[key]
+    if anchor["kind"] in RETRIEVAL_KINDS:
+        for key in ("acquisition_receipt", "content_sha256", "excerpt_span", "excerpt_sha256", "source_reference"):
+            if key in binding:
+                shown[key] = binding[key]
     return json.loads(json.dumps(shown))

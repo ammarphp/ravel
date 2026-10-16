@@ -10,21 +10,25 @@ from itertools import combinations
 import json
 
 from ravel.physics.quantities import _number, _text
+from ravel.validation import core
 
 KINDS = ('cross_section', 'differential_cross_section', 'event_count', 'efficiency',
          'acceptance_efficiency', 'luminosity', 'sample_exposure', 'statistical_model', 'inference')
 FIELDS = ('kind', 'unit', 'normalization', 'included_factors', 'weight_convention',
-          'selection', 'model_point', 'bin_ids', 'auxiliary_information', 'exposure', 'regional_exposures')
+          'selection', 'model_point', 'bin_ids', 'auxiliary_information', 'exposure', 'regional_exposures',
+          'scale', 'event_population', 'luminosity', 'covariance', 'applicability')
 CORE = ('kind', 'unit', 'normalization', 'included_factors', 'weight_convention', 'selection', 'model_point')
 NORMALIZATION = ('per_luminosity', 'per_bin_width', 'per_event')
 
 
 def _finding(location, field, observed, expected):
-    return {'location': location, 'field': field, 'observed': deepcopy(observed), 'expected': deepcopy(expected)}
+    return {'location': location, 'field': field, 'observed': deepcopy(observed), 'expected': deepcopy(expected),
+            'repair': 'repair supplied facts or supply missing evidence; do not infer physics inputs'}
 
 
 def message(row):
-    return f"{row['location']}: {row['field']} observed {row['observed']!r}; expected {row['expected']!r}"
+    repair = row.get('repair', 'repair supplied facts or supply missing evidence; do not infer physics inputs')
+    return f"{row['location']}: {row['field']} observed {row['observed']!r}; expected {row['expected']!r}; repair {repair}"
 
 
 def _at(value, path):
@@ -141,7 +145,161 @@ def descriptor_errors(quantity, location='quantity'):
             expected = kind == 'differential_cross_section'
             if normalization['per_bin_width'] is not expected:
                 bad('normalization.per_bin_width', normalization['per_bin_width'], expected)
+    errors += extension_errors(quantity, location)
     return errors
+
+
+
+EXTENSION_FIELDS = {
+    'event_population': ('id', 'revision', 'grouping', 'events', 'sumw', 'sumw2', 'negative_events'),
+    'luminosity': ('value', 'unit', 'scale'),
+    'covariance': ('status', 'basis', 'matrix', 'source'),
+    'applicability': ('id', 'parameters', 'assumptions'),
+}
+
+
+def _required_extension_path(path, paths):
+    if path in paths:
+        return True
+    parts = path.split('.')
+    return (len(parts) in (3, 4) and parts[:2] == ['applicability', 'parameters']
+            and bool(parts[2].strip()) and (len(parts) == 3 or parts[3] in ('minimum', 'maximum', 'unit')))
+
+
+def extension_errors(quantity, location='quantity'):
+    """Check supplied extended facts, retaining absent facts as partial evidence."""
+    errors = []
+
+    def bad(field, value, expected):
+        errors.append(_finding(location, field, value, expected))
+
+    def number(field, value, *, nonnegative=False, positive=False, integer=False):
+        try:
+            core.finite_number(value, field=field, minimum=0 if nonnegative or positive else None)
+            if positive and value <= 0:
+                raise ValueError('positive value required')
+            if integer and type(value) is not int:
+                raise ValueError('integer required')
+            return True
+        except ValueError as exc:
+            bad(field, value, str(exc))
+            return False
+
+    def text(field, value):
+        if type(value) is not str or not value.strip():
+            bad(field, value, 'nonempty literal string')
+
+    def strings(field, value, unique=False):
+        if type(value) is not list or any(type(v) is not str or not v.strip() for v in value):
+            bad(field, value, 'list of nonempty literal strings')
+        elif unique and len(value) != len(set(value)):
+            bad(field, value, 'unique literal strings')
+
+    if not isinstance(quantity, dict):
+        return errors
+    if quantity.get('scale') is not None:
+        number('scale', quantity['scale'], positive=True)
+    for group, keys in EXTENSION_FIELDS.items():
+        value = quantity.get(group)
+        if value is None:
+            continue
+        if type(value) is not dict:
+            bad(group, value, 'partial closed object with fields ' + ', '.join(keys))
+            continue
+        try:
+            core.closed_object(value, set(value).intersection(keys), field=group)
+        except ValueError as exc:
+            bad(group, value, str(exc))
+            continue
+        for key, item in value.items():
+            field = group + '.' + key
+            if item is None:
+                if group == 'covariance' and key == 'matrix' and value.get('status') == 'known':
+                    bad(field, item, 'finite symmetric positive semidefinite matrix')
+                continue
+            if key in ('id', 'revision', 'source'):
+                text(field, item)
+            elif group == 'event_population':
+                if key == 'grouping':
+                    if item != 'event':
+                        bad(field, item, 'event')
+                else:
+                    number(field, item, nonnegative=key != 'sumw', integer=key in ('events', 'negative_events'))
+            elif group == 'luminosity':
+                if key == 'unit':
+                    if item != 'fb^-1':
+                        bad(field, item, 'fb^-1')
+                else:
+                    number(field, item, positive=True)
+            elif group == 'covariance':
+                if key == 'status' and item not in ('known', 'unknown', 'not_applicable'):
+                    bad(field, item, ['known', 'unknown', 'not_applicable'])
+                elif key == 'basis':
+                    strings(field, item, unique=True)
+                elif key == 'matrix':
+                    if value.get('status') in ('unknown', 'not_applicable'):
+                        bad(field, item, 'null for unknown or not_applicable covariance')
+                    else:
+                        _covariance_matrix_errors(item, value.get('basis'), field, bad)
+            elif group == 'applicability':
+                if key == 'assumptions':
+                    strings(field, item)
+                elif key == 'parameters':
+                    if type(item) is not dict:
+                        bad(field, item, 'parameter-to-bound mapping')
+                        continue
+                    for name, bounds in item.items():
+                        label = field + '.' + str(name)
+                        text(label, name)
+                        if type(bounds) is not dict or set(bounds) - {'minimum', 'maximum', 'unit'}:
+                            bad(label, bounds, 'partial closed minimum, maximum, unit object')
+                            continue
+                        valid = True
+                        for bound, number_value in bounds.items():
+                            if number_value is None:
+                                continue
+                            if bound == 'unit':
+                                if type(number_value) is not str:
+                                    bad(label + '.unit', number_value, 'literal unit string')
+                            else:
+                                valid = number(label + '.' + bound, number_value) and valid
+                        if valid and bounds.get('minimum') is not None and bounds.get('maximum') is not None:
+                            if bounds['minimum'] > bounds['maximum']:
+                                bad(label, bounds, 'minimum <= maximum')
+    return errors
+
+
+def _covariance_matrix_errors(matrix, basis, field, bad):
+    if type(matrix) is not list or any(type(row) is not list or len(row) != len(matrix) for row in matrix):
+        bad(field, matrix, 'square numeric matrix')
+        return
+    if isinstance(basis, list) and len(basis) != len(matrix):
+        bad(field, matrix, 'matrix dimension equal to covariance basis length')
+        return
+    try:
+        for row in matrix:
+            for value in row:
+                core.finite_number(value, field=field)
+    except ValueError as exc:
+        bad(field, matrix, str(exc))
+        return
+    if not matrix:
+        return
+    import numpy as np
+    array = np.asarray(matrix, dtype=float)
+    scale = float(np.max(np.abs(array))) or 1.0
+    array = array / scale
+    tolerance = 1e-12
+    if not np.allclose(array, array.T, rtol=0, atol=tolerance):
+        bad(field, matrix, 'symmetric covariance matrix within relative scale tolerance 1e-12')
+        return
+    try:
+        minimum = float(np.linalg.eigvalsh((array + array.T) / 2).min())
+    except np.linalg.LinAlgError:
+        bad(field, matrix, 'numerically resolvable positive semidefinite covariance')
+        return
+    if minimum < -tolerance:
+        bad(field, matrix, 'positive semidefinite covariance within relative scale tolerance 1e-12')
 
 
 def requirement_errors(requirement, location='require.quantity'):
@@ -150,7 +308,8 @@ def requirement_errors(requirement, location='require.quantity'):
     errors = descriptor_errors({k: v for k, v in requirement.items() if k != 'required'}, location)
     required = requirement.get('required', [])
     paths = set(FIELDS) | {'normalization.' + k for k in NORMALIZATION} | {'exposure.id', 'exposure.revision'}
-    if not isinstance(required, list) or any(not isinstance(p, str) or p not in paths for p in required):
+    paths |= {group + '.' + key for group, keys in EXTENSION_FIELDS.items() for key in keys}
+    if not isinstance(required, list) or any(not isinstance(p, str) or not _required_extension_path(p, paths) for p in required):
         errors.append(_finding(location, 'required', required, sorted(paths)))
     return errors
 

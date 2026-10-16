@@ -55,7 +55,13 @@
   "irreversible_kinds": ["replace_reviewed_outputs"],
   "choice_kinds": ["screening_choice", "promotion", "tuning_change", "method_performance_claim"],
   "rungs": {"dry": "R0", "smoke": "R0"},
-  "high_consequence": {"points_at_least": 50, "walltime_hours_at_least": 8, "spend_usd_above": 0},
+  "high_consequence": {"points_at_least": 50, "walltime_hours_at_least": 8},
+  "cost_dimensions": {
+    "absolute_cost": {"currency": "USD", "raise_above_usd": 0, "basis": "legacy_positive_spend_floor"},
+    "authorized_budget_fraction": {"raise_above": null, "authority": "separate_verified_budget_required"},
+    "irreversibility": {"minimum_class": "R3", "requires_human_approval": true},
+    "scientific_consequence": {"when_declared": "raise_one_class"}
+  },
   "conflict_default_relative_tolerance": 1e-9,
   "budgets": {"max_model_calls_per_run": 200, "max_model_calls_per_action": 80, "max_cases_per_action": 3,
               "max_reviews_per_edge": 10, "max_critic_broker_calls": 8, "max_critic_broker_calls_per_critique": 24},

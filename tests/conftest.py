@@ -13,8 +13,10 @@ domain by itself. From import until the session's domain exists, the process wor
 domain of its own, so nothing reaches the machine directory before a fixture runs.
 """
 import atexit
+import importlib.util
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -26,6 +28,61 @@ import pytest
 os.environ["LANGGRAPH_STRICT_MSGPACK"] = "true"
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def pytest_addoption(parser):
+    parser.addoption('--test-tier', choices=('fast', 'medium', 'slow'),
+                     help='opt-in file tier; default collects the complete suite')
+
+
+def pytest_configure(config):
+    spec = importlib.util.spec_from_file_location('_ravel_ci_files', ROOT / 'scripts/maintenance/ci_shards.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    try:
+        tiers = module.tier_files()
+    except (OSError, ValueError) as exc:
+        message = f'Test tier manifest unavailable: {exc}'
+        tier_marks = re.search(r'\b(fast|medium|slow)\b', config.getoption('markexpr') or '')
+        if config.getoption('--test-tier') or tier_marks:
+            raise pytest.UsageError(message) from exc
+        config._ravel_file_tiers = {}
+        config.issue_config_time_warning(pytest.PytestConfigWarning(
+            message + '; collecting all requested tests without tier marks. '
+            'Repair tests/test_tiers.json before selecting a tier.'), stacklevel=2)
+    else:
+        config._ravel_file_tiers = {file: tier for tier, files in tiers.items() for file in files}
+
+
+def _file_tier(path, config):
+    try:
+        file = Path(path).relative_to(ROOT).as_posix()
+    except ValueError:
+        return None
+    return config._ravel_file_tiers.get(file)
+
+
+def pytest_ignore_collect(collection_path, config):
+    tier = config.getoption('--test-tier')
+    actual = _file_tier(collection_path, config)
+    if tier and actual is not None and actual != tier:
+        return True
+    return None
+
+
+def pytest_collection_modifyitems(config, items):
+    selected_tier = config.getoption('--test-tier')
+    kept, deselected = [], []
+    for item in items:
+        tier = _file_tier(item.path, config)
+        if tier:
+            item.add_marker(getattr(pytest.mark, tier))
+        (deselected if selected_tier and tier != selected_tier else kept).append(item)
+    if deselected:
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = kept
+
+
 SRC = str(ROOT / "src")
 sys.path.insert(0, SRC)
 if str(ROOT / "tests") not in sys.path:

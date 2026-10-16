@@ -340,7 +340,7 @@ def authorize(root,action):
     if physics_review.registered(root):
         reg,events=physics_review._read(root);physics_review._base_live(root,reg)
         view=physics_review._view(reg,events);physics_review._judgments_live(root,view)
-        if view['state'] in {'stopped','scientific_hold'}:raise ValueError('scientific hold or stop cannot be delegated away')
+        if view['state'] in {'stopped','scientific_hold','escalated'}:raise ValueError('scientific hold or stop cannot be delegated away')
         p=reg['policy'];b=d['value']['bounds']
         if (not set(b['allowed_changed_paths'])<=set(p['allowed_changed_paths'])
                 or not set(b['allowed_stages'])<=set(p['allowed_stages']) or b['max_redos']>p['max_redos']):
@@ -377,8 +377,45 @@ def correction_authority(root, proposal):
     if (not set(proposal['changed_paths'])<=set(b['allowed_changed_paths'])
             or not set(proposal['stages'])<=set(b['allowed_stages'])
             or view['redos_used']>=b['max_redos']):
-        raise ValueError('reviewed correction exceeds delegated paths/stages/redo authority; escalate')
+        reason = 'Reviewed correction exceeds delegated paths/stages/redo authority.'
+        event = review.escalate(root, reason=reason, needed='Review the qualified ending or supply explicit revised authority.')
+        ending = event['qualified_ending']
+        if ending['status'] != 'recorded':
+            raise ValueError(reason + ' Escalated; qualified ending requires repair: ' + ending['reason'])
+        raise ValueError(reason + ' Escalated; qualified ending recorded without new authority.')
     return d
+
+
+def notify_waiting(root, *, command=None):
+    """Run an explicitly supplied argv with only run path and one-line reason.
+
+    There is no default command, shell, inherited stdin or network operation.
+    This reports a wait; it never approves or resumes the run.
+    """
+    if command is None:
+        return {'status': 'disabled', 'execution_authorized': False}
+    if (type(command) is not list or not command or len(command) > 32
+            or any(type(v) is not str or not v or '\0' in v for v in command)
+            or sum(len(v.encode()) for v in command) > 8192):
+        raise ValueError('notification command must be an explicit bounded argv list')
+    from . import physics_review
+    root = review_context._safe_path(root)
+    current = physics_review.status(root)
+    if current['state'] == 'invalid':
+        raise ValueError('notification requires intact review status')
+    waiting = current['waiting_for_human']
+    if waiting is None:
+        return {'status': 'not_waiting', 'execution_authorized': False}
+    reason = ' '.join(waiting['reason'].split())[:4096]
+    import subprocess
+    try:
+        completed = subprocess.run([*command, str(root), reason], shell=False, timeout=10,
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            cwd=root, env={key: os.environ[key] for key in ('PATH', 'LANG') if key in os.environ}, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {'status': 'failed', 'error': type(exc).__name__, 'execution_authorized': False}
+    return {'status': 'sent' if completed.returncode == 0 else 'failed',
+            'returncode': completed.returncode, 'execution_authorized': False}
 
 
 def prepare_declaration(document, out, *, user_text, quote, origin, delegate_actor,

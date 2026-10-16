@@ -459,6 +459,18 @@ def verification(value, findings, revised):
     return value
 
 
+def evidence_obligations(value):
+    """Required anchor kinds, discharged by current externally grounded supporting evidence.
+
+    The optional field is deliberately closed: an empty or malformed declaration cannot
+    opt an otherwise untyped branch out of its legacy depth requirements.
+    """
+    if not isinstance(value, list) or not value or any(kind not in ANCHOR_KINDS for kind in value) \
+            or len(set(value)) != len(value):
+        raise ValueError("evidence obligations are a nonempty list of unique anchor kinds")
+    return value
+
+
 def validate_case_v2(case):
     """Structural checks of a version-2 case: closed vocabularies, one root, acyclic, bounded."""
     keys(case, CASE_KEYS | {k for k in ("rca", "input_artifacts") if k in case}, "decision case v2")
@@ -466,7 +478,8 @@ def validate_case_v2(case):
         raise ValueError("decision case v2 requires schema_version 2 and kind " + CASE_KIND)
     text(case["case_id"], "case id")
     point = case["decision_point"]
-    keys(point, {"gate", "action_kind", "action", *({"tuning"} if "tuning" in point else ())}, "decision point")
+    keys(point, {"gate", "action_kind", "action", *(k for k in ("tuning", "exploration", "review_scope") if k in point)},
+         "decision point")
     text(point["gate"], "gate")
     text(point["action_kind"], "action kind")
     keys(point["action"], {"summary", "digest", "pins"}, "decided action")
@@ -474,6 +487,17 @@ def validate_case_v2(case):
     _sha(point["action"]["digest"], "action digest")
     for pin in point["action"]["pins"]:
         binding(pin)
+    if "review_scope" in point:
+        binding(point["review_scope"])
+        if "exploration" in point:
+            raise ValueError("exploration decisions cannot carry a portable review scope")
+    if "exploration" in point:
+        exploration = point["exploration"]
+        keys(exploration, {"scope", "contract"}, "exploration decision")
+        if exploration["scope"] != "exploration_only" or point["gate"] != "research_choice" \
+                or point["action_kind"] != "screening_choice":
+            raise ValueError("exploration-only decisions select a research_choice screening_choice")
+        binding(exploration["contract"])
     if point["action_kind"] == "tuning_change":
         tuning = point.get("tuning")
         keys(tuning, {"class", "parameter", "from", "to", "reason"}, "tuning change")
@@ -509,7 +533,14 @@ def validate_case_v2(case):
         anchors[anchor["id"]] = anchor
     nodes = {}
     for node in case["nodes"]:
-        keys(node, NODE_KEYS, "case node")
+        keys(node, NODE_KEYS | {key for key in ("evidence_obligations", "review_context_sha256") if key in node},
+             "case node")
+        if "review_context_sha256" in node:
+            if "review_scope" not in point:
+                raise ValueError("review context requires a bound review scope")
+            _sha(node["review_context_sha256"], "review context digest")
+        if "evidence_obligations" in node:
+            evidence_obligations(node["evidence_obligations"])
         if text(node["id"], "node id") in nodes:
             raise ValueError("duplicate node id")
         if node["kind"] not in NODE_KINDS or node["confidence"] not in CONFIDENCE:
@@ -597,6 +628,8 @@ def node_content(node, anchors):
     return {"kind": node["kind"], "assertion": node["assertion"], "rationale": node["rationale"],
             "material": node["material"], "confidence": node["confidence"], "assumptions": node["assumptions"],
             "unknowns": node["unknowns"], "recommends_choice": node["recommends_choice"],
+            **({"evidence_obligations": node["evidence_obligations"]} if "evidence_obligations" in node else {}),
+            **({"review_context_sha256": node["review_context_sha256"]} if "review_context_sha256" in node else {}),
             "anchors": sorted(jdigest({k: anchors[a][k] for k in ("kind", "binding", "locator", "value",
                                                                    "quantity", "verified")})
                               for a in node["anchors"])}

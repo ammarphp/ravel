@@ -245,3 +245,8 @@ a background-only workspace does not acquire a signal model-point requirement.
 Known sign-preserving producers declare their weight convention. If a producer
 has no declaration, retain the consumer's located weight obligation; a declared
 signed-to-absolute relabeling is refused. See [quantity contracts](../../reference/knowledge.md#quantity-contracts-on-composition-edges).
+
+For the generated-event selection and template chain, follow the explicit
+[quantity handoff contract](../reference/scientific-studies.md#generated-event-quantity-handoffs). Its source
+pins, fixed-normalization assumptions and consumer requirements must be present
+before the corresponding operation can use that handoff.

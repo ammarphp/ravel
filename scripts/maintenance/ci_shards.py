@@ -1,9 +1,9 @@
 """Deterministic test-file shards for the public CI test matrix.
 
-The CI "test suite" job runs ``python -m pytest`` once per file. A shard is every
-``count``-th file of the sorted list of test files that ``pytest tests`` collects
+The CI "test suite" job runs ``python -m pytest`` once per file. Shards greedily
+balance committed measured file durations from the test files pytest collects
 (``test_*.py`` and ``*_test.py`` below ``tests/``, skipping the directories pytest
-does not enter by default), starting at ``index``, leaving out the ``LONG`` files.
+does not enter by default), leaving out the ``LONG`` files.
 Each ``LONG`` file runs in a CI job of its own. Together the shards and the long
 files partition that list: every file runs in exactly one job.
 
@@ -16,6 +16,8 @@ a hung test cannot hold its job until the job limit.
 """
 import argparse
 from fnmatch import fnmatch
+import json
+import math
 import os
 import signal
 import subprocess
@@ -25,6 +27,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+TIMINGS = ROOT / 'tests/file_timings.json'
 # pytest's default norecursedirs; a directory starting with "." is skipped as well.
 SKIPPED = ('*.egg', '.*', '_darcs', 'build', 'CVS', 'dist', 'node_modules', 'venv', '{arch}')
 # Files that alone take a large part of a shard's time limit (about 69 and 27 minutes
@@ -57,11 +60,65 @@ def test_files(root=ROOT):
     return sorted(found)
 
 
-def shard(files, index, count):
-    """The ``index``-th of ``count`` shards: every ``count``-th file, starting at ``index``."""
+def measured_seconds(path=TIMINGS):
+    """Read measured wall seconds; absent files keep the conservative unknown cost."""
+    record = json.loads(Path(path).read_text())
+    if (not isinstance(record, dict) or record.get('schema_version') != 1
+            or not isinstance(record.get('seconds'), dict)):
+        raise ValueError('invalid measured timing census')
+    for file, seconds in record['seconds'].items():
+        if (not isinstance(file, str) or not file.startswith('tests/')
+                or '..' in Path(file).parts or not file.endswith('.py')
+                or type(seconds) not in (int, float) or not math.isfinite(seconds) or seconds <= 0):
+            raise ValueError(f'invalid measured file duration: {file}')
+    return record['seconds']
+
+
+def shard(files, index, count, durations=None):
+    """Longest-first greedy packing, with stable path and shard-index tie breaks.
+
+    Unknown files cost at least 60 seconds and at least the longest measured
+    ordinary file. A new file cannot silently look cheap or disappear.
+    """
     if type(count) is not int or count < 1 or type(index) is not int or not 0 <= index < count:
         raise ValueError('shard index must satisfy 0 <= index < count')
-    return list(files)[index::count]
+    durations = measured_seconds() if durations is None else durations
+    files = list(files)
+    if len(files) != len(set(files)):
+        raise ValueError('duplicate test file')
+    fallback = max([60.0, *(value for file, value in durations.items() if file not in LONG)])
+    bins, totals = [[] for _ in range(count)], [0.0] * count
+    for file in sorted(files, key=lambda file: (-durations.get(file, fallback), file)):
+        target = min(range(count), key=lambda i: (totals[i], i))
+        bins[target].append(file)
+        totals[target] += durations.get(file, fallback)
+    return bins[index]
+
+
+def tier_files(root=ROOT, durations=None, manifest=None):
+    """Partition every file once; unmeasured files and dedicated long jobs are slow."""
+    files = test_files(root)
+    durations = measured_seconds(Path(root) / 'tests/file_timings.json') if durations is None else durations
+    if manifest is None:
+        try:
+            manifest = json.loads((Path(root) / 'tests/test_tiers.json').read_text())
+        except (OSError, ValueError) as exc:
+            raise ValueError(f'invalid test tier manifest: {exc}') from exc
+    if not isinstance(manifest, dict):
+        raise ValueError('invalid test tier manifest: expected an object')
+    fast = manifest.get('fast')
+    threshold = manifest.get('medium_max_seconds')
+    if (manifest.get('schema_version') != 1 or not isinstance(fast, list)
+            or any(not isinstance(file, str) for file in fast) or len(fast) != len(set(fast))
+            or set(fast) - set(files) or set(fast) & set(LONG)
+            or type(threshold) not in (int, float) or not math.isfinite(threshold) or threshold <= 0):
+        raise ValueError('invalid test tier manifest')
+    result = {name: [] for name in ('fast', 'medium', 'slow')}
+    for file in files:
+        tier = ('fast' if file in fast else 'medium'
+                if file not in LONG and file in durations and durations[file] <= threshold else 'slow')
+        result[tier].append(file)
+    return result
 
 
 def sharded(files):
@@ -69,8 +126,12 @@ def sharded(files):
     return [f for f in files if f not in LONG]
 
 
-def selected(index=None, count=None, long=None, root=ROOT):
+def selected(index=None, count=None, long=None, root=ROOT, tier=None):
     """The files one CI job runs: a shard of the ordinary files, or one declared long file."""
+    if tier is not None:
+        if long is not None or index is not None or count is not None:
+            raise ValueError('a tier cannot be combined with a shard or long selection')
+        return tier_files(root)[tier]
     if long is not None:
         if long not in LONG or long not in test_files(root):
             raise ValueError(f'not a declared long test file: {long}')
@@ -143,13 +204,14 @@ def main(argv=None):
     parser.add_argument('--index', type=int)
     parser.add_argument('--count', type=int)
     parser.add_argument('--long', help='select one declared long test file instead of a shard')
+    parser.add_argument('--tier', choices=('fast', 'medium', 'slow'), help='opt-in developer file tier')
     parser.add_argument('--run', action='store_true', help='run one pytest process per selected file')
     parser.add_argument('--file-timeout', type=int, help='seconds before a file is stopped and counted failed')
     args = parser.parse_args(argv)
-    if (args.long is None) == (args.index is None or args.count is None):
+    if args.tier is None and (args.long is None) == (args.index is None or args.count is None):
         parser.error('give either --index and --count, or --long')
     try:
-        files = selected(args.index, args.count, args.long)
+        files = selected(args.index, args.count, args.long, tier=args.tier)
     except ValueError as exc:
         parser.error(str(exc))
     if not files:

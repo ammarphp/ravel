@@ -207,7 +207,8 @@ def test_install_is_one_block_near_the_top():
 def test_complete_installation_matches_canonical_package_contract():
     import json
     import tomllib
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    canonical = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = canonical["project"]
     contract = json.loads((ROOT / "environment/python/installation.json").read_text(encoding="utf-8"))
     assert project["name"] == "ravel-hep"
     assert project["requires-python"] == contract["requires_python"] == ">=3.11,<3.13"
@@ -217,7 +218,13 @@ def test_complete_installation_matches_canonical_package_contract():
     rows = [line.strip() for line in (ROOT / contract["host_requirements"]).read_text().splitlines()
             if line.strip() and not line.lstrip().startswith("#")]
     assert rows[-1] == "."  # The complete requirements also install this distribution.
-    assert rows[:-1] == project["dependencies"] == contract["dependencies"]
+    from ravel.python_installation import declarations
+    assert declarations(ROOT) == contract
+    assert rows[:-1] == contract["dependencies"]
+    assert project["dependencies"] == contract["runtime_dependencies"]
+    assert set(rows[:-1]) == set(project["dependencies"] + canonical["build-system"]["requires"]
+                                + project["optional-dependencies"]["test"]
+                                + project["optional-dependencies"]["cosmology"])
     assert {item["directory"] for item in contract["isolated_required"]} == {".venv-smodels", ".venv-sfitter"}
     guide = (ROOT / "docs/installation.md").read_text(encoding="utf-8")
     assert "bash scripts/setup/install.sh" in guide and "ravel doctor" in guide and "--profile site" in guide

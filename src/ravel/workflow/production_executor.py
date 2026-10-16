@@ -77,7 +77,8 @@ def executors():
     value = read_json(DATA)
     if value.get('kind') != 'production-executors' or value.get('schema_version') != 1:
         raise ValueError('executors.json is not a version-1 production-executors record')
-    return value
+    from .operation_registration import executor_document
+    return executor_document(value, read_json(SIGNATURES)['operations'])
 
 
 # ---------------------------------------------------------------- plan and orders

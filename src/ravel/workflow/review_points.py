@@ -319,6 +319,10 @@ def approve(rundir):
     points = derive(facts)
     value = {'schema_version': 1, 'derived_points_sha256': jdigest(points),
              'subjects': {p['id']: subject_digest(facts, p) for p in points}}
+    from . import review_rubric
+    rubric = review_rubric.selected(root)
+    if (rubric or {}).get('executable_checks'):
+        value['executable_rubric_sha256'] = review_rubric.digest(rubric)
     atomic_json(path, value)
     return value
 
@@ -509,8 +513,15 @@ def blocking_finding(root, finding):
 
 def _receipt_records(root, facts):
     from . import rdj_custody
+    from . import review_rubric
     root = Path(root).resolve()
     points = {p['id']: p for p in derive(facts)}
+    rubric = review_rubric.selected(root)
+    approval = root / 'inputs/review_points_approval.json'
+    approved = read_json(approval).get('executable_rubric_sha256') if approval.exists() else None
+    if approved is not None and (rubric is None or review_rubric.digest(rubric) != approved):
+        raise ValueError('the approved executable review rubric changed or is absent')
+    check_contracts = (rubric or {}).get('executable_checks', [])
     for path in sorted((root / 'agent-work').glob('*/*/receipt.json')):
         rel = path.relative_to(root).as_posix()
         value = read_json(path)
@@ -534,12 +545,145 @@ def _receipt_records(root, facts):
                         and hashlib.sha256(target.read_bytes()).hexdigest() == final.get('sha256')):
                     value['findings'] = read_json(target).get('findings', [])
                     reason = credit_refusal(value, facts, point)
+                    required = [row for row in check_contracts if value.get('role', {}).get('id') in row['roles']]
+                    if reason is None and required and point['mode'] in REVIEWER_MODES:
+                        value['_executable_checks'] = [_executable_check(root, value, row) for row in required]
+                        if any(row['execution'] != 'completed' for row in value['_executable_checks']):
+                            reason = 'executable_check_missing'
+                        elif any(row['status'] != 'passed' for row in value['_executable_checks']):
+                            reason = 'executable_check_failed'
+                        elif any(row['require_distinct_method'] and row['method_independence'] != 'verified'
+                                 for row in value['_executable_checks']):
+                            reason = 'method_separation_unverified'
                     value['_eligible'] = reason is None
                     if reason is None and point['mode'] in ACTOR_MODES and value['_actor'] is None:
                         # Still listed for its findings; it earns no credit at this point.
                         reason = 'actor_unassigned'
         value['_advisory'] = reason
         yield value
+
+
+def _executable_check(root, receipt, contract):
+    """Verify a reviewer's own executed check of an exact projected subject.
+
+    This inspects dispatcher and broker custody, never self-reported execution or
+    method labels. Callable difference records software-route separation only.
+    The current checker registry supplies no authenticated relationship between
+    methods or quantities, so that difference cannot satisfy a method requirement.
+    """
+    from . import agent_worker, broker, review_projection, review_projection_checks as checks
+    report = {'id': contract['id'], 'check_id': contract['check_id'], 'execution': 'not_verified', 'executed': False,
+              'status': None, 'method_separation': 'unknown', 'producer_method': None, 'reviewer_method': None,
+              'method_independence': 'unverified',
+              'require_distinct_method': contract['require_distinct_method'], 'scientific_independence_proven': False}
+    methods = {row['id']: (row['module'], row['function']) for row in checks.allowlist()['validators']}
+    try:
+        subject = contract['subject']
+        current = broker.confined(root, subject['path'])
+        if not current.is_file() or broker.sha(current) != subject['sha256']:
+            raise ValueError('check subject changed')
+        node, attempt = receipt['node_id'], receipt['attempt']
+        materialized = agent_worker._record(root, node, attempt)
+        spec = materialized['spec']
+        if (spec['role']['id'] != receipt['role']['id']
+                or spec['parent']['review_point_id'] != receipt['review_point_id']
+                or spec['parent'].get('review_subject') != receipt.get('review_subject')):
+            raise ValueError('materialized reviewer subject does not match its receipt')
+        packet = materialized.get('packet')
+        if packet is None:
+            raise ValueError('check has no dispatcher-pinned review packet')
+        manifest, _ = review_projection.load(packet)
+        entries = [row for row in manifest['artifacts'] if row['source_path'] == subject['path']
+                   and row['source_sha256'] == subject['sha256'] and row['sha256'] == subject['sha256']
+                   and row['projection'] == review_projection.SUBJECT]
+        if len(entries) != 1 or manifest['role'] != receipt['role']['id']:
+            raise ValueError('check input is not an exact projected subject of this reviewer')
+        copied = 'inputs/packet/' + entries[0]['path']
+        if {'path': copied, 'sha256': subject['sha256']} not in materialized['input_copies']:
+            raise ValueError('subject was not among the dispatcher-pinned input copies')
+        expected = {'path': f'agent-work/{node}/{attempt}/' + copied, 'sha256': subject['sha256']}
+        if broker.sha(broker.locate(root, expected['path'])) != expected['sha256']:
+            raise ValueError('projected check input changed after execution')
+        arguments = broker.digest({'check_id': contract['check_id'], 'paths': [copied]})
+
+        def reset_execution(pin, *, executed):
+            report.update(execution='not_verified', executed=executed, status=None,
+                          reviewer_method=None, receipt=pin)
+            report.pop('output', None)
+            report.pop('reason', None)
+
+        for row in broker.ledger(root, 'broker'):
+            bound = row['record']
+            if bound['node_id'] != node or bound['attempt'] != attempt:
+                continue
+            pin = {'path': bound['path'], 'sha256': bound['sha256']}
+            try:
+                body = broker.verify_broker_receipt(root, pin)
+            except (OSError, ValueError, KeyError, TypeError):
+                # Broken later custody cannot retain an earlier verified pass.
+                reset_execution(pin, executed=False)
+                raise
+            if (body.get('action') != 'check run' or body.get('derivation') != 'registered_validator'
+                    or body.get('validator_id') != contract['check_id']):
+                continue
+            if body.get('input_pins') != [expected]:
+                if not body.get('input_pins'):
+                    # A raised validator has no normalized subject pin. Exact
+                    # arguments identify this subject; another digest cannot
+                    # exclude a path alias, so neither case retains old credit.
+                    reset_execution(pin, executed=True)
+                    if body.get('args_sha256') != arguments:
+                        report['reason'] = 'later validator has no authenticated subject pin'
+                continue
+            # Completed calls bind their subject through normalized input pins;
+            # equivalent path spellings need not have equal argument digests.
+            reset_execution(pin, executed=True)
+            if (body.get('status') not in {'ok', 'failed'}
+                    or len(body.get('output_pins', [])) != 1):
+                continue
+            report['output'] = deepcopy(body['output_pins'][0])
+            output = body['output_pins'][0]
+            result = read_json(broker.locate(root, output['path']))
+            if (type(result) is not dict or result.get('kind') != checks.CHECK_RESULT_KIND
+                    or result.get('producer') != checks.PRODUCER or result.get('check_id') != contract['check_id']
+                    or type(result.get('findings')) is not list
+                    or any(type(f) is not dict for f in result['findings'])):
+                continue
+            report['status'] = result.get('status')
+            if result.get('status') == 'inconclusive':
+                report['execution'] = 'inconclusive'
+                continue
+            if result.get('status') not in {'passed', 'failed'} or (result['status'] == 'passed') != (body.get('exit_status') == 0):
+                continue
+            if not (result.get('diagnostics') or result.get('findings')):
+                report['execution'] = 'no_substantive_result'
+                continue
+            if result['status'] == 'passed' and any(f.get('materiality') in {'A', 'B'} for f in result['findings']):
+                report['execution'] = 'conflicting_result'
+                continue
+            report.update(execution='completed', status=result['status'], receipt=pin, output=deepcopy(output),
+                          reviewer_method=list(methods[contract['check_id']]))
+        producer = contract['producer_receipt']
+        if report['execution'] == 'completed' and producer is not None:
+            body = broker.verify_broker_receipt(root, producer)
+            if body.get('action') == 'check run' and body.get('derivation') == 'registered_validator' and body.get('validator_id') in methods \
+                    and body.get('status') == 'ok' and body.get('exit_status') == 0 \
+                    and len(body.get('output_pins', [])) == 1 and len(body.get('input_pins', [])) == 1 \
+                    and body['input_pins'][0]['sha256'] == subject['sha256'] \
+                    and all(broker.sha(broker.locate(root, pin['path'])) == pin['sha256'] for pin in body.get('input_pins', [])):
+                result = read_json(broker.locate(root, body['output_pins'][0]['path']))
+                if (type(result) is dict and result.get('kind') == checks.CHECK_RESULT_KIND
+                        and result.get('producer') == checks.PRODUCER
+                        and result.get('check_id') == body['validator_id'] and result.get('status') == 'passed'
+                        and (result.get('diagnostics') or result.get('findings'))
+                        and type(result.get('findings')) is list
+                        and all(type(f) is dict and f.get('materiality') not in {'A', 'B'} for f in result['findings'])):
+                    report['producer_method'] = list(methods[body['validator_id']])
+                    report['method_separation'] = ('distinct_callable' if report['producer_method'] != report['reviewer_method']
+                                                    else 'same_callable')
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        report['reason'] = str(exc)
+    return report
 
 
 def _receipts(root, facts=None):
@@ -675,9 +819,12 @@ def _missing(points, receipts, producers=()):
 
 
 def _receipt_report(receipt):
-    return {'path': receipt['_path'], 'attestation': receipt['_label'],
+    report = {'path': receipt['_path'], 'attestation': receipt['_label'],
             'independent': receipt['_eligible'] and receipt['_advisory'] is None and independent(receipt['_label']),
             'advisory': receipt['_advisory'] or ('self_attested' if not independent(receipt['_label']) else None)}
+    if receipt.get('_executable_checks'):
+        report['executable_checks'] = deepcopy(receipt['_executable_checks'])
+    return report
 
 
 def pending(rundir: Path) -> list[dict]:

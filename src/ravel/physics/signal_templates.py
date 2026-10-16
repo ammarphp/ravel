@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 
 from ravel.workflow.release_registry import lazy_module
+from ravel.validation import core as validation_core
 published = lazy_module('ravel.physics.published_model')
 
 MAX_TEMPLATE_BYTES = 16 * 1024 * 1024
@@ -25,15 +26,23 @@ def _digest(value):
     return hashlib.sha256(published._compact(value)).hexdigest()
 
 
+def _keys(value, required, optional=(), *, label):
+    """Preserve adapter wording while sharing mechanical object validation."""
+    message = label + " requires exactly " + ", ".join(required)
+    if optional:
+        message += " plus optional " + ", ".join(optional)
+    validation_core.closed_object(dict(value) if isinstance(value, dict) else value,
+                                  required, optional, field=label, message=message)
+
+
 def _version(document, label):
     if type(document["schema_version"]) is not int or document["schema_version"] != 1:
         raise ValueError("unsupported " + label + " schema_version")
 
 
 def _pin(pin):
-    published._keys(pin, ("path", "sha256"), label="source binding")
-    published._text(pin["path"], "source path")
-    published._sha(pin["sha256"], "source digest")
+    from ravel.validation.core import validate_pin
+    validate_pin(pin, field='source binding')
 
 
 def _pins(pins, label, *, nonempty=False):
@@ -45,9 +54,14 @@ def _pins(pins, label, *, nonempty=False):
 
 def _vector(values, bins, label):
     if not isinstance(values, list) or len(values) != bins or not values:
-        raise ValueError(label + " does not match the channel bin count")
-    if any(type(v) not in (int, float) or not math.isfinite(v) or v < 0 for v in values):
-        raise ValueError(label + " must be finite nonnegative numbers")
+        validation_core.fail(label, values, f'nonempty list with {bins} channel bins',
+                             message=label + " does not match the channel bin count")
+    for index, value in enumerate(values):
+        try:
+            validation_core.finite_number(value, field=f'{label}[{index}]', minimum=0)
+        except ValueError:
+            validation_core.fail(f'{label}[{index}]', value, 'finite nonnegative number',
+                                 message=label + " must be finite nonnegative numbers")
 
 
 def _modifiers(sample, bins, poi):
@@ -57,7 +71,7 @@ def _modifiers(sample, bins, poi):
         raise ValueError("sample modifiers must be a list")
     pairs = set()
     for modifier in modifiers:
-        published._keys(modifier, ("name", "type", "data"), label="signal modifier")
+        _keys(modifier, ("name", "type", "data"), label="signal modifier")
         name = published._text(modifier["name"], "modifier name")
         kind = modifier["type"]
         if kind not in ("normfactor", "lumi", "normsys", "histosys", "staterror", "shapesys", "shapefactor"):
@@ -71,11 +85,17 @@ def _modifiers(sample, bins, poi):
             if data is not None:
                 raise ValueError(kind + " requires null modifier data")
         elif kind == "normsys":
-            published._keys(data, ("hi", "lo"), label="normsys")
-            if any(type(v) not in (int, float) or not math.isfinite(v) or v <= 0 for v in data.values()):
-                raise ValueError("normsys anchors must be finite positive factors")
+            _keys(data, ("hi", "lo"), label="normsys")
+            for anchor, value in data.items():
+                try:
+                    validation_core.finite_number(value, field=f'normsys.{anchor}', minimum=0)
+                    if value == 0:
+                        raise ValueError('zero anchor')
+                except ValueError:
+                    validation_core.fail(f'normsys.{anchor}', value, 'finite positive factor',
+                                         message="normsys anchors must be finite positive factors")
         elif kind == "histosys":
-            published._keys(data, ("hi_data", "lo_data"), label="absolute histosys")
+            _keys(data, ("hi_data", "lo_data"), label="absolute histosys")
             _vector(data["hi_data"], bins, "absolute histosys high anchor")
             _vector(data["lo_data"], bins, "absolute histosys low anchor")
         else:
@@ -86,7 +106,7 @@ def _modifiers(sample, bins, poi):
 
 
 def validate(task):
-    published._keys(task, ("input",), ("operation",), label="signal-template task")
+    _keys(task, ("input",), ("operation",), label="signal-template task")
     published._text(task["input"], "signal-template input path")
     if task.get("operation", "inference") not in ("compile", "inference"):
         raise ValueError("signal-template operation must be compile or inference")
@@ -95,7 +115,7 @@ def validate(task):
 
 def validate_document(document):
     """Bridge files pin the ordinary published input and a separate prediction."""
-    published._keys(document, ("schema_version", "published_model", "template"), label="signal-template bridge")
+    _keys(document, ("schema_version", "published_model", "template"), label="signal-template bridge")
     _version(document, "signal-template bridge")
     _pin(document["published_model"])
     _pin(document["template"])
@@ -103,7 +123,7 @@ def validate_document(document):
 
 
 def validate_template(template):
-    published._keys(template, ("schema_version", "template_id", "source_workspace_sha256",
+    _keys(template, ("schema_version", "template_id", "source_workspace_sha256",
                                "modifier_settings", "channels", "grounding"), label="signal template")
     _version(template, "signal template")
     published._text(template["template_id"], "template identity")
@@ -118,7 +138,7 @@ def validate_template(template):
         raise ValueError("complete channel templates are required")
     names = set()
     for channel in channels:
-        published._keys(channel, ("name", "samples"), ("source_absent",), label="template channel")
+        _keys(channel, ("name", "samples"), ("source_absent",), label="template channel")
         name = published._text(channel["name"], "channel name")
         if name in names:
             raise ValueError("duplicate template channel")
@@ -133,13 +153,18 @@ def validate_template(template):
             raise ValueError("a predicted channel cannot be declared source_absent")
         sample_names = set()
         for sample in channel["samples"]:
-            published._keys(sample, ("name", "data", "modifiers", "provenance", "mc_stat"), label="template sample")
+            _keys(sample, ("name", "data", "modifiers", "provenance", "mc_stat"),
+                            ("prediction", "prediction_requirements"), label="template sample")
+            if ('prediction' in sample) != ('prediction_requirements' in sample):
+                raise ValueError('prediction pin and consumer quantity requirements must be supplied together')
+            if "prediction" in sample:
+                _pin(sample["prediction"])
             name = published._text(sample["name"], "signal sample name")
             if name in sample_names:
                 raise ValueError("duplicate template sample")
             sample_names.add(name)
             provenance = sample["provenance"]
-            published._keys(provenance, ("kind", "description", "evidence", "normalization_shape"), label="template provenance")
+            _keys(provenance, ("kind", "description", "evidence", "normalization_shape"), label="template provenance")
             if provenance["kind"] not in ("source_identity", "supplied_prediction"):
                 raise ValueError("unsupported template provenance kind")
             published._text(provenance["description"], "prediction provenance")
@@ -147,7 +172,7 @@ def validate_template(template):
             if provenance["normalization_shape"] != "source_decomposition":
                 raise ValueError("normalization/shape decomposition must be explicit")
             stat = sample["mc_stat"]
-            published._keys(stat, ("mode", "description"), ("weight_model", "sumw", "sumw2"), label="MC-stat treatment")
+            _keys(stat, ("mode", "description"), ("weight_model", "sumw", "sumw2"), label="MC-stat treatment")
             published._text(stat["description"], "MC-stat description")
             if stat["mode"] == "source_preserved":
                 if set(stat) != {"mode", "description"}:
@@ -205,7 +230,7 @@ def build_signal_template(source_contract, template, base="."):
     poi = source["measurement"]["config"]["poi"]
     source_samples = {(channel["name"], sample["name"]): sample for channel in workspace["channels"]
                       for sample in channel["samples"] if sample["name"] in next(row["sample_names"] for row in source["signal"] if row["channel"] == channel["name"])}
-    patch, reports = [], []
+    patch, reports, quantities = [], [], []
     for channel_index, channel in enumerate(workspace["channels"]):
         supplied_channel = channels[channel["name"]]
         supplied = supplied_channel["samples"]
@@ -222,6 +247,10 @@ def build_signal_template(source_contract, template, base="."):
             raise ValueError("prediction signal sample identities differ from the source channel")
         bins = len(next(item["data"] for item in workspace["observations"] if item["name"] == channel["name"]))
         for supplied_sample in supplied:
+            if "prediction" in supplied_sample:
+                from .event_inference_contract import prediction
+                quantities.append({"channel": channel["name"], "sample": supplied_sample["name"],
+                                   **prediction(supplied_sample["prediction"], base, supplied_sample, channel["name"])})
             sample = {key: deepcopy(supplied_sample[key]) for key in ("name", "data", "modifiers")}
             old = source_samples[channel["name"], sample["name"]]
             _vector(sample["data"], bins, "nominal signal yields")
@@ -242,6 +271,17 @@ def build_signal_template(source_contract, template, base="."):
             # Null-data modifiers define the POI/luminosity/free-factor structure.
             # Their identities were checked above and their data cannot be edited.
             statistics = [m for m in sample["modifiers"] if m["type"] in ("staterror", "shapesys")]
+            if 'prediction' in supplied_sample:
+                names = {modifier['name'] for modifier in statistics}
+                occurrences = [modifier for row in workspace['channels'] for item in row['samples']
+                               for modifier in item['modifiers'] if modifier['name'] in names]
+                overrides = [parameter for parameter in source['measurement']['config']['parameters']
+                             if parameter['name'] in names]
+                if len(occurrences) != 1 or overrides:
+                    validation_core.fail('template.prediction.covariance',
+                        {'modifier_occurrences': len(occurrences), 'parameter_overrides': overrides},
+                        'one unshared finite-MC modifier without parameter overrides',
+                        repair='use a likelihood projection that retains the supplied signal covariance')
             if stat["mode"] == "source_preserved":
                 if sample["data"] != old["data"] or any(m != old_by_pair[m["name"], m["type"]] for m in statistics):
                     raise ValueError("changed nominal or MC errors require supplied finite-MC treatment")
@@ -311,6 +351,13 @@ def build_signal_template(source_contract, template, base="."):
                 "uncovered_channels": [row["channel"] for row in source["signal"] if not row["present"]],
                 "mc_stat_interpretation": "source-preserved or supplied absolute finite-MC errors; shared staterror remains pooled with backgrounds; no raw-event covariance inferred",
                 "identity_interpretation": "template identity is distinct even for an exact official identity workspace"}
+    if quantities:
+        from ravel.validation.core import fail
+        # This projection has an exclusive-bin covariance, not cross-channel covariance.
+        if len(quantities) != 1 or sum(len(c['samples']) for c in template['channels']) != 1:
+            fail('template.prediction', len(quantities), 'one complete signal sample in one channel',
+                 repair='supply the shared-event covariance to a compatible likelihood adapter')
+        manifest['quantity_contracts'] = quantities
     return SignalTemplateContract(published._compact(manifest), published._compact(workspace), published._compact(patch))
 
 
@@ -393,10 +440,18 @@ def inputs(task, base):
     template = validate_template(published._json(template_raw))
     pins = list(template["grounding"])
     pins.extend(pin for channel in template["channels"] for sample in channel["samples"] for pin in sample["provenance"]["evidence"])
+    prediction_files = []
+    for channel in template['channels']:
+        for sample in channel['samples']:
+            if 'prediction' in sample:
+                from .event_inference_contract import prediction, prediction_inputs
+                prediction(sample['prediction'], template_path.parent, sample, channel['name'])
+                prediction_files += prediction_inputs(sample['prediction'], template_path.parent)
     # Validate source document bytes before asking its input enumerator to read it.
     published.validate_document(published._json(source_raw))
     return [path, source_path, template_path, *published.inputs({"input": str(source_path)}, source_path.parent),
-            *[published._bound_path(pin, template_path.parent, published.MAX_MEMBER_BYTES)[0] for pin in pins]]
+            *[published._bound_path(pin, template_path.parent, published.MAX_MEMBER_BYTES)[0] for pin in pins],
+            *prediction_files]
 
 
 def run(task, base, out):
@@ -442,6 +497,9 @@ def run(task, base, out):
         if [result["limit_status"]["observed"], *result["limit_status"]["expected"]] != ["resolved"] * 6:
             raise RuntimeError("signal-template inference requires all six resolved roots")
         atomic_json(out / "exclusion.json", result)
+        if contract.manifest().get('quantity_contracts'):
+            from .event_inference_contract import inference_output
+            atomic_json(out / 'inference-quantity-contract.json', inference_output(contract, compiled, result))
         status, error = "passed", None
     except Exception as exc:
         status, error = "failed", {"type": type(exc).__name__, "message": str(exc)}
@@ -449,8 +507,12 @@ def run(task, base, out):
     finally:
         atomic_json(out / "profile_witnesses.json", witnesses)
         atomic_json(out / "inference_diagnostics.json", diagnostic)
-    return {"status": status, "operation": "inference", "numerical_inference": True,
+    delivery = {"status": status, "operation": "inference", "numerical_inference": True,
             "physics_validated": False, "scope": SCOPE, "generated_events": 0,
             "contract": "signal_template_contract.json", "compiled": "signal_template_compiled.json",
             "inference": "exclusion.json" if status == "passed" else None, "error": error,
             "profile_witnesses": "profile_witnesses.json", "profile_witness_journal": "profile_witnesses.jsonl"}
+    if status == 'passed' and contract.manifest().get('quantity_contracts'):
+        from .event_inference_contract import file_pin
+        delivery['quantity_artifact'] = file_pin(out / 'inference-quantity-contract.json')
+    return delivery

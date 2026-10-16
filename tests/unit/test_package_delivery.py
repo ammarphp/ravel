@@ -110,7 +110,9 @@ def test_python_profiles_preserve_runtime_boundary():
     project=tomllib.loads((REPO/'pyproject.toml').read_text())['project']
     assert project['requires-python']=='>=3.11,<3.13'
     from ravel.python_installation import declarations
-    assert project['dependencies']==declarations(REPO)['dependencies']
+    profile=declarations(REPO)
+    assert project['dependencies']==profile['runtime_dependencies']
+    assert set(project['dependencies'])<=set(profile['dependencies'])
     assert 'numpy==1.26.4' in project['dependencies']
     assert 'onnxruntime==1.30.0' in project['dependencies']
     assert not any(dep.startswith(('smodels=', 'torch=', 'ROOT=', 'rivet=')) for dep in project['dependencies'])

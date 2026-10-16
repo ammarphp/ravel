@@ -2,7 +2,8 @@
 
 Predictions and costs are declarations, not validated physics or execution authority.
 Exact prediction clones count once. Unknown predictions remain compatible with
-every declared outcome. The finite minimax objective has no probability model.
+every declared outcome. Guaranteed elimination is the default. Expected mutual
+information requires a pinned predictive joint law with source evidence.
 """
 from __future__ import annotations
 
@@ -21,6 +22,21 @@ MAX_OUTCOMES = 4
 MAX_HYPOTHESES = 32
 MAX_CLASSES = 12
 COST_CLASSES = ('none', 'calculation', 'stream', 'generation')
+POLICIES = ('guaranteed', 'expected_information')
+
+
+def objective_advice(conclusions):
+    """Retain region members and separate axes without a scalar utility score.
+
+    The protocol owns evidence validation. This projection is advisory and
+    preserves unresolved alternatives; it grants no execution or combination.
+    """
+    return {'objective_ids': [r['id'] for r in conclusions],
+            'retained_candidate_ids': sorted({c for r in conclusions for c in r['candidate_ids']}),
+            'unresolved_objective_ids': [r['id'] for r in conclusions if r['status'] != 'supported_in_declared_scope'],
+            'scoped_options': deepcopy(conclusions), 'scalarization': None,
+            'advisory_only': True, 'execution_authorized': False, 'claim_authorized': False,
+            'combination_authorized': False}
 
 
 def _selection_action(action):
@@ -101,8 +117,13 @@ def _strings(values, label, maximum):
 
 def validate_case(case, *, base_dir=None):
     """Reject unbounded or ambiguous declarations before policy enumeration."""
-    _keys(case, {"schema_version", "scope", "prediction_basis", "budget", "horizon",
+    if type(case) is not dict:
+        raise ValueError('allocation case must be an object')
+    _keys({k: v for k, v in case.items() if k not in {'allocation_policy', 'predictive_model'}},
+          {"schema_version", "scope", "prediction_basis", "budget", "horizon",
                  "actions", "hypotheses"}, "allocation case")
+    if case.get('allocation_policy', 'guaranteed') not in POLICIES:
+        raise ValueError('unknown allocation_policy')
     if type(case["schema_version"]) is not int or case["schema_version"] != 1:
         raise ValueError("schema_version must be 1")
     _text(case["scope"], "scope")
@@ -219,8 +240,99 @@ def _policies(classes, actions, budget, horizon):
                    "score": Fraction(initial - worst, cost)}
 
 
+def _predictive_model(case, classes, base_dir):
+    """Admit a source-backed joint law, never an agent confidence declaration.
+
+    Joint rows make adaptive conditioning explicit; no independence assumption
+    between outcomes, uniform class prior or probability for a null is inferred.
+    """
+    from ravel.physics.research_comparison import document, _snapshot
+    if 'predictive_model' not in case:
+        raise ValueError('expected_information requires a declared source-backed predictive model')
+    pin = case['predictive_model']
+    model = document(pin, base_dir)
+    _keys(model, {'schema_version', 'kind', 'scope', 'method', 'sources', 'distribution'}, 'predictive model')
+    if (type(model['schema_version']) is not int or model['schema_version'] != 1 or
+            model['kind'] not in {'source_backed_predictive_model', 'calibrated_record'} or
+            model['scope'] != case['scope']):
+        raise ValueError('source-backed predictive model or calibrated record in this scope required')
+    _text(model['method'], 'predictive method')
+    if type(model['sources']) is not list or not 1 <= len(model['sources']) <= 32:
+        raise ValueError('predictive model requires source evidence pins')
+    for source in model['sources']: _snapshot(source, base_dir)
+    rows = model['distribution']
+    if type(rows) is not list or not 1 <= len(rows) <= 8192:
+        raise ValueError('bounded joint predictive distribution required')
+    known = {c['class_key']: c for c in classes}
+    actions = {a['id']: a for a in case['actions']}
+    seen = set(); covered = set()
+    for row in rows:
+        _keys(row, {'class_key', 'outcomes', 'probability'}, 'joint predictive row')
+        if row['class_key'] not in known:
+            raise ValueError('predictive model must use current canonical classes')
+        _keys(row['outcomes'], actions, 'joint outcomes')
+        for key, outcome in row['outcomes'].items():
+            if outcome not in actions[key]['outcomes']:
+                raise ValueError('predictive outcome outside declared action')
+            if known[row['class_key']]['predictions'][key] not in (None, outcome):
+                raise ValueError('predictive outcome contradicts categorical prediction')
+        probability = row['probability']
+        if type(probability) not in (int, float) or not math.isfinite(probability) or not 0 < probability <= 1:
+            raise ValueError('positive finite predictive probability required')
+        key = (row['class_key'], tuple(sorted(row['outcomes'].items())))
+        if key in seen: raise ValueError('duplicate joint predictive row')
+        seen.add(key); covered.add(row['class_key'])
+    if covered != set(known) or not math.isclose(math.fsum(r['probability'] for r in rows), 1., rel_tol=0, abs_tol=1e-12):
+        raise ValueError('normalized predictive law covering every class required')
+    # Re-authenticate the law and sources after consuming the distribution.
+    for source in [pin, *model['sources']]: _snapshot(source, base_dir)
+    return rows, {'model': deepcopy(pin), 'kind': model['kind'], 'method': model['method'],
+                  'sources': deepcopy(model['sources'])}
+
+
+def _mass(rows):
+    return math.fsum(r['probability'] for r in rows)
+
+
+def _entropy(rows):
+    mass = _mass(rows)
+    if not mass: return 0.
+    probabilities = {}
+    for row in rows:
+        probabilities.setdefault(row['class_key'], []).append(row['probability'])
+    return -math.fsum((p := math.fsum(values)/mass) * math.log2(p) for values in probabilities.values())
+
+
+def _information_policies(rows, actions, budget, horizon):
+    initial = _entropy(rows); total = _mass(rows)
+    for first in actions:
+        if not _selection_action(first) or first['cost'] > budget: continue
+        branches = []
+        for outcome in sorted(first['outcomes']):
+            branch = [r for r in rows if r['outcomes'][first['id']] == outcome]
+            if not branch: continue
+            weight = _mass(branch)/total
+            choices = [(None, weight * _entropy(branch), 0.)]
+            if horizon == 2:
+                for second in actions:
+                    if (not _selection_action(second) or second['id'] == first['id'] or
+                            first['cost'] + second['cost'] > budget): continue
+                    residual = math.fsum(_mass(sub)/total * _entropy(sub) for o in second['outcomes']
+                        if (sub := [r for r in branch if r['outcomes'][second['id']] == o]))
+                    choices.append((second['id'], residual, weight * second['cost']))
+            branches.append((outcome, choices))
+        for choices in product(*(options for _, options in branches)):
+            information = max(0., initial - math.fsum(c[1] for c in choices))
+            # Entropy subtraction must not turn roundoff into positive advice.
+            if information <= 8 * math.ulp(max(1., initial)): information = 0.
+            cost = first['cost'] + math.fsum(c[2] for c in choices)
+            yield {'first_action': first['id'], 'then': {o: c[0] for (o, _), c in zip(branches, choices)},
+                   'expected_information_bits': information, 'expected_cost': cost,
+                   'score': information/cost}
+
+
 def recommend(case, *, horizon=None, base_dir=None):
-    """Return exact finite minimax policy advice, with no authority to execute.
+    """Return finite policy advice, with guaranteed elimination as the default.
 
     Horizon one maximizes guaranteed eliminated distinct vectors / action cost.
     Horizon two maximizes guaranteed eliminated vectors / maximum path cost over
@@ -229,15 +341,24 @@ def recommend(case, *, horizon=None, base_dir=None):
     artificial elimination credit. Zero guaranteed gain causes abstention.
     Equal ratios choose lower worst cost, operation class, then the canonical
     policy ID tuple. Withheld actions are never selection policy branches.
+    The opt-in expected_information policy uses the admitted joint predictive
+    law for expected entropy reduction and expected path cost instead.
     """
     classes = canonicalize(case, base_dir=base_dir)
     horizon = case["horizon"] if horizon is None else horizon
     if type(horizon) is not int or horizon not in (1, 2):
         raise ValueError("horizon must be 1 or 2")
     actions = sorted(case["actions"], key=lambda a: a["id"])
-    policies = list(_policies(classes, actions, case["budget"], horizon))
+    policy_name = case.get('allocation_policy', 'guaranteed')
+    predictive_basis = None
+    if policy_name == 'expected_information':
+        rows, predictive_basis = _predictive_model(case, classes, base_dir or Path.cwd())
+        policies = list(_information_policies(rows, actions, case['budget'], horizon))
+    else:
+        policies = list(_policies(classes, actions, case["budget"], horizon))
     ranks = {a['id']: _cost_rank(a) for a in actions}
-    best = min(policies, key=lambda p: (-p["score"], p["worst_case_cost"],
+    cost_key = 'worst_case_cost' if policy_name == 'guaranteed' else 'expected_cost'
+    best = min(policies, key=lambda p: (-p["score"], p[cost_key],
         ranks[p['first_action']], tuple(ranks.get(v, -1) for _, v in sorted(p['then'].items())),
         _policy_key(p))) if policies else None
     if best is not None and best["score"] == 0:
@@ -245,16 +366,24 @@ def recommend(case, *, horizon=None, base_dir=None):
     if best:
         best = dict(best)
         ratio = best.pop("score")
-        best["score_fraction"] = [ratio.numerator, ratio.denominator]
+        if policy_name == 'guaranteed': best["score_fraction"] = [ratio.numerator, ratio.denominator]
+        else: best['information_per_cost'] = ratio
     return {"schema_version": 1, "status": "ADVISORY", "advisory_only": True,
             "execution_authorized": False, "physics_validated": False,
             "scope": case["scope"], "prediction_basis": case["prediction_basis"],
             "input_digest": _digest(case), "budget": case["budget"], "horizon": horizon,
             "hypothesis_count": len(case["hypotheses"]), "unique_class_count": len(classes),
             "classes": classes, "policy": best,
-            "stop_reason": None if best else "no informative feasible policy with guaranteed elimination",
-            "objective": "guaranteed eliminated prediction classes / maximum path cost",
-            "tie_break": "higher exact ratio, lower maximum path cost, operation cost class, lexicographic action/outcome ID tuple",
+            "allocation_policy": policy_name, "predictive_basis": predictive_basis,
+            "selection_reason": ('maximum guaranteed elimination per worst path cost' if policy_name == 'guaranteed'
+                                 else 'maximum expected class mutual information per expected path cost under the pinned joint law'),
+            "stop_reason": None if best else ('no informative feasible policy with guaranteed elimination' if policy_name == 'guaranteed'
+                                              else 'no feasible policy with positive expected information'),
+            "objective": ('guaranteed eliminated prediction classes / maximum path cost' if policy_name == 'guaranteed'
+                          else 'expected mutual information in bits / expected path cost'),
+            "tie_break": ("higher exact ratio, lower maximum path cost, operation cost class, lexicographic action/outcome ID tuple"
+                          if policy_name == 'guaranteed' else
+                          "higher information/cost ratio, lower expected path cost, operation cost class, lexicographic action/outcome ID tuple"),
             "policies_examined": len(policies)}
 
 
@@ -325,9 +454,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", type=Path, required=True)
     parser.add_argument("--out", type=Path)
+    parser.add_argument('--policy', choices=POLICIES)
     args = parser.parse_args(argv)
     try:
-        rendered = json.dumps(recommend(read_json(args.case), base_dir=args.case.parent), indent=2, allow_nan=False) + "\n"
+        case = read_json(args.case)
+        if args.policy: case['allocation_policy'] = args.policy
+        rendered = json.dumps(recommend(case, base_dir=args.case.parent), indent=2, allow_nan=False) + "\n"
         if args.out:
             with args.out.open("x") as stream:
                 stream.write(rendered)
@@ -346,7 +478,8 @@ def allocate(case, policy, *, base_dir=None):
 
     Prediction-vector classes are the family unit. Aliases share a seat and a
     coverage count. Fewer affordable tests than classes is a normal finite plan.
-    All values remain advice over declarations, never calibrated probabilities.
+    Values remain advice over declarations; predictive evidence is required by
+    the selected information policy and does not establish calibration here.
     """
     classes = canonicalize(case, base_dir=base_dir)
     _keys(policy, {'validation_reservation', 'confirmation_reservation', 'reserve_budget',
@@ -385,18 +518,33 @@ def allocate(case, policy, *, base_dir=None):
     remainder = deepcopy(case); remainder['budget'] = available - cost
     recommended = recommend(remainder, base_dir=base_dir)
     ranked = []
+    model_rows = None
+    if recommended['allocation_policy'] == 'expected_information':
+        model_rows, _ = _predictive_model(remainder, classes, base_dir or Path.cwd())
     for action in case['actions']:
         if not _selection_action(action) or action['cost'] > available-cost:
             continue
-        gain = len(classes) - max(len(retained) for _, retained in _branches(classes, action))
+        if recommended['allocation_policy'] == 'expected_information':
+            gain = next(_information_policies(model_rows, [action], remainder['budget'], 1))['expected_information_bits']
+        else:
+            gain = len(classes) - max(len(retained) for _, retained in _branches(classes, action))
         if gain:
-            ranked.append((Fraction(gain, action['cost']), action))
+            ranked.append((gain/action['cost'] if recommended['allocation_policy'] == 'expected_information'
+                           else Fraction(gain, action['cost']), action))
     ranked.sort(key=lambda row: (-row[0], row[1]['cost'], _cost_rank(row[1]), row[1]['id']))
+    order = [a['id'] for _, a in ranked]
+    if recommended['allocation_policy'] == 'expected_information' and recommended['policy']:
+        first = recommended['policy']['first_action']
+        # A joint-law policy can learn only after its second outcome. Its first
+        # action still needs a queue seat even when its marginal information is zero.
+        order = [first, *(identity for identity in order if identity != first)]
     return {'schema_version': 1, 'allocator_recommendation': recommend(case, base_dir=base_dir)['input_digest'],
             'reserved': reserved, 'reserve_seats': seats, 'exploration_cost': cost,
             'reserved_actions': sorted(a['id'] for a in withheld),
-            'selection_order': [a['id'] for _, a in ranked],
+            'selection_order': order,
             'remaining_selection_budget': available-cost, 'policy': recommended['policy'],
+            'allocation_policy': recommended['allocation_policy'],
+            'selection_reason': recommended['selection_reason'], 'predictive_basis': recommended['predictive_basis'],
             'starvation_triggered': starved, 'advisory_only': True, 'physics_validated': False,
             'execution_authorized': False}
 

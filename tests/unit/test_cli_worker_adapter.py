@@ -148,6 +148,30 @@ def real_sandbox_or_skip(tmp_path):
         sandbox.probe(ws, forbidden=tmp_path / 'private', read_paths=sandbox.runtime_paths([sys.executable]))
     except sandbox.SandboxUnavailable as exc:
         pytest.skip(f'sandbox-blocked: actual OS confinement unavailable: {exc}')
+    except sandbox.SandboxProbeFailed as exc:
+        # A launcher or profile that cannot start is an environment without nested confinement;
+        # a probe that ran and did not confirm a denial (it carries its checks) is a real failure.
+        if hasattr(exc, 'checks'):
+            raise
+        pytest.skip(f'sandbox-blocked: the sandbox probe launcher failed: {exc}')
+
+
+def test_a_failing_probe_launcher_skips_but_a_leaking_profile_still_fails(tmp_path, monkeypatch):
+    launcher = sandbox.SandboxProbeFailed('sandbox probe launcher or profile failed')
+    launcher.returncode, launcher.stderr = 1, 'launcher: cannot start'
+    leak = sandbox.SandboxProbeFailed('sandbox probe did not confirm the required denials')
+    leak.checks = {'write_denied': False}
+
+    def refuse(error):
+        def probe(*args, **kwargs):
+            raise error
+        return probe
+    monkeypatch.setattr(sandbox, 'probe', refuse(launcher))
+    with pytest.raises(pytest.skip.Exception, match='sandbox-blocked'):
+        real_sandbox_or_skip(tmp_path / 'launcher')
+    monkeypatch.setattr(sandbox, 'probe', refuse(leak))
+    with pytest.raises(sandbox.SandboxProbeFailed):
+        real_sandbox_or_skip(tmp_path / 'leak')
 
 
 # ------------------------------------------------------------------ descriptor

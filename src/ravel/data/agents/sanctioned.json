@@ -400,6 +400,14 @@
    "targets": [
     "langgraph.types.interrupt"
    ]
+  },
+  {
+   "qualname": "ravel.validation.fault_injection:evaluate_case",
+   "sinks": [
+    "S3"
+   ],
+   "disposition": "non_model",
+   "reason": "Executes a closed in-memory tool-only graph (every node kind is tool, run by a software host); no role is dispatched and no model endpoint is reached. A caller-supplied proposer is a plain callable outside the graph."
   }
  ],
  "tripwire_layers": [

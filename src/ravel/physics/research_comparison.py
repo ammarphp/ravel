@@ -1,9 +1,8 @@
 """Complete-cell comparisons of source-bound supplied scalar/interval results.
 
 This is finite arithmetic, not a causal or coverage estimator. Ordinary science
-owns execution/review. Supplied interval subtraction carries its declared scope;
-no covariance, standard error, independence, distribution or unit conversion is
-inferred. Mixed cell tradeoffs and unavailable quality/uncertainty stay unknown.
+owns execution/review. Covariance is used only from a pinned same-event evaluation
+with an explicit interval prescription. Search retention never grants a claim.
 """
 from copy import deepcopy
 import math
@@ -102,6 +101,94 @@ def _pointer(value):
         raise ValueError("literal bounded comparison pointer required")
 
 
+def search_retention(gains, tolerances=None):
+    """Robust two-candidate frontier over every declared, oriented objective.
+
+    Overlap or an unresolved cell cannot establish dominance, and neither can a
+    gain inside its rule's declared equivalence tolerance. The claim minimum gain
+    deliberately plays no part in retaining candidates for further search.
+    """
+    tolerances = [0] * len(gains) if tolerances is None else tolerances
+    complete = bool(gains) and len(tolerances) == len(gains) and all(g is not None for g in gains)
+    left = complete and all(g[0] >= 0 for g in gains) and any(g[0] > t for g, t in zip(gains, tolerances))
+    right = complete and all(g[1] <= 0 for g in gains) and any(g[1] < -t for g, t in zip(gains, tolerances))
+    return {"frontier": [s for s, dropped in (("left", right), ("right", left)) if not dropped],
+            "dominates": "left" if left else "right" if right else None,
+            "claim_authorized": False}
+
+
+def _pairing(cell, base):
+    """Authenticate actual paired coordinates, including retained group matrices."""
+    from ravel.workflow.research_cycle import _pointer as extract
+    descriptor = cell['paired_evaluation']
+    ce.keys(descriptor, ('source', 'pointer'))
+    _pin(descriptor['source']); _pointer(descriptor['pointer'])
+    record = deepcopy(extract(_json(descriptor['source'], base), descriptor['pointer']))
+    covariance_fields = ('covariance_source', 'covariance_pointer', 'values_pointer',
+                         'indices', 'interval_multiplier', 'interval_prescription')
+    ce.keys(record, ('construction', 'population', 'left', 'right',
+                     *(covariance_fields if any(k in record for k in covariance_fields) else ())))
+    if record['construction'] != 'same_events':
+        raise ValueError('recorded same_events construction required')
+    # A joint evaluation can name its own output without a circular file digest.
+    for side in ('left', 'right'):
+        if type(record[side]) is dict and record[side].get('source') == 'self':
+            record[side]['source'] = descriptor['source']
+    if record.get('covariance_source') == 'self':
+        record['covariance_source'] = descriptor['source']
+    for side in ('left', 'right'):
+        if record[side] != {k: cell[side][k] for k in ('source', 'value_pointer')}:
+            raise ValueError('paired evaluation operands differ from comparison')
+    pins = [descriptor['source'], record['population']]
+    for pin in pins: _pin(pin)
+    if 'covariance_source' not in record:
+        return record, pins
+    pins.append(record['covariance_source'])
+    for pin in pins: _pin(pin)
+    if record['interval_prescription'] != 'symmetric_covariance':
+        raise ValueError('supplied symmetric_covariance interval prescription required')
+    for key in ('covariance_pointer', 'values_pointer'): _pointer(record[key])
+    indices = record['indices']
+    if (type(indices) is not list or len(indices) != 2 or
+            any(type(i) is not int or not 0 <= i < 768 for i in indices) or indices[0] == indices[1]):
+        raise ValueError('two distinct paired covariance coordinates required')
+    if _number(record['interval_multiplier']) <= 0:
+        raise ValueError('positive supplied interval multiplier required')
+    return record, pins
+
+
+def _paired_gain(cell, values, direction, base):
+    from ravel.workflow.research_cycle import _pointer as extract
+    record, _ = _pairing(cell, base)
+    if 'covariance_source' not in record:
+        return None
+    source = _json(record['covariance_source'], base)
+    try:
+        matrix = extract(source, record['covariance_pointer'])
+    except (KeyError, IndexError):
+        matrix = None
+    # Null covariance is an explicit missing observation, never independence.
+    if matrix is None:
+        return None
+    central = extract(source, record['values_pointer'])
+    i, j = record['indices']
+    if (type(central) is not list or not 2 <= len(central) <= 768 or max(i, j) >= len(central) or
+            [central[i], central[j]] != [v['value'] for v in values]):
+        raise ValueError('paired covariance central coordinates differ from operands')
+    if (type(matrix) is not list or len(matrix) != len(central) or
+            any(type(row) is not list or len(row) != len(central) for row in matrix)):
+        raise ValueError('complete paired covariance matrix required')
+    vl, vr, cov, reverse = [_number(x) for x in (matrix[i][i], matrix[j][j], matrix[i][j], matrix[j][i])]
+    if vl < 0 or vr < 0 or cov != reverse or abs(cov) > math.sqrt(vl) * math.sqrt(vr):
+        raise ValueError('invalid paired covariance block')
+    variance = _number(math.fsum((vl, vr, -2 * cov)))
+    if variance < 0: raise ValueError('negative paired difference variance')
+    width = _number(record['interval_multiplier'] * math.sqrt(variance))
+    center = values[0]['value'] - values[1]['value']
+    if direction == 'minimize': center = -center
+    return [_number(center - width), _number(center + width)]
+
+
 def validate(task):
     ce.keys(task, ("schema_version", "request"))
     if type(task["schema_version"]) is not int or task["schema_version"] != 1:
@@ -122,7 +209,8 @@ def _request(task, base, *, _readonly=None):
         raise ValueError("complete bounded cell matrix required")
     ids = set(); pins = [task["request"], request["rule"]]
     for cell in cells:
-        ce.keys(cell, ("id", "metric", "unit", "exposure", "left", "right"))
+        ce.keys(cell, ("id", "metric", "unit", "exposure", "left", "right",
+                       *(['paired_evaluation'] if 'paired_evaluation' in cell else [])))
         ce.identity(cell["id"])
         if cell["id"] in ids: raise ValueError("duplicate comparison cell")
         ids.add(cell["id"])
@@ -137,6 +225,8 @@ def _request(task, base, *, _readonly=None):
             for k in ("value_pointer", "quality_pointer"): _pointer(row[k])
             if row["interval_pointer"] is not None: _pointer(row["interval_pointer"])
             pins.append(row["source"])
+        if 'paired_evaluation' in cell:
+            pins.extend(_pairing(cell, base)[1])
     if type(request["dependencies"]) is not list or len(request["dependencies"]) > 128:
         raise ValueError("bounded complete held source/cohort dependencies required")
     pins.extend(request["dependencies"])
@@ -184,16 +274,21 @@ def calculate(task, base_dir, *, _readonly=None):
             except (KeyError, IndexError, ValueError, TypeError) as exc:
                 reasons.append({"side": side, "kind": "quality_measurement_or_uncertainty_unresolved", "detail": str(exc)})
                 values.append(None)
-        gain = None; decision = "unknown"
+        gain = None; decision = "unknown"; paired = None
         if all(x is not None for x in values):
             left, right = values
             if fixed["direction"] == "maximize": gain = [left["interval"][0] - right["interval"][1], left["interval"][1] - right["interval"][0]]
             else: gain = [right["interval"][0] - left["interval"][1], right["interval"][1] - left["interval"][0]]
+            if 'paired_evaluation' in cell and fixed['uncertainty'] == 'supplied_intervals':
+                paired = _paired_gain(cell, values, fixed['direction'], base_dir)
+                if paired is not None: gain = paired
             for x in gain: _number(x)
             t = fixed["tolerance"]
             decision = "better" if gain[0] > fixed["min_gain"] + t else "worse" if gain[1] < -t else "equivalent" if max(abs(x) for x in gain) <= t else "unknown"
         rows.append({"cell_id": cell["id"], "exposure": cell["exposure"], "operands": values,
                      "gain_interval": gain, "decision": decision, "unresolved_reasons": reasons})
+        # Marginal rows keep the recorded result schema that staged status recomputes.
+        if paired is not None: rows[-1]["interval_construction"] = "paired_covariance"
     decisions = {r["decision"] for r in rows}
     decision = "equivalent" if decisions == {"equivalent"} else "better" if decisions <= {"better", "equivalent"} else "worse" if decisions <= {"worse", "equivalent"} else "unknown"
     if 'replication_request' in request:

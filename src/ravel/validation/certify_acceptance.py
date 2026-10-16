@@ -584,7 +584,7 @@ def main():
                "rows": [{k: r[k] for k in ("sr", "region", "role", "mine", "pub", "events", "node",
                                            "ratio", "ok", "mu95_impact", "off_grid", "attribution", "inverse_signal_limit_shift")}
                         for r in rows]},
-              open(args.out.replace(".md", ".json"), "w"), indent=2, allow_nan=False)
+              open(os.path.splitext(args.out)[0] + ".json", "w"), indent=2, allow_nan=False)
     print(f"{verdict}: driving={'ok' if driving_ok else 'OFF'} worst-residual={worst_s} "
           f"({len(attribs)} attributed){' OFF-GRID' if driving_off_grid else ''} -> {args.out}")
     if fail_reason:

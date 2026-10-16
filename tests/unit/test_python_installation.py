@@ -132,8 +132,31 @@ def test_setup_population_and_native_script_export():
 
 def test_host_aliases_remain_compatible():
     project=tomllib.loads((ROOT/'pyproject.toml').read_text())['project']
-    assert set(project['optional-dependencies'])=={'source-tables','replay','test','measurement','classifier','science','figures','source-validation','symbolic'}
+    assert set(project['optional-dependencies'])=={'source-tables','replay','test','cosmology','measurement','classifier','science','figures','source-validation','symbolic'}
     assert p.validate_aliases(ROOT) is True
+
+
+def test_full_profile_keeps_optional_and_build_requirements():
+    manifest=p.declarations(ROOT)
+    canonical=tomllib.loads((ROOT/'pyproject.toml').read_text())
+    assert manifest['runtime_dependencies']==canonical['project']['dependencies']
+    assert manifest['build_requirements']==canonical['build-system']['requires']
+    assert manifest['build_requirements']==['hatchling==1.27.0']
+    assert manifest['selected_extras']['test']==['pytest>=8.3.5,<9']
+    for group in [manifest['build_requirements'], *manifest['selected_extras'].values()]:
+        assert set(group)<=set(manifest['dependencies'])
+
+
+@pytest.mark.parametrize('group', ['runtime_dependencies', 'build_requirements', 'test', 'cosmology'])
+def test_full_profile_omission_refuses(tmp_path, group):
+    root=clone(tmp_path)
+    path=root/p.MANIFEST
+    manifest=json.loads(path.read_text())
+    values=(manifest['selected_extras'][group] if group in {'test','cosmology'} else manifest[group])
+    values.pop()
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError):
+        p.declarations(root)
 
 
 def test_wheel_sdist_installed_dependency_and_asset_contract(tmp_path):
@@ -153,7 +176,15 @@ def test_wheel_sdist_installed_dependency_and_asset_contract(tmp_path):
             r=Requirement(value)
             return (canonicalize_name(r.name),tuple(sorted(r.extras)),str(r.specifier),str(r.marker) if r.marker else None,r.url)
         installed={signature(d) for d in msg.get_all('Requires-Dist') if 'extra ==' not in d}
-        assert installed=={signature(d) for d in p.declarations(ROOT)['dependencies']}
+        manifest=p.declarations(ROOT)
+        assert installed=={signature(d) for d in manifest['runtime_dependencies']}
+        assert {'pytest','hatchling','camb','classy','cobaya'}.isdisjoint(
+            Requirement(d).name.lower() for d in manifest['runtime_dependencies'])
+        for extra, requirements in manifest['selected_extras'].items():
+            selected={signature(d.split(';')[0].strip()) for d in msg.get_all('Requires-Dist')
+                      if Requirement(d).marker is not None
+                      and Requirement(d).marker.evaluate({'extra':extra})}
+            assert selected=={signature(d) for d in requirements}
         for logical in p.setup_files(ROOT):
             assert z.read('ravel/data/installation/'+logical)==(ROOT/logical).read_bytes()
         assert z.read('ravel/python_installation.py')==(ROOT/'src/ravel/python_installation.py').read_bytes()

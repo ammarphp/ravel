@@ -122,7 +122,14 @@ $$
 \text{minimize: } [R_\text{lo} - L_\text{hi},\; R_\text{hi} - L_\text{lo}],
 $$
 
-and the cell's decision is
+For a recorded same-event evaluation with an actual joint covariance and an explicit
+symmetric interval multiplier *k*, use the oriented central difference ±
+$k\sqrt{\operatorname{Var}(L)+\operatorname{Var}(R)-2\operatorname{Cov}(L,R)}$.
+The covariance must belong to the paired coordinates, including retained event-group
+covariance when available. Missing covariance or unrecorded pairing keeps the marginal
+construction above; neither covariance nor an interval prescription is inferred.
+
+The cell's claim decision is
 
 | Decision | Condition on the gain interval [a, b] |
 |---|---|
@@ -135,6 +142,69 @@ Over all cells, the comparison is *equivalent* if every cell is equivalent, *bet
 equivalent, *worse* if every cell is worse or equivalent, and *unknown* otherwise. A trade-off between cells is
 therefore unknown, never averaged away. Every decision rests on the recorded values; code recomputes it before
 any stage that requires it runs.
+
+Search retention is reported separately as a Pareto frontier over all declared
+cell objectives. A candidate leaves the search when another has a nonnegative gain
+lower bound on every objective and a lower bound above the rule's tolerance on at least
+one. Trade-offs, overlapping uncertainty and missing objectives retain both candidates.
+Frontier membership never establishes uniform improvement or authorizes a claim.
+Candidate claim preferences recompute each possible winner's cell gains against
+the retained minimum gain and tolerance. A loss beyond tolerance alone does not
+establish that the other candidate clears the stricter improvement threshold.
+
+An optional `objectives` list in the staged protocol can declare a narrower or
+multiaxis conclusion before any affected execution evidence exists. Existing
+protocols keep the whole-cell decision and claim rules above. Each objective
+declares its `id`, `kind`, literal `scope`, exact `cell_ids`, and `requirements`.
+Each requirement binds a `comparison_id`, a subset of its `cell_ids`, a
+`preferred_candidate`, an `axis`, and explicit `allowed_decisions`. The named
+cells must equal the union of those requirements. The complete ordinary
+comparison still executes and is recomputed; an objective does not remove its
+other cells or alter its global decision.
+
+| Objective kind | Permitted conclusion |
+|---|---|
+| `regional_improvement` | Nonworsening performance in every named cell, with a strict gain in at least one; evidence stays within the named cells |
+| `uniform_improvement` | The same condition, with every full stage cell of both participating candidates covered |
+| `cost_accuracy` | Separate supplied cost and accuracy metrics meeting each declared outcome constraint; regressions can be explicitly permitted as a tradeoff |
+| `complementary_portfolio` | At least two candidates assigned to separate named regions, all assignments nonworsening and each member strictly better in at least one assigned cell |
+
+Improvement and portfolio requirements use the `performance` axis; their
+permitted outcomes are `better` and `equivalent`. Cost and accuracy use distinct
+`cost` and `accuracy` axes and distinct supplied metrics; the cost rule minimizes
+cost. Their intervals and decisions remain separate. There is no implicit cost
+weight, score, predictive law, or statistical combination of portfolio members.
+Screening and withheld cells cannot enter these adaptive objective declarations.
+Missing or ambiguous evidence leaves the declared objective unresolved and
+retains every named candidate, including complementary members. Existing
+search-frontier rules and periodic exploration continue independently.
+
+Status reports type each conclusion by kind, exact scope and cell census, with
+one evidence row per requirement cell. Supported conclusions are labeled
+`supported_in_declared_scope`; unmet constraints are `requirements_not_met`;
+incomplete evidence is `unresolved`. None authorizes a claim, extrapolation or
+combined likelihood. Selection exposes the declarations and preserves its
+existing ranking. Advisory allocation retains their candidate options without
+scalarizing cost and accuracy.
+
+A new claim can opt into these conclusions with `objective_ids`. Its comparison
+identities must exactly match the objectives' comparison requirements, and its
+stage obligations must include both complete operands. Its status exposes the
+exact typed conclusion scopes. This permits a regional reporting obligation
+when the whole comparison is a tradeoff; it does not fulfill a separately
+required whole-comparison decision or an original uniform reporting obligation.
+Ordinary source custody, acceptance scope, premise freshness, review and
+objection requirements still apply. Bound objective rows and claim bindings
+cannot be rewritten to match observed outcomes.
+
+Experiment allocation defaults to guaranteed eliminated hypothesis classes per
+worst path cost, abstaining at zero gain. The selectable `expected_information`
+policy instead maximizes expected mutual information about the distinct classes
+per expected path cost. It requires a pinned, source-backed predictive model or
+calibrated record supplying the joint class/outcome law for every experiment;
+agent confidence is inadmissible. Adaptive outcomes are conditioned on that law,
+without assumed independence. The report records the policy, evidence and choice
+reason; both policies remain advisory.
 
 ## Evidence and judgement
 

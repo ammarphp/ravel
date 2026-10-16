@@ -142,6 +142,9 @@ def generate(root=None):
         signatures = data.get('operations', data.get('signatures', data))
         if isinstance(signatures, list):
             signatures = {r.get('operation', r.get('id')): r for r in signatures}
+    from ravel.workflow.operation_registration import descriptor_document, registered_rows
+    registrations = registered_rows(signatures)
+    descriptors = descriptor_document({'modes': descriptors}, signatures)['modes']
     modes = {}
     review_terms = {}
     for item in catalog['operations']:
@@ -201,6 +204,16 @@ def generate(root=None):
             raise ValueError('unknown curation operation or fields: ' + path.name)
         modes[mode]['op'].update(fields)
         modes[mode]['curation_source'] = pin(path)
+
+    # Contract-owned curation supplies the same fields and must agree with any
+    # retained compatibility declaration. It never supplies qualification.
+    for mode, registration in registrations.items():
+        row = modes[mode]
+        fields = registration['curation']
+        if row.get('curation_source') and any(row['op'][key] != value for key, value in fields.items()):
+            raise ValueError('contract curation conflicts with source declaration: ' + mode)
+        row['op'].update(fields)
+        row['curation_source'] = pin(signatures_path)
 
     manifest_path = root / 'native/setup/toolchain-manifest.json'
     from ravel.setup import manifest as mf
@@ -316,6 +329,22 @@ def generate(root=None):
     mode_pattern = re.compile(r'(?<![\w-])(?:' + '|'.join(re.escape(m) for m in scanned) + r')(?![\w-])')
     texts = {p.relative_to(root).as_posix(): p.read_text() for p in shipped((root / 'docs').rglob('*.md'))}
     mentions = {p: set(mode_pattern.findall(text)) for p, text in texts.items()}
+    # An explicit contract may bind a shared procedure by its exact heading.
+    # Validate the shipped bytes instead of inventing a doc link from its name.
+    for mode, registration in registrations.items():
+        for reference in registration['documentation']:
+            relative, section = reference['path'], reference['section']
+            path = root / relative
+            from ravel.validation.core import fail
+            if relative not in texts or any(p.is_symlink() for p in (path, *path.parents)):
+                fail(f'operations.{mode}.registration.documentation.path', relative,
+                     'existing shipped regular Markdown file', repair='repair the contract documentation reference')
+            headings = [line.lstrip('#').strip() for line in texts[relative].splitlines()
+                        if re.match(r'^#{1,6} ', line)]
+            if section not in headings:
+                fail(f'operations.{mode}.registration.documentation.section', section,
+                     'exact heading in ' + relative, repair='repair the contract documentation reference')
+            mentions.setdefault(relative, set()).add(mode)
     doc_paths = sorted(set(doc_paths) | {p for p, names in mentions.items() if names})
     for relative in doc_paths:
         path = root / relative

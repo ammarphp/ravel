@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.2.1
+
+Adds measured fault diagnosis with verified repair, bounded unattended endings, research objectives with retained scope, and a checked chain from generated events to limits.
+
+**Diagnosis and repair**
+
+- Fault injection: single planted faults in cards, selections, normalization, templates and inference are scored against matched untouched controls. Each case records detection, first affected stage, discriminating test, repair, rerun of the affected descendants only, and the corrected conclusion.
+- A discrepancy is followed to a contrast and a correction. The repair counts only after the affected descendants have rerun and the final quantity agrees with an independent reference.
+- Boundary events for a candidate routine are built from a reconstructed event and checked against an independent oracle. A disagreement is reduced to a minimal event, and the whole original population is rerun after the correction.
+
+**Unattended and reviewed work**
+
+- A run that makes no progress ends in a qualified report: repeated unchanged send-backs and exhausted correction budgets list the open obligations and narrow or withdraw the claim.
+- Evidence obligations are typed. Copied source content and unsupported claims of method independence are refused, and executed reviewer checks keep their credit only while worker custody holds.
+- Every delivery route checks limitations against the accepted claim scope. A submitted defect names the stage that owns it.
+- An optional investigator team with boundary review, and bounded exploration of alternatives that records where each reference came from.
+
+**Research objectives**
+
+- Regional and uniform improvement claims, separate cost and accuracy requirements, and complementary candidate coverage.
+- Search retention is separate from improvement verdicts. Paired differences use recorded same-event covariance, and an opt-in allocator spends effort where the expected information is largest.
+
+**Generated events to limits**
+
+- Event generation, selection and signal templates are bound to the exact sample bytes, exposure, weight moments, selection mapping, normalization, included factors and covariance. A missing fact stays a located obligation.
+- A new operation in this chain registers from a single declaration.
+
+**Testing and installation**
+
+- Test files carry measured fast, medium and slow tiers, and public CI balances its shards by measured duration.
+- The test runner and the cosmology solvers are optional extras of the package. The complete installer still installs them.
+- Parallel scheduler status calls share one query. Report files keep their names when a parent directory name contains `.md`.
+
 ## 1.2.0
 
 Adds governed HTCondor launches, project-wide provider defaults, MCFM amplitudes and the capabilities below.

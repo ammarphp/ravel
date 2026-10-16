@@ -7,6 +7,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import sys
+from contextlib import contextmanager
 
 import pytest
 
@@ -344,9 +345,29 @@ def test_bad_resources_refused(tmp_path, scheduler, resource, value):
     assert scheduler[1]() == []
 
 
+def test_status_samples_cache_clock_after_acquiring_project_lock(tmp_path, scheduler, monkeypatch):
+    scheduler[0](queue='1 0 2 undefined undefined undefined\n')
+    assert hc.status('1.0', project_id='project-a', now=101) == 'running'
+    clock = [100]
+    original_lock = hc._lock
+
+    @contextmanager
+    def delayed_lock(directory, project):
+        with original_lock(directory, project) as key:
+            # Another caller published at 101 while this caller was waiting.
+            clock[0] = 102
+            yield key
+
+    monkeypatch.setattr(hc.time, 'time', lambda: clock[0])
+    monkeypatch.setattr(hc, '_lock', delayed_lock)
+    assert hc.status('1.0', project_id='project-a') == 'running'
+    assert len(scheduler[1]()) == 1
+
+
 def test_parallel_status_processes_share_snapshot(tmp_path, scheduler):
     scheduler[0](queue=''.join(f'{i} 0 2 undefined undefined undefined\n' for i in range(1,9)))
-    code = 'import sys; from ravel.workflow.site_profiles.htcondor import status; print(status(sys.argv[1],project_id="project-a"))'
+    # Keep every reader in the same cache interval regardless of process startup time.
+    code = 'import sys; from ravel.workflow.site_profiles.htcondor import status; print(status(sys.argv[1],project_id="project-a",now=100))'
     processes = [subprocess.Popen([sys.executable,'-B','-c',code,f'{i}.0'], stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, text=True) for i in range(1,9)]
     for proc in processes:

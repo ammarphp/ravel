@@ -467,6 +467,104 @@ def inputs(task, base_dir):
     return _load(task, base_dir)["files"]
 
 
+def check_counterexamples(task, base_dir, cases, oracle, *, observable_nodes,
+                          max_minimizations=4, max_evaluations=64):
+    """Supplementary synthetic diagnostics after complete original regression.
+
+    This does not alter a frozen board, source-case oracle, delivered candidate
+    disposition, approval, or review. The separately supplied oracle must bind
+    the original source capsule. Its declared authorship and independence are
+    assumptions requiring external review, not authority earned by a hash.
+    Minimized cases remain alongside every original failure and never replace
+    the full original population or the original synthetic denominator.
+    """
+    from . import routine_counterexamples as boundary
+    loaded = _load(task, base_dir)
+    before = _input_pins(loaded["files"])
+    if not isinstance(oracle, boundary.IndependentOracle):
+        raise ValueError("independent source-reconstructed or expert oracle required")
+    oracle.validate()
+    if oracle.source_capsule_sha256 != loaded["config"]["source_capsule"]["sha256"]:
+        raise ValueError("supplementary oracle differs from admitted original source")
+    if (type(observable_nodes) not in (list, tuple) or not observable_nodes
+            or len(observable_nodes) > 256 or len(set(observable_nodes)) != len(observable_nodes)):
+        raise ValueError("explicit bounded unique observable node interface required")
+    for name in observable_nodes:
+        _name(name)
+    boundary._bound(max_minimizations, 0, 16, "minimized case count")
+    boundary._bound(max_evaluations, 1, 4096, "minimization evaluations")
+    if type(cases) is not list or not 1 <= len(cases) <= 256:
+        raise ValueError("bounded complete supplementary case population required")
+    cases = deepcopy(cases)
+    seen = set()
+    for case in cases:
+        _keys(case, ("category", "detail", "event"), "supplementary case")
+        if type(case["category"]) is not str or not case["category"].strip():
+            raise ValueError("explicit supplementary boundary category required")
+        boundary.validate_event(case["event"])
+        identity = case["event"]["event_id"]
+        if identity in seen:
+            raise ValueError("supplementary event identities must be unique")
+        seen.add(identity)
+    program, _ = construct(loaded["selected"]["recipe"], loaded["claims"])
+    # Always rerun the complete original regression before any supplementary
+    # evaluation, even when a repair was prompted by a single reduced event.
+    original = analysis_ir.evaluate_program(program, loaded["contract"], loaded["events"])
+    comparison = _compare_reference(loaded, original)
+    domain = _read(_pin(loaded["config"]["event_domain"], loaded["base"]))
+
+    def expected_observation(event):
+        expected = boundary.observation(oracle.evaluate(deepcopy(event)))
+        if set(expected["observables"]) != set(observable_nodes):
+            raise ValueError("independent oracle omits or adds requested observable interface")
+        return expected
+
+    def observe(event):
+        if domain["jet_mass"] == "massless" and any(obj["mass"] != 0 for obj in event["objects"]["jet"]):
+            raise ValueError("massless-jet supplementary domain refuses massive object")
+        result = analysis_ir.evaluate_program(program, loaded["contract"], [event])
+        row = result["decisions"][0]
+        return {"regions": row["regions"], "observables": {
+            name: row["nodes"][name]["value"] for name in observable_nodes if name in row["nodes"]}}
+
+    rows, minimized = [], 0
+    for case in cases:
+        event = case["event"]
+        row = {"category": case["category"], "detail": case["detail"],
+               "original_event": deepcopy(event), "original_event_sha256": _digest(event)}
+        try:
+            expected = expected_observation(event)
+            actual = boundary.observation(observe(deepcopy(event)))
+            differences = boundary.disagreement(expected, actual)
+        except (ValueError, KeyError, IndexError, ZeroDivisionError) as exc:
+            row.update(status="refused", error=str(exc), minimization=None)
+        else:
+            row.update(status="failed" if differences else "passed", expected=expected,
+                       actual=actual, disagreement_keys=list(differences), minimization=None)
+            if differences and minimized < max_minimizations:
+                row["minimization"] = boundary.minimize_disagreement(
+                    event, oracle, observe, max_evaluations=max_evaluations)
+                if set(row["minimization"]["expected"]["observables"]) != set(observable_nodes):
+                    raise ValueError("minimization oracle omitted requested observable interface")
+                minimized += 1
+        rows.append(row)
+    if _input_pins(loaded["files"]) != before:
+        raise ValueError("admitted construction inputs changed during supplementary diagnostics")
+    counts = {status: sum(row["status"] == status for row in rows)
+              for status in ("passed", "failed", "refused")}
+    return {"schema_version": 1, "kind": "supplementary-routine-counterexamples",
+            "original_population_comparison": comparison,
+            "original_population_event_ids": [row["event_id"] for row in loaded["events"]],
+            "supplementary_events": len(cases), "counts": counts, "cases": rows,
+            "oracle_provenance": {"source_capsule_sha256": oracle.source_capsule_sha256,
+                "kind": oracle.kind, "basis": oracle.basis, "author": oracle.author,
+                "independence_authenticated": False},
+            "diagnostic_status": "failed" if counts["failed"] or comparison["status"] != "passed" else
+                "inconclusive" if counts["refused"] else "passed",
+            "candidate_disposition_changed": False, "full_original_regression_required_after_repair": True,
+            "compute_authorized": False, "physics_validated": False}
+
+
 def execution_seconds(task, base_dir):
     """Expose the full bounded selected branch for outer science admission.
 

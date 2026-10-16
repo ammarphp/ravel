@@ -30,6 +30,7 @@ Freeze a protocol JSON and bind its exact `{path, sha256, size}` pin using `rese
 | `cells` | Population and normalization pins, regime, fidelity, metric/unit, premise IDs and actual exposure |
 | `stages` | Baseline, screen, full, ablation or objection-test purpose; complete cell-to-experiment/output pointers; required stages/comparisons; review scope |
 | `comparisons` | Two complete same-cell stages, one independent ordinary comparison experiment, prospective rule pin and exact review scope |
+| `objectives` (optional) | Prospective typed conclusions with exact cell, candidate and comparison requirements; see [objective contracts](../../methodology/research-loop.md) |
 | `claims` | Literal statement, acceptance-criteria pin, stage/comparison/premise dependencies and report slot |
 | `required_stage_ids`, `required_comparison_ids` | Original evaluation denominator, retained when rows are appended |
 | `round_limits` | Finite candidate-generation, ablation and meta-review bounds within the original cycle budget |
@@ -41,6 +42,14 @@ Every row has a stable ID. Cell, stage, comparison and claim rows also have a nu
 Cell exposure is `adaptive_screen`, `adaptive_full` or `withheld_confirmation`. It is a supplied scientific declaration, not an inferred proof of blindness or independence. Evaluation engineered against a full benchmark is adaptive. A renamed file, fresh reviewer or repeated retained output does not create a new independent confirmation. Cohort, repeats, weights, pairing and scientific validity belong in the pinned population/normalization and ordinary study/review contracts.
 
 Bind before affected planning. Amendments append rows while preserving every old row, scope, policy, threshold, original evaluation obligation and cost. A new threshold cannot retroactively make an old result pass. Candidate source changes become new generations. A component ablation must change exactly one declared component and preserve held scientific inputs; removal, replacement and addition are explicit. Source equality alone does not establish causal isolation, and component effects are not summed into a mechanism explanation.
+
+Optional objectives express regional or uniform improvement, supplied cost and
+accuracy trade-offs, or complementary candidate coverage. Claims can name exact
+`objective_ids`; status reports their typed conclusions and retained scope.
+Uniform improvement still requires every participating cell. Regional evidence
+does not authorize extrapolation, and portfolio coverage does not authorize a
+combined likelihood. Existing comparison, source, approval and scientific-review
+obligations remain required. Objectives do not change selection ranking.
 
 ## Run the ordinary studies and comparisons
 
@@ -194,6 +203,53 @@ Every applicable queued work item carries `recommend(case)['input_digest']`;
 `bind_allocation` checks the current hypothesis/action census and binds the queue
 advice for eligibility. The queue consumer must adopt these work items. Allocation
 is advice, not execution authority or calibrated physics.
+
+Set `allocation_policy: expected_information` in the case (or use the allocator
+CLI's `--policy expected_information`) to rank expected class mutual information
+in bits per expected path cost. The default remains `guaranteed`. A
+`predictive_model` PIN must resolve to schema 1 with `kind` equal to
+`source_backed_predictive_model` or `calibrated_record`, the case's exact `scope`,
+a `method` description, nonempty evidence `sources` PINs, and `distribution`.
+Each joint row has `class_key` from `canonicalize(case)`, `outcomes` for every
+action, and positive `probability`. The law must normalize, cover every distinct
+class and respect categorical predictions. This supplies class priors and joint
+outcome probabilities, including adaptive conditioning; no prior, independence
+or agent-confidence probabilities are inferred. Reports retain `allocation_policy`,
+`predictive_basis`, `selection_reason` and the computed objective. Evidence pins
+authenticate supplied provenance; they do not certify calibration or physics.
+The queue puts the chosen information policy's first action first, including
+when information requires two joint outcomes. Entropy gains within arithmetic
+roundoff of zero cause abstention.
+
+Comparison output keeps `decision` for claims; search retention is derived in
+staged status from the cells' gain intervals. Nonnegative lower bounds everywhere
+and a lower bound above the rule's tolerance somewhere establish dominance; the
+claim minimum gain plays no part. Staged status exposes
+`search_frontier_candidate_ids` separately from reviewed claim preferences. Complete compatible full-stage comparisons are required to drop a
+candidate; missing or overlapping objectives retain candidates. Frontier
+membership never clears claim, promotion or confirmation gates.
+`search_pending_candidate_ids` identifies incomplete full evaluations retained
+for search; those candidates gain no incumbent-selection authority.
+
+A comparison cell may name `paired_evaluation: {source: PIN, pointer: POINTER}`.
+The pointed evaluation records `construction: same_events`, a `population` PIN,
+`left` and `right` operand `{source: PIN, value_pointer: POINTER}` bindings,
+`covariance_source`, `covariance_pointer`, `values_pointer`, two `indices`,
+`interval_prescription: symmetric_covariance` and a positive `interval_multiplier`.
+Matrix diagonals and cross covariance must be the actual paired estimator
+coordinates, with central values equal to the operands; retained event-group
+`output_covariance` matrices can be used directly. The symmetric difference
+interval uses the supplied multiplier times the square root of
+`Var(L) + Var(R) - 2 Cov(L,R)`. No coverage level is inferred.
+The covariance fields may all be omitted when no covariance was retained.
+An embedded joint evaluation may use `source: self` and `covariance_source: self`.
+Ordinary staged preparation reads such records from the left result's
+`paired_evaluations` object keyed by cell ID. Null or missing covariance falls
+back to marginal intervals; absent pairing also keeps the marginal construction.
+Malformed or mismatched pairing refuses the comparison. A cell using the paired
+construction records `interval_construction: paired_covariance`; marginal cells keep
+the original result schema. Output authenticates the population and covariance
+sources through the ordinary input census.
 
 Measured diagnosis actions carry `cost_class` (`none`, `calculation`, `stream` or
 `generation`) and a `cost_measurement` PIN. The pinned stage record must carry the

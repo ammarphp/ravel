@@ -104,7 +104,9 @@ def validate_policy(policy):
             raise ValueError("claim_scopes must be a nonempty mapping")
         for name, scope in scopes.items():
             _ids([name], "claim scope")
-            _object(scope, {"checks", "actions"}, "claim scope")
+            _object(scope, {"checks", "actions"} | ({"claim_ids"} if "claim_ids" in scope else set()), "claim scope")
+            if "claim_ids" in scope:
+                _ids(scope["claim_ids"], "scope claim IDs")
             required = _ids(scope["checks"], "scope check IDs")
             _ids(scope["actions"], "scope actions")
             if not set(scope["actions"]) <= {"bulk", "delivery", "reuse"}:
@@ -527,7 +529,7 @@ def _read(root, *, _session=None):
         if (path.name != f"{n:08d}.json" or e.get("sequence") != n
                 or e.get("previous_sha256") != previous or e.get("run_id") != reg["run_id"]
                 or e.get("sha256") != execution.digest({k: v for k, v in e.items() if k != "sha256"})
-                or e.get("event") not in ("cycle", "review", "correction", "correction_failed", "scientific_hold", "finding_reclassified")):
+                or e.get("event") not in ("cycle", "review", "correction", "correction_failed", "scientific_hold", "finding_reclassified", "escalation")):
             raise ValueError("review journal sequence or digest changed")
         for pin in e.get("snapshots", []):
             cycle = e if e["event"] == "cycle" else _view(reg, events)["cycle"]
@@ -790,8 +792,142 @@ def _view(reg, events):
     if holds:
         state = "scientific_hold"
         findings = [f for e in holds for f in _hold_document(e["finding_context"])["findings"]]
+    if any(e['event'] == 'escalation' and current and e['cycle_id'] == current['cycle_id'] for e in events):
+        state = 'escalated'
     return {"state": state, "cycle": current, "reviews": reviews, "correction": active, "holds": holds,
             "findings": findings, "limitation_census": census, "redos_used": len(corrections), "redos_remaining": reg["policy"]["max_redos"] - len(corrections)}
+
+
+def _defect_identity(finding):
+    """A restated finding cannot reset progress by changing its reviewer ID."""
+    return execution.digest({
+        'checks': sorted(finding['check_ids']),
+        'stages': sorted(finding['required_stages']),
+        'evidence': sorted((e['path'], e['location']) for e in finding['evidence'])})
+
+
+def _finding_result(cycle, finding):
+    pins = {p['path']: p['sha256'] for p in cycle['snapshots']}
+    checks = [c for c in cycle['checks'] if c['id'] in finding['check_ids']]
+    paths = {e['path'] for e in finding['evidence']}
+    # Attempt IDs, timestamps and changed settings are not scientific progress.
+    return {'artifacts': {p: pins.get(p) for p in sorted(paths)},
+            'checks': {c['id']: c['status'] for c in checks}}
+
+
+def correction_progress(reg, events, view=None):
+    """Derive no-progress candidates from retained cycles; never reclassify them."""
+    view = _view(reg, events) if view is None else view
+    cycles = {e['cycle_id']: e for e in events if e['event'] == 'cycle'}
+    successors = {e['correction_id']: e for e in cycles.values() if e['correction_id']}
+    failures = {e['correction_id']: e for e in events if e['event'] == 'correction_failed'}
+    corrections = [e for e in events if e['event'] == 'correction']
+    by_stage = {}
+    for event in corrections:
+        for stage in event['stages']:
+            by_stage[stage] = by_stage.get(stage, 0) + 1
+    candidates = []; histories = []; seen = set()
+    for finding in view['findings']:
+        # A late scientific hold carries its own accepted/new evidence schema
+        # and cannot authorize any correction. Keep it in the unresolved census.
+        if not {'check_ids', 'required_stages', 'evidence'} <= set(finding):
+            continue
+        identity = _defect_identity(finding)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        history = []; unchanged = 0
+        for event in corrections:
+            cycle = cycles[event['cycle_id']]
+            originals = [*cycle['inherited_findings'], *(f for r in events if r['event'] == 'review'
+                and r['cycle_id'] == cycle['cycle_id'] and r['sequence'] < event['sequence'] for f in r['findings'])]
+            original = next((f for f in originals if _defect_identity(f) == identity), None)
+            if original is None:
+                continue
+            after = successors.get(event['correction_id'])
+            failed = failures.get(event['correction_id'])
+            if after is None and failed is None:
+                continue
+            before_result = _finding_result(cycle, original)
+            after_result = _finding_result(after, original) if after else before_result
+            changed = before_result != after_result
+            unchanged = 0 if changed else unchanged + 1
+            history.append({'correction_id': event['correction_id'], 'redo_number': event['redo_number'],
+                'event_sha256': event['sha256'], 'utc': (after or failed)['utc'],
+                'before': before_result, 'after': after_result, 'progress': changed,
+                'outcome': 'reviewed_successor' if after else 'failed'})
+        item = {'finding': deepcopy(finding), 'identity': identity,
+                'consecutive_no_progress': unchanged, 'history': history}
+        histories.append(item)
+        if unchanged >= 2:
+            candidates.append({**item, 'route': 'physics_decider', 'classification': 'limitation_candidate',
+                'reason': 'Two redos did not change cited artifacts or affected check results.',
+                'execution_authorized': False})
+    return {'redo_counts_by_stage': by_stage, 'finding_progress': histories,
+            'limitation_candidates': candidates}
+
+
+def _progress_status(reg, events, view):
+    from .launch_authorization import operational_utc, parse_utc
+    progress = correction_progress(reg, events, view)
+    accepted = None; prior_cycle = None; waiting = None
+    # A completed accepted cycle, rather than an attempted correction, is approved progress.
+    for index, event in enumerate(events):
+        if event['event'] not in ('review', 'scientific_hold', 'correction_failed', 'escalation'):
+            continue
+        prefix = _view(reg, events[:index + 1])
+        if prefix['state'] == 'accepted' and prefix['cycle']['cycle_id'] != prior_cycle:
+            accepted = event['utc']; prior_cycle = prefix['cycle']['cycle_id']; waiting = None
+        if event['event'] == 'escalation':
+            waiting = {'since_utc': event['utc'], 'reason': event['reason'], 'needed': event['needed']}
+        elif prefix['state'] in ('stopped', 'scientific_hold'):
+            waiting = waiting or {'since_utc': event['utc'], 'reason': 'Scientific review stopped or held the run.',
+                                  'needed': 'Human review of the retained findings and permitted scope.'}
+        elif prefix['state'] in ('send_back', 'correction_failed') and prefix['redos_remaining'] <= 0:
+            waiting = waiting or {'since_utc': event['utc'], 'reason': 'Approved redo bounds are exhausted.',
+                                  'needed': 'Human decision on the qualified delivery or an explicit revised authorization.'}
+    if waiting:
+        waiting['message'] = f"WAITING FOR A HUMAN since {waiting['since_utc']}: {waiting['reason']}, {waiting['needed']}"
+    return {**progress, 'last_approved_progress_utc': accepted,
+        'seconds_since_last_approved_progress': None if accepted is None else max(0.0,
+            (parse_utc(operational_utc()) - parse_utc(accepted)).total_seconds()),
+        'waiting_for_human': waiting}
+
+
+def escalate(root, *, reason, needed):
+    """Record a machine escalation; this event grants no acceptance or compute."""
+    _text(reason, 'escalation reason'); _text(needed, 'required human input')
+    root = _root(root)
+    with file_lock(root / DIRECTORY / 'write.lock'):
+        reg, events = _read(root)
+        view = _view(reg, events)
+        if view['cycle'] is None:
+            raise ValueError('escalation requires retained review evidence')
+        if events and events[-1]['event'] == 'escalation' and events[-1]['reason'] == reason and events[-1]['needed'] == needed:
+            event = events[-1]
+        else:
+            event = _append(root, reg, events, {'event': 'escalation', 'cycle_id': view['cycle']['cycle_id'],
+                'reason': reason, 'needed': needed, 'authority': 'machine_escalation', 'execution_authorized': False})
+    return _terminal_ending(root, event)
+
+
+def _terminal_ending(root, event, *, exhausted=False):
+    """Report an existing escalation or exhausted bound after releasing the lock.
+
+    Return reporting metadata separately from the committed event fields. A
+    failed report cannot undo the recorded decision or fabricate obligations.
+    Retrying an identical escalation retries reporting without another event.
+    """
+    if event['event'] != 'escalation' and not exhausted:
+        return event
+    from . import task_completion
+    try:
+        task_completion.qualified_delivery(root)
+        ending = {'status': 'recorded', 'path': 'outputs/completion/qualified-delivery.json',
+                  'execution_authorized': False}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        ending = {'status': 'unavailable', 'reason': str(exc), 'execution_authorized': False}
+    return {**event, 'qualified_ending': ending}
 
 
 def _receipt(root, value, *, _session=None):
@@ -1016,7 +1152,24 @@ def _finding_keys(item, label):
     _object(item, base | (set(item) & {'classification', 'reclassifications'}), label)
 
 
-def _validate_reclassification(reg, events, event):
+def _scope_claims(policy, scope):
+    """Explicit planned-claim mapping; old policies name their scope itself."""
+    return policy['claim_scopes'][scope].get('claim_ids', [scope])
+
+
+def _classification_policy(classification, policy):
+    if not classification:
+        return
+    if classification['kind'] == 'defect':
+        if classification['target'] not in policy['allowed_stages']:
+            raise ValueError('classified defect must name an allowed owning stage')
+    else:
+        known = {claim for scope in policy['claim_scopes'] for claim in _scope_claims(policy, scope)}
+        if any(row['claim_id'] not in known for row in classification['claims']):
+            raise ValueError('limitation claim ID is not bound to a declared policy claim scope')
+
+
+def _validate_reclassification(reg, events, event, *, allow_unbound_limitations=False):
     if event['actor_id'] != reg['policy']['actors']['physics_decider']:
         raise ValueError('only the declared decider may reclassify a finding')
     _text(event['reason'], 'reclassification reason')
@@ -1031,8 +1184,8 @@ def _validate_reclassification(reg, events, event):
     if not any(f['id'] == event['finding_id'] for r in current['reviews'] for f in r['findings']):
         raise ValueError('reclassification must concern the current cycle')
     classification = finding_routing.validate(result)
-    if classification['kind'] == 'defect' and classification['target'] not in reg['policy']['allowed_stages']:
-        raise ValueError('reclassified defect must name an allowed owning stage')
+    if classification['kind'] == 'defect' or not allow_unbound_limitations:
+        _classification_policy(classification, reg['policy'])
     # Preserve the submission invariants, so a reclassification cannot strand or bypass the cycle.
     for r in _view(reg, [*events, event])['reviews']:
         repairs = finding_routing.partition(r['findings'])[0]
@@ -1061,6 +1214,7 @@ def _findings(root, findings, cycle, policy):
     for f in findings:
         _finding_keys(f, 'finding')
         classification = finding_routing.validate(f, decider_id=policy['actors']['physics_decider'])
+        _classification_policy(classification, policy)
         if classification and classification['artifact_sha256'] not in {p['sha256'] for p in cycle['snapshots']}:
             raise ValueError('finding classification must bind a reviewed artifact digest')
         _ids([f["id"]], "finding id")
@@ -1258,6 +1412,61 @@ def _supporting(root, values, *, _session=None):
         if owned: session.close()
 
 
+def _limitation_disposition(reg, view):
+    """Reconcile every retained limitation with explicitly witnessed final prose.
+
+    The existing full disposition contract supplies qualifications/withdrawals;
+    the policy's claim mapping identifies which claims this acceptance delivers.
+    No scope hierarchy or narrower-scope implication is guessed from its name.
+    """
+    census = view['limitation_census']
+    if not census:
+        return
+    findings = list({row['finding_id']: row['finding'] for row in census}.values())
+    for item in findings:
+        _classification_policy(finding_routing.validate(item), reg['policy'])
+    decider = next((r for r in view['reviews'] if r['role'] == 'physics_decider' and r['verdict'] == 'accept'), None)
+    context = (decider or {}).get('limitation_disposition')
+    if context is None:
+        raise ValueError('delivery limitations require an accepted decider disposition package')
+    package = _hold_document(context)
+    if not any(p['path'] == context['path'] and p['sha256'] == context['sha256']
+               for p in decider.get('supporting_artifacts', [])):
+        raise ValueError('limitation disposition is not bound to the accepted decider supporting artifacts')
+    _object(package, {'plan', 'rows', 'value', 'evidence'}, 'claim disposition package')
+    from . import manuscript_claim_disposition
+    rows = manuscript_claim_disposition.validate(package['plan'], package['rows'], package['value'],
+        package['evidence'], final=True, review_findings=findings)
+    accepted = set(_scope_claims(reg['policy'], _accepted_scope(view)))
+    disposed = {row['planned_claim_id']: row['disposition'] for row in rows}
+    if any(disposed.get(claim) in {'withdrawn', 'unresolved'} for claim in accepted):
+        raise ValueError('accepted claim scope includes a withdrawn or unresolved claim')
+
+
+def _capture_limitation_disposition(root, reg, events, payload, *, _session=None):
+    view = _view(reg, [*events, payload])
+    if not view['limitation_census']:
+        return
+    candidates = []
+    for pin in payload.get('supporting_artifacts', []):
+        path = _path(root, pin['path'], _session=_session)
+        if path.stat().st_size > MAX_RETAINED_BYTES:
+            continue
+        raw = (_session.read_bytes(path, max_bytes=MAX_RETAINED_BYTES) if _session is not None else path.read_bytes())
+        try:
+            value = json.loads(raw)
+        except (ValueError, UnicodeError):
+            continue
+        if isinstance(value, dict) and set(value) == {'plan', 'rows', 'value', 'evidence'}:
+            if hashlib.sha256(raw).hexdigest() != pin['sha256']:
+                raise ValueError('limitation disposition artifact changed during acceptance')
+            candidates.append({'path': pin['path'], 'sha256': pin['sha256'], 'text': raw.decode('utf-8')})
+    if len(candidates) != 1:
+        raise ValueError('delivery limitations require one explicit decider disposition package')
+    payload['limitation_disposition'] = candidates[0]
+    _limitation_disposition(reg, _view(reg, [*events, payload]))
+
+
 def _judgments_live(root, view, *, _session=None):
     for event in [*view["reviews"], *([view["correction"]] if view["correction"] else [])]:
         _live_pins(root, event.get("supporting_artifacts", []), _session=_session)
@@ -1315,7 +1524,7 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
         view = _view(reg, events)
         if role not in ROLES or actor_id != reg["policy"]["actors"][role]:
             raise ValueError("review must come from its distinct declared reviewer actor")
-        if view["cycle"] is None or view["state"] in ("accepted", "stopped", "correction_admitted", "correction_failed", "scientific_hold"):
+        if view["cycle"] is None or view["state"] in ("accepted", "stopped", "correction_admitted", "correction_failed", "scientific_hold", "escalated"):
             raise ValueError("current cycle cannot receive another review")
         if any(r["role"] == role for r in view["reviews"]):
             raise ValueError("a reviewer cannot overwrite its cycle decision")
@@ -1363,13 +1572,22 @@ def submit_review(root, *, role, actor_id, verdict, summary, findings=None, clos
             _judgments_live(root, view)
         support = (_supporting(root, supporting_artifacts, _session=retained_session)
                    if supporting_artifacts is not None else None)
+        payload = {"event": "review", "cycle_id": view["cycle"]["cycle_id"],
+            "role": role, "actor_id": actor_id, "verdict": verdict, "summary": summary,
+            "findings": findings, "closes": closes, "claim_scope": claim_scope, "attestation": ATTESTATION,
+            **({"supporting_artifacts": support} if support is not None else {})}
+        if role == 'physics_decider' and verdict == 'accept':
+            _capture_limitation_disposition(root, reg, events, payload, _session=retained_session)
         if retained_session is not None:
             errors = retained_session.finish()
             if errors: raise ValueError("retained study changed before review: " + "; ".join(errors))
-        return _append(root, reg, events, {"event": "review", "cycle_id": view["cycle"]["cycle_id"],
-            "role": role, "actor_id": actor_id, "verdict": verdict, "summary": summary,
-            "findings": findings, "closes": closes, "claim_scope": claim_scope, "attestation": ATTESTATION,
-            **({"supporting_artifacts": support} if support is not None else {})})
+        event = _append(root, reg, events, payload)
+        updated_events = [*events, event]
+        updated = _view(reg, updated_events)
+        exhausted = (verdict == 'send_back' and updated['state'] == 'send_back'
+                     and (updated['redos_remaining'] <= 0
+                          or bool(correction_progress(reg, updated_events, updated)['limitation_candidates'])))
+    return _terminal_ending(root, event, exhausted=exhausted)
 
 
 def _stage_spec(root, spec):
@@ -1477,6 +1695,8 @@ def authorize_correction(root, *, actor_id, changed_paths, stages, recheck_check
         repair_keys = fresh_keys
         if view["redos_remaining"] <= 0:
             raise ValueError("review redo budget exhausted")
+        if correction_progress(reg, events, view)['limitation_candidates']:
+            raise ValueError('no progress after two redos; decider limitation assessment required')
         _ids(stages, "correction stages")
         _ids(recheck_checks, "recheck checks")
         if not isinstance(changed_paths, list) or len(set(changed_paths)) != len(changed_paths):
@@ -1610,7 +1830,10 @@ def fail_correction(root, *, correction_id, reason):
         if view["state"] != "correction_admitted" or view["correction"]["correction_id"] != correction_id:
             raise ValueError("no matching admitted correction to fail")
         _text(reason, "failure reason")
-        return _append(root, reg, events, {"event": "correction_failed", "correction_id": correction_id, "reason": reason})
+        event = _append(root, reg, events, {"event": "correction_failed", "correction_id": correction_id, "reason": reason})
+        exhausted = (view['redos_remaining'] <= 0
+                     or bool(correction_progress(reg, [*events, event])['limitation_candidates']))
+    return _terminal_ending(root, event, exhausted=exhausted)
 
 
 def _correction_ready(root, view, stage, *, _session=None):
@@ -1711,6 +1934,8 @@ def gate_errors(root, action, stage=None, *, _session=None, retained_study=False
             if authorized_action not in reg["policy"]["claim_scopes"][scope]["actions"]:
                 raise ValueError(f"accepted claim scope {scope} does not authorize {action}")
             _live_pins(root, view["cycle"]["snapshots"], allow_empty=_empty_artifact_paths(reg, view["cycle"]), _session=_session)
+            if authorized_action == 'delivery':
+                _limitation_disposition(reg, view)
             if action == "final_task":
                 from . import task_completion
                 task_completion.final_gate(root)
@@ -1758,6 +1983,7 @@ def status(root, *, _session=None, retained_study=False):
             "unresolved_findings": view["findings"], "limitation_census": view["limitation_census"], "redos_used": view["redos_used"],
             "redos_remaining": view["redos_remaining"], "events": len(events),
             "live_errors": live_errors, "next_correction_stage": next_stage,
+            **_progress_status(reg, events, view),
             "completed_correction_stages": completed,
             "correction_stages": view["correction"]["stages"] if view["correction"] else [],
             "attestation": ATTESTATION}
@@ -1866,12 +2092,13 @@ def validate_snapshot(document, *, require_admission=True):
             "correction": {"cycle_id", "correction_id", "actor_id", "changed_paths", "held_paths", "stages", "recheck_checks", "effective_settings", "stage_specs", "regenerated_inputs", "snapshots", "redo_number"},
             "correction_failed": {"correction_id", "reason"},
             "finding_reclassified": {"finding_id", "actor_id", "classification", "reason"},
+            "escalation": {"cycle_id", "reason", "needed", "authority", "execution_authorized"},
             "scientific_hold": {"cycle_id", "claim_scope", "actor_id", "summary", "finding_context", "snapshots", "attestation"}}
         for n, e in enumerate(events, 1):
             kind = e.get("event") if isinstance(e, dict) else None
             if kind not in fields:
                 raise ValueError("unknown review journal event")
-            _object(e, base_keys | fields[kind] | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()) | ({"finding_reworks"} if kind == "correction" and "finding_reworks" in e else set()), "review journal event")
+            _object(e, base_keys | fields[kind] | ({"final_results"} if kind == "cycle" and "final_results" in e else set()) | ({"supporting_artifacts"} if kind in {"review", "correction"} and "supporting_artifacts" in e else set()) | ({"limitation_disposition"} if kind == "review" and "limitation_disposition" in e else set()) | ({"finding_reworks"} if kind == "correction" and "finding_reworks" in e else set()), "review journal event")
             if "supporting_artifacts" in e:
                 pins = e["supporting_artifacts"]
                 if not isinstance(pins, list) or len(pins) > 512 or len({p.get("path") for p in pins}) != len(pins):
@@ -1958,6 +2185,8 @@ def validate_snapshot(document, *, require_admission=True):
                 for f in e["findings"]:
                     _finding_keys(f, 'frozen finding')
                     classification = finding_routing.validate(f, decider_id=reg['policy']['actors']['physics_decider'])
+                    if require_admission:
+                        _classification_policy(classification, reg['policy'])
                     if f.get('reclassifications'):
                         raise ValueError('reclassification must use the decider journal event')
                     if classification:
@@ -1966,8 +2195,13 @@ def validate_snapshot(document, *, require_admission=True):
                     if f["id"] in finding_ids or not f["evidence"] or not f["check_ids"] or (not f["required_stages"] and finding_routing.kind(f) != "limitation"):
                         raise ValueError("invalid or duplicate finding")
                     finding_ids.add(f["id"])
+                if 'limitation_disposition' in e:
+                    if e['role'] != 'physics_decider' or e['verdict'] != 'accept':
+                        raise ValueError('only an accepted decider may witness limitation dispositions')
+                    _hold_document(e['limitation_disposition'])
+                    _limitation_disposition(reg, _view(reg, [*seen, e]))
             elif kind == 'finding_reclassified':
-                _validate_reclassification(reg, seen, e)
+                _validate_reclassification(reg, seen, e, allow_unbound_limitations=not require_admission)
             elif kind == "scientific_hold":
                 if (view["state"] != "accepted"
                         or e["actor_id"] != reg["policy"]["actors"]["physics_decider"]
@@ -1981,7 +2215,14 @@ def validate_snapshot(document, *, require_admission=True):
                 if ids.intersection(finding_ids):
                     raise ValueError("duplicate late finding identity")
                 finding_ids.update(ids)
+            elif kind == 'escalation':
+                if (view['cycle'] is None or e['cycle_id'] != view['cycle']['cycle_id']
+                        or e['authority'] != 'machine_escalation' or e['execution_authorized'] is not False):
+                    raise ValueError('invalid machine escalation record')
+                _text(e['reason'], 'escalation reason'); _text(e['needed'], 'required human input')
             elif kind == "correction":
+                if correction_progress(reg, seen, view)['limitation_candidates']:
+                    raise ValueError('no progress after two redos; decider limitation assessment required')
                 repair_keys = sorted({finding_routing.repair_key(f) for f in view['findings'] if finding_routing.kind(f) == 'defect'})
                 used = {key for event in seen if event['event'] == 'correction' for key in event.get('finding_reworks', [])}
                 fresh_keys = sorted(set(repair_keys) - used)
@@ -2026,6 +2267,8 @@ def validate_snapshot(document, *, require_admission=True):
                 raise ValueError("snapshot is not accepted for this action")
             elif document["action"] not in reg["policy"]["claim_scopes"][_accepted_scope(view)]["actions"]:
                 raise ValueError("accepted scope does not authorize the recorded action")
+            if document['action'] == 'delivery':
+                _limitation_disposition(reg, view)
         return []
     except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
         return [str(exc)]
@@ -2035,11 +2278,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rundir", required=True)
     sub = parser.add_subparsers(dest="action", required=True)
-    for action in ("open", "review", "correct", "fail", "hold", "reclassify"):
+    for action in ("open", "review", "correct", "fail", "hold", "reclassify", "escalate"):
         p = sub.add_parser(action)
         p.add_argument("--request", required=True, help="Strict JSON keyword arguments for the corresponding API")
     p = sub.add_parser("status")
     p.add_argument("--retained-study", action="store_true", help="inspect an immutable initial study without regenerating its input inventory")
+    p.add_argument("--notification-command", type=json.loads, help="Explicit JSON argv; receives only run path and one-line wait reason")
     p = sub.add_parser("gate")
     p.add_argument("--action", required=True, dest="gate_action")
     p.add_argument("--stage")
@@ -2048,13 +2292,19 @@ def main(argv=None):
     try:
         if args.action == "status":
             result = status(args.rundir, retained_study=args.retained_study)
+            if args.notification_command is not None:
+                if args.retained_study:
+                    raise ValueError('wait notifications require an active review run')
+                from .scientific_autonomy import notify_waiting
+                result['notification'] = notify_waiting(args.rundir, command=args.notification_command)
         elif args.action == "gate":
             result = {"errors": gate_errors(args.rundir, args.gate_action, args.stage, retained_study=args.retained_study)}
         else:
-            fn = {"open": open_cycle, "review": submit_review, "correct": authorize_correction, "fail": fail_correction, "hold": submit_hold, "reclassify": reclassify_finding}[args.action]
+            fn = {"open": open_cycle, "review": submit_review, "correct": authorize_correction, "fail": fail_correction, "hold": submit_hold, "reclassify": reclassify_finding, "escalate": escalate}[args.action]
             result = fn(args.rundir, **read_json(args.request))
         print(json.dumps(result, indent=2, allow_nan=False))
-        return 1 if result.get("errors") or result.get("state") == "invalid" else 0
+        return 1 if (result.get("errors") or result.get("state") == "invalid"
+                     or result.get("qualified_ending", {}).get("status") == "unavailable") else 0
     except (OSError, ValueError, TypeError, KeyError) as exc:
         parser.exit(1, f"physics review: {exc}\n")
 

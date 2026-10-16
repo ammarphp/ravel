@@ -15,12 +15,29 @@ import re
 
 try:
     from .source_syntax import facts as _syntax_facts
+    from .operation_definitions import definitions as _chain_definitions, populate_modes as _chain_modes, source_dispatch_enabled
+    from .operation_registration import (read_signatures as _read_signatures, registered_rows as _registered_rows,
+                                         descriptor_document as _descriptor_document,
+                                         executor_document as _executor_document)
 except ImportError:  # loaded by file path out of an installed copy, with no parent package
     import importlib.util as _util
     _spec = _util.spec_from_file_location('_ravel_source_syntax', Path(__file__).with_name('source_syntax.py'))
     _syntax = _util.module_from_spec(_spec)
     _spec.loader.exec_module(_syntax)
     _syntax_facts = _syntax.facts
+    # Load only the helper adjacent to this trusted loader, never selected-source code.
+    _chain_spec = _util.spec_from_file_location('_ravel_operation_definitions',
+                                              Path(__file__).with_name('operation_definitions.py'))
+    _chain = _util.module_from_spec(_chain_spec)
+    _chain_spec.loader.exec_module(_chain)
+    _chain_definitions, _chain_modes = _chain.definitions, _chain.populate_modes
+    source_dispatch_enabled = _chain.source_dispatch_enabled
+    _registration_spec = _util.spec_from_file_location('_ravel_operation_registration',
+                                                     Path(__file__).with_name('operation_registration.py'))
+    _registration = _util.module_from_spec(_registration_spec)
+    _registration_spec.loader.exec_module(_registration)
+    _read_signatures, _registered_rows = _registration.read_signatures, _registration.registered_rows
+    _descriptor_document, _executor_document = _registration.descriptor_document, _registration.executor_document
 
 
 def _text(value, name):
@@ -228,7 +245,9 @@ def declared_descriptors():
     """
     global _DECLARED
     if _DECLARED is None:
-        document = json.loads((Path(__file__).resolve().parents[1] / DESCRIPTORS).read_text(encoding='utf-8'))
+        package = Path(__file__).resolve().parents[1]
+        document = json.loads((package / DESCRIPTORS).read_text(encoding='utf-8'))
+        document = _descriptor_document(document, _read_signatures(package / 'data/operation_signatures.json'))
         rows = _descriptors(document, set(document.get('modes', {})))
         _DECLARED = {mode: {'mode': mode, 'descriptor': row} for mode, row in rows.items()}
     return _DECLARED
@@ -246,6 +265,30 @@ def catalogue(source_root=None):
         root = package.parent.parent if package.parent.name == 'src' else package.parent
     science_pin, tree = _parsed(package / 'workflow/science.py')
     modes = _literal(tree, 'MODES')
+    signatures, registration_pins = {}, {}
+    signature_path = package / 'data/operation_signatures.json'
+    chain_enabled = (package / 'workflow/operation_definitions.py').is_file() and source_dispatch_enabled(tree)
+    if chain_enabled and (signature_path.exists() or signature_path.is_symlink()):
+        signature_pin, signature_raw = _file(signature_path)
+        signatures = _read_signatures(signature_path, raw=signature_raw)
+        registration_pins[signature_pin['path']] = signature_pin
+        if _registered_rows(signatures):
+            registration_pin, _ = _file(package / 'workflow/operation_registration.py')
+            registration_pins[registration_pin['path']] = registration_pin
+    # Read declarations from the selected source, retaining source-only discovery.
+    # Older source trees without the chain seam keep their literal dispatcher.
+    chain_definitions, chain_pins = {}, {}
+    if chain_enabled:
+        executor_pin, executor_raw = _file(package / 'data/roles/executors.json')
+        helper_pin, helper_raw = _file(package / 'workflow/operation_definitions.py')
+        helper_tree = ast.parse(helper_raw.decode('utf-8'))
+        compatibility = (_literal(helper_tree, 'LEGACY_BINDINGS') if any(
+            isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'LEGACY_BINDINGS'
+                                                for t in node.targets) for node in helper_tree.body) else {})
+        executors = _executor_document(json.loads(executor_raw), signatures)['operations']
+        chain_definitions = _chain_definitions(signatures, executors, compatibility)
+        modes = _chain_modes(modes, signatures, executors, compatibility)
+        chain_pins = {pin['path']: pin for pin in (executor_pin, helper_pin)}
     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'adapter')
     mapping, variants = {}, {}
     def literal_module(expression, mode):
@@ -290,8 +333,10 @@ def catalogue(source_root=None):
                     if isinstance(child, ast.ImportFrom) and child.module == 'ravel.physics':
                         mapping[mode] = child.names[0].name
     mapping.update({'analyze': 'existing_events', 'quantities': 'quantities'})
+    mapping.update({name: row['implementation']['module'].removeprefix('ravel.')
+                    for name, row in chain_definitions.items()})
     operations = []
-    source_pins = {science_pin['path']: science_pin}
+    source_pins = {science_pin['path']: science_pin, **registration_pins, **chain_pins}
 
     def implementation(name):
         relative = name.replace('.', '/') if '/' in name or '.' in name else 'physics/' + name
@@ -322,7 +367,7 @@ def catalogue(source_root=None):
     if (package / DESCRIPTORS).exists():
         descriptor_pin, descriptor_raw = _file(package / DESCRIPTORS)
         source_pins[descriptor_pin['path']] = descriptor_pin
-        descriptors = _descriptors(json.loads(descriptor_raw.decode('utf-8')), modes)
+        descriptors = _descriptors(_descriptor_document(json.loads(descriptor_raw.decode('utf-8')), signatures), modes)
     for row in operations:
         row['descriptor'] = descriptors.get(row['mode'])
     chains = []

@@ -832,7 +832,10 @@
    "implementation": {
     "kind": "science-mode",
     "mode": "columnar-analysis",
-    "module": "ravel.physics.columnar_analysis"
+    "module": "ravel.physics.columnar_analysis",
+    "dispatch_group": "event-inference-chain",
+    "dispatch_position": 94,
+    "dispatch_before": "authored-analysis"
    },
    "consumes": [
     {
@@ -856,7 +859,21 @@
         "included_factors",
         "weight_convention",
         "selection",
-        "model_point"
+        "model_point",
+        "scale",
+        "event_population.id",
+        "event_population.revision",
+        "event_population.grouping",
+        "event_population.events",
+        "event_population.sumw",
+        "event_population.sumw2",
+        "event_population.negative_events",
+        "applicability.id",
+        "applicability.parameters",
+        "applicability.assumptions",
+        "covariance.status",
+        "covariance.basis",
+        "covariance.source"
        ],
        "kind": "sample_exposure"
       }
@@ -883,7 +900,21 @@
         "included_factors",
         "weight_convention",
         "selection",
-        "model_point"
+        "model_point",
+        "scale",
+        "event_population.id",
+        "event_population.revision",
+        "event_population.grouping",
+        "event_population.events",
+        "event_population.sumw",
+        "event_population.sumw2",
+        "event_population.negative_events",
+        "applicability.id",
+        "applicability.parameters",
+        "applicability.assumptions",
+        "covariance.status",
+        "covariance.basis",
+        "covariance.source"
        ],
        "kind": "cross_section",
        "unit": "pb"
@@ -4905,7 +4936,11 @@
    "implementation": {
     "kind": "science-mode",
     "mode": "model-events",
-    "module": "ravel.physics.model_events"
+    "module": "ravel.physics.model_events",
+    "dispatch_group": "event-inference-chain",
+    "presentation": "diagnostic_presentation",
+    "dispatch_position": 22,
+    "dispatch_before": "analyze"
    },
    "consumes": [
     {
@@ -4932,7 +4967,22 @@
       "level": "parton",
       "format": "lhe",
       "quantity": {
+       "kind": "sample_exposure",
+       "unit": "events",
+       "scale": 1,
        "weight_convention": "signed"
+      }
+     }
+    },
+    {
+     "slot": "cross_section",
+     "kind": "scalar",
+     "optional": true,
+     "require": {
+      "quantity": {
+       "kind": "cross_section",
+       "unit": "pb",
+       "scale": 1
       }
      }
     }
@@ -7159,7 +7209,10 @@
    "implementation": {
     "kind": "science-mode",
     "mode": "signal-template",
-    "module": "ravel.physics.signal_templates"
+    "module": "ravel.physics.signal_templates",
+    "dispatch_group": "event-inference-chain",
+    "dispatch_position": 34,
+    "dispatch_before": "stau-events"
    },
    "consumes": [
     {
@@ -7182,7 +7235,24 @@
         "bin_ids",
         "exposure.id",
         "exposure.revision",
-        "regional_exposures"
+        "regional_exposures",
+        "scale",
+        "event_population.id",
+        "event_population.revision",
+        "event_population.grouping",
+        "event_population.events",
+        "event_population.sumw",
+        "event_population.sumw2",
+        "event_population.negative_events",
+        "applicability.id",
+        "applicability.parameters",
+        "applicability.assumptions",
+        "covariance.status",
+        "covariance.basis",
+        "covariance.source",
+        "luminosity.value",
+        "luminosity.unit",
+        "luminosity.scale"
        ],
        "kind": "event_count",
        "unit": "events",
@@ -7217,6 +7287,19 @@
       "quantity": {
        "weight_convention": "signed"
       }
+     }
+    },
+    {
+     "slot": "model",
+     "kind": "statistical_model",
+     "optional": true
+    },
+    {
+     "slot": "limits",
+     "kind": "inference",
+     "optional": true,
+     "require": {
+      "limits": true
      }
     }
    ],

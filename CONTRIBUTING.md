@@ -17,14 +17,46 @@ ravel --help
 
 The installer provides the full Python host and development tools in `.venv`, with separate required SModelS and SFitter environments. Follow the [installation guide](docs/installation.md) for native engines and their setup checks. Most development checks use software fixtures and source contracts.
 
+The base wheel excludes the test runner and cosmology solvers. For a smaller
+installation, add `.[test]` to run tests and `.[cosmology]` for solver support.
+The complete Python installer remains the full profile, including test and build
+tools and solvers.
+
 ## Check a change
 
 Run the relevant unit tests while editing, then the full suite before proposing a
 code change:
 
 ```bash
-.venv/bin/python -m pytest tests/unit -q
+.venv/bin/python -m pytest tests -q
 ```
+
+For quick feedback, opt into the core guard tier. Each file runs in its own
+process, including its ordinary refusal cases and machine-state protections:
+
+```bash
+python scripts/maintenance/ci_shards.py --tier fast --run --file-timeout 180
+python scripts/maintenance/ci_shards.py --tier medium --run --file-timeout 2400
+python scripts/maintenance/ci_shards.py --tier slow --run --file-timeout 16200
+```
+
+On 2026-10-15 the serial fast command completed all 13 files and 410 cases in
+52.88 seconds on the cluster, including process startup. The committed timing
+record retains its source identity; the runtime control enforces a five-minute
+budget for this command.
+
+`tests/test_tiers.json` declares the fast files. Other measured files at or below
+60 seconds are medium; unmeasured files, longer files and the dedicated long
+jobs are slow. A completeness control checks that every test file belongs to
+exactly one tier. New files remain covered by the full suite and enter slow
+until measured. The tiers select files and preserve all cases within each file.
+The full suite remains the default. `pytest tests --test-tier fast` filters
+before file imports; the file runner above also preserves process isolation.
+The `fast`, `medium` and `slow` marks support existing pytest selection tools.
+Invalid tier or timing metadata warns during ordinary full or explicit-file pytest runs;
+all requested files still collect, without tier marks. Explicit `--test-tier`
+selection, `-m` expressions naming a tier, the tier file runner and the
+completeness control refuse the invalid metadata until it is repaired.
 
 The adversarial suite exercises intentionally invalid workflow states. Install the
 repository's Git hooks before running its complete board; one case checks that
@@ -38,6 +70,13 @@ bash scripts/maintenance/install-git-hooks.sh
 
 Activation also makes subprocesses and the installed hook use the development
 environment's `python3` when they resolve it from `PATH`.
+
+For cluster runners that impose per-file deadlines, give
+`tests/unit/test_fresh_replication.py` and `tests/unit/test_wms_retry.py` separate
+allocations with enough wall time for their complete executed durations. A report
+with unfinished files does not validate the complete suite, even when all task
+results were collected. Preserve the assertions and record both test and
+unfinished-file totals.
 
 For changes to statistics, also run the engine selftests:
 
@@ -62,13 +101,26 @@ python3.12 -m venv .venv-replay
 
 The complete installer above is the default development setup.
 
-The public test matrix installs this hash lock first and constrains the editable
-package installation to those resolved versions. It partitions the sorted test
-files into eight shards and runs a fresh pytest process for every file. The long
+The public test matrix installs this hash lock first, then installs the complete
+`requirements-full.txt` profile under those version constraints, including test
+and build tools and solvers. CI copies that profile to a temporary requirements
+file, changing only the package entry to `-e .`, and installs it once under the
+same constraints. Isolated workers retain an editable source installation, and
+the test harness also selects checkout source for tests and their subprocesses.
+CI greedily packs test files
+into eight shards, longest measured duration first, using
+`tests/file_timings.json`, and runs a fresh pytest process for every file. Paths
+and shard indices break ties deterministically. Unknown durations cost at least
+60 seconds and at least the longest measured ordinary file. The committed
+timings record their measured source and digest; historical timings guide
+scheduling and do not certify the current source. The census retains only
+currently public-selected test paths; remaining source files use the unknown
+duration fallback. The long
 files listed in `ci_shards.LONG` each run in a job of their own:
 
 ```bash
 python scripts/maintenance/ci_shards.py --index 0 --count 8 --run --file-timeout 2400
+python scripts/maintenance/ci_shards.py --long tests/unit/test_fresh_replication.py --run --file-timeout 16200
 python scripts/maintenance/ci_shards.py --long tests/unit/test_wms_retry.py --run --file-timeout 16200
 ```
 

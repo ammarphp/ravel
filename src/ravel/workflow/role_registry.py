@@ -49,7 +49,19 @@ def _identity(role_id, document):
     return role_id
 
 
-def load(role_id: str, *, document=None, roles_root=None) -> dict:
+def _operation_signatures(roles_root, *, supplied_document):
+    # Explicit documents without a data root are isolated fixtures. Selected roots
+    # likewise never borrow operation ownership from the installed package.
+    if roles_root is None and supplied_document:
+        return {}
+    root = Path(roles_root) if roles_root is not None else package_data_path('roles')
+    path = root.parent / 'operation_signatures.json'
+    from .operation_registration import read_signatures
+    return read_signatures(path)
+
+
+def load(role_id: str, *, document=None, roles_root=None, _signatures=None) -> dict:
+    supplied_document = document is not None
     document = registry_document(roles_root=roles_root) if document is None else document
     identity = _identity(role_id, document)
     row = document['roles'][identity]
@@ -69,12 +81,20 @@ def load(role_id: str, *, document=None, roles_root=None) -> dict:
         card = row['card']
     if card.get('id') != identity:
         raise ValueError('card identity differs from registry: ' + identity)
-    return deepcopy(card)
+    from .operation_registration import card_operations
+    signatures = (_operation_signatures(roles_root, supplied_document=supplied_document)
+                  if _signatures is None else _signatures)
+    return card_operations(card, signatures)
 
 
 def all_cards(*, document=None, roles_root=None) -> list[dict]:
+    supplied_document = document is not None
+    if document is None and roles_root is None:
+        roles_root = package_data_path('roles')
     document = registry_document(roles_root=roles_root) if document is None else document
-    return [load(identity, document=document, roles_root=roles_root) for identity in sorted(document['roles'])]
+    signatures = _operation_signatures(roles_root, supplied_document=supplied_document)
+    return [load(identity, document=document, roles_root=roles_root, _signatures=signatures)
+            for identity in sorted(document['roles'])]
 
 
 def card_sha256(role_id: str, *, document=None, roles_root=None) -> str:
@@ -104,6 +124,8 @@ def resolve_self_checks(identities):
 
 
 def registry_sha256(*, document=None, roles_root=None):
+    if document is None and roles_root is None:
+        roles_root = package_data_path('roles')
     document = registry_document(roles_root=roles_root) if document is None else document
     return _digest({'registry': document, 'effective_cards': all_cards(document=document, roles_root=roles_root)})
 
@@ -308,6 +330,8 @@ def _source_roles(root):
 
 def validate_registry(document=None, *, root=None, roles_root=None):
     try:
+        if document is None and roles_root is None:
+            roles_root = package_data_path('roles')
         document = registry_document(roles_root=roles_root) if document is None else document
         errors = []
         if set(document) != {'schema_version', 'kind', 'required_roles', 'aliases', 'roles', 'quantity_kinds'} or document['schema_version'] != 1 or document['kind'] != 'role-registry':
@@ -564,6 +588,7 @@ def owned_paths(project):
     roles = project / 'src/ravel/data/roles' if project is not None else package_data_path('roles')
     document = registry_document(roles_root=roles)
     files = {'src/ravel/data/roles/registry.json': roles / 'registry.json'}
+    files['src/ravel/data/operation_signatures.json'] = roles.parent / 'operation_signatures.json'
     files['src/ravel/__init__.py'] = (project / 'src/ravel/__init__.py' if project is not None
                                       else Path(__file__).resolve().parents[1] / '__init__.py')
     for row in document['roles'].values():
@@ -577,7 +602,7 @@ def owned_paths(project):
                 files['src/ravel/data/roles/' + path.relative_to(roles).as_posix()] = path
     for path in (roles / 'schema').rglob('*.json'):
         files['src/ravel/data/roles/' + path.relative_to(roles).as_posix()] = path
-    for name in ('role_registry.py', 'work_order_fidelity.py', 'work_dispatch.py', 'host_guards.py', 'host_hooks.py', 'native_shims.py'):
+    for name in ('role_registry.py', 'operation_registration.py', 'work_order_fidelity.py', 'work_dispatch.py', 'host_guards.py', 'host_hooks.py', 'native_shims.py'):
         files['src/ravel/workflow/' + name] = (project / 'src/ravel/workflow' / name
                                               if project is not None else Path(__file__).parent / name)
     files['src/ravel/data/agent_surface/host_capabilities.json'] = (project / 'src/ravel/data/agent_surface/host_capabilities.json'

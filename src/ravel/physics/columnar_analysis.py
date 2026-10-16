@@ -37,11 +37,12 @@ import argparse
 import json
 import math
 from pathlib import Path
+from ravel.validation import core as validation_core
 
 SCOPE = 'declared_columnar_selection_delivery'
 OUTPUT = 'columnar-analysis'
 TASK_KEYS = {'recipe', 'format', 'inputs', 'normalization'}
-OPTIONAL = {'chunk_size', 'description', 'detector_card', 'analysis_spec'}
+OPTIONAL = {'chunk_size', 'description', 'detector_card', 'analysis_spec', 'generated_sample'}
 MAX_INPUTS = 10_000
 
 def _load_json(path):
@@ -53,25 +54,39 @@ def _load_json(path):
 
 def validate(task):
     """Structural check (no files read)."""
-    if not isinstance(task, dict) or not TASK_KEYS <= set(task) or set(task) - TASK_KEYS - OPTIONAL:
-        raise ValueError(f'columnar-analysis task needs {sorted(TASK_KEYS)} and may add {sorted(OPTIONAL)}')
+    expected_keys = TASK_KEYS | (set(task).intersection(OPTIONAL) if isinstance(task, dict) else set())
+    try:
+        validation_core.closed_object(dict(task) if isinstance(task, dict) else task,
+                                      expected_keys, field='task')
+    except ValueError:
+        validation_core.fail('task', task, f'required {sorted(TASK_KEYS)}, optional {sorted(OPTIONAL)}',
+                             message=f'columnar-analysis task needs {sorted(TASK_KEYS)} and may add {sorted(OPTIONAL)}')
     for key in ('recipe', 'format'):
         if not isinstance(task[key], str) or not task[key].strip():
-            raise ValueError(f'{key} must be a path (or a built-in format name)')
+            validation_core.fail(key, task[key], 'nonempty path or built-in format name',
+                                 message=f'{key} must be a path (or a built-in format name)')
     dataset_input = isinstance(task['inputs'], dict) and set(task['inputs']) == {'dataset'}
     if not dataset_input and (not isinstance(task['inputs'], list) or not 1 <= len(task['inputs']) <= MAX_INPUTS \
             or any(not isinstance(p, str) or not p.strip() for p in task['inputs'])):
-        raise ValueError('inputs must be a nonempty list of event file paths')
+        validation_core.fail('inputs', task['inputs'], f'1 to {MAX_INPUTS} nonempty event file paths',
+                             message='inputs must be a nonempty list of event file paths')
     if not dataset_input and len(set(task['inputs'])) != len(task['inputs']):
-        raise ValueError('an input file is listed twice')
+        validation_core.fail('inputs', task['inputs'], 'each input file once',
+                             message='an input file is listed twice')
     for key in ('detector_card', 'analysis_spec'):
         if key in task and (not isinstance(task[key], str) or not task[key].strip()):
-            raise ValueError(f'{key} must be a path')
+            validation_core.fail(key, task[key], 'nonempty path', message=f'{key} must be a path')
     if not isinstance(task['normalization'], (dict, str)):
-        raise ValueError('normalization must be an object or a path to one')
+        validation_core.fail('normalization', task['normalization'], 'object or path',
+                             message='normalization must be an object or a path to one')
     chunk = task.get('chunk_size', 100_000)
-    if type(chunk) is not int or not 1 <= chunk <= 10_000_000:
-        raise ValueError('chunk_size must be an integer from 1 to 10000000')
+    try:
+        validation_core.finite_number(chunk, field='chunk_size', minimum=1, maximum=10_000_000)
+        if type(chunk) is not int:
+            raise ValueError('integer required')
+    except ValueError:
+        validation_core.fail('chunk_size', chunk, 'integer from 1 to 10000000',
+                             message='chunk_size must be an integer from 1 to 10000000')
 
 
 def _resolve(base, value):
@@ -131,6 +146,10 @@ def compile_task(task, base):
             raise ValueError('remote ROOT inputs require an original pinned dataset membership')
         if normalization == {'mode': 'dataset'}:
             raise ValueError('mode dataset requires pinned dataset inputs')
+    if 'generated_sample' in task:
+        from .event_inference_contract import selection_inputs
+        source, _ = selection_inputs(task, base, plan, normalization, events)
+        files.append(source)
     return plan, normalization, files, events
 
 
@@ -195,6 +214,13 @@ def run(task, base, destination):
     merged = engine.merge(partials)
     out = Path(destination) / OUTPUT
     summary = engine.finalize(merged, plan, normalization, out_dir=out, input_files=events, base=base)
+    quantity_artifacts = {}
+    if 'generated_sample' in task:
+        from .event_inference_contract import selection_outputs
+        pin = selection_outputs(task, base, plan, normalization, events, summary, out)
+        quantity_artifacts[plan.histograms[0].name] = pin
+        summary['files'].append({**pin, 'path': 'quantity-contract.json',
+                                 'size': Path(pin['path']).stat().st_size})
     final = {}
     for variation, regions in summary['cutflows'].items():
         if variation != 'nominal':
@@ -213,6 +239,7 @@ def run(task, base, destination):
                               'variations': h['variations']}
                        for name, h in summary['histograms'].items()},
         'region_yields': final,
+        **({'quantity_artifacts': quantity_artifacts} if quantity_artifacts else {}),
         'specification': None if plan.spec_report is None else {
             'pin': plan.spec_report['specification'], 'sources': plan.spec_report['sources'],
             'assumptions': plan.spec_report['ambiguities']['assumptions'],

@@ -79,13 +79,22 @@ def _barrier(scope, actor):
         return
     deadline = time.monotonic() + 60
     db = Path(scope) / gs.DB
+    thread = gs.thread_id(rb.SEASON_GRAPH, INSTANCE)
+    serde = gs.strict_serializer()
+    siblings = set(ACTORS) - {actor}
     while time.monotonic() < deadline:
         try:
             with sqlite3.connect(str(db)) as connection:
-                rows = connection.execute("SELECT count(*) FROM writes WHERE channel = 'results'").fetchone()[0]
+                rows = connection.execute(
+                    "SELECT type, value FROM writes WHERE channel = 'results' "
+                    "AND thread_id = ? AND checkpoint_ns = ''", (thread,)).fetchall()
         except sqlite3.Error:
-            rows = 0
-        if rows >= len(ACTORS) - 1:
+            rows = []
+        # Child graphs also checkpoint results (including their internal seal).
+        # Only distinct successful parent-map items prove both siblings finished.
+        completed = {key for row in rows for key, value in serde.loads_typed(row).items()
+                     if value.get("outcome") == "ok"}
+        if siblings <= completed:
             os._exit(9)
         time.sleep(0.02)
     raise AssertionError("siblings never checkpointed their sealed writes")
@@ -146,6 +155,50 @@ def mentions(value, word):
 
 
 # ---- acceptance 1: Q3 on the substrate -------------------------------------------------------
+
+@pytest.mark.parametrize("other_write", ["duplicate", "child", "foreign", "failed", "complete"])
+def test_crash_barrier_requires_completed_parent_results_for_each_sibling(run, monkeypatch, other_write):
+    """Several result rows can belong to one sibling; only the parent map join counts."""
+    db = run / gs.DB
+    db.parent.mkdir(parents=True, exist_ok=True)
+    thread = gs.thread_id(rb.SEASON_GRAPH, INSTANCE)
+    serde = gs.strict_serializer()
+    with sqlite3.connect(db) as connection:
+        connection.execute("CREATE TABLE writes (thread_id TEXT, checkpoint_ns TEXT, channel TEXT, type TEXT, value BLOB)")
+
+        def put(who, *, ns="", tid=thread, outcome="ok"):
+            kind, raw = serde.dumps_typed({who: {"outcome": outcome}})
+            connection.execute("INSERT INTO writes VALUES (?, ?, 'results', ?, ?)", (tid, ns, kind, raw))
+
+        put("p0")
+        if other_write == "duplicate":
+            put("p0")
+        elif other_write == "child":
+            put("seal", ns="producers:child")
+        elif other_write == "foreign":
+            put("p1", tid="another-season")
+        else:
+            put("p1", outcome="failed" if other_write == "failed" else "ok")
+    monkeypatch.setenv(CRASH, "p2")
+    clock = iter((0, 0, 61))
+    monkeypatch.setattr(time, "monotonic", lambda: next(clock, 61))
+    monkeypatch.setattr(time, "sleep", lambda _: None)
+
+    class Crashed(Exception):
+        pass
+
+    def crash(code):
+        assert code == 9
+        raise Crashed
+
+    monkeypatch.setattr(os, "_exit", crash)
+    if other_write == "complete":
+        with pytest.raises(Crashed):
+            _barrier(run, "p2")
+    else:
+        with pytest.raises(AssertionError, match="siblings never checkpointed"):
+            _barrier(run, "p2")
+
 
 def test_sealed_season_crash_reruns_only_the_crashed_proposer_without_peer_visibility(run):
     run_crashing(run, "p2", {"input": {"charter": charter_request()}})
