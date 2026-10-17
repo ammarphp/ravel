@@ -352,6 +352,23 @@ def _git_rule(argv, rules):
     return _allowed(f'git-{sub}')
 
 
+def _submit_file_runs_commands(path):
+    """Why a submit file is not a pure inspection: it would run commands while being parsed."""
+    try:
+        if not path.exists():
+            return ''
+        if not path.is_file() or path.stat().st_size > 64 * 1024:
+            return 'the submit file must be an ordinary file of at most 64 KiB'
+        text = path.read_text(errors='replace')
+    except OSError:
+        return 'the submit file cannot be read'
+    # `include : command |` and `queue ... from command |` execute the command during parsing.
+    for line in re.sub(r'\\[ \t]*\r?\n', ' ', text).splitlines():
+        if re.match(r'\s*(?:include\b|queue\b).*\|\s*$', line, re.I):
+            return 'the submit file pipes a command into the parser'
+    return ''
+
+
 def _statement(argv, project, cwd, rules):
     if re.match(r'^[A-Za-z_][A-Za-z0-9_]*=', argv[0]):
         return _refused('environment-prefix', 'an environment assignment before a command')
@@ -379,6 +396,13 @@ def _statement(argv, project, cwd, rules):
         return _snakemake(argv, project, cwd, rules)
     if base == 'ravel':
         return _ravel(argv, rules)
+    if base == 'condor_submit':
+        from .site_profiles.htcondor import validation_only
+        if not validation_only([base, *argv[1:]]):
+            return _refused('condor-submit', 'only condor_submit -dry-run /dev/null <submit-file> is an inspection; '
+                            + ROUTE)
+        why = _submit_file_runs_commands(Path(cwd or project) / argv[3])
+        return _refused('condor-submit', why + '. ' + ROUTE) if why else _allowed('condor-submit-dry-run')
     if base == 'git':
         return _git_rule(argv, rules)
     return _allowed(f'inspect-{base}')

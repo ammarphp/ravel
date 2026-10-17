@@ -14,6 +14,7 @@
     "ravel-snakemake": {"class": "workflow-manager", "skill": "software-snakemake"},
     "ravel": {"class": "workflow-tool", "skill": "software-ravel"},
     "git": {"class": "version-control", "skill": "software-git"},
+    "condor_submit": {"class": "inspection"},
     "ls": {"class": "inspection"},
     "cat": {"class": "inspection"},
     "head": {"class": "inspection"},

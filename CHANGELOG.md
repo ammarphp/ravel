@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.3
+
+Fixes HTCondor submission and Snakemake profile loading.
+
+- HTCondor sites can select their own queue attribute.
+- The generated Snakemake profile loads on Snakemake 9.
+- A refused HTCondor submission keeps its submit file and error. A validation-only dry-run is allowed.
+
 ## 1.2.2
 
 Fixes a race in worker completion.

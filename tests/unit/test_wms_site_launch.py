@@ -278,3 +278,45 @@ def test_site_default_keeps_environment_python_launcher_and_local_default_is_unc
     local.mkdir()
     wms_launch.init(local, audit=audit_files(local))
     assert json.loads((local / 'workflow/project.json').read_text())['python'] == str(launcher.resolve())
+
+
+def test_refused_submission_is_retained_and_exposed_in_launch_receipt(site_project, scheduler, monkeypatch):
+    project = site_project
+    entry = add(project)
+    scheduler[0](code=1, stderr='ERROR: synthetic submit refusal', submit='')
+    def execute(argv, cwd):
+        profile = Path(argv[argv.index('--profile') + 1])
+        scratch = project / 'scheduler-scratch'; scratch.mkdir()
+        script = scratch / 'job.sh'
+        script.write_text('#!/bin/sh\n# properties = {"rule":"task_study","threads":1}\nexit 0\n')
+        try:
+            htcondor.submit(script, profile=json.loads((profile / 'profile.json').read_text()))
+        except ValueError as exc:
+            import shutil
+            shutil.rmtree(scratch)
+            return 1, str(exc)
+        pytest.fail('refused submission succeeded')
+    monkeypatch.setattr(wms_launch, '_execute', execute)
+    receipt = wms_launch.launch(project, 'study')
+    assert receipt['exit_code'] == 1
+    records = receipt['scheduler_submissions']
+    assert len(records) == 1 and 'synthetic submit refusal' in records[0]['error']
+    assert str(Path(entry['rundir']) / 'logs/htcondor-submit') in records[0]['receipt']['path']
+    assert all(Path(pin['path']).is_file() for pin in records[0]['files'])
+    assert 'synthetic submit refusal' in Path(receipt['log']['path']).read_text()
+
+
+@pytest.mark.parametrize('change', ['wrapper-bytes', 'wrapper-mode', 'wrapper-symlink'])
+def test_wrapper_guards_are_preserved(site_project, monkeypatch, change):
+    add(site_project)
+    wrapper = site_project / '.ravel-site/profiles/htcondor/ravel-submit.sh'
+    if change == 'wrapper-bytes':
+        wrapper.write_text('#!/bin/sh\nexit 0\n')
+    elif change == 'wrapper-mode':
+        wrapper.chmod(0o444)
+    else:
+        wrapper.unlink()
+        wrapper.symlink_to(site_project / 'analysis-python')
+    monkeypatch.setattr(wms_launch, '_execute', lambda *a: pytest.fail('changed wrapper started'))
+    with pytest.raises(ValueError):
+        wms_launch.launch(site_project, 'study')

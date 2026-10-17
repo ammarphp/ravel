@@ -924,12 +924,21 @@ shared filesystem with `should_transfer_files = NO`.
 Credential hand-off is opt-in: `use_x509userproxy=true` uses the scheduler's proxy
 selection, or `x509userproxy_env` names the submitter variable containing a proxy
 path. The client passes the path and never reads or copies the credential.
+The exporter writes `ravel-submit.sh` and `ravel-status.sh` beside `config.yaml`.
+The profile references these short filenames so Snakemake 9.x can resolve them as
+profile-local files. The wrappers carry the same encoded options and project id;
+both wrappers join the profile's byte pins and are frozen executable for each launch.
+
 `site_options` is a validated scheduler key/value map. Keys cannot contain spaces
 or `=`; values cannot contain newlines. The map cannot override fixed resource,
 environment, tagging, hold, credential or executable fields under any spelling:
 the submit command, its `+Name` or `MY.Name` job attribute and the scheduler's
 alternate names are refused alike, and `runtime_attribute` cannot name one of
-them. A site `periodic_release` expression must exclude the three hold exemptions
+them. The one syntax distinction is an explicitly declared `"+queue": "\"short\""`
+entry in the site's `site_options`: this writes the custom ClassAd attribute
+`+queue = "short"`. Bare `queue` remains protected submit syntax and RAVEL still
+writes exactly `queue 1`. Other protected fields retain their alias checks.
+A site `periodic_release` expression must exclude the three hold exemptions
 below, or it releases paused jobs. `workflow_dir` selects
 the workflow directory explicitly. `log_dir`, `output_dir` and `error_dir` select
 separate scheduler log, stdout and stderr directories. Their default is
@@ -956,6 +965,38 @@ An absent or unknown job writes its first-missing time to `<id>.missing` in its
 log directory, runs within `missing_grace_seconds` (default 600), then fails;
 an unknown job never succeeds. A known status clears the marker. Scheduler client
 calls have a 20-second timeout.
+
+For each submit attempt, the client retains `job.sub`, `stdout`, `stderr` and
+`receipt.json` under the indexed run's `logs/htcondor-submit/submit-*/` directory.
+An exported standalone profile without an indexed run uses the workflow's
+`.ravel-condor/submissions/` directory. These records survive removal of the
+Snakemake job-script directory. Submit descriptions are limited to 64 KiB;
+stdout and stderr retain up to 64 KiB each with truncation flags in the receipt.
+At 10,000 attempts the client refuses further submissions and asks for escalation,
+without pruning evidence. The governed launch receipt pins new submission records
+and exposes the scheduler exit code and error. A refusal also prints the diagnostic
+and record directory to the agent through the submit command's stderr.
+
+To diagnose a refusal on the site, first read the launch receipt's
+`scheduler_submissions` and the retained `stderr` and `stdout`. Inspect `job.sub`,
+then validate its syntax and expanded job advertisement from the original shared
+workflow directory with:
+
+```bash
+condor_submit -dry-run /dev/null /shared/run/logs/htcondor-submit/submit-EXAMPLE/job.sub
+```
+
+This is validation only and never submits a job. The strict execution guard admits
+exactly this form with `/dev/null` as the dry-run output, one submit-file argument
+and no additional options or macro overrides. It also refuses a submit file larger
+than 64 KiB or one that pipes a command into the parser (`include : command |` or
+`queue ... from command |`), because parsing would then run that command. An explicitly declared site tool
+named `condor_submit` uses the same read-only check when its entire input is
+`{"arguments": ["-dry-run", "/dev/null", "/shared/run/logs/htcondor-submit/submit-EXAMPLE/job.sub"]}`.
+Other forms retain submission approval requirements. A successful dry-run does not
+qualify worker execution, data access or a scientific result. Preserve the failed
+attempt; correct the site declaration through the ordinary governed configuration
+route before retrying.
 
 The theory template
 maps symbolic → numeric → fit to named tasks in a supplied approved site-workflow

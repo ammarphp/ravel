@@ -266,3 +266,38 @@ def test_launch_under_a_strict_policy_has_no_shell_and_refuses_one(cli, monkeypa
     with pytest.raises(cli_worker.LaunchRefused) as refused:
         cli_worker.prepare_launch(cli / 'run', s2, ws2)
     assert refused.value.missing == ['shell']
+
+
+@pytest.mark.parametrize('arguments', [
+    '-terse job.sub', 'job.sub', '-dry-run out.ads job.sub', '-dry-run /dev/null',
+    '-dry-run /dev/null job.sub -queue 2', '-dry-run /dev/null job.sub x=y',
+    '-dry /dev/null job.sub', '-dry-run /dev/null x=y', '-dry-run /dev/null -',
+    '-dry-run /dev/null job.sub > output', '-dry-run /dev/null job.sub; condor_submit job.sub'])
+def test_condor_validation_exception_does_not_allow_submissions(project, arguments):
+    assert not allowed(project, 'condor_submit ' + arguments)['allowed']
+
+
+def test_condor_dry_run_is_allowed_and_mock_never_submits(project, monkeypatch, tmp_path):
+    tool = tmp_path / 'condor_submit'
+    tool.write_text('#!/bin/sh\n[ "$1" = -dry-run ] && [ "$2" = /dev/null ] && [ "$#" = 3 ] || exit 90\nprintf "validated\\n"\n')
+    tool.chmod(0o755)
+    monkeypatch.setenv('PATH', str(tmp_path) + os.pathsep + os.environ['PATH'])
+    command = 'condor_submit -dry-run /dev/null retained.sub'
+    verdict = allowed(project, command)
+    assert verdict['allowed'] and verdict['rule'] == 'condor-submit-dry-run'
+    done = subprocess.run(command.split(), capture_output=True, text=True, check=True)
+    assert done.stdout == 'validated\n'
+
+
+@pytest.mark.parametrize('line', ['include : python generate.py |', 'INCLUDE: ./make-queue.sh |',
+                                  'queue 1 from python rows.py |', 'include : "file.inc"|'])
+def test_condor_dry_run_refuses_submit_files_that_run_commands_while_parsing(project, line):
+    (project / 'job.sub').write_text('universe = vanilla\n' + line + '\nqueue 1\n')
+    assert not allowed(project, 'condor_submit -dry-run /dev/null job.sub', cwd=project)['allowed']
+    (project / 'job.sub').write_text('universe = vanilla\n# include : x |\nqueue 1\n')
+    assert allowed(project, 'condor_submit -dry-run /dev/null job.sub', cwd=project)['allowed']
+
+
+def test_condor_dry_run_refuses_an_oversized_submit_file(project):
+    (project / 'job.sub').write_bytes(b'#' * (64 * 1024 + 1))
+    assert not allowed(project, 'condor_submit -dry-run /dev/null job.sub', cwd=project)['allowed']

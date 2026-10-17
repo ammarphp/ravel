@@ -2381,11 +2381,11 @@
     },
     {
       "public_path": "CHANGELOG.md",
-      "export_sha256": "cbb6b6b95c780beba332943fdb9fc69dd994726369dfc14ae755feb95a1c59a7"
+      "export_sha256": "ee2d4182fa3a4d3fda4cff051b52d3e7f913fd66457387e31a5b83a6410eafeb"
     },
     {
       "public_path": "CITATION.cff",
-      "export_sha256": "d355e77b0775cdea123a1a02012cdc6f656fa817fd0d7eaf3d9abf6f35539f57"
+      "export_sha256": "24016f03f5c21b01fdbe2b3df3d59b8a7b67ba86812aec79ca335ccfcf4eb961"
     },
     {
       "public_path": "CLAUDE.md",
@@ -3673,7 +3673,7 @@
     },
     {
       "public_path": "docs/reference/site-workflows.md",
-      "export_sha256": "b4fc5bac545fb5a35164e249c0f85496d5750457c2ef0fe06536cfe7f661226d"
+      "export_sha256": "971adbebbd656226735db1f6d3a40ab445af241d976dd48e9e4d881528738d90"
     },
     {
       "public_path": "docs/reference/source-calibration.md",
@@ -4473,7 +4473,7 @@
     },
     {
       "public_path": "pyproject.toml",
-      "export_sha256": "43378c3d4c7906ee2c7c0d5d6f1b1ccb952e68586ee9f5805d310d446230546c"
+      "export_sha256": "210c4f1a33852ca0aec1c61af58acbb41349a835ee106ee0ac5aed47c764f004"
     },
     {
       "public_path": "requirements-full.txt",
@@ -4657,7 +4657,7 @@
     },
     {
       "public_path": "src/ravel/data/agent_surface/execution_guard.json",
-      "export_sha256": "6f7750b52587049d201d280ed3938380f7e5f4ee4ff39ededb3a77e57f54c94e"
+      "export_sha256": "fcbf3aeeb57b2eb3972d9f3935ec40ead95ae0f0b6d336a173a6164370cd8a5d"
     },
     {
       "public_path": "src/ravel/data/agent_surface/hooks.json",
@@ -4673,7 +4673,7 @@
     },
     {
       "public_path": "src/ravel/data/agent_surface/software.json",
-      "export_sha256": "2671931ae5ce322965b6c7399e9a9bb1ec2f4ce50fbf2e2507162bd29d0d40ee"
+      "export_sha256": "4fa4de4d8da38db54123dc6d21c800610d0f3e25a4f85a09ba6199a7915bbb20"
     },
     {
       "public_path": "src/ravel/data/agent_surface/surface.json",
@@ -5481,7 +5481,7 @@
     },
     {
       "public_path": "src/ravel/data/knowledge/atlas.json",
-      "export_sha256": "a6175698994f9fc102a173251a4f705fdd0334117b37be753f37715a88312624"
+      "export_sha256": "748c49a488a30dac6e3db636914657d77e414376711f03382153a179e07dc75f"
     },
     {
       "public_path": "src/ravel/data/knowledge/consult_bindings.json",
@@ -6505,7 +6505,7 @@
     },
     {
       "public_path": "src/ravel/data/site_tools/policy.json",
-      "export_sha256": "6ec0d8c5f44bfb14f96b5102c44530e3ee7ca42de9e94406aec8233577affcc9"
+      "export_sha256": "009896f308d4693fefe6b727022337c722cf3a323278402f0563e6e30039b523"
     },
     {
       "public_path": "src/ravel/data/site_tools/policy.schema.json",
@@ -7309,7 +7309,7 @@
     },
     {
       "public_path": "src/ravel/data/workflow/docs/reference/site-workflows.md",
-      "export_sha256": "b4fc5bac545fb5a35164e249c0f85496d5750457c2ef0fe06536cfe7f661226d"
+      "export_sha256": "971adbebbd656226735db1f6d3a40ab445af241d976dd48e9e4d881528738d90"
     },
     {
       "public_path": "src/ravel/data/workflow/docs/reference/source-graph-diagnostics-calibration.md",
@@ -9925,7 +9925,7 @@
     },
     {
       "public_path": "src/ravel/workflow/execution_guard.py",
-      "export_sha256": "41dc365a57934252de044643565d3d51c541a679a6cd776213be230e4a3ae794"
+      "export_sha256": "b98cd145a96e10d07067cb172b8b54c64b185a1a78961f48c4ae041ff1064270"
     },
     {
       "public_path": "src/ravel/workflow/experiment_allocator.py",
@@ -10601,19 +10601,19 @@
     },
     {
       "public_path": "src/ravel/workflow/site_profiles/__init__.py",
-      "export_sha256": "d121bce16b849af6b3fb5090699fe1d19c356bc450c598de18f1bcd7c0b51f1c"
+      "export_sha256": "dd70a1a429e9d5705eb93e9fe50f34656ef9b3608291ecae31a6889fbc28f409"
     },
     {
       "public_path": "src/ravel/workflow/site_profiles/htcondor.py",
-      "export_sha256": "4a279eb8f78ae3da302d3428d7cbc597327c5dc9d42d1321ce9c3eeb4ead2d94"
+      "export_sha256": "072021914bc4f7c33de5e92ce1d12e84b7fab88d115ab07b0e6832b6a2efcb56"
     },
     {
       "public_path": "src/ravel/workflow/site_profiles/options.py",
-      "export_sha256": "676bedfef4937d315edb386f97cf6a640194678a55394b2b47c9ef3340e14d27"
+      "export_sha256": "f8e3f7d7759ed0779e8ecf5fddd1bc23e91a63713eeb8971764ce037bd5de2cf"
     },
     {
       "public_path": "src/ravel/workflow/site_tools.py",
-      "export_sha256": "d695325adffba01fb00ffcd8f1120e8dd8346c98d97b2c37b65e9311e2d7a25c"
+      "export_sha256": "20fed3f366a9970d381cd4158af78b6c2d3b5ab60e7de81ea90bc8f325817e0d"
     },
     {
       "public_path": "src/ravel/workflow/site_workflow.py",
@@ -10765,7 +10765,7 @@
     },
     {
       "public_path": "src/ravel/workflow/wms_launch.py",
-      "export_sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+      "export_sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
     },
     {
       "public_path": "src/ravel/workflow/wms_policy.py",
@@ -10781,7 +10781,7 @@
     },
     {
       "public_path": "src/ravel/workflow/wms_site.py",
-      "export_sha256": "f198e671c45324c965306c4a1d4da0e90e00a648088ca5c5dcddff61c4471db1"
+      "export_sha256": "4574334082427b842b0ce8822b2ccfbb77fc6a9299b4fa3c6a06f34a04e8b423"
     },
     {
       "public_path": "src/ravel/workflow/work_cli.py",
@@ -12909,7 +12909,7 @@
     },
     {
       "public_path": "tests/unit/test_execution_guard.py",
-      "export_sha256": "75d14f14084192944ff17858b1fb2dd3db34f4cfc39bf4be97e525b7cea6d503"
+      "export_sha256": "3e4e5b56fc4f24035aaf9d2af0e3ad729d8eb42245a2a585411f28e5839aa031"
     },
     {
       "public_path": "tests/unit/test_executor_completeness.py",
@@ -13198,6 +13198,10 @@
     {
       "public_path": "tests/unit/test_hs3_likelihood.py",
       "export_sha256": "13ba60925750557559df345a626b62630ad95e47a070c4431d8f777d01f3e28a"
+    },
+    {
+      "public_path": "tests/unit/test_htcondor_profile_loading.py",
+      "export_sha256": "99c49d91227ebe127ff1a280488ed728004a70c32abad1dd9b1eabac3936878a"
     },
     {
       "public_path": "tests/unit/test_hypothesis_board.py",
@@ -14165,7 +14169,7 @@
     },
     {
       "public_path": "tests/unit/test_procedure_export.py",
-      "export_sha256": "b8faa95f561df814a5916d51a4645b89305cc9494a2ddefa4e06c6e11eb06484"
+      "export_sha256": "ccae328201f5302819f1caf117aeed6e8beb6e2a7467619f2ff0b392f87593bd"
     },
     {
       "public_path": "tests/unit/test_process_census.py",
@@ -15445,15 +15449,15 @@
     },
     {
       "public_path": "tests/unit/test_site_profiles.py",
-      "export_sha256": "ce0804e6c8da546f49d5db044679e65ed42c10d105e36ed2c4cd776f14219f4d"
+      "export_sha256": "51d11d45a766bb96d87c496f37e0540b5633faaf03d6c38558acfbee47829c53"
     },
     {
       "public_path": "tests/unit/test_site_tool_admission.py",
-      "export_sha256": "d2d52cd5bfa0aeefc3f8a5fac614021486ea4b74c1be25ca7a98564001c5fc2c"
+      "export_sha256": "52d9a16369bf27ecddb62f07999cf83606a4f0682d622097248b2ca49b36b76f"
     },
     {
       "public_path": "tests/unit/test_site_wms_real.py",
-      "export_sha256": "c098222a40e682c6a9d7b56b5cfb628aa173e6571ebdb462e98649db0ef068f0"
+      "export_sha256": "c436eb379f0c783b389a12baa3c785f3a4cb03d2dc43cec7b16643147c677411"
     },
     {
       "public_path": "tests/unit/test_site_workflow.py",
@@ -16057,7 +16061,7 @@
     },
     {
       "public_path": "tests/unit/test_wms_site_launch.py",
-      "export_sha256": "515be9295eee1990d8552092d2b8444a3d259d303bf5fbe46d21a15268659314"
+      "export_sha256": "43b9a7b6a950619a5ddd604f850324e814ff5cd2d7b9be384ed4f485ec225a5e"
     },
     {
       "public_path": "tests/unit/test_work_dispatch.py",

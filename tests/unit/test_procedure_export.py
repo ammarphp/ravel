@@ -48,7 +48,8 @@ def test_scheduler_labels_and_theory_chain_templates(tmp_path):
     from ravel.workflow.site_profiles import render
     local = render('local', cores=3); condor = render('htcondor', cores=3)
     assert local['config']['cores'] == 3 and condor['config']['executor'] == 'cluster-generic'
-    assert 'ravel-wms-condor-submit' in condor['config']['cluster-generic-submit-cmd']
+    assert condor['config']['cluster-generic-submit-cmd'] == 'ravel-submit.sh'
+    assert 'ravel-wms-condor-submit' in condor['scripts']['ravel-submit.sh']
     assert condor['release_status'] == 'tester-qualification' and not condor['qualified']
     with pytest.raises(ValueError, match='not available in this release'): render('slurm', cores=3)
     with pytest.raises(ValueError): render('local', retries=1)

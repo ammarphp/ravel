@@ -31,9 +31,13 @@ def render(name, *, cores=1, retries=0, jobs=None, options=None, project_id=None
         arguments = ['--options-base64', encoded]
         if project_id is not None:
             arguments += ['--project-id', project_id]
+        profile['scripts'] = {
+            'ravel-' + command + '.sh': '#!/bin/sh\nexec ' + shlex.join(
+                ['ravel-wms-condor-' + command, *arguments]) + ' \"$@\"\n'
+            for command in ('submit', 'status')}
         config.update({'executor': 'cluster-generic',
-                       'cluster-generic-submit-cmd': shlex.join(['ravel-wms-condor-submit', *arguments]),
-                       'cluster-generic-status-cmd': shlex.join(['ravel-wms-condor-status', *arguments]),
+                       'cluster-generic-submit-cmd': 'ravel-submit.sh',
+                       'cluster-generic-status-cmd': 'ravel-status.sh',
                        'cluster-generic-cancel-cmd': 'condor_rm',
                        # One sweep per snapshot interval. The executor applies the
                        # per-second limit to each job's call, and those read the snapshot.
@@ -54,7 +58,7 @@ def render(name, *, cores=1, retries=0, jobs=None, options=None, project_id=None
 
 
 def write_profile(directory, name, *, cores=1, jobs=None, options=None, project_id=None):
-    """Write directory/name and return byte pins for its two configuration files."""
+    """Write directory/name and return byte pins for its configuration and wrapper files."""
     import hashlib
     from pathlib import Path
     import yaml
@@ -63,10 +67,13 @@ def write_profile(directory, name, *, cores=1, jobs=None, options=None, project_
     folder.mkdir(parents=True, exist_ok=True)
     contents = {'config.yaml': '# ' + profile['label'] + '\n' + yaml.safe_dump(profile['config'], sort_keys=True),
                 'profile.json': json.dumps(profile, indent=2, sort_keys=True) + '\n'}
+    contents.update(profile.get('scripts', {}))
     files = []
     for filename, content in contents.items():
         path = folder / filename
         path.write_text(content, encoding='utf-8')
+        if filename.endswith('.sh'):
+            path.chmod(0o755)
         files.append({'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
     return {'path': str(folder), 'files': files, 'profile': profile}
 

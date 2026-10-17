@@ -274,6 +274,14 @@
       "effect": "file-write",
       "source": "docs/reference/host-enforcement.md",
       "note": "Generic example for a server with separate read and effect operations; review actual tool semantics before adapting."
+    },
+    {
+      "server": "ravel-site-example",
+      "tool": "condor_submit",
+      "classification": "effectful",
+      "effect": "job-submit",
+      "source": "docs/reference/site-workflows.md",
+      "note": "Only arguments=[-dry-run, /dev/null, submit-file] is validation only; the argument-aware rule admits that exact form as read-only. All other calls require submission approval."
     }
   ]
 }

@@ -58,7 +58,7 @@ def refresh_checkin(rundir):
     atomic_json(rd / "inputs/checkin1.json", with_registered_sections(document, rd, context={"rundir": rd, "spec": spec}))
 
 
-def classify(tool_name, *, document=None):
+def classify(tool_name, *, document=None, tool_input=None):
     """Server/tool globs; any effectful match wins; no match is effectful."""
     doc = policy() if document is None else _validate(document, "policy")
     parts = tool_name.split("__", 2)
@@ -67,6 +67,16 @@ def classify(tool_name, *, document=None):
         matches = [row for row in doc["rules"] if fnmatchcase(parts[1], row["server"])
                    and fnmatchcase(parts[2], row["tool"])]
     effects = sorted({row["effect"] for row in matches if row["classification"] == "effectful"})
+    # A declared condor_submit tool can validate, but its name alone never grants admission.
+    # Keep every non-submission effect dominant and reject unknown argument shapes.
+    if (len(parts) == 3 and parts[2] == 'condor_submit'
+            and any(row['tool'] == 'condor_submit' for row in matches)
+            and effects == ['job-submit'] and type(tool_input) is dict
+            and set(tool_input) == {'arguments'}):
+        from .site_profiles.htcondor import validation_only
+        arguments = tool_input['arguments']
+        if isinstance(arguments, list) and validation_only(['condor_submit', *arguments]):
+            return {'classification': 'read-only', 'effects': []}
     if effects:
         return {"classification": "effectful", "effects": effects}
     if matches:
@@ -95,7 +105,7 @@ def check(data, *, project, rundir=None):
         raise ValueError("site tool call must use mcp__<server>__<tool>")
     call_sha = input_digest(data.get("tool_input", {}))
     result = {"schema_version": 1, "kind": "site-tool-verdict", "tool_name": name,
-              "tool_input_sha256": call_sha, **classify(name), "decision": "allow",
+              "tool_input_sha256": call_sha, **classify(name, tool_input=data.get("tool_input", {})), "decision": "allow",
               "errors": [], "approval_sha256": None}
     if result["classification"] == "read-only":
         return result

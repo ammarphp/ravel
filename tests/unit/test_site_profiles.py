@@ -28,6 +28,9 @@ with pathlib.Path({str(calls)!r}).open('a') as out:
 data = json.loads(pathlib.Path({str(fixture)!r}).read_text())
 name = pathlib.Path(sys.argv[0]).name
 print(data[{{'condor_submit':'submit','condor_q':'queue','condor_history':'history'}}[name]], end='')
+if name == 'condor_submit':
+    print(data.get('stderr', ''), end='', file=sys.stderr)
+    raise SystemExit(data.get('code', 0))
 '''
     for name in ('condor_submit', 'condor_q', 'condor_history'):
         tool = folder / name; tool.write_text(code); tool.chmod(0o755)
@@ -98,7 +101,7 @@ def test_verify_rule_and_resource_defaults(tmp_path, scheduler):
     {'site_options': {'+RequestCpus':'99'}}, {'site_options': {'+Iwd':'"/elsewhere"'}},
     {'site_options': {'+Cmd':'"/bin/true"'}}, {'site_options': {'+JobBatchName':'"other"'}},
     {'runtime_attribute':'+PeriodicRemove'}, {'runtime_attribute':'+Periodic_Remove'},
-    {'runtime_attribute':'+RequestMemory'}])
+    {'runtime_attribute':'+RequestMemory'}, {'runtime_attribute':'+queue'}])
 def test_unsafe_options_refused(tmp_path, scheduler, options):
     with pytest.raises(ValueError):
         hc.submit(job(tmp_path), profile=profile(tmp_path, **options))
@@ -242,9 +245,9 @@ def test_separate_shared_log_directories_and_environment(tmp_path, scheduler, mo
 
 def test_console_commands_release_status_and_rate():
     p = render('htcondor', project_id='project-a')
-    assert shlex.split(p['config']['cluster-generic-submit-cmd'])[0] == 'ravel-wms-condor-submit'
-    assert shlex.split(p['config']['cluster-generic-status-cmd'])[0] == 'ravel-wms-condor-status'
-    assert '--project-id project-a' in p['config']['cluster-generic-status-cmd']
+    assert p['config']['cluster-generic-submit-cmd'] == 'ravel-submit.sh'
+    assert p['config']['cluster-generic-status-cmd'] == 'ravel-status.sh'
+    assert '--project-id project-a' in p['scripts']['ravel-status.sh']
     assert p['release_status'] == 'tester-qualification' and p['qualified'] is False
     assert 'awaits site qualification' in p['label']
     # One sweep per snapshot interval; per-job calls inside a sweep read the snapshot
@@ -277,7 +280,7 @@ def test_slurm_withheld_and_writer_pins(tmp_path):
     assert Path(result['path']).is_dir()
     for row in result['files']:
         assert hashlib.sha256(Path(row['path']).read_bytes()).hexdigest() == row['sha256']
-    assert {Path(r['path']).name for r in result['files']} == {'config.yaml','profile.json'}
+    assert {Path(r['path']).name for r in result['files']} == {'config.yaml','profile.json','ravel-submit.sh','ravel-status.sh'}
 
 
 @pytest.mark.parametrize('project_id', ['bad/name', 'bad name', '', 'x'*65, 'bad\nname'])
@@ -297,18 +300,25 @@ def test_real_cluster_generic_profile_requires_executor_plugin():
 
 
 def test_rendered_commands_accept_workflow_formatting_and_relocation(tmp_path, scheduler):
-    p = profile(tmp_path)
+    from ravel.workflow.site_profiles import write_profile
+    import shutil
+    p = profile(tmp_path, status_cache_seconds=45, site_options={'+queue': '"short"'})
+    exported = write_profile(tmp_path / 'original', 'htcondor', project_id=p['project_id'], options=p['options'])
+    relocated = tmp_path / 'relocated profile'
+    shutil.move(exported['path'], relocated)
     script = job(tmp_path)
-    # The executor formats command templates before appending the job script/id.
-    for key, entry, target in [('cluster-generic-submit-cmd', 'submit_main', str(script)),
-                               ('cluster-generic-status-cmd', 'status_main', '12.0')]:
-        command = p['config'][key].format(jobid='12.0')
-        tool = tmp_path / 'bin' / shlex.split(command)[0]
+    for key, entry, target, command in [
+            ('cluster-generic-submit-cmd', 'submit_main', str(script), 'submit'),
+            ('cluster-generic-status-cmd', 'status_main', '12.0', 'status')]:
+        tool = tmp_path / 'bin' / ('ravel-wms-condor-' + command)
         tool.write_text(f'#!{sys.executable}\nfrom ravel.workflow.site_profiles.htcondor import {entry}\nraise SystemExit({entry}())\n')
         tool.chmod(0o755)
-        result = subprocess.run([*shlex.split(command), target], capture_output=True, text=True)
+        wrapper = relocated / p['config'][key].format(jobid='12.0')
+        result = subprocess.run([str(wrapper), target], capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
-    assert descriptor(tmp_path)
+    assert '+queue = "short"' in descriptor(tmp_path)
+    index = json.loads((tmp_path / '.ravel-condor/project-project-a.jobs.json').read_text())
+    assert index['options'] == p['options']
 
 
 def test_batch_name_and_maximum_length_tags(tmp_path, scheduler):
@@ -384,3 +394,109 @@ def test_scheduler_instructions_and_packaged_scripts():
     scripts = tomllib.loads((project / 'pyproject.toml').read_text())['project']['scripts']
     assert scripts['ravel-wms-condor-submit'] == 'ravel.workflow.site_profiles.htcondor:submit_main'
     assert scripts['ravel-wms-condor-status'] == 'ravel.workflow.site_profiles.htcondor:status_main'
+
+
+@pytest.mark.parametrize('key', ['+queue', '+Queue', '+QUEUE'])
+def test_declared_custom_queue_attribute(tmp_path, scheduler, key):
+    hc.submit(job(tmp_path), profile=profile(tmp_path, site_options={key: '"short"'}))
+    text = descriptor(tmp_path)
+    assert key + ' = "short"' in text
+    assert text.splitlines()[-1] == 'queue 1'
+
+
+@pytest.mark.parametrize('key', ['queue', 'QUEUE', 'MY.Queue', 'que_ue', '+que_ue', '+Executable',
+                               '+Environment', '+RequestCpus', '+RavelPause'])
+def test_queue_statement_and_other_protected_fields_stay_protected(tmp_path, scheduler, key):
+    with pytest.raises(ValueError):
+        hc.submit(job(tmp_path), profile=profile(tmp_path, site_options={key: '"short"'}))
+    assert scheduler[1]() == []
+
+
+@pytest.mark.parametrize('code,stderr,stdout', [(0, 'warning retained', '12.0\n'),
+    (1, 'ERROR: rejected submit policy', ''), (0, '', 'invalid response')])
+def test_kept_submit_diagnostics_survive_scratch_cleanup(tmp_path, scheduler, code, stderr, stdout):
+    scheduler[0](code=code, stderr=stderr, submit=stdout)
+    scratch = tmp_path / 'scratch'; scratch.mkdir()
+    script = job(scratch)
+    p = profile(tmp_path)
+    if code or stdout == 'invalid response':
+        with pytest.raises(ValueError, match=stderr or 'invalid response'):
+            hc.submit(script, profile=p)
+    else:
+        assert hc.submit(script, profile=p) == '12.0'
+    import shutil
+    shutil.rmtree(scratch)
+    receipt = next((tmp_path / '.ravel-condor/submissions').glob('submit-*/receipt.json'))
+    record = json.loads(receipt.read_text())
+    assert Path(record['submit_file']).read_text().endswith('queue 1\n')
+    assert Path(record['stdout']).read_text() == stdout
+    assert Path(record['stderr']).read_text() == stderr
+    assert record['exit_code'] == code
+    assert bool(record['error']) == (code != 0 or stdout == 'invalid response')
+
+
+def test_submit_diagnostics_are_bounded_and_attempts_are_never_overwritten(tmp_path, scheduler):
+    scheduler[0](code=1, stderr='ERROR: refused\n' + 'x' * (hc.RECORD_LIMIT * 2))
+    for _ in range(2):
+        with pytest.raises(ValueError, match='ERROR: refused'):
+            hc.submit(job(tmp_path), profile=profile(tmp_path))
+    records = list((tmp_path / '.ravel-condor/submissions').glob('submit-*/receipt.json'))
+    assert len(records) == 2
+    for path in records:
+        record = json.loads(path.read_text())
+        assert record['truncated']['stderr'] is True
+        assert Path(record['stderr']).stat().st_size == hc.RECORD_LIMIT
+
+
+def test_record_budget_refuses_before_submission(tmp_path, scheduler, monkeypatch):
+    monkeypatch.setattr(hc, 'MAX_SUBMIT_RECORDS', 1)
+    hc.submit(job(tmp_path), profile=profile(tmp_path))
+    with pytest.raises(ValueError, match='record limit'):
+        hc.submit(job(tmp_path), profile=profile(tmp_path))
+    assert len(scheduler[1]()) == 1
+
+
+
+def test_submit_cli_surfaces_refusal_and_record_path(tmp_path, scheduler, capsys):
+    scheduler[0](code=1, stderr='ERROR: diagnostic for agent', submit='')
+    with pytest.raises(SystemExit) as exc:
+        hc.submit_main(['--options-json', json.dumps(profile(tmp_path)['options']), str(job(tmp_path))])
+    assert exc.value.code == 1
+    output = capsys.readouterr()
+    assert not output.out
+    assert 'diagnostic for agent' in output.err and 'submit records:' in output.err
+
+
+def test_large_warning_does_not_turn_success_into_refusal(tmp_path, scheduler):
+    scheduler[0](stderr='warning ' * hc.RECORD_LIMIT)
+    assert hc.submit(job(tmp_path), profile=profile(tmp_path)) == '12.0'
+    receipt = next((tmp_path / '.ravel-condor/submissions').glob('submit-*/receipt.json'))
+    record = json.loads(receipt.read_text())
+    assert record['truncated']['stderr'] and record['error'] is None
+
+
+def test_missing_submit_executable_keeps_descriptor_and_error(tmp_path, scheduler):
+    (tmp_path / 'bin/condor_submit').unlink()
+    with pytest.raises(ValueError, match='condor_submit failed'):
+        hc.submit(job(tmp_path), profile=profile(tmp_path))
+    receipt = next((tmp_path / '.ravel-condor/submissions').glob('submit-*/receipt.json'))
+    record = json.loads(receipt.read_text())
+    assert record['exit_code'] is None and 'No such file' in record['error']
+    assert Path(record['submit_file']).is_file()
+
+
+def test_timeout_keeps_submit_record(tmp_path, scheduler, monkeypatch):
+    ticks = iter((0, 21))
+    monkeypatch.setattr(hc.time, 'monotonic', lambda: next(ticks, 21))
+    with pytest.raises(ValueError, match='timed out'):
+        hc.submit(job(tmp_path), profile=profile(tmp_path))
+    receipt = next((tmp_path / '.ravel-condor/submissions').glob('submit-*/receipt.json'))
+    record = json.loads(receipt.read_text())
+    assert record['error'] and Path(record['submit_file']).is_file()
+    assert all(Path(record[name]).is_file() for name in ('stdout', 'stderr'))
+
+
+def test_oversized_submit_description_refuses_before_scheduler(tmp_path, scheduler):
+    with pytest.raises(ValueError, match='64 KiB'):
+        hc.submit(job(tmp_path), profile=profile(tmp_path, site_options={'+SiteText': 'x' * hc.RECORD_LIMIT}))
+    assert scheduler[1]() == []

@@ -226,3 +226,20 @@ def test_failed_observation_reports_without_content(tmp_path):
     assert result.returncode == 2
     assert 'synthetic-private-value' not in result.stderr
     assert (tmp_path / 'logs/hook-failures.log').read_text() == 'site-tool observation unavailable\n'
+
+
+def test_condor_submit_validation_only_arguments_are_read_only(tmp_path):
+    data = call('condor_submit', arguments=['-dry-run', '/dev/null', 'kept/job.sub'])
+    result = site_tools.check(data, project=tmp_path)
+    assert result['decision'] == 'allow' and result['classification'] == 'read-only'
+    assert site_tools.classify(data['tool_name'])['classification'] == 'effectful'
+    for arguments in ([], ['job.sub'], ['-terse', 'job.sub'], ['-dry-run', 'out', 'job.sub'],
+                      ['-dry-run', '/dev/null', 'job.sub', '-queue', '2'],
+                      ['-dry-run', '/dev/null', 'x=y'], '-dry-run /dev/null job.sub'):
+        assert site_tools.check(call('condor_submit', arguments=arguments), project=tmp_path)['decision'] == 'deny'
+    assert site_tools.check({**data, 'tool_input': {**data['tool_input'], 'submit': True}}, project=tmp_path)['decision'] == 'deny'
+    assert site_tools.check({**data, 'tool_name': 'mcp__unknown__condor_submit'}, project=tmp_path)['decision'] == 'deny'
+    doc = site_tools.policy()
+    doc['rules'].append({'server': 'ravel-site-example', 'tool': 'condor_submit', 'classification': 'effectful',
+                         'effect': 'file-write', 'source': 'synthetic', 'note': 'additional effect'})
+    assert site_tools.classify(data['tool_name'], document=doc, tool_input=data['tool_input'])['classification'] == 'effectful'

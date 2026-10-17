@@ -34,6 +34,11 @@ def _field(key):
 FIXED = {_field(k) for k in (*RESERVED, *ALIASES)}
 
 
+def protected(key):
+    # Queue is submit syntax, not a job attribute. All other aliases stay protected.
+    return _field(key) in FIXED and not re.fullmatch(r'\+queue', key, re.IGNORECASE)
+
+
 def identifier(value, label):
     if not isinstance(value, str) or not IDENTIFIER.fullmatch(value):
         raise ValueError(label + ' must match [A-Za-z0-9_.-]{1,64}')
@@ -82,9 +87,8 @@ def normalize(options=None):
     site = result['site_options']
     if not isinstance(site, dict):
         raise ValueError('site_options must be a key/value map')
-    fixed = FIXED | {_field(attr)}
     for key, value in site.items():
-        if not isinstance(key, str) or not KEY.fullmatch(key) or _field(key) in fixed:
+        if not isinstance(key, str) or not KEY.fullmatch(key) or protected(key) or _field(key) == _field(attr):
             raise ValueError('site options cannot override fixed fields and require plain keys')
         if type(value) not in (str, int):
             raise ValueError('site option values must be strings or integers')

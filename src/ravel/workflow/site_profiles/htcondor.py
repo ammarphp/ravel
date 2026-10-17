@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import subprocess
 import tempfile
 import time
@@ -16,6 +17,8 @@ import time
 from .options import identifier, normalize, single_line, unpack, workflow_dir
 
 JOB_ID = re.compile(r'[0-9]+\.[0-9]+\Z')
+RECORD_LIMIT = 64 * 1024
+MAX_SUBMIT_RECORDS = 10000
 FIELDS = ['ClusterId', 'ProcId', 'JobStatus', 'ExitCode', 'HoldReasonCode', 'RavelPause']
 
 
@@ -38,6 +41,79 @@ def _invoke(argv):
     if done.returncode:
         raise ValueError('HTCondor command failed: ' + argv[0])
     return done.stdout.strip()
+
+
+def validation_only(argv):
+    """Only the non-submitting form, with no overrides and no output file writes."""
+    return (isinstance(argv, list) and len(argv) == 4 and argv[0] == 'condor_submit'
+            and argv[1:3] == ['-dry-run', '/dev/null']
+            and isinstance(argv[3], str) and bool(argv[3]) and not argv[3].startswith('-')
+            and not any(c in argv[3] for c in '=\n\r\x00$`'))
+
+
+def submission_records(options, task=None):
+    """Keep governed submissions in the task run, outside scheduler scratch state."""
+    wf = workflow_dir(options)
+    if task is not None and (wf / 'index.json').is_file():
+        rows = json.loads((wf / 'index.json').read_text())['tasks']
+        matches = [row for row in rows if row['id'] == task]
+        if len(matches) != 1:
+            raise ValueError('submission task must resolve to one indexed run')
+        return Path(matches[0]['rundir']) / 'logs' / 'htcondor-submit'
+    return wf / '.ravel-condor' / 'submissions'
+
+
+def _submit_invoke(descriptor, record_dir):
+    """Drain both pipes while retaining at most 64 KiB each, including on timeout."""
+    argv = ['condor_submit', '-terse', str(descriptor)]
+    buffers = {'stdout': bytearray(), 'stderr': bytearray()}
+    truncated = dict.fromkeys(buffers, False)
+    error, code = None, None
+    try:
+        with subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              stdin=subprocess.DEVNULL) as proc:
+            try:
+                with selectors.DefaultSelector() as selector:
+                    selector.register(proc.stdout, selectors.EVENT_READ, 'stdout')
+                    selector.register(proc.stderr, selectors.EVENT_READ, 'stderr')
+                    deadline = time.monotonic() + 20
+                    while selector.get_map():
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            raise subprocess.TimeoutExpired(argv, 20)
+                        for key, _ in selector.select(min(remaining, .1)):
+                            chunk = os.read(key.fileobj.fileno(), 8192)
+                            if not chunk:
+                                selector.unregister(key.fileobj)
+                                continue
+                            name = key.data
+                            available = RECORD_LIMIT - len(buffers[name])
+                            buffers[name].extend(chunk[:available])
+                            truncated[name] |= len(chunk) > available
+                code = proc.wait(timeout=max(.001, deadline - time.monotonic()))
+            except BaseException:
+                proc.kill()
+                proc.wait()
+                raise
+    except (OSError, subprocess.SubprocessError) as exc:
+        error = str(exc)[:RECORD_LIMIT]
+    for name, content in buffers.items():
+        (record_dir / name).write_bytes(content)
+    stdout = buffers['stdout'].decode(errors='replace').strip()
+    stderr = buffers['stderr'].decode(errors='replace').strip()
+    valid = re.fullmatch(r'([0-9]+\.[0-9]+)(?: - \1)?', stdout)
+    if code != 0 or error or not valid or truncated['stdout']:
+        error = (error or (stderr or stdout)[:4096] or 'no diagnostic output')
+        error = ('condor_submit failed (exit ' + str(code) + '): ' + error
+                 if code != 0 else 'invalid condor_submit response: ' + error)
+    record = {'schema_version': 1, 'argv': argv, 'exit_code': code, 'error': error,
+              'job_id': valid.group(1) if valid and not error else None,
+              'truncated': truncated, 'submit_file': str(descriptor),
+              'stdout': str(record_dir / 'stdout'), 'stderr': str(record_dir / 'stderr')}
+    _atomic_json(record_dir / 'receipt.json', record)
+    if error:
+        raise ValueError(error + '; submit records: ' + str(record_dir))
+    return record['job_id']
 
 
 def _quote(value):
@@ -141,7 +217,6 @@ def submit(jobscript, *, profile=None):
     output = _directory(options, 'output_dir', directory)
     error = _directory(options, 'error_dir', directory)
     stem = hashlib.sha256(str(jobscript).encode()).hexdigest()
-    descriptor = directory / (stem + '.sub')
     lines = ['universe = vanilla', 'executable = /bin/sh',
              'arguments = ' + _quote("'" + str(jobscript).replace("'", "''") + "'"),
              'initialdir = ' + _quote(str(workflow_dir(options))), 'request_cpus = ' + str(threads),
@@ -172,12 +247,24 @@ def submit(jobscript, *, profile=None):
     lines.append('queue 1')
     for folder in (directory, output, error):
         folder.mkdir(parents=True, exist_ok=True)
-    descriptor.write_text('\n'.join(lines) + '\n')
-    result = _invoke(['condor_submit', '-terse', str(descriptor)])
-    match = re.fullmatch(r'([0-9]+\.[0-9]+)(?: - \1)?', result)
-    if not match:
-        raise ValueError('one exact HTCondor job id required')
-    job_id = match.group(1)
+    content = ('\n'.join(lines) + '\n').encode()
+    if len(content) > RECORD_LIMIT:
+        raise ValueError('submit description exceeds 64 KiB record limit')
+    record_task = tags[0] if tags else None
+    if record_task is None and (workflow_dir(options) / 'index.json').is_file():
+        match = re.fullmatch(r'(?:task_|ravel_verify_)([A-Za-z0-9_.-]{1,64})', properties.get('rule', ''))
+        if not match:
+            raise ValueError('indexed submission must identify its task run')
+        record_task = match.group(1)
+    records = submission_records(options, record_task)
+    # Reserve under the existing project lock; never prune evidence to make room.
+    with _lock(records, project):
+        if sum(p.is_dir() for p in records.iterdir()) >= MAX_SUBMIT_RECORDS:
+            raise ValueError('submit record limit reached; preserve records and escalate')
+        attempt = Path(tempfile.mkdtemp(prefix='submit-', dir=records))
+    descriptor = attempt / 'job.sub'
+    descriptor.write_bytes(content)
+    job_id = _submit_invoke(descriptor, attempt)
     state_dir = workflow_dir(options) / '.ravel-condor'
     with _lock(state_dir, project) as key:
         index_path = state_dir / (key + '.jobs.json')

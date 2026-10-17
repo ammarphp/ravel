@@ -12698,7 +12698,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -12710,7 +12710,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -12722,7 +12722,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -12734,7 +12734,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -12746,7 +12746,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -12758,7 +12758,7 @@
       "links": {},
       "source": {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       },
       "status": "registered",
       "summary": "workflow-manager-first projects: init, add an approved run as a Snakemake rule, launch it through run-step, status; adopt an external Snakefile",
@@ -14750,7 +14750,7 @@
       "links": {},
       "source": {
         "path": "docs/reference/site-workflows.md",
-        "sha256": "b4fc5bac545fb5a35164e249c0f85496d5750457c2ef0fe06536cfe7f661226d"
+        "sha256": "971adbebbd656226735db1f6d3a40ab445af241d976dd48e9e4d881528738d90"
       },
       "status": "registered",
       "summary": "Packaged workflow instruction",
@@ -53662,7 +53662,7 @@
       },
       {
         "path": "docs/reference/site-workflows.md",
-        "sha256": "b4fc5bac545fb5a35164e249c0f85496d5750457c2ef0fe06536cfe7f661226d"
+        "sha256": "971adbebbd656226735db1f6d3a40ab445af241d976dd48e9e4d881528738d90"
       },
       {
         "path": "docs/reference/source-graph-diagnostics-calibration.md",
@@ -55046,7 +55046,7 @@
       },
       {
         "path": "src/ravel/data/workflow/docs/reference/site-workflows.md",
-        "sha256": "b4fc5bac545fb5a35164e249c0f85496d5750457c2ef0fe06536cfe7f661226d"
+        "sha256": "971adbebbd656226735db1f6d3a40ab445af241d976dd48e9e4d881528738d90"
       },
       {
         "path": "src/ravel/data/workflow/docs/reference/source-graph-diagnostics-calibration.md",
@@ -56566,7 +56566,7 @@
       },
       {
         "path": "src/ravel/workflow/wms_launch.py",
-        "sha256": "fecec8a4f84e7df1b71c5e568763dac1f937c11f43fa838c517824ce4fe0b727"
+        "sha256": "1a59bbebb26864448ad758bc9e3874509d17e174e15737100dd7f5eb2eeacc78"
       }
     ]
   },

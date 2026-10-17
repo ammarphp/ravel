@@ -13,12 +13,14 @@ def profile_pin(folder):
     """Pin the complete profile directory, including its exact member roster."""
     folder = Path(folder)
     core.require(folder.is_dir() and not folder.is_symlink(), 'ordinary site profile directory required')
-    core.require({p.name for p in folder.iterdir()} == {'config.yaml', 'profile.json'},
+    core.require({p.name for p in folder.iterdir()} == {'config.yaml', 'profile.json', 'ravel-submit.sh', 'ravel-status.sh'},
                  'site profile members changed')
     files = []
-    for name in ('config.yaml', 'profile.json'):
+    for name in ('config.yaml', 'profile.json', 'ravel-submit.sh', 'ravel-status.sh'):
         path = folder / name
         core.require(path.is_file() and not path.is_symlink(), 'ordinary site profile files required')
+        if name.endswith('.sh'):
+            core.require(os.access(path, os.X_OK), 'site profile wrapper must be executable')
         files.append(site_workflow._pin(path))
     digest = hashlib.sha256(json.dumps(
         [{k: v for k, v in row.items() if k != 'path'} | {'name': Path(row['path']).name} for row in files],
@@ -83,7 +85,7 @@ def freeze(project, site, task, number):
     for row in site['profile']['files']:
         target = folder / Path(row['path']).name
         shutil.copyfile(row['path'], target)
-        target.chmod(0o444)
+        target.chmod(0o555 if target.suffix == '.sh' else 0o444)
     pin = profile_pin(folder)
     core.require(pin['sha256'] == site['profile']['sha256'], 'site profile changed while freezing launch')
     return pin

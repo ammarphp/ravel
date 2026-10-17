@@ -30,7 +30,7 @@
     "xrdcp": {"purpose": "Copy a file from a remote XRootD server inside a data-staging stage.", "commands": [], "version_args": ["--version"]},
     "xrdfs": {"purpose": "List and stat remote XRootD paths inside a data-staging stage.", "commands": []},
     "rucio": {"purpose": "Grid data-management command line: dataset and replica queries.", "commands": [], "version_args": ["--version"]},
-    "condor_submit": {"purpose": "Submit a batch job on an HTCondor site; used by the site execution backend only.", "commands": []},
+    "condor_submit": {"purpose": "Submit a batch job through the site execution backend; inspect retained submit files directly with validation only.", "commands": ["condor_submit -dry-run /dev/null <submit-file>"]},
     "condor_q": {"purpose": "Query HTCondor job state for the site execution backend.", "commands": [], "version_args": ["-version"]},
     "apptainer": {"purpose": "Run a stage inside a container image on a site without root.", "commands": [], "version_args": ["--version"]},
     "pdfinfo": {"purpose": "Report page count and fonts of a produced PDF figure.", "commands": [], "version_args": ["-v"]},

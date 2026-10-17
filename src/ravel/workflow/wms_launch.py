@@ -417,6 +417,12 @@ def launch(project, task, cores=1, *, jobs=None):
                         'remote_ceiling': config['wms']['remote_ceiling'],
                         'shared_state_root': site['shared_state_root'], 'shim': site['shim'],
                         'lease_scope': site['lease_scope'], 'batch_slot_dir_env': site['batch_slot_dir_env']})
+    submit_before = set()
+    submit_roots = []
+    if site:
+        submit_roots = [Path(row['rundir']) / 'logs' / 'htcondor-submit'
+                        for row in json.loads(index_raw)['tasks'] if row['id'] in authorized]
+        submit_before = {p for root in submit_roots for p in root.glob('submit-*/receipt.json')}
     start = _utc()
     governed = {'argv': argv, 'site_profile': site_profile, 'jobs': jobs, 'parse_inputs': parse} if site else {}
     with log_stream, wms_policy.launch_authorization(wf, task, number, authorized, **governed):
@@ -443,6 +449,13 @@ def launch(project, task, cores=1, *, jobs=None):
                'completion_marker': None, 'dispatch_records': [], 'snakemake_locks_present_during_step': [],
                'log': site_workflow._pin(folder / f'{number:06d}.log'), 'incomplete': None,
                'records': 'delivery only', 'scientific_acceptance_inferred': False}
+    if site:
+        receipt['scheduler_submissions'] = []
+        for path in sorted({p for root in submit_roots for p in root.glob('submit-*/receipt.json')} - submit_before):
+            record = _read(path)
+            receipt['scheduler_submissions'].append({
+                'receipt': site_workflow._pin(path), 'exit_code': record['exit_code'], 'error': record['error'],
+                'files': [site_workflow._pin(record[name]) for name in ('submit_file', 'stdout', 'stderr')]})
     receipt['workflow_bindings'] = [
         {'task': row['id'], **row['workflow_binding']} for row in json.loads(index_raw)['tasks']
         if row['id'] in authorized and 'workflow_binding' in row]
